@@ -1,23 +1,19 @@
-# WordPress "Sane Defaults" Reference
+# Keel — WordPress Defaults Reference
 
 A menu of default settings that can be applied to just about any WordPress install to
 tighten security, trim attack surface, clean up UX, and shave weight off the front end.
 
-Each item lists a suggested **option key** (using a `keel_` prefix for the WPYEG workshop
-plugin), a recommended **default value**, a short **description**, and a **code snippet** you
-can drop into a plugin, an mu-plugin, or a theme's `functions.php`.
+Each item lists Keel's **option key**, its **default value**, a short **description**, and a
+**code snippet** showing the WordPress behaviour behind that setting. Keel wires every one of
+these behind an individual toggle under **Settings → Keel**.
 
-> Built for the **WPYEG — Edmonton WordPress Meetup** hands-on workshop. The companion
-> `keel` plugin wires every one of these behind a toggle.
-
-**How to read this:** the option key/default columns assume these are user-toggleable
-settings. The snippet under each item is the "on" behavior — the code that runs when the
-default is active. In a real plugin you'd wrap each snippet in a
-`get_option( 'keel_...' ) === 'yes'` check so site owners can flip it. Snippets are shown
-unwrapped for clarity.
+**How to read this:** the snippet under each item is the "on" behaviour — the code that runs
+when the default is active. Keel stores all settings as one array option (`keel_settings`) and
+reads each key through `keel_defaults_get( 'key' )` / `keel_defaults_enabled( 'key' )`, so each
+snippet effectively runs behind that check. Snippets are shown unwrapped for clarity.
 
 A few items are flagged **plugin-specific** — they have no stable WordPress core equivalent
-and depend on your own plugin's logic.
+and depend on Keel's own logic.
 
 ---
 
@@ -127,10 +123,10 @@ pingbacks are also directly callable and do not depend on it. See
 ```php
 add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
     if ( 'yes' === get_option( 'keel_block_xmlrpc_endpoint', 'no' ) ) {
-        return 'Wpyeg_Blocked_XMLRPC_Server';     // serve_request() → 403 for everything
+        return 'Keel_Blocked_XMLRPC_Server';     // serve_request() → 403 for everything
     }
     if ( 'yes' !== get_option( 'keel_xmlrpc_allow_multicall', 'no' ) ) {
-        return 'Wpyeg_Multicall_Disabled_Server'; // extends wp_xmlrpc_server, overrides multiCall() → IXR_Error
+        return 'Keel_Multicall_Disabled_Server'; // extends wp_xmlrpc_server, overrides multiCall() → IXR_Error
     }
     return $class;
 } );
@@ -144,7 +140,7 @@ add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
 > A plugin-level 403 still boots WordPress and occupies PHP; only an edge block prevents the request
 > from reaching PHP. See [Jetpack's current requirements](https://jetpack.com/support/getting-started-with-jetpack/).
 > **`demo.*`:** the inert `demo.sayHello`/`demo.addTwoNumbers` methods still confirm XML-RPC is
-> live to a scanner, so the companion plugin always drops them — no toggle:
+> live to a scanner, so Keel always drops them — no toggle:
 > `unset( $methods['demo.sayHello'], $methods['demo.addTwoNumbers'] )`.
 
 ### Application Passwords — leave available (don't reflexively disable)
@@ -167,8 +163,8 @@ add_filter( 'wp_is_application_passwords_available', function ( $available ) {
     return 'yes' === get_option( 'keel_disable_application_passwords', 'no' ) ? false : $available;
 } );
 ```
-> **Note:** they authenticate REST/XML-RPC without the login form, so a 2FA companion never
-> challenges them. That's a real trade — but it's core behavior, and the alternatives are worse.
+> **Note:** they authenticate REST/XML-RPC without the login form, so a two-factor plugin never
+> challenges them. That's a real trade — but it's core behaviour, and the alternatives are worse.
 > Use core's `wp_is_application_passwords_available_for_user` filter to withhold them per account
 > (e.g. from human 2FA accounts) if that gap matters.
 
@@ -208,7 +204,7 @@ function keel_enforce_strong_password( $errors, $update, $user ) {
     }
 }
 ```
-> **Note:** the companion plugin ships a working `keel_password_is_pwned()`. It queries the Have
+> **Note:** Keel ships a working `keel_password_is_pwned()`. It queries the Have
 > I Been Pwned range API by k-anonymity (only the first 5 SHA-1 characters leave the site, never
 > the password), requests `Add-Padding` and ignores the padded count-0 rows, caches each prefix
 > for a few hours, and **fails open** when HIBP is unreachable so an outage can't block password
@@ -245,8 +241,8 @@ add_action( 'admin_init', function () {
 ```
 
 > **Note:** core also honours a `WP_AI_SUPPORT` constant, which a deployment can set to
-> `false` in `wp-config.php` to hard-lock the disabled posture above the plugin layer. The
-> workshop plugin additionally fires a `keel_disable_ai_connectors` action as a seam for AI
+> `false` in `wp-config.php` to hard-lock the disabled posture above the plugin layer. Keel
+> additionally fires a `keel_disable_ai_connectors` action as a seam for AI
 > integrations core does not know about (a plugin's own provider, say).
 
 ---
@@ -519,7 +515,7 @@ if ( in_array( $behavior, array( 'remove_logo', 'unlink_logo', 'replace_logo' ),
 *(`keel_core_update_policy`, default `minor`)*
 
 The default enables in-branch maintenance and security releases (`x.y.z`) while leaving major
-core releases (`x.y`) for a tested agency rollout. The settings screen can also allow every
+core releases (`x.y`) for a tested rollout. The settings screen can also allow every
 stable release, make core updates manual, or leave the decision unchanged.
 
 ```php
