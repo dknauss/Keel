@@ -40,106 +40,115 @@ function keel_defaults_schema() {
 	$schema = array(
 
 		// --- Security ---------------------------------------------------
-		'restrict_rest_user_discovery' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'REST user discovery',
+		'restrict_rest_user_discovery'    => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'REST user discovery',
 			'statement' => 'Hide users from anonymous REST requests',
-			'help'    => 'Hides <code>/wp/v2/users</code> from logged-out requests (stops username enumeration).',
+			'help'      => 'Hides <code>/wp/v2/users</code> from logged-out requests (stops username enumeration).',
 		),
-		'disable_rest' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'REST authentication',
+		'disable_rest'                    => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'REST authentication',
 			'statement' => 'Require authentication for all REST requests',
-			'help'    => 'Blocks anonymous REST entirely. The logged-in block editor still works, but public blocks, embeds, search, and integrations may not.',
+			'help'      => 'Blocks anonymous REST entirely. The logged-in block editor still works, but public blocks, embeds, search, and integrations may not.',
 		),
-		'xmlrpc_allow_pingbacks' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'XML-RPC pingbacks',
+		'xmlrpc_allow_pingbacks'          => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'XML-RPC pingbacks',
 			'statement' => 'Accept incoming pingbacks',
-			'help'    => 'OFF (default) removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.',
-			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
+			'help'      => 'OFF (default) removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.',
+			'depends'   => array(
+				'field'     => 'block_xmlrpc_endpoint',
+				'hide_when' => 'yes',
+			),
 		),
-		'xmlrpc_allow_remote_publishing' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'XML-RPC remote publishing',
+		'xmlrpc_allow_remote_publishing'  => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'XML-RPC remote publishing',
 			'statement' => 'Allow remote publishing (blogging apps)',
-			'help'    => 'OFF (default) removes credential-authenticated wp.*/metaWeblog/MT/blogger methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
-			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
+			'help'      => 'OFF (default) removes credential-authenticated wp.*/metaWeblog/MT/blogger methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
+			'depends'   => array(
+				'field'     => 'block_xmlrpc_endpoint',
+				'hide_when' => 'yes',
+			),
 		),
-		'xmlrpc_allow_multicall' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'XML-RPC multicall',
+		'xmlrpc_allow_multicall'          => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'XML-RPC multicall',
 			'statement' => 'Allow system.multicall',
-			'help'    => 'OFF (default) refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
-			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
+			'help'      => 'OFF (default) refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
+			'depends'   => array(
+				'field'     => 'block_xmlrpc_endpoint',
+				'hide_when' => 'yes',
+			),
 		),
-		'block_xmlrpc_endpoint' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'XML-RPC endpoint',
+		'block_xmlrpc_endpoint'           => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'XML-RPC endpoint',
 			'statement' => 'Block the endpoint entirely (returns 403)',
-			'help'    => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
+			'help'      => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
 		),
-		'disable_application_passwords' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'Application Passwords',
+		'disable_application_passwords'   => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'Application Passwords',
 			'statement' => 'Prohibit application passwords',
-			'help'    => 'OFF (default) keeps them available — separate, revocable integration credentials for REST and XML-RPC. They inherit the owning user\'s access and bypass interactive 2FA, so use a least-privileged account.',
+			'help'      => 'OFF (default) keeps them available — separate, revocable integration credentials for REST and XML-RPC. They inherit the owning user\'s access and bypass interactive 2FA, so use a least-privileged account.',
 		),
-		'require_strong_passwords' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'Password strength',
+		'require_strong_passwords'        => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'Password strength',
 			'statement' => 'Require strong passwords',
-			'help'    => 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the <code>keel_weak_roles</code> filter.',
+			'help'      => 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the <code>keel_weak_roles</code> filter.',
 		),
 		'limit_unfiltered_html_to_admins' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'Unfiltered HTML',
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'Unfiltered HTML',
 			'statement' => 'Limit raw HTML and JavaScript to Administrators',
-			'help'    => 'Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
+			'help'      => 'Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
 		),
-		'reserved_usernames' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'Reserved usernames',
+		'reserved_usernames'              => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'Reserved usernames',
 			'statement' => 'Reserve common and system usernames',
-			'help'    => 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter.',
+			'help'      => 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter.',
 		),
-		'remove_version' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'Version fingerprint',
+		'remove_version'                  => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'Version fingerprint',
 			'statement' => 'Remove the WordPress version fingerprint',
-			'help'    => 'Strips the generator meta tag. Obscurity, not hardening: it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds. Off by default — patch instead. Turn on if you want the noise reduction.',
+			'help'      => 'Strips the generator meta tag. Obscurity, not hardening: it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds. Off by default — patch instead. Turn on if you want the noise reduction.',
 		),
-		'security_headers' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'Security headers',
+		'security_headers'                => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'Security headers',
 			'statement' => 'Send baseline security headers',
-			'help'    => '<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten.',
+			'help'      => '<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten.',
 		),
-		'frame_options' => array(
+		'frame_options'                   => array(
 			'default' => 'SAMEORIGIN',
 			'type'    => 'select',
 			'group'   => 'security',
@@ -151,17 +160,17 @@ function keel_defaults_schema() {
 				''           => 'Leave unchanged (host/CDN sets it, or the site is embedded elsewhere)',
 			),
 		),
-		'disable_ai_connectors' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-			'label'   => 'AI connectors',
+		'disable_ai_connectors'           => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'security',
+			'label'     => 'AI connectors',
 			'statement' => 'Disable AI provider connectors',
-			'help'    => 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.',
+			'help'      => 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.',
 		),
 
 		// --- Updates ----------------------------------------------------
-		'core_update_policy' => array(
+		'core_update_policy'              => array(
 			'default' => 'minor',
 			'type'    => 'select',
 			'group'   => 'updates',
@@ -174,133 +183,133 @@ function keel_defaults_schema() {
 				'inherit' => 'Leave unchanged (WordPress, host, or another plugin decides)',
 			),
 		),
-		'auto_update_translations' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'updates',
-			'label'   => 'Translations',
+		'auto_update_translations'        => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'updates',
+			'label'     => 'Translations',
 			'statement' => 'Automatically update translation files',
-			'help'    => 'Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress\'s individual per-item choices.',
+			'help'      => 'Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress\'s individual per-item choices.',
 		),
 
 		// --- Content & public surfaces ---------------------------------
-		'disable_comments' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Comments',
+		'disable_comments'                => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Comments',
 			'statement' => 'Disable comments, trackbacks, and pingbacks',
-			'help'    => 'Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds.',
+			'help'      => 'Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds.',
 		),
-		'disable_pingbacks' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Default ping status',
+		'disable_pingbacks'               => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Default ping status',
 			'statement' => 'Close pings on new content by default',
-			'help'    => 'Sets the "allow pingbacks" default to off for newly created content.',
+			'help'      => 'Sets the "allow pingbacks" default to off for newly created content.',
 		),
-		'disable_self_pingbacks' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Self-pingbacks',
+		'disable_self_pingbacks'          => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Self-pingbacks',
 			'statement' => 'Disable self-pingbacks',
-			'help'    => 'Stops internal links from generating pingback noise.',
+			'help'      => 'Stops internal links from generating pingback noise.',
 		),
-		'disable_author_archives' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Author archives',
+		'disable_author_archives'         => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Author archives',
 			'statement' => 'Disable public author archives',
-			'help'    => 'Redirects /author/{slug}/ to home (another enumeration + thin-content fix).',
+			'help'      => 'Redirects /author/{slug}/ to home (another enumeration + thin-content fix).',
 		),
-		'redirect_attachment_pages' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Attachment pages',
+		'redirect_attachment_pages'       => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Attachment pages',
 			'statement' => 'Redirect attachment pages to the parent post',
-			'help'    => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides attachment.php or image.php, since that theme meant to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
+			'help'      => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides attachment.php or image.php, since that theme meant to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
 		),
-		'disable_emojis' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Emoji script',
+		'disable_emojis'                  => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Emoji script',
 			'statement' => 'Disable the emoji detection script',
-			'help'    => 'Removes the emoji detection script + inline CSS from every page.',
+			'help'      => 'Removes the emoji detection script + inline CSS from every page.',
 		),
-		'disable_post_passwords' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'content',
-			'label'   => 'Post passwords',
+		'disable_post_passwords'          => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'content',
+			'label'     => 'Post passwords',
 			'statement' => 'Hide post password protection in the editor',
-			'help'    => 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default. Hides editor UI only — re-check after major WordPress editor changes.',
+			'help'      => 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default. Hides editor UI only — re-check after major WordPress editor changes.',
 		),
 
 		// --- Editor ----------------------------------------------------
-		'force_classic_editor' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'editor',
-			'label'   => 'Classic editor',
+		'force_classic_editor'            => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'editor',
+			'label'     => 'Classic editor',
 			'statement' => 'Force the Classic editor',
-			'help'    => 'Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default.',
+			'help'      => 'Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default.',
 		),
 
 		// --- Media -----------------------------------------------------
-		'lowercase_upload_filenames' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'media',
-			'label'   => 'Upload filenames',
+		'lowercase_upload_filenames'      => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'media',
+			'label'     => 'Upload filenames',
 			'statement' => 'Lowercase new upload filenames',
-			'help'    => 'Lowercases new upload filenames, avoiding case-sensitivity surprises when files move between local/staging (case-insensitive) and Linux production (case-sensitive). On by default; only affects new uploads.',
+			'help'      => 'Lowercases new upload filenames, avoiding case-sensitivity surprises when files move between local/staging (case-insensitive) and Linux production (case-sensitive). On by default; only affects new uploads.',
 		),
-		'media_sizes_panel' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'media',
-			'label'   => 'Image sizes',
+		'media_sizes_panel'               => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'media',
+			'label'     => 'Image sizes',
 			'statement' => 'Show generated image sizes on attachments',
-			'help'    => 'Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default.',
+			'help'      => 'Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default.',
 		),
 
 		// --- Email -----------------------------------------------------
-		'mail_failure_notice' => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'email',
-			'label'   => 'Email deliverability',
+		'mail_failure_notice'             => array(
+			'default'   => 'yes',
+			'type'      => 'toggle',
+			'group'     => 'email',
+			'label'     => 'Email deliverability',
 			'statement' => 'Warn when site email looks broken',
-			'help'    => 'Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress\'s misleading "success" notice. On by default.',
+			'help'      => 'Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress\'s misleading "success" notice. On by default.',
 		),
 
 		// --- Admin & front-end UX --------------------------------------
-		'title_only_admin_search' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'ux',
-			'label'   => 'Admin search',
+		'title_only_admin_search'         => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'ux',
+			'label'     => 'Admin search',
 			'statement' => 'Search titles only in admin list tables',
-			'help'    => 'Speeds up admin list-table search on big sites by matching titles only.',
+			'help'      => 'Speeds up admin list-table search on big sites by matching titles only.',
 		),
-		'frontend_admin_bar_behavior' => array(
+		'frontend_admin_bar_behavior'     => array(
 			'default' => '',
 			'type'    => 'select',
 			'group'   => 'ux',
 			'label'   => 'Front-End Admin Bar',
 			'help'    => 'Control the floating admin bar on the front of the site.',
 			'choices' => array(
-				''               => 'Leave unchanged (WordPress default)',
+				''                => 'Leave unchanged (WordPress default)',
 				'hide_non_admins' => 'Hide for non-admins',
 				'hide_all'        => 'Hide for everyone',
 			),
 		),
-		'admin_menu_width' => array(
+		'admin_menu_width'                => array(
 			'default' => 'default',
 			'type'    => 'range',
 			'group'   => 'ux',
@@ -311,41 +320,44 @@ function keel_defaults_schema() {
 			'values'  => array( 'default', '200', '240', '280', '300' ),
 			'labels'  => array( 'WordPress default (160px)', '200px', '240px', '280px', '300px' ),
 		),
-		'helper_list_columns' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'ux',
-			'label'   => 'Admin list columns',
+		'helper_list_columns'             => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'ux',
+			'label'     => 'Admin list columns',
 			'statement' => 'Add helper columns to admin list tables',
-			'help'    => 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.',
+			'help'      => 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.',
 		),
-		'environment_indicator' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'ux',
-			'label'   => 'Environment indicator',
+		'environment_indicator'           => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'ux',
+			'label'     => 'Environment indicator',
 			'statement' => 'Show the current environment in the admin bar',
-			'help'    => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type</code>() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
+			'help'      => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type</code>() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
 		),
 
 		// --- Login & sessions ------------------------------------------
-		'disable_remember_me' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'login',
-			'label'   => 'Remember Me',
+		'disable_remember_me'             => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'login',
+			'label'     => 'Remember Me',
 			'statement' => 'Disable Remember Me and remove the login checkbox',
-			'help'    => 'Hides the checkbox and caps sessions short. Good for shared/kiosk machines.',
+			'help'      => 'Hides the checkbox and caps sessions short. Good for shared/kiosk machines.',
 		),
-		'remember_me_days' => array(
+		'remember_me_days'                => array(
 			'default' => 5,
 			'type'    => 'number',
 			'group'   => 'login',
 			'label'   => 'Remember Me Length (Days)',
 			'help'    => 'Caps the persistent session. Core default is 14. Set 0 to leave core alone.',
-			'depends' => array( 'field' => 'disable_remember_me', 'hide_when' => 'yes' ),
+			'depends' => array(
+				'field'     => 'disable_remember_me',
+				'hide_when' => 'yes',
+			),
 		),
-		'session_regular_hours' => array(
+		'session_regular_hours'           => array(
 			'default' => 0,
 			'type'    => 'number',
 			'group'   => 'login',
@@ -354,7 +366,7 @@ function keel_defaults_schema() {
 		),
 
 		// --- Branding ---------------------------------------------------
-		'login_logo_behavior' => array(
+		'login_logo_behavior'             => array(
 			'default' => 'keep_default',
 			'type'    => 'select',
 			'group'   => 'branding',
@@ -369,13 +381,13 @@ function keel_defaults_schema() {
 		),
 
 		// --- Performance ------------------------------------------------
-		'throttle_heartbeat' => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'performance',
-			'label'   => 'Heartbeat API',
+		'throttle_heartbeat'              => array(
+			'default'   => 'no',
+			'type'      => 'toggle',
+			'group'     => 'performance',
+			'label'     => 'Heartbeat API',
 			'statement' => 'Throttle the Heartbeat API',
-			'help'    => 'Slows admin polling to 60s and drops it on the dashboard home.',
+			'help'      => 'Slows admin polling to 60s and drops it on the dashboard home.',
 		),
 	);
 
@@ -551,16 +563,73 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
  */
 function keel_reserved_usernames_list() {
 	$reserved = array(
-		'abuse', 'access', 'admin', 'administrator', 'backup', 'billing', 'blog',
-		'business', 'client', 'compliance', 'contact', 'data', 'demo', 'devnull',
-		'dns', 'doctor', 'ftp', 'guest', 'hostmaster', 'info', 'information',
-		'inoc', 'internet', 'ispfeedback', 'ispsupport', 'list', 'list-request',
-		'login', 'maildaemon', 'manager', 'marketing', 'master', 'mysql', 'noc',
-		'no-reply', 'noreply', 'null', 'number', 'office', 'pass', 'password',
-		'phish', 'phishing', 'postmaster', 'privacy', 'public', 'registrar', 'root',
-		'sales', 'security', 'server', 'service', 'spam', 'sql', 'support',
-		'sysadmin', 'tech', 'test', 'tester', 'undisclosed-recipients',
-		'unsubscribe', 'user', 'user2', 'username', 'usenet', 'uucp', 'webmaster',
+		'abuse',
+		'access',
+		'admin',
+		'administrator',
+		'backup',
+		'billing',
+		'blog',
+		'business',
+		'client',
+		'compliance',
+		'contact',
+		'data',
+		'demo',
+		'devnull',
+		'dns',
+		'doctor',
+		'ftp',
+		'guest',
+		'hostmaster',
+		'info',
+		'information',
+		'inoc',
+		'internet',
+		'ispfeedback',
+		'ispsupport',
+		'list',
+		'list-request',
+		'login',
+		'maildaemon',
+		'manager',
+		'marketing',
+		'master',
+		'mysql',
+		'noc',
+		'no-reply',
+		'noreply',
+		'null',
+		'number',
+		'office',
+		'pass',
+		'password',
+		'phish',
+		'phishing',
+		'postmaster',
+		'privacy',
+		'public',
+		'registrar',
+		'root',
+		'sales',
+		'security',
+		'server',
+		'service',
+		'spam',
+		'sql',
+		'support',
+		'sysadmin',
+		'tech',
+		'test',
+		'tester',
+		'undisclosed-recipients',
+		'unsubscribe',
+		'user',
+		'user2',
+		'username',
+		'usenet',
+		'uucp',
+		'webmaster',
 		'www',
 	);
 
@@ -1486,7 +1555,8 @@ function keel_defaults_site_health_posture() {
 	);
 }
 
-/* =======================================================================
+/*
+=======================================================================
  * BOOTSTRAP — wire each enabled policy to its hook.
  * ===================================================================== */
 
@@ -1516,13 +1586,16 @@ function keel_defaults_bootstrap() {
 	/* ----- Security ----- */
 
 	if ( keel_defaults_enabled( 'restrict_rest_user_discovery' ) ) {
-		add_filter( 'rest_endpoints', function ( $endpoints ) {
-			if ( ! is_user_logged_in() ) {
-				unset( $endpoints['/wp/v2/users'] );
-				unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+		add_filter(
+			'rest_endpoints',
+			function ( $endpoints ) {
+				if ( ! is_user_logged_in() ) {
+					unset( $endpoints['/wp/v2/users'] );
+					unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+				}
+				return $endpoints;
 			}
-			return $endpoints;
-		} );
+		);
 	}
 
 	if ( keel_defaults_enabled( 'disable_rest' ) ) {
@@ -1536,39 +1609,49 @@ function keel_defaults_bootstrap() {
 	 * system.multicall and a full endpoint block need a server-class swap,
 	 * because IXR re-adds multicall after the filter runs.
 	 */
-	add_filter( 'xmlrpc_methods', function ( $methods ) {
-		// demo.* are inert core test methods with no legitimate use. Always drop
-		// them (no toggle) so a locked-down endpoint stops answering scanner
-		// probes like demo.sayHello with a cheerful "Hello!".
-		unset( $methods['demo.sayHello'], $methods['demo.addTwoNumbers'] );
+	add_filter(
+		'xmlrpc_methods',
+		function ( $methods ) {
+			// demo.* are inert core test methods with no legitimate use. Always drop
+			// them (no toggle) so a locked-down endpoint stops answering scanner
+			// probes like demo.sayHello with a cheerful "Hello!".
+			unset( $methods['demo.sayHello'], $methods['demo.addTwoNumbers'] );
 
-		if ( ! keel_defaults_enabled( 'xmlrpc_allow_pingbacks' ) ) {
-			unset( $methods['pingback.ping'], $methods['pingback.extensions.getPingbacks'] );
-		}
-		if ( ! keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ) ) {
-			foreach ( array_keys( $methods ) as $name ) {
-				if ( preg_match( '/^(wp|metaWeblog|mt|blogger)\./', (string) $name ) ) {
-					unset( $methods[ $name ] );
+			if ( ! keel_defaults_enabled( 'xmlrpc_allow_pingbacks' ) ) {
+				unset( $methods['pingback.ping'], $methods['pingback.extensions.getPingbacks'] );
+			}
+			if ( ! keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ) ) {
+				foreach ( array_keys( $methods ) as $name ) {
+					if ( preg_match( '/^(wp|metaWeblog|mt|blogger)\./', (string) $name ) ) {
+						unset( $methods[ $name ] );
+					}
 				}
 			}
-		}
-		return $methods;
-	}, PHP_INT_MAX );
+			return $methods;
+		},
+		PHP_INT_MAX
+	);
 
 	// Disable core methods that require authentication when remote publishing is
 	// off. Despite its name, xmlrpc_enabled does not disable the endpoint,
 	// pingbacks, or custom unauthenticated methods.
-	add_filter( 'xmlrpc_enabled', function ( $enabled ) {
-		return keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ) ? $enabled : false;
-	} );
+	add_filter(
+		'xmlrpc_enabled',
+		function ( $enabled ) {
+			return keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ) ? $enabled : false;
+		}
+	);
 
 	// Strip the pingback discovery header when pingbacks are off.
-	add_filter( 'wp_headers', function ( $headers ) {
-		if ( ! keel_defaults_enabled( 'xmlrpc_allow_pingbacks' ) ) {
-			unset( $headers['X-Pingback'] );
+	add_filter(
+		'wp_headers',
+		function ( $headers ) {
+			if ( ! keel_defaults_enabled( 'xmlrpc_allow_pingbacks' ) ) {
+				unset( $headers['X-Pingback'] );
+			}
+			return $headers;
 		}
-		return $headers;
-	} );
+	);
 
 	// Drop the RSD link (blogging-client discovery) when remote publishing is off.
 	if ( ! keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ) ) {
@@ -1580,38 +1663,41 @@ function keel_defaults_bootstrap() {
 	 * runs from xmlrpc.php, where the parent wp_xmlrpc_server is already loaded,
 	 * so extending it at plugin-load time (on every ordinary request) is avoided.
 	 */
-	add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
-		if ( keel_defaults_enabled( 'block_xmlrpc_endpoint' ) ) {
-			if ( ! class_exists( 'Keel_Blocked_XMLRPC_Server' ) ) {
-				class Keel_Blocked_XMLRPC_Server {
-					public function serve_request() {
-						status_header( 403 );
-						exit( 'XML-RPC services are disabled on this site.' );
+	add_filter(
+		'wp_xmlrpc_server_class',
+		function ( $class ) {
+			if ( keel_defaults_enabled( 'block_xmlrpc_endpoint' ) ) {
+				if ( ! class_exists( 'Keel_Blocked_XMLRPC_Server' ) ) {
+					class Keel_Blocked_XMLRPC_Server {
+						public function serve_request() {
+							status_header( 403 );
+							exit( 'XML-RPC services are disabled on this site.' );
+						}
 					}
 				}
+				return 'Keel_Blocked_XMLRPC_Server';
 			}
-			return 'Keel_Blocked_XMLRPC_Server';
-		}
 
-		if ( ! keel_defaults_enabled( 'xmlrpc_allow_multicall' ) ) {
-			if ( ! class_exists( 'Keel_Multicall_Disabled_Server' ) ) {
-				/*
-				 * WordPress 4.4 stopped testing credentials after the first failed
-				 * authentication in one XML-RPC request. Refusing multicall is now
-				 * modest defense-in-depth against general batching, not a fix for
-				 * the obsolete "thousands of password guesses" claim.
-				 */
-				class Keel_Multicall_Disabled_Server extends wp_xmlrpc_server {
-					public function multiCall( $methodcalls ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Overrides a core method name.
-						return new IXR_Error( 405, 'system.multicall is disabled on this site.' );
+			if ( ! keel_defaults_enabled( 'xmlrpc_allow_multicall' ) ) {
+				if ( ! class_exists( 'Keel_Multicall_Disabled_Server' ) ) {
+					/*
+					 * WordPress 4.4 stopped testing credentials after the first failed
+					 * authentication in one XML-RPC request. Refusing multicall is now
+					 * modest defense-in-depth against general batching, not a fix for
+					 * the obsolete "thousands of password guesses" claim.
+					 */
+					class Keel_Multicall_Disabled_Server extends wp_xmlrpc_server {
+						public function multiCall( $methodcalls ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Overrides a core method name.
+							return new IXR_Error( 405, 'system.multicall is disabled on this site.' );
+						}
 					}
 				}
+				return 'Keel_Multicall_Disabled_Server';
 			}
-			return 'Keel_Multicall_Disabled_Server';
-		}
 
-		return $class;
-	} );
+			return $class;
+		}
+	);
 
 	if ( keel_defaults_enabled( 'disable_application_passwords' ) ) {
 		add_filter( 'wp_is_application_passwords_available', '__return_false' );
@@ -1693,110 +1779,140 @@ function keel_defaults_bootstrap() {
 		add_filter( 'pings_open', '__return_false', 20 );
 		add_filter( 'comments_array', '__return_empty_array', 20 );
 
-		add_action( 'init', function () {
-			foreach ( get_post_types() as $type ) {
-				if ( post_type_supports( $type, 'comments' ) ) {
-					remove_post_type_support( $type, 'comments' );
-					remove_post_type_support( $type, 'trackbacks' );
+		add_action(
+			'init',
+			function () {
+				foreach ( get_post_types() as $type ) {
+					if ( post_type_supports( $type, 'comments' ) ) {
+						remove_post_type_support( $type, 'comments' );
+						remove_post_type_support( $type, 'trackbacks' );
+					}
 				}
 			}
-		} );
+		);
 
-		add_action( 'admin_menu', function () {
-			remove_menu_page( 'edit-comments.php' );
-		} );
-
-		add_action( 'wp_before_admin_bar_render', function () {
-			global $wp_admin_bar;
-			if ( $wp_admin_bar ) {
-				$wp_admin_bar->remove_node( 'comments' );
+		add_action(
+			'admin_menu',
+			function () {
+				remove_menu_page( 'edit-comments.php' );
 			}
-		} );
+		);
+
+		add_action(
+			'wp_before_admin_bar_render',
+			function () {
+				global $wp_admin_bar;
+				if ( $wp_admin_bar ) {
+					$wp_admin_bar->remove_node( 'comments' );
+				}
+			}
+		);
 
 		// New content defaults to comments closed, not just filtered closed.
-		add_filter( 'get_default_comment_status', function () {
-			return 'closed';
-		} );
+		add_filter(
+			'get_default_comment_status',
+			function () {
+				return 'closed';
+			}
+		);
 
 		// Drop the comment feeds from the head and feed-link markup.
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
 		add_filter( 'feed_links_extra_show_post_comments_feed', '__return_false' );
 
 		// Remove the "Recent Comments" dashboard widget.
-		add_action( 'wp_dashboard_setup', function () {
-			remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
-		} );
+		add_action(
+			'wp_dashboard_setup',
+			function () {
+				remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
+			}
+		);
 	}
 
 	if ( keel_defaults_enabled( 'disable_pingbacks' ) ) {
 		add_filter( 'pre_option_default_pingback_flag', '__return_zero' );
-		add_filter( 'pre_option_default_ping_status', function () {
-			return 'closed';
-		} );
+		add_filter(
+			'pre_option_default_ping_status',
+			function () {
+				return 'closed';
+			}
+		);
 	}
 
 	if ( keel_defaults_enabled( 'disable_self_pingbacks' ) ) {
-		add_action( 'pre_ping', function ( &$links ) {
-			$home = home_url();
-			foreach ( (array) $links as $key => $link ) {
-				if ( 0 === strpos( $link, $home ) ) {
-					unset( $links[ $key ] );
+		add_action(
+			'pre_ping',
+			function ( &$links ) {
+				$home = home_url();
+				foreach ( (array) $links as $key => $link ) {
+					if ( 0 === strpos( $link, $home ) ) {
+						unset( $links[ $key ] );
+					}
 				}
 			}
-		} );
+		);
 	}
 
 	if ( keel_defaults_enabled( 'disable_author_archives' ) ) {
-		add_action( 'template_redirect', function () {
-			if ( is_author() ) {
-				wp_safe_redirect( home_url( '/' ), 301 );
-				exit;
+		add_action(
+			'template_redirect',
+			function () {
+				if ( is_author() ) {
+					wp_safe_redirect( home_url( '/' ), 301 );
+					exit;
+				}
 			}
-		} );
+		);
 	}
 
 	if ( keel_defaults_enabled( 'redirect_attachment_pages' ) ) {
-		add_action( 'template_redirect', function () {
-			if ( ! is_attachment() ) {
-				return;
-			}
-
-			$target = keel_defaults_attachment_redirect_target( get_queried_object_id() );
-
-			if ( '' === $target ) {
-				return; // Nothing better to offer — let WordPress render the page.
-			}
-
-			// wp_safe_redirect() bounces to wp-admin when the host is not on the
-			// allowlist, which offloaded media (S3, a CDN) would trigger. Allow
-			// this one host rather than dumping visitors on the dashboard.
-			add_filter(
-				'allowed_redirect_hosts',
-				function ( $hosts ) use ( $target ) {
-					$host = wp_parse_url( $target, PHP_URL_HOST );
-					if ( $host ) {
-						$hosts[] = $host;
-					}
-					return $hosts;
+		add_action(
+			'template_redirect',
+			function () {
+				if ( ! is_attachment() ) {
+					return;
 				}
-			);
 
-			wp_safe_redirect( $target, 301 );
-			exit;
-		} );
+				$target = keel_defaults_attachment_redirect_target( get_queried_object_id() );
+
+				if ( '' === $target ) {
+					return; // Nothing better to offer — let WordPress render the page.
+				}
+
+				// wp_safe_redirect() bounces to wp-admin when the host is not on the
+				// allowlist, which offloaded media (S3, a CDN) would trigger. Allow
+				// this one host rather than dumping visitors on the dashboard.
+				add_filter(
+					'allowed_redirect_hosts',
+					function ( $hosts ) use ( $target ) {
+						$host = wp_parse_url( $target, PHP_URL_HOST );
+						if ( $host ) {
+							$hosts[] = $host;
+						}
+						return $hosts;
+					}
+				);
+
+				wp_safe_redirect( $target, 301 );
+				exit;
+			}
+		);
 	}
 
 	if ( keel_defaults_enabled( 'disable_emojis' ) ) {
-		add_action( 'init', function () {
-			remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-			remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-			remove_action( 'wp_print_styles', 'print_emoji_styles' );
-			remove_action( 'admin_print_styles', 'print_emoji_styles' );
-			remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
-			remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
-			remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
-			add_filter( 'emoji_svg_url', '__return_false' );
-		} );
+		add_action(
+			'init',
+			function () {
+				remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+				remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
+				remove_action( 'wp_print_styles', 'print_emoji_styles' );
+				remove_action( 'admin_print_styles', 'print_emoji_styles' );
+				remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+				remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+				remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+				add_filter( 'emoji_svg_url', '__return_false' );
+			}
+		);
 	}
 
 	if ( keel_defaults_enabled( 'disable_post_passwords' ) ) {
@@ -1816,21 +1932,29 @@ function keel_defaults_bootstrap() {
 		// post_search_columns filter (WP 6.2+) keeps core's term parsing,
 		// -exclusions, and the logged-out post_password guard intact — the
 		// blunt posts_search rewrite throws all of that away.
-		add_filter( 'post_search_columns', function ( $columns, $search, $query ) {
-			if ( is_admin() && $query->is_main_query() ) {
-				return array( 'post_title' );
-			}
-			return $columns;
-		}, 10, 3 );
+		add_filter(
+			'post_search_columns',
+			function ( $columns, $search, $query ) {
+				if ( is_admin() && $query->is_main_query() ) {
+					return array( 'post_title' );
+				}
+				return $columns;
+			},
+			10,
+			3
+		);
 	}
 
 	$bar = keel_defaults_get( 'frontend_admin_bar_behavior' );
 	if ( 'hide_all' === $bar ) {
 		add_filter( 'show_admin_bar', '__return_false' );
 	} elseif ( 'hide_non_admins' === $bar ) {
-		add_filter( 'show_admin_bar', function ( $show ) {
-			return current_user_can( 'manage_options' ) ? $show : false;
-		} );
+		add_filter(
+			'show_admin_bar',
+			function ( $show ) {
+				return current_user_can( 'manage_options' ) ? $show : false;
+			}
+		);
 	}
 
 	if ( 'default' !== keel_defaults_get( 'admin_menu_width' ) ) {
@@ -1873,47 +1997,61 @@ function keel_defaults_bootstrap() {
 	/* ----- Login & sessions ----- */
 
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
-		add_action( 'login_footer', function () {
-			echo "<script>(function(){var c=document.getElementById('rememberme');if(c&&c.closest('p')){c.closest('p').style.display='none';}})();</script>";
-		} );
+		add_action(
+			'login_footer',
+			function () {
+				echo "<script>(function(){var c=document.getElementById('rememberme');if(c&&c.closest('p')){c.closest('p').style.display='none';}})();</script>";
+			}
+		);
 	}
 
 	// One filter handles both the remembered and regular session lengths. They are
 	// independent: disabling Remember Me caps the *remembered* branch but must not
 	// swallow the regular-session length, which applies to non-remembered logins.
-	add_filter( 'auth_cookie_expiration', function ( $expiration, $user_id, $remember ) {
-		if ( $remember ) {
-			if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
-				return 2 * DAY_IN_SECONDS; // Remember Me disabled → cap the persistent session.
+	add_filter(
+		'auth_cookie_expiration',
+		function ( $expiration, $user_id, $remember ) {
+			if ( $remember ) {
+				if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
+					return 2 * DAY_IN_SECONDS; // Remember Me disabled → cap the persistent session.
+				}
+				$days = (int) keel_defaults_get( 'remember_me_days' );
+				if ( $days > 0 ) {
+					return $days * DAY_IN_SECONDS;
+				}
+			} else {
+				$hours = (int) keel_defaults_get( 'session_regular_hours' );
+				if ( $hours > 0 ) {
+					return $hours * HOUR_IN_SECONDS;
+				}
 			}
-			$days = (int) keel_defaults_get( 'remember_me_days' );
-			if ( $days > 0 ) {
-				return $days * DAY_IN_SECONDS;
-			}
-		} else {
-			$hours = (int) keel_defaults_get( 'session_regular_hours' );
-			if ( $hours > 0 ) {
-				return $hours * HOUR_IN_SECONDS;
-			}
-		}
-		return $expiration;
-	}, 10, 3 );
+			return $expiration;
+		},
+		10,
+		3
+	);
 
 	/* ----- Branding ----- */
 
 	$login_logo = keel_defaults_get( 'login_logo_behavior' );
 
 	if ( 'remove_logo' === $login_logo ) {
-		add_action( 'login_head', function () {
-			echo '<style>#login h1 a, .login h1 a { display:none; }</style>';
-		} );
-	} elseif ( 'replace_logo' === $login_logo ) {
-		add_action( 'login_head', function () {
-			$icon = function_exists( 'get_site_icon_url' ) ? get_site_icon_url( 84 ) : '';
-			if ( $icon ) {
-				echo '<style>#login h1 a, .login h1 a { background-image:url(' . esc_url( $icon ) . '); background-size:contain; }</style>';
+		add_action(
+			'login_head',
+			function () {
+				echo '<style>#login h1 a, .login h1 a { display:none; }</style>';
 			}
-		} );
+		);
+	} elseif ( 'replace_logo' === $login_logo ) {
+		add_action(
+			'login_head',
+			function () {
+				$icon = function_exists( 'get_site_icon_url' ) ? get_site_icon_url( 84 ) : '';
+				if ( $icon ) {
+					echo '<style>#login h1 a, .login h1 a { background-image:url(' . esc_url( $icon ) . '); background-size:contain; }</style>';
+				}
+			}
+		);
 	}
 
 	// Removing, unlinking, or replacing the logo all repoint the header link
@@ -1921,28 +2059,36 @@ function keel_defaults_bootstrap() {
 	// a replacement/removed logo linking back to wp.org makes no sense.
 	if ( in_array( $login_logo, array( 'remove_logo', 'unlink_logo', 'replace_logo' ), true ) ) {
 		add_filter( 'login_headerurl', 'home_url' );
-		add_filter( 'login_headertext', function () {
-			return get_bloginfo( 'name' );
-		} );
+		add_filter(
+			'login_headertext',
+			function () {
+				return get_bloginfo( 'name' );
+			}
+		);
 	}
 
 	/* ----- Performance ----- */
 
 	if ( keel_defaults_enabled( 'throttle_heartbeat' ) ) {
-		add_filter( 'heartbeat_settings', function ( $settings ) {
-			$settings['interval'] = 60;
-			return $settings;
-		} );
-		add_action( 'init', function () {
-			if ( is_admin() ) {
-				global $pagenow;
-				if ( 'index.php' === $pagenow ) {
-					wp_deregister_script( 'heartbeat' );
+		add_filter(
+			'heartbeat_settings',
+			function ( $settings ) {
+				$settings['interval'] = 60;
+				return $settings;
+			}
+		);
+		add_action(
+			'init',
+			function () {
+				if ( is_admin() ) {
+					global $pagenow;
+					if ( 'index.php' === $pagenow ) {
+						wp_deregister_script( 'heartbeat' );
+					}
 				}
 			}
-		} );
+		);
 	}
-
 }
 
 /**
@@ -2384,23 +2530,27 @@ function keel_password_is_pwned( $password ) {
 }
 
 
-/* =======================================================================
+/*
+=======================================================================
  * SETTINGS SCREEN — Settings → Keel
  * ===================================================================== */
 
-add_action( 'admin_menu', function () {
-	$hook = add_options_page(
-		__( 'Keel', 'keel' ),
-		__( 'Keel', 'keel' ),
-		'manage_options',
-		'keel',
-		'keel_defaults_render_settings_page'
-	);
+add_action(
+	'admin_menu',
+	function () {
+		$hook = add_options_page(
+			__( 'Keel', 'keel' ),
+			__( 'Keel', 'keel' ),
+			'manage_options',
+			'keel',
+			'keel_defaults_render_settings_page'
+		);
 
-	if ( $hook ) {
-		add_action( 'load-' . $hook, 'keel_defaults_add_help_tab' );
+		if ( $hook ) {
+			add_action( 'load-' . $hook, 'keel_defaults_add_help_tab' );
+		}
 	}
-} );
+);
 
 /**
  * Add a short Overview Help tab to the Keel settings screen.
@@ -2435,17 +2585,20 @@ function keel_defaults_add_help_tab() {
 	);
 }
 
-add_action( 'admin_init', function () {
-	register_setting(
-		'keel_settings_group',
-		KEEL_DEFAULTS_OPTION,
-		array(
-			'type'              => 'array',
-			'sanitize_callback' => 'keel_defaults_sanitize',
-			'default'           => array(),
-		)
-	);
-} );
+add_action(
+	'admin_init',
+	function () {
+		register_setting(
+			'keel_settings_group',
+			KEEL_DEFAULTS_OPTION,
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => 'keel_defaults_sanitize',
+				'default'           => array(),
+			)
+		);
+	}
+);
 
 /**
  * Sanitize the whole settings array against the schema.
@@ -2482,8 +2635,8 @@ function keel_defaults_sanitize( $input ) {
 				// The slider posts an index into the ordered values list; map it back
 				// to the stored value. Also accept a direct value (e.g. seeded default
 				// or a filter) so the store is robust either way.
-				$values  = isset( $field['values'] ) ? array_values( $field['values'] ) : array();
-				$posted  = isset( $input[ $key ] ) ? (string) $input[ $key ] : '';
+				$values = isset( $field['values'] ) ? array_values( $field['values'] ) : array();
+				$posted = isset( $input[ $key ] ) ? (string) $input[ $key ] : '';
 				if ( '' !== $posted && ctype_digit( $posted ) && isset( $values[ (int) $posted ] ) ) {
 					$clean[ $key ] = (string) $values[ (int) $posted ];
 				} elseif ( in_array( $posted, array_map( 'strval', $values ), true ) ) {
@@ -2535,8 +2688,11 @@ function keel_defaults_render_settings_page() {
 				<table class="form-table" role="presentation">
 					<tbody>
 					<?php foreach ( $schema as $key => $field ) : ?>
-						<?php if ( $field['group'] !== $group_key ) { continue; } ?>
-						<?php $name  = KEEL_DEFAULTS_OPTION . '[' . $key . ']'; ?>
+						<?php
+						if ( $field['group'] !== $group_key ) {
+							continue; }
+						?>
+						<?php $name = KEEL_DEFAULTS_OPTION . '[' . $key . ']'; ?>
 						<?php $value = keel_defaults_get( $key ); ?>
 						<?php
 						// Cross-setting dependency: a field can be hidden when a controlling
@@ -2592,7 +2748,7 @@ function keel_defaults_render_settings_page() {
 										},
 										$rvalues
 									);
-									$rid = esc_attr( $key );
+									$rid     = esc_attr( $key );
 									?>
 									<fieldset>
 										<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
@@ -2683,7 +2839,21 @@ function keel_defaults_render_settings_page() {
 								<?php endif; ?>
 
 								<?php if ( ! empty( $field['help'] ) ) : ?>
-									<p class="description"><?php echo wp_kses( $field['help'], array( 'code' => array(), 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) ) ); ?></p>
+									<p class="description">
+									<?php
+									echo wp_kses(
+										$field['help'],
+										array(
+											'code' => array(),
+											'a'    => array(
+												'href'   => array(),
+												'target' => array(),
+												'rel'    => array(),
+											),
+										)
+									);
+									?>
+															</p>
 								<?php endif; ?>
 							</td>
 						</tr>
@@ -2734,13 +2904,16 @@ define( 'WP_POST_REVISIONS', 10 );</pre>
  * On activation, seed the option with schema defaults so a fresh install
  * behaves as documented out of the box.
  */
-register_activation_hook( __FILE__, function () {
-	if ( false === get_option( KEEL_DEFAULTS_OPTION, false ) ) {
-		$schema   = keel_defaults_schema();
-		$defaults = array();
-		foreach ( $schema as $key => $field ) {
-			$defaults[ $key ] = $field['default'];
+register_activation_hook(
+	__FILE__,
+	function () {
+		if ( false === get_option( KEEL_DEFAULTS_OPTION, false ) ) {
+			$schema   = keel_defaults_schema();
+			$defaults = array();
+			foreach ( $schema as $key => $field ) {
+				$defaults[ $key ] = $field['default'];
+			}
+			add_option( KEEL_DEFAULTS_OPTION, $defaults );
 		}
-		add_option( KEEL_DEFAULTS_OPTION, $defaults );
 	}
-} );
+);
