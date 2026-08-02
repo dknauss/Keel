@@ -433,15 +433,25 @@ function keel_defaults_render_settings_page() {
 											var widths = <?php echo wp_json_encode( array_values( $rpx ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
 											if ( ! input || ! output || ! document.body ) { return; }
 											function pos() { return parseInt( input.value, 10 ) || 0; }
-											function apply() {
-												output.textContent = labels[ pos() ] || labels[0];
+											// Cheap: runs live while dragging — only the readout text changes.
+											function updateLabel() { output.textContent = labels[ pos() ] || labels[0]; }
+											// Expensive: reflows the whole admin layout and reads a computed
+											// style, so it runs only when the drag settles (release/keyboard),
+											// not on every 'input' tick — otherwise the slider is janky.
+											function applyPreview() {
 												document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[0] ) + 'px' );
 												var am = document.getElementById( 'adminmenu' );
 												if ( am ) { document.body.style.setProperty( '--keel-menu-preview-bg', window.getComputedStyle( am ).backgroundColor ); }
 												document.body.classList.add( 'keel-menu-width-preview' );
 											}
-											input.addEventListener( 'input', apply );
-											input.addEventListener( 'change', apply );
+											input.addEventListener( 'input', updateLabel );
+											input.addEventListener( 'change', applyPreview );
+											input.addEventListener( 'pointerup', applyPreview );
+											input.addEventListener( 'keyup', function ( event ) {
+												if ( [ 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown' ].indexOf( event.key ) !== -1 ) {
+													applyPreview();
+												}
+											} );
 										} )();
 										</script>
 									</fieldset>
