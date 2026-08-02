@@ -14,7 +14,7 @@
  *
  * Keel is a de-branded evolution of "Better by Default" (WPYEG,
  * https://github.com/WPYEG/Better-by-Default), used under the GPL-3.0-or-later.
- * Original copyright is retained; see LICENSE and CREDITS.md.
+ * Original copyright is retained; see LICENSE and the Credits section of readme.txt.
  *
  * Architecture: every default is one entry in keel_defaults_schema() plus one
  * bootstrap `if`-block — a default is an opinionated filter behind a toggle.
@@ -39,14 +39,6 @@ require_once __DIR__ . '/includes/email.php';
 require_once __DIR__ . '/includes/site-health.php';
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/settings-page.php';
-
-// Load translations shipped in /languages (e.g. the en_CA set).
-add_action(
-	'init',
-	function () {
-		load_plugin_textdomain( 'keel', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-	}
-);
 
 /**
  * On activation, seed the option with schema defaults so a fresh install

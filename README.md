@@ -28,4 +28,5 @@ zip. On activation the documented defaults are seeded; then visit **Settings →
 
 [GPL-3.0-or-later](LICENSE). Keel is a de-branded evolution of
 [Better by Default](https://github.com/WPYEG/Better-by-Default) (WPYEG), with further
-defaults adapted from the Pixel Managed Platform plugin. See [CREDITS.md](CREDITS.md).
+defaults adapted from the Pixel Managed Platform plugin. Full attribution is in the
+Credits section of `readme.txt`.
