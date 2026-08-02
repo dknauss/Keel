@@ -38,7 +38,7 @@ foreach ( array( 'admin', 'administrator', 'root', 'www', 'test' ) as $name ) {
 }
 
 // Entries are lower-case (core compares case-insensitively; keep both sides lc).
-keel_assert( $list === array_map( 'strtolower', $list ), 'Reserved list is all lower-case.' );
+keel_assert( array_map( 'strtolower', $list ) === $list, 'Reserved list is all lower-case.' );
 
 // Merge preserves an illegal login from another source, and adds ours.
 $merged = keel_defaults_reserved_usernames( array( 'someexistingban' ) );

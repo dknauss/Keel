@@ -44,15 +44,30 @@ keel_assert( 1 === (int) $schema['session_regular_days']['min'], 'Regular sessio
 keel_assert( 1 === (int) $schema['remember_me_days']['min'], 'Remember Me length has a 1-day floor.' );
 
 // Per-field minimum clamps a below-floor submission up to the floor.
-$clean = keel_defaults_sanitize( array( 'session_regular_days' => '0', 'remember_me_days' => '0' ) );
+$clean = keel_defaults_sanitize(
+	array(
+		'session_regular_days' => '0',
+		'remember_me_days'     => '0',
+	)
+);
 keel_assert( 1 === $clean['session_regular_days'], 'Regular session clamps 0 up to its 1-day floor.' );
 
 // The guardrail: a remembered login can never be shorter than a regular one.
-$clean = keel_defaults_sanitize( array( 'session_regular_days' => '10', 'remember_me_days' => '3' ) );
+$clean = keel_defaults_sanitize(
+	array(
+		'session_regular_days' => '10',
+		'remember_me_days'     => '3',
+	)
+);
 keel_assert( 10 === $clean['remember_me_days'], 'Remember Me is clamped up to the regular session length (10).' );
 
 // A coherent pair (remember >= regular) is left untouched.
-$clean = keel_defaults_sanitize( array( 'session_regular_days' => '2', 'remember_me_days' => '30' ) );
+$clean = keel_defaults_sanitize(
+	array(
+		'session_regular_days' => '2',
+		'remember_me_days'     => '30',
+	)
+);
 keel_assert( 2 === $clean['session_regular_days'] && 30 === $clean['remember_me_days'], 'A valid remember>=regular pair passes through unchanged.' );
 
 fwrite( STDOUT, "login-sessions tests passed.\n" );

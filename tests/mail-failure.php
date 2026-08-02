@@ -24,7 +24,7 @@ function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
 }
 function network_home_url() { return 'https://real-site.example-real.ca'; }
-function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); }
+function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- this stub *is* the wp_parse_url implementation for the test.
 function is_email( $email ) { return (bool) filter_var( $email, FILTER_VALIDATE_EMAIL ); }
 function current_user_can( $c ) { return true; }
 function wp_get_environment_type() { return $GLOBALS['keel_env']; }
@@ -75,7 +75,10 @@ unset( $GLOBALS['keel_filters']['keel_smtp_plugin_recommendation'] );
 
 // --- zero password-reset detection ---
 $GLOBALS['pagenow'] = 'users.php';
-$_GET = array( 'update' => 'resetpassword', 'reset_count' => '0' );
+$_GET               = array(
+	'update'      => 'resetpassword',
+	'reset_count' => '0',
+);
 keel_assert( true === keel_defaults_is_zero_reset_result(), 'Zero-count reset is detected.' );
 ob_start();
 keel_defaults_render_reset_failure_notice();
@@ -84,11 +87,17 @@ ob_start();
 keel_defaults_hide_zero_reset_notice();
 keel_assert( false !== strpos( ob_get_clean(), '#message.updated' ), 'Core success notice is hidden.' );
 
-$_GET = array( 'update' => 'resetpassword', 'reset_count' => '3' );
+$_GET = array(
+	'update'      => 'resetpassword',
+	'reset_count' => '3',
+);
 keel_assert( false === keel_defaults_is_zero_reset_result(), 'A non-zero reset count is not a failure.' );
 
 $GLOBALS['pagenow'] = 'edit.php';
-$_GET = array( 'update' => 'resetpassword', 'reset_count' => '0' );
+$_GET               = array(
+	'update'      => 'resetpassword',
+	'reset_count' => '0',
+);
 keel_assert( false === keel_defaults_is_zero_reset_result(), 'Detection is scoped to users.php.' );
 
 // Schema.

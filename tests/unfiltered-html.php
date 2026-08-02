@@ -14,8 +14,8 @@
 
 // --- Test doubles -----------------------------------------------------------
 
-$GLOBALS['keel_is_multisite']       = false;
-$GLOBALS['keel_super_admins']       = array();   // user IDs that are super admins
+$GLOBALS['keel_is_multisite']        = false;
+$GLOBALS['keel_super_admins']        = array();   // user IDs that are super admins
 $GLOBALS['keel_is_super_admin_hits'] = 0;
 
 function is_multisite() {
@@ -23,7 +23,7 @@ function is_multisite() {
 }
 
 function is_super_admin( $user_id = 0 ) {
-	$GLOBALS['keel_is_super_admin_hits']++;
+	++$GLOBALS['keel_is_super_admin_hits'];
 	// Mirror core's real hazard: on single-site is_super_admin() resolves a
 	// capability (has_cap), which inside user_has_cap would recurse. If the
 	// callback ever reaches here on single-site, the guard is broken — fail loud.
@@ -53,7 +53,10 @@ require dirname( __DIR__ ) . '/keel.php';
 // --- Helpers ----------------------------------------------------------------
 
 function keel_test_user( array $roles, $id = 5 ) {
-	return (object) array( 'roles' => $roles, 'ID' => $id );
+	return (object) array(
+		'roles' => $roles,
+		'ID'    => $id,
+	);
 }
 
 function keel_assert( $cond, $msg ) {
@@ -69,15 +72,39 @@ $fn = 'keel_defaults_limit_unfiltered_html';
 $GLOBALS['keel_is_multisite'] = false;
 
 // Editor with the cap loses it.
-$out = $fn( array( 'unfiltered_html' => true, 'edit_posts' => true ), array(), array(), keel_test_user( array( 'editor' ) ) );
+$out = $fn(
+	array(
+		'unfiltered_html' => true,
+		'edit_posts'      => true,
+	),
+	array(),
+	array(),
+	keel_test_user( array( 'editor' ) )
+);
 keel_assert( empty( $out['unfiltered_html'] ), 'Editor loses unfiltered_html on single-site.' );
 
 // Administrator (role) keeps it.
-$out = $fn( array( 'unfiltered_html' => true, 'manage_options' => true ), array(), array(), keel_test_user( array( 'administrator' ) ) );
+$out = $fn(
+	array(
+		'unfiltered_html' => true,
+		'manage_options'  => true,
+	),
+	array(),
+	array(),
+	keel_test_user( array( 'administrator' ) )
+);
 keel_assert( ! empty( $out['unfiltered_html'] ), 'Administrator keeps unfiltered_html.' );
 
 // Non-"administrator" role but with manage_options resolved (custom admin) keeps it.
-$out = $fn( array( 'unfiltered_html' => true, 'manage_options' => true ), array(), array(), keel_test_user( array( 'custom_admin' ) ) );
+$out = $fn(
+	array(
+		'unfiltered_html' => true,
+		'manage_options'  => true,
+	),
+	array(),
+	array(),
+	keel_test_user( array( 'custom_admin' ) )
+);
 keel_assert( ! empty( $out['unfiltered_html'] ), 'manage_options holder keeps unfiltered_html.' );
 
 // User without the cap is returned untouched (early exit, no role work).

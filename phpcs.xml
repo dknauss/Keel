@@ -9,23 +9,62 @@
 	<arg name="parallel" value="8" />
 	<rule ref="WordPress" />
 	<!--
-		tests/ are CLI scripts, not WordPress runtime code: they report through
-		STDOUT/STDERR and read the source tree directly, so the WP filesystem-API
-		rules do not apply to them.
+		tests/ are standalone CLI scripts, not WordPress runtime code. They stub
+		WordPress functions, define small helper classes and globals, and report
+		through STDOUT/STDERR to exercise the plugin with no WP loaded. The sniffs
+		below target shipped runtime code — docblocks, output escaping, global
+		overrides, class-file naming, function/OO separation, filesystem APIs — and
+		do not apply to test scaffolding, so they are relaxed for tests/ only. The
+		code-correctness sniffs still run against the tests.
 	-->
 	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fwrite">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FileComment">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.ClassComment">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.InlineComment">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Functions.MultiLineFunctionDeclaration.ContentAfterBrace">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.GlobalVariablesOverride">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.Files.SeparateFunctionsFromOO">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 	<!--
 		includes/bootstrap.php defines two tiny drop-in XML-RPC server classes inline
 		inside the wp_xmlrpc_server_class filter (they must be defined where they are
 		conditionally registered), so the class-per-file and class-based-filename
-		rules do not apply to it.
+		rules do not apply to it. Test files likewise define small stub classes.
 	-->
 	<rule ref="Generic.Files.OneObjectStructurePerFile">
 		<exclude-pattern>includes/bootstrap.php</exclude-pattern>
+		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 	<rule ref="WordPress.Files.FileName">
 		<exclude-pattern>includes/bootstrap.php</exclude-pattern>
+		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 </ruleset>

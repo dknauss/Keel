@@ -7,10 +7,10 @@
  * @package keel
  */
 
-$GLOBALS['keel_filters']   = array();
-$GLOBALS['keel_env']       = 'production';
-$GLOBALS['keel_home']      = 'https://example-real.ca';
-$GLOBALS['keel_bar_show']  = true;
+$GLOBALS['keel_filters']  = array();
+$GLOBALS['keel_env']      = 'production';
+$GLOBALS['keel_home']     = 'https://example-real.ca';
+$GLOBALS['keel_bar_show'] = true;
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -56,7 +56,14 @@ foreach ( array( 'production', 'staging', 'development', 'local' ) as $t ) {
 keel_assert( '#b92a2a' === $envs['production']['background_color'], 'Production is red.' );
 
 // Filter can override a colour without dropping the others (wp_parse_args merge).
-$GLOBALS['keel_filters']['keel_environments'] = array( 'production' => array( 'label' => 'PROD', 'icon' => 'dashicons-warning', 'background_color' => '#000', 'text_color' => '#fff' ) );
+$GLOBALS['keel_filters']['keel_environments'] = array(
+	'production' => array(
+		'label'            => 'PROD',
+		'icon'             => 'dashicons-warning',
+		'background_color' => '#000',
+		'text_color'       => '#fff',
+	),
+);
 $envs = keel_environments();
 keel_assert( 'PROD' === $envs['production']['label'], 'keel_environments filter applies.' );
 keel_assert( isset( $envs['staging'] ), 'Filtering one environment keeps the defaults for the rest.' );
@@ -73,7 +80,7 @@ keel_assert( 'production' === keel_current_environment(), 'A normal host uses wp
 
 // --- toolbar node ---
 $GLOBALS['keel_env'] = 'staging';
-$bar = new Keel_Test_Admin_Bar();
+$bar                 = new Keel_Test_Admin_Bar();
 keel_defaults_environment_toolbar_item( $bar );
 keel_assert( 'keel-environment-indicator' === $bar->node['id'], 'Toolbar node has the expected id.' );
 keel_assert( 'top-secondary' === $bar->node['parent'], 'Node is placed in the secondary group.' );

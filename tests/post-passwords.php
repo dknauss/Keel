@@ -41,7 +41,7 @@ keel_assert( 'content' === $schema['disable_post_passwords']['group'], 'disable_
 // On a new post with no password, the option is hidden.
 $GLOBALS['pagenow'] = 'post-new.php';
 $GLOBALS['post']    = null;
-$out = keel_capture_password_ui();
+$out                = keel_capture_password_ui();
 keel_assert( false !== strpos( $out, 'visibility-radio-password' ), 'Classic visibility option is hidden.' );
 keel_assert( false !== strpos( $out, 'editor-post-password-0' ), 'Block editor password field is hidden.' );
 keel_assert( false !== strpos( $out, 'display: none' ), 'The hide rule is emitted.' );
@@ -55,10 +55,10 @@ $GLOBALS['pagenow'] = 'edit.php';
 keel_assert( '' === trim( keel_capture_password_ui() ), 'No output outside the post editor.' );
 
 // A post that already has a password keeps its field (stays editable).
-$GLOBALS['pagenow']            = 'post.php';
-$post                          = new stdClass();
-$post->post_password          = 'secret';
-$GLOBALS['post']              = $post;
+$GLOBALS['pagenow']  = 'post.php';
+$post                = new stdClass();
+$post->post_password = 'secret';
+$GLOBALS['post']     = $post;
 keel_assert( '' === trim( keel_capture_password_ui() ), 'A password-protected post keeps its field.' );
 
 fwrite( STDOUT, "post passwords tests passed.\n" );

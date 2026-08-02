@@ -25,7 +25,8 @@ function get_option( $k, $d = false ) { return $d; }
 class WP_Error {
 	public $code;
 	public $message;
-	public function __construct( $code = '', $message = '' ) { $this->code = $code; $this->message = $message; }
+	public function __construct( $code = '', $message = '' ) { $this->code = $code;
+		$this->message = $message; }
 	public function get_error_code() { return $this->code; }
 	public function get_error_message() { return $this->message; }
 }
@@ -42,7 +43,7 @@ function keel_assert( $cond, $msg ) {
 }
 
 function keel_user( $roles ) {
-	$u = new stdClass();
+	$u        = new stdClass();
 	$u->roles = (array) $roles;
 	return $u;
 }
@@ -56,7 +57,7 @@ keel_assert( false === keel_defaults_password_enforced_for_user( keel_user( arra
 keel_assert( true === keel_defaults_password_enforced_for_user( keel_user( array( 'subscriber', 'editor' ) ) ), 'Any privileged role among many → enforce.' );
 
 // role as a singular string (REST prepared-user shape)
-$s = new stdClass();
+$s       = new stdClass();
 $s->role = 'subscriber';
 keel_assert( false === keel_defaults_password_enforced_for_user( $s ), 'Singular role string is honoured.' );
 

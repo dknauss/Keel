@@ -49,21 +49,21 @@ keel_assert( 'Unchanged' === keel_defaults_state_label( $schema['frontend_admin_
 
 // Default posture (schema defaults: strong passwords + rest discovery both on) → good.
 $GLOBALS['keel_options'] = array();
-$result = keel_defaults_site_health_posture();
+$result                  = keel_defaults_site_health_posture();
 keel_assert( 'good' === $result['status'], 'Default posture is good.' );
 keel_assert( false !== strpos( $result['description'], 'Security &' ) || false !== strpos( $result['description'], 'Security' ), 'Description lists the Security group.' );
 keel_assert( false !== strpos( $result['actions'], 'page=keel' ), 'Actions link to the settings page.' );
 
 // Turning off an unambiguous security item escalates to recommended, with a note.
 $GLOBALS['keel_options']['keel_settings'] = array( 'require_strong_passwords' => 'no' );
-$result = keel_defaults_site_health_posture();
+$result                                   = keel_defaults_site_health_posture();
 keel_assert( 'recommended' === $result['status'], 'Strong passwords off → recommended.' );
 keel_assert( 'orange' === $result['badge']['color'], 'Recommended badge is orange.' );
 keel_assert( false !== strpos( $result['description'], 'Strong passwords are off' ), 'A note explains the recommendation.' );
 
 // An opinionated UX toggle being off does NOT escalate the status (no nagging).
 $GLOBALS['keel_options']['keel_settings'] = array( 'disable_emojis' => 'no' );
-$result = keel_defaults_site_health_posture();
+$result                                   = keel_defaults_site_health_posture();
 keel_assert( 'good' === $result['status'], 'An opinionated toggle off stays informational (good).' );
 
 fwrite( STDOUT, "site health tests passed.\n" );
