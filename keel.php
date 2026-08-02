@@ -165,7 +165,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'content',
 			'label'   => 'Disable comments, trackbacks & pingbacks',
-			'help'    => 'Closes comments everywhere, hides existing threads, removes the admin menu.',
+			'help'    => 'Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds.',
 		),
 		'disable_pingbacks' => array(
 			'default' => 'yes',
@@ -1188,6 +1188,136 @@ function keel_defaults_environment_styles() {
 	printf( '<style id="keel-environment-indicator">%s</style>', wp_strip_all_tags( $css ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS escaped per-value above.
 }
 
+/**
+ * Find a header's actual array key, matching case-insensitively, so a caller can
+ * overwrite in place instead of adding a second key that differs only in case.
+ *
+ * @param mixed  $headers Headers array from the wp_headers filter.
+ * @param string $name    Header name.
+ * @return string|null
+ */
+function keel_defaults_find_header_key( $headers, $name ) {
+	if ( ! is_array( $headers ) ) {
+		return null;
+	}
+	foreach ( array_keys( $headers ) as $key ) {
+		if ( 0 === strcasecmp( (string) $key, $name ) ) {
+			return (string) $key;
+		}
+	}
+	return null;
+}
+
+/**
+ * Relative strength of an X-Frame-Options value. Only the two values browsers
+ * honour are ranked; anything else returns null so callers leave the response
+ * alone (this keeps a deprecated ALLOW-FROM's permissive intent intact).
+ *
+ * @param mixed $value Header value.
+ * @return int|null 2 = DENY, 1 = SAMEORIGIN, null = unrecognised.
+ */
+function keel_defaults_frame_option_strength( $value ) {
+	switch ( strtoupper( trim( (string) $value ) ) ) {
+		case 'DENY':
+			return 2;
+		case 'SAMEORIGIN':
+			return 1;
+		default:
+			return null;
+	}
+}
+
+/**
+ * Set X-Frame-Options, deferring to a header another layer already set unless the
+ * configured value is strictly stricter — so a host's DENY is never downgraded to
+ * SAMEORIGIN, and a deliberately configured DENY still tightens a weaker existing
+ * value. Writes back to the existing key so a differently cased key does not emit
+ * a second header line. Opt out with keel_disable_x_frame_options.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
+function keel_defaults_set_frame_option_header( $headers ) {
+	if ( true === apply_filters( 'keel_disable_x_frame_options', false ) ) {
+		return $headers;
+	}
+
+	$value        = apply_filters( 'keel_x_frame_options', keel_defaults_get( 'frame_options' ) );
+	$existing_key = keel_defaults_find_header_key( $headers, 'X-Frame-Options' );
+
+	if ( null !== $existing_key ) {
+		$existing_strength   = keel_defaults_frame_option_strength( $headers[ $existing_key ] );
+		$configured_strength = keel_defaults_frame_option_strength( $value );
+
+		if ( null === $existing_strength || null === $configured_strength ) {
+			return $headers;
+		}
+		if ( $configured_strength <= $existing_strength ) {
+			return $headers;
+		}
+
+		$headers[ $existing_key ] = $value;
+		return $headers;
+	}
+
+	$headers['X-Frame-Options'] = $value;
+	return $headers;
+}
+
+/**
+ * Set X-Content-Type-Options: nosniff. `nosniff` is this header's only effective
+ * value, so any other existing value (empty, off, a typo) is corrected in place
+ * rather than deferred to. Opt out with keel_disable_x_content_type_options.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
+function keel_defaults_set_content_type_header( $headers ) {
+	if ( true === apply_filters( 'keel_disable_x_content_type_options', false ) ) {
+		return $headers;
+	}
+
+	$existing_key = keel_defaults_find_header_key( $headers, 'X-Content-Type-Options' );
+
+	if ( null !== $existing_key ) {
+		if ( 'nosniff' === strtolower( trim( (string) $headers[ $existing_key ] ) ) ) {
+			return $headers;
+		}
+		$headers[ $existing_key ] = 'nosniff';
+		return $headers;
+	}
+
+	$headers['X-Content-Type-Options'] = 'nosniff';
+	return $headers;
+}
+
+/**
+ * Set a baseline Referrer-Policy. Unlike the other two headers, Referrer-Policy
+ * has no single strictness axis across its tokens, so an existing policy is
+ * deferred to rather than second-guessed. Value filterable via
+ * keel_referrer_policy; opt out with keel_disable_referrer_policy.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
+function keel_defaults_set_referrer_policy_header( $headers ) {
+	if ( true === apply_filters( 'keel_disable_referrer_policy', false ) ) {
+		return $headers;
+	}
+
+	if ( null !== keel_defaults_find_header_key( $headers, 'Referrer-Policy' ) ) {
+		return $headers;
+	}
+
+	$value = apply_filters( 'keel_referrer_policy', 'strict-origin-when-cross-origin' );
+	if ( '' === trim( (string) $value ) ) {
+		return $headers;
+	}
+
+	$headers['Referrer-Policy'] = $value;
+	return $headers;
+}
+
 /* =======================================================================
  * BOOTSTRAP — wire each enabled policy to its hook.
  * ===================================================================== */
@@ -1338,32 +1468,14 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'security_headers' ) ) {
-		add_filter( 'wp_headers', function ( $headers ) {
-			// Only fill in what nothing else has set. A managed host or CDN often
-			// owns these, and two sources setting the same header is at best
-			// redundant. Caveat worth knowing: PHP can only see headers set in
-			// PHP — one added by nginx or a CDN is invisible here, so this
-			// cannot catch every duplicate. Check the response, not just this.
-			if ( ! isset( $headers['X-Content-Type-Options'] ) ) {
-				$headers['X-Content-Type-Options'] = 'nosniff';
-			}
-			if ( ! isset( $headers['Referrer-Policy'] ) ) {
-				$headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
-			}
-			return $headers;
-		} );
+		add_filter( 'wp_headers', 'keel_defaults_set_content_type_header', 99 );
+		add_filter( 'wp_headers', 'keel_defaults_set_referrer_policy_header', 99 );
 	}
 
 	// Framing is its own setting: it is the only one of the three that can break
 	// a working site, so it must be switchable without also giving up nosniff.
-	$keel_frame_options = keel_defaults_get( 'frame_options' );
-	if ( '' !== $keel_frame_options ) {
-		add_filter( 'wp_headers', function ( $headers ) use ( $keel_frame_options ) {
-			if ( ! isset( $headers['X-Frame-Options'] ) ) {
-				$headers['X-Frame-Options'] = $keel_frame_options;
-			}
-			return $headers;
-		} );
+	if ( '' !== keel_defaults_get( 'frame_options' ) ) {
+		add_filter( 'wp_headers', 'keel_defaults_set_frame_option_header', 99 );
 	}
 
 	if ( keel_defaults_enabled( 'disable_ai_connectors' ) ) {
@@ -1428,6 +1540,20 @@ function keel_defaults_bootstrap() {
 			if ( $wp_admin_bar ) {
 				$wp_admin_bar->remove_node( 'comments' );
 			}
+		} );
+
+		// New content defaults to comments closed, not just filtered closed.
+		add_filter( 'get_default_comment_status', function () {
+			return 'closed';
+		} );
+
+		// Drop the comment feeds from the head and feed-link markup.
+		add_filter( 'feed_links_show_comments_feed', '__return_false' );
+		add_filter( 'feed_links_extra_show_post_comments_feed', '__return_false' );
+
+		// Remove the "Recent Comments" dashboard widget.
+		add_action( 'wp_dashboard_setup', function () {
+			remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 		} );
 	}
 
