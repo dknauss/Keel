@@ -44,21 +44,21 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Restrict REST API user discovery',
+			'label'   => 'Restrict REST API User Discovery',
 			'help'    => 'Hides /wp/v2/users from logged-out requests (stops username enumeration).',
 		),
 		'disable_rest' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Require auth for all REST requests',
+			'label'   => 'Require Authentication for All REST Requests',
 			'help'    => 'Blocks anonymous REST entirely. The logged-in block editor still works, but public blocks, embeds, search, and integrations may not.',
 		),
 		'xmlrpc_allow_pingbacks' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'XML-RPC: accept incoming pingbacks',
+			'label'   => 'XML-RPC: Accept Incoming Pingbacks',
 			'help'    => 'OFF (default) removes pingback.ping — a spam/reflection-DDoS vector — and the X-Pingback header.',
 			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
@@ -66,7 +66,7 @@ function keel_defaults_schema() {
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'XML-RPC: allow remote publishing (blogging apps)',
+			'label'   => 'XML-RPC: Allow Remote Publishing (Blogging Apps)',
 			'help'    => 'OFF (default) removes credential-authenticated wp.*/metaWeblog/MT/blogger methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
 			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
@@ -74,7 +74,7 @@ function keel_defaults_schema() {
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'XML-RPC: allow system.multicall',
+			'label'   => 'XML-RPC: Allow system.multicall',
 			'help'    => 'OFF (default) refuses system.multicall, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
 			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
@@ -82,7 +82,7 @@ function keel_defaults_schema() {
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'XML-RPC: block the endpoint entirely',
+			'label'   => 'XML-RPC: Block the Endpoint Entirely',
 			'help'    => 'Strictest tier — xmlrpc.php returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
 		),
 		'disable_application_passwords' => array(
@@ -96,42 +96,42 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Require strong passwords',
+			'label'   => 'Require Strong Passwords',
 			'help'    => 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the keel_weak_roles filter.',
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Limit raw HTML/JavaScript to Administrators',
+			'label'   => 'Limit Raw HTML/JavaScript to Administrators',
 			'help'    => 'Removes the unfiltered_html capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
 		),
 		'reserved_usernames' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Reserve common and system usernames',
+			'label'   => 'Reserve Common and System Usernames',
 			'help'    => 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s illegal_user_logins list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the keel_reserved_usernames filter.',
 		),
 		'remove_version' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Remove WordPress version fingerprint',
+			'label'   => 'Remove WordPress Version Fingerprint',
 			'help'    => 'Strips the generator meta tag. Obscurity, not hardening: it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds. Off by default — patch instead. Turn on if you want the noise reduction.',
 		),
 		'security_headers' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Send baseline security headers',
+			'label'   => 'Send Baseline Security Headers',
 			'help'    => 'X-Content-Type-Options: nosniff and Referrer-Policy: strict-origin-when-cross-origin. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten.',
 		),
 		'frame_options' => array(
 			'default' => 'SAMEORIGIN',
 			'type'    => 'select',
 			'group'   => 'security',
-			'label'   => 'X-Frame-Options (clickjacking)',
+			'label'   => 'X-Frame-Options (Clickjacking)',
 			'help'    => 'Controls who may embed this site in an iframe. SAMEORIGIN blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere.',
 			'choices' => array(
 				'SAMEORIGIN' => 'SAMEORIGIN — only this site may frame it',
@@ -143,7 +143,7 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
-			'label'   => 'Disable AI connectors',
+			'label'   => 'Disable AI Connectors',
 			'help'    => 'Turns off WordPress 7.0 AI provider connectors via the wp_supports_ai gate and closes the core Connectors screen. Also fires keel_disable_ai_connectors for AI integrations core does not know about.',
 		),
 
@@ -152,7 +152,7 @@ function keel_defaults_schema() {
 			'default' => 'minor',
 			'type'    => 'select',
 			'group'   => 'updates',
-			'label'   => 'Automatic WordPress core updates',
+			'label'   => 'Automatic WordPress Core Updates',
 			'help'    => 'Maintenance and security releases install automatically by default. Major releases should be tested and deployed within 30 days. An explicit wp-config.php policy takes precedence.',
 			'choices' => array(
 				'minor'   => 'Maintenance/security releases only — recommended',
@@ -165,7 +165,7 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'updates',
-			'label'   => 'Automatically update translations',
+			'label'   => 'Automatically Update Translations',
 			'help'    => 'Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress\'s individual per-item choices.',
 		),
 
@@ -174,49 +174,49 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Disable comments, trackbacks & pingbacks',
+			'label'   => 'Disable Comments, Trackbacks & Pingbacks',
 			'help'    => 'Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds.',
 		),
 		'disable_pingbacks' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Default new posts to pings closed',
+			'label'   => 'Default New Posts to Pings Closed',
 			'help'    => 'Sets the "allow pingbacks" default to off for newly created content.',
 		),
 		'disable_self_pingbacks' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Disable self-pingbacks',
+			'label'   => 'Disable Self-Pingbacks',
 			'help'    => 'Stops internal links from generating pingback noise.',
 		),
 		'disable_author_archives' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Disable public author archives',
+			'label'   => 'Disable Public Author Archives',
 			'help'    => 'Redirects /author/{slug}/ to home (another enumeration + thin-content fix).',
 		),
 		'redirect_attachment_pages' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Redirect attachment pages',
+			'label'   => 'Redirect Attachment Pages',
 			'help'    => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides attachment.php or image.php, since that theme meant to render them. Core has its own switch since 6.4 (wp_attachment_pages_enabled); this prefers the parent post over the bare file.',
 		),
 		'disable_emojis' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Disable emoji script',
+			'label'   => 'Disable Emoji Script',
 			'help'    => 'Removes the emoji detection script + inline CSS from every page.',
 		),
 		'disable_post_passwords' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'content',
-			'label'   => 'Disable post password protection',
+			'label'   => 'Disable Post Password Protection',
 			'help'    => 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default. Hides editor UI only — re-check after major WordPress editor changes.',
 		),
 
@@ -225,7 +225,7 @@ function keel_defaults_schema() {
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'editor',
-			'label'   => 'Force the Classic editor',
+			'label'   => 'Force the Classic Editor',
 			'help'    => 'Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default.',
 		),
 
@@ -234,14 +234,14 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'media',
-			'label'   => 'Lowercase upload filenames',
+			'label'   => 'Lowercase Upload Filenames',
 			'help'    => 'Lowercases new upload filenames, avoiding case-sensitivity surprises when files move between local/staging (case-insensitive) and Linux production (case-sensitive). On by default; only affects new uploads.',
 		),
 		'media_sizes_panel' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'media',
-			'label'   => 'Show generated image sizes',
+			'label'   => 'Show Generated Image Sizes',
 			'help'    => 'Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default.',
 		),
 
@@ -250,7 +250,7 @@ function keel_defaults_schema() {
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'email',
-			'label'   => 'Email deliverability warnings',
+			'label'   => 'Email Deliverability Warnings',
 			'help'    => 'Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress\'s misleading "success" notice. On by default.',
 		),
 
@@ -259,14 +259,14 @@ function keel_defaults_schema() {
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'ux',
-			'label'   => 'Title-only admin search',
+			'label'   => 'Title-Only Admin Search',
 			'help'    => 'Speeds up admin list-table search on big sites by matching titles only.',
 		),
 		'frontend_admin_bar_behavior' => array(
 			'default' => '',
 			'type'    => 'select',
 			'group'   => 'ux',
-			'label'   => 'Front-end admin bar',
+			'label'   => 'Front-End Admin Bar',
 			'help'    => 'Control the floating admin bar on the front of the site.',
 			'choices' => array(
 				''               => 'Leave unchanged (WordPress default)',
@@ -278,7 +278,7 @@ function keel_defaults_schema() {
 			'default' => 'default',
 			'type'    => 'range',
 			'group'   => 'ux',
-			'label'   => 'Admin menu width',
+			'label'   => 'Admin Menu Width',
 			'help'    => 'Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider.',
 			// Ordered stops. The slider posts an index (0–4) which sanitize maps back
 			// to the value — this deliberately avoids numeric option keys.
@@ -289,14 +289,14 @@ function keel_defaults_schema() {
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'ux',
-			'label'   => 'Helper admin list columns',
+			'label'   => 'Helper Admin List Columns',
 			'help'    => 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.',
 		),
 		'environment_indicator' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
 			'group'   => 'ux',
-			'label'   => 'Environment indicator',
+			'label'   => 'Environment Indicator',
 			'help'    => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from wp_get_environment_type() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
 		),
 
@@ -312,7 +312,7 @@ function keel_defaults_schema() {
 			'default' => 5,
 			'type'    => 'number',
 			'group'   => 'login',
-			'label'   => 'Remember Me length (days)',
+			'label'   => 'Remember Me Length (Days)',
 			'help'    => 'Caps the persistent session. Core default is 14. Set 0 to leave core alone.',
 			'depends' => array( 'field' => 'disable_remember_me', 'hide_when' => 'yes' ),
 		),
@@ -320,7 +320,7 @@ function keel_defaults_schema() {
 			'default' => 0,
 			'type'    => 'number',
 			'group'   => 'login',
-			'label'   => 'Regular session length (hours)',
+			'label'   => 'Regular Session Length (Hours)',
 			'help'    => 'Length of a non-remembered login. 0 = leave the core default (2 days).',
 		),
 
@@ -329,7 +329,7 @@ function keel_defaults_schema() {
 			'default' => 'keep_default',
 			'type'    => 'select',
 			'group'   => 'branding',
-			'label'   => 'Login logo',
+			'label'   => 'Login Logo',
 			'help'    => 'The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page.',
 			'choices' => array(
 				'keep_default' => 'Keep the WordPress logo and wp.org link (WordPress default)',
@@ -1350,7 +1350,7 @@ function keel_defaults_site_health_tests( $tests ) {
 		return $tests;
 	}
 	$tests['direct']['keel_defaults_posture'] = array(
-		'label' => __( 'Keel defaults', 'keel' ),
+		'label' => __( 'Keel Defaults', 'keel' ),
 		'test'  => 'keel_defaults_site_health_posture',
 	);
 	return $tests;
@@ -2359,14 +2359,51 @@ function keel_password_is_pwned( $password ) {
  * ===================================================================== */
 
 add_action( 'admin_menu', function () {
-	add_options_page(
+	$hook = add_options_page(
 		__( 'Keel', 'keel' ),
 		__( 'Keel', 'keel' ),
 		'manage_options',
 		'keel',
 		'keel_defaults_render_settings_page'
 	);
+
+	if ( $hook ) {
+		add_action( 'load-' . $hook, 'keel_defaults_add_help_tab' );
+	}
 } );
+
+/**
+ * Add a short Overview Help tab to the Keel settings screen.
+ */
+function keel_defaults_add_help_tab() {
+	$screen = get_current_screen();
+	if ( ! $screen || ! method_exists( $screen, 'add_help_tab' ) ) {
+		return;
+	}
+
+	$screen->add_help_tab(
+		array(
+			'id'      => 'keel-overview',
+			'title'   => __( 'Overview', 'keel' ),
+			'content' =>
+				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default: flip only what you want, and the rest of WordPress is untouched.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'A setting that cannot take effect given another choice is hidden automatically: the XML-RPC method controls disappear when the whole endpoint is blocked, and Remember Me length hides when Remember Me is disabled.', 'keel' ) . '</p>',
+		)
+	);
+
+	$screen->set_help_sidebar(
+		'<p><strong>' . esc_html__( 'Current posture', 'keel' ) . '</strong></p>' .
+		'<p>' . wp_kses(
+			sprintf(
+				/* translators: %s: URL of the Site Health screen. */
+				__( 'See <a href="%s">Site Health</a> for a read-only summary of every default and its state.', 'keel' ),
+				esc_url( admin_url( 'site-health.php' ) )
+			),
+			array( 'a' => array( 'href' => array() ) )
+		) . '</p>'
+	);
+}
 
 add_action( 'admin_init', function () {
 	register_setting(
