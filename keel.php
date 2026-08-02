@@ -629,27 +629,53 @@ function keel_defaults_admin_menu_width_css() {
 	?>
 	<style id="keel-admin-menu-width">
 		@media screen and (min-width: 783px) {
-			body:not(.folded) #adminmenu,
-			body:not(.folded) #adminmenuback,
-			body:not(.folded) #adminmenuwrap,
-			body:not(.folded) #adminmenu li.menu-top {
+			#adminmenu,
+			#adminmenuback,
+			#adminmenuwrap,
+			#adminmenu li.menu-top,
+			#adminmenu .wp-submenu {
 				width: <?php echo $w; ?>px !important;
 			}
-			body:not(.folded) #wpcontent,
-			body:not(.folded) #wpfooter {
+			#adminmenuback {
+				position: fixed;
+				top: 0;
+				bottom: -120px;
+			}
+			#adminmenu li.menu-top > a.menu-top,
+			#adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+			#adminmenu li.current a.menu-top {
+				width: auto !important;
+			}
+			#wpcontent,
+			#wpfooter {
 				margin-left: <?php echo $w; ?>px !important;
 			}
-			body:not(.folded) #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
 				left: <?php echo $w; ?>px;
 			}
-			body.rtl:not(.folded) #wpcontent,
-			body.rtl:not(.folded) #wpfooter {
+			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+				left: auto;
+			}
+			.rtl #wpcontent,
+			.rtl #wpfooter {
 				margin-right: <?php echo $w; ?>px !important;
 				margin-left: 0 !important;
 			}
-			body.rtl:not(.folded) #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
 				right: <?php echo $w; ?>px;
 				left: auto;
+			}
+			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+				right: auto;
+			}
+			.folded #wpcontent,
+			.folded #wpfooter {
+				margin-left: 36px !important;
+			}
+			.rtl.folded #wpcontent,
+			.rtl.folded #wpfooter {
+				margin-right: 36px !important;
+				margin-left: 0 !important;
 			}
 		}
 	</style>
@@ -2458,21 +2484,95 @@ function keel_defaults_render_settings_page() {
 									$rlabels = array_values( $field['labels'] );
 									$rcur    = array_search( (string) $value, $rvalues, true );
 									$rcur    = ( false === $rcur ) ? 0 : (int) $rcur;
+									$rpx     = array_map(
+										static function ( $v ) {
+											return ( 'default' === $v ) ? 160 : (int) $v;
+										},
+										$rvalues
+									);
+									$rid = esc_attr( $key );
 									?>
-									<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
-										name="<?php echo esc_attr( $name ); ?>"
-										id="<?php echo esc_attr( $key ); ?>-range"
-										value="<?php echo (int) $rcur; ?>"
-										class="keel-range"
-										list="<?php echo esc_attr( $key ); ?>-stops"
-										data-labels="<?php echo esc_attr( wp_json_encode( $rlabels ) ); ?>"
-										aria-describedby="<?php echo esc_attr( $key ); ?>-output" style="vertical-align:middle;max-width:240px;" />
-									<datalist id="<?php echo esc_attr( $key ); ?>-stops">
-										<?php foreach ( $rlabels as $ri => $rl ) : ?>
-											<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
-										<?php endforeach; ?>
-									</datalist>
-									<output id="<?php echo esc_attr( $key ); ?>-output" for="<?php echo esc_attr( $key ); ?>-range" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
+									<fieldset>
+										<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
+											name="<?php echo esc_attr( $name ); ?>"
+											id="<?php echo $rid; ?>-range"
+											value="<?php echo (int) $rcur; ?>"
+											list="<?php echo $rid; ?>-stops"
+											aria-describedby="<?php echo $rid; ?>-output" style="vertical-align:middle;max-width:240px;" />
+										<datalist id="<?php echo $rid; ?>-stops">
+											<?php foreach ( $rlabels as $ri => $rl ) : ?>
+												<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
+											<?php endforeach; ?>
+										</datalist>
+										<output for="<?php echo $rid; ?>-range" id="<?php echo $rid; ?>-output" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
+										<style id="<?php echo $rid; ?>-preview">
+											@media screen and (min-width: 783px) {
+												body.keel-menu-width-preview #adminmenu,
+												body.keel-menu-width-preview #adminmenuback,
+												body.keel-menu-width-preview #adminmenuwrap,
+												body.keel-menu-width-preview #adminmenu li.menu-top,
+												body.keel-menu-width-preview #adminmenu .wp-submenu {
+													width: var(--keel-menu-preview-width);
+												}
+												body.keel-menu-width-preview #adminmenuback {
+													position: fixed;
+													top: 0;
+													bottom: -120px;
+													background: var(--keel-menu-preview-bg, #1d2327);
+												}
+												body.keel-menu-width-preview #adminmenu li.menu-top > a.menu-top,
+												body.keel-menu-width-preview #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+												body.keel-menu-width-preview #adminmenu li.current a.menu-top {
+													width: auto;
+												}
+												body.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+													left: var(--keel-menu-preview-width);
+												}
+												body.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+													left: auto;
+												}
+												body.keel-menu-width-preview #wpcontent,
+												body.keel-menu-width-preview #wpfooter {
+													margin-left: var(--keel-menu-preview-width);
+												}
+												body.rtl.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+													right: var(--keel-menu-preview-width);
+													left: auto;
+												}
+												body.rtl.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+													right: auto;
+												}
+												body.rtl.keel-menu-width-preview #wpcontent,
+												body.rtl.keel-menu-width-preview #wpfooter {
+													margin-right: var(--keel-menu-preview-width);
+													margin-left: 0;
+												}
+												body.folded.keel-menu-width-preview #wpcontent,
+												body.folded.keel-menu-width-preview #wpfooter {
+													margin-left: 36px;
+												}
+											}
+										</style>
+										<script>
+										( function () {
+											var input  = document.getElementById( '<?php echo $rid; ?>-range' );
+											var output = document.getElementById( '<?php echo $rid; ?>-output' );
+											var labels = <?php echo wp_json_encode( $rlabels ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+											var widths = <?php echo wp_json_encode( array_values( $rpx ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+											if ( ! input || ! output || ! document.body ) { return; }
+											function pos() { return parseInt( input.value, 10 ) || 0; }
+											function apply() {
+												output.textContent = labels[ pos() ] || labels[0];
+												document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[0] ) + 'px' );
+												var am = document.getElementById( 'adminmenu' );
+												if ( am ) { document.body.style.setProperty( '--keel-menu-preview-bg', window.getComputedStyle( am ).backgroundColor ); }
+												document.body.classList.add( 'keel-menu-width-preview' );
+											}
+											input.addEventListener( 'input', apply );
+											input.addEventListener( 'change', apply );
+										} )();
+										</script>
+									</fieldset>
 								<?php elseif ( 'number' === $field['type'] ) : ?>
 									<input type="number" min="0" step="1"
 										name="<?php echo esc_attr( $name ); ?>"
@@ -2492,19 +2592,6 @@ function keel_defaults_render_settings_page() {
 
 			<?php submit_button(); ?>
 		</form>
-
-		<script>
-		( function () {
-			document.querySelectorAll( '.keel-range' ).forEach( function ( el ) {
-				var labels;
-				try { labels = JSON.parse( el.getAttribute( 'data-labels' ) ); } catch ( e ) { labels = []; }
-				var out = document.getElementById( el.id.replace( /-range$/, '-output' ) );
-				el.addEventListener( 'input', function () {
-					if ( out && labels[ el.value ] !== undefined ) { out.textContent = labels[ el.value ]; }
-				} );
-			} );
-		} )();
-		</script>
 
 		<hr />
 		<p><em><?php esc_html_e( 'Three hardening moves live in wp-config.php and cannot be toggled here:', 'keel' ); ?></em></p>
