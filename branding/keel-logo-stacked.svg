@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 104" role="img" aria-label="Keel">
+  <g transform="translate(28,2)" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="40" x2="61" y2="40" stroke-width="3" fill="none" opacity="0.5"/>
+    <path d="M14 36 L50 36 Q46 46 32 47.5 Q18 46 14 36 Z"/>
+    <line x1="32" y1="8" x2="32" y2="37" stroke-width="2.5" fill="none"/>
+    <path d="M32 9 Q36 21 48 35 L32 35 Z"/>
+    <path d="M28.5 47.5 L27.5 55.5 L36.5 55.5 L35.5 47.5 Z"/>
+    <ellipse cx="32" cy="56.8" rx="5.2" ry="1.9"/>
+  </g>
+  <!-- Convert to outlines for production; the font-family stack keeps it editable here. -->
+  <text x="60" y="96" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="600" letter-spacing="0.5" fill="currentColor">Keel</text>
+</svg>

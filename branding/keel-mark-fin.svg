@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Keel">
+  <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="6" y1="26" x2="58" y2="26" stroke-width="3" fill="none" opacity="0.5"/>
+    <path d="M17 23 L47 23 Q43 33 32 34 Q21 33 17 23 Z"/>
+    <path d="M29 34 L28 46 L36 46 L35 34 Z"/>
+    <ellipse cx="32" cy="47.4" rx="5" ry="2"/>
+  </g>
+</svg>

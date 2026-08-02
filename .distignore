@@ -1,0 +1,16 @@
+# Files and directories excluded from the built plugin zip (wp dist-archive).
+# These are development, branding, and wordpress.org listing assets — none ship
+# inside the plugin.
+/.git
+/.github
+/.wordpress-org
+/branding
+/tests
+/vendor
+/node_modules
+/.gitignore
+/.distignore
+/composer.json
+/composer.lock
+/phpcs.xml
+/README.md
