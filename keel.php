@@ -45,7 +45,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Restrict REST API User Discovery',
-			'help'    => 'Hides /wp/v2/users from logged-out requests (stops username enumeration).',
+			'help'    => 'Hides <code>/wp/v2/users</code> from logged-out requests (stops username enumeration).',
 		),
 		'disable_rest' => array(
 			'default' => 'no',
@@ -59,7 +59,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'XML-RPC: Accept Incoming Pingbacks',
-			'help'    => 'OFF (default) removes pingback.ping — a spam/reflection-DDoS vector — and the X-Pingback header.',
+			'help'    => 'OFF (default) removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.',
 			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
 		'xmlrpc_allow_remote_publishing' => array(
@@ -75,7 +75,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'XML-RPC: Allow system.multicall',
-			'help'    => 'OFF (default) refuses system.multicall, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
+			'help'    => 'OFF (default) refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
 			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
 		'block_xmlrpc_endpoint' => array(
@@ -83,7 +83,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'XML-RPC: Block the Endpoint Entirely',
-			'help'    => 'Strictest tier — xmlrpc.php returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
+			'help'    => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
 		),
 		'disable_application_passwords' => array(
 			'default' => 'no',
@@ -97,21 +97,21 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Require Strong Passwords',
-			'help'    => 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the keel_weak_roles filter.',
+			'help'    => 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the <code>keel_weak_roles</code> filter.',
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Limit Raw HTML/JavaScript to Administrators',
-			'help'    => 'Removes the unfiltered_html capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
+			'help'    => 'Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
 		),
 		'reserved_usernames' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Reserve Common and System Usernames',
-			'help'    => 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s illegal_user_logins list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the keel_reserved_usernames filter.',
+			'help'    => 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter.',
 		),
 		'remove_version' => array(
 			'default' => 'no',
@@ -125,14 +125,14 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Send Baseline Security Headers',
-			'help'    => 'X-Content-Type-Options: nosniff and Referrer-Policy: strict-origin-when-cross-origin. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten.',
+			'help'    => '<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten.',
 		),
 		'frame_options' => array(
 			'default' => 'SAMEORIGIN',
 			'type'    => 'select',
 			'group'   => 'security',
 			'label'   => 'X-Frame-Options (Clickjacking)',
-			'help'    => 'Controls who may embed this site in an iframe. SAMEORIGIN blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere.',
+			'help'    => 'Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere.',
 			'choices' => array(
 				'SAMEORIGIN' => 'SAMEORIGIN — only this site may frame it',
 				'DENY'       => 'DENY — nobody may frame it',
@@ -144,7 +144,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Disable AI Connectors',
-			'help'    => 'Turns off WordPress 7.0 AI provider connectors via the wp_supports_ai gate and closes the core Connectors screen. Also fires keel_disable_ai_connectors for AI integrations core does not know about.',
+			'help'    => 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.',
 		),
 
 		// --- Updates ----------------------------------------------------
@@ -153,7 +153,7 @@ function keel_defaults_schema() {
 			'type'    => 'select',
 			'group'   => 'updates',
 			'label'   => 'Automatic WordPress Core Updates',
-			'help'    => 'Maintenance and security releases install automatically by default. Major releases should be tested and deployed within 30 days. An explicit wp-config.php policy takes precedence.',
+			'help'    => 'Maintenance and security releases install automatically by default. Major releases should be tested and deployed within 30 days. An explicit <code>wp-config.php</code> policy takes precedence.',
 			'choices' => array(
 				'minor'   => 'Maintenance/security releases only — recommended',
 				'all'     => 'All stable releases',
@@ -203,7 +203,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'content',
 			'label'   => 'Redirect Attachment Pages',
-			'help'    => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides attachment.php or image.php, since that theme meant to render them. Core has its own switch since 6.4 (wp_attachment_pages_enabled); this prefers the parent post over the bare file.',
+			'help'    => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides attachment.php or image.php, since that theme meant to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
 		),
 		'disable_emojis' => array(
 			'default' => 'yes',
@@ -297,7 +297,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'ux',
 			'label'   => 'Environment Indicator',
-			'help'    => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from wp_get_environment_type() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
+			'help'    => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type</code>() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
 		),
 
 		// --- Login & sessions ------------------------------------------
@@ -2650,7 +2650,7 @@ function keel_defaults_render_settings_page() {
 								<?php endif; ?>
 
 								<?php if ( ! empty( $field['help'] ) ) : ?>
-									<p class="description"><?php echo esc_html( $field['help'] ); ?></p>
+									<p class="description"><?php echo wp_kses( $field['help'], array( 'code' => array(), 'a' => array( 'href' => array(), 'target' => array(), 'rel' => array() ) ) ); ?></p>
 								<?php endif; ?>
 							</td>
 						</tr>
