@@ -1,0 +1,679 @@
+<?php
+/**
+ * Security defaults: unfiltered HTML, reserved usernames, response headers, and password policy.
+ *
+ * @package Keel
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Remove `unfiltered_html` from non-Administrators when the hardening default is on.
+ *
+ * Runs on `user_has_cap`, so it sees the capability map WordPress resolved for a
+ * user and drops `unfiltered_html` for anyone who is not an Administrator (or, on
+ * multisite, a Super Admin). Editors hold `unfiltered_html` by default on
+ * single-site installs — enough to save a raw `<script>` — so this closes that.
+ *
+ * Recursion trap — the reason this reads roles/caps directly, and why the
+ * `is_super_admin()` call is guarded by `is_multisite()`: this runs *inside* the
+ * `user_has_cap` filter, so any capability check it performs re-enters the same
+ * filter and recurses until the stack blows. Decide only from `$user->roles` and
+ * the already-resolved `$allcaps` — never `current_user_can()` / `user_can()`.
+ * `is_super_admin()` is safe *only* on multisite, where it consults the network
+ * super-admin list; on single-site it internally calls `has_cap( 'delete_users' )`,
+ * which would recurse — hence the `is_multisite()` guard in front of it.
+ *
+ * @param array    $allcaps User's resolved capabilities.
+ * @param array    $caps    Required primitive caps (unused).
+ * @param array    $args    Context args (unused).
+ * @param \WP_User $user    The user being checked.
+ * @return array
+ */
+function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
+	if ( empty( $allcaps['unfiltered_html'] ) ) {
+		return $allcaps;
+	}
+
+	$roles = ( isset( $user->roles ) && is_array( $user->roles ) ) ? $user->roles : array();
+
+	// Administrators keep it. `manage_options` is already in $allcaps (the
+	// resolved-cap proxy for "is an admin"), so reading it here does not recurse.
+	if ( in_array( 'administrator', $roles, true ) || ! empty( $allcaps['manage_options'] ) ) {
+		return $allcaps;
+	}
+
+	// Super Admins keep it on multisite. See the recursion note above for why
+	// is_super_admin() is only called behind is_multisite().
+	if ( is_multisite() && isset( $user->ID ) && is_super_admin( $user->ID ) ) {
+		return $allcaps;
+	}
+
+	$allcaps['unfiltered_html'] = false;
+
+	return $allcaps;
+}
+
+/**
+ * Common system, role, and generic usernames reserved from new-account creation.
+ *
+ * Returned through the `illegal_user_logins` core filter, so WordPress refuses to
+ * *create* an account with any of these names — across registration, the admin
+ * Add User screen, the REST users endpoint, and multisite signup (core lower-cases
+ * both sides, so entries are lower-case here). Existing accounts are never touched.
+ * The names attackers guess first (`admin`, `administrator`, `root`) sit alongside
+ * generic role mailboxes that make weak, predictable logins. Filter
+ * `keel_reserved_usernames` to extend or trim the list.
+ *
+ * @return string[] Reserved usernames.
+ */
+function keel_reserved_usernames_list() {
+	$reserved = array(
+		'abuse',
+		'access',
+		'admin',
+		'administrator',
+		'backup',
+		'billing',
+		'blog',
+		'business',
+		'client',
+		'compliance',
+		'contact',
+		'data',
+		'demo',
+		'devnull',
+		'dns',
+		'doctor',
+		'ftp',
+		'guest',
+		'hostmaster',
+		'info',
+		'information',
+		'inoc',
+		'internet',
+		'ispfeedback',
+		'ispsupport',
+		'list',
+		'list-request',
+		'login',
+		'maildaemon',
+		'manager',
+		'marketing',
+		'master',
+		'mysql',
+		'noc',
+		'no-reply',
+		'noreply',
+		'null',
+		'number',
+		'office',
+		'pass',
+		'password',
+		'phish',
+		'phishing',
+		'postmaster',
+		'privacy',
+		'public',
+		'registrar',
+		'root',
+		'sales',
+		'security',
+		'server',
+		'service',
+		'spam',
+		'sql',
+		'support',
+		'sysadmin',
+		'tech',
+		'test',
+		'tester',
+		'undisclosed-recipients',
+		'unsubscribe',
+		'user',
+		'user2',
+		'username',
+		'usenet',
+		'uucp',
+		'webmaster',
+		'www',
+	);
+
+	return apply_filters( 'keel_reserved_usernames', $reserved );
+}
+
+/**
+ * Merge the reserved list into core's `illegal_user_logins`.
+ *
+ * Merges rather than replaces, so a host or another plugin that already reserves
+ * names keeps theirs.
+ *
+ * @param array $logins Illegal logins gathered from other sources.
+ * @return array
+ */
+function keel_defaults_reserved_usernames( $logins ) {
+	return array_merge( (array) $logins, keel_reserved_usernames_list() );
+}
+
+/**
+ * Find a header's actual array key, matching case-insensitively, so a caller can
+ * overwrite in place instead of adding a second key that differs only in case.
+ *
+ * @param mixed  $headers Headers array from the wp_headers filter.
+ * @param string $name    Header name.
+ * @return string|null
+ */
+function keel_defaults_find_header_key( $headers, $name ) {
+	if ( ! is_array( $headers ) ) {
+		return null;
+	}
+	foreach ( array_keys( $headers ) as $key ) {
+		if ( 0 === strcasecmp( (string) $key, $name ) ) {
+			return (string) $key;
+		}
+	}
+	return null;
+}
+
+/**
+ * Relative strength of an X-Frame-Options value. Only the two values browsers
+ * honour are ranked; anything else returns null so callers leave the response
+ * alone (this keeps a deprecated ALLOW-FROM's permissive intent intact).
+ *
+ * @param mixed $value Header value.
+ * @return int|null 2 = DENY, 1 = SAMEORIGIN, null = unrecognized.
+ */
+function keel_defaults_frame_option_strength( $value ) {
+	switch ( strtoupper( trim( (string) $value ) ) ) {
+		case 'DENY':
+			return 2;
+		case 'SAMEORIGIN':
+			return 1;
+		default:
+			return null;
+	}
+}
+
+/**
+ * Set X-Frame-Options, deferring to a header another layer already set unless the
+ * configured value is strictly stricter — so a host's DENY is never downgraded to
+ * SAMEORIGIN, and a deliberately configured DENY still tightens a weaker existing
+ * value. Writes back to the existing key so a differently cased key does not emit
+ * a second header line. Opt out with keel_disable_x_frame_options.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
+function keel_defaults_set_frame_option_header( $headers ) {
+	if ( true === apply_filters( 'keel_disable_x_frame_options', false ) ) {
+		return $headers;
+	}
+
+	$value        = apply_filters( 'keel_x_frame_options', keel_defaults_get( 'frame_options' ) );
+	$existing_key = keel_defaults_find_header_key( $headers, 'X-Frame-Options' );
+
+	if ( null !== $existing_key ) {
+		$existing_strength   = keel_defaults_frame_option_strength( $headers[ $existing_key ] );
+		$configured_strength = keel_defaults_frame_option_strength( $value );
+
+		if ( null === $existing_strength || null === $configured_strength ) {
+			return $headers;
+		}
+		if ( $configured_strength <= $existing_strength ) {
+			return $headers;
+		}
+
+		$headers[ $existing_key ] = $value;
+		return $headers;
+	}
+
+	$headers['X-Frame-Options'] = $value;
+	return $headers;
+}
+
+/**
+ * Set X-Content-Type-Options: nosniff. `nosniff` is this header's only effective
+ * value, so any other existing value (empty, off, a typo) is corrected in place
+ * rather than deferred to. Opt out with keel_disable_x_content_type_options.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
+function keel_defaults_set_content_type_header( $headers ) {
+	if ( true === apply_filters( 'keel_disable_x_content_type_options', false ) ) {
+		return $headers;
+	}
+
+	$existing_key = keel_defaults_find_header_key( $headers, 'X-Content-Type-Options' );
+
+	if ( null !== $existing_key ) {
+		if ( 'nosniff' === strtolower( trim( (string) $headers[ $existing_key ] ) ) ) {
+			return $headers;
+		}
+		$headers[ $existing_key ] = 'nosniff';
+		return $headers;
+	}
+
+	$headers['X-Content-Type-Options'] = 'nosniff';
+	return $headers;
+}
+
+/**
+ * Set a baseline Referrer-Policy. Unlike the other two headers, Referrer-Policy
+ * has no single strictness axis across its tokens, so an existing policy is
+ * deferred to rather than second-guessed. Value filterable via
+ * keel_referrer_policy; opt out with keel_disable_referrer_policy.
+ *
+ * @param array $headers Headers.
+ * @return array
+ */
+function keel_defaults_set_referrer_policy_header( $headers ) {
+	if ( true === apply_filters( 'keel_disable_referrer_policy', false ) ) {
+		return $headers;
+	}
+
+	if ( null !== keel_defaults_find_header_key( $headers, 'Referrer-Policy' ) ) {
+		return $headers;
+	}
+
+	$value = apply_filters( 'keel_referrer_policy', 'strict-origin-when-cross-origin' );
+	if ( '' === trim( (string) $value ) ) {
+		return $headers;
+	}
+
+	$headers['Referrer-Policy'] = $value;
+	return $headers;
+}
+
+/**
+ * Whether the strong-password policy is enforced for a given user.
+ *
+ * Scoped to privileged/editorial accounts by default: a user whose every role is
+ * in the weak-role list (default: subscriber) is exempt, since a hard length +
+ * breach rule adds signup friction for low-privilege accounts on membership or
+ * commerce sites without protecting anything valuable. Any privileged role — or
+ * an unknown/empty role set — enforces. Extend the exemption (e.g. a WooCommerce
+ * 'customer') or clear it to enforce for everyone via keel_weak_roles.
+ *
+ * @param WP_User|stdClass|null $user User context, when available.
+ * @return bool
+ */
+function keel_defaults_password_enforced_for_user( $user ) {
+	$weak_roles = (array) apply_filters( 'keel_weak_roles', array( 'subscriber' ) );
+
+	$roles = array();
+	if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+		$roles = $user->roles;
+	} elseif ( ! empty( $user->role ) && is_string( $user->role ) ) {
+		$roles = array( $user->role );
+	}
+
+	// Unknown role set → enforce (the safe default).
+	if ( empty( $roles ) ) {
+		return true;
+	}
+
+	// Exempt only when every role the user holds is a weak role.
+	foreach ( $roles as $role ) {
+		if ( ! in_array( (string) $role, $weak_roles, true ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Validate a password against the policy.
+ *
+ * One reusable validator behind every entry point — profile screen, password
+ * reset, and the REST users controller — so a password cannot get in through a
+ * door the policy does not watch.
+ *
+ * @param string                $password Proposed password.
+ * @param WP_User|stdClass|null $user     User context, when available.
+ * @return true|WP_Error True when acceptable, WP_Error describing the failure.
+ */
+function keel_defaults_validate_password( $password, $user = null ) {
+	// Role-scoped: low-privilege accounts (see keel_weak_roles) are exempt.
+	if ( ! keel_defaults_password_enforced_for_user( $user ) ) {
+		return true;
+	}
+
+	// NIST 800-63B / OWASP: favour length + screening over forced composition
+	// rules (upper/lower/number/symbol), which push users toward predictable
+	// patterns like Password1! without adding entropy.
+	$minimum = (int) apply_filters( 'keel_minimum_password_length', 15 );
+
+	// Count characters, not bytes: strlen() would read eight emoji as 32 and
+	// wave through a password far shorter than the rule intends.
+	$length = function_exists( 'mb_strlen' ) ? mb_strlen( $password ) : strlen( $password );
+
+	if ( $length < $minimum ) {
+		return new WP_Error(
+			'keel_password_too_short',
+			sprintf(
+				/* translators: %d: minimum password length. */
+				__( '<strong>Error:</strong> Password must be at least %d characters.', 'keel' ),
+				$minimum
+			)
+		);
+	}
+
+	$normalize = static function ( $value ) {
+		$value = (string) $value;
+		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $value ) : strtolower( $value );
+	};
+
+	// A small local blocklist still catches the obvious cases when the breach
+	// API below is unreachable (that check deliberately fails open).
+	$blocklist = (array) apply_filters(
+		'keel_password_blocklist',
+		array( 'password', 'password123', '123456789012345', 'qwertyuiopasdfg', 'letmeinletmeinletmein', 'wordpresswordpress' )
+	);
+
+	if ( in_array( $normalize( $password ), array_map( $normalize, $blocklist ), true ) ) {
+		return new WP_Error(
+			'keel_password_common',
+			__( '<strong>Error:</strong> Choose a password that is not commonly used.', 'keel' )
+		);
+	}
+
+	// NIST also says to reject passwords derived from personal context.
+	if ( $user ) {
+		$context = array_filter(
+			array(
+				isset( $user->user_login ) ? $user->user_login : '',
+				isset( $user->user_nicename ) ? $user->user_nicename : '',
+				isset( $user->user_email ) ? strtok( $user->user_email, '@' ) : '',
+			)
+		);
+
+		foreach ( $context as $value ) {
+			$value = $normalize( $value );
+			if ( strlen( $value ) >= 4 && false !== strpos( $normalize( $password ), $value ) ) {
+				return new WP_Error(
+					'keel_password_personal',
+					__( '<strong>Error:</strong> Password must not contain your username or email name.', 'keel' )
+				);
+			}
+		}
+	}
+
+	if ( keel_password_is_pwned( $password ) ) {
+		return new WP_Error(
+			'keel_password_pwned',
+			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel' )
+		);
+	}
+
+	return true;
+}
+
+/**
+ * Validate a password submitted from a user profile screen.
+ *
+ * @param WP_Error         $errors Validation errors.
+ * @param bool             $update Whether this is an update.
+ * @param WP_User|stdClass $user   User context.
+ */
+function keel_defaults_validate_profile_password( $errors, $update, $user ) {
+	unset( $update );
+
+	// Core's edit_user() trims the password and stores the TRIMMED value, but
+	// fires this hook with $_POST untouched. Validate the untrimmed string and
+	// "              a" sails past the length rule while core saves a
+	// one-character password. Measure exactly what core will store.
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passwords must not be sanitized.
+	$password = isset( $_POST['pass1'] ) ? trim( (string) wp_unslash( $_POST['pass1'] ) ) : '';
+
+	if ( '' === $password ) {
+		return; // No password change requested (or whitespace-only).
+	}
+
+	$result = keel_defaults_validate_password( $password, $user );
+
+	if ( is_wp_error( $result ) ) {
+		$errors->add( $result->get_error_code(), $result->get_error_message() );
+	}
+}
+
+/**
+ * Validate a password submitted from the password-reset screen.
+ *
+ * @param WP_Error $errors Validation errors.
+ * @param WP_User  $user   User context.
+ */
+function keel_defaults_validate_reset_password( $errors, $user ) {
+	// wp-login.php already trims $_POST['pass1'] in place before firing this
+	// hook; trimming again keeps both entry points measuring the same string.
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Passwords must not be sanitized.
+	$password = isset( $_POST['pass1'] ) ? trim( (string) wp_unslash( $_POST['pass1'] ) ) : '';
+
+	if ( '' === $password ) {
+		return;
+	}
+
+	$result = keel_defaults_validate_password( $password, $user );
+
+	if ( is_wp_error( $result ) ) {
+		$errors->add( $result->get_error_code(), $result->get_error_message() );
+	}
+}
+
+/**
+ * Validate a password submitted through the core REST users controller.
+ *
+ * Backstop for any route the argument guard below does not reach.
+ *
+ * @param object          $prepared_user Prepared user object.
+ * @param WP_REST_Request $request       REST request.
+ * @return object|WP_Error
+ */
+function keel_defaults_validate_rest_password( $prepared_user, $request ) {
+	$password = $request->get_param( 'password' );
+
+	if ( null === $password || '' === $password ) {
+		return $prepared_user;
+	}
+
+	$user   = ! empty( $prepared_user->ID ) ? get_userdata( $prepared_user->ID ) : $prepared_user;
+	$result = keel_defaults_validate_password( (string) $password, $user );
+
+	return is_wp_error( $result ) ? $result : $prepared_user;
+}
+
+/**
+ * Require an authenticated user for every REST request.
+ *
+ * Registered at PHP_INT_MAX on purpose. Core resolves Application Password auth
+ * at priority 90 and cookie auth at 100, and rest_cookie_check_errors() returns
+ * true after calling wp_set_current_user( 0 ) when a cookie carries no
+ * X-WP-Nonce. Deciding before core has finished — or treating any truthy
+ * $result as success — would read that true as "authenticated" and let the
+ * request dispatch as user 0. Only an existing WP_Error short-circuits.
+ *
+ * @param WP_Error|true|null $result Authentication result so far.
+ * @return WP_Error|true|null
+ */
+function keel_defaults_require_rest_auth( $result ) {
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	if ( ! is_user_logged_in() ) {
+		return new WP_Error(
+			'rest_not_logged_in',
+			__( 'REST API restricted to authenticated users.', 'keel' ),
+			array( 'status' => 401 )
+		);
+	}
+
+	return $result;
+}
+
+/**
+ * Enforce the password policy on the users controller's `password` argument.
+ *
+ * The rest_pre_insert_user hook is the documented seam, but the controller never checks
+ * its return for an error: update_item() assigns ID onto the WP_Error and hands
+ * it to wp_update_user(), which finds no user_pass and answers 200 OK with the
+ * user unchanged; create_item() casts it to an array with no user_login and
+ * answers 500 "empty login name". Either way the policy message is lost.
+ *
+ * An argument-level error is different. WP_REST_Request::sanitize_params()
+ * turns it into rest_invalid_param, which dispatch() returns as a 400 before
+ * the callback runs, so the caller sees the actual reason.
+ *
+ * @param array $endpoints Registered REST endpoints, keyed by route.
+ * @return array
+ */
+function keel_defaults_guard_rest_password_arg( $endpoints ) {
+	foreach ( $endpoints as $route => $handlers ) {
+		// Application Passwords are core-generated and carry a readonly password
+		// field, so they are never in scope for a human password policy.
+		if ( ! preg_match( '#^/wp/v2/users(?:/|$)#', $route ) || false !== strpos( $route, 'application-password' ) ) {
+			continue;
+		}
+
+		if ( ! is_array( $handlers ) ) {
+			continue;
+		}
+
+		foreach ( $handlers as $index => $handler ) {
+			if ( ! is_array( $handler ) || ! isset( $handler['args']['password'] ) ) {
+				continue;
+			}
+
+			$inner = isset( $handler['args']['password']['sanitize_callback'] )
+				? $handler['args']['password']['sanitize_callback']
+				: null;
+
+			$endpoints[ $route ][ $index ]['args']['password']['sanitize_callback'] = function ( $value, $request, $param ) use ( $inner ) {
+				// Let core sanitize first; it rejects empty and backslashed passwords.
+				if ( $inner ) {
+					$value = call_user_func( $inner, $value, $request, $param );
+					if ( is_wp_error( $value ) ) {
+						return $value;
+					}
+				}
+
+				$result = keel_defaults_validate_password(
+					(string) $value,
+					keel_defaults_rest_password_context( $request )
+				);
+
+				if ( is_wp_error( $result ) ) {
+					return new WP_Error(
+						$result->get_error_code(),
+						$result->get_error_message(),
+						array( 'status' => 400 )
+					);
+				}
+
+				return $value;
+			};
+		}
+	}
+
+	return $endpoints;
+}
+
+/**
+ * Resolve the user a REST password change applies to.
+ *
+ * Argument sanitizing runs before the controller prepares a user, so the
+ * context has to come from the request: update_item() takes the id from the
+ * route, and update_current_item() only assigns it after dispatch. A create
+ * has no stored user at all, so the submitted fields are the only context.
+ *
+ * @param WP_REST_Request $request REST request.
+ * @return WP_User|stdClass
+ */
+function keel_defaults_rest_password_context( $request ) {
+	$user_id = 0;
+
+	if ( preg_match( '#/wp/v2/users/me$#', (string) $request->get_route() ) ) {
+		$user_id = get_current_user_id();
+	} elseif ( null !== $request['id'] ) {
+		$user_id = (int) $request['id'];
+	}
+
+	if ( $user_id ) {
+		$existing = get_userdata( $user_id );
+		if ( $existing ) {
+			return $existing;
+		}
+	}
+
+	$context                = new stdClass();
+	$context->user_login    = (string) $request['username'];
+	$context->user_email    = (string) $request['email'];
+	$context->user_nicename = (string) $request['slug'];
+
+	return $context;
+}
+
+/**
+ * Check a password against the Have I Been Pwned range API using k-anonymity.
+ *
+ * Only the first five characters of the SHA-1 hash ever leave the site. HIBP
+ * returns every hash suffix sharing that prefix and the comparison happens
+ * locally, so the password itself is never transmitted. `Add-Padding` asks HIBP
+ * to pad the response so its size cannot reveal how many real matches it held;
+ * padded rows carry a count of 0 and are ignored.
+ *
+ * Fails OPEN: if HIBP is unreachable the password is allowed, rather than
+ * locking everyone out of password changes during an outage.
+ *
+ * @param string $password Plain-text password to screen.
+ * @return bool True when the password appears in a known breach.
+ */
+function keel_password_is_pwned( $password ) {
+	$hash   = strtoupper( sha1( $password ) );
+	$prefix = substr( $hash, 0, 5 );
+	$suffix = substr( $hash, 5 );
+
+	$cache_key = 'keel_hibp_' . $prefix;
+	$body      = get_transient( $cache_key );
+
+	if ( false === $body ) {
+		$response = wp_remote_get(
+			'https://api.pwnedpasswords.com/range/' . $prefix,
+			array(
+				'timeout'             => 4,
+				'limit_response_size' => 65536, // Range responses are ~20KB; cap against a hijacked oversized body.
+				'headers'             => array( 'Add-Padding' => 'true' ),
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			// Fail open — never block a password change because HIBP is down.
+			return (bool) apply_filters( 'keel_password_is_pwned', false, $password );
+		}
+
+		$body = (string) wp_remote_retrieve_body( $response );
+		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
+	}
+
+	$pwned = false;
+
+	foreach ( preg_split( '/\r\n|\n/', (string) $body ) as $line ) {
+		$parts = array_pad( explode( ':', trim( $line ), 2 ), 2, '0' );
+
+		// Padded rows report a count of 0 and are not real matches.
+		if ( (int) $parts[1] > 0 && 0 === strcasecmp( $parts[0], $suffix ) ) {
+			$pwned = true;
+			break;
+		}
+	}
+
+	/**
+	 * Filter the breach-screening verdict (e.g. to use a local blocklist, or to
+	 * skip the network call on an air-gapped site).
+	 *
+	 * @param bool   $pwned    Whether the password appeared in a known breach.
+	 * @param string $password The password being screened.
+	 */
+	return (bool) apply_filters( 'keel_password_is_pwned', $pwned, $password );
+}

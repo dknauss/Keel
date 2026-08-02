@@ -2,6 +2,7 @@
 <ruleset name="Keel">
 	<description>WordPress Coding Standards.</description>
 	<file>keel.php</file>
+	<file>includes</file>
 	<file>tests</file>
 	<exclude-pattern>vendor/*</exclude-pattern>
 	<arg name="extensions" value="php" />
@@ -16,15 +17,15 @@
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 	<!--
-		keel.php is a single-file plugin. It defines two tiny drop-in XML-RPC server
-		classes inline inside the wp_xmlrpc_server_class filter (they must be defined
-		where they are conditionally registered), so the class-per-file and
-		class-based-filename rules do not apply to it.
+		includes/bootstrap.php defines two tiny drop-in XML-RPC server classes inline
+		inside the wp_xmlrpc_server_class filter (they must be defined where they are
+		conditionally registered), so the class-per-file and class-based-filename
+		rules do not apply to it.
 	-->
 	<rule ref="Generic.Files.OneObjectStructurePerFile">
-		<exclude-pattern>keel.php</exclude-pattern>
+		<exclude-pattern>includes/bootstrap.php</exclude-pattern>
 	</rule>
 	<rule ref="WordPress.Files.FileName">
-		<exclude-pattern>keel.php</exclude-pattern>
+		<exclude-pattern>includes/bootstrap.php</exclude-pattern>
 	</rule>
 </ruleset>
