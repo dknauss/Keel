@@ -364,14 +364,14 @@ function keel_defaults_schema() {
 			'group'     => 'login',
 			'label'     => 'Remember Me',
 			'statement' => 'Disable Remember Me and remove the login checkbox',
-			'help'      => 'Hides the checkbox and caps sessions short. Good for shared/kiosk machines.',
+			'help'      => 'Removes the Remember Me checkbox from the login form and caps remembered logins at 2 days. Useful for shared or kiosk machines.',
 		),
 		'remember_me_days'                => array(
 			'default' => 5,
 			'type'    => 'number',
 			'group'   => 'login',
 			'label'   => 'Remember Me length (days)',
-			'help'    => 'Caps the persistent session. Core default is 14. Set 0 to leave core alone.',
+			'help'    => 'Caps a remembered login. WordPress's default is 14 days; set 0 to use it.',
 			'depends' => array(
 				'field'     => 'disable_remember_me',
 				'hide_when' => 'yes',
@@ -382,7 +382,7 @@ function keel_defaults_schema() {
 			'type'    => 'number',
 			'group'   => 'login',
 			'label'   => 'Regular session length (hours)',
-			'help'    => 'Length of a non-remembered login. 0 = leave the core default (2 days).',
+			'help'    => 'Length of a non-remembered login. Set 0 to use WordPress's default (2 days).',
 		),
 
 		// --- Branding ---------------------------------------------------
