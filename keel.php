@@ -393,9 +393,9 @@ function keel_defaults_schema() {
 			'label'   => 'Login logo',
 			'help'    => 'The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page.',
 			'choices' => array(
-				'keep_default' => 'Keep the WordPress logo and wp.org link (WordPress default)',
-				'remove_logo'  => 'Remove the logo and the wp.org link',
-				'unlink_logo'  => 'Keep the logo, drop the wp.org link',
+				'keep_default' => 'Keep the WordPress logo and wordpress.org link (WordPress default)',
+				'remove_logo'  => 'Remove the logo and the wordpress.org link',
+				'unlink_logo'  => 'Keep the logo, drop the wordpress.org link',
 				'replace_logo' => 'Replace the logo with the site icon',
 			),
 		),
@@ -406,8 +406,8 @@ function keel_defaults_schema() {
 			'type'      => 'toggle',
 			'group'     => 'performance',
 			'label'     => 'Heartbeat API',
-			'statement' => 'Throttle the Heartbeat API',
-			'help'      => 'Slows admin polling to 60s and drops it on the dashboard home.',
+			'statement' => 'Slow background admin polling',
+			'help'      => 'Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default — Heartbeat also drives autosave and post-lock, so throttle it deliberately.',
 		),
 	);
 
