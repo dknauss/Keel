@@ -89,6 +89,13 @@ function keel_defaults_schema() {
 			'label'   => 'Require strong passwords',
 			'help'    => 'Server-side rule: 15+ characters, screened for known breaches — length + screening, not forced composition (per NIST).',
 		),
+		'limit_unfiltered_html_to_admins' => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'security',
+			'label'   => 'Limit raw HTML/JavaScript to Administrators',
+			'help'    => 'Removes the unfiltered_html capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
+		),
 		'remove_version' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
@@ -363,6 +370,53 @@ function keel_defaults_allow_translation_updates( $enabled ) {
 }
 
 
+/**
+ * Remove `unfiltered_html` from non-Administrators when the hardening default is on.
+ *
+ * Runs on `user_has_cap`, so it sees the capability map WordPress resolved for a
+ * user and drops `unfiltered_html` for anyone who is not an Administrator (or, on
+ * multisite, a Super Admin). Editors hold `unfiltered_html` by default on
+ * single-site installs — enough to save a raw `<script>` — so this closes that.
+ *
+ * Recursion trap — the reason this reads roles/caps directly, and why the
+ * `is_super_admin()` call is guarded by `is_multisite()`: this runs *inside* the
+ * `user_has_cap` filter, so any capability check it performs re-enters the same
+ * filter and recurses until the stack blows. Decide only from `$user->roles` and
+ * the already-resolved `$allcaps` — never `current_user_can()` / `user_can()`.
+ * `is_super_admin()` is safe *only* on multisite, where it consults the network
+ * super-admin list; on single-site it internally calls `has_cap( 'delete_users' )`,
+ * which would recurse — hence the `is_multisite()` guard in front of it.
+ *
+ * @param array    $allcaps User's resolved capabilities.
+ * @param array    $caps    Required primitive caps (unused).
+ * @param array    $args    Context args (unused).
+ * @param \WP_User $user    The user being checked.
+ * @return array
+ */
+function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
+	if ( empty( $allcaps['unfiltered_html'] ) ) {
+		return $allcaps;
+	}
+
+	$roles = ( isset( $user->roles ) && is_array( $user->roles ) ) ? $user->roles : array();
+
+	// Administrators keep it. `manage_options` is already in $allcaps (the
+	// resolved-cap proxy for "is an admin"), so reading it here does not recurse.
+	if ( in_array( 'administrator', $roles, true ) || ! empty( $allcaps['manage_options'] ) ) {
+		return $allcaps;
+	}
+
+	// Super Admins keep it on multisite. See the recursion note above for why
+	// is_super_admin() is only called behind is_multisite().
+	if ( is_multisite() && isset( $user->ID ) && is_super_admin( $user->ID ) ) {
+		return $allcaps;
+	}
+
+	$allcaps['unfiltered_html'] = false;
+
+	return $allcaps;
+}
+
 /* =======================================================================
  * BOOTSTRAP — wire each enabled policy to its hook.
  * ===================================================================== */
@@ -496,6 +550,11 @@ function keel_defaults_bootstrap() {
 		add_action( 'validate_password_reset', 'keel_defaults_validate_reset_password', 10, 2 );
 		add_filter( 'rest_endpoints', 'keel_defaults_guard_rest_password_arg' );
 		add_filter( 'rest_pre_insert_user', 'keel_defaults_validate_rest_password', 10, 2 );
+	}
+
+	if ( keel_defaults_enabled( 'limit_unfiltered_html_to_admins' ) ) {
+		// Very late, so it has the final say over other user_has_cap filters.
+		add_filter( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4 );
 	}
 
 	if ( keel_defaults_enabled( 'remove_version' ) ) {

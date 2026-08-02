@@ -12,7 +12,8 @@
   },
   "scripts": {
     "lint": "phpcs --standard=phpcs.xml",
-    "lint:fix": "phpcbf --standard=phpcs.xml"
+    "lint:fix": "phpcbf --standard=phpcs.xml",
+    "test": "php tests/unfiltered-html.php"
   },
   "config": {
     "allow-plugins": {
