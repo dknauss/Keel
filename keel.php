@@ -212,6 +212,15 @@ function keel_defaults_schema() {
 			'help'    => 'Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default.',
 		),
 
+		// --- Media -----------------------------------------------------
+		'lowercase_upload_filenames' => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'media',
+			'label'   => 'Lowercase upload filenames',
+			'help'    => 'Lowercases new upload filenames, avoiding case-sensitivity surprises when files move between local/staging (case-insensitive) and Linux production (case-sensitive). On by default; only affects new uploads.',
+		),
+
 		// --- Admin & front-end UX --------------------------------------
 		'title_only_admin_search' => array(
 			'default' => 'no',
@@ -230,6 +239,20 @@ function keel_defaults_schema() {
 				''               => 'Leave unchanged (WordPress default)',
 				'hide_non_admins' => 'Hide for non-admins',
 				'hide_all'        => 'Hide for everyone',
+			),
+		),
+		'admin_menu_width' => array(
+			'default' => 'default',
+			'type'    => 'select',
+			'group'   => 'ux',
+			'label'   => 'Admin menu width',
+			'help'    => 'Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px.',
+			'choices' => array(
+				'default' => 'WordPress default (160px)',
+				'200'     => '200px',
+				'240'     => '240px',
+				'280'     => '280px',
+				'300'     => '300px',
 			),
 		),
 
@@ -289,6 +312,7 @@ function keel_defaults_groups() {
 		'updates'     => 'Updates',
 		'content'     => 'Content & Public Surfaces',
 		'editor'      => 'Editor',
+		'media'       => 'Media',
 		'ux'          => 'Admin & Front-End UX',
 		'login'       => 'Login & Sessions',
 		'branding'    => 'Branding',
@@ -492,6 +516,87 @@ function keel_defaults_force_classic_editor() {
 	add_filter( 'use_block_editor_for_post_type', '__return_false' );
 	add_filter( 'gutenberg_can_edit_post', '__return_false' );  // standalone Gutenberg feature plugin
 	add_filter( 'use_widgets_block_editor', '__return_false' ); // classic Widgets screen
+}
+
+/**
+ * Lowercase a new upload filename.
+ *
+ * Hooked to sanitize_file_name at priority 20 (after core sanitisation), so
+ * only new uploads are affected. UTF-8 aware where mbstring is available.
+ *
+ * @param string $filename Sanitised filename.
+ * @return string
+ */
+function keel_defaults_lowercase_filename( $filename ) {
+	return function_exists( 'mb_strtolower' ) ? mb_strtolower( $filename, 'UTF-8' ) : strtolower( $filename );
+}
+
+/**
+ * Print the CSS that widens the left admin menu.
+ *
+ * Registered only when a non-default width is selected. Widths come from a fixed
+ * allowlist in the schema, so the stored value is a known integer.
+ */
+function keel_defaults_admin_menu_width_css() {
+	$width = (int) keel_defaults_get( 'admin_menu_width' );
+
+	if ( $width < 161 ) {
+		return;
+	}
+	?>
+	<style id="keel-admin-menu-width">
+		@media screen and (min-width: 783px) {
+			#adminmenu,
+			#adminmenuback,
+			#adminmenuwrap,
+			#adminmenu li.menu-top,
+			#adminmenu .wp-submenu {
+				width: <?php echo (int) $width; ?>px;
+			}
+			#adminmenuback {
+				position: fixed;
+				top: 0;
+				bottom: -120px;
+			}
+			#adminmenu li.menu-top > a.menu-top,
+			#adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+			#adminmenu li.current a.menu-top {
+				width: auto;
+			}
+			#wpcontent,
+			#wpfooter {
+				margin-left: <?php echo (int) $width; ?>px;
+			}
+			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+				left: <?php echo (int) $width; ?>px;
+			}
+			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+				left: auto;
+			}
+			.rtl #wpcontent,
+			.rtl #wpfooter {
+				margin-right: <?php echo (int) $width; ?>px;
+				margin-left: 0;
+			}
+			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+				right: <?php echo (int) $width; ?>px;
+				left: auto;
+			}
+			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+				right: auto;
+			}
+			.folded #wpcontent,
+			.folded #wpfooter {
+				margin-left: 36px;
+			}
+			.rtl.folded #wpcontent,
+			.rtl.folded #wpfooter {
+				margin-right: 36px;
+				margin-left: 0;
+			}
+		}
+	</style>
+	<?php
 }
 
 /* =======================================================================
@@ -836,6 +941,16 @@ function keel_defaults_bootstrap() {
 		add_filter( 'show_admin_bar', function ( $show ) {
 			return current_user_can( 'manage_options' ) ? $show : false;
 		} );
+	}
+
+	if ( 'default' !== keel_defaults_get( 'admin_menu_width' ) ) {
+		add_action( 'admin_head', 'keel_defaults_admin_menu_width_css' );
+	}
+
+	/* ----- Media ----- */
+
+	if ( keel_defaults_enabled( 'lowercase_upload_filenames' ) ) {
+		add_filter( 'sanitize_file_name', 'keel_defaults_lowercase_filename', 20 );
 	}
 
 	/* ----- Login & sessions ----- */
