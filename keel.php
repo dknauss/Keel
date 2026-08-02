@@ -371,7 +371,7 @@ function keel_defaults_schema() {
 			'type'    => 'number',
 			'group'   => 'login',
 			'label'   => 'Remember Me length (days)',
-			'help'    => 'Caps a remembered login. WordPress's default is 14 days; set 0 to use it.',
+			'help'    => 'Caps a remembered login. WordPress\'s default is 14 days; set 0 to use it.',
 			'depends' => array(
 				'field'     => 'disable_remember_me',
 				'hide_when' => 'yes',
@@ -382,7 +382,7 @@ function keel_defaults_schema() {
 			'type'    => 'number',
 			'group'   => 'login',
 			'label'   => 'Regular session length (hours)',
-			'help'    => 'Length of a non-remembered login. Set 0 to use WordPress's default (2 days).',
+			'help'    => 'Length of a non-remembered login. Set 0 to use WordPress\'s default (2 days).',
 		),
 
 		// --- Branding ---------------------------------------------------
