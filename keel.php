@@ -96,6 +96,13 @@ function keel_defaults_schema() {
 			'label'   => 'Limit raw HTML/JavaScript to Administrators',
 			'help'    => 'Removes the unfiltered_html capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.',
 		),
+		'reserved_usernames' => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'security',
+			'label'   => 'Reserve common and system usernames',
+			'help'    => 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s illegal_user_logins list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the keel_reserved_usernames filter.',
+		),
 		'remove_version' => array(
 			'default' => 'no',
 			'type'    => 'toggle',
@@ -417,6 +424,50 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 	return $allcaps;
 }
 
+/**
+ * Common system, role, and generic usernames reserved from new-account creation.
+ *
+ * Returned through the `illegal_user_logins` core filter, so WordPress refuses to
+ * *create* an account with any of these names — across registration, the admin
+ * Add User screen, the REST users endpoint, and multisite signup (core lower-cases
+ * both sides, so entries are lower-case here). Existing accounts are never touched.
+ * The names attackers guess first (`admin`, `administrator`, `root`) sit alongside
+ * generic role mailboxes that make weak, predictable logins. Filter
+ * `keel_reserved_usernames` to extend or trim the list.
+ *
+ * @return string[] Reserved usernames.
+ */
+function keel_reserved_usernames_list() {
+	$reserved = array(
+		'abuse', 'access', 'admin', 'administrator', 'backup', 'billing', 'blog',
+		'business', 'client', 'compliance', 'contact', 'data', 'demo', 'devnull',
+		'dns', 'doctor', 'ftp', 'guest', 'hostmaster', 'info', 'information',
+		'inoc', 'internet', 'ispfeedback', 'ispsupport', 'list', 'list-request',
+		'login', 'maildaemon', 'manager', 'marketing', 'master', 'mysql', 'noc',
+		'no-reply', 'noreply', 'null', 'number', 'office', 'pass', 'password',
+		'phish', 'phishing', 'postmaster', 'privacy', 'public', 'registrar', 'root',
+		'sales', 'security', 'server', 'service', 'spam', 'sql', 'support',
+		'sysadmin', 'tech', 'test', 'tester', 'undisclosed-recipients',
+		'unsubscribe', 'user', 'user2', 'username', 'usenet', 'uucp', 'webmaster',
+		'www',
+	);
+
+	return apply_filters( 'keel_reserved_usernames', $reserved );
+}
+
+/**
+ * Merge the reserved list into core's `illegal_user_logins`.
+ *
+ * Merges rather than replaces, so a host or another plugin that already reserves
+ * names keeps theirs.
+ *
+ * @param array $logins Illegal logins gathered from other sources.
+ * @return array
+ */
+function keel_defaults_reserved_usernames( $logins ) {
+	return array_merge( (array) $logins, keel_reserved_usernames_list() );
+}
+
 /* =======================================================================
  * BOOTSTRAP — wire each enabled policy to its hook.
  * ===================================================================== */
@@ -555,6 +606,10 @@ function keel_defaults_bootstrap() {
 	if ( keel_defaults_enabled( 'limit_unfiltered_html_to_admins' ) ) {
 		// Very late, so it has the final say over other user_has_cap filters.
 		add_filter( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4 );
+	}
+
+	if ( keel_defaults_enabled( 'reserved_usernames' ) ) {
+		add_filter( 'illegal_user_logins', 'keel_defaults_reserved_usernames' );
 	}
 
 	if ( keel_defaults_enabled( 'remove_version' ) ) {

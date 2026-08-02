@@ -20,7 +20,8 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
 
 - [x] `limit_unfiltered_html_to_admins` — first port; `user_has_cap` filter, default on,
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
-- [ ] reserved usernames
+- [x] reserved usernames — `illegal_user_logins` (block creation, NOT PX's authenticate/
+      login block, which risks locking out existing legit accounts). Test: tests/reserved-usernames.php
 - [ ] force classic editor
 - [ ] admin menu width · lowercase upload filenames · media sizes panel ·
       hide admin bar for non-admins · helper list columns
