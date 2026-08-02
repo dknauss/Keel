@@ -266,17 +266,14 @@ function keel_defaults_schema() {
 		),
 		'admin_menu_width' => array(
 			'default' => 'default',
-			'type'    => 'select',
+			'type'    => 'range',
 			'group'   => 'ux',
 			'label'   => 'Admin menu width',
-			'help'    => 'Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px.',
-			'choices' => array(
-				'default' => 'WordPress default (160px)',
-				'200'     => '200px',
-				'240'     => '240px',
-				'280'     => '280px',
-				'300'     => '300px',
-			),
+			'help'    => 'Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider.',
+			// Ordered stops. The slider posts an index (0–4) which sanitize maps back
+			// to the value — this deliberately avoids numeric option keys.
+			'values'  => array( 'default', '200', '240', '280', '300' ),
+			'labels'  => array( 'WordPress default (160px)', '200px', '240px', '280px', '300px' ),
 		),
 		'helper_list_columns' => array(
 			'default' => 'no',
@@ -1339,6 +1336,12 @@ function keel_defaults_state_label( $field, $value ) {
 		}
 		return isset( $field['choices'][ $value ] ) ? (string) $field['choices'][ $value ] : (string) $value;
 	}
+	if ( 'range' === $type ) {
+		$values = isset( $field['values'] ) ? array_map( 'strval', array_values( $field['values'] ) ) : array();
+		$labels = isset( $field['labels'] ) ? array_values( $field['labels'] ) : array();
+		$idx    = array_search( (string) $value, $values, true );
+		return ( false !== $idx && isset( $labels[ $idx ] ) ) ? (string) $labels[ $idx ] : (string) $value;
+	}
 	return (string) $value;
 }
 
@@ -2357,9 +2360,28 @@ function keel_defaults_sanitize( $input ) {
 				break;
 
 			case 'select':
-				$choices        = isset( $field['choices'] ) ? array_keys( $field['choices'] ) : array();
-				$value          = isset( $input[ $key ] ) ? (string) $input[ $key ] : $field['default'];
-				$clean[ $key ]  = in_array( $value, $choices, true ) ? $value : $field['default'];
+				// array_keys() coerces numeric-string keys to ints (e.g. '300' => 300),
+				// so cast back to strings before a strict compare against the posted
+				// (string) value — otherwise numeric choices silently fail validation
+				// and revert to the default.
+				$choices       = isset( $field['choices'] ) ? array_map( 'strval', array_keys( $field['choices'] ) ) : array();
+				$value         = isset( $input[ $key ] ) ? (string) $input[ $key ] : (string) $field['default'];
+				$clean[ $key ] = in_array( $value, $choices, true ) ? $value : (string) $field['default'];
+				break;
+
+			case 'range':
+				// The slider posts an index into the ordered values list; map it back
+				// to the stored value. Also accept a direct value (e.g. seeded default
+				// or a filter) so the store is robust either way.
+				$values  = isset( $field['values'] ) ? array_values( $field['values'] ) : array();
+				$posted  = isset( $input[ $key ] ) ? (string) $input[ $key ] : '';
+				if ( '' !== $posted && ctype_digit( $posted ) && isset( $values[ (int) $posted ] ) ) {
+					$clean[ $key ] = (string) $values[ (int) $posted ];
+				} elseif ( in_array( $posted, array_map( 'strval', $values ), true ) ) {
+					$clean[ $key ] = $posted;
+				} else {
+					$clean[ $key ] = (string) $field['default'];
+				}
 				break;
 		}
 	}
@@ -2430,6 +2452,27 @@ function keel_defaults_render_settings_page() {
 											</option>
 										<?php endforeach; ?>
 									</select>
+								<?php elseif ( 'range' === $field['type'] ) : ?>
+									<?php
+									$rvalues = array_map( 'strval', array_values( $field['values'] ) );
+									$rlabels = array_values( $field['labels'] );
+									$rcur    = array_search( (string) $value, $rvalues, true );
+									$rcur    = ( false === $rcur ) ? 0 : (int) $rcur;
+									?>
+									<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
+										name="<?php echo esc_attr( $name ); ?>"
+										id="<?php echo esc_attr( $key ); ?>-range"
+										value="<?php echo (int) $rcur; ?>"
+										class="keel-range"
+										list="<?php echo esc_attr( $key ); ?>-stops"
+										data-labels="<?php echo esc_attr( wp_json_encode( $rlabels ) ); ?>"
+										aria-describedby="<?php echo esc_attr( $key ); ?>-output" style="vertical-align:middle;max-width:240px;" />
+									<datalist id="<?php echo esc_attr( $key ); ?>-stops">
+										<?php foreach ( $rlabels as $ri => $rl ) : ?>
+											<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
+										<?php endforeach; ?>
+									</datalist>
+									<output id="<?php echo esc_attr( $key ); ?>-output" for="<?php echo esc_attr( $key ); ?>-range" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
 								<?php elseif ( 'number' === $field['type'] ) : ?>
 									<input type="number" min="0" step="1"
 										name="<?php echo esc_attr( $name ); ?>"
@@ -2449,6 +2492,19 @@ function keel_defaults_render_settings_page() {
 
 			<?php submit_button(); ?>
 		</form>
+
+		<script>
+		( function () {
+			document.querySelectorAll( '.keel-range' ).forEach( function ( el ) {
+				var labels;
+				try { labels = JSON.parse( el.getAttribute( 'data-labels' ) ); } catch ( e ) { labels = []; }
+				var out = document.getElementById( el.id.replace( /-range$/, '-output' ) );
+				el.addEventListener( 'input', function () {
+					if ( out && labels[ el.value ] !== undefined ) { out.textContent = labels[ el.value ]; }
+				} );
+			} );
+		} )();
+		</script>
 
 		<hr />
 		<p><em><?php esc_html_e( 'Three hardening moves live in wp-config.php and cannot be toggled here:', 'keel' ); ?></em></p>

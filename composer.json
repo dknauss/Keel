@@ -1,6 +1,6 @@
 {
   "name": "dknauss/keel",
-  "description": "Sane, individually-toggleable WordPress defaults — security, updates, privacy, UX, and performance.",
+  "description": "Sane, individually-toggleable WordPress defaults \u2014 security, updates, privacy, UX, and performance.",
   "type": "wordpress-plugin",
   "license": "GPL-3.0-or-later",
   "require": {
@@ -13,7 +13,8 @@
   "scripts": {
     "lint": "phpcs --standard=phpcs.xml",
     "lint:fix": "phpcbf --standard=phpcs.xml",
-    "test": "php tests/unfiltered-html.php && php tests/reserved-usernames.php && php tests/force-classic-editor.php && php tests/admin-ux-media.php && php tests/helper-columns.php && php tests/post-passwords.php && php tests/mail-failure.php && php tests/environment-indicator.php && php tests/headers.php && php tests/password-scoping.php && php tests/site-health.php"
+    "test": "php tests/unfiltered-html.php && php tests/reserved-usernames.php && php tests/force-classic-editor.php && php tests/admin-ux-media.php && php tests/helper-columns.php && php tests/post-passwords.php && php tests/mail-failure.php && php tests/environment-indicator.php && php tests/headers.php && php tests/password-scoping.php && php tests/site-health.php",
+    "test:integration": "bash tests/integration/verify-behaviors.sh"
   },
   "config": {
     "allow-plugins": {

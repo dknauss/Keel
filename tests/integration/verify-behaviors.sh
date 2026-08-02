@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+#
+# Integration behaviour tests for Keel against a REAL WordPress install.
+#
+# Unit tests (tests/*.php) check functions in isolation with stubs. They cannot
+# tell whether a setting actually changes WordPress's behaviour — the way the
+# admin-menu-width bug passed its unit test but did nothing on a real site. This
+# harness sets each option in the database and asserts the real effect through a
+# fresh WordPress load (so the schema-driven bootstrap re-wires with that value).
+#
+# Default target is the Studio site at ~/Studio/keel-test. Override with:
+#   KEEL_SITE=/path/to/wp  bash tests/integration/verify-behaviors.sh
+# Uses `studio wp` when the path is a Studio site, else plain `wp --path`.
+
+set -u
+SITE="${KEEL_SITE:-$HOME/Studio/keel-test}"
+
+if command -v studio >/dev/null 2>&1 && [ -f "$SITE/wp-content/db.php" ]; then
+	WPBIN() { studio wp --path="$SITE" "$@"; }
+else
+	WPBIN() { wp --path="$SITE" "$@"; }
+fi
+# Strip Studio's spinner frames, ANSI, and PHP deprecation noise from output.
+WP() { WPBIN "$@" 2>&1 | LC_ALL=C sed -E 's/\x1b\[[0-9;]*m//g; s/[[:cntrl:]]//g' | grep -avE "Deprecated: Case|react/promise|Loading sites"; }
+
+pass=0; fail=0
+setopt() { WPBIN option patch update keel_settings "$1" "$2" >/dev/null 2>&1; }
+# check <description> <php-that-echoes-OK-on-success>
+check() {
+	local out
+	out=$(WP eval "$2" | tr -d '[:space:]')
+	if [ "$out" = "OK" ]; then
+		printf '  \033[32mPASS\033[0m  %s\n' "$1"; pass=$((pass+1))
+	else
+		printf '  \033[31mFAIL\033[0m  %s  (got: %s)\n' "$1" "$out"; fail=$((fail+1))
+	fi
+}
+
+echo "Target: $SITE"
+probe=$(WP eval 'echo function_exists("keel_defaults_schema") ? "READY" : "NO";' | tr -d '[:space:]')
+[ "$probe" = "READY" ] || { echo "keel not loaded on this site (probe: $probe)"; exit 2; }
+
+echo; echo "== Security headers =="
+setopt security_headers yes; setopt frame_options SAMEORIGIN
+check "X-Content-Type-Options: nosniff is sent"        '$h=apply_filters("wp_headers",array());echo (($h["X-Content-Type-Options"]??"")==="nosniff")?"OK":"no";'
+check "Referrer-Policy is sent"                        '$h=apply_filters("wp_headers",array());echo (($h["Referrer-Policy"]??"")==="strict-origin-when-cross-origin")?"OK":"no";'
+check "X-Frame-Options: SAMEORIGIN is sent"            '$h=apply_filters("wp_headers",array());echo (($h["X-Frame-Options"]??"")==="SAMEORIGIN")?"OK":"no";'
+check "a stronger existing DENY is not downgraded"     '$h=apply_filters("wp_headers",array("X-Frame-Options"=>"DENY"));echo ($h["X-Frame-Options"]==="DENY")?"OK":"no";'
+setopt security_headers no
+check "headers are absent when the toggle is off"      '$h=apply_filters("wp_headers",array());echo (!isset($h["X-Content-Type-Options"])&&!isset($h["Referrer-Policy"]))?"OK":"present";'
+setopt security_headers yes
+
+echo; echo "== Reserved usernames =="
+setopt reserved_usernames yes
+check "admin is blocked from creation"                 'echo in_array("admin",(array)apply_filters("illegal_user_logins",array()),true)?"OK":"no";'
+setopt reserved_usernames no
+check "not blocked when off"                            'echo !in_array("admin",(array)apply_filters("illegal_user_logins",array()),true)?"OK":"still";'
+setopt reserved_usernames yes
+
+echo; echo "== Comments =="
+setopt disable_comments yes
+check "comments_open forced false"                     'echo apply_filters("comments_open",true,1)?"open":"OK";'
+check "new content defaults to closed"                 'echo (apply_filters("get_default_comment_status","open")==="closed")?"OK":"open";'
+check "comment feed link removed"                      'echo apply_filters("feed_links_show_comments_feed",true)?"shown":"OK";'
+setopt disable_comments no
+check "comments_open untouched when off"                'echo apply_filters("comments_open",true,1)?"OK":"closed";'
+setopt disable_comments yes
+
+echo; echo "== Editor / classic =="
+setopt force_classic_editor yes
+check "block editor disabled for posts"                'echo apply_filters("use_block_editor_for_post",true,null)?"block":"OK";'
+setopt force_classic_editor no
+check "block editor restored when off"                 'echo apply_filters("use_block_editor_for_post",true,null)?"OK":"still-off";'
+
+echo; echo "== Uploads =="
+setopt lowercase_upload_filenames yes
+check "upload filename lowercased"                      'echo (apply_filters("sanitize_file_name","MixedCase.PNG")==="mixedcase.png")?"OK":apply_filters("sanitize_file_name","MixedCase.PNG");'
+setopt lowercase_upload_filenames no
+check "filename case preserved when off"                'echo (apply_filters("sanitize_file_name","MixedCase.PNG")==="MixedCase.PNG")?"OK":"changed";'
+
+echo; echo "== Emoji =="
+setopt disable_emojis yes
+check "emoji detection script unhooked"                'echo has_action("wp_head","print_emoji_detection_script")?"still":"OK";'
+
+echo; echo "== Author archives =="
+setopt disable_author_archives yes
+check "author archive redirect hooked"                 'echo has_action("template_redirect")?"OK":"no";'
+
+echo; echo "== Admin menu width =="
+setopt admin_menu_width 240
+check "width CSS hooked on admin_head"                 'echo has_action("admin_head","keel_defaults_admin_menu_width_css")?"OK":"no";'
+check "CSS output carries the width with !important"   'ob_start();keel_defaults_admin_menu_width_css();$c=ob_get_clean();echo (strpos($c,"240px !important")!==false)?"OK":"no";'
+setopt admin_menu_width default
+check "no width hook at default"                       'echo has_action("admin_head","keel_defaults_admin_menu_width_css")?"still":"OK";'
+
+echo; echo "== Environment indicator =="
+setopt environment_indicator yes
+check "admin bar node hooked when on"                  'echo has_action("admin_bar_menu","keel_defaults_environment_toolbar_item")?"OK":"no";'
+setopt environment_indicator no
+check "no admin bar node when off"                     'echo has_action("admin_bar_menu","keel_defaults_environment_toolbar_item")?"still":"OK";'
+
+echo; echo "== Post passwords =="
+setopt disable_post_passwords yes
+check "password UI hider hooked"                       'echo has_action("admin_print_footer_scripts","keel_defaults_hide_post_password_ui")?"OK":"no";'
+setopt disable_post_passwords no
+
+echo; echo "== Strong passwords + role scoping =="
+setopt require_strong_passwords yes
+check "profile password validator hooked"              'echo has_action("user_profile_update_errors","keel_defaults_validate_profile_password")?"OK":"no";'
+check "subscriber exempt from enforcement"             '$u=(object)["roles"=>["subscriber"]];echo keel_defaults_password_enforced_for_user($u)?"enforced":"OK";'
+check "administrator enforced"                         '$u=(object)["roles"=>["administrator"]];echo keel_defaults_password_enforced_for_user($u)?"OK":"exempt";'
+
+echo; echo "== XML-RPC =="
+setopt xmlrpc_allow_pingbacks no
+check "pingback.ping method removed"                   '$m=apply_filters("xmlrpc_methods",array("pingback.ping"=>"x","demo.sayHello"=>"y"));echo isset($m["pingback.ping"])?"present":"OK";'
+
+echo; echo "== REST user discovery =="
+setopt restrict_rest_user_discovery yes
+check "users endpoint filter registered"               'echo has_filter("rest_endpoints")?"OK":"no";'
+
+echo; echo "== Core updates =="
+setopt core_update_policy minor
+check "minor auto-updates allowed"                     'echo apply_filters("allow_minor_auto_core_updates",false)?"OK":"blocked";'
+check "major auto-updates blocked under minor"         'echo apply_filters("allow_major_auto_core_updates",true)?"allowed":"OK";'
+setopt core_update_policy all
+check "major allowed under all"                        'echo apply_filters("allow_major_auto_core_updates",false)?"OK":"blocked";'
+setopt core_update_policy minor
+
+echo; echo "== Site Health =="
+check "posture test registered"                        '$t=apply_filters("site_status_tests",array("direct"=>array()));echo isset($t["direct"]["keel_defaults_posture"])?"OK":"no";'
+
+echo
+printf 'Result: \033[32m%d passed\033[0m, ' "$pass"
+if [ "$fail" -gt 0 ]; then printf '\033[31m%d failed\033[0m\n' "$fail"; exit 1; else printf '0 failed\n'; fi

@@ -40,9 +40,21 @@ $schema = keel_defaults_schema();
 keel_assert( 'yes' === $schema['lowercase_upload_filenames']['default'], 'lowercase_upload_filenames defaults on.' );
 keel_assert( 'media' === $schema['lowercase_upload_filenames']['group'], 'lowercase_upload_filenames is in the Media group.' );
 
-// --- admin_menu_width ---
+// --- admin_menu_width (index-based range: slider posts an index, sanitize maps to value) ---
 keel_assert( 'default' === $schema['admin_menu_width']['default'], 'admin_menu_width defaults to WordPress default.' );
-keel_assert( isset( $schema['admin_menu_width']['choices']['240'] ), 'admin_menu_width offers the 240px choice.' );
+keel_assert( 'range' === $schema['admin_menu_width']['type'], 'admin_menu_width is a range slider.' );
+keel_assert( in_array( '240', $schema['admin_menu_width']['values'], true ), 'admin_menu_width offers the 240px stop.' );
+
+// Regression for the save bug: a posted slider index must map to its value and persist,
+// not fall through to the default (numeric option keys used to break the strict compare).
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '4' ) ); // index 4 = 300
+keel_assert( '300' === $saved['admin_menu_width'], 'Slider index 4 saves as 300, not the default.' );
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '0' ) ); // index 0 = default
+keel_assert( 'default' === $saved['admin_menu_width'], 'Slider index 0 saves as default.' );
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '300' ) ); // direct value also accepted
+keel_assert( '300' === $saved['admin_menu_width'], 'A direct width value is accepted too.' );
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '99' ) ); // out-of-range index → default
+keel_assert( 'default' === $saved['admin_menu_width'], 'An out-of-range index falls back to default.' );
 
 // Default width prints no CSS.
 $GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => 'default' );
