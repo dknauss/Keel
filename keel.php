@@ -407,7 +407,7 @@ function keel_defaults_schema() {
 			'group'     => 'performance',
 			'label'     => 'Heartbeat API',
 			'statement' => 'Slow background admin polling',
-			'help'      => 'Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default — Heartbeat also drives autosave and post-lock, so throttle it deliberately.',
+			'help'      => 'Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enable this only if you are fine with those updating less often.',
 		),
 	);
 
