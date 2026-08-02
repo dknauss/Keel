@@ -1362,13 +1362,33 @@ function keel_defaults_auto_hide_admin_bar_css() {
 			html {
 				margin-top: 0 !important;
 			}
+			/*
+			 * Slide the bar fully off-screen with `top` (not `transform`), so it
+			 * leaves no visible sliver. Keeping the bar transform-free lets its own
+			 * fixed-position ::before below stay anchored to the viewport top as the
+			 * reveal target.
+			 */
 			#wpadminbar {
-				transform: translateY(calc(-100% + 4px));
-				transition: transform 160ms ease-in-out;
+				top: -50px !important;
+				transition: top 160ms ease-in-out;
+			}
+			/*
+			 * A transparent strip pinned to the top edge. It is part of #wpadminbar,
+			 * so hovering it triggers the bar's :hover — but because the bar has no
+			 * transform, this `position: fixed` resolves against the viewport, so the
+			 * strip stays put while the bar itself is hidden above.
+			 */
+			#wpadminbar::before {
+				content: "";
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				height: 5px;
 			}
 			#wpadminbar:hover,
 			#wpadminbar:focus-within {
-				transform: translateY(0);
+				top: 0 !important;
 			}
 		}
 	</style>
