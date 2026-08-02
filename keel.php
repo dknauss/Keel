@@ -321,7 +321,7 @@ function keel_defaults_schema() {
 			'type'    => 'select',
 			'group'   => 'ux',
 			'label'   => 'Front-end admin bar',
-			'help'    => 'Control the floating admin bar on the front of the site.',
+			'help'    => 'The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins, or for everyone.',
 			'choices' => array(
 				''                => 'Leave unchanged (WordPress default)',
 				'hide_non_admins' => 'Hide for non-admins',
