@@ -171,12 +171,14 @@ function keel_defaults_dep_state( $field ) {
  * Echo a field's description paragraph (allows <code> and links).
  *
  * @param string $help Description text (already translated).
+ * @param string $id   Optional id, so a control can point aria-describedby at it.
  */
-function keel_defaults_render_help( $help ) {
+function keel_defaults_render_help( $help, $id = '' ) {
 	if ( '' === (string) $help ) {
 		return;
 	}
-	echo '<p class="description">' . wp_kses(
+	$id_attr = ( '' !== $id ) ? ' id="' . esc_attr( $id ) . '"' : '';
+	echo '<p class="description"' . $id_attr . '>' . wp_kses( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- id_attr is esc_attr()'d.
 		$help,
 		array(
 			'code' => array(),
@@ -192,17 +194,20 @@ function keel_defaults_render_help( $help ) {
 /**
  * Echo a checkbox + its "true when checked" statement (the <label> only).
  *
- * @param string $name      Field input name.
- * @param mixed  $value     Current value.
- * @param string $statement The "true when checked" statement (already translated).
- * @param bool   $disabled  Whether to render the checkbox disabled.
+ * @param string $name        Field input name.
+ * @param mixed  $value       Current value.
+ * @param string $statement   The "true when checked" statement (already translated).
+ * @param bool   $disabled    Whether to render the checkbox disabled.
+ * @param string $describedby Space-separated ids for aria-describedby (help/lock).
  */
-function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = false ) {
+function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = false, $describedby = '' ) {
+	$aria = ( '' !== $describedby ) ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '';
 	printf(
-		'<label><input type="checkbox" name="%s" value="yes" %s%s /> %s</label>',
+		'<label><input type="checkbox" name="%s" value="yes" %s%s%s /> %s</label>',
 		esc_attr( $name ),
 		checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a fixed literal.
 		disabled( $disabled, true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- disabled() returns a fixed literal.
+		$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
 		wp_kses( $statement, array( 'code' => array() ) )
 	);
 }
@@ -319,6 +324,15 @@ function keel_defaults_render_settings_page() {
 						$lock   = keel_defaults_config_lock( $key );
 						$locked = null !== $lock;
 
+						// Accessible-name / description wiring for screen readers: the
+						// help, lock note, and unit each get a stable id, and controls
+						// point aria-describedby at whichever exist (lock first, so the
+						// reason a control is disabled is announced up front).
+						$help_id     = ( '' !== $help ) ? 'keel-' . $key . '-desc' : '';
+						$lock_id     = $locked ? 'keel-' . $key . '-lock' : '';
+						$unit_id     = ! empty( $s['unit'] ) ? 'keel-' . $key . '-unit' : '';
+						$describedby = trim( implode( ' ', array_filter( array( $lock_id, $unit_id, $help_id ) ) ) );
+
 						// Sectioned toggles stack as checkboxes under one shared row (core pattern).
 						if ( null !== $sec ) {
 							if ( null === $section_open ) {
@@ -329,8 +343,8 @@ function keel_defaults_render_settings_page() {
 							}
 							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
-							keel_defaults_render_checkbox( $name, $value, $statement );
-							keel_defaults_render_help( $help );
+							keel_defaults_render_checkbox( $name, $value, $statement, false, $describedby );
+							keel_defaults_render_help( $help, $help_id );
 							echo '</div>';
 							continue;
 						}
@@ -347,13 +361,13 @@ function keel_defaults_render_settings_page() {
 										<?php if ( $locked && 'yes' === $value ) : ?>
 											<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="yes" />
 										<?php endif; ?>
-										<?php keel_defaults_render_checkbox( $name, $value, $statement, $locked ); ?>
+										<?php keel_defaults_render_checkbox( $name, $value, $statement, $locked, $describedby ); ?>
 									</fieldset>
 								<?php elseif ( 'select' === $field['type'] ) : ?>
 									<?php if ( $locked ) : ?>
 										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 									<?php endif; ?>
-									<select name="<?php echo esc_attr( $name ); ?>" <?php disabled( $locked ); ?>>
+									<select name="<?php echo esc_attr( $name ); ?>" aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?> <?php disabled( $locked ); ?>>
 										<?php foreach ( $field['choices'] as $ck ) : ?>
 											<option value="<?php echo esc_attr( $ck ); ?>" <?php selected( $ck, $value ); ?>>
 												<?php echo esc_html( isset( $s['choices'][ $ck ] ) ? $s['choices'][ $ck ] : $ck ); ?>
@@ -380,13 +394,14 @@ function keel_defaults_render_settings_page() {
 											id="<?php echo esc_attr( $rid ); ?>-range"
 											value="<?php echo (int) $rcur; ?>"
 											list="<?php echo esc_attr( $rid ); ?>-stops"
-											aria-describedby="<?php echo esc_attr( $rid ); ?>-output" style="vertical-align:middle;max-width:240px;" />
+											aria-label="<?php echo esc_attr( $label ); ?>"
+											aria-describedby="<?php echo esc_attr( trim( $rid . '-output ' . $describedby ) ); ?>" style="vertical-align:middle;max-width:240px;" />
 										<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
 											<?php foreach ( $rlabels as $ri => $rl ) : ?>
 												<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
 											<?php endforeach; ?>
 										</datalist>
-										<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
+										<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="polite" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
 										<style id="<?php echo esc_attr( $rid ); ?>-preview">
 											@media screen and (min-width: 783px) {
 												body.keel-menu-width-preview #adminmenu,
@@ -469,14 +484,15 @@ function keel_defaults_render_settings_page() {
 									<input type="number" min="<?php echo esc_attr( isset( $field['min'] ) ? (int) $field['min'] : 0 ); ?>" step="1"
 										name="<?php echo esc_attr( $name ); ?>"
 										value="<?php echo esc_attr( $value ); ?>"
+										aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>
 										class="small-text" />
 									<?php if ( ! empty( $s['unit'] ) ) : ?>
-										<span class="keel-unit" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>
+										<span class="keel-unit" id="<?php echo esc_attr( $unit_id ); ?>" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>
 									<?php endif; ?>
 								<?php elseif ( 'multiselect' === $field['type'] ) : ?>
 									<?php $ms_options = keel_defaults_exemptable_roles(); ?>
 									<?php $ms_current = array_map( 'strval', (array) $value ); ?>
-									<fieldset>
+									<fieldset<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>>
 										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
 										<?php if ( empty( $ms_options ) ) : ?>
 											<p class="description"><?php esc_html_e( 'No low-privilege roles are available to exempt.', 'keel' ); ?></p>
@@ -492,10 +508,10 @@ function keel_defaults_render_settings_page() {
 								<?php endif; ?>
 
 								<?php if ( $locked ) : ?>
-									<p class="description keel-config-lock"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
+									<p class="description keel-config-lock" id="<?php echo esc_attr( $lock_id ); ?>"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
 								<?php endif; ?>
 
-								<?php keel_defaults_render_help( $help ); ?>
+								<?php keel_defaults_render_help( $help, $help_id ); ?>
 							</td>
 						</tr>
 						<?php
