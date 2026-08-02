@@ -611,6 +611,16 @@ function keel_defaults_lowercase_filename( $filename ) {
  *
  * Registered only when a non-default width is selected. Widths come from a fixed
  * allowlist in the schema, so the stored value is a known integer.
+ *
+ * Two things are needed to actually override core (WordPress 6.x/7.x):
+ * 1. `!important` — the base width lives in the colour-scheme stylesheet
+ *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), and the `.auto-fold`
+ *    rules that collapse the menu at 783–960px have higher specificity than a
+ *    plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
+ *    which is why the plain-selector version (and pixel-experience's) does nothing
+ *    on current WordPress.
+ * 2. `body:not(.folded)` — so a menu the user has manually collapsed with the
+ *    core toggle still collapses; the widen only applies to the expanded menu.
  */
 function keel_defaults_admin_menu_width_css() {
 	$width = (int) keel_defaults_get( 'admin_menu_width' );
@@ -618,56 +628,31 @@ function keel_defaults_admin_menu_width_css() {
 	if ( $width < 161 ) {
 		return;
 	}
+	$w = (int) $width;
 	?>
 	<style id="keel-admin-menu-width">
 		@media screen and (min-width: 783px) {
-			#adminmenu,
-			#adminmenuback,
-			#adminmenuwrap,
-			#adminmenu li.menu-top,
-			#adminmenu .wp-submenu {
-				width: <?php echo (int) $width; ?>px;
+			body:not(.folded) #adminmenu,
+			body:not(.folded) #adminmenuback,
+			body:not(.folded) #adminmenuwrap,
+			body:not(.folded) #adminmenu li.menu-top {
+				width: <?php echo $w; ?>px !important;
 			}
-			#adminmenuback {
-				position: fixed;
-				top: 0;
-				bottom: -120px;
+			body:not(.folded) #wpcontent,
+			body:not(.folded) #wpfooter {
+				margin-left: <?php echo $w; ?>px !important;
 			}
-			#adminmenu li.menu-top > a.menu-top,
-			#adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
-			#adminmenu li.current a.menu-top {
-				width: auto;
+			body:not(.folded) #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+				left: <?php echo $w; ?>px;
 			}
-			#wpcontent,
-			#wpfooter {
-				margin-left: <?php echo (int) $width; ?>px;
+			body.rtl:not(.folded) #wpcontent,
+			body.rtl:not(.folded) #wpfooter {
+				margin-right: <?php echo $w; ?>px !important;
+				margin-left: 0 !important;
 			}
-			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-				left: <?php echo (int) $width; ?>px;
-			}
-			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+			body.rtl:not(.folded) #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+				right: <?php echo $w; ?>px;
 				left: auto;
-			}
-			.rtl #wpcontent,
-			.rtl #wpfooter {
-				margin-right: <?php echo (int) $width; ?>px;
-				margin-left: 0;
-			}
-			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-				right: <?php echo (int) $width; ?>px;
-				left: auto;
-			}
-			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-				right: auto;
-			}
-			.folded #wpcontent,
-			.folded #wpfooter {
-				margin-left: 36px;
-			}
-			.rtl.folded #wpcontent,
-			.rtl.folded #wpfooter {
-				margin-right: 36px;
-				margin-left: 0;
 			}
 		}
 	</style>
