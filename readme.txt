@@ -1,8 +1,8 @@
-=== Keel ===
+=== Keel Defaults ===
 Contributors: dknauss
 Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 0.1.0-dev
 License: GPL-3.0-or-later

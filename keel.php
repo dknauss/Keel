@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Keel
+ * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
  * Description:        Sane, individually-toggleable defaults for every new WordPress site — security, updates, privacy, UX, and performance. Configure under Settings → Keel.
  * Version:           0.1.0-dev
@@ -57,6 +57,7 @@ function keel_defaults_schema() {
 			'default'   => 'yes',
 			'type'      => 'toggle',
 			'group'     => 'security',
+			'section'   => 'rest',
 			'label'     => 'REST user discovery',
 			'statement' => 'Hide users from anonymous REST requests',
 			'help'      => 'Hides <code>/wp/v2/users</code> from logged-out requests (stops username enumeration).',
@@ -65,6 +66,7 @@ function keel_defaults_schema() {
 			'default'   => 'no',
 			'type'      => 'toggle',
 			'group'     => 'security',
+			'section'   => 'rest',
 			'label'     => 'REST authentication',
 			'statement' => 'Require authentication for all REST requests',
 			'help'      => 'Blocks anonymous REST entirely. The logged-in block editor still works, but public blocks, embeds, search, and integrations may not.',
@@ -73,6 +75,7 @@ function keel_defaults_schema() {
 			'default'   => 'no',
 			'type'      => 'toggle',
 			'group'     => 'security',
+			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC pingbacks',
 			'statement' => 'Accept incoming pingbacks',
 			'help'      => 'OFF (default) removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.',
@@ -85,9 +88,10 @@ function keel_defaults_schema() {
 			'default'   => 'no',
 			'type'      => 'toggle',
 			'group'     => 'security',
+			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC remote publishing',
 			'statement' => 'Allow remote publishing (blogging apps)',
-			'help'      => 'OFF (default) removes credential-authenticated wp.*/metaWeblog/MT/blogger methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
+			'help'      => 'OFF (default) removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
 				'hide_when' => 'yes',
@@ -97,8 +101,9 @@ function keel_defaults_schema() {
 			'default'   => 'no',
 			'type'      => 'toggle',
 			'group'     => 'security',
+			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC multicall',
-			'statement' => 'Allow system.multicall',
+			'statement' => 'Allow <code>system.multicall</code>',
 			'help'      => 'OFF (default) refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
@@ -109,6 +114,7 @@ function keel_defaults_schema() {
 			'default'   => 'no',
 			'type'      => 'toggle',
 			'group'     => 'security',
+			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC endpoint',
 			'statement' => 'Block the endpoint entirely (returns 403)',
 			'help'      => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
@@ -165,7 +171,7 @@ function keel_defaults_schema() {
 			'default' => 'SAMEORIGIN',
 			'type'    => 'select',
 			'group'   => 'security',
-			'label'   => 'X-Frame-Options (Clickjacking)',
+			'label'   => 'Frame options',
 			'help'    => 'Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere.',
 			'choices' => array(
 				'SAMEORIGIN' => 'SAMEORIGIN — only this site may frame it',
@@ -187,7 +193,7 @@ function keel_defaults_schema() {
 			'default' => 'minor',
 			'type'    => 'select',
 			'group'   => 'updates',
-			'label'   => 'Automatic WordPress Core Updates',
+			'label'   => 'Core auto-updates',
 			'help'    => 'Maintenance and security releases install automatically by default. Major releases should be tested and deployed within 30 days. An explicit <code>wp-config.php</code> policy takes precedence.',
 			'choices' => array(
 				'minor'   => 'Maintenance/security releases only — recommended',
@@ -236,7 +242,7 @@ function keel_defaults_schema() {
 			'group'     => 'content',
 			'label'     => 'Author archives',
 			'statement' => 'Disable public author archives',
-			'help'      => 'Redirects /author/{slug}/ to home (another enumeration + thin-content fix).',
+			'help'      => 'Redirects <code>/author/{slug}/</code> to home (another enumeration + thin-content fix).',
 		),
 		'redirect_attachment_pages'       => array(
 			'default'   => 'yes',
@@ -314,7 +320,7 @@ function keel_defaults_schema() {
 			'default' => '',
 			'type'    => 'select',
 			'group'   => 'ux',
-			'label'   => 'Front-End Admin Bar',
+			'label'   => 'Front-end admin bar',
 			'help'    => 'Control the floating admin bar on the front of the site.',
 			'choices' => array(
 				''                => 'Leave unchanged (WordPress default)',
@@ -326,7 +332,7 @@ function keel_defaults_schema() {
 			'default' => 'default',
 			'type'    => 'range',
 			'group'   => 'ux',
-			'label'   => 'Admin Menu Width',
+			'label'   => 'Admin menu width',
 			'help'    => 'Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider.',
 			// Ordered stops. The slider posts an index (0–4) which sanitize maps back
 			// to the value — this deliberately avoids numeric option keys.
@@ -363,7 +369,7 @@ function keel_defaults_schema() {
 			'default' => 5,
 			'type'    => 'number',
 			'group'   => 'login',
-			'label'   => 'Remember Me Length (Days)',
+			'label'   => 'Remember Me length (days)',
 			'help'    => 'Caps the persistent session. Core default is 14. Set 0 to leave core alone.',
 			'depends' => array(
 				'field'     => 'disable_remember_me',
@@ -374,7 +380,7 @@ function keel_defaults_schema() {
 			'default' => 0,
 			'type'    => 'number',
 			'group'   => 'login',
-			'label'   => 'Regular Session Length (Hours)',
+			'label'   => 'Regular session length (hours)',
 			'help'    => 'Length of a non-remembered login. 0 = leave the core default (2 days).',
 		),
 
@@ -383,7 +389,7 @@ function keel_defaults_schema() {
 			'default' => 'keep_default',
 			'type'    => 'select',
 			'group'   => 'branding',
-			'label'   => 'Login Logo',
+			'label'   => 'Login logo',
 			'help'    => 'The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page.',
 			'choices' => array(
 				'keep_default' => 'Keep the WordPress logo and wp.org link (WordPress default)',
@@ -420,6 +426,20 @@ function keel_defaults_groups() {
 		'login'       => 'Login & Sessions',
 		'branding'    => 'Branding',
 		'performance' => 'Performance',
+	);
+}
+
+/**
+ * Section titles. Toggles that share a section render as stacked checkboxes under
+ * one table row (the WordPress-core pattern, e.g. Discussion's "Default post
+ * settings"), instead of one row each.
+ *
+ * @return string[]
+ */
+function keel_defaults_sections() {
+	return array(
+		'rest'   => 'REST API',
+		'xmlrpc' => 'XML-RPC',
 	);
 }
 
@@ -1079,6 +1099,7 @@ function keel_defaults_mail_from_address() {
 
 	$default_from = $sitename ? 'wordpress@' . $sitename : '';
 
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Intentionally reading core's wp_mail_from to compute the effective From address.
 	return (string) apply_filters( 'wp_mail_from', $default_from );
 }
 
@@ -2683,6 +2704,65 @@ function keel_defaults_sanitize( $input ) {
 	return $clean;
 }
 
+/**
+ * Cross-setting dependency state for a field: an attribute string and whether it
+ * starts hidden. Applied to the row (single field) or the checkbox wrapper
+ * (sectioned field). JS syncs on change; this sets the initial server-side state.
+ *
+ * @param array $field Schema field.
+ * @return array{0:string,1:bool} [ attribute string, hidden-now ]
+ */
+function keel_defaults_dep_state( $field ) {
+	if ( empty( $field['depends']['field'] ) ) {
+		return array( '', false );
+	}
+	$attr   = sprintf(
+		' data-keel-dep-field="%s" data-keel-dep-hide="%s"',
+		esc_attr( $field['depends']['field'] ),
+		esc_attr( (string) $field['depends']['hide_when'] )
+	);
+	$hidden = ( (string) keel_defaults_get( $field['depends']['field'] ) === (string) $field['depends']['hide_when'] );
+	return array( $attr, $hidden );
+}
+
+/**
+ * Echo a field's description paragraph (allows <code> and links).
+ *
+ * @param array $field Schema field.
+ */
+function keel_defaults_render_help( $field ) {
+	if ( empty( $field['help'] ) ) {
+		return;
+	}
+	echo '<p class="description">' . wp_kses(
+		$field['help'],
+		array(
+			'code' => array(),
+			'a'    => array(
+				'href'   => array(),
+				'target' => array(),
+				'rel'    => array(),
+			),
+		)
+	) . '</p>';
+}
+
+/**
+ * Echo a checkbox + its "true when checked" statement (the <label> only).
+ *
+ * @param string $name  Field input name.
+ * @param mixed  $value Current value.
+ * @param array  $field Schema field.
+ */
+function keel_defaults_render_checkbox( $name, $value, $field ) {
+	printf(
+		'<label><input type="checkbox" name="%s" value="yes" %s /> %s</label>',
+		esc_attr( $name ),
+		checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a fixed literal.
+		wp_kses( isset( $field['statement'] ) ? $field['statement'] : $field['label'], array( 'code' => array() ) )
+	);
+}
+
 /** Render the settings page. */
 function keel_defaults_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -2719,42 +2799,49 @@ function keel_defaults_render_settings_page() {
 				<h2><?php echo esc_html( $group_label ); ?></h2>
 				<table class="form-table" role="presentation">
 					<tbody>
-					<?php foreach ( $schema as $key => $field ) : ?>
-						<?php
+					<?php
+					$section_open = null;
+					foreach ( $schema as $key => $field ) :
 						if ( $field['group'] !== $group_key ) {
-							continue; }
-						?>
-						<?php $name = KEEL_DEFAULTS_OPTION . '[' . $key . ']'; ?>
-						<?php $value = keel_defaults_get( $key ); ?>
-						<?php
-						// Cross-setting dependency: a field can be hidden when a controlling
-						// field holds a given value (e.g. XML-RPC method toggles are moot when
-						// the whole endpoint is blocked; Remember Me days is moot when Remember
-						// Me is disabled). JS syncs on change; the server sets the initial state.
-						$dep_attr   = '';
-						$dep_hidden = false;
-						if ( ! empty( $field['depends']['field'] ) ) {
-							$dep_attr   = sprintf(
-								' data-keel-dep-field="%s" data-keel-dep-hide="%s"',
-								esc_attr( $field['depends']['field'] ),
-								esc_attr( (string) $field['depends']['hide_when'] )
-							);
-							$dep_hidden = ( (string) keel_defaults_get( $field['depends']['field'] ) === (string) $field['depends']['hide_when'] );
+							continue;
 						}
+
+						$sec = isset( $field['section'] ) ? $field['section'] : null;
+
+						// Close an open section once the run of same-section fields ends.
+						if ( null !== $section_open && $section_open !== $sec ) {
+							echo '</fieldset></td></tr>';
+							$section_open = null;
+						}
+
+						$name  = KEEL_DEFAULTS_OPTION . '[' . $key . ']';
+						$value = keel_defaults_get( $key );
+
+						// Sectioned toggles stack as checkboxes under one shared row (core pattern).
+						if ( null !== $sec ) {
+							if ( null === $section_open ) {
+								$sections = keel_defaults_sections();
+								$stitle   = isset( $sections[ $sec ] ) ? $sections[ $sec ] : $sec;
+								echo '<tr><th scope="row">' . esc_html( $stitle ) . '</th><td><fieldset><legend class="screen-reader-text"><span>' . esc_html( $stitle ) . '</span></legend>';
+								$section_open = $sec;
+							}
+							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
+							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
+							keel_defaults_render_checkbox( $name, $value, $field );
+							keel_defaults_render_help( $field );
+							echo '</div>';
+							continue;
+						}
+
+						list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 						?>
-						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() above. ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
+						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
 							<th scope="row"><?php echo esc_html( $field['label'] ); ?></th>
 							<td>
 								<?php if ( 'toggle' === $field['type'] ) : ?>
 									<fieldset>
 										<legend class="screen-reader-text"><span><?php echo esc_html( $field['label'] ); ?></span></legend>
-										<label>
-											<input type="checkbox"
-												name="<?php echo esc_attr( $name ); ?>"
-												value="yes"
-												<?php checked( 'yes', $value ); ?> />
-											<?php echo esc_html( isset( $field['statement'] ) ? $field['statement'] : $field['label'] ); ?>
-										</label>
+										<?php keel_defaults_render_checkbox( $name, $value, $field ); ?>
 									</fieldset>
 								<?php elseif ( 'select' === $field['type'] ) : ?>
 									<?php $locked = 'core_update_policy' === $key && defined( 'WP_AUTO_UPDATE_CORE' ); ?>
@@ -2870,26 +2957,16 @@ function keel_defaults_render_settings_page() {
 										class="small-text" />
 								<?php endif; ?>
 
-								<?php if ( ! empty( $field['help'] ) ) : ?>
-									<p class="description">
-									<?php
-									echo wp_kses(
-										$field['help'],
-										array(
-											'code' => array(),
-											'a'    => array(
-												'href'   => array(),
-												'target' => array(),
-												'rel'    => array(),
-											),
-										)
-									);
-									?>
-															</p>
-								<?php endif; ?>
+								<?php keel_defaults_render_help( $field ); ?>
 							</td>
 						</tr>
-					<?php endforeach; ?>
+						<?php
+					endforeach;
+					// Close a section still open at the end of the group.
+					if ( null !== $section_open ) {
+						echo '</fieldset></td></tr>';
+					}
+					?>
 					</tbody>
 				</table>
 			<?php endforeach; ?>
