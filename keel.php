@@ -194,7 +194,7 @@ function keel_defaults_schema() {
 			'type'    => 'select',
 			'group'   => 'updates',
 			'label'   => 'Core auto-updates',
-			'help'    => 'Installs maintenance and security releases automatically and holds major releases for you to test and roll out deliberately — the recommended default, so security fixes land on their own while big versions wait. An explicit <code>wp-config.php</code> policy takes precedence, and then this control is locked.',
+			'help'    => 'Chooses which core updates install automatically. Minor releases are maintenance and security fixes; major releases are feature updates that can affect themes and plugins. An explicit <code>wp-config.php</code> policy takes precedence, and then this control is locked.',
 			'choices' => array(
 				'minor'   => 'Maintenance/security releases only — recommended',
 				'all'     => 'All stable releases',
@@ -224,8 +224,8 @@ function keel_defaults_schema() {
 			'default'   => 'yes',
 			'type'      => 'toggle',
 			'group'     => 'content',
-			'label'     => 'Default ping status',
-			'statement' => 'Close pings on new content by default',
+			'label'     => 'Pingbacks on new posts',
+			'statement' => 'Close pingbacks and trackbacks on new posts by default',
 			'help'      => 'Sets the "allow pingbacks" default to off for newly created content.',
 		),
 		'disable_self_pingbacks'          => array(
@@ -242,7 +242,7 @@ function keel_defaults_schema() {
 			'group'     => 'content',
 			'label'     => 'Author archives',
 			'statement' => 'Disable public author archives',
-			'help'      => 'Redirects <code>/author/{slug}/</code> to home (another enumeration + thin-content fix).',
+			'help'      => 'Redirects <code>/author/{slug}/</code> to the home page. Author pages leak usernames (like the REST list above) and are usually thin, duplicate content.',
 		),
 		'redirect_attachment_pages'       => array(
 			'default'   => 'yes',
@@ -250,7 +250,7 @@ function keel_defaults_schema() {
 			'group'     => 'content',
 			'label'     => 'Attachment pages',
 			'statement' => 'Redirect attachment pages to the parent post',
-			'help'      => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since that theme meant to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
+			'help'      => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since the theme means to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
 		),
 		'disable_emojis'                  => array(
 			'default'   => 'yes',
@@ -258,7 +258,7 @@ function keel_defaults_schema() {
 			'group'     => 'content',
 			'label'     => 'Emoji script',
 			'statement' => 'Disable the emoji detection script',
-			'help'      => 'Removes the emoji detection script + inline CSS from every page.',
+			'help'      => 'Removes the emoji detection script and inline CSS from every page.',
 		),
 		'disable_post_passwords'          => array(
 			'default'   => 'no',
@@ -266,7 +266,7 @@ function keel_defaults_schema() {
 			'group'     => 'content',
 			'label'     => 'Post passwords',
 			'statement' => 'Hide post password protection in the editor',
-			'help'      => 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default. Hides editor UI only — re-check after major WordPress editor changes.',
+			'help'      => 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default.',
 		),
 
 		// --- Editor ----------------------------------------------------
