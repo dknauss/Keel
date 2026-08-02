@@ -78,7 +78,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC pingbacks',
 			'statement' => 'Accept incoming pingbacks',
-			'help'      => 'OFF (default) removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.',
+			'help'      => 'Off by default. Removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
 				'hide_when' => 'yes',
@@ -91,7 +91,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC remote publishing',
 			'statement' => 'Allow remote publishing (blogging apps)',
-			'help'      => 'OFF (default) removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
+			'help'      => 'Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
 				'hide_when' => 'yes',
@@ -104,7 +104,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC multicall',
 			'statement' => 'Allow <code>system.multicall</code>',
-			'help'      => 'OFF (default) refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
+			'help'      => 'Off by default. Refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
 				'hide_when' => 'yes',
@@ -117,7 +117,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC endpoint',
 			'statement' => 'Block the endpoint entirely (returns 403)',
-			'help'      => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do NOT enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
+			'help'      => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do not enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
 		),
 		'disable_application_passwords'   => array(
 			'default'   => 'no',
@@ -125,7 +125,7 @@ function keel_defaults_schema() {
 			'group'     => 'security',
 			'label'     => 'Application Passwords',
 			'statement' => 'Prohibit application passwords',
-			'help'      => 'OFF (default) keeps them available — separate, revocable integration credentials for REST and XML-RPC. They inherit the owning user\'s access and bypass interactive 2FA, so use a least-privileged account.',
+			'help'      => 'Off by default. Keeps them available — separate, revocable integration credentials for REST and XML-RPC. They inherit the owning user\'s access and bypass interactive 2FA, so use a least-privileged account.',
 		),
 		'require_strong_passwords'        => array(
 			'default'   => 'yes',
@@ -157,7 +157,7 @@ function keel_defaults_schema() {
 			'group'     => 'security',
 			'label'     => 'Version fingerprint',
 			'statement' => 'Remove the WordPress version fingerprint',
-			'help'      => 'Strips the generator meta tag. Obscurity, not hardening: it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds. Off by default — patch instead. Turn on if you want the noise reduction.',
+			'help'      => 'Strips the generator meta tag. Obscurity, not hardening — it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds.',
 		),
 		'security_headers'                => array(
 			'default'   => 'yes',
@@ -250,7 +250,7 @@ function keel_defaults_schema() {
 			'group'     => 'content',
 			'label'     => 'Attachment pages',
 			'statement' => 'Redirect attachment pages to the parent post',
-			'help'      => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides attachment.php or image.php, since that theme meant to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
+			'help'      => 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since that theme meant to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.',
 		),
 		'disable_emojis'                  => array(
 			'default'   => 'yes',
@@ -2775,6 +2775,19 @@ function keel_defaults_render_settings_page() {
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Keel', 'keel' ); ?></h1>
 		<p><?php esc_html_e( 'Each switch below is one opinionated default. Flip what you want; the rest of WordPress is untouched.', 'keel' ); ?></p>
+
+		<style>
+			/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
+			.form-table .keel-dep-item {
+				margin-bottom: 14px;
+			}
+			.form-table .keel-dep-item:last-child {
+				margin-bottom: 0;
+			}
+			.form-table .keel-dep-item .description {
+				margin-top: 2px;
+			}
+		</style>
 
 		<?php if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) : ?>
 			<div class="notice notice-error inline"><p>
