@@ -2821,17 +2821,66 @@ function keel_defaults_render_help( $field ) {
 /**
  * Echo a checkbox + its "true when checked" statement (the <label> only).
  *
- * @param string $name  Field input name.
- * @param mixed  $value Current value.
- * @param array  $field Schema field.
+ * @param string $name     Field input name.
+ * @param mixed  $value    Current value.
+ * @param array  $field    Schema field.
+ * @param bool   $disabled Whether to render the checkbox disabled.
  */
-function keel_defaults_render_checkbox( $name, $value, $field ) {
+function keel_defaults_render_checkbox( $name, $value, $field, $disabled = false ) {
 	printf(
-		'<label><input type="checkbox" name="%s" value="yes" %s /> %s</label>',
+		'<label><input type="checkbox" name="%s" value="yes" %s%s /> %s</label>',
 		esc_attr( $name ),
 		checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a fixed literal.
+		disabled( $disabled, true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- disabled() returns a fixed literal.
 		wp_kses( isset( $field['statement'] ) ? $field['statement'] : $field['label'], array( 'code' => array() ) )
 	);
+}
+
+/**
+ * If a wp-config.php constant supersedes a setting, return a short inline note
+ * explaining it (the note may contain <code>). The control is then disabled and
+ * the note shown, so the screen never offers a switch that cannot take effect.
+ * Returns null when the setting is fully under the dashboard's control.
+ *
+ * @param string $key Schema key.
+ * @return string|null
+ */
+function keel_defaults_config_lock( $key ) {
+	// Any of these means WordPress performs no background updates at all, which
+	// supersedes both the core-update policy and the translation-update toggle.
+	$updates_off = null;
+	if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
+		$updates_off = 'AUTOMATIC_UPDATER_DISABLED';
+	} elseif ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) {
+		$updates_off = 'DISALLOW_FILE_MODS';
+	}
+
+	switch ( $key ) {
+		case 'core_update_policy':
+			if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
+				return __( 'Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here.', 'keel' );
+			}
+			if ( $updates_off ) {
+				/* translators: %s: a wp-config.php constant name. */
+				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel' ), $updates_off );
+			}
+			break;
+
+		case 'auto_update_translations':
+			if ( $updates_off ) {
+				/* translators: %s: a wp-config.php constant name. */
+				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel' ), $updates_off );
+			}
+			break;
+
+		case 'limit_unfiltered_html_to_admins':
+			if ( defined( 'DISALLOW_UNFILTERED_HTML' ) && DISALLOW_UNFILTERED_HTML ) {
+				return __( '<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect.', 'keel' );
+			}
+			break;
+	}
+
+	return null;
 }
 
 /** Render the settings page. */
@@ -2860,22 +2909,6 @@ function keel_defaults_render_settings_page() {
 			}
 		</style>
 
-		<?php if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) : ?>
-			<div class="notice notice-error inline"><p>
-				<?php esc_html_e( 'Update policy overridden: AUTOMATIC_UPDATER_DISABLED disables every WordPress background update.', 'keel' ); ?>
-			</p></div>
-		<?php elseif ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) : ?>
-			<div class="notice notice-error inline"><p>
-				<?php esc_html_e( 'Update policy overridden: DISALLOW_FILE_MODS prevents WordPress from installing updates.', 'keel' ); ?>
-			</p></div>
-		<?php endif; ?>
-
-		<?php if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) : ?>
-			<div class="notice notice-warning inline"><p>
-				<?php esc_html_e( 'Core update policy is locked by WP_AUTO_UPDATE_CORE in wp-config.php. Remove that constant to manage core releases here.', 'keel' ); ?>
-			</p></div>
-		<?php endif; ?>
-
 		<form method="post" action="options.php">
 			<?php settings_fields( 'keel_settings_group' ); ?>
 
@@ -2901,6 +2934,11 @@ function keel_defaults_render_settings_page() {
 						$name  = KEEL_DEFAULTS_OPTION . '[' . $key . ']';
 						$value = keel_defaults_get( $key );
 
+						// A wp-config.php constant may supersede this setting; if so the
+						// control is disabled and the reason shown next to it.
+						$lock   = keel_defaults_config_lock( $key );
+						$locked = null !== $lock;
+
 						// Sectioned toggles stack as checkboxes under one shared row (core pattern).
 						if ( null !== $sec ) {
 							if ( null === $section_open ) {
@@ -2925,10 +2963,13 @@ function keel_defaults_render_settings_page() {
 								<?php if ( 'toggle' === $field['type'] ) : ?>
 									<fieldset>
 										<legend class="screen-reader-text"><span><?php echo esc_html( $field['label'] ); ?></span></legend>
-										<?php keel_defaults_render_checkbox( $name, $value, $field ); ?>
+										<?php // A disabled checkbox is not submitted; carry a 'yes' value so a save under the constant does not silently flip the stored preference to 'no'. ?>
+										<?php if ( $locked && 'yes' === $value ) : ?>
+											<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="yes" />
+										<?php endif; ?>
+										<?php keel_defaults_render_checkbox( $name, $value, $field, $locked ); ?>
 									</fieldset>
 								<?php elseif ( 'select' === $field['type'] ) : ?>
-									<?php $locked = 'core_update_policy' === $key && defined( 'WP_AUTO_UPDATE_CORE' ); ?>
 									<?php if ( $locked ) : ?>
 										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 									<?php endif; ?>
@@ -3041,6 +3082,10 @@ function keel_defaults_render_settings_page() {
 										class="small-text" />
 								<?php endif; ?>
 
+								<?php if ( $locked ) : ?>
+									<p class="description keel-config-lock"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
+								<?php endif; ?>
+
 								<?php keel_defaults_render_help( $field ); ?>
 							</td>
 						</tr>
@@ -3083,12 +3128,6 @@ function keel_defaults_render_settings_page() {
 			} );
 		} )();
 		</script>
-
-		<hr />
-		<p><em><?php esc_html_e( 'Three hardening moves live in wp-config.php and cannot be toggled here:', 'keel' ); ?></em></p>
-		<pre style="background:#f6f7f7;padding:12px;border:1px solid #dcdcde;max-width:640px;">define( 'DISALLOW_FILE_EDIT', true );
-define( 'AUTOSAVE_INTERVAL', 120 );
-define( 'WP_POST_REVISIONS', 10 );</pre>
 	</div>
 	<?php
 }
