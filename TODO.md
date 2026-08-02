@@ -27,7 +27,7 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
 - [x] admin menu width — select (200/240/280/300), scoped admin_head CSS · lowercase upload filenames · media sizes panel ·
       hide admin bar for non-admins · helper list columns
 - [ ] environment indicator
-- [ ] disable post-password protection
+- [x] disable post-password protection — CSS-hide editor UI (opt-in, non-destructive; keeps field on already-protected posts). tests/post-passwords.php
 - [ ] mail-failure notice (de-branded)
 - [ ] PX comment teardown (fuller disable) · PX header logic · password role-scoping
 

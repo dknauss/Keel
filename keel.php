@@ -202,6 +202,13 @@ function keel_defaults_schema() {
 			'label'   => 'Disable emoji script',
 			'help'    => 'Removes the emoji detection script + inline CSS from every page.',
 		),
+		'disable_post_passwords' => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'content',
+			'label'   => 'Disable post password protection',
+			'help'    => 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default. Hides editor UI only — re-check after major WordPress editor changes.',
+		),
 
 		// --- Editor ----------------------------------------------------
 		'force_classic_editor' => array(
@@ -530,6 +537,43 @@ function keel_defaults_force_classic_editor() {
 	add_filter( 'use_block_editor_for_post_type', '__return_false' );
 	add_filter( 'gutenberg_can_edit_post', '__return_false' );  // standalone Gutenberg feature plugin
 	add_filter( 'use_widgets_block_editor', '__return_false' ); // classic Widgets screen
+}
+
+/**
+ * Hide the "Password protected" visibility option in the post editor.
+ *
+ * WordPress post passwords are weak and are bypassed by full-page caches, so this
+ * steers editors away from them by removing the option from the editor. It is
+ * cosmetic and non-destructive — it hides UI only, changes no data or behaviour,
+ * and leaves the field in place on a post that already has a password so that
+ * post stays editable. It depends on admin DOM selectors, so re-check it after
+ * major WordPress editor changes; if a selector goes stale the field simply
+ * reappears — nothing breaks.
+ */
+function keel_defaults_hide_post_password_ui() {
+	global $pagenow, $post;
+
+	if ( empty( $pagenow ) || ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) ) {
+		return;
+	}
+
+	if ( ! empty( $post->post_password ) ) {
+		return;
+	}
+	?>
+	<style id="keel-hide-post-password">
+		#visibility-radio-password,
+		label[for="visibility-radio-password"],
+		#editor-post-password-0,
+		label[for="editor-post-password-0"],
+		#editor-post-password-0-description,
+		#editor-post-password-1,
+		label[for="editor-post-password-1"],
+		#editor-post-password-1-description {
+			display: none;
+		}
+	</style>
+	<?php
 }
 
 /**
@@ -1182,6 +1226,10 @@ function keel_defaults_bootstrap() {
 			remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 			add_filter( 'emoji_svg_url', '__return_false' );
 		} );
+	}
+
+	if ( keel_defaults_enabled( 'disable_post_passwords' ) ) {
+		add_action( 'admin_print_footer_scripts', 'keel_defaults_hide_post_password_ui' );
 	}
 
 	/* ----- Editor ----- */
