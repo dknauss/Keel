@@ -28,7 +28,7 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
       hide admin bar for non-admins · helper list columns
 - [ ] environment indicator
 - [x] disable post-password protection — CSS-hide editor UI (opt-in, non-destructive; keeps field on already-protected posts). tests/post-passwords.php
-- [ ] mail-failure notice (de-branded)
+- [x] mail-failure notice — new Email group; risky From-address warning + zero password-reset catch (de-branded, no SupportMonitor). tests/mail-failure.php
 - [ ] PX comment teardown (fuller disable) · PX header logic · password role-scoping
 
 ## Rebuild / infra
