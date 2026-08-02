@@ -220,6 +220,13 @@ function keel_defaults_schema() {
 			'label'   => 'Lowercase upload filenames',
 			'help'    => 'Lowercases new upload filenames, avoiding case-sensitivity surprises when files move between local/staging (case-insensitive) and Linux production (case-sensitive). On by default; only affects new uploads.',
 		),
+		'media_sizes_panel' => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'media',
+			'label'   => 'Show generated image sizes',
+			'help'    => 'Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default.',
+		),
 
 		// --- Admin & front-end UX --------------------------------------
 		'title_only_admin_search' => array(
@@ -254,6 +261,13 @@ function keel_defaults_schema() {
 				'280'     => '280px',
 				'300'     => '300px',
 			),
+		),
+		'helper_list_columns' => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'ux',
+			'label'   => 'Helper admin list columns',
+			'help'    => 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.',
 		),
 
 		// --- Login & sessions ------------------------------------------
@@ -597,6 +611,263 @@ function keel_defaults_admin_menu_width_css() {
 		}
 	</style>
 	<?php
+}
+
+/**
+ * Register helper columns for the current post-type list table.
+ *
+ * Column hooks are per-post-type, so they can only be added once the screen is
+ * known. Attachments are handled by their own Media filter.
+ *
+ * @param \WP_Screen $screen Current screen.
+ */
+function keel_defaults_register_helper_post_columns( $screen ) {
+	if ( empty( $screen->post_type ) || 'edit' !== $screen->base ) {
+		return;
+	}
+
+	$post_type = sanitize_key( $screen->post_type );
+	if ( 'attachment' === $post_type ) {
+		return;
+	}
+
+	if ( 'page' === $post_type ) {
+		add_filter( 'manage_pages_columns', 'keel_defaults_filter_post_columns' );
+		add_action( 'manage_pages_custom_column', 'keel_defaults_render_post_column', 10, 2 );
+		return;
+	}
+
+	add_filter( "manage_{$post_type}_posts_columns", 'keel_defaults_filter_post_columns' );
+	add_action( "manage_{$post_type}_posts_custom_column", 'keel_defaults_render_post_column', 10, 2 );
+
+	if ( is_post_type_hierarchical( $post_type ) ) {
+		add_action( 'manage_pages_custom_column', 'keel_defaults_render_post_column', 10, 2 );
+	}
+}
+
+/**
+ * Add the helper post columns.
+ *
+ * @param array $columns Existing columns.
+ * @return array
+ */
+function keel_defaults_filter_post_columns( $columns ) {
+	$columns['keel_id']       = __( 'ID', 'keel' );
+	$columns['keel_thumb']    = __( 'Image', 'keel' );
+	$columns['keel_modified'] = __( 'Modified', 'keel' );
+	return $columns;
+}
+
+/**
+ * Render a helper post column.
+ *
+ * @param string $column  Column key.
+ * @param int    $post_id Post ID.
+ */
+function keel_defaults_render_post_column( $column, $post_id ) {
+	if ( 'keel_id' === $column ) {
+		echo esc_html( (string) (int) $post_id );
+		return;
+	}
+	if ( 'keel_thumb' === $column ) {
+		echo has_post_thumbnail( $post_id ) ? wp_kses_post( get_the_post_thumbnail( $post_id, array( 48, 48 ) ) ) : '&mdash;';
+		return;
+	}
+	if ( 'keel_modified' === $column ) {
+		echo esc_html( get_post_modified_time( get_option( 'date_format' ), false, $post_id, true ) );
+	}
+}
+
+/**
+ * Add the Media library file-size column.
+ *
+ * @param array $columns Existing columns.
+ * @return array
+ */
+function keel_defaults_filter_media_columns( $columns ) {
+	$columns['keel_file_size'] = __( 'File size', 'keel' );
+	return $columns;
+}
+
+/**
+ * Render the Media library file-size column.
+ *
+ * @param string $column        Column key.
+ * @param int    $attachment_id Attachment ID.
+ */
+function keel_defaults_render_media_column( $column, $attachment_id ) {
+	if ( 'keel_file_size' !== $column ) {
+		return;
+	}
+	$bytes = keel_defaults_attachment_file_bytes( $attachment_id );
+	echo $bytes ? esc_html( size_format( $bytes ) ) : '&mdash;';
+}
+
+/**
+ * Add the Users registration + last-login columns.
+ *
+ * @param array $columns Existing columns.
+ * @return array
+ */
+function keel_defaults_filter_user_columns( $columns ) {
+	$columns['keel_registered'] = __( 'Registered', 'keel' );
+	$columns['keel_last_login'] = __( 'Last login', 'keel' );
+	return $columns;
+}
+
+/**
+ * Render a Users helper column. This is a filter, so it returns the cell value.
+ *
+ * @param string $value   Current cell value.
+ * @param string $column  Column key.
+ * @param int    $user_id User ID.
+ * @return string
+ */
+function keel_defaults_render_user_column( $value, $column, $user_id ) {
+	if ( 'keel_registered' === $column ) {
+		$user = get_userdata( $user_id );
+		return $user ? esc_html( mysql2date( get_option( 'date_format' ), $user->user_registered ) ) : '&mdash;';
+	}
+	if ( 'keel_last_login' === $column ) {
+		$timestamp = keel_defaults_last_login_timestamp( $user_id );
+		return $timestamp ? esc_html( date_i18n( get_option( 'date_format' ), $timestamp ) ) : '&mdash;';
+	}
+	return $value;
+}
+
+/**
+ * Record a user's last-login timestamp.
+ *
+ * Runs only while the helper columns are enabled, so it adds no storage cost
+ * otherwise. Logins before enabling are unknown.
+ *
+ * @param string        $user_login User login (unused).
+ * @param \WP_User|null $user       Authenticated user.
+ */
+function keel_defaults_record_last_login( $user_login, $user = null ) {
+	if ( $user instanceof \WP_User ) {
+		update_user_meta( $user->ID, 'keel_last_login', time() );
+	}
+}
+
+/**
+ * Read a last-login timestamp from Keel's key or common third-party keys.
+ *
+ * @param int $user_id User ID.
+ * @return int Unix timestamp, or 0 when unknown.
+ */
+function keel_defaults_last_login_timestamp( $user_id ) {
+	foreach ( array( 'keel_last_login', 'wp_last_login', 'last_login' ) as $key ) {
+		$value = get_user_meta( $user_id, $key, true );
+		if ( is_numeric( $value ) && (int) $value > 0 ) {
+			return (int) $value;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Register the read-only "generated image sizes" meta box on image attachments.
+ *
+ * @param \WP_Post $post Attachment post.
+ */
+function keel_defaults_media_sizes_meta_box( $post ) {
+	if ( ! current_user_can( 'upload_files' ) || ! wp_attachment_is_image( $post ) ) {
+		return;
+	}
+	add_meta_box( 'keel-media-sizes', __( 'Generated Image Sizes', 'keel' ), 'keel_defaults_render_media_sizes_meta_box', 'attachment', 'normal', 'low' );
+}
+
+/**
+ * Render the generated-image-sizes table.
+ *
+ * @param \WP_Post $post Attachment post.
+ */
+function keel_defaults_render_media_sizes_meta_box( $post ) {
+	$rows = keel_defaults_attachment_image_size_rows( $post->ID );
+
+	if ( empty( $rows ) ) {
+		echo '<p>' . esc_html__( 'No generated image sizes were found for this attachment.', 'keel' ) . '</p>';
+		return;
+	}
+
+	echo '<p>' . esc_html__( 'Read-only view of the generated image files and URLs.', 'keel' ) . '</p>';
+	echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Size', 'keel' ) . '</th><th>' . esc_html__( 'Dimensions', 'keel' ) . '</th><th>' . esc_html__( 'File size', 'keel' ) . '</th><th>' . esc_html__( 'URL', 'keel' ) . '</th></tr></thead><tbody>';
+	foreach ( $rows as $row ) {
+		echo '<tr>';
+		echo '<td>' . esc_html( $row['size'] ) . '</td>';
+		echo '<td>' . esc_html( $row['dimensions'] ) . '</td>';
+		echo '<td>' . esc_html( $row['file_size'] ) . '</td>';
+		echo '<td><a href="' . esc_url( $row['url'] ) . '">' . esc_html( $row['url'] ) . '</a></td>';
+		echo '</tr>';
+	}
+	echo '</tbody></table>';
+}
+
+/**
+ * Build the generated-image-size rows for an attachment.
+ *
+ * @param int $attachment_id Attachment ID.
+ * @return array[]
+ */
+function keel_defaults_attachment_image_size_rows( $attachment_id ) {
+	$metadata = wp_get_attachment_metadata( $attachment_id );
+	$rows     = array();
+	$sizes    = array( 'full' => array() );
+
+	if ( ! empty( $metadata['sizes'] ) && is_array( $metadata['sizes'] ) ) {
+		$sizes = array_merge( $sizes, $metadata['sizes'] );
+	}
+
+	foreach ( array_keys( $sizes ) as $size ) {
+		$image = wp_get_attachment_image_src( $attachment_id, $size );
+		if ( empty( $image[0] ) ) {
+			continue;
+		}
+
+		$bytes  = keel_defaults_attachment_size_bytes( $attachment_id, $size, $metadata );
+		$rows[] = array(
+			'size'       => (string) $size,
+			'dimensions' => sprintf( '%d × %d', isset( $image[1] ) ? (int) $image[1] : 0, isset( $image[2] ) ? (int) $image[2] : 0 ),
+			'file_size'  => $bytes ? size_format( $bytes ) : __( 'Unknown', 'keel' ),
+			'url'        => $image[0],
+		);
+	}
+
+	return $rows;
+}
+
+/**
+ * Bytes of the original uploaded file.
+ *
+ * @param int $attachment_id Attachment ID.
+ * @return int
+ */
+function keel_defaults_attachment_file_bytes( $attachment_id ) {
+	$file = get_attached_file( $attachment_id );
+	return ( $file && file_exists( $file ) ) ? (int) filesize( $file ) : 0;
+}
+
+/**
+ * Bytes of one generated image size (or the original for 'full').
+ *
+ * @param int    $attachment_id Attachment ID.
+ * @param string $size          Size name.
+ * @param array  $metadata      Attachment metadata.
+ * @return int
+ */
+function keel_defaults_attachment_size_bytes( $attachment_id, $size, $metadata ) {
+	if ( 'full' === $size ) {
+		return keel_defaults_attachment_file_bytes( $attachment_id );
+	}
+
+	$full_file = get_attached_file( $attachment_id );
+	if ( empty( $full_file ) || empty( $metadata['sizes'][ $size ]['file'] ) ) {
+		return 0;
+	}
+
+	$file = trailingslashit( dirname( $full_file ) ) . $metadata['sizes'][ $size ]['file'];
+	return file_exists( $file ) ? (int) filesize( $file ) : 0;
 }
 
 /* =======================================================================
@@ -947,10 +1218,23 @@ function keel_defaults_bootstrap() {
 		add_action( 'admin_head', 'keel_defaults_admin_menu_width_css' );
 	}
 
+	if ( keel_defaults_enabled( 'helper_list_columns' ) ) {
+		add_action( 'current_screen', 'keel_defaults_register_helper_post_columns' );
+		add_filter( 'manage_media_columns', 'keel_defaults_filter_media_columns' );
+		add_action( 'manage_media_custom_column', 'keel_defaults_render_media_column', 10, 2 );
+		add_filter( 'manage_users_columns', 'keel_defaults_filter_user_columns' );
+		add_filter( 'manage_users_custom_column', 'keel_defaults_render_user_column', 10, 3 );
+		add_action( 'wp_login', 'keel_defaults_record_last_login', 10, 2 );
+	}
+
 	/* ----- Media ----- */
 
 	if ( keel_defaults_enabled( 'lowercase_upload_filenames' ) ) {
 		add_filter( 'sanitize_file_name', 'keel_defaults_lowercase_filename', 20 );
+	}
+
+	if ( keel_defaults_enabled( 'media_sizes_panel' ) ) {
+		add_action( 'add_meta_boxes_attachment', 'keel_defaults_media_sizes_meta_box' );
 	}
 
 	/* ----- Login & sessions ----- */

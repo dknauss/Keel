@@ -24,7 +24,7 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
       login block, which risks locking out existing legit accounts). Test: tests/reserved-usernames.php
 - [x] force classic editor — new "Editor" group; 4 filters (use_block_editor_for_post
       [+_post_type], gutenberg_can_edit_post, use_widgets_block_editor). Test: tests/force-classic-editor.php
-- [ ] admin menu width · lowercase upload filenames · media sizes panel ·
+- [x] admin menu width — select (200/240/280/300), scoped admin_head CSS · lowercase upload filenames · media sizes panel ·
       hide admin bar for non-admins · helper list columns
 - [ ] environment indicator
 - [ ] disable post-password protection
