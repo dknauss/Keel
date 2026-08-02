@@ -289,17 +289,19 @@ function keel_defaults_set_referrer_policy_header( $headers ) {
  * Whether the strong-password policy is enforced for a given user.
  *
  * Scoped to privileged/editorial accounts by default: a user whose every role is
- * in the weak-role list (default: subscriber) is exempt, since a hard length +
+ * in the exempt list (default: subscriber) is skipped, since a hard length +
  * breach rule adds signup friction for low-privilege accounts on membership or
  * commerce sites without protecting anything valuable. Any privileged role — or
- * an unknown/empty role set — enforces. Extend the exemption (e.g. a WooCommerce
- * 'customer') or clear it to enforce for everyone via keel_weak_roles.
+ * an unknown/empty role set — enforces. The exempt list comes from the
+ * "Password policy exemptions" setting (limited to low-privilege roles) and can
+ * be overridden in code with the keel_weak_roles filter.
  *
  * @param WP_User|stdClass|null $user User context, when available.
  * @return bool
  */
 function keel_defaults_password_enforced_for_user( $user ) {
-	$weak_roles = (array) apply_filters( 'keel_weak_roles', array( 'subscriber' ) );
+	$exempt     = (array) keel_defaults_get( 'password_exempt_roles' );
+	$weak_roles = array_map( 'strval', (array) apply_filters( 'keel_weak_roles', $exempt ) );
 
 	$roles = array();
 	if ( isset( $user->roles ) && is_array( $user->roles ) ) {
@@ -313,7 +315,7 @@ function keel_defaults_password_enforced_for_user( $user ) {
 		return true;
 	}
 
-	// Exempt only when every role the user holds is a weak role.
+	// Exempt only when every role the user holds is in the exempt list.
 	foreach ( $roles as $role ) {
 		if ( ! in_array( (string) $role, $weak_roles, true ) ) {
 			return true;
@@ -321,6 +323,59 @@ function keel_defaults_password_enforced_for_user( $user ) {
 	}
 
 	return false;
+}
+
+/**
+ * Roles that may be exempted from the strong-password policy on the settings
+ * screen — the guardrail behind the "Password policy exemptions" control.
+ *
+ * A role is offered only when it holds none of the sensitive capabilities below,
+ * so an administrator can never exempt an editor, author, contributor, shop
+ * manager, or admin from the UI: privileged accounts are always enforced. The
+ * keel_weak_roles filter remains an unrestricted, deliberate code-level escape.
+ *
+ * @return array<string,string> role slug => translated display name.
+ */
+function keel_defaults_exemptable_roles() {
+	$sensitive = array(
+		'edit_posts',
+		'edit_pages',
+		'publish_posts',
+		'edit_others_posts',
+		'upload_files',
+		'moderate_comments',
+		'manage_categories',
+		'manage_options',
+		'edit_theme_options',
+		'list_users',
+		'edit_users',
+		'manage_woocommerce',
+		'edit_shop_orders',
+	);
+
+	if ( ! function_exists( 'wp_roles' ) ) {
+		return array();
+	}
+
+	$out = array();
+	foreach ( wp_roles()->roles as $slug => $data ) {
+		$caps = ( isset( $data['capabilities'] ) && is_array( $data['capabilities'] ) ) ? $data['capabilities'] : array();
+
+		$privileged = false;
+		foreach ( $sensitive as $cap ) {
+			if ( ! empty( $caps[ $cap ] ) ) {
+				$privileged = true;
+				break;
+			}
+		}
+
+		if ( ! $privileged ) {
+			$name         = isset( $data['name'] ) ? $data['name'] : $slug;
+			$out[ $slug ] = function_exists( 'translate_user_role' ) ? translate_user_role( $name ) : $name;
+		}
+	}
+
+	return $out;
 }
 
 /**

@@ -44,6 +44,10 @@ function keel_defaults_state_label( $field, $value, $s = array() ) {
 		}
 		return isset( $s['choices'][ $value ] ) ? (string) $s['choices'][ $value ] : (string) $value;
 	}
+	if ( 'multiselect' === $type ) {
+		$vals = array_map( 'strval', (array) $value );
+		return empty( $vals ) ? __( 'None', 'keel' ) : implode( ', ', $vals );
+	}
 	if ( 'range' === $type ) {
 		$values = isset( $field['values'] ) ? array_map( 'strval', array_values( $field['values'] ) ) : array();
 		$labels = isset( $s['labels'] ) ? array_values( $s['labels'] ) : array();

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-02T17:33:19+00:00\n"
+"POT-Creation-Date: 2026-08-02T17:52:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -125,30 +125,30 @@ msgid "Site email may not be configured, or the selected users may not have deli
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:357
+#: includes/security.php:412
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:378
+#: includes/security.php:433
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:397
+#: includes/security.php:452
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:406
+#: includes/security.php:461
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
-#: includes/security.php:507
+#: includes/security.php:562
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:20
 #: includes/settings-page.php:21
-#: includes/settings-page.php:259
+#: includes/settings-page.php:268
 msgid "Keel"
 msgstr ""
 
@@ -178,23 +178,27 @@ msgstr ""
 msgid "See <a href=\"%s\">Site Health</a> for a read-only summary of every default and its state."
 msgstr ""
 
-#: includes/settings-page.php:223
+#: includes/settings-page.php:232
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:227
-#: includes/settings-page.php:234
+#: includes/settings-page.php:236
+#: includes/settings-page.php:243
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
-#: includes/settings-page.php:240
+#: includes/settings-page.php:249
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:260
+#: includes/settings-page.php:269
 msgid "Each switch below is one opinionated default. Flip what you want; the rest of WordPress is untouched."
+msgstr ""
+
+#: includes/settings-page.php:481
+msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
 #: includes/site-health.php:39
@@ -209,35 +213,39 @@ msgstr ""
 msgid "Unchanged"
 msgstr ""
 
-#: includes/site-health.php:87
+#: includes/site-health.php:49
+msgid "None"
+msgstr ""
+
+#: includes/site-health.php:91
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning."
 msgstr ""
 
-#: includes/site-health.php:103
+#: includes/site-health.php:107
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:106
+#: includes/site-health.php:110
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:108
+#: includes/site-health.php:112
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:113
+#: includes/site-health.php:117
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:114
+#: includes/site-health.php:118
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:117
+#: includes/site-health.php:121
 msgid "Security"
 msgstr ""
 
-#: includes/site-health.php:124
+#: includes/site-health.php:128
 msgid "Review Keel settings"
 msgstr ""
 
@@ -334,458 +342,466 @@ msgid "Require strong passwords"
 msgstr ""
 
 #: includes/strings.php:60
-msgid "Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the <code>keel_weak_roles</code> filter."
+msgid "Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Privileged and editorial accounts are always enforced; low-privilege roles can be exempted below."
 msgstr ""
 
 #: includes/strings.php:63
-msgid "Unfiltered HTML"
+msgid "Password policy exemptions"
 msgstr ""
 
 #: includes/strings.php:64
-msgid "Limit raw HTML and JavaScript to Administrators"
+msgid "Roles exempted from the strong-password rule above. Only low-privilege roles — those without editing or management capabilities — can be listed here, so privileged accounts are always enforced. Overridable in code with the <code>keel_weak_roles</code> filter."
 msgstr ""
 
-#: includes/strings.php:65
-msgid "Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default."
+#: includes/strings.php:67
+msgid "Unfiltered HTML"
 msgstr ""
 
 #: includes/strings.php:68
-msgid "Reserved usernames"
+msgid "Limit raw HTML and JavaScript to Administrators"
 msgstr ""
 
 #: includes/strings.php:69
-msgid "Reserve common and system usernames"
+msgid "Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default."
 msgstr ""
 
-#: includes/strings.php:70
-msgid "Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress's <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter."
+#: includes/strings.php:72
+msgid "Reserved usernames"
 msgstr ""
 
 #: includes/strings.php:73
-msgid "Version fingerprint"
+msgid "Reserve common and system usernames"
 msgstr ""
 
 #: includes/strings.php:74
-msgid "Remove the WordPress version fingerprint"
+msgid "Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress's <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter."
 msgstr ""
 
-#: includes/strings.php:75
-msgid "Strips the generator meta tag. Obscurity, not hardening — it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds."
+#: includes/strings.php:77
+msgid "Version fingerprint"
 msgstr ""
 
 #: includes/strings.php:78
-msgid "Security headers"
+msgid "Remove the WordPress version fingerprint"
 msgstr ""
 
 #: includes/strings.php:79
-msgid "Send baseline security headers"
+msgid "Strips the generator meta tag. Obscurity, not hardening — it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds."
 msgstr ""
 
-#: includes/strings.php:80
-msgid "<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten."
+#: includes/strings.php:82
+msgid "Security headers"
 msgstr ""
 
 #: includes/strings.php:83
-msgid "Frame options"
+msgid "Send baseline security headers"
 msgstr ""
 
 #: includes/strings.php:84
-msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere."
-msgstr ""
-
-#: includes/strings.php:86
-msgid "SAMEORIGIN — only this site may frame it"
+msgid "<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten."
 msgstr ""
 
 #: includes/strings.php:87
-msgid "DENY — nobody may frame it"
+msgid "Frame options"
 msgstr ""
 
 #: includes/strings.php:88
-msgid "Leave unchanged (host/CDN sets it, or the site is embedded elsewhere)"
+msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere."
+msgstr ""
+
+#: includes/strings.php:90
+msgid "SAMEORIGIN — only this site may frame it"
+msgstr ""
+
+#: includes/strings.php:91
+msgid "DENY — nobody may frame it"
 msgstr ""
 
 #: includes/strings.php:92
+msgid "Leave unchanged (host/CDN sets it, or the site is embedded elsewhere)"
+msgstr ""
+
+#: includes/strings.php:96
 msgid "AI connectors"
 msgstr ""
 
-#: includes/strings.php:93
+#: includes/strings.php:97
 msgid "Disable AI provider connectors"
 msgstr ""
 
-#: includes/strings.php:94
+#: includes/strings.php:98
 msgid "Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about."
 msgstr ""
 
-#: includes/strings.php:97
+#: includes/strings.php:101
 msgid "Core auto-updates"
 msgstr ""
 
-#: includes/strings.php:98
+#: includes/strings.php:102
 msgid "Chooses which core updates install automatically. Minor releases are maintenance and security fixes; major releases are feature updates that can affect themes and plugins. An explicit <code>wp-config.php</code> policy takes precedence, and then this control is locked."
 msgstr ""
 
-#: includes/strings.php:100
+#: includes/strings.php:104
 msgid "Maintenance/security releases only — recommended"
 msgstr ""
 
-#: includes/strings.php:101
+#: includes/strings.php:105
 msgid "All stable releases"
 msgstr ""
 
-#: includes/strings.php:102
+#: includes/strings.php:106
 msgid "No automatic core releases"
 msgstr ""
 
-#: includes/strings.php:103
+#: includes/strings.php:107
 msgid "Leave unchanged (WordPress, host, or another plugin decides)"
 msgstr ""
 
-#: includes/strings.php:107
+#: includes/strings.php:111
 msgid "Translations"
 msgstr ""
 
-#: includes/strings.php:108
+#: includes/strings.php:112
 msgid "Automatically update translation files"
 msgstr ""
 
-#: includes/strings.php:109
+#: includes/strings.php:113
 msgid "Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress's individual per-item choices."
 msgstr ""
 
-#: includes/strings.php:112
+#: includes/strings.php:116
 msgid "Comments"
 msgstr ""
 
-#: includes/strings.php:113
+#: includes/strings.php:117
 msgid "Disable comments, trackbacks, and pingbacks"
 msgstr ""
 
-#: includes/strings.php:114
+#: includes/strings.php:118
 msgid "Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds."
 msgstr ""
 
-#: includes/strings.php:117
+#: includes/strings.php:121
 msgid "Pingbacks on new posts"
 msgstr ""
 
-#: includes/strings.php:118
+#: includes/strings.php:122
 msgid "Close pingbacks and trackbacks on new posts by default"
 msgstr ""
 
-#: includes/strings.php:119
+#: includes/strings.php:123
 msgid "Sets the \"allow pingbacks\" default to off for newly created content."
 msgstr ""
 
-#: includes/strings.php:122
+#: includes/strings.php:126
 msgid "Self-pingbacks"
 msgstr ""
 
-#: includes/strings.php:123
+#: includes/strings.php:127
 msgid "Disable self-pingbacks"
 msgstr ""
 
-#: includes/strings.php:124
+#: includes/strings.php:128
 msgid "Stops internal links from generating pingback noise."
 msgstr ""
 
-#: includes/strings.php:127
+#: includes/strings.php:131
 msgid "Author archives"
 msgstr ""
 
-#: includes/strings.php:128
+#: includes/strings.php:132
 msgid "Disable public author archives"
 msgstr ""
 
-#: includes/strings.php:129
+#: includes/strings.php:133
 msgid "Redirects <code>/author/{slug}/</code> to the home page. Author pages leak usernames (like the REST list above) and are usually thin, duplicate content."
 msgstr ""
 
-#: includes/strings.php:132
+#: includes/strings.php:136
 msgid "Attachment pages"
 msgstr ""
 
-#: includes/strings.php:133
+#: includes/strings.php:137
 msgid "Redirect attachment pages to the parent post"
 msgstr ""
 
-#: includes/strings.php:134
+#: includes/strings.php:138
 msgid "Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since the theme means to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file."
 msgstr ""
 
-#: includes/strings.php:137
+#: includes/strings.php:141
 msgid "Emoji script"
 msgstr ""
 
-#: includes/strings.php:138
+#: includes/strings.php:142
 msgid "Disable the emoji detection script"
 msgstr ""
 
-#: includes/strings.php:139
+#: includes/strings.php:143
 msgid "Removes the emoji detection script and inline CSS from every page."
 msgstr ""
 
-#: includes/strings.php:142
+#: includes/strings.php:146
 msgid "Post passwords"
 msgstr ""
 
-#: includes/strings.php:143
+#: includes/strings.php:147
 msgid "Hide post password protection in the editor"
 msgstr ""
 
-#: includes/strings.php:144
+#: includes/strings.php:148
 msgid "Hides the \"Password protected\" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default."
 msgstr ""
 
-#: includes/strings.php:147
+#: includes/strings.php:151
 msgid "Classic editor"
 msgstr ""
 
-#: includes/strings.php:148
+#: includes/strings.php:152
 msgid "Use the Classic editor instead of the block editor"
 msgstr ""
 
-#: includes/strings.php:149
+#: includes/strings.php:153
 msgid "Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default."
 msgstr ""
 
-#: includes/strings.php:152
+#: includes/strings.php:156
 msgid "Upload filenames"
 msgstr ""
 
-#: includes/strings.php:153
+#: includes/strings.php:157
 msgid "Lowercase new upload filenames"
 msgstr ""
 
-#: includes/strings.php:154
+#: includes/strings.php:158
 msgid "Avoids case-sensitivity surprises when files move between case-insensitive local/staging and case-sensitive Linux production. On by default; only affects new uploads."
 msgstr ""
 
-#: includes/strings.php:157
+#: includes/strings.php:161
 msgid "Image sizes"
 msgstr ""
 
-#: includes/strings.php:158
+#: includes/strings.php:162
 msgid "Show generated image sizes on attachments"
 msgstr ""
 
-#: includes/strings.php:159
+#: includes/strings.php:163
 msgid "Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default."
 msgstr ""
 
-#: includes/strings.php:162
+#: includes/strings.php:166
 msgid "Email deliverability"
 msgstr ""
 
-#: includes/strings.php:163
+#: includes/strings.php:167
 msgid "Warn when site email looks broken"
 msgstr ""
 
-#: includes/strings.php:164
+#: includes/strings.php:168
 msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
 msgstr ""
 
-#: includes/strings.php:167
+#: includes/strings.php:171
 msgid "Admin search"
 msgstr ""
 
-#: includes/strings.php:168
+#: includes/strings.php:172
 msgid "Search titles only in admin list tables"
 msgstr ""
 
-#: includes/strings.php:169
+#: includes/strings.php:173
 msgid "Speeds up admin list-table search on big sites by matching titles only."
 msgstr ""
 
-#: includes/strings.php:172
+#: includes/strings.php:176
 msgid "Front-end admin bar"
 msgstr ""
 
-#: includes/strings.php:173
+#: includes/strings.php:177
 msgid "The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins or everyone, or auto-hide it so it slides out of the way and returns on hover or keyboard focus (desktop only)."
 msgstr ""
 
-#: includes/strings.php:175
+#: includes/strings.php:179
 msgid "Leave unchanged (WordPress default)"
 msgstr ""
 
-#: includes/strings.php:176
+#: includes/strings.php:180
 msgid "Hide for non-admins"
 msgstr ""
 
-#: includes/strings.php:177
+#: includes/strings.php:181
 msgid "Hide for everyone"
 msgstr ""
 
-#: includes/strings.php:178
+#: includes/strings.php:182
 msgid "Auto-hide, reveal on hover or keyboard focus (desktop)"
 msgstr ""
 
-#: includes/strings.php:182
+#: includes/strings.php:186
 msgid "Admin menu width"
 msgstr ""
 
-#: includes/strings.php:183
+#: includes/strings.php:187
 msgid "Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider."
 msgstr ""
 
-#: includes/strings.php:184
+#: includes/strings.php:188
 msgid "WordPress default (160px)"
 msgstr ""
 
-#: includes/strings.php:184
+#: includes/strings.php:188
 msgid "200px"
 msgstr ""
 
-#: includes/strings.php:184
+#: includes/strings.php:188
 msgid "240px"
 msgstr ""
 
-#: includes/strings.php:184
+#: includes/strings.php:188
 msgid "280px"
 msgstr ""
 
-#: includes/strings.php:184
+#: includes/strings.php:188
 msgid "300px"
 msgstr ""
 
-#: includes/strings.php:187
+#: includes/strings.php:191
 msgid "Admin list columns"
 msgstr ""
 
-#: includes/strings.php:188
+#: includes/strings.php:192
 msgid "Add helper columns to admin list tables"
 msgstr ""
 
-#: includes/strings.php:189
+#: includes/strings.php:193
 msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
 msgstr ""
 
-#: includes/strings.php:192
+#: includes/strings.php:196
 msgid "Environment indicator"
 msgstr ""
 
-#: includes/strings.php:193
+#: includes/strings.php:197
 msgid "Show the current environment in the admin bar"
 msgstr ""
 
-#: includes/strings.php:194
+#: includes/strings.php:198
 msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default."
 msgstr ""
 
-#: includes/strings.php:197
+#: includes/strings.php:201
 msgid "Remember Me"
 msgstr ""
 
-#: includes/strings.php:198
+#: includes/strings.php:202
 msgid "Disable Remember Me and remove the login checkbox"
 msgstr ""
 
-#: includes/strings.php:199
+#: includes/strings.php:203
 msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
 msgstr ""
 
-#: includes/strings.php:202
+#: includes/strings.php:206
 msgid "Regular session length"
 msgstr ""
 
-#: includes/strings.php:203
-#: includes/strings.php:208
+#: includes/strings.php:207
+#: includes/strings.php:212
 msgid "days"
 msgstr ""
 
-#: includes/strings.php:204
+#: includes/strings.php:208
 msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
 msgstr ""
 
-#: includes/strings.php:207
+#: includes/strings.php:211
 msgid "Remember Me length"
 msgstr ""
 
-#: includes/strings.php:209
+#: includes/strings.php:213
 msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
 msgstr ""
 
-#: includes/strings.php:212
+#: includes/strings.php:216
 msgid "Login logo"
 msgstr ""
 
-#: includes/strings.php:213
+#: includes/strings.php:217
 msgid "The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page."
 msgstr ""
 
-#: includes/strings.php:215
+#: includes/strings.php:219
 msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
 msgstr ""
 
-#: includes/strings.php:216
+#: includes/strings.php:220
 msgid "Remove the logo and the wordpress.org link"
 msgstr ""
 
-#: includes/strings.php:217
+#: includes/strings.php:221
 msgid "Keep the logo, drop the wordpress.org link"
 msgstr ""
 
-#: includes/strings.php:218
+#: includes/strings.php:222
 msgid "Replace the logo with the site icon"
 msgstr ""
 
-#: includes/strings.php:222
+#: includes/strings.php:226
 msgid "Heartbeat API"
 msgstr ""
 
-#: includes/strings.php:223
+#: includes/strings.php:227
 msgid "Slow background admin polling"
 msgstr ""
 
-#: includes/strings.php:224
+#: includes/strings.php:228
 msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
 msgstr ""
 
-#: includes/strings.php:236
+#: includes/strings.php:240
 msgid "Security & Attack Surface"
 msgstr ""
 
-#: includes/strings.php:237
+#: includes/strings.php:241
 msgid "Updates"
 msgstr ""
 
-#: includes/strings.php:238
+#: includes/strings.php:242
 msgid "Content & Public Surfaces"
 msgstr ""
 
-#: includes/strings.php:239
+#: includes/strings.php:243
 msgid "Editor"
 msgstr ""
 
-#: includes/strings.php:240
+#: includes/strings.php:244
 msgid "Media"
 msgstr ""
 
-#: includes/strings.php:241
+#: includes/strings.php:245
 msgid "Email"
 msgstr ""
 
-#: includes/strings.php:242
+#: includes/strings.php:246
 msgid "Admin & Front-End UX"
 msgstr ""
 
-#: includes/strings.php:243
+#: includes/strings.php:247
 msgid "Login & Sessions"
 msgstr ""
 
-#: includes/strings.php:244
+#: includes/strings.php:248
 msgid "Branding"
 msgstr ""
 
-#: includes/strings.php:245
+#: includes/strings.php:249
 msgid "Performance"
 msgstr ""
 
-#: includes/strings.php:256
+#: includes/strings.php:260
 msgid "REST API"
 msgstr ""
 
-#: includes/strings.php:257
+#: includes/strings.php:261
 msgid "XML-RPC"
 msgstr ""

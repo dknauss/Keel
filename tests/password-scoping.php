@@ -21,6 +21,7 @@ function esc_attr_e( $s, $d = null ) { echo $s; }
 function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
 }
+function get_option( $k, $d = false ) { return $d; }
 class WP_Error {
 	public $code;
 	public $message;

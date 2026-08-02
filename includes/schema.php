@@ -84,6 +84,15 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 		),
+		'password_exempt_roles'           => array(
+			'default' => array( 'subscriber' ),
+			'type'    => 'multiselect',
+			'group'   => 'security',
+			'depends' => array(
+				'field'     => 'require_strong_passwords',
+				'hide_when' => 'no',
+			),
+		),
 		'limit_unfiltered_html_to_admins' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',

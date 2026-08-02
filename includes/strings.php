@@ -57,7 +57,11 @@ function keel_defaults_strings() {
 		'require_strong_passwords'        => array(
 			'label'     => __( 'Password strength', 'keel' ),
 			'statement' => __( 'Require strong passwords', 'keel' ),
-			'help'      => __( 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the <code>keel_weak_roles</code> filter.', 'keel' ),
+			'help'      => __( 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Privileged and editorial accounts are always enforced; low-privilege roles can be exempted below.', 'keel' ),
+		),
+		'password_exempt_roles'           => array(
+			'label' => __( 'Password policy exemptions', 'keel' ),
+			'help'  => __( 'Roles exempted from the strong-password rule above. Only low-privilege roles — those without editing or management capabilities — can be listed here, so privileged accounts are always enforced. Overridable in code with the <code>keel_weak_roles</code> filter.', 'keel' ),
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'label'     => __( 'Unfiltered HTML', 'keel' ),

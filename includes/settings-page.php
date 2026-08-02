@@ -124,6 +124,15 @@ function keel_defaults_sanitize( $input ) {
 					$clean[ $key ] = (string) $field['default'];
 				}
 				break;
+
+			case 'multiselect':
+				// Store only slugs from the allow-list. This is the guardrail: even a
+				// forged POST cannot exempt a privileged role, because roles outside
+				// the low-privilege set are never valid choices.
+				$allowed       = ( 'password_exempt_roles' === $key ) ? array_keys( keel_defaults_exemptable_roles() ) : array();
+				$posted        = ( isset( $input[ $key ] ) && is_array( $input[ $key ] ) ) ? array_map( 'strval', $input[ $key ] ) : array();
+				$clean[ $key ] = array_values( array_intersect( $posted, array_map( 'strval', $allowed ) ) );
+				break;
 		}
 	}
 
@@ -463,6 +472,22 @@ function keel_defaults_render_settings_page() {
 									<?php if ( ! empty( $s['unit'] ) ) : ?>
 										<span class="keel-unit" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>
 									<?php endif; ?>
+								<?php elseif ( 'multiselect' === $field['type'] ) : ?>
+									<?php $ms_options = keel_defaults_exemptable_roles(); ?>
+									<?php $ms_current = array_map( 'strval', (array) $value ); ?>
+									<fieldset>
+										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
+										<?php if ( empty( $ms_options ) ) : ?>
+											<p class="description"><?php esc_html_e( 'No low-privilege roles are available to exempt.', 'keel' ); ?></p>
+										<?php else : ?>
+											<?php foreach ( $ms_options as $role_slug => $role_name ) : ?>
+												<label style="display:block;margin-bottom:6px;">
+													<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $role_slug ); ?>" <?php checked( in_array( (string) $role_slug, $ms_current, true ) ); ?> />
+													<?php echo esc_html( $role_name ); ?>
+												</label>
+											<?php endforeach; ?>
+										<?php endif; ?>
+									</fieldset>
 								<?php endif; ?>
 
 								<?php if ( $locked ) : ?>
