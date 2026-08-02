@@ -35,6 +35,9 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
 
 ## Rebuild / infra
 
+- [x] Site Health surface — read-only posture (informational; escalates to 'recommended'
+      only for strong-passwords + rest-discovery). tests/site-health.php
+
 - [ ] Site Health surface (neutral severity, scoped to shipped features)
 - [ ] Multisite-aware seeding (port PX network-aware lifecycle)
 - [ ] Trademark glance on "Keel" (USPTO + CIPO, classes 9/42) before public
