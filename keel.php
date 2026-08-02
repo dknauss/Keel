@@ -321,11 +321,12 @@ function keel_defaults_schema() {
 			'type'    => 'select',
 			'group'   => 'ux',
 			'label'   => 'Front-end admin bar',
-			'help'    => 'The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins, or for everyone.',
+			'help'    => 'The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins or everyone, or auto-hide it so it slides out of the way and returns on hover or keyboard focus (desktop only).',
 			'choices' => array(
 				''                => 'Leave unchanged (WordPress default)',
 				'hide_non_admins' => 'Hide for non-admins',
 				'hide_all'        => 'Hide for everyone',
+				'auto_hide'       => 'Auto-hide, reveal on hover or keyboard focus (desktop)',
 			),
 		),
 		'admin_menu_width'                => array(
@@ -1343,6 +1344,36 @@ function keel_defaults_environment_styles() {
 }
 
 /**
+ * Auto-hide the front-end admin bar, revealing it on hover or keyboard focus.
+ *
+ * Scoped to hover-capable, fine-pointer devices so touch users keep the normal
+ * bar; focus-within keeps it reachable by keyboard. A 4px sliver stays visible
+ * as the affordance to reveal it.
+ */
+function keel_defaults_auto_hide_admin_bar_css() {
+	if ( is_admin() || ! is_admin_bar_showing() ) {
+		return;
+	}
+	?>
+	<style id="keel-auto-hide-admin-bar">
+		@media (hover: hover) and (pointer: fine) {
+			html {
+				margin-top: 0 !important;
+			}
+			#wpadminbar {
+				transform: translateY(calc(-100% + 4px));
+				transition: transform 160ms ease-in-out;
+			}
+			#wpadminbar:hover,
+			#wpadminbar:focus-within {
+				transform: translateY(0);
+			}
+		}
+	</style>
+	<?php
+}
+
+/**
  * Find a header's actual array key, matching case-insensitively, so a caller can
  * overwrite in place instead of adding a second key that differs only in case.
  *
@@ -2007,6 +2038,8 @@ function keel_defaults_bootstrap() {
 				return current_user_can( 'manage_options' ) ? $show : false;
 			}
 		);
+	} elseif ( 'auto_hide' === $bar ) {
+		add_action( 'wp_head', 'keel_defaults_auto_hide_admin_bar_css' );
 	}
 
 	if ( 'default' !== keel_defaults_get( 'admin_menu_width' ) ) {
