@@ -30,7 +30,14 @@ defined( 'ABSPATH' ) || exit;
  * group: which fieldset it renders under on the settings screen
  */
 function keel_defaults_schema() {
-	return array(
+	// Pure, static data — no filters touch it — so a request-scoped memo is safe
+	// and collapses the ~35 rebuilds/request (bootstrap + Site Health) into one.
+	static $schema = null;
+	if ( null !== $schema ) {
+		return $schema;
+	}
+
+	$schema = array(
 
 		// --- Security ---------------------------------------------------
 		'restrict_rest_user_discovery' => array(
@@ -337,6 +344,8 @@ function keel_defaults_schema() {
 			'help'    => 'Slows admin polling to 60s and drops it on the dashboard home.',
 		),
 	);
+
+	return $schema;
 }
 
 /** Human-friendly group titles for the settings screen. */
@@ -1835,12 +1844,14 @@ function keel_defaults_bootstrap() {
 		} );
 	}
 
-	// One filter handles both the remember and regular session lengths.
+	// One filter handles both the remembered and regular session lengths. They are
+	// independent: disabling Remember Me caps the *remembered* branch but must not
+	// swallow the regular-session length, which applies to non-remembered logins.
 	add_filter( 'auth_cookie_expiration', function ( $expiration, $user_id, $remember ) {
-		if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
-			return $remember ? 2 * DAY_IN_SECONDS : $expiration;
-		}
 		if ( $remember ) {
+			if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
+				return 2 * DAY_IN_SECONDS; // Remember Me disabled → cap the persistent session.
+			}
 			$days = (int) keel_defaults_get( 'remember_me_days' );
 			if ( $days > 0 ) {
 				return $days * DAY_IN_SECONDS;
@@ -2301,8 +2312,9 @@ function keel_password_is_pwned( $password ) {
 		$response = wp_remote_get(
 			'https://api.pwnedpasswords.com/range/' . $prefix,
 			array(
-				'timeout' => 4,
-				'headers' => array( 'Add-Padding' => 'true' ),
+				'timeout'             => 4,
+				'limit_response_size' => 65536, // Range responses are ~20KB; cap against a hijacked oversized body.
+				'headers'             => array( 'Add-Padding' => 'true' ),
 			)
 		);
 
@@ -2557,8 +2569,8 @@ function keel_defaults_render_settings_page() {
 										( function () {
 											var input  = document.getElementById( '<?php echo $rid; ?>-range' );
 											var output = document.getElementById( '<?php echo $rid; ?>-output' );
-											var labels = <?php echo wp_json_encode( $rlabels ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
-											var widths = <?php echo wp_json_encode( array_values( $rpx ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>;
+											var labels = <?php echo wp_json_encode( $rlabels, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
+											var widths = <?php echo wp_json_encode( array_values( $rpx ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
 											if ( ! input || ! output || ! document.body ) { return; }
 											function pos() { return parseInt( input.value, 10 ) || 0; }
 											function apply() {
