@@ -60,6 +60,7 @@ function keel_defaults_schema() {
 			'group'   => 'security',
 			'label'   => 'XML-RPC: accept incoming pingbacks',
 			'help'    => 'OFF (default) removes pingback.ping — a spam/reflection-DDoS vector — and the X-Pingback header.',
+			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
 		'xmlrpc_allow_remote_publishing' => array(
 			'default' => 'no',
@@ -67,6 +68,7 @@ function keel_defaults_schema() {
 			'group'   => 'security',
 			'label'   => 'XML-RPC: allow remote publishing (blogging apps)',
 			'help'    => 'OFF (default) removes credential-authenticated wp.*/metaWeblog/MT/blogger methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
+			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
 		'xmlrpc_allow_multicall' => array(
 			'default' => 'no',
@@ -74,6 +76,7 @@ function keel_defaults_schema() {
 			'group'   => 'security',
 			'label'   => 'XML-RPC: allow system.multicall',
 			'help'    => 'OFF (default) refuses system.multicall, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
+			'depends' => array( 'field' => 'block_xmlrpc_endpoint', 'hide_when' => 'yes' ),
 		),
 		'block_xmlrpc_endpoint' => array(
 			'default' => 'no',
@@ -311,6 +314,7 @@ function keel_defaults_schema() {
 			'group'   => 'login',
 			'label'   => 'Remember Me length (days)',
 			'help'    => 'Caps the persistent session. Core default is 14. Set 0 to leave core alone.',
+			'depends' => array( 'field' => 'disable_remember_me', 'hide_when' => 'yes' ),
 		),
 		'session_regular_hours' => array(
 			'default' => 0,
@@ -2467,7 +2471,23 @@ function keel_defaults_render_settings_page() {
 						<?php if ( $field['group'] !== $group_key ) { continue; } ?>
 						<?php $name  = KEEL_DEFAULTS_OPTION . '[' . $key . ']'; ?>
 						<?php $value = keel_defaults_get( $key ); ?>
-						<tr>
+						<?php
+						// Cross-setting dependency: a field can be hidden when a controlling
+						// field holds a given value (e.g. XML-RPC method toggles are moot when
+						// the whole endpoint is blocked; Remember Me days is moot when Remember
+						// Me is disabled). JS syncs on change; the server sets the initial state.
+						$dep_attr   = '';
+						$dep_hidden = false;
+						if ( ! empty( $field['depends']['field'] ) ) {
+							$dep_attr   = sprintf(
+								' data-keel-dep-field="%s" data-keel-dep-hide="%s"',
+								esc_attr( $field['depends']['field'] ),
+								esc_attr( (string) $field['depends']['hide_when'] )
+							);
+							$dep_hidden = ( (string) keel_defaults_get( $field['depends']['field'] ) === (string) $field['depends']['hide_when'] );
+						}
+						?>
+						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() above. ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
 							<th scope="row"><?php echo esc_html( $field['label'] ); ?></th>
 							<td>
 								<?php if ( 'toggle' === $field['type'] ) : ?>
@@ -2604,6 +2624,32 @@ function keel_defaults_render_settings_page() {
 
 			<?php submit_button(); ?>
 		</form>
+
+		<script>
+		( function () {
+			// Show/hide rows whose setting is moot given a controlling setting's value.
+			function controllerValue( name ) {
+				var els = document.querySelectorAll( '[name="keel_settings[' + name + ']"]' );
+				if ( ! els.length ) { return null; }
+				var el = els[0];
+				if ( 'checkbox' === el.type ) { return el.checked ? el.value : 'no'; }
+				if ( 'radio' === el.type ) {
+					var picked = document.querySelector( '[name="keel_settings[' + name + ']"]:checked' );
+					return picked ? picked.value : '';
+				}
+				return el.value;
+			}
+			document.querySelectorAll( 'tr[data-keel-dep-field]' ).forEach( function ( row ) {
+				var field = row.getAttribute( 'data-keel-dep-field' );
+				var hide  = row.getAttribute( 'data-keel-dep-hide' );
+				var ctrls = document.querySelectorAll( '[name="keel_settings[' + field + ']"]' );
+				if ( ! ctrls.length ) { return; }
+				function sync() { row.style.display = ( controllerValue( field ) === hide ) ? 'none' : ''; }
+				ctrls.forEach( function ( c ) { c.addEventListener( 'change', sync ); } );
+				sync();
+			} );
+		} )();
+		</script>
 
 		<hr />
 		<p><em><?php esc_html_e( 'Three hardening moves live in wp-config.php and cannot be toggled here:', 'keel' ); ?></em></p>
