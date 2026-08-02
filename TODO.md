@@ -30,7 +30,8 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
       per-value CSS color sanitiser + accessible label-clip. tests/environment-indicator.php
 - [x] disable post-password protection — CSS-hide editor UI (opt-in, non-destructive; keeps field on already-protected posts). tests/post-passwords.php
 - [x] mail-failure notice — new Email group; risky From-address warning + zero password-reset catch (de-branded, no SupportMonitor). tests/mail-failure.php
-- [ ] PX comment teardown (fuller disable) · PX header logic · password role-scoping
+- [x] PX comment teardown (default-closed/feeds/widget) · PX header logic (strictness/case-insensitive)
+      · password role-scoping (keel_weak_roles, subscriber exempt). tests: headers, password-scoping
 
 ## Rebuild / infra
 

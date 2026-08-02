@@ -87,7 +87,7 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 			'label'   => 'Require strong passwords',
-			'help'    => 'Server-side rule: 15+ characters, screened for known breaches — length + screening, not forced composition (per NIST).',
+			'help'    => 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Enforced for privileged/editorial accounts; low-privilege roles (default: subscriber) are exempt. Adjust with the keel_weak_roles filter.',
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'default' => 'yes',
@@ -1818,6 +1818,44 @@ function keel_defaults_attachment_redirect_target( $attachment_id ) {
 }
 
 /**
+ * Whether the strong-password policy is enforced for a given user.
+ *
+ * Scoped to privileged/editorial accounts by default: a user whose every role is
+ * in the weak-role list (default: subscriber) is exempt, since a hard length +
+ * breach rule adds signup friction for low-privilege accounts on membership or
+ * commerce sites without protecting anything valuable. Any privileged role — or
+ * an unknown/empty role set — enforces. Extend the exemption (e.g. a WooCommerce
+ * 'customer') or clear it to enforce for everyone via keel_weak_roles.
+ *
+ * @param WP_User|stdClass|null $user User context, when available.
+ * @return bool
+ */
+function keel_defaults_password_enforced_for_user( $user ) {
+	$weak_roles = (array) apply_filters( 'keel_weak_roles', array( 'subscriber' ) );
+
+	$roles = array();
+	if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+		$roles = $user->roles;
+	} elseif ( ! empty( $user->role ) && is_string( $user->role ) ) {
+		$roles = array( $user->role );
+	}
+
+	// Unknown role set → enforce (the safe default).
+	if ( empty( $roles ) ) {
+		return true;
+	}
+
+	// Exempt only when every role the user holds is a weak role.
+	foreach ( $roles as $role ) {
+		if ( ! in_array( (string) $role, $weak_roles, true ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Validate a password against the policy.
  *
  * One reusable validator behind every entry point — profile screen, password
@@ -1829,6 +1867,11 @@ function keel_defaults_attachment_redirect_target( $attachment_id ) {
  * @return true|WP_Error True when acceptable, WP_Error describing the failure.
  */
 function keel_defaults_validate_password( $password, $user = null ) {
+	// Role-scoped: low-privilege accounts (see keel_weak_roles) are exempt.
+	if ( ! keel_defaults_password_enforced_for_user( $user ) ) {
+		return true;
+	}
+
 	// NIST 800-63B / OWASP: favour length + screening over forced composition
 	// rules (upper/lower/number/symbol), which push users toward predictable
 	// patterns like Password1! without adding entropy.
