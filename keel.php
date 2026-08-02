@@ -194,7 +194,7 @@ function keel_defaults_schema() {
 			'type'    => 'select',
 			'group'   => 'updates',
 			'label'   => 'Core auto-updates',
-			'help'    => 'Maintenance and security releases install automatically by default. Major releases should be tested and deployed within 30 days. An explicit <code>wp-config.php</code> policy takes precedence.',
+			'help'    => 'Installs maintenance and security releases automatically and holds major releases for you to test and roll out deliberately — the recommended default, so security fixes land on their own while big versions wait. An explicit <code>wp-config.php</code> policy takes precedence, and then this control is locked.',
 			'choices' => array(
 				'minor'   => 'Maintenance/security releases only — recommended',
 				'all'     => 'All stable releases',
