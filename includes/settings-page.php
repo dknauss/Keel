@@ -18,7 +18,7 @@ add_action(
 	function () {
 		$hook = add_options_page(
 			__( 'Keel', 'keel' ),
-			__( 'Keel', 'keel' ),
+			__( 'Site Defaults', 'keel' ),
 			'manage_options',
 			'keel',
 			'keel_defaults_render_settings_page'
@@ -266,7 +266,8 @@ function keel_defaults_render_settings_page() {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Keel', 'keel' ); ?></h1>
-		<p><?php esc_html_e( 'Each switch below is one opinionated default. Flip what you want; the rest of WordPress is untouched.', 'keel' ); ?></p>
+		<p class="description" style="font-size:14px;margin:2px 0 12px;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel' ); ?></p>
+		<p style="max-width:46em;"><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
 
 		<style>
 			/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */

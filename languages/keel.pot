@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-02T17:52:23+00:00\n"
+"POT-Creation-Date: 2026-08-02T17:55:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -147,9 +147,12 @@ msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:20
-#: includes/settings-page.php:21
 #: includes/settings-page.php:268
 msgid "Keel"
+msgstr ""
+
+#: includes/settings-page.php:21
+msgid "Site Defaults"
 msgstr ""
 
 #: includes/settings-page.php:45
@@ -194,10 +197,14 @@ msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> alrea
 msgstr ""
 
 #: includes/settings-page.php:269
-msgid "Each switch below is one opinionated default. Flip what you want; the rest of WordPress is untouched."
+msgid "Sensible defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:481
+#: includes/settings-page.php:270
+msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
+msgstr ""
+
+#: includes/settings-page.php:482
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 

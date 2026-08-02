@@ -1,0 +1,22 @@
+# Canadian English (en_CA) for Keel.
+# Source strings are US English; en_CA differs only in specific spellings
+# (colour, behaviour). Canadian English keeps -ize/-ization, so most strings
+# are identical and fall back to the source. Add entries here only where a
+# genuine Canadian spelling differs.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: Keel Defaults 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://github.com/dknauss/keel\n"
+"Language: en_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: keel\n"
+
+msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in."
+msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in."
+
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default."
+msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default."
