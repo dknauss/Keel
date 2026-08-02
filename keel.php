@@ -275,7 +275,7 @@ function keel_defaults_schema() {
 			'type'      => 'toggle',
 			'group'     => 'editor',
 			'label'     => 'Classic editor',
-			'statement' => 'Force the Classic editor',
+			'statement' => 'Use the Classic editor instead of the block editor',
 			'help'      => 'Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default.',
 		),
 
@@ -286,7 +286,7 @@ function keel_defaults_schema() {
 			'group'     => 'media',
 			'label'     => 'Upload filenames',
 			'statement' => 'Lowercase new upload filenames',
-			'help'      => 'Lowercases new upload filenames, avoiding case-sensitivity surprises when files move between local/staging (case-insensitive) and Linux production (case-sensitive). On by default; only affects new uploads.',
+			'help'      => 'Avoids case-sensitivity surprises when files move between case-insensitive local/staging and case-sensitive Linux production. On by default; only affects new uploads.',
 		),
 		'media_sizes_panel'               => array(
 			'default'   => 'yes',
