@@ -199,11 +199,13 @@ function keel_defaults_strings() {
 			'help'      => __( 'Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines.', 'keel' ),
 		),
 		'session_regular_days'            => array(
-			'label' => __( 'Regular session length (days)', 'keel' ),
+			'label' => __( 'Regular session length', 'keel' ),
+			'unit'  => __( 'days', 'keel' ),
 			'help'  => __( 'How long a normal (non-remembered) login stays signed in. WordPress\'s default is 2 days.', 'keel' ),
 		),
 		'remember_me_days'                => array(
-			'label' => __( 'Remember Me length (days)', 'keel' ),
+			'label' => __( 'Remember Me length', 'keel' ),
+			'unit'  => __( 'days', 'keel' ),
 			'help'  => __( 'How long a remembered login stays signed in. WordPress\'s default is 14 days. It cannot be shorter than the regular session length above.', 'keel' ),
 		),
 		'login_logo_behavior'             => array(

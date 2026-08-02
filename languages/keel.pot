@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-02T17:31:25+00:00\n"
+"POT-Creation-Date: 2026-08-02T17:33:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -686,101 +686,106 @@ msgid "Removes the Remember Me checkbox from the login form, so every login uses
 msgstr ""
 
 #: includes/strings.php:202
-msgid "Regular session length (days)"
+msgid "Regular session length"
 msgstr ""
 
 #: includes/strings.php:203
+#: includes/strings.php:208
+msgid "days"
+msgstr ""
+
+#: includes/strings.php:204
 msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
 msgstr ""
 
-#: includes/strings.php:206
-msgid "Remember Me length (days)"
+#: includes/strings.php:207
+msgid "Remember Me length"
 msgstr ""
 
-#: includes/strings.php:207
+#: includes/strings.php:209
 msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
 msgstr ""
 
-#: includes/strings.php:210
+#: includes/strings.php:212
 msgid "Login logo"
 msgstr ""
 
-#: includes/strings.php:211
+#: includes/strings.php:213
 msgid "The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page."
 msgstr ""
 
-#: includes/strings.php:213
+#: includes/strings.php:215
 msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
 msgstr ""
 
-#: includes/strings.php:214
+#: includes/strings.php:216
 msgid "Remove the logo and the wordpress.org link"
 msgstr ""
 
-#: includes/strings.php:215
+#: includes/strings.php:217
 msgid "Keep the logo, drop the wordpress.org link"
 msgstr ""
 
-#: includes/strings.php:216
+#: includes/strings.php:218
 msgid "Replace the logo with the site icon"
 msgstr ""
 
-#: includes/strings.php:220
+#: includes/strings.php:222
 msgid "Heartbeat API"
 msgstr ""
 
-#: includes/strings.php:221
+#: includes/strings.php:223
 msgid "Slow background admin polling"
 msgstr ""
 
-#: includes/strings.php:222
+#: includes/strings.php:224
 msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
 msgstr ""
 
-#: includes/strings.php:234
+#: includes/strings.php:236
 msgid "Security & Attack Surface"
 msgstr ""
 
-#: includes/strings.php:235
+#: includes/strings.php:237
 msgid "Updates"
 msgstr ""
 
-#: includes/strings.php:236
+#: includes/strings.php:238
 msgid "Content & Public Surfaces"
 msgstr ""
 
-#: includes/strings.php:237
+#: includes/strings.php:239
 msgid "Editor"
 msgstr ""
 
-#: includes/strings.php:238
+#: includes/strings.php:240
 msgid "Media"
 msgstr ""
 
-#: includes/strings.php:239
+#: includes/strings.php:241
 msgid "Email"
 msgstr ""
 
-#: includes/strings.php:240
+#: includes/strings.php:242
 msgid "Admin & Front-End UX"
 msgstr ""
 
-#: includes/strings.php:241
+#: includes/strings.php:243
 msgid "Login & Sessions"
 msgstr ""
 
-#: includes/strings.php:242
+#: includes/strings.php:244
 msgid "Branding"
 msgstr ""
 
-#: includes/strings.php:243
+#: includes/strings.php:245
 msgid "Performance"
 msgstr ""
 
-#: includes/strings.php:254
+#: includes/strings.php:256
 msgid "REST API"
 msgstr ""
 
-#: includes/strings.php:255
+#: includes/strings.php:257
 msgid "XML-RPC"
 msgstr ""

@@ -450,6 +450,9 @@ function keel_defaults_render_settings_page() {
 										name="<?php echo esc_attr( $name ); ?>"
 										value="<?php echo esc_attr( $value ); ?>"
 										class="small-text" />
+									<?php if ( ! empty( $s['unit'] ) ) : ?>
+										<span class="keel-unit" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>
+									<?php endif; ?>
 								<?php endif; ?>
 
 								<?php if ( $locked ) : ?>
