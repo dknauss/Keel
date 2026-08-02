@@ -285,6 +285,13 @@ function keel_defaults_schema() {
 			'label'   => 'Helper admin list columns',
 			'help'    => 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.',
 		),
+		'environment_indicator' => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'ux',
+			'label'   => 'Environment indicator',
+			'help'    => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from wp_get_environment_type() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
+		),
 
 		// --- Login & sessions ------------------------------------------
 		'disable_remember_me' => array(
@@ -1031,6 +1038,156 @@ function keel_defaults_hide_zero_reset_notice() {
 	<?php
 }
 
+/**
+ * Environment indicator definitions (label, dashicon, colours) keyed by the
+ * WordPress environment type. Filterable via keel_environments.
+ *
+ * @return array
+ */
+function keel_environments() {
+	$defaults = array(
+		'production'  => array(
+			'label'            => __( 'Production', 'keel' ),
+			'icon'             => 'dashicons-admin-site',
+			'background_color' => '#b92a2a',
+			'text_color'       => '#fff',
+		),
+		'staging'     => array(
+			'label'            => __( 'Staging', 'keel' ),
+			'icon'             => 'dashicons-admin-generic',
+			'background_color' => '#d79d00',
+			'text_color'       => '#fff',
+		),
+		'development' => array(
+			'label'            => __( 'Development', 'keel' ),
+			'icon'             => 'dashicons-admin-tools',
+			'background_color' => '#34863b',
+			'text_color'       => '#fff',
+		),
+		'local'       => array(
+			'label'            => __( 'Local', 'keel' ),
+			'icon'             => 'dashicons-admin-home',
+			'background_color' => '#0073aa',
+			'text_color'       => '#fff',
+		),
+	);
+
+	$environments = apply_filters( 'keel_environments', $defaults );
+
+	return is_array( $environments ) ? wp_parse_args( $environments, $defaults ) : $defaults;
+}
+
+/**
+ * The current environment, treating .test/.local hosts as local when no
+ * WP_ENVIRONMENT_TYPE constant is set.
+ *
+ * @return string
+ */
+function keel_current_environment() {
+	$type = wp_get_environment_type();
+
+	if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
+		$home = untrailingslashit( home_url() );
+		foreach ( array( '.test', '.local' ) as $suffix ) {
+			if ( substr( $home, - strlen( $suffix ) ) === $suffix ) {
+				return 'local';
+			}
+		}
+	}
+
+	return $type;
+}
+
+/**
+ * Add the environment indicator to the admin bar.
+ *
+ * @param \WP_Admin_Bar $admin_bar Admin bar.
+ */
+function keel_defaults_environment_toolbar_item( $admin_bar ) {
+	$environments = keel_environments();
+	if ( empty( $environments ) ) {
+		return;
+	}
+
+	$type        = keel_current_environment();
+	$environment = isset( $environments[ $type ] ) ? $environments[ $type ] : $environments['production'];
+
+	$admin_bar->add_menu(
+		array(
+			'id'     => 'keel-environment-indicator',
+			'parent' => 'top-secondary',
+			'title'  => sprintf(
+				'<span class="ab-icon dashicons %s" aria-hidden="true"></span><span class="ab-label">%s</span>',
+				esc_attr( $environment['icon'] ),
+				esc_html( $environment['label'] )
+			),
+			'meta'   => array(
+				'class' => esc_attr( 'keel-environment-indicator keel-environment-indicator--' . $type ),
+			),
+		)
+	);
+}
+
+/**
+ * Reduce a filter-supplied colour to something safe to interpolate into a CSS
+ * declaration.
+ *
+ * The threat in a value position is not HTML injection but a value that
+ * terminates its own declaration and opens a new rule, or opens a CSS comment.
+ * This strips the characters that could do either (notably `;`, `}`, `:`, and
+ * `*`) while leaving every documented colour form intact: hex, named colours,
+ * rgb/rgba/hsl functional notation, custom properties (`var(--x)`), and CSS
+ * Color 4 slash notation. The slash is safe only while the asterisk is stripped
+ * (no comment can open), which the test asserts directly.
+ *
+ * @param string $color Colour value from the keel_environments filter.
+ * @return string
+ */
+function keel_defaults_sanitize_css_color( $color ) {
+	return preg_replace( '/[^A-Za-z0-9#(),.%\s_\/-]/', '', (string) $color );
+}
+
+/**
+ * Print the environment-indicator inline styles.
+ */
+function keel_defaults_environment_styles() {
+	if ( ! is_admin_bar_showing() ) {
+		return;
+	}
+
+	$environments = keel_environments();
+	if ( empty( $environments ) ) {
+		return;
+	}
+
+	$css  = '.keel-environment-indicator { pointer-events: none; }';
+	$css .= ' .keel-environment-indicator .ab-icon { top: 3px; }';
+
+	foreach ( $environments as $type => $environment ) {
+		$css .= sprintf(
+			' .keel-environment-indicator--%s .ab-item { background-color: %s !important; color: %s !important; }',
+			sanitize_html_class( $type ),
+			keel_defaults_sanitize_css_color( $environment['background_color'] ),
+			keel_defaults_sanitize_css_color( $environment['text_color'] )
+		);
+	}
+
+	/*
+	 * In the crowded 783–960px desktop band, drop the text label to just the
+	 * colour-coded icon. Clip (not display:none) keeps the label in the
+	 * accessibility tree — the icon is aria-hidden, so the label is the node's
+	 * only accessible name and must survive for screen-reader and zoom users.
+	 */
+	$css .= ' @media screen and (min-width: 783px) and (max-width: 960px) {';
+	$css .= ' #wpadminbar .keel-environment-indicator .ab-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }';
+	$css .= ' #wpadminbar .keel-environment-indicator .ab-icon { margin-right: 0; }';
+	$css .= ' }';
+
+	// CSS is raw text: values are sanitised per-interpolation above, and
+	// wp_strip_all_tags guards against a </style> breakout.
+	printf( '<style id="keel-environment-indicator">%s</style>', wp_strip_all_tags( $css ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS escaped per-value above.
+}
+
 /* =======================================================================
  * BOOTSTRAP — wire each enabled policy to its hook.
  * ===================================================================== */
@@ -1390,6 +1547,12 @@ function keel_defaults_bootstrap() {
 		add_filter( 'manage_users_columns', 'keel_defaults_filter_user_columns' );
 		add_filter( 'manage_users_custom_column', 'keel_defaults_render_user_column', 10, 3 );
 		add_action( 'wp_login', 'keel_defaults_record_last_login', 10, 2 );
+	}
+
+	if ( keel_defaults_enabled( 'environment_indicator' ) ) {
+		add_action( 'admin_bar_menu', 'keel_defaults_environment_toolbar_item', 7 );
+		add_action( 'admin_head', 'keel_defaults_environment_styles' );
+		add_action( 'wp_head', 'keel_defaults_environment_styles' );
 	}
 
 	/* ----- Media ----- */

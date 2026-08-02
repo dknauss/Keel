@@ -26,7 +26,8 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
       [+_post_type], gutenberg_can_edit_post, use_widgets_block_editor). Test: tests/force-classic-editor.php
 - [x] admin menu width — select (200/240/280/300), scoped admin_head CSS · lowercase upload filenames · media sizes panel ·
       hide admin bar for non-admins · helper list columns
-- [ ] environment indicator
+- [x] environment indicator — admin-bar env label (prod/staging/dev/local), default OFF (opt-in),
+      per-value CSS color sanitiser + accessible label-clip. tests/environment-indicator.php
 - [x] disable post-password protection — CSS-hide editor UI (opt-in, non-destructive; keeps field on already-protected posts). tests/post-passwords.php
 - [x] mail-failure notice — new Email group; risky From-address warning + zero password-reset catch (de-branded, no SupportMonitor). tests/mail-failure.php
 - [ ] PX comment teardown (fuller disable) · PX header logic · password role-scoping
