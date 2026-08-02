@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="Keel">
+	<description>WordPress Coding Standards.</description>
+	<file>plugin/keel</file>
+	<file>tests</file>
+	<file>bin</file>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<arg name="extensions" value="php" />
+	<arg name="parallel" value="8" />
+	<rule ref="WordPress" />
+	<!--
+		tests/ and bin/ are CLI scripts, not WordPress runtime code: they report
+		through STDOUT/STDERR and read the source tree directly, so the WP
+		filesystem-API and i18n rules do not apply to them.
+	-->
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fwrite">
+		<exclude-pattern>tests/*</exclude-pattern>
+		<exclude-pattern>bin/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents">
+		<exclude-pattern>bin/*</exclude-pattern>
+	</rule>
+</ruleset>
