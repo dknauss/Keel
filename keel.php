@@ -354,7 +354,7 @@ function keel_defaults_schema() {
 			'group'     => 'ux',
 			'label'     => 'Environment indicator',
 			'statement' => 'Show the current environment in the admin bar',
-			'help'      => 'Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type</code>() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
+			'help'      => 'Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
 		),
 
 		// --- Login & sessions ------------------------------------------
@@ -364,25 +364,27 @@ function keel_defaults_schema() {
 			'group'     => 'login',
 			'label'     => 'Remember Me',
 			'statement' => 'Disable Remember Me and remove the login checkbox',
-			'help'      => 'Removes the Remember Me checkbox from the login form and caps remembered logins at 2 days. Useful for shared or kiosk machines.',
+			'help'      => 'Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines.',
+		),
+		'session_regular_days'            => array(
+			'default' => 2,
+			'type'    => 'number',
+			'group'   => 'login',
+			'label'   => 'Regular session length (days)',
+			'help'    => 'How long a normal (non-remembered) login stays signed in. WordPress\'s default is 2 days.',
+			'min'     => 1,
 		),
 		'remember_me_days'                => array(
-			'default' => 5,
+			'default' => 14,
 			'type'    => 'number',
 			'group'   => 'login',
 			'label'   => 'Remember Me length (days)',
-			'help'    => 'Caps a remembered login. WordPress\'s default is 14 days; set 0 to use it.',
+			'help'    => 'How long a remembered login stays signed in. WordPress\'s default is 14 days. It cannot be shorter than the regular session length above.',
+			'min'     => 1,
 			'depends' => array(
 				'field'     => 'disable_remember_me',
 				'hide_when' => 'yes',
 			),
-		),
-		'session_regular_hours'           => array(
-			'default' => 0,
-			'type'    => 'number',
-			'group'   => 'login',
-			'label'   => 'Regular session length (hours)',
-			'help'    => 'Length of a non-remembered login. Set 0 to use WordPress\'s default (2 days).',
 		),
 
 		// --- Branding ---------------------------------------------------
@@ -407,7 +409,7 @@ function keel_defaults_schema() {
 			'group'     => 'performance',
 			'label'     => 'Heartbeat API',
 			'statement' => 'Slow background admin polling',
-			'help'      => 'Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enable this only if you are fine with those updating less often.',
+			'help'      => 'Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often.',
 		),
 	);
 
@@ -2082,6 +2084,15 @@ function keel_defaults_bootstrap() {
 	/* ----- Login & sessions ----- */
 
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
+		// Strip the submitted value server-side as well as hiding the checkbox, so
+		// a forged POST cannot opt back into a persistent session. login_init fires
+		// before wp-login.php reads $_POST['rememberme'].
+		add_action(
+			'login_init',
+			function () {
+				unset( $_POST['rememberme'], $_REQUEST['rememberme'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+			}
+		);
 		add_action(
 			'login_footer',
 			function () {
@@ -2090,27 +2101,25 @@ function keel_defaults_bootstrap() {
 		);
 	}
 
-	// One filter handles both the remembered and regular session lengths. They are
-	// independent: disabling Remember Me caps the *remembered* branch but must not
-	// swallow the regular-session length, which applies to non-remembered logins.
+	// One filter sets both the remembered and regular session lengths (both in
+	// days). Sanitize guarantees remember >= regular, so ticking Remember Me can
+	// never shorten a login. When Remember Me is disabled every login is regular.
 	add_filter(
 		'auth_cookie_expiration',
 		function ( $expiration, $user_id, $remember ) {
-			if ( $remember ) {
-				if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
-					return 2 * DAY_IN_SECONDS; // Remember Me disabled → cap the persistent session.
-				}
-				$days = (int) keel_defaults_get( 'remember_me_days' );
-				if ( $days > 0 ) {
-					return $days * DAY_IN_SECONDS;
-				}
-			} else {
-				$hours = (int) keel_defaults_get( 'session_regular_hours' );
-				if ( $hours > 0 ) {
-					return $hours * HOUR_IN_SECONDS;
-				}
+			$regular_days = (int) keel_defaults_get( 'session_regular_days' );
+			$regular      = $regular_days > 0 ? $regular_days * DAY_IN_SECONDS : $expiration;
+
+			if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
+				return $regular;
 			}
-			return $expiration;
+
+			if ( $remember ) {
+				$remember_days = (int) keel_defaults_get( 'remember_me_days' );
+				return $remember_days > 0 ? $remember_days * DAY_IN_SECONDS : $expiration;
+			}
+
+			return $regular;
 		},
 		10,
 		3
@@ -2704,7 +2713,9 @@ function keel_defaults_sanitize( $input ) {
 				break;
 
 			case 'number':
-				$clean[ $key ] = isset( $input[ $key ] ) ? max( 0, absint( $input[ $key ] ) ) : $field['default'];
+				$min           = isset( $field['min'] ) ? (int) $field['min'] : 0;
+				$val           = isset( $input[ $key ] ) ? absint( $input[ $key ] ) : (int) $field['default'];
+				$clean[ $key ] = max( $min, $val );
 				break;
 
 			case 'select':
@@ -2732,6 +2743,13 @@ function keel_defaults_sanitize( $input ) {
 				}
 				break;
 		}
+	}
+
+	// A remembered login must never be shorter than a regular one — otherwise
+	// ticking "Remember Me" would *shorten* the session. Clamp it up to match.
+	if ( isset( $clean['remember_me_days'], $clean['session_regular_days'] )
+		&& $clean['remember_me_days'] < $clean['session_regular_days'] ) {
+		$clean['remember_me_days'] = $clean['session_regular_days'];
 	}
 
 	return $clean;
@@ -2997,7 +3015,7 @@ function keel_defaults_render_settings_page() {
 										</script>
 									</fieldset>
 								<?php elseif ( 'number' === $field['type'] ) : ?>
-									<input type="number" min="0" step="1"
+									<input type="number" min="<?php echo esc_attr( isset( $field['min'] ) ? (int) $field['min'] : 0 ); ?>" step="1"
 										name="<?php echo esc_attr( $name ); ?>"
 										value="<?php echo esc_attr( $value ); ?>"
 										class="small-text" />
