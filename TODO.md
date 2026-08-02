@@ -22,7 +22,8 @@ Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
 - [x] reserved usernames — `illegal_user_logins` (block creation, NOT PX's authenticate/
       login block, which risks locking out existing legit accounts). Test: tests/reserved-usernames.php
-- [ ] force classic editor
+- [x] force classic editor — new "Editor" group; 4 filters (use_block_editor_for_post
+      [+_post_type], gutenberg_can_edit_post, use_widgets_block_editor). Test: tests/force-classic-editor.php
 - [ ] admin menu width · lowercase upload filenames · media sizes panel ·
       hide admin bar for non-admins · helper list columns
 - [ ] environment indicator

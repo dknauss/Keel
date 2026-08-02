@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "phpcs --standard=phpcs.xml",
     "lint:fix": "phpcbf --standard=phpcs.xml",
-    "test": "php tests/unfiltered-html.php && php tests/reserved-usernames.php"
+    "test": "php tests/unfiltered-html.php && php tests/reserved-usernames.php && php tests/force-classic-editor.php"
   },
   "config": {
     "allow-plugins": {

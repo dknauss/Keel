@@ -203,6 +203,15 @@ function keel_defaults_schema() {
 			'help'    => 'Removes the emoji detection script + inline CSS from every page.',
 		),
 
+		// --- Editor ----------------------------------------------------
+		'force_classic_editor' => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'editor',
+			'label'   => 'Force the Classic editor',
+			'help'    => 'Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default.',
+		),
+
 		// --- Admin & front-end UX --------------------------------------
 		'title_only_admin_search' => array(
 			'default' => 'no',
@@ -279,6 +288,7 @@ function keel_defaults_groups() {
 		'security'    => 'Security & Attack Surface',
 		'updates'     => 'Updates',
 		'content'     => 'Content & Public Surfaces',
+		'editor'      => 'Editor',
 		'ux'          => 'Admin & Front-End UX',
 		'login'       => 'Login & Sessions',
 		'branding'    => 'Branding',
@@ -466,6 +476,22 @@ function keel_reserved_usernames_list() {
  */
 function keel_defaults_reserved_usernames( $logins ) {
 	return array_merge( (array) $logins, keel_reserved_usernames_list() );
+}
+
+/**
+ * Force the classic editing experience.
+ *
+ * Registers the filters WordPress consults when choosing an editor. They fire
+ * only in the admin editor-selection path, so registering them at load is
+ * harmless on the front end, and front-end rendering of existing block content
+ * is unaffected — do_blocks() still runs; only the editing experience changes.
+ * On a block theme the Site Editor (a separate gate) stays available.
+ */
+function keel_defaults_force_classic_editor() {
+	add_filter( 'use_block_editor_for_post', '__return_false' );
+	add_filter( 'use_block_editor_for_post_type', '__return_false' );
+	add_filter( 'gutenberg_can_edit_post', '__return_false' );  // standalone Gutenberg feature plugin
+	add_filter( 'use_widgets_block_editor', '__return_false' ); // classic Widgets screen
 }
 
 /* =======================================================================
@@ -780,6 +806,12 @@ function keel_defaults_bootstrap() {
 			remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 			add_filter( 'emoji_svg_url', '__return_false' );
 		} );
+	}
+
+	/* ----- Editor ----- */
+
+	if ( keel_defaults_enabled( 'force_classic_editor' ) ) {
+		keel_defaults_force_classic_editor();
 	}
 
 	/* ----- Admin & front-end UX ----- */
