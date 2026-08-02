@@ -60,7 +60,7 @@ function keel_defaults_schema() {
 			'section'   => 'rest',
 			'label'     => 'REST user discovery',
 			'statement' => 'Hide users from anonymous REST requests',
-			'help'      => 'Hides <code>/wp/v2/users</code> from logged-out requests (stops username enumeration).',
+			'help'      => 'Stops the REST API from listing account login names to logged-out visitors. Without it, anyone can read <code>/wp/v2/users</code> and collect valid usernames — half of what a password-guessing attack needs, so the attacker no longer has to find the username first.',
 		),
 		'disable_rest'                    => array(
 			'default'   => 'no',
@@ -91,7 +91,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC remote publishing',
 			'statement' => 'Allow remote publishing (blogging apps)',
-			'help'      => 'Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave ON while Jetpack is active unless connection and feature testing proves it unnecessary.',
+			'help'      => 'Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave it on while Jetpack is active unless connection and feature testing proves it unnecessary.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
 				'hide_when' => 'yes',
@@ -104,7 +104,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC multicall',
 			'statement' => 'Allow <code>system.multicall</code>',
-			'help'      => 'Off by default. Refuses <code>system.multicall</code>, a general batching wrapper with little established modern use. WordPress 4.4 stopped it from testing thousands of passwords in one request.',
+			'help'      => 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 removed its old use as a password-guessing multiplier, so refusing it today is minor attack-surface reduction, not a fix for a live threat — almost nothing legitimately uses it, so leaving it off is safe.',
 			'depends'   => array(
 				'field'     => 'block_xmlrpc_endpoint',
 				'hide_when' => 'yes',
@@ -117,7 +117,7 @@ function keel_defaults_schema() {
 			'section'   => 'xmlrpc',
 			'label'     => 'XML-RPC endpoint',
 			'statement' => 'Block the endpoint entirely (returns 403)',
-			'help'      => 'Strictest tier — <code>xmlrpc.php</code> returns 403 for every request. Do not enable on a Jetpack site. Prefer an edge block when possible; this plugin-level block still boots PHP.',
+			'help'      => 'Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Do not enable on a Jetpack site (it needs XML-RPC). This runs inside WordPress, so PHP still starts for each blocked request; blocking it further out — at your host, CDN, or firewall, before the request reaches WordPress — is lighter if that option exists.',
 		),
 		'disable_application_passwords'   => array(
 			'default'   => 'no',
@@ -125,7 +125,7 @@ function keel_defaults_schema() {
 			'group'     => 'security',
 			'label'     => 'Application Passwords',
 			'statement' => 'Prohibit application passwords',
-			'help'      => 'Off by default. Keeps them available — separate, revocable integration credentials for REST and XML-RPC. They inherit the owning user\'s access and bypass interactive 2FA, so use a least-privileged account.',
+			'help'      => 'Off by default — application passwords are hashed, revocable, per-application credentials for REST and XML-RPC, and usually the safest way to grant API access. They carry the owning account\'s full access and skip interactive 2FA, so prohibit them only when policy requires every login to pass 2FA or SSO, or when no integration needs API access at all.',
 		),
 		'require_strong_passwords'        => array(
 			'default'   => 'yes',
