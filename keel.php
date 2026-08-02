@@ -10,6 +10,7 @@
  * License:           GPL-3.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain:       keel
+ * Domain Path:       /languages
  *
  * Keel is a de-branded evolution of "Better by Default" (WPYEG,
  * https://github.com/WPYEG/Better-by-Default), used under the GPL-3.0-or-later.
@@ -18,16 +19,28 @@
  * Architecture: every default is one entry in keel_defaults_schema() plus one
  * bootstrap `if`-block — a default is an opinionated filter behind a toggle.
  * Read the schema array first; it is the map.
+ *
+ * @package Keel
  */
 
 // Bail if called directly.
 defined( 'ABSPATH' ) || exit;
 
+// Load translations shipped in /languages (e.g. the en_CA set).
+add_action(
+	'init',
+	function () {
+		load_plugin_textdomain( 'keel', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	}
+);
+
 /**
  * The single source of truth: every setting, its default, type, and label.
  *
- * type:  'toggle' (yes/no), 'select', or 'number'
- * group: which fieldset it renders under on the settings screen
+ * Each entry declares a type ('toggle' yes/no, 'select', 'range', or 'number')
+ * and the group (fieldset) it renders under on the settings screen.
+ *
+ * @return array[]
  */
 function keel_defaults_schema() {
 	// Pure, static data — no filters touch it — so a request-scoped memo is safe
@@ -661,8 +674,8 @@ function keel_defaults_reserved_usernames( $logins ) {
 function keel_defaults_force_classic_editor() {
 	add_filter( 'use_block_editor_for_post', '__return_false' );
 	add_filter( 'use_block_editor_for_post_type', '__return_false' );
-	add_filter( 'gutenberg_can_edit_post', '__return_false' );  // standalone Gutenberg feature plugin
-	add_filter( 'use_widgets_block_editor', '__return_false' ); // classic Widgets screen
+	add_filter( 'gutenberg_can_edit_post', '__return_false' );  // Standalone Gutenberg feature plugin.
+	add_filter( 'use_widgets_block_editor', '__return_false' ); // Classic Widgets screen.
 }
 
 /**
@@ -746,7 +759,7 @@ function keel_defaults_admin_menu_width_css() {
 			#adminmenuwrap,
 			#adminmenu li.menu-top,
 			#adminmenu .wp-submenu {
-				width: <?php echo $w; ?>px !important;
+				width: <?php echo (int) $w; ?>px !important;
 			}
 			#adminmenuback {
 				position: fixed;
@@ -760,21 +773,21 @@ function keel_defaults_admin_menu_width_css() {
 			}
 			#wpcontent,
 			#wpfooter {
-				margin-left: <?php echo $w; ?>px !important;
+				margin-left: <?php echo (int) $w; ?>px !important;
 			}
 			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-				left: <?php echo $w; ?>px;
+				left: <?php echo (int) $w; ?>px;
 			}
 			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
 				left: auto;
 			}
 			.rtl #wpcontent,
 			.rtl #wpfooter {
-				margin-right: <?php echo $w; ?>px !important;
+				margin-right: <?php echo (int) $w; ?>px !important;
 				margin-left: 0 !important;
 			}
 			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-				right: <?php echo $w; ?>px;
+				right: <?php echo (int) $w; ?>px;
 				left: auto;
 			}
 			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
@@ -1556,12 +1569,16 @@ function keel_defaults_site_health_posture() {
 }
 
 /*
-=======================================================================
+ * =====================================================================
  * BOOTSTRAP — wire each enabled policy to its hook.
- * ===================================================================== */
+ * =====================================================================
+ */
 
 add_action( 'plugins_loaded', 'keel_defaults_bootstrap' );
 
+/**
+ * Wire every enabled default to its WordPress hook. Runs on plugins_loaded.
+ */
 function keel_defaults_bootstrap() {
 
 	// Read-only Site Health posture surface — always registered (not a toggle).
@@ -1665,10 +1682,16 @@ function keel_defaults_bootstrap() {
 	 */
 	add_filter(
 		'wp_xmlrpc_server_class',
-		function ( $class ) {
+		function ( $server_class ) {
 			if ( keel_defaults_enabled( 'block_xmlrpc_endpoint' ) ) {
 				if ( ! class_exists( 'Keel_Blocked_XMLRPC_Server' ) ) {
+					/**
+					 * Drop-in XML-RPC server that 403s every request.
+					 */
 					class Keel_Blocked_XMLRPC_Server {
+						/**
+						 * Refuse the whole endpoint.
+						 */
 						public function serve_request() {
 							status_header( 403 );
 							exit( 'XML-RPC services are disabled on this site.' );
@@ -1680,13 +1703,21 @@ function keel_defaults_bootstrap() {
 
 			if ( ! keel_defaults_enabled( 'xmlrpc_allow_multicall' ) ) {
 				if ( ! class_exists( 'Keel_Multicall_Disabled_Server' ) ) {
-					/*
+					/**
+					 * Drop-in that refuses only system.multicall.
+					 *
 					 * WordPress 4.4 stopped testing credentials after the first failed
 					 * authentication in one XML-RPC request. Refusing multicall is now
 					 * modest defense-in-depth against general batching, not a fix for
 					 * the obsolete "thousands of password guesses" claim.
 					 */
 					class Keel_Multicall_Disabled_Server extends wp_xmlrpc_server {
+						/**
+						 * Refuse batched (multicall) requests.
+						 *
+						 * @param array $methodcalls Boxcarred method calls.
+						 * @return IXR_Error
+						 */
 						public function multiCall( $methodcalls ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Overrides a core method name.
 							return new IXR_Error( 405, 'system.multicall is disabled on this site.' );
 						}
@@ -1695,7 +1726,7 @@ function keel_defaults_bootstrap() {
 				return 'Keel_Multicall_Disabled_Server';
 			}
 
-			return $class;
+			return $server_class;
 		}
 	);
 
@@ -2366,7 +2397,7 @@ function keel_defaults_require_rest_auth( $result ) {
 /**
  * Enforce the password policy on the users controller's `password` argument.
  *
- * rest_pre_insert_user is the documented seam, but the controller never checks
+ * The rest_pre_insert_user hook is the documented seam, but the controller never checks
  * its return for an error: update_item() assigns ID onto the WP_Error and hands
  * it to wp_update_user(), which finds no user_pass and answers 200 OK with the
  * user unchanged; create_item() casts it to an array with no user_login and
@@ -2531,9 +2562,10 @@ function keel_password_is_pwned( $password ) {
 
 
 /*
-=======================================================================
+ * =====================================================================
  * SETTINGS SCREEN — Settings → Keel
- * ===================================================================== */
+ * =====================================================================
+ */
 
 add_action(
 	'admin_menu',
@@ -2603,7 +2635,7 @@ add_action(
 /**
  * Sanitize the whole settings array against the schema.
  *
- * @param mixed $input
+ * @param mixed $input Raw submitted settings (untrusted).
  * @return array
  */
 function keel_defaults_sanitize( $input ) {
@@ -2748,22 +2780,22 @@ function keel_defaults_render_settings_page() {
 										},
 										$rvalues
 									);
-									$rid     = esc_attr( $key );
+									$rid     = $key; // raw schema slug; escaped per output context below.
 									?>
 									<fieldset>
 										<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
 											name="<?php echo esc_attr( $name ); ?>"
-											id="<?php echo $rid; ?>-range"
+											id="<?php echo esc_attr( $rid ); ?>-range"
 											value="<?php echo (int) $rcur; ?>"
-											list="<?php echo $rid; ?>-stops"
-											aria-describedby="<?php echo $rid; ?>-output" style="vertical-align:middle;max-width:240px;" />
-										<datalist id="<?php echo $rid; ?>-stops">
+											list="<?php echo esc_attr( $rid ); ?>-stops"
+											aria-describedby="<?php echo esc_attr( $rid ); ?>-output" style="vertical-align:middle;max-width:240px;" />
+										<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
 											<?php foreach ( $rlabels as $ri => $rl ) : ?>
 												<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
 											<?php endforeach; ?>
 										</datalist>
-										<output for="<?php echo $rid; ?>-range" id="<?php echo $rid; ?>-output" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
-										<style id="<?php echo $rid; ?>-preview">
+										<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
+										<style id="<?php echo esc_attr( $rid ); ?>-preview">
 											@media screen and (min-width: 783px) {
 												body.keel-menu-width-preview #adminmenu,
 												body.keel-menu-width-preview #adminmenuback,
@@ -2813,8 +2845,8 @@ function keel_defaults_render_settings_page() {
 										</style>
 										<script>
 										( function () {
-											var input  = document.getElementById( '<?php echo $rid; ?>-range' );
-											var output = document.getElementById( '<?php echo $rid; ?>-output' );
+											var input  = document.getElementById( '<?php echo esc_js( $rid ); ?>-range' );
+											var output = document.getElementById( '<?php echo esc_js( $rid ); ?>-output' );
 											var labels = <?php echo wp_json_encode( $rlabels, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
 											var widths = <?php echo wp_json_encode( array_values( $rpx ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
 											if ( ! input || ! output || ! document.body ) { return; }
