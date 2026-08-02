@@ -354,7 +354,7 @@ function keel_defaults_schema() {
 			'group'     => 'ux',
 			'label'     => 'Environment indicator',
 			'statement' => 'Show the current environment in the admin bar',
-			'help'      => 'Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type</code>() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
+			'help'      => 'Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type</code>() — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.',
 		),
 
 		// --- Login & sessions ------------------------------------------
@@ -704,7 +704,7 @@ function keel_defaults_force_classic_editor() {
  *
  * WordPress post passwords are weak and are bypassed by full-page caches, so this
  * steers editors away from them by removing the option from the editor. It is
- * cosmetic and non-destructive — it hides UI only, changes no data or behaviour,
+ * cosmetic and non-destructive — it hides UI only, changes no data or behavior,
  * and leaves the field in place on a post that already has a password so that
  * post stays editable. It depends on admin DOM selectors, so re-check it after
  * major WordPress editor changes; if a selector goes stale the field simply
@@ -739,7 +739,7 @@ function keel_defaults_hide_post_password_ui() {
 /**
  * Lowercase a new upload filename.
  *
- * Hooked to sanitize_file_name at priority 20 (after core sanitisation), so
+ * Hooked to sanitize_file_name at priority 20 (after core sanitization), so
  * only new uploads are affected. UTF-8 aware where mbstring is available.
  *
  * @param string $filename Sanitised filename.
@@ -756,7 +756,7 @@ function keel_defaults_lowercase_filename( $filename ) {
  * allowlist in the schema, so the stored value is a known integer.
  *
  * Two things are needed to actually override core (WordPress 6.x/7.x):
- * 1. `!important` — the base width lives in the colour-scheme stylesheet
+ * 1. `!important` — the base width lives in the color-scheme stylesheet
  *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), and the `.auto-fold`
  *    rules that collapse the menu at 783–960px have higher specificity than a
  *    plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
@@ -1194,7 +1194,7 @@ function keel_defaults_hide_zero_reset_notice() {
 }
 
 /**
- * Environment indicator definitions (label, dashicon, colours) keyed by the
+ * Environment indicator definitions (label, dashicon, colors) keyed by the
  * WordPress environment type. Filterable via keel_environments.
  *
  * @return array
@@ -1284,13 +1284,13 @@ function keel_defaults_environment_toolbar_item( $admin_bar ) {
 }
 
 /**
- * Reduce a filter-supplied colour to something safe to interpolate into a CSS
+ * Reduce a filter-supplied color to something safe to interpolate into a CSS
  * declaration.
  *
  * The threat in a value position is not HTML injection but a value that
  * terminates its own declaration and opens a new rule, or opens a CSS comment.
  * This strips the characters that could do either (notably `;`, `}`, `:`, and
- * `*`) while leaving every documented colour form intact: hex, named colours,
+ * `*`) while leaving every documented color form intact: hex, named colors,
  * rgb/rgba/hsl functional notation, custom properties (`var(--x)`), and CSS
  * Color 4 slash notation. The slash is safe only while the asterisk is stripped
  * (no comment can open), which the test asserts directly.
@@ -1329,7 +1329,7 @@ function keel_defaults_environment_styles() {
 
 	/*
 	 * In the crowded 783–960px desktop band, drop the text label to just the
-	 * colour-coded icon. Clip (not display:none) keeps the label in the
+	 * color-coded icon. Clip (not display:none) keeps the label in the
 	 * accessibility tree — the icon is aria-hidden, so the label is the node's
 	 * only accessible name and must survive for screen-reader and zoom users.
 	 */
@@ -1338,7 +1338,7 @@ function keel_defaults_environment_styles() {
 	$css .= ' #wpadminbar .keel-environment-indicator .ab-icon { margin-right: 0; }';
 	$css .= ' }';
 
-	// CSS is raw text: values are sanitised per-interpolation above, and
+	// CSS is raw text: values are sanitized per-interpolation above, and
 	// wp_strip_all_tags guards against a </style> breakout.
 	printf( '<style id="keel-environment-indicator">%s</style>', wp_strip_all_tags( $css ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS escaped per-value above.
 }
@@ -1399,7 +1399,7 @@ function keel_defaults_find_header_key( $headers, $name ) {
  * alone (this keeps a deprecated ALLOW-FROM's permissive intent intact).
  *
  * @param mixed $value Header value.
- * @return int|null 2 = DENY, 1 = SAMEORIGIN, null = unrecognised.
+ * @return int|null 2 = DENY, 1 = SAMEORIGIN, null = unrecognized.
  */
 function keel_defaults_frame_option_strength( $value ) {
 	switch ( strtoupper( trim( (string) $value ) ) ) {
@@ -2653,7 +2653,7 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Overview', 'keel' ),
 			'content' =>
 				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default: flip only what you want, and the rest of WordPress is untouched.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'A setting that cannot take effect given another choice is hidden automatically: the XML-RPC method controls disappear when the whole endpoint is blocked, and Remember Me length hides when Remember Me is disabled.', 'keel' ) . '</p>',
 		)
 	);

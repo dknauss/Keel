@@ -1,0 +1,243 @@
+# Copyright (C) 2026 Dan Knauss
+# This file is distributed under the GPL-3.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Keel Defaults 0.1.0-dev\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-02T16:26:17+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: keel\n"
+
+#. Plugin Name of the plugin
+#: keel.php
+#: keel.php:1517
+msgid "Keel Defaults"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: keel.php
+msgid "https://github.com/dknauss/keel"
+msgstr ""
+
+#. Description of the plugin
+#: keel.php
+msgid "Sane, individually-toggleable defaults for every new WordPress site — security, updates, privacy, UX, and performance. Configure under Settings → Keel."
+msgstr ""
+
+#. Author of the plugin
+#: keel.php
+msgid "Dan Knauss"
+msgstr ""
+
+#: keel.php:870
+msgid "ID"
+msgstr ""
+
+#: keel.php:871
+msgid "Image"
+msgstr ""
+
+#: keel.php:872
+msgid "Modified"
+msgstr ""
+
+#: keel.php:903
+#: keel.php:1010
+msgid "File size"
+msgstr ""
+
+#: keel.php:928
+msgid "Registered"
+msgstr ""
+
+#: keel.php:929
+msgid "Last login"
+msgstr ""
+
+#: keel.php:993
+msgid "Generated Image Sizes"
+msgstr ""
+
+#: keel.php:1005
+msgid "No generated image sizes were found for this attachment."
+msgstr ""
+
+#: keel.php:1009
+msgid "Read-only view of the generated image files and URLs."
+msgstr ""
+
+#: keel.php:1010
+msgid "Size"
+msgstr ""
+
+#: keel.php:1010
+msgid "Dimensions"
+msgstr ""
+
+#: keel.php:1010
+msgid "URL"
+msgstr ""
+
+#: keel.php:1047
+msgid "Unknown"
+msgstr ""
+
+#: keel.php:1136
+msgid "Use a trusted SMTP or transactional email plugin such as WP Mail SMTP, Post SMTP, or a host-provided mail plugin."
+msgstr ""
+
+#: keel.php:1140
+msgid "Site email may be misconfigured."
+msgstr ""
+
+#: keel.php:1175
+msgid "No password reset links were sent."
+msgstr ""
+
+#: keel.php:1176
+msgid "Site email may not be configured, or the selected users may not have deliverable email addresses."
+msgstr ""
+
+#: keel.php:1205
+msgid "Production"
+msgstr ""
+
+#: keel.php:1211
+msgid "Staging"
+msgstr ""
+
+#: keel.php:1217
+msgid "Development"
+msgstr ""
+
+#: keel.php:1223
+msgid "Local"
+msgstr ""
+
+#: keel.php:1534
+msgid "On"
+msgstr ""
+
+#: keel.php:1534
+msgid "Off"
+msgstr ""
+
+#: keel.php:1538
+msgid "Unchanged"
+msgstr ""
+
+#: keel.php:1580
+msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning."
+msgstr ""
+
+#: keel.php:1596
+msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
+msgstr ""
+
+#: keel.php:1599
+msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
+msgstr ""
+
+#: keel.php:1601
+msgid "Worth a look:"
+msgstr ""
+
+#: keel.php:1606
+msgid "Keel defaults are in place"
+msgstr ""
+
+#: keel.php:1607
+msgid "Some Keel security defaults are off"
+msgstr ""
+
+#: keel.php:1610
+msgid "Security"
+msgstr ""
+
+#: keel.php:1617
+msgid "Review Keel settings"
+msgstr ""
+
+#: keel.php:1843
+msgid "AI connectors are disabled on this site."
+msgstr ""
+
+#. translators: %d: minimum password length.
+#: keel.php:2293
+#, php-format
+msgid "<strong>Error:</strong> Password must be at least %d characters."
+msgstr ""
+
+#: keel.php:2314
+msgid "<strong>Error:</strong> Choose a password that is not commonly used."
+msgstr ""
+
+#: keel.php:2333
+msgid "<strong>Error:</strong> Password must not contain your username or email name."
+msgstr ""
+
+#: keel.php:2342
+msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
+msgstr ""
+
+#: keel.php:2443
+msgid "REST API restricted to authenticated users."
+msgstr ""
+
+#: keel.php:2628
+#: keel.php:2629
+#: keel.php:2809
+msgid "Keel"
+msgstr ""
+
+#: keel.php:2653
+msgid "Overview"
+msgstr ""
+
+#: keel.php:2655
+msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default: flip only what you want, and the rest of WordPress is untouched."
+msgstr ""
+
+#: keel.php:2656
+msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in."
+msgstr ""
+
+#: keel.php:2657
+msgid "A setting that cannot take effect given another choice is hidden automatically: the XML-RPC method controls disappear when the whole endpoint is blocked, and Remember Me length hides when Remember Me is disabled."
+msgstr ""
+
+#: keel.php:2662
+msgid "Current posture"
+msgstr ""
+
+#. translators: %s: URL of the Site Health screen.
+#: keel.php:2666
+#, php-format
+msgid "See <a href=\"%s\">Site Health</a> for a read-only summary of every default and its state."
+msgstr ""
+
+#: keel.php:2810
+msgid "Each switch below is one opinionated default. Flip what you want; the rest of WordPress is untouched."
+msgstr ""
+
+#: keel.php:2827
+msgid "Update policy overridden: AUTOMATIC_UPDATER_DISABLED disables every WordPress background update."
+msgstr ""
+
+#: keel.php:2831
+msgid "Update policy overridden: DISALLOW_FILE_MODS prevents WordPress from installing updates."
+msgstr ""
+
+#: keel.php:2837
+msgid "Core update policy is locked by WP_AUTO_UPDATE_CORE in wp-config.php. Remove that constant to manage core releases here."
+msgstr ""
+
+#: keel.php:3050
+msgid "Three hardening moves live in wp-config.php and cannot be toggled here:"
+msgstr ""
