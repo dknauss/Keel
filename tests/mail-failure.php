@@ -95,6 +95,6 @@ keel_assert( false === keel_defaults_is_zero_reset_result(), 'Detection is scope
 $schema = keel_defaults_schema();
 keel_assert( 'yes' === $schema['mail_failure_notice']['default'], 'mail_failure_notice defaults on.' );
 keel_assert( 'email' === $schema['mail_failure_notice']['group'], 'mail_failure_notice is in the Email group.' );
-keel_assert( isset( keel_defaults_groups()['email'] ), 'Email group is registered.' );
+keel_assert( isset( keel_defaults_group_labels()['email'] ), 'Email group is registered.' );
 
 fwrite( STDOUT, "mail failure tests passed.\n" );

@@ -72,7 +72,7 @@ keel_assert( false !== strpos( $css, '#adminmenu' ), 'CSS targets the admin menu
 keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the non-collapsed breakpoint.' );
 
 // The Media group is registered.
-$groups = keel_defaults_groups();
+$groups = keel_defaults_group_labels();
 keel_assert( isset( $groups['media'] ), 'Media group is registered.' );
 
 fwrite( STDOUT, "admin ux + media tests passed.\n" );

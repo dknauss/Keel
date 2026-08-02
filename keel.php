@@ -31,6 +31,7 @@ const KEEL_DEFAULTS_OPTION = 'keel_settings';
 
 // Load the plugin's modules.
 require_once __DIR__ . '/includes/schema.php';
+require_once __DIR__ . '/includes/strings.php';
 require_once __DIR__ . '/includes/updates.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/admin-ux.php';

@@ -27,11 +27,12 @@ function keel_defaults_site_health_tests( $tests ) {
 /**
  * Human-readable current state of one setting, for the posture summary.
  *
- * @param array $field Schema field.
+ * @param array $field Schema field (structure).
  * @param mixed $value Current value.
+ * @param array $s     Display strings for this field (choice/range labels).
  * @return string
  */
-function keel_defaults_state_label( $field, $value ) {
+function keel_defaults_state_label( $field, $value, $s = array() ) {
 	$type = isset( $field['type'] ) ? $field['type'] : 'toggle';
 
 	if ( 'toggle' === $type ) {
@@ -41,11 +42,11 @@ function keel_defaults_state_label( $field, $value ) {
 		if ( '' === $value ) {
 			return __( 'Unchanged', 'keel' );
 		}
-		return isset( $field['choices'][ $value ] ) ? (string) $field['choices'][ $value ] : (string) $value;
+		return isset( $s['choices'][ $value ] ) ? (string) $s['choices'][ $value ] : (string) $value;
 	}
 	if ( 'range' === $type ) {
 		$values = isset( $field['values'] ) ? array_map( 'strval', array_values( $field['values'] ) ) : array();
-		$labels = isset( $field['labels'] ) ? array_values( $field['labels'] ) : array();
+		$labels = isset( $s['labels'] ) ? array_values( $s['labels'] ) : array();
 		$idx    = array_search( (string) $value, $values, true );
 		return ( false !== $idx && isset( $labels[ $idx ] ) ) ? (string) $labels[ $idx ] : (string) $value;
 	}
@@ -65,15 +66,17 @@ function keel_defaults_state_label( $field, $value ) {
  * @return array
  */
 function keel_defaults_site_health_posture() {
-	$schema = keel_defaults_schema();
-	$groups = keel_defaults_groups();
+	$schema  = keel_defaults_schema();
+	$strings = keel_defaults_strings();
+	$groups  = keel_defaults_group_labels();
 
 	$by_group = array();
 	foreach ( $schema as $key => $field ) {
 		$group                = isset( $field['group'] ) ? $field['group'] : 'other';
+		$s                    = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
 		$by_group[ $group ][] = array(
-			'label' => isset( $field['label'] ) ? $field['label'] : $key,
-			'state' => keel_defaults_state_label( $field, keel_defaults_get( $key ) ),
+			'label' => isset( $s['label'] ) ? $s['label'] : $key,
+			'state' => keel_defaults_state_label( $field, keel_defaults_get( $key ), $s ),
 		);
 	}
 

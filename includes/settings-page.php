@@ -102,11 +102,10 @@ function keel_defaults_sanitize( $input ) {
 				break;
 
 			case 'select':
-				// array_keys() coerces numeric-string keys to ints (e.g. '300' => 300),
-				// so cast back to strings before a strict compare against the posted
-				// (string) value — otherwise numeric choices silently fail validation
-				// and revert to the default.
-				$choices       = isset( $field['choices'] ) ? array_map( 'strval', array_keys( $field['choices'] ) ) : array();
+				// choices is a flat list of valid keys; cast to strings for a strict
+				// compare against the posted (string) value so numeric-string keys
+				// (e.g. '300') do not silently fail validation and revert to default.
+				$choices       = isset( $field['choices'] ) ? array_map( 'strval', $field['choices'] ) : array();
 				$value         = isset( $input[ $key ] ) ? (string) $input[ $key ] : (string) $field['default'];
 				$clean[ $key ] = in_array( $value, $choices, true ) ? $value : (string) $field['default'];
 				break;
@@ -162,14 +161,14 @@ function keel_defaults_dep_state( $field ) {
 /**
  * Echo a field's description paragraph (allows <code> and links).
  *
- * @param array $field Schema field.
+ * @param string $help Description text (already translated).
  */
-function keel_defaults_render_help( $field ) {
-	if ( empty( $field['help'] ) ) {
+function keel_defaults_render_help( $help ) {
+	if ( '' === (string) $help ) {
 		return;
 	}
 	echo '<p class="description">' . wp_kses(
-		$field['help'],
+		$help,
 		array(
 			'code' => array(),
 			'a'    => array(
@@ -184,18 +183,18 @@ function keel_defaults_render_help( $field ) {
 /**
  * Echo a checkbox + its "true when checked" statement (the <label> only).
  *
- * @param string $name     Field input name.
- * @param mixed  $value    Current value.
- * @param array  $field    Schema field.
- * @param bool   $disabled Whether to render the checkbox disabled.
+ * @param string $name      Field input name.
+ * @param mixed  $value     Current value.
+ * @param string $statement The "true when checked" statement (already translated).
+ * @param bool   $disabled  Whether to render the checkbox disabled.
  */
-function keel_defaults_render_checkbox( $name, $value, $field, $disabled = false ) {
+function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = false ) {
 	printf(
 		'<label><input type="checkbox" name="%s" value="yes" %s%s /> %s</label>',
 		esc_attr( $name ),
 		checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a fixed literal.
 		disabled( $disabled, true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- disabled() returns a fixed literal.
-		wp_kses( isset( $field['statement'] ) ? $field['statement'] : $field['label'], array( 'code' => array() ) )
+		wp_kses( $statement, array( 'code' => array() ) )
 	);
 }
 
@@ -252,8 +251,9 @@ function keel_defaults_render_settings_page() {
 		return;
 	}
 
-	$schema = keel_defaults_schema();
-	$groups = keel_defaults_groups();
+	$schema  = keel_defaults_schema();
+	$strings = keel_defaults_strings();
+	$groups  = keel_defaults_group_labels();
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'Keel', 'keel' ); ?></h1>
@@ -297,6 +297,13 @@ function keel_defaults_render_settings_page() {
 						$name  = KEEL_DEFAULTS_OPTION . '[' . $key . ']';
 						$value = keel_defaults_get( $key );
 
+						// Display copy lives in strings.php (translatable); the schema
+						// above carries only structure.
+						$s         = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
+						$label     = isset( $s['label'] ) ? $s['label'] : $key;
+						$statement = isset( $s['statement'] ) ? $s['statement'] : $label;
+						$help      = isset( $s['help'] ) ? $s['help'] : '';
+
 						// A wp-config.php constant may supersede this setting; if so the
 						// control is disabled and the reason shown next to it.
 						$lock   = keel_defaults_config_lock( $key );
@@ -305,15 +312,15 @@ function keel_defaults_render_settings_page() {
 						// Sectioned toggles stack as checkboxes under one shared row (core pattern).
 						if ( null !== $sec ) {
 							if ( null === $section_open ) {
-								$sections = keel_defaults_sections();
+								$sections = keel_defaults_section_labels();
 								$stitle   = isset( $sections[ $sec ] ) ? $sections[ $sec ] : $sec;
 								echo '<tr><th scope="row">' . esc_html( $stitle ) . '</th><td><fieldset><legend class="screen-reader-text"><span>' . esc_html( $stitle ) . '</span></legend>';
 								$section_open = $sec;
 							}
 							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
-							keel_defaults_render_checkbox( $name, $value, $field );
-							keel_defaults_render_help( $field );
+							keel_defaults_render_checkbox( $name, $value, $statement );
+							keel_defaults_render_help( $help );
 							echo '</div>';
 							continue;
 						}
@@ -321,32 +328,32 @@ function keel_defaults_render_settings_page() {
 						list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 						?>
 						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
-							<th scope="row"><?php echo esc_html( $field['label'] ); ?></th>
+							<th scope="row"><?php echo esc_html( $label ); ?></th>
 							<td>
 								<?php if ( 'toggle' === $field['type'] ) : ?>
 									<fieldset>
-										<legend class="screen-reader-text"><span><?php echo esc_html( $field['label'] ); ?></span></legend>
+										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
 										<?php // A disabled checkbox is not submitted; carry a 'yes' value so a save under the constant does not silently flip the stored preference to 'no'. ?>
 										<?php if ( $locked && 'yes' === $value ) : ?>
 											<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="yes" />
 										<?php endif; ?>
-										<?php keel_defaults_render_checkbox( $name, $value, $field, $locked ); ?>
+										<?php keel_defaults_render_checkbox( $name, $value, $statement, $locked ); ?>
 									</fieldset>
 								<?php elseif ( 'select' === $field['type'] ) : ?>
 									<?php if ( $locked ) : ?>
 										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 									<?php endif; ?>
 									<select name="<?php echo esc_attr( $name ); ?>" <?php disabled( $locked ); ?>>
-										<?php foreach ( $field['choices'] as $ck => $cl ) : ?>
+										<?php foreach ( $field['choices'] as $ck ) : ?>
 											<option value="<?php echo esc_attr( $ck ); ?>" <?php selected( $ck, $value ); ?>>
-												<?php echo esc_html( $cl ); ?>
+												<?php echo esc_html( isset( $s['choices'][ $ck ] ) ? $s['choices'][ $ck ] : $ck ); ?>
 											</option>
 										<?php endforeach; ?>
 									</select>
 								<?php elseif ( 'range' === $field['type'] ) : ?>
 									<?php
 									$rvalues = array_map( 'strval', array_values( $field['values'] ) );
-									$rlabels = array_values( $field['labels'] );
+									$rlabels = array_values( isset( $s['labels'] ) ? $s['labels'] : array() );
 									$rcur    = array_search( (string) $value, $rvalues, true );
 									$rcur    = ( false === $rcur ) ? 0 : (int) $rcur;
 									$rpx     = array_map(
@@ -449,7 +456,7 @@ function keel_defaults_render_settings_page() {
 									<p class="description keel-config-lock"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
 								<?php endif; ?>
 
-								<?php keel_defaults_render_help( $field ); ?>
+								<?php keel_defaults_render_help( $help ); ?>
 							</td>
 						</tr>
 						<?php
