@@ -670,62 +670,162 @@ function keel_defaults_rest_password_context( $request ) {
 }
 
 /**
- * Check a password against the Have I Been Pwned range API using k-anonymity.
+ * Largest HIBP range response this site will accept, in bytes.
+ *
+ * A padded range response is ~30-50KB; the cap is the guard against a hijacked
+ * or proxied endpoint streaming an unbounded body into memory. It is also the
+ * truncation boundary — see keel_hibp_body_is_complete().
+ *
+ * @return int
+ */
+function keel_hibp_response_limit() {
+	return max( 1024, (int) apply_filters( 'keel_hibp_max_response_bytes', 128 * 1024 ) );
+}
+
+/**
+ * Whether a range body arrived complete rather than cut off at the transport cap.
+ *
+ * Checked BEFORE trimming: a capped response can end exactly on a CRLF, and
+ * trimming first would hide those bytes and make a truncated range look whole.
+ * A truncated range is the dangerous case — the missing tail is indistinguishable
+ * from "not breached", so a real match silently reads as clean.
+ *
+ * @param string $body  Raw response body, untrimmed.
+ * @param int    $limit Transport cap in bytes.
+ * @return bool
+ */
+function keel_hibp_body_is_complete( $body, $limit ) {
+	return strlen( (string) $body ) < (int) $limit;
+}
+
+/**
+ * Whether a range body is a well-formed HIBP response.
+ *
+ * Every line is a 35-character hash suffix, a colon, and a count. Anything else
+ * — an HTML error page served with a 200, a captive-portal interstitial, a
+ * partial line — is treated as unavailable rather than parsed as "no match".
+ *
+ * @param string $body Trimmed response body.
+ * @return bool
+ */
+function keel_hibp_body_is_valid( $body ) {
+	return 1 === preg_match( '/\A[0-9A-F]{35}:[0-9]+(?:\r?\n[0-9A-F]{35}:[0-9]+)*\z/i', (string) $body );
+}
+
+/**
+ * Whether a validated range body lists the given hash suffix as a real match.
+ *
+ * `Add-Padding` asks HIBP to pad the response so its size cannot reveal how many
+ * real matches it held; padded rows carry a count of 0 and are not matches.
+ *
+ * @param string $body   Validated range body.
+ * @param string $suffix SHA-1 suffix (everything after the 5-character prefix).
+ * @return bool
+ */
+function keel_hibp_range_contains( $body, $suffix ) {
+	foreach ( preg_split( '/\r\n|\n/', (string) $body ) as $line ) {
+		$parts = array_pad( explode( ':', trim( $line ), 2 ), 2, '0' );
+
+		if ( (int) $parts[1] > 0 && 0 === strcasecmp( $parts[0], $suffix ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Look a password up in the Have I Been Pwned range API using k-anonymity.
  *
  * Only the first five characters of the SHA-1 hash ever leave the site. HIBP
  * returns every hash suffix sharing that prefix and the comparison happens
- * locally, so the password itself is never transmitted. `Add-Padding` asks HIBP
- * to pad the response so its size cannot reveal how many real matches it held;
- * padded rows carry a count of 0 and are ignored.
+ * locally, so the password itself is never transmitted.
  *
- * Fails OPEN: if HIBP is unreachable the password is allowed, rather than
- * locking everyone out of password changes during an outage.
+ * Fails OPEN at every step — an unreachable, truncated, or malformed response
+ * allows the password rather than locking everyone out of password changes
+ * during an outage. Only a body that arrived whole and parsed cleanly is
+ * trusted, and only such a body is cached: caching a truncated or garbage
+ * response would turn one bad response into hours of false "not breached"
+ * verdicts.
  *
  * @param string $password Plain-text password to screen.
  * @return bool True when the password appears in a known breach.
  */
-function keel_password_is_pwned( $password ) {
+function keel_hibp_lookup( $password ) {
 	$hash   = strtoupper( sha1( $password ) );
 	$prefix = substr( $hash, 0, 5 );
 	$suffix = substr( $hash, 5 );
+	$limit  = keel_hibp_response_limit();
 
 	$cache_key = 'keel_hibp_' . $prefix;
 	$body      = get_transient( $cache_key );
+	$cached    = false !== $body;
 
-	if ( false === $body ) {
+	if ( ! $cached ) {
 		$response = wp_remote_get(
 			'https://api.pwnedpasswords.com/range/' . $prefix,
 			array(
-				'timeout'             => 4,
-				'limit_response_size' => 65536, // Range responses are ~20KB; cap against a hijacked oversized body.
+				'timeout'             => max( 1, (int) apply_filters( 'keel_hibp_request_timeout', 4 ) ),
+				'limit_response_size' => $limit,
 				'headers'             => array( 'Add-Padding' => 'true' ),
 			)
 		);
 
 		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			// Fail open — never block a password change because HIBP is down.
-			return (bool) apply_filters( 'keel_password_is_pwned', false, $password );
+			return false;
 		}
 
 		$body = (string) wp_remote_retrieve_body( $response );
-		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
-	}
 
-	$pwned = false;
-
-	foreach ( preg_split( '/\r\n|\n/', (string) $body ) as $line ) {
-		$parts = array_pad( explode( ':', trim( $line ), 2 ), 2, '0' );
-
-		// Padded rows report a count of 0 and are not real matches.
-		if ( (int) $parts[1] > 0 && 0 === strcasecmp( $parts[0], $suffix ) ) {
-			$pwned = true;
-			break;
+		// Boundary check before trimming (see keel_hibp_body_is_complete()).
+		if ( ! keel_hibp_body_is_complete( $body, $limit ) ) {
+			return false;
 		}
 	}
 
+	$body = trim( (string) $body );
+
+	if ( '' === $body || ! keel_hibp_body_is_valid( $body ) ) {
+		return false;
+	}
+
+	if ( ! $cached ) {
+		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
+	}
+
+	return keel_hibp_range_contains( $body, $suffix );
+}
+
+/**
+ * Check a password against known breach data.
+ *
+ * The network lookup can be switched off entirely — with the KEEL_DISABLE_HIBP
+ * constant in wp-config.php, or the keel_disable_hibp filter — for air-gapped
+ * sites or policies that forbid the outbound request. Screening then falls back
+ * to whatever keel_password_is_pwned returns, so a site can substitute a local
+ * breach list without the API call.
+ *
+ * @param string $password Plain-text password to screen.
+ * @return bool True when the password appears in a known breach.
+ */
+function keel_password_is_pwned( $password ) {
+	$pwned = false;
+
 	/**
-	 * Filter the breach-screening verdict (e.g. to use a local blocklist, or to
-	 * skip the network call on an air-gapped site).
+	 * Filter whether to skip the Have I Been Pwned network lookup.
+	 *
+	 * @param bool   $disabled Whether the lookup is disabled.
+	 * @param string $password The password being screened.
+	 */
+	$disabled = ( defined( 'KEEL_DISABLE_HIBP' ) && KEEL_DISABLE_HIBP )
+		|| (bool) apply_filters( 'keel_disable_hibp', false, $password );
+
+	if ( ! $disabled ) {
+		$pwned = keel_hibp_lookup( $password );
+	}
+
+	/**
+	 * Filter the breach-screening verdict (e.g. to consult a local blocklist).
 	 *
 	 * @param bool   $pwned    Whether the password appeared in a known breach.
 	 * @param string $password The password being screened.
