@@ -54,3 +54,16 @@ jobs:
               --title "Keel ${GITHUB_REF_NAME#v}" \
               --generate-notes $PRE
           fi
+
+      - name: Update rolling 'latest' release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          NOTES="Automatically updated to the newest tagged build (currently ${GITHUB_REF_NAME}). The WordPress Playground preview installs this asset; download keel.zip below for the current build."
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest build/keel.zip --clobber
+            gh release edit latest --notes "$NOTES" --prerelease >/dev/null
+          else
+            gh release create latest build/keel.zip --title "Latest build (rolling)" --prerelease --notes "$NOTES"
+          fi
