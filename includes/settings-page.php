@@ -270,9 +270,25 @@ function keel_defaults_render_settings_page() {
 	$groups  = keel_defaults_group_labels();
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Keel', 'keel' ); ?></h1>
-		<p class="description" style="font-size:14px;margin:2px 0 12px;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel' ); ?></p>
-		<p style="max-width:46em;"><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
+		<div class="keel-page-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 6px;">
+			<span aria-hidden="true" style="flex:0 0 auto;line-height:0;color:#1d2327;">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48" focusable="false" aria-hidden="true">
+					<g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="2" y1="40" x2="62" y2="40" stroke-width="3" fill="none" opacity="0.5"/>
+						<path d="M31 43 L32 57 L36 57 L37 43 Z"/>
+						<path d="M12 37 Q32 35 55 36 Q55 40 51 43 L16 43 Q12 42 12 37 Z"/>
+						<line x1="33" y1="6" x2="33" y2="38" stroke-width="2.5" fill="none"/>
+						<path d="M35 8 Q54 19 51 34.3 L35 34.3 Q38 21 35 8 Z"/>
+						<path d="M31 12 Q24 24 21 34.3 L31 34.3 Z"/>
+					</g>
+				</svg>
+			</span>
+			<div>
+				<h1 style="margin:0;padding:0;line-height:1.2;"><?php esc_html_e( 'Keel', 'keel' ); ?></h1>
+				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel' ); ?></p>
+			</div>
+		</div>
+		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
 
 		<style>
 			/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
