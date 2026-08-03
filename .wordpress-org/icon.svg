@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Keel">
-  <g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5 -5 74 74" width="256" height="256">
+  <rect x="-5" y="-5" width="74" height="74" fill="#1b2a38"/>
+  <g fill="#ffffff" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
     <line x1="2" y1="40" x2="62" y2="40" stroke-width="3" fill="none" opacity="0.5"/>
     <path d="M31 43 L32 57 L36 57 L37 43 Z"/>
     <path d="M12 37 Q32 35 55 36 Q55 40 51 43 L16 43 Q12 42 12 37 Z"/>

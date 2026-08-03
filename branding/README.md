@@ -1,27 +1,29 @@
 # Keel brand assets
 
-Monochrome marks for Keel. Every file uses `currentColor`, so the mark inherits
-its color from context and works on light or dark backgrounds without edits.
-
-The mark is a small sailboat in side profile: a low hull on the waterline
-carrying a mainsail and jib, with a deep centerboard-style keel below the surface. The
-half-opacity waterline doubles as the "even keel" cue behind the tagline,
+The mark is a small two-sail boat in side profile: a low hull on a half-opacity
+waterline carrying a mainsail and jib, with a deep centerboard-style keel below
+the surface. The waterline doubles as the "even keel" cue behind the tagline,
 *Sensible defaults for steady sites.*
+
+## Source marks (`currentColor`, theme to any context)
 
 | File | Use |
 | --- | --- |
-| `keel-mark.svg` | Primary mark. Square, text-free — the icon and favicon source. |
-| `keel-logo-horizontal.svg` | Mark + wordmark, side by side. |
-| `keel-logo-stacked.svg` | Mark above the wordmark, centered. |
+| `keel-mark.svg` | Primary mark. Square, text-free — embedded in the plugin UI and the favicon source. |
+| `keel-logo-horizontal.svg` | Mark + wordmark, side by side. The word "Keel" is **outlined** (Avenir Next Medium), so it needs no font at render time. |
+| `keel-logo-stacked.svg` | Mark above the wordmark, centered. Wordmark outlined. |
 
-`.wordpress-org/icon.svg` is a copy of `keel-mark.svg` — it is the icon the
-wordpress.org plugin directory renders, and lives there because the deploy
-action maps `.wordpress-org/` to the listing's SVN `assets/` folder.
+## wordpress.org listing assets (`.wordpress-org/`)
 
-## Notes
+The deploy action maps `.wordpress-org/` to the listing's SVN `assets/` folder.
+These use an explicit **white mark on navy `#1b2a38`** (not `currentColor`), so
+they render identically everywhere.
 
-- The two wordmark lockups set "Keel" with a system sans font stack so they stay
-  editable. **Convert that text to outlines before shipping a production logo**
-  so it renders identically everywhere.
-- For a raster wordpress.org icon, render `keel-mark.svg` to `icon-256x256.png`
-  (and `icon-128x128.png`) on a transparent or solid background.
+| File | Purpose |
+| --- | --- |
+| `icon.svg` | Vector listing icon (preferred by wp.org when present). |
+| `icon-256x256.png` / `icon-128x128.png` | Raster listing icons. |
+| `banner-772x250.png` / `banner-1544x500.png` | Listing banner (1x + retina); white mark, outlined "Keel" (Avenir Next Demi Bold), and the tagline. |
+
+Rasters were rendered from the SVGs with `qlmanage`; regenerate them the same way
+if the mark changes.
