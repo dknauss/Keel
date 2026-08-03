@@ -7,14 +7,18 @@
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            Dan Knauss
- * License:           GPL-3.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-3.0.html
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       keel
  * Domain Path:       /languages
  *
  * Keel is a de-branded evolution of "Better by Default" (WPYEG,
- * https://github.com/WPYEG/Better-by-Default), used under the GPL-3.0-or-later.
- * Original copyright is retained; see LICENSE and the Credits section of readme.txt.
+ * https://github.com/WPYEG/Better-by-Default), whose sole author also licenses the
+ * portions carried over here under the GPL-2.0-or-later, with further defaults
+ * adapted from the Pixel Managed Platform plugin — itself a hard fork of
+ * "10up Experience" by 10up (https://github.com/10up/10up-experience),
+ * GPL-2.0-or-later. Original copyright is retained by the respective authors; see
+ * LICENSE and the Credits section of readme.txt.
  *
  * Architecture: every default is one entry in keel_defaults_schema() plus one
  * bootstrap `if`-block — a default is an opinionated filter behind a toggle.
