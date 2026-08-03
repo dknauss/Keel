@@ -1,0 +1,16 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/options-general.php?page=keel",
+	"preferredVersions": { "php": "8.2", "wp": "latest" },
+	"login": true,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "url",
+				"url": "https://github.com/dknauss/keel/releases/download/v0.1.0-dev/keel.zip"
+			},
+			"options": { "activate": true }
+		}
+	]
+}
