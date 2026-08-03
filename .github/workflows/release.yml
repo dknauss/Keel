@@ -1,0 +1,56 @@
+name: Release
+
+# Build the installable plugin zip and publish (or update) a GitHub Release
+# whenever a version tag is pushed. Tags containing -dev/-alpha/-beta/-rc are
+# marked as pre-releases.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint + unit tests
+        run: |
+          set -e
+          for f in keel.php includes/*.php; do php -l "$f" > /dev/null; done
+          for t in tests/*.php; do php "$t"; done
+
+      - name: Build plugin zip
+        run: |
+          set -e
+          mkdir -p build/keel
+          # Copy the whole tree, then drop everything .distignore excludes, so the
+          # zip stays in sync with a single source of truth.
+          rsync -a --exclude='.git' --exclude='build' ./ build/keel/
+          while IFS= read -r pattern; do
+            pattern="${pattern%%$'\r'}"
+            [ -z "$pattern" ] && continue
+            case "$pattern" in \#*) continue ;; esac
+            rm -rf "build/keel/${pattern#/}"
+          done < .distignore
+          (cd build && zip -rq keel.zip keel)
+          echo "== zip contents =="
+          unzip -l build/keel.zip
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          PRE=""
+          echo "$GITHUB_REF_NAME" | grep -qiE -- '-(dev|alpha|beta|rc)' && PRE="--prerelease"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" build/keel.zip --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" build/keel.zip \
+              --title "Keel ${GITHUB_REF_NAME#v}" \
+              --generate-notes $PRE
+          fi
