@@ -29,7 +29,31 @@ function keel_assert( $cond, $msg ) {
 }
 
 /**
- * Map bolded checklist titles to their done state.
+ * Reduce a checklist line to a comparable title.
+ *
+ * Entries are written inconsistently across the two files — bolded or not,
+ * followed by an em-dash clause, a parenthetical, or a full stop. Only the
+ * leading name is stable enough to match on, so everything after the first of
+ * those separators is dropped, along with markdown emphasis and code ticks.
+ *
+ * @param string $line Text after the checkbox.
+ * @return string Normalized title, or '' when nothing usable remains.
+ */
+function keel_checklist_title( $line ) {
+	$title = (string) $line;
+
+	// Cut at the first separator that starts a description.
+	$title = preg_split( '/\s+[—–-]\s+|\s*\(|\.\s|:\s/u', $title )[0];
+
+	$title = str_replace( array( '**', '`', '~~' ), '', $title );
+	$title = strtolower( trim( $title, " \t\n.,:;" ) );
+
+	// Too short to be distinctive; matching on it would invent agreements.
+	return ( strlen( $title ) >= 8 ) ? $title : '';
+}
+
+/**
+ * Map checklist titles to their done state.
  *
  * @param string $markdown File contents.
  * @return array<string, bool> Title => done.
@@ -37,14 +61,27 @@ function keel_assert( $cond, $msg ) {
 function keel_checklist_state( $markdown ) {
 	$state = array();
 
-	if ( ! preg_match_all( '/^\s*-\s\[( |x)\]\s\*\*(.+?)\*\*/mu', $markdown, $matches, PREG_SET_ORDER ) ) {
+	// Bolded titles and plain ones both count.
+	//
+	// The first version of this only matched `**Bolded**` entries, and passed
+	// while TODO.md carried "Site Health surface" as open — twice, once ticked
+	// and once not — against a ROADMAP that had it closed and a codebase that
+	// had shipped it. A guard that reports success on the case it was built for
+	// is worse than no guard, because it reads as verified.
+	if ( ! preg_match_all( '/^\s*-\s\[( |x|~)\]\s(.+)$/mu', $markdown, $matches, PREG_SET_ORDER ) ) {
 		return $state;
 	}
 
 	foreach ( $matches as $match ) {
-		// Titles carry trailing punctuation inconsistently ("Foo." vs "Foo").
-		$title = rtrim( trim( $match[2] ), '.,:;—-' );
-		$done  = ( 'x' === $match[1] );
+		$title = keel_checklist_title( $match[2] );
+
+		if ( '' === $title ) {
+			continue;
+		}
+
+		// `[~]` means partly done. Treated as not finished, which is the safe
+		// reading: it never lets one file claim completion the other denies.
+		$done = ( 'x' === $match[1] );
 
 		// A title appearing twice in one file is done only if every copy is.
 		$state[ $title ] = isset( $state[ $title ] ) ? ( $state[ $title ] && $done ) : $done;

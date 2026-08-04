@@ -56,6 +56,6 @@ into ROADMAP.md or here.
 - [x] Site Health surface — read-only posture (informational; escalates to 'recommended'
       only for strong-passwords + rest-discovery). tests/site-health.php
 
-- [ ] Site Health surface (neutral severity, scoped to shipped features)
-- [ ] Multisite-aware seeding (port PX network-aware lifecycle)
+- [x] Multisite-aware seeding — done 2026-08-04 (keel#29). Network activation seeds
+      each site; `lifecycle.php` is network-aware throughout.
 - [ ] Trademark glance on "Keel" (USPTO + CIPO, classes 9/42) before public
