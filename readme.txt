@@ -60,6 +60,12 @@ No. Disabling comments hides them and closes the forms; nothing is removed from 
 
 Yes. Every default reads its value through the plugin's own option, and the behaviours are filterable — `keel_weak_roles`, `keel_disable_hibp`, `keel_comment_blocks`, `keel_allowed_comment_types` and others. A `wp-config.php` constant always wins over the settings screen where one applies; the screen says so when it is being overridden.
 
+= I run multisite. Does the password policy apply per site? =
+
+The setting is stored per site; the effect is not. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is being set on — and once set, it is that person's password everywhere. Exempting a role on one subsite decides what happens when a password is changed *there*; it does not exempt those accounts from another site's policy. In practice the strictest site on the network sets the floor for anyone who changes their password on it.
+
+Keel documents this rather than governing it. Network-wide policy — one setting applied across every subsite from network admin — is deliberately out of scope for now.
+
 = Why is there no password strength meter? =
 
 WordPress ships one, but it is JavaScript: it advises the person typing and cannot refuse anything, so a password set over the REST API, WP-CLI, or a form with scripts disabled never meets it. Keel enforces length, breach screening, a blocklist and a personal-context check server-side instead, where they cannot be bypassed. See the Help tab on the settings screen.

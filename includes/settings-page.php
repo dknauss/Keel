@@ -117,7 +117,14 @@ function keel_defaults_add_help_tab() {
 						),
 						'code' => array(),
 					)
-				) . '</p>',
+				) . '</p>' .
+				( is_multisite()
+					? '<p>' . wp_kses(
+						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A subsite that exempts a role is not exempting those accounts from another site\'s policy; it is deciding what happens when the password is changed there. The practical effect is that the strictest site on the network sets the floor for anyone who changes their password on it. Keel documents this rather than governing it: network-wide policy is deliberately out of scope for now.', 'keel' ),
+						array()
+					) . '</p>'
+					: ''
+				),
 		)
 	);
 
