@@ -67,7 +67,13 @@ Plugin Review requirements, not niceties.
       disclosure. The assertion that matters most is `Stable tag` against the plugin
       `Version`: they drift silently, the failure lands at release, and it ships the
       wrong code to every existing install.
-- [ ] **Expand `readme.txt` / `README.md`** once the feature set is frozen.
+- [x] **Expand `readme.txt` / `README.md`** — done 2026-08-04. The feature set froze at
+      37 defaults with v0.2, which is what this was waiting on. `README.md` gained the
+      measured comparison against the field; `readme.txt` gained the same in prose, a
+      Site Health paragraph, and an FAQ for running alongside another defaults plugin.
+      Two stale claims went with it: the "in progress" status, and an FAQ line saying
+      REST authentication stops other sites embedding your posts — no longer true since
+      the `oembed/1.0` carve-out.
 - [ ] **Trademark glance on "Keel"** — USPTO and CIPO, Nice classes 9/42 — before the name
       is in public print. Still open, and it needs a professional: the registers are not
       searchable from here, and this is a legal question in any case.
