@@ -2,7 +2,7 @@
 /**
  * Drift guard for the uninstaller.
  *
- * uninstall.php names the things it deletes. That is correct today and rots
+ * The uninstaller names the things it deletes. That is correct today and rots
  * tomorrow: a default added next month writes a new option, nobody thinks about
  * deletion, and the plugin quietly starts leaving data behind. Nothing fails,
  * because there is nothing to fail — the leftover only shows up on a site that
