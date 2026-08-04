@@ -1,6 +1,6 @@
 <?php
 /**
- * Security defaults: unfiltered HTML, reserved usernames, response headers, and password policy.
+ * Security defaults: unfiltered HTML, response headers, and password policy.
  *
  * @package Keel
  */
@@ -52,107 +52,6 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 	$allcaps['unfiltered_html'] = false;
 
 	return $allcaps;
-}
-
-/**
- * Common system, role, and generic usernames reserved from new-account creation.
- *
- * Returned through the `illegal_user_logins` core filter, so WordPress refuses to
- * *create* an account with any of these names — across registration, the admin
- * Add User screen, the REST users endpoint, and multisite signup (core lower-cases
- * both sides, so entries are lower-case here). Existing accounts are never touched.
- * The names attackers guess first (`admin`, `administrator`, `root`) sit alongside
- * generic role mailboxes that make weak, predictable logins. Filter
- * `keel_reserved_usernames` to extend or trim the list.
- *
- * @return string[] Reserved usernames.
- */
-function keel_reserved_usernames_list() {
-	$reserved = array(
-		'abuse',
-		'access',
-		'admin',
-		'administrator',
-		'backup',
-		'billing',
-		'blog',
-		'business',
-		'client',
-		'compliance',
-		'contact',
-		'data',
-		'demo',
-		'devnull',
-		'dns',
-		'doctor',
-		'ftp',
-		'guest',
-		'hostmaster',
-		'info',
-		'information',
-		'inoc',
-		'internet',
-		'ispfeedback',
-		'ispsupport',
-		'list',
-		'list-request',
-		'login',
-		'maildaemon',
-		'manager',
-		'marketing',
-		'master',
-		'mysql',
-		'noc',
-		'no-reply',
-		'noreply',
-		'null',
-		'number',
-		'office',
-		'pass',
-		'password',
-		'phish',
-		'phishing',
-		'postmaster',
-		'privacy',
-		'public',
-		'registrar',
-		'root',
-		'sales',
-		'security',
-		'server',
-		'service',
-		'spam',
-		'sql',
-		'support',
-		'sysadmin',
-		'tech',
-		'test',
-		'tester',
-		'undisclosed-recipients',
-		'unsubscribe',
-		'user',
-		'user2',
-		'username',
-		'usenet',
-		'uucp',
-		'webmaster',
-		'www',
-	);
-
-	return apply_filters( 'keel_reserved_usernames', $reserved );
-}
-
-/**
- * Merge the reserved list into core's `illegal_user_logins`.
- *
- * Merges rather than replaces, so a host or another plugin that already reserves
- * names keeps theirs.
- *
- * @param array $logins Illegal logins gathered from other sources.
- * @return array
- */
-function keel_defaults_reserved_usernames( $logins ) {
-	return array_merge( (array) $logins, keel_reserved_usernames_list() );
 }
 
 /**

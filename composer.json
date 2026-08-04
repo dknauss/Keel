@@ -13,7 +13,7 @@
   "scripts": {
     "lint": "phpcs --standard=phpcs.xml",
     "lint:fix": "phpcbf --standard=phpcs.xml",
-    "test": "php tests/unfiltered-html.php && php tests/reserved-usernames.php && php tests/force-classic-editor.php && php tests/admin-ux-media.php && php tests/helper-columns.php && php tests/post-passwords.php && php tests/comments.php && php tests/mail-failure.php && php tests/environment-indicator.php && php tests/headers.php && php tests/password-scoping.php && php tests/hibp.php && php tests/site-health.php && php tests/dependencies.php && php tests/login-sessions.php && php tests/password-exempt-roles.php",
+    "test": "php tests/unfiltered-html.php && php tests/force-classic-editor.php && php tests/admin-ux-media.php && php tests/helper-columns.php && php tests/post-passwords.php && php tests/comments.php && php tests/mail-failure.php && php tests/environment-indicator.php && php tests/headers.php && php tests/password-scoping.php && php tests/hibp.php && php tests/site-health.php && php tests/dependencies.php && php tests/login-sessions.php && php tests/password-exempt-roles.php",
     "test:integration": "bash tests/integration/verify-behaviors.sh"
   },
   "config": {

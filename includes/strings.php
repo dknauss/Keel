@@ -68,11 +68,6 @@ function keel_defaults_strings() {
 			'statement' => __( 'Limit raw HTML and JavaScript to Administrators', 'keel' ),
 			'help'      => __( 'Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.', 'keel' ),
 		),
-		'reserved_usernames'              => array(
-			'label'     => __( 'Reserved usernames', 'keel' ),
-			'statement' => __( 'Reserve common and system usernames', 'keel' ),
-			'help'      => __( 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter.', 'keel' ),
-		),
 		'remove_version'                  => array(
 			'label'     => __( 'Version fingerprint', 'keel' ),
 			'statement' => __( 'Remove the WordPress version fingerprint', 'keel' ),

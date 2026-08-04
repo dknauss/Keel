@@ -192,10 +192,6 @@ function keel_defaults_bootstrap() {
 		add_filter( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4 );
 	}
 
-	if ( keel_defaults_enabled( 'reserved_usernames' ) ) {
-		add_filter( 'illegal_user_logins', 'keel_defaults_reserved_usernames' );
-	}
-
 	if ( keel_defaults_enabled( 'remove_version' ) ) {
 		remove_action( 'wp_head', 'wp_generator' );
 		add_filter( 'the_generator', '__return_empty_string' );
