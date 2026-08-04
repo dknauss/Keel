@@ -23,8 +23,11 @@ into ROADMAP.md or here.
       `keel_session_regular_hours`) and are now `remember_me_days` / `session_regular_days`
       with their real defaults.
 
-- [ ] **readme.txt / README** — expand once the feature set is final; keep the HIBP
-      external-services disclosure current.
+- [x] **readme.txt / README** — done 2026-08-04. Both expanded now the feature set is
+      frozen at 37. The HIBP external-services disclosure is current and guarded by
+      `tests/readme-spec.php`, which asserts it names the opt-out constant and filter,
+      says how much of the hash is sent, says what happens when the API is unreachable,
+      and links the operator's privacy policy.
 
 ## Feature ports (from pixel-experience) — see scope §13
 

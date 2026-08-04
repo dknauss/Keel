@@ -16,7 +16,11 @@ Keel flips a menu of sensible defaults onto any WordPress install, each one a sw
 
 Every default is one entry in a single schema array that drives both the settings screen and the code that wires it to WordPress. A default is an opinionated filter behind a toggle.
 
-**Status:** early development. This build imports the base and identity; ported hardening/admin defaults, a rebuilt Site Health surface, and multisite-aware seeding are in progress.
+**Disabling something means it is actually disabled.** Measured against nine of the most-installed plugins in this space — every result a live request against a real install, not a readme claim — Keel is the only one where "comments are off" is true below the presentation layer. The others stop at the theme template and the REST route: ask the database directly, with `get_comments()`, and the comments are still there. The same care runs through the rest — closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed answering.
+
+**Site Health shows you the whole posture**, read-only: every default and its current state on one screen, so you can see what the site is actually doing without clicking through tabs. It also reports when another plugin is setting the same defaults, which otherwise fails silently.
+
+**Status:** pre-release. The feature set is frozen at 37 defaults — the ported hardening and admin defaults, the Site Health surface, and multisite-aware seeding are all in. What remains before a wordpress.org release is verification and packaging, not features.
 
 == External services ==
 
@@ -46,7 +50,7 @@ Deactivating stops every default at once; stored settings are kept so reactivati
 
 = Will this break my site? =
 
-The defaults that are on out of the box are low-risk. The ones that can break something are off and opt-in, and each says on the settings screen what it will cost you — for example that blocking cross-origin framing also blocks legitimate embeds, and that requiring authentication for REST also stops other sites embedding your posts through oEmbed.
+The defaults that are on out of the box are low-risk. The ones that can break something are off and opt-in, and each says on the settings screen what it will cost you — for example that blocking cross-origin framing also blocks legitimate embeds. Requiring authentication for REST is the one place Keel spends a little of that strictness back: `oembed/1.0` stays reachable, so other sites can still embed your posts when every other route is closed.
 
 = Does it send anything off my site? =
 
@@ -65,6 +69,16 @@ Yes. Every default reads its value through the plugin's own option, and the beha
 The setting is stored per site; the effect is not. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is being set on — and once set, it is that person's password everywhere. Exempting a role on one subsite decides what happens when a password is changed *there*; it does not exempt those accounts from another site's policy. In practice the strictest site on the network sets the floor for anyone who changes their password on it.
 
 Keel documents this rather than governing it. Network-wide policy — one setting applied across every subsite from network admin — is deliberately out of scope for now.
+
+= I already have another defaults or security plugin. Can I run both? =
+
+You can, but you probably should not, and Keel will tell you when it matters.
+
+Some settings are applied through WordPress filters that return a single value — session length is the clearest example. When two plugins set the same one, WordPress keeps whichever ran last. There is no error and nothing in a log; the plugin that lost simply goes on showing its own number on its own settings screen while the site uses the other one.
+
+Keel checks for this and reports it under **Tools → Site Health**, naming which plugins are contesting which setting. It does not tell you which plugin to keep — that is a judgement about your site, and a plugin answering it would be arguing for its own retention.
+
+Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made.
 
 = Why is there no password strength meter? =
 
