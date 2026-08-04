@@ -14,7 +14,7 @@
 
 $GLOBALS['keel_filters'] = array();
 $GLOBALS['keel_options'] = array();
-$GLOBALS['wp_filter']    = array();
+$GLOBALS['wp_filter']   = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
