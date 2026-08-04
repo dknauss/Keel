@@ -242,3 +242,19 @@ function keel_defaults_remove_comment_blocks( $allowed_block_types ) {
 
 	return $filtered;
 }
+
+/**
+ * Drop the emoji plugin from the TinyMCE plugin list.
+ *
+ * Core registers `wpemoji` for the classic editor separately from the front-end
+ * and admin-head emoji output, so removing those actions leaves this one
+ * loading. Anything that is not an array is replaced rather than filtered: the
+ * filter contract is a list, and a plugin returning something else has already
+ * broken it.
+ *
+ * @param mixed $plugins TinyMCE plugin list.
+ * @return array
+ */
+function keel_defaults_remove_emoji_tinymce_plugin( $plugins ) {
+	return is_array( $plugins ) ? array_values( array_diff( $plugins, array( 'wpemoji' ) ) ) : array();
+}
