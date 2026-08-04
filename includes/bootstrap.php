@@ -297,6 +297,15 @@ function keel_defaults_bootstrap() {
 				remove_meta_box( 'dashboard_recent_comments', 'dashboard', 'normal' );
 			}
 		);
+
+		// Answer comment queries as empty. comments_array only covers the theme's
+		// comment template; without this, /wp/v2/comments still serves every
+		// comment on a site that says comments are off.
+		add_filter( 'comments_pre_query', 'keel_defaults_empty_comment_queries', 10, 2 );
+
+		// Take the comment blocks out of the inserter, so the editor stops
+		// offering blocks that can only render nothing.
+		add_filter( 'allowed_block_types_all', 'keel_defaults_remove_comment_blocks', PHP_INT_MAX );
 	}
 
 	if ( keel_defaults_enabled( 'disable_pingbacks' ) ) {

@@ -41,6 +41,7 @@ require_once __DIR__ . '/includes/schema.php';
 require_once __DIR__ . '/includes/strings.php';
 require_once __DIR__ . '/includes/updates.php';
 require_once __DIR__ . '/includes/security.php';
+require_once __DIR__ . '/includes/content.php';
 require_once __DIR__ . '/includes/admin-ux.php';
 require_once __DIR__ . '/includes/email.php';
 require_once __DIR__ . '/includes/site-health.php';
