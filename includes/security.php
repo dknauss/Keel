@@ -55,6 +55,47 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 }
 
 /**
+ * Decide how long a login lasts.
+ *
+ * Both lengths are stored in days. Registered at priority 50, not the default
+ * 10: this is a policy clamp, and a clamp has to be the last word. At 10 any
+ * plugin filtering `auth_cookie_expiration` at a default priority lands after
+ * it and quietly wins — which is the case a site sets a session length to
+ * prevent.
+ *
+ * The max() is a second belt. Sanitize already keeps a stored remembered length
+ * at or above the regular one, so ticking Remember Me can never shorten a
+ * login — but sanitize only runs when the settings form is saved. An option
+ * written by WP-CLI, a migration, or another plugin never passes through it,
+ * and this is where that would otherwise surface: a remembered login expiring
+ * sooner than an ordinary one.
+ *
+ * @param int  $expiration WordPress's own length, in seconds.
+ * @param int  $user_id    User ID (unused).
+ * @param bool $remember   Whether Remember Me was ticked.
+ * @return int
+ */
+function keel_defaults_session_length( $expiration, $user_id, $remember ) {
+	unset( $user_id );
+
+	$regular_days = (int) keel_defaults_get( 'session_regular_days' );
+	$regular      = $regular_days > 0 ? $regular_days * DAY_IN_SECONDS : $expiration;
+
+	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
+		return $regular;
+	}
+
+	if ( $remember ) {
+		$remember_days = (int) keel_defaults_get( 'remember_me_days' );
+		$remembered    = $remember_days > 0 ? $remember_days * DAY_IN_SECONDS : $expiration;
+
+		return max( $regular, $remembered );
+	}
+
+	return $regular;
+}
+
+/**
  * Whether Jetpack is active on this site.
  *
  * Jetpack reaches WordPress.com over XML-RPC, so blocking the endpoint breaks

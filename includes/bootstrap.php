@@ -514,37 +514,38 @@ function keel_defaults_bootstrap() {
 				unset( $_POST['rememberme'], $_REQUEST['rememberme'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 			}
 		);
+
+		/*
+		 * Hide the checkbox with CSS, not script. The server-side strip above is
+		 * what disables the feature; this is only about not offering a control the
+		 * site will refuse. An inline <script> fails with JavaScript off and is
+		 * blocked outright by a strict script-src Content-Security-Policy, which
+		 * would leave the checkbox visible and apparently working.
+		 */
 		add_action(
-			'login_footer',
+			'login_head',
 			function () {
-				echo "<script>(function(){var c=document.getElementById('rememberme');if(c&&c.closest('p')){c.closest('p').style.display='none';}})();</script>";
+				echo '<style id="keel-hide-remember-me">.login form .forgetmenot { display: none; }</style>';
 			}
 		);
 	}
 
-	// One filter sets both the remembered and regular session lengths (both in
-	// days). Sanitize guarantees remember >= regular, so ticking Remember Me can
-	// never shorten a login. When Remember Me is disabled every login is regular.
-	add_filter(
-		'auth_cookie_expiration',
-		function ( $expiration, $user_id, $remember ) {
-			$regular_days = (int) keel_defaults_get( 'session_regular_days' );
-			$regular      = $regular_days > 0 ? $regular_days * DAY_IN_SECONDS : $expiration;
-
-			if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
-				return $regular;
-			}
-
-			if ( $remember ) {
-				$remember_days = (int) keel_defaults_get( 'remember_me_days' );
-				return $remember_days > 0 ? $remember_days * DAY_IN_SECONDS : $expiration;
-			}
-
-			return $regular;
-		},
-		10,
-		3
-	);
+	/*
+	 * One filter sets both session lengths, both in days.
+	 *
+	 * Priority 50, not 10. This is a policy clamp, and a clamp has to be the last
+	 * word: at 10 any plugin filtering `auth_cookie_expiration` at a default
+	 * priority lands after it and quietly wins, which is exactly the case a site
+	 * sets a session length to prevent.
+	 *
+	 * The max() at the end is a second belt. Sanitize already keeps a stored
+	 * remembered length at or above the regular one, so ticking Remember Me can
+	 * never shorten a login — but sanitize only runs when the form is saved. An
+	 * option written by WP-CLI, a migration, or another plugin never passes
+	 * through it, and this is where that would otherwise show up: a remembered
+	 * login that expires sooner than an ordinary one.
+	 */
+	add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
 
 	/* ----- Branding ----- */
 
