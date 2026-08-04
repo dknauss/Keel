@@ -50,6 +50,46 @@ against what stock WordPress does on the same install.
 
 ---
 
+## Comparing plugins
+
+`probe-teardown.sh` measures whatever the site currently does. `probe-plugin.sh`
+adds the other half of a comparison — getting a plugin into the state its own
+settings screen would produce, then measuring, then deactivating:
+
+```bash
+PROBE_URL=http://127.0.0.1:9314 PROBE_PATH=/tmp/probe-wp \
+  bash tests/integration/probe-plugin.sh disable-comments "disable-comments 2.8.0 (1M)"
+```
+
+Configuration lives in `probe-configs/<slug>.php` and is optional; plugins with
+nothing to configure simply have no file. Each one says what it sets and why,
+including where it deliberately leaves something alone — Admin and Site
+Enhancements keeps its feed-disabling off so a 404 on a comment feed can be
+attributed, and Keel keeps its XML-RPC endpoint block off so the per-method rows
+mean something.
+
+**A plugin measured with default settings is a plugin measured switched off**,
+and the numbers then read as a damning finding rather than an untouched
+checkbox. That is the single easiest way to publish a wrong comparison.
+
+### Why configuration runs before activation, with `--skip-plugins`
+
+Because a teardown plugin changes the state its own configuration is derived
+from.
+
+Disable Comments RB's "everywhere" option does not store a flag it reads later —
+it stores a snapshot of every post type that supported comments when Save was
+pressed. If the plugin is already active from a previous run, it has *removed*
+that support before the config file can look. The config then stores an empty
+list, the plugin does nothing, and the probe reports it closing nothing.
+
+It works the first time and silently unconfigures itself on every run after.
+That is not hypothetical: re-verifying the published matrix from the committed
+harness produced seven differences, all in that one column, all the harness's
+fault rather than the plugin's. `probe-plugin.sh` enforces the ordering so
+nobody has to remember it, and the config file exits non-zero rather than
+storing an empty list if it is ever run the wrong way.
+
 ## Building a throwaway install
 
 Do **not** point this at a site you care about, or at a Studio site with other
