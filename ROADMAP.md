@@ -15,6 +15,31 @@ GPL-2.0-or-later.
 
 ---
 
+## Next up
+
+Chosen deliberately over the probe-coverage items below, which strengthen claims
+already made rather than adding capability.
+
+- [ ] **Multisite governance.** Network-admin settings screen, network-scoped policy
+      pushed to subsites, Super-Admin-only controls. Promoted from v2 on 2026-08-04.
+
+      The reason it is worth doing now is that the gap is already documented and
+      user-visible. `readme.txt` tells multisite operators that the password policy is
+      stored per site but takes effect network-wide — because WordPress keeps one user
+      table — and that "the strictest site on the network sets the floor for anyone who
+      changes their password on it." That is an honest description of a design that
+      nobody chose, and the FAQ has to spend a paragraph explaining it.
+
+      Network-scoped policy replaces that paragraph with a setting. It is also the one
+      remaining item that changes what the plugin can do, rather than what is known
+      about it.
+
+      Prior art is in Pixel: `wpmu_options` / `ms_save_settings` for the network screen,
+      `get_site_option` fallbacks, and Super-Admin-only capability checks. Multisite-aware
+      seeding already landed here in keel#29, so the lifecycle half is done.
+
+---
+
 ## v0.2 — feature-complete for review — **complete 2026-08-04**
 
 Everything a wordpress.org submission needs, before polish. Every item below is
@@ -216,8 +241,7 @@ Plugin Review requirements, not niceties.
 
 ## v2 — deferred by decision
 
-- [ ] **Multisite governance.** Network-admin settings screen, network-scoped policy
-      pushed to subsites, Super-Admin-only controls. Explicitly deferred from v1.
+*(Multisite governance was here. Promoted to Next up, 2026-08-04.)*
 
 ---
 
