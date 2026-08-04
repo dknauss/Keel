@@ -95,3 +95,13 @@ Recording these so they stop being re-litigated:
 - **Punching holes in security toggles for convenience.** Blocking anonymous REST takes
   oEmbed down with it. That consequence gets named in the help text; it does not get
   quietly worked around.
+- **A server-side password entropy meter.** Decided 2026-08-03. The only credible way to
+  add one is vendoring `bjeavons/zxcvbn-php` — 5.9 MB, 4.6 MB of it dictionaries —
+  into a plugin whose entire `require` block is `php >= 7.4`. Core's zxcvbn is
+  JavaScript only (`wp-includes/js/zxcvbn.min.js`, registered in `script-loader.php`,
+  no PHP counterpart), so it is advisory UI that Keel already gets for free and cannot
+  enforce with: stock WordPress accepts `aaa` through WP-CLI, REST, or a form post with
+  JS disabled. The policy stays length + Have I Been Pwned + local blocklist +
+  personal-context. The residual exposure is a long, invented, unbreached, low-entropy
+  password, and the help text says so rather than implying otherwise. Revisit only if a
+  dependency-free estimator with a real dictionary appears.
