@@ -554,6 +554,7 @@ function keel_defaults_bootstrap() {
 	 */
 	if ( keel_defaults_suppresses_mail() ) {
 		add_filter( 'pre_wp_mail', 'keel_defaults_suppress_mail', PHP_INT_MAX, 2 );
+		add_action( 'admin_notices', 'keel_defaults_render_mail_suppressed_notice' );
 	}
 
 	if ( keel_defaults_enabled( 'mail_failure_notice' ) ) {
