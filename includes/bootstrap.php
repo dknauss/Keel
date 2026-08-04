@@ -23,6 +23,15 @@ function keel_defaults_bootstrap() {
 	// Read-only Site Health posture surface — always registered (not a toggle).
 	add_filter( 'site_status_tests', 'keel_defaults_site_health_tests' );
 
+	/*
+	 * The same summary in Site Health → Info, which is where it belongs. A
+	 * passing Status test lands inside the collapsed "Passed tests" accordion,
+	 * so on a correctly configured site the summary was behind a fold nobody
+	 * was told about. Info is always expanded and copyable, which is what a
+	 * support thread actually needs.
+	 */
+	add_filter( 'debug_information', 'keel_defaults_debug_information' );
+
 	/* ----- Updates ----- */
 
 	/*

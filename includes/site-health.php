@@ -73,20 +73,79 @@ function keel_defaults_state_label( $field, $value, $s = array() ) {
  *
  * @return array
  */
-function keel_defaults_site_health_posture() {
+function keel_defaults_posture_by_group() {
 	$schema  = keel_defaults_schema();
 	$strings = keel_defaults_strings();
-	$groups  = keel_defaults_group_labels();
 
 	$by_group = array();
+
 	foreach ( $schema as $key => $field ) {
 		$group                = isset( $field['group'] ) ? $field['group'] : 'other';
 		$s                    = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
 		$by_group[ $group ][] = array(
+			'key'   => $key,
 			'label' => isset( $s['label'] ) ? $s['label'] : $key,
 			'state' => keel_defaults_state_label( $field, keel_defaults_get( $key ), $s ),
 		);
 	}
+
+	return $by_group;
+}
+
+/**
+ * The same summary, as Site Health → Info.
+ *
+ * The Status tab was the wrong home for this and that is why nobody could find
+ * it. A passing test is filed inside the collapsed "Passed tests" accordion at
+ * the bottom of the page, so on a correctly configured site — the common case —
+ * the summary is behind a fold with nothing pointing at it.
+ *
+ * Info is where WordPress keeps inventories: always expanded, copyable as a
+ * block, and the first thing anyone asks for in a support thread. A read-only
+ * list of every default and its state is an inventory, not a health warning.
+ *
+ * The Status test stays. It answers a different question — is anything actually
+ * wrong — and it is the one that should be quiet when the answer is no.
+ *
+ * @param array $info Debug information sections.
+ * @return array
+ */
+function keel_defaults_debug_information( $info ) {
+	if ( ! is_array( $info ) ) {
+		return $info;
+	}
+
+	$groups = keel_defaults_group_labels();
+	$fields = array();
+
+	foreach ( keel_defaults_posture_by_group() as $group_key => $items ) {
+		$group_label = isset( $groups[ $group_key ] ) ? $groups[ $group_key ] : $group_key;
+
+		foreach ( $items as $item ) {
+			$fields[ $item['key'] ] = array(
+				'label' => $group_label . ': ' . $item['label'],
+				'value' => $item['state'],
+			);
+		}
+	}
+
+	$info['keel'] = array(
+		'label'       => __( 'Keel', 'keel' ),
+		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel' ),
+		'fields'      => $fields,
+	);
+
+	return $info;
+}
+
+/**
+ * Posture summary for Site Health → Status.
+ *
+ * @return array
+ */
+function keel_defaults_site_health_posture() {
+	$groups   = keel_defaults_group_labels();
+	$by_group = keel_defaults_posture_by_group();
 
 	$strong_ok = 'yes' === keel_defaults_get( 'require_strong_passwords' );
 	$rest_ok   = 'yes' === keel_defaults_get( 'restrict_rest_user_discovery' );

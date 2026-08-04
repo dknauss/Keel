@@ -132,11 +132,14 @@ function keel_defaults_add_help_tab() {
 		'<p><strong>' . esc_html__( 'Current posture', 'keel' ) . '</strong></p>' .
 		'<p>' . wp_kses(
 			sprintf(
-				/* translators: %s: URL of the Site Health screen. */
-				__( 'See <a href="%s">Site Health</a> for a read-only summary of every default and its state.', 'keel' ),
-				esc_url( admin_url( 'site-health.php' ) )
+				/* translators: %s: URL of the Site Health Info screen. */
+				__( 'Every default and its current state is listed under <a href="%s">Site Health → Info</a>, in the <strong>Keel</strong> section. Site Health → Status flags only the few that warrant attention, and files the rest under “Passed tests”.', 'keel' ),
+				esc_url( admin_url( 'site-health.php?tab=debug' ) )
 			),
-			array( 'a' => array( 'href' => array() ) )
+			array(
+				'a'      => array( 'href' => array() ),
+				'strong' => array(),
+			)
 		) . '</p>'
 	);
 }
