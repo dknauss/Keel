@@ -27,7 +27,7 @@ function keel_defaults_strings() {
 		'disable_rest'                    => array(
 			'label'     => __( 'REST authentication', 'keel' ),
 			'statement' => __( 'Require authentication for all REST requests', 'keel' ),
-			'help'      => __( 'Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not — and because oEmbed is served over REST, other sites can no longer embed your posts.', 'keel' ),
+			'help'      => __( 'Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not. <code>oembed/1.0</code> stays open so other sites can still embed your posts — it serves only what a published post already shows. Filter: <code>keel_public_rest_routes</code>.', 'keel' ),
 		),
 		'xmlrpc_allow_pingbacks'          => array(
 			'label'     => __( 'XML-RPC pingbacks', 'keel' ),
