@@ -147,8 +147,8 @@ function keel_defaults_site_health_posture() {
 	$groups   = keel_defaults_group_labels();
 	$by_group = keel_defaults_posture_by_group();
 
-	$strong_ok = 'yes' === keel_defaults_get( 'require_strong_passwords' );
-	$rest_ok   = 'yes' === keel_defaults_get( 'restrict_rest_user_discovery' );
+	$strong_ok = keel_defaults_enabled( 'require_strong_passwords' );
+	$rest_ok   = keel_defaults_enabled( 'restrict_rest_user_discovery' );
 	$status    = ( $strong_ok && $rest_ok ) ? 'good' : 'recommended';
 
 	$description = '<p>' . esc_html__( 'Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning.', 'keel' ) . '</p>';

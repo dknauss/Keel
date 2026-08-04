@@ -591,7 +591,7 @@ function keel_defaults_environment_is_declared() {
  *
  * @return string
  */
-function keel_current_environment() {
+function keel_defaults_current_environment() {
 	$type = wp_get_environment_type();
 
 	if ( ! keel_defaults_environment_is_declared() ) {
@@ -615,7 +615,7 @@ function keel_defaults_environment_toolbar_item( $admin_bar ) {
 		return;
 	}
 
-	$type        = keel_current_environment();
+	$type        = keel_defaults_current_environment();
 	$environment = isset( $environments[ $type ] ) ? $environments[ $type ] : $environments['production'];
 
 	$admin_bar->add_menu(
