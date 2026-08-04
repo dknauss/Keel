@@ -67,6 +67,20 @@ function keel_defaults_bootstrap() {
 	if ( keel_defaults_enabled( 'disable_rest' ) ) {
 		add_filter( 'rest_authentication_errors', 'keel_defaults_require_rest_auth', PHP_INT_MAX );
 
+		/*
+		 * oEmbed stays reachable past the gate so other sites can still embed
+		 * this one — but it must not answer with what the gate was closed to
+		 * protect. Left alone it returns author_name and an author_url carrying
+		 * the account nicename, to exactly the anonymous caller who has just
+		 * been refused /wp/v2/users.
+		 *
+		 * The same filter runs for hidden author archives (below). Registering
+		 * it twice is harmless — it unsets keys that are already gone — and the
+		 * two reasons are genuinely independent: one is about the archive, this
+		 * one is about the gate.
+		 */
+		add_filter( 'oembed_response_data', 'keel_defaults_strip_oembed_author' );
+
 		// Stop advertising an endpoint that now answers 401. Core prints the
 		// discovery link three ways: a <link rel> in the head, a Link: header,
 		// and an entry in the RSD document.
