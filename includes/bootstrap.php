@@ -378,6 +378,20 @@ function keel_defaults_bootstrap() {
 		 * fetched /feed/. The redirect closed the front door.
 		 */
 		add_filter( 'the_author', 'keel_defaults_mask_feed_author' );
+
+		/*
+		 * Two more routes publish the same name the redirect just closed.
+		 *
+		 * oEmbed returns author_name and author_url for every post, and the URL
+		 * carries the account nicename — so `/wp-json/oembed/1.0/embed` handed
+		 * out the login to anyone who asked, on a site that had hidden its
+		 * authors. Core's users sitemap is blunter still: it lists every author
+		 * archive URL by nicename, which is an enumeration list by construction.
+		 *
+		 * Both measured live before the fix, with the archive correctly 301ing.
+		 */
+		add_filter( 'oembed_response_data', 'keel_defaults_strip_oembed_author' );
+		add_filter( 'wp_sitemaps_add_provider', 'keel_defaults_drop_users_sitemap', 10, 2 );
 	}
 
 	if ( keel_defaults_enabled( 'redirect_attachment_pages' ) ) {

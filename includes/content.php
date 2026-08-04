@@ -258,3 +258,50 @@ function keel_defaults_remove_comment_blocks( $allowed_block_types ) {
 function keel_defaults_remove_emoji_tinymce_plugin( $plugins ) {
 	return is_array( $plugins ) ? array_values( array_diff( $plugins, array( 'wpemoji' ) ) ) : array();
 }
+
+/**
+ * Remove author identity from oEmbed responses.
+ *
+ * `oembed/1.0/embed` returns `author_name` and `author_url` for every post, and
+ * the URL carries the account's nicename. Redirecting `/author/` archives does
+ * nothing about it, so a site that had hidden its authors was still handing out
+ * login names through a route nobody thinks of as a user endpoint.
+ *
+ * Measured on a live install before the fix: with `disable_author_archives` on
+ * and `/author/admin/` answering 301, oEmbed still returned `admin` and
+ * `http://example.test/author/admin/`.
+ *
+ * The rest of the response — title, provider, and the embed markup — is left
+ * alone, so embeds on other sites keep working.
+ *
+ * @param mixed $data oEmbed response data.
+ * @return mixed
+ */
+function keel_defaults_strip_oembed_author( $data ) {
+	if ( ! is_array( $data ) ) {
+		return $data;
+	}
+
+	unset( $data['author_name'], $data['author_url'] );
+
+	return $data;
+}
+
+/**
+ * Drop core's users sitemap when author archives are hidden.
+ *
+ * `wp-sitemap-users-1.xml` lists every author's archive URL by nicename. With
+ * the archives redirected those URLs go nowhere, but the sitemap is still a
+ * published list of account names — an enumeration source by construction, and
+ * one that search engines are explicitly invited to read.
+ *
+ * Removing the provider is the whole fix; the rest of the sitemap index is
+ * untouched, so posts and pages stay listed.
+ *
+ * @param mixed  $provider Sitemap provider instance, or false.
+ * @param string $name     Provider name.
+ * @return mixed
+ */
+function keel_defaults_drop_users_sitemap( $provider, $name ) {
+	return ( 'users' === $name ) ? false : $provider;
+}
