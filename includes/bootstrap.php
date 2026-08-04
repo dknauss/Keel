@@ -242,7 +242,7 @@ function keel_defaults_bootstrap() {
 		do_action( 'keel_disable_ai_connectors' );
 	}
 
-	/* ----- Content & public surfaces ----- */
+	/* ----- Content and public surfaces ----- */
 
 	if ( keel_defaults_enabled( 'disable_comments' ) ) {
 		add_filter( 'comments_open', '__return_false', 20 );
@@ -404,7 +404,7 @@ function keel_defaults_bootstrap() {
 		keel_defaults_force_classic_editor();
 	}
 
-	/* ----- Admin & front-end UX ----- */
+	/* ----- Admin and front-end UX ----- */
 
 	if ( keel_defaults_enabled( 'title_only_admin_search' ) ) {
 		// Narrow the search COLUMNS, don't rewrite the whole clause. The
@@ -475,7 +475,7 @@ function keel_defaults_bootstrap() {
 		add_action( 'admin_head-users.php', 'keel_defaults_hide_zero_reset_notice' );
 	}
 
-	/* ----- Login & sessions ----- */
+	/* ----- Login and sessions ----- */
 
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
 		// Strip the submitted value server-side as well as hiding the checkbox, so

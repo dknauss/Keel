@@ -147,7 +147,7 @@ function keel_defaults_schema() {
 			'group'   => 'updates',
 		),
 
-		// --- Content & public surfaces ---------------------------------
+		// --- Content and public surfaces ---------------------------------
 		'disable_comments'                => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
@@ -210,7 +210,7 @@ function keel_defaults_schema() {
 			'group'   => 'email',
 		),
 
-		// --- Admin & front-end UX --------------------------------------
+		// --- Admin and front-end UX --------------------------------------
 		'title_only_admin_search'         => array(
 			'default' => 'no',
 			'type'    => 'toggle',
@@ -246,7 +246,7 @@ function keel_defaults_schema() {
 			'group'   => 'ux',
 		),
 
-		// --- Login & sessions ------------------------------------------
+		// --- Login and sessions ------------------------------------------
 		'disable_remember_me'             => array(
 			'default' => 'no',
 			'type'    => 'toggle',

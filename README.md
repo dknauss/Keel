@@ -24,7 +24,7 @@ no new settings-page code. A default is an opinionated filter behind a toggle.
 Copy the plugin folder into `wp-content/plugins/` and activate, or install the built
 zip. On activation the documented defaults are seeded; then visit **Settings → Keel**.
 
-## Licence & credits
+## Licence and credits
 
 [GPL-2.0-or-later](LICENSE) — the same terms as WordPress itself. Keel is a de-branded
 evolution of [Better by Default](https://github.com/WPYEG/Better-by-Default) (WPYEG),

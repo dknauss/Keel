@@ -237,14 +237,14 @@ function keel_defaults_strings() {
  */
 function keel_defaults_group_labels() {
 	return array(
-		'security'    => __( 'Security & Attack Surface', 'keel' ),
+		'security'    => __( 'Security and Attack Surface', 'keel' ),
 		'updates'     => __( 'Updates', 'keel' ),
-		'content'     => __( 'Content & Public Surfaces', 'keel' ),
+		'content'     => __( 'Content and Public Surfaces', 'keel' ),
 		'editor'      => __( 'Editor', 'keel' ),
 		'media'       => __( 'Media', 'keel' ),
 		'email'       => __( 'Email', 'keel' ),
-		'ux'          => __( 'Admin & Front-End UX', 'keel' ),
-		'login'       => __( 'Login & Sessions', 'keel' ),
+		'ux'          => __( 'Admin and Front-End UX', 'keel' ),
+		'login'       => __( 'Login and Sessions', 'keel' ),
 		'branding'    => __( 'Branding', 'keel' ),
 		'performance' => __( 'Performance', 'keel' ),
 	);
