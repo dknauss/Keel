@@ -25,9 +25,10 @@ Everything a wordpress.org submission needs, before polish.
       `register_activation_hook`, no per-site or new-subsite seeding). Port the
       network-aware lifecycle: seeding keyed on an `$is_network` flag plus a
       `wp_initialize_site` hook so new subsites get seeded.
-- [ ] **Document the shared-user-table caveat.** Password and reserved-username policies
-      act on the network-wide user table, so on multisite they are effectively
-      network-wide even when configured per-site. Documented in v1, not governed.
+- [ ] **Document the shared-user-table caveat.** The password policy acts on the
+      network-wide user table, so on multisite it is effectively network-wide even when
+      configured per-site. Documented in v1, not governed. (This applied to the
+      reserved-usernames default too, until `500c561` removed it.)
 - [ ] **Reference doc coverage.** `docs/wordpress-default-settings.md` still describes
       Better by Default's feature set. Add an entry per ported default.
 - [ ] **Schema-key reconcile.** Some reference-doc keys use Better by Default naming that
