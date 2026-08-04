@@ -1,24 +1,24 @@
 {
-  "name": "dknauss/keel",
-  "description": "Sane, individually-toggleable WordPress defaults \u2014 security, updates, privacy, UX, and performance.",
-  "type": "wordpress-plugin",
-  "license": "GPL-2.0-or-later",
-  "require": {
-    "php": ">=7.4"
-  },
-  "require-dev": {
-    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-    "wp-coding-standards/wpcs": "^3.2"
-  },
-  "scripts": {
-    "lint": "phpcs --standard=phpcs.xml",
-    "lint:fix": "phpcbf --standard=phpcs.xml",
-    "test": "php tests/unfiltered-html.php && php tests/force-classic-editor.php && php tests/admin-ux-media.php && php tests/helper-columns.php && php tests/post-passwords.php && php tests/comments.php && php tests/mail-failure.php && php tests/environment-indicator.php && php tests/headers.php && php tests/password-scoping.php && php tests/hibp.php && php tests/author-and-heartbeat.php && php tests/site-health.php && php tests/dependencies.php && php tests/login-sessions.php && php tests/password-exempt-roles.php && php tests/login-logo.php && php tests/settings-copy.php && php tests/docs-consistency.php && php tests/policy-conflicts.php",
-    "test:integration": "bash tests/integration/verify-behaviors.sh"
-  },
-  "config": {
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true
+    "name": "dknauss/keel",
+    "description": "Sane, individually-toggleable WordPress defaults \u2014 security, updates, privacy, UX, and performance.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "wp-coding-standards/wpcs": "^3.2"
+    },
+    "scripts": {
+        "lint": "phpcs --standard=phpcs.xml",
+        "lint:fix": "phpcbf --standard=phpcs.xml",
+        "test": "for f in tests/*.php; do php \"$f\" || exit 1; done",
+        "test:integration": "bash tests/integration/verify-behaviors.sh"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
-  }
 }
