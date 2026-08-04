@@ -325,6 +325,15 @@ function keel_defaults_render_settings_page() {
 				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel' ); ?></p>
 			</div>
 		</div>
+		<?php
+		/*
+		 * Where admin notices go. WordPress relocates every `.notice` to just
+		 * before this marker, and without it falls back to "immediately after the
+		 * first <h1>" — which here is inside the flex header, so "Settings saved."
+		 * landed beside the logo in a column the width of the heading text.
+		 */
+		?>
+		<hr class="wp-header-end">
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
 
 		<style>
