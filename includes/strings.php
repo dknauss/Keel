@@ -57,11 +57,11 @@ function keel_defaults_strings() {
 		'require_strong_passwords'        => array(
 			'label'     => __( 'Password strength', 'keel' ),
 			'statement' => __( 'Require strong passwords', 'keel' ),
-			'help'      => __( 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data, plus a short list of obvious choices and a check that the password does not contain the account\'s own username or email name — length and screening, not forced composition (per NIST). There is no entropy meter, so a long invented password that is weak but unbreached can still pass. Breach screening applies to every account; the length, blocklist, and personal-context rules are the ones low-privilege roles can be exempted from below.', 'keel' ),
+			'help'      => __( '15+ characters, not your username or email name, not a common choice, and not in Have I Been Pwned. Length and breach screening instead of uppercase or symbol rules; there is no strength meter. Every account is breach-screened — the rest can be waived below.', 'keel' ),
 		),
 		'password_exempt_roles'           => array(
 			'label' => __( 'Password policy exemptions', 'keel' ),
-			'help'  => __( 'Roles exempted from the length, blocklist, and personal-context rules above — <em>not</em> from breach screening, which every account gets because a password already published in a breach costs the user nothing to avoid. The list is built from the roles on <em>this</em> site, custom ones included, so anything that can only read appears here automatically.<br><strong>A role you expected is missing?</strong> It holds a capability that puts content or settings at risk — <code>edit_posts</code>, <code>upload_files</code>, <code>moderate_comments</code>, <code>manage_options</code> and similar. That is why Contributor is not offered: it can write drafts, so a stolen Contributor login can put content into the site. Users holding more than one role are enforced if <em>any</em> of them is enforced. Override in code with the <code>keel_weak_roles</code> filter, which is not bound by this list.', 'keel' ),
+			'help'  => __( 'Roles that skip the length, common-password and username rules; breach screening still applies to everyone. Only roles with no content or settings capabilities appear — which is why Contributor does not. With several roles, all must be exempt. Filter: <code>keel_weak_roles</code>.', 'keel' ),
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'label'     => __( 'Unfiltered HTML', 'keel' ),
