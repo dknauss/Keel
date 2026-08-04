@@ -38,6 +38,7 @@ define( 'KEEL_DEFAULTS_FILE', __FILE__ );
 
 // Load the plugin's modules.
 require_once __DIR__ . '/includes/schema.php';
+require_once __DIR__ . '/includes/lifecycle.php';
 require_once __DIR__ . '/includes/strings.php';
 require_once __DIR__ . '/includes/updates.php';
 require_once __DIR__ . '/includes/security.php';
@@ -48,20 +49,14 @@ require_once __DIR__ . '/includes/site-health.php';
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/settings-page.php';
 
-/**
- * On activation, seed the option with schema defaults so a fresh install
- * behaves as documented out of the box.
+/*
+ * Seeding, and the two moments it has to happen.
+ *
+ * Activation covers every site that exists. wp_initialize_site covers the ones
+ * created afterwards — without it, a subsite added to a network next month runs
+ * Keel with nothing stored, which looks correct until the schema changes under
+ * it. Both live in includes/lifecycle.php so they can be tested without
+ * activating a plugin.
  */
-register_activation_hook(
-	__FILE__,
-	function () {
-		if ( false === get_option( KEEL_DEFAULTS_OPTION, false ) ) {
-			$schema   = keel_defaults_schema();
-			$defaults = array();
-			foreach ( $schema as $key => $field ) {
-				$defaults[ $key ] = $field['default'];
-			}
-			add_option( KEEL_DEFAULTS_OPTION, $defaults );
-		}
-	}
-);
+register_activation_hook( __FILE__, 'keel_defaults_activate' );
+add_action( 'wp_initialize_site', 'keel_defaults_seed_new_site', 100 );
