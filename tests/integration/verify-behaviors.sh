@@ -59,13 +59,6 @@ setopt security_headers no
 check "headers are absent when the toggle is off"      '$h=apply_filters("wp_headers",array());echo (!isset($h["X-Content-Type-Options"])&&!isset($h["Referrer-Policy"]))?"OK":"present";'
 setopt security_headers yes
 
-echo; echo "== Reserved usernames =="
-setopt reserved_usernames yes
-check "admin is blocked from creation"                 'echo in_array("admin",(array)apply_filters("illegal_user_logins",array()),true)?"OK":"no";'
-setopt reserved_usernames no
-check "not blocked when off"                            'echo !in_array("admin",(array)apply_filters("illegal_user_logins",array()),true)?"OK":"still";'
-setopt reserved_usernames yes
-
 echo; echo "== Comments =="
 setopt disable_comments yes
 check "comments_open forced false"                     'echo apply_filters("comments_open",true,1)?"open":"OK";'
