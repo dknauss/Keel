@@ -76,10 +76,51 @@ be re-measurable, not asserted once.
       rendered markup or the comment template — are theme-dependent by construction.
 - [ ] **Re-run against an older supported WordPress.** Keel claims 6.4+; the matrix was
       measured on 7.0.2 only.
-- [ ] **Make the probe harness part of the repo.** It currently lives in a scratch
-      directory: a throwaway WordPress install plus `probe.sh`. Until it is committed,
-      none of the published numbers can be reproduced by anyone else — which is the whole
-      basis of the comparison. This is the highest-value item in this section.
+- [x] **Make the probe harness part of the repo** — done 2026-08-04 (keel#21).
+      `tests/integration/probe-teardown.sh`, plugin-agnostic, with the lab setup and the
+      five traps in `tests/integration/README.md`. Rewritten for the repo rather than
+      moved: paths are required arguments, and the authenticated session is minted per
+      run instead of a committed cookie.
+
+- [ ] **An XML-RPC help tab, in Keel and in Pixel.** The copy convention sends reasoning
+      to the help tab, and `block_xmlrpc_endpoint` is the one description still carrying
+      it — a third of its 62 words is "PHP still starts for each blocked request; blocking
+      at the host, CDN or firewall is lighter", which is why-we-chose-this, not
+      what-it-costs-you. Parked until now because it meant a tab for one paragraph. Pixel
+      already has an XML-RPC tab, so the two sides differ: Keel needs the tab, Pixel needs
+      the paragraph moved into the one it has.
+
+- [ ] **A policy-collision report in Pixel's Site Health.** Two plugins can set the same
+      policy through the same hook and the loser is silent: Keel and Pixel both register
+      `auth_cookie_expiration` at priority 50, so the last one registered wins outright
+      and neither compares. They agree today, which is exactly when nobody looks.
+      Detect **by hook, not by plugin name** — a rival list only knows yesterday's
+      plugins. Attribute a foreign callback by reflection → file path → `WP_PLUGIN_DIR`.
+      The strongest form, and the one nobody has built: **test the effect, not the
+      registration** — run `apply_filters()` with our callback in place, then again with
+      it briefly removed. If removing ourselves changes nothing while another callback is
+      on the hook, we are being overridden. That needs no knowledge of the other code and
+      catches mu-plugins and themes too. Report, never deactivate: mutual exclusion is
+      hostile and would not help against the third-party plugin nobody has a list for.
+      Design carried over from a prototype that was written and discarded unmerged.
+
+- [ ] **Decide whether Keel's policy filters compare or assert.** They disagree with each
+      other today. `keel_defaults_set_frame_option_header()` reads what another layer
+      already sent, ranks it, and refuses to downgrade a stronger value.
+      `keel_defaults_session_length()` ignores the incoming `$expiration` entirely
+      whenever its own setting is non-zero — it compares its own two values with `max()`
+      and never compares against anyone else's. Same plugin, two philosophies, and only
+      the header one survives running alongside a sibling. The awkward part is that
+      "stricter" for a session means *shorter*, so a comparing version hands victory to
+      whichever plugin is most aggressive — which is not obviously right either. Worth a
+      decision either way, rather than an accident.
+
+- [ ] **Connect the three test suites.** BBD asserts against a phrase Keel was shipping,
+      and only a manual audit found it: the suites do not know about each other, and the
+      matrix that does is a document, not a check. Cheapest useful form is a shared
+      fixture — retired claims, and the conventions each repo already tests
+      independently — read by all three, so retiring a phrase once retires it everywhere.
+      Keel and BBD each have a guard now; Pixel has none.
 
 ## v2 — deferred by decision
 
