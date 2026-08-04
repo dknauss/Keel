@@ -568,15 +568,7 @@ function keel_defaults_bootstrap() {
 			}
 		);
 	} elseif ( 'replace_logo' === $login_logo ) {
-		add_action(
-			'login_head',
-			function () {
-				$icon = function_exists( 'get_site_icon_url' ) ? get_site_icon_url( 84 ) : '';
-				if ( $icon ) {
-					echo '<style>#login h1 a, .login h1 a { background-image:url(' . esc_url( $icon ) . '); background-size:contain; }</style>';
-				}
-			}
-		);
+		add_action( 'login_head', 'keel_defaults_login_logo_styles' );
 	}
 
 	// Removing, unlinking, or replacing the logo all repoint the header link

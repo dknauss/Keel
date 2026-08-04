@@ -209,12 +209,12 @@ function keel_defaults_strings() {
 		),
 		'login_logo_behavior'             => array(
 			'label'   => __( 'Login logo', 'keel' ),
-			'help'    => __( 'The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page.', 'keel' ),
+			'help'    => __( 'The default logo links to wordpress.org — a small trust leak. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays.', 'keel' ),
 			'choices' => array(
 				'keep_default' => __( 'Keep the WordPress logo and wordpress.org link (WordPress default)', 'keel' ),
 				'remove_logo'  => __( 'Remove the logo and the wordpress.org link', 'keel' ),
 				'unlink_logo'  => __( 'Keep the logo, drop the wordpress.org link', 'keel' ),
-				'replace_logo' => __( 'Replace the logo with the site icon', 'keel' ),
+				'replace_logo' => __( 'Replace the logo with your site logo', 'keel' ),
 			),
 		),
 		'throttle_heartbeat'              => array(

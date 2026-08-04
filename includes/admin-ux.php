@@ -608,6 +608,72 @@ function keel_defaults_sanitize_css_color( $color ) {
 }
 
 /**
+ * Escape a URL for use inside a CSS url() value.
+ *
+ * Using esc_url() here is wrong. It entity-encodes for HTML — an `&` in a query
+ * string becomes `&amp;` — and a <style> element is raw text, where entities
+ * are not decoded. The browser would request the literal `&amp;`. esc_url_raw()
+ * does the scheme validation without the entity encoding; the quote and
+ * parenthesis characters are then percent-encoded so a URL cannot close the
+ * url() token and start a new declaration.
+ *
+ * @param string $url URL to embed.
+ * @return string Empty string if the URL did not survive validation.
+ */
+function keel_defaults_css_url( $url ) {
+	return str_replace(
+		array( "'", '"', '(', ')' ),
+		array( '%27', '%22', '%28', '%29' ),
+		esc_url_raw( (string) $url )
+	);
+}
+
+/**
+ * The image to put in place of the WordPress login logo.
+ *
+ * Prefers the theme's Customizer logo, because that is the image a site has
+ * almost certainly already set and the one a client recognizes as their logo.
+ * The site icon is the fallback: it exists on fewer sites, and it is a square
+ * favicon rather than a wordmark.
+ *
+ * @return string Image URL, or '' when the site has set neither.
+ */
+function keel_defaults_login_logo_url() {
+	$custom_logo_id = function_exists( 'get_theme_mod' ) ? (int) get_theme_mod( 'custom_logo' ) : 0;
+
+	if ( $custom_logo_id && function_exists( 'wp_get_attachment_image_src' ) ) {
+		$logo = wp_get_attachment_image_src( $custom_logo_id, 'full' );
+
+		if ( ! empty( $logo[0] ) ) {
+			return (string) $logo[0];
+		}
+	}
+
+	return function_exists( 'get_site_icon_url' ) ? (string) get_site_icon_url( 192 ) : '';
+}
+
+/**
+ * Print the login-screen logo replacement styles.
+ *
+ * Nothing is printed when the site has no usable image: a rule with an empty
+ * url() is worse than no rule, because an empty URL in CSS resolves against
+ * the current document and the browser re-requests the login page to use as
+ * an image.
+ */
+function keel_defaults_login_logo_styles() {
+	$url = keel_defaults_login_logo_url();
+	$css = keel_defaults_css_url( $url );
+
+	// Both checks: css_url() collapses a rejected scheme to '', and '0' is a
+	// falsy string that survives sanitization intact but is not a usable image.
+	if ( empty( $url ) || '' === $css ) {
+		return;
+	}
+
+	echo '<style id="keel-login-logo">#login h1 a, .login h1 a { background-image:url(\'' . $css . '\'); background-size:contain; background-position:center; background-repeat:no-repeat; width:320px; }</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- keel_defaults_css_url() escapes for this context; esc_url() would entity-encode into raw-text CSS.
+}
+
+/**
  * Print the environment-indicator inline styles.
  */
 function keel_defaults_environment_styles() {
