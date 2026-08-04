@@ -10,15 +10,19 @@ into ROADMAP.md or here.
 
 ## Content / docs
 
-- [ ] **Reference doc coverage** — `docs/wordpress-default-settings.md` documents Better
-      by Default's feature set. As PX ports land, add entries for each new default:
-      `limit_unfiltered_html_to_admins`, `helper_list_columns`,
-      force-classic-editor, environment indicator, post-password disable, mail-failure
-      notice, admin-menu-width, lowercase-upload-filenames, media-sizes-panel,
-      hide-admin-bar-for-non-admins, title-only-search, hide-welcome-panel.
-- [ ] **Schema-key reconcile** — some doc keys use BBD naming that may not match Keel's
-      final keys (e.g. `disable_rest` vs `require_auth_rest`, `disable_application_passwords`
-      vs `prohibit_app_passwords`). Align the reference doc to the shipped schema keys.
+- [x] **Reference doc coverage** — done 2026-08-04. All 37 schema keys now have an
+      entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
+      three more (`remove_version`, `security_headers`, `frame_options`) were described
+      in prose in section 6 but never keyed, so a search for the key found nothing.
+
+- [x] **Schema-key reconcile** — done 2026-08-04. Every entry named a standalone
+      `keel_*` option that has never existed; settings live in the single `keel_settings`
+      array, which the doc's own intro said. Fifteen entry headers, the whole
+      quick-reference table and eight inline mentions corrected to the real schema key.
+      Two table rows named keys with no counterpart at all (`keel_remember_me_policy`,
+      `keel_session_regular_hours`) and are now `remember_me_days` / `session_regular_days`
+      with their real defaults.
+
 - [ ] **readme.txt / README** — expand once the feature set is final; keep the HIBP
       external-services disclosure current.
 
