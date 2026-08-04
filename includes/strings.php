@@ -27,7 +27,7 @@ function keel_defaults_strings() {
 		'disable_rest'                    => array(
 			'label'     => __( 'REST authentication', 'keel' ),
 			'statement' => __( 'Require authentication for all REST requests', 'keel' ),
-			'help'      => __( 'Blocks anonymous REST entirely. The logged-in block editor still works, but public blocks, embeds, search, and integrations may not.', 'keel' ),
+			'help'      => __( 'Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not — and because oEmbed is served over REST, other sites can no longer embed your posts.', 'keel' ),
 		),
 		'xmlrpc_allow_pingbacks'          => array(
 			'label'     => __( 'XML-RPC pingbacks', 'keel' ),
@@ -57,11 +57,11 @@ function keel_defaults_strings() {
 		'require_strong_passwords'        => array(
 			'label'     => __( 'Password strength', 'keel' ),
 			'statement' => __( 'Require strong passwords', 'keel' ),
-			'help'      => __( 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data — length + screening, not forced composition (per NIST). Privileged and editorial accounts are always enforced; low-privilege roles can be exempted below.', 'keel' ),
+			'help'      => __( 'Server-side rule: 15+ characters, screened against Have I Been Pwned breach data, plus a short list of obvious choices and a check that the password does not contain the account\'s own username or email name — length and screening, not forced composition (per NIST). There is no entropy meter, so a long invented password that is weak but unbreached can still pass. Privileged and editorial accounts are always enforced; low-privilege roles can be exempted below.', 'keel' ),
 		),
 		'password_exempt_roles'           => array(
 			'label' => __( 'Password policy exemptions', 'keel' ),
-			'help'  => __( 'Roles exempted from the strong-password rule above. Only low-privilege roles — those without editing or management capabilities — can be listed here, so privileged accounts are always enforced. Overridable in code with the <code>keel_weak_roles</code> filter.', 'keel' ),
+			'help'  => __( 'Roles exempted from the strong-password rule above. The list is built from the roles on <em>this</em> site, custom ones included, so anything that can only read appears here automatically.<br><strong>A role you expected is missing?</strong> It holds a capability that puts content or settings at risk — <code>edit_posts</code>, <code>upload_files</code>, <code>moderate_comments</code>, <code>manage_options</code> and similar. That is why Contributor is not offered: it can write drafts, so a stolen Contributor login can put content into the site. Users holding more than one role are enforced if <em>any</em> of them is enforced. Override in code with the <code>keel_weak_roles</code> filter, which is not bound by this list.', 'keel' ),
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'label'     => __( 'Unfiltered HTML', 'keel' ),
@@ -115,7 +115,7 @@ function keel_defaults_strings() {
 		'disable_comments'                => array(
 			'label'     => __( 'Comments', 'keel' ),
 			'statement' => __( 'Disable comments, trackbacks, and pingbacks', 'keel' ),
-			'help'      => __( 'Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds.', 'keel' ),
+			'help'      => __( 'Closes comments everywhere, hides existing threads, defaults new content to closed, and reports a count of zero. Removes the admin menu, admin-bar node, Recent Comments dashboard widget, comment feeds, and the comment blocks — both from the inserter and from what a block theme renders. Nothing is deleted: turn this off and every comment comes back.', 'keel' ),
 		),
 		'disable_pingbacks'               => array(
 			'label'     => __( 'Pingbacks on new posts', 'keel' ),

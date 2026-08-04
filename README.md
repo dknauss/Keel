@@ -9,8 +9,9 @@ site, in one place, and turn any piece off.
 
 > **Status: early development (`0.1.0-dev`).** The base is imported and the identity is
 > in place; help-text de-branding, the ported hardening/admin defaults, a rebuilt Site
-> Health surface, and multisite-aware seeding are in progress. See the project scope
-> for the full plan.
+> Health surface, and multisite-aware seeding are in progress. See
+> [ROADMAP.md](ROADMAP.md) for the milestones and [TODO.md](TODO.md) for what's in
+> flight.
 
 ## How it's built
 

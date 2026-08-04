@@ -1,6 +1,12 @@
 # Keel — TODO
 
-Working checklist. Full plan lives in `~/Code/pixel-lite-scope.md`.
+Working checklist — what's in flight right now. Milestones and direction live in
+[ROADMAP.md](ROADMAP.md).
+
+The original scope document is `~/Code/pixel-lite-scope.md`, outside this repository and
+partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later). Treat
+the repo as authoritative and retire that file once anything still live in it has moved
+into ROADMAP.md or here.
 
 ## Content / docs
 

@@ -15,7 +15,16 @@
 set -u
 SITE="${KEEL_SITE:-$HOME/Studio/keel-test}"
 
-if command -v studio >/dev/null 2>&1 && [ -f "$SITE/wp-content/db.php" ]; then
+# A db.php dropin is not a Studio marker — SQLite installs, object caches and
+# Query Monitor all ship one. Only route through `studio wp` for a path Studio
+# actually manages, or KEEL_SITE pointing anywhere else fails with "The
+# specified directory is not added to Studio".
+case "$SITE" in
+	"$HOME/Studio/"*) STUDIO_SITE=1 ;;
+	*)                STUDIO_SITE=0 ;;
+esac
+
+if [ "$STUDIO_SITE" = "1" ] && command -v studio >/dev/null 2>&1; then
 	WPBIN() { studio wp --path="$SITE" "$@"; }
 else
 	WPBIN() { wp --path="$SITE" "$@"; }
@@ -62,9 +71,35 @@ setopt disable_comments yes
 check "comments_open forced false"                     'echo apply_filters("comments_open",true,1)?"open":"OK";'
 check "new content defaults to closed"                 'echo (apply_filters("get_default_comment_status","open")==="closed")?"OK":"open";'
 check "comment feed link removed"                      'echo apply_filters("feed_links_show_comments_feed",true)?"shown":"OK";'
+check "comment count reports zero"                     'echo ((int)apply_filters("get_comments_number",7,1)===0)?"OK":(string)apply_filters("get_comments_number",7,1);'
+check "comment feeds themselves are blocked"           'echo (false!==has_action("template_redirect","keel_defaults_block_comment_feeds"))?"OK":"unhooked";'
+# Called directly rather than through apply_filters("render_block"): core hooks
+# WP_Duotone::render_duotone_support() there, which requires a third $instance
+# argument and fatals when a test fires the filter with two.
+check "comment blocks render as nothing"               'echo (""===keel_defaults_suppress_comment_blocks("<div>comments</div>",array("blockName"=>"core/comments")))?"OK":"rendered";'
+check "the render filter is hooked"                    'echo (false!==has_filter("render_block","keel_defaults_suppress_comment_blocks"))?"OK":"unhooked";'
+check "non-comment blocks render untouched"            'echo ("<p>hi</p>"===keel_defaults_suppress_comment_blocks("<p>hi</p>",array("blockName"=>"core/paragraph")))?"OK":"mangled";'
+check "a block with no blockName is untouched"         'echo ("<p>hi</p>"===keel_defaults_suppress_comment_blocks("<p>hi</p>",array()))?"OK":"mangled";'
 setopt disable_comments no
 check "comments_open untouched when off"                'echo apply_filters("comments_open",true,1)?"OK":"closed";'
+check "comment count untouched when off"                'echo ((int)apply_filters("get_comments_number",7,1)===7)?"OK":"zeroed";'
+check "the render filter is unhooked when off"          'echo (false===has_filter("render_block","keel_defaults_suppress_comment_blocks"))?"OK":"still-hooked";'
+check "comment feeds served when off"                   'echo (false===has_action("template_redirect","keel_defaults_block_comment_feeds"))?"OK":"still-blocked";'
 setopt disable_comments yes
+
+echo; echo "== REST authentication =="
+setopt disable_rest yes
+check "anonymous REST is refused"                      '$e=apply_filters("rest_authentication_errors",null);echo (is_wp_error($e)&&$e->get_error_code()==="rest_not_logged_in")?"OK":"allowed";'
+check "an earlier error is passed through"             '$p=new WP_Error("other","x");$e=apply_filters("rest_authentication_errors",$p);echo ($e===$p)?"OK":"clobbered";'
+check "head discovery link removed"                    'echo (false===has_action("wp_head","rest_output_link_wp_head"))?"OK":"advertised";'
+check "Link: header removed"                           'echo (false===has_action("template_redirect","rest_output_link_header"))?"OK":"advertised";'
+check "RSD discovery entry removed"                    'echo (false===has_action("xmlrpc_rsd_apis","rest_output_rsd"))?"OK":"advertised";'
+setopt disable_rest no
+# Core's own rest_cookie_check_errors() answers true, not null, when there is
+# nothing wrong — so the assertion is "no error", not "untouched".
+check "anonymous REST allowed when off"                'echo (!is_wp_error(apply_filters("rest_authentication_errors",null)))?"OK":"refused";'
+check "discovery link restored when off"               'echo (false!==has_action("wp_head","rest_output_link_wp_head"))?"OK":"still-removed";'
+setopt disable_rest yes
 
 echo; echo "== Editor / classic =="
 setopt force_classic_editor yes
