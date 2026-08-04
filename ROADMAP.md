@@ -130,17 +130,20 @@ Plugin Review requirements, not niceties.
       the release gate was right and the developer-facing command was wrong — a
       contributor got a green local run for a suite that was not running everything.
 
-- [ ] **A PHP-version matrix in CI.** Keel claims a 7.4 floor and CI tests one version:
-      whatever `ubuntu-latest` ships. Deliberately left out of keel#24 — "does this run
-      on the floor we advertise" is a different question from "did this change break
-      anything", and answering both in one job is how a green tick stops meaning
-      something. Small once someone wants it.
+- [x] **A PHP-version matrix in CI** — done 2026-08-04. `ci.yml` gains a `compat` job
+      running the syntax check and the full suite on 7.4, 8.0, 8.1, 8.2, 8.3 and 8.4, so
+      the floor every header claims is tested rather than asserted. `fail-fast: false`,
+      because a failure on the floor and a failure on the newest release are different
+      problems and you want both.
 
-## v1.x — verification and evidence
+      Kept separate from the existing job on purpose: `test` answers "did this change
+      break anything" with the linter, `compat` answers "does it still run where we say
+      it does" without one. Folding them together would run phpcs six times for no
+      reason, or let a coding-standards failure read as a compatibility failure.
 
-Keel's pitch is that it tells you exactly what it does to your site. That claim has to
-be re-measurable, not asserted once.
-
+      No `composer install` in the matrix — the plugin has no runtime dependencies and
+      the suite has no autoloader, so installing dev tooling would test whether phpcs
+      supports PHP 7.4, which is not the question.
 - [ ] **Probe Clearfy (50k installs) and WP Master Toolkit (5k).** Both were code-reviewed
       only in [docs/competitive-teardown-matrix.md](docs/competitive-teardown-matrix.md);
       neither has been measured. They are the closest architectural peers to Keel — a
