@@ -32,6 +32,43 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 `define( 'AUTOSAVE_INTERVAL', 120 );` — lengthens the editor autosave interval. This is independent of Keel's Heartbeat throttle: both influence how often the editor saves in the background, but neither replaces or overrides the other.
 
+== Installation ==
+
+1. Copy the plugin folder into `wp-content/plugins/`, or upload the built zip through **Plugins → Add New → Upload Plugin**.
+2. Activate it. The documented defaults are seeded on activation; nothing is applied before that.
+3. Visit **Settings → Keel** and turn off anything you do not want.
+
+Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — are off out of the box and opt-in.
+
+Deactivating stops every default at once; stored settings are kept so reactivating restores the same configuration. Uninstalling removes them.
+
+== Frequently Asked Questions ==
+
+= Will this break my site? =
+
+The defaults that are on out of the box are low-risk. The ones that can break something are off and opt-in, and each says on the settings screen what it will cost you — for example that blocking cross-origin framing also blocks legitimate embeds, and that requiring authentication for REST also stops other sites embedding your posts through oEmbed.
+
+= Does it send anything off my site? =
+
+One thing, and only when the strong-password default is on: the first five characters of a password's SHA-1 hash, to check it against known breaches. Never the password, never the full hash, no personal data. See **External services** above for the full description and how to switch it off.
+
+= Does it delete anything? =
+
+No. Disabling comments hides them and closes the forms; nothing is removed from the database, and turning the default off brings every comment back. The same holds for the other content defaults.
+
+= Can I set these in code instead? =
+
+Yes. Every default reads its value through the plugin's own option, and the behaviours are filterable — `keel_weak_roles`, `keel_disable_hibp`, `keel_comment_blocks`, `keel_allowed_comment_types` and others. A `wp-config.php` constant always wins over the settings screen where one applies; the screen says so when it is being overridden.
+
+= Why is there no password strength meter? =
+
+WordPress ships one, but it is JavaScript: it advises the person typing and cannot refuse anything, so a password set over the REST API, WP-CLI, or a form with scripts disabled never meets it. Keel enforces length, breach screening, a blocklist and a personal-context check server-side instead, where they cannot be bypassed. See the Help tab on the settings screen.
+
+== Upgrade Notice ==
+
+= 0.1.0-dev =
+Early development. The reserved-usernames default has been removed; if you relied on it, the readme's changelog shows the one-line filter that replaces it.
+
 == Changelog ==
 
 = 0.1.0-dev =
