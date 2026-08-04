@@ -55,6 +55,37 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 }
 
 /**
+ * Whether the session policy says anything WordPress does not already do.
+ *
+ * `auth_cookie_expiration` is a *replacing* filter: the callback returns its own
+ * number and discards the one it was handed. That kind of filter cannot
+ * compose. When two plugins register one, WordPress keeps whichever ran last,
+ * the other silently does nothing, and both settings screens go on displaying
+ * their own value — measured happening across all three sibling plugins on one
+ * install.
+ *
+ * A number filter cannot be made additive, so the honest move is to stay out of
+ * a fight there is nothing to win. Keel's defaults are WordPress's own values,
+ * so on a site that has not changed them, registering would assert core's answer
+ * over another plugin's deliberate one.
+ *
+ * The test is asked of the callback rather than of the stored options: hand it
+ * core's own numbers and see whether it hands back something different. That
+ * stays correct if the schema defaults change, if a new setting starts
+ * influencing the result, or if the clamp logic is rewritten — none of which a
+ * hardcoded comparison against 2 and 14 would survive.
+ *
+ * @return bool
+ */
+function keel_defaults_session_policy_is_custom() {
+	$core_regular    = 2 * DAY_IN_SECONDS;
+	$core_remembered = 14 * DAY_IN_SECONDS;
+
+	return keel_defaults_session_length( $core_regular, 0, false ) !== $core_regular
+		|| keel_defaults_session_length( $core_remembered, 0, true ) !== $core_remembered;
+}
+
+/**
  * Decide how long a login lasts.
  *
  * Both lengths are stored in days. Registered at priority 50, not the default
