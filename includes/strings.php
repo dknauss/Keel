@@ -57,7 +57,7 @@ function keel_defaults_strings() {
 		'require_strong_passwords'        => array(
 			'label'     => __( 'Password strength', 'keel' ),
 			'statement' => __( 'Require strong passwords', 'keel' ),
-			'help'      => __( '15+ characters, not your username or email name, not a common choice, and not in Have I Been Pwned. Length and breach screening instead of uppercase or symbol rules; there is no strength meter. Every account is breach-screened — the rest can be waived below.', 'keel' ),
+			'help'      => __( '15+ characters, not your username or email name, not a common choice, and not found in a known breach. Length and breach screening instead of uppercase or symbol rules, following <a href="https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 § 3.1.1.2</a>; there is no strength meter. The breach check sends <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener noreferrer">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed here and matches the returned suffixes locally, so neither the password nor its full hash leaves the site; an outage or malformed response fails open. Every account is breach-screened — the rest can be waived below.', 'keel' ),
 		),
 		'password_exempt_roles'           => array(
 			'label' => __( 'Password policy exemptions', 'keel' ),
