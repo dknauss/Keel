@@ -303,8 +303,17 @@ posture counted `comment_status = 'open'` rows straight from the database, so on
 site where the teardown was fully on and nothing could post a comment through any
 route, the panel still flagged "Open comments" as a live public-input surface. The
 stored status is a candidate, not the answer — every core write path gates on
-`comments_open()`, which is a filter. Fixed by asking the filter rather than the
-table.
+`comments_open()`, which is a filter.
+
+That one was fixed upstream, independently and first: Pixel's `#218` landed while
+this comparison was being written, and short-circuits the count on
+`Comments::instance()->comments_are_disabled()`. Worth recording that it closes the
+case narrowly. It reports the effective state for *Pixel's own* toggle, so a site
+running Pixel alongside a third-party comment plugin is still flagged for open
+comments it cannot receive — and it reaches from `PluginContext` back into the
+Comments module, which is the coupling that object's own docblock says it exists to
+avoid. Asking `comments_open` directly would cover any teardown and need no such
+dependency; that is a preference, not a defect, and the shipped fix has the tests.
 
 Coverage for all four landed in `tests/integration/verify-behaviors.sh` (48 checks,
 all passing). That harness also had a bug of its own: it routed any site with a
