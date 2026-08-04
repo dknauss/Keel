@@ -143,5 +143,8 @@ keel_assert( true === keel_defaults_session_policy_is_custom(), 'A longer rememb
 $GLOBALS['keel_options'] = array( 'disable_remember_me' => 'yes' );
 keel_assert( true === keel_defaults_session_policy_is_custom(), 'Disabling Remember Me is a policy even with core day values.' );
 
-$GLOBALS['keel_options'] = array( 'session_regular_days' => 2, 'remember_me_days' => 14 );
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 2,
+	'remember_me_days'     => 14,
+);
 keel_assert( false === keel_defaults_session_policy_is_custom(), 'Explicitly setting core values is still core values.' );
