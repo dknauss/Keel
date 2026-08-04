@@ -1,0 +1,48 @@
+name: CI
+
+# Lint and the unit suite, on every pull request and every push to main.
+#
+# release.yml already runs these — but only when a version tag is pushed, which
+# is the last possible moment to discover a failure and the worst one. A test
+# that first runs at release is a test that has already shipped.
+#
+# Deliberately uses the runner's own PHP rather than setting up a matrix. The
+# plugin's floor is PHP 7.4 and the compatibility question is worth answering,
+# but it is a separate job from "did this change break anything", and pretending
+# one covers the other is how a green tick stops meaning something.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint and unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax check every PHP file
+        run: |
+          set -e
+          find . -name '*.php' -not -path './vendor/*' -print0 \
+            | xargs -0 -n1 php -l > /dev/null
+
+      - name: Install dev dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Coding standards
+        run: composer lint
+
+      # Enumerated, not listed: a hand-maintained list of test files silently
+      # stops running the one somebody adds next. That is not hypothetical —
+      # tests/readme-spec.php sat outside `composer test` from the moment it
+      # was merged.
+      - name: Unit tests
+        run: composer test
