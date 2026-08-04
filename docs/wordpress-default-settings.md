@@ -3,7 +3,7 @@
 A menu of default settings that can be applied to just about any WordPress install to
 tighten security, trim attack surface, clean up UX, and shave weight off the front end.
 
-Each item lists Keel's **option key**, its **default value**, a short **description**, and a
+Each item lists Keel's **schema key**, its **default value**, a short **description**, and a
 **code snippet** showing the WordPress behaviour behind that setting. Keel wires every one of
 these behind an individual toggle under **Settings → Keel**.
 
@@ -20,7 +20,7 @@ and depend on Keel's own logic.
 ## 1. Security & Attack-Surface Reduction
 
 ### Restrict REST API User Discovery
-- **Option:** `keel_restrict_rest_user_discovery`
+- **Key:** `restrict_rest_user_discovery`
 - **Default:** `yes`
 - **Why:** The `/wp/v2/users` endpoint leaks usernames (author slugs) to anonymous visitors,
   which hands attackers half of every brute-force credential. Closing it to logged-out users
@@ -38,7 +38,7 @@ add_filter( 'rest_endpoints', function ( $endpoints ) {
 ```
 
 ### Disable REST API for Anonymous Requests
-- **Option:** `keel_disable_rest`
+- **Key:** `disable_rest`
 - **Default:** `no` *(leave off unless the site is a pure brochure site — anonymous front-end
   blocks, embeds, and outside integrations rely on unauthenticated REST; the logged-in block
   editor is unaffected, since it authenticates with a cookie plus a REST nonce)*
@@ -65,7 +65,7 @@ add_filter( 'rest_authentication_errors', function ( $result ) {
 ```
 
 ### Harden XML-RPC (per-category, not all-or-nothing)
-- **Options:** `keel_xmlrpc_allow_pingbacks` / `keel_xmlrpc_allow_remote_publishing` / `keel_xmlrpc_allow_multicall` / `keel_block_xmlrpc_endpoint`
+- **Options:** `xmlrpc_allow_pingbacks` / `xmlrpc_allow_remote_publishing` / `xmlrpc_allow_multicall` / `block_xmlrpc_endpoint`
 - **Defaults:** `no` / `no` / `no` / `no`
 - **Why:** XML-RPC is a legitimate but aging API. On a current, patched site it is not a
   backdoor or emergency-level vulnerability; it is additional attack and resource-consumption
@@ -144,7 +144,7 @@ add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
 > `unset( $methods['demo.sayHello'], $methods['demo.addTwoNumbers'] )`.
 
 ### Application Passwords — leave available (don't reflexively disable)
-- **Option:** `keel_disable_application_passwords`
+- **Key:** `disable_application_passwords`
 - **Default:** `no` *(available)*
 - **Why:** The reflexive advice is "disable them," but that's usually the wrong call.
   Application Passwords are hashed, per-application, individually revocable credentials that
@@ -169,7 +169,7 @@ add_filter( 'wp_is_application_passwords_available', function ( $available ) {
 > (e.g. from human 2FA accounts) if that gap matters.
 
 ### Require Strong Passwords
-- **Option:** `keel_require_strong_passwords`
+- **Key:** `require_strong_passwords`
 - **Default:** `yes`
 - **Why:** Core ships a password meter but won't *enforce* strength. Enforce it server-side —
   but follow current **OWASP/NIST** guidance: favor **length and breached-password screening**
@@ -213,7 +213,7 @@ function keel_enforce_strong_password( $errors, $update, $user ) {
 > JS meter for UX, but never trust the client alone.
 
 ### Disable AI Connectors
-- **Option:** `keel_disable_ai_connectors`
+- **Key:** `disable_ai_connectors`
 - **Default:** `yes`
 - **Why:** AI connectors can transmit unpublished content, media, prompts, and user data to
   third-party services. WordPress 7.0 added a core gate for exactly this, so the default
@@ -242,15 +242,60 @@ add_action( 'admin_init', function () {
 
 > **Note:** core also honours a `WP_AI_SUPPORT` constant, which a deployment can set to
 > `false` in `wp-config.php` to hard-lock the disabled posture above the plugin layer. Keel
-> additionally fires a `keel_disable_ai_connectors` action as a seam for AI
+> additionally fires a `disable_ai_connectors` action as a seam for AI
 > integrations core does not know about (a plugin's own provider, say).
 
 ---
 
+### Limit Unfiltered HTML to Administrators
+- **Key:** `limit_unfiltered_html_to_admins`
+- **Default:** `yes`
+- **Why:** By default an Editor can save raw HTML and `<script>`. That makes stored XSS a
+  capability granted to every editorial account, not a bug. Removing `unfiltered_html` from
+  everyone below Administrator means a compromised editorial login can publish bad copy but
+  not bad JavaScript. On multisite core already restricts it to Super Admins.
+
+The filter runs at nearly the highest priority so it is the final word, and reads the
+already-resolved capability array rather than calling `current_user_can()` — which would
+recurse, because `user_has_cap` fires inside every capability check.
+
+```php
+add_filter( 'user_has_cap', function ( $allcaps ) {
+    if ( empty( $allcaps['manage_options'] ) ) {
+        $allcaps['unfiltered_html'] = false;
+    }
+
+    return $allcaps;
+}, PHP_INT_MAX - 1 );
+```
+
+### Password Policy Exemptions
+- **Key:** `password_exempt_roles`
+- **Default:** `array( 'subscriber' )`
+- **Why:** A 15-character minimum is right for accounts that can publish or configure, and
+  disproportionate for an account that can only read. The exemption covers the length,
+  blocklist and personal-context rules. **Breach screening is never waived** — a password
+  already published in a breach costs its owner nothing to avoid, whatever the role.
+
+The list offered in the UI is built from the roles registered on the site, and only roles
+holding no content or settings capability appear. That is why Contributor is not offered: it
+can write drafts, so a stolen Contributor login can put content into the site. A user holding
+several roles is exempt only if every one of them is.
+
+```php
+// Enforced unless every role the user holds is exempt.
+$exempt = apply_filters( 'keel_weak_roles', array( 'subscriber' ) );
+$roles  = (array) $user->roles;
+
+if ( array_diff( $roles, $exempt ) === array() ) {
+    return true;   // skip length, blocklist, personal-context — not the breach check
+}
+```
+
 ## 2. Content, Comments & Public Surfaces
 
 ### Disable Comments, Trackbacks, and Pingbacks
-- **Option:** `keel_disable_comments`
+- **Key:** `disable_comments`
 - **Default:** `yes`
 - **Why:** For most business/brochure sites, comments are pure spam surface. This closes
   comments everywhere, drops existing open threads from the UI, and removes the admin menu.
@@ -284,7 +329,7 @@ add_action( 'wp_before_admin_bar_render', function () {
 ```
 
 ### Disable Pingbacks and Trackbacks (defaults for new posts)
-- **Option:** `keel_disable_pingbacks`
+- **Key:** `disable_pingbacks`
 - **Default:** `yes`
 - **Why:** Even with comments on, pingbacks/trackbacks are low-value and spammy. This forces
   the "closed" default for any newly created content.
@@ -297,7 +342,7 @@ add_filter( 'pre_option_default_ping_status', function () {
 ```
 
 ### Disable Public Author Archives
-- **Option:** `keel_disable_author_archives`
+- **Key:** `disable_author_archives`
 - **Default:** `yes`
 - **Why:** Author archive URLs (`/author/{slug}/`) are another username-enumeration path and
   usually thin, duplicate content. Redirect them home.
@@ -312,7 +357,7 @@ add_action( 'template_redirect', function () {
 ```
 
 ### Redirect Attachment Pages
-- **Option:** `keel_redirect_attachment_pages`
+- **Key:** `redirect_attachment_pages`
 - **Default:** `yes`
 - **Why:** Standalone attachment pages (`?attachment_id=…`) are thin, index-bloating pages that
   expose media out of context. Core agrees: **WordPress 6.4** added a `wp_attachment_pages_enabled`
@@ -367,7 +412,7 @@ add_action( 'template_redirect', function () {
 > redirect rather than reaching for the unguarded `wp_redirect()`.
 
 ### Disable Emojis
-- **Option:** `keel_disable_emojis`
+- **Key:** `disable_emojis`
 - **Default:** `yes`
 - **Why:** Core injects an emoji detection script and inline CSS on every page. Modern
   browsers render emoji natively, so this is dead weight (an extra script + a DNS lookup).
@@ -389,10 +434,47 @@ add_action( 'init', function () {
 
 ---
 
+### Disable Self-Pingbacks
+- **Key:** `disable_self_pingbacks`
+- **Default:** `yes`
+- **Why:** Linking to your own post generates a pingback from the site to itself, which shows
+  up as a comment awaiting moderation. Nobody has ever wanted this. It is separate from the
+  pingback settings above because those govern *incoming* pings from other sites.
+
+```php
+add_action( 'pre_ping', function ( &$links ) {
+    $home = get_option( 'home' );
+
+    foreach ( $links as $i => $link ) {
+        if ( 0 === strpos( $link, $home ) ) {
+            unset( $links[ $i ] );
+        }
+    }
+} );
+```
+
+### Hide Post Password Protection
+- **Key:** `disable_post_passwords`
+- **Default:** `no`
+- **Why:** Per-post passwords are a weak sharing mechanism people reach for because it is
+  visible in the publish box, not because it fits. Hiding the control steers editors toward
+  proper access control.
+
+**This hides the UI; it does not disable the feature.** A post that already has a password
+keeps it and keeps working, and the field stays visible on those posts so its owner can
+remove it. Anything else would strand content behind a password with no way to clear it.
+
+```php
+add_action( 'admin_print_footer_scripts', function () {
+    // Scoped CSS only, and only where no password is already set.
+    echo '<style>.edit-post-post-visibility, #visibility-radio-password { display: none; }</style>';
+} );
+```
+
 ## 3. Admin & Front-End UX
 
 ### Title-Only Admin Search
-- **Option:** `keel_title_only_admin_search`
+- **Key:** `title_only_admin_search`
 - **Default:** `no`
 - **Why:** On big sites, the admin list-table search scans post content and can be painfully
   slow. Restricting it to titles is much faster — but it changes editor expectations, so it's
@@ -414,7 +496,7 @@ add_filter( 'post_search_columns', function ( $columns, $search, WP_Query $query
 > logged-out users. Prefer the columns filter.
 
 ### Disable Front-End Admin Bar
-- **Option:** `keel_frontend_admin_bar_behavior`
+- **Key:** `frontend_admin_bar_behavior`
 - **Default:** `''` (unchanged) — or `hide_for_non_admins` as a common hardening default
 - **Why:** The floating admin bar on the front end nudges layout, leaks that a user is logged
   in, and is rarely needed for subscribers/customers. Two common policies below.
@@ -431,10 +513,140 @@ add_filter( 'show_admin_bar', function ( $show ) {
 
 ---
 
+### Force the Classic Editor
+- **Key:** `force_classic_editor`
+- **Default:** `no`
+- **Why:** Some sites and clients are still on classic workflows. Off by default because
+  changing the editor is intrusive; on, it must be complete.
+
+"One setting" here means four filters that have to agree. The per-post-type gate is the one
+most implementations forget: it is a **separate decision in core**, not a fallback for the
+per-post gate, so a custom post type registered with `show_in_rest` opens in the block editor
+regardless of the other three.
+
+```php
+add_filter( 'use_block_editor_for_post', '__return_false' );
+add_filter( 'use_block_editor_for_post_type', '__return_false' );
+add_filter( 'gutenberg_can_edit_post', '__return_false' );
+add_filter( 'use_widgets_block_editor', '__return_false' );
+```
+
+### Lowercase Upload Filenames
+- **Key:** `lowercase_upload_filenames`
+- **Default:** `yes`
+- **Why:** `Photo.JPG` and `photo.jpg` are the same file on macOS and Windows and two
+  different files on a Linux server. Mixed-case uploads produce links that work locally and
+  404 in production, and duplicate media on migration. Priority 20 so it runs after core's
+  own sanitizing.
+
+```php
+add_filter( 'sanitize_file_name', function ( $filename ) {
+    return strtolower( $filename );
+}, 20 );
+```
+
+### Media Sizes Panel
+- **Key:** `media_sizes_panel`
+- **Default:** `yes`
+- **Why:** When a theme or plugin registers image sizes, nothing in the admin tells you which
+  ones were actually generated for a given attachment. A read-only panel on the attachment
+  screen answers "did this crop get made, and at what dimensions" without a database query.
+
+Read-only by design — it writes nothing and regenerates nothing.
+
+```php
+add_action( 'add_meta_boxes_attachment', function () {
+    add_meta_box( 'keel-media-sizes', __( 'Generated sizes', 'keel' ), function ( $post ) {
+        $meta = wp_get_attachment_metadata( $post->ID );
+        // list $meta['sizes'] — name, dimensions, file
+    }, null, 'side' );
+} );
+```
+
+### Helper List-Table Columns
+- **Key:** `helper_list_columns`
+- **Default:** `no`
+- **Why:** Adds the columns you end up wanting: ID, featured image and modified date on posts
+  and pages; file size on the Media library; registration date and last login on Users.
+
+**Last login is recorded from when this is switched on, not retroactively** — WordPress does
+not store it, so there is no history to backfill. Existing accounts show blank until their
+next sign-in.
+
+```php
+add_filter( 'manage_users_columns', function ( $columns ) {
+    $columns['keel_last_login'] = __( 'Last login', 'keel' );
+
+    return $columns;
+} );
+
+add_action( 'wp_login', function ( $login, $user ) {
+    update_user_meta( $user->ID, 'keel_last_login', time() );
+}, 10, 2 );
+```
+
+### Admin Menu Width
+- **Key:** `admin_menu_width`
+- **Default:** `default`
+- **Why:** Long plugin names wrap in core's 160px sidebar and turn the menu into a wall. A
+  wider menu is the cheapest fix.
+
+Every width and margin carries `!important`, which is not cargo cult: core sets the width in
+the colour-scheme stylesheet at equal specificity, and in the 783–960px band it also applies
+`.auto-fold #adminmenu`. A class plus an ID beats an ID, so without `!important` the menu
+collapses to 36px in that band — exactly as if no width had been chosen, at a laptop's common
+zoom level.
+
+```php
+add_action( 'admin_head', function () {
+    echo '<style>
+        #adminmenu, #adminmenuback, #adminmenuwrap { width: 200px !important; }
+        #wpcontent, #wpfooter { margin-left: 200px !important; }
+    </style>';
+} );
+```
+
+### Environment Indicator
+- **Key:** `environment_indicator`
+- **Default:** `no`
+- **Why:** A colour-coded label in the admin bar showing Production, Staging, Development or
+  Local. A cheap guard against running a destructive action on the wrong site.
+
+The value comes from core's `wp_get_environment_type()`, which reads `WP_ENVIRONMENT_TYPE`
+and otherwise returns `production` — it does no host inspection. When that constant is
+undefined, Keel falls back to matching the host name against the domains local tooling uses.
+See `environment-detection.md` for the list and the reasoning.
+
+```php
+add_action( 'admin_bar_menu', function ( $bar ) {
+    $bar->add_menu( array(
+        'id'    => 'keel-environment-indicator',
+        'title' => ucfirst( wp_get_environment_type() ),
+    ) );
+}, 7 );
+```
+
+### Mail Failure Notice
+- **Key:** `mail_failure_notice`
+- **Default:** `yes`
+- **Why:** When `wp_mail()` fails, WordPress says nothing. Password resets silently do not
+  arrive, and the first anyone hears is a user saying they never got the email. This surfaces
+  the failure in the admin where someone can act on it.
+
+```php
+add_action( 'admin_notices', function () {
+    if ( ! keel_defaults_mail_looks_configured() ) {
+        echo '<div class="notice notice-warning"><p>' .
+            esc_html__( 'This site has no configured mail transport. Password resets may not arrive.', 'keel' ) .
+            '</p></div>';
+    }
+} );
+```
+
 ## 4. Login & Session Policy
 
 ### Disable Remember Me
-- **Option:** `keel_disable_remember_me`
+- **Key:** `disable_remember_me`
 - **Default:** `no`
 - **Why:** On shared or kiosk machines, a persistent "Remember Me" cookie is a risk. Removing
   the checkbox forces short-lived sessions. Off by default because it hurts convenience.
@@ -457,24 +669,39 @@ add_filter( 'auth_cookie_expiration', function ( $length, $user_id, $remember ) 
 }, 10, 3 );
 ```
 
-### Change Remember Me Session Length
-- **Option:** `keel_remember_me_policy` / `keel_remember_me_days` / `keel_session_regular_hours`
-- **Defaults:** `default` / `5` / `0`
-- **Why:** Core's "Remember Me" is 14 days — often too long. This lets you cap the persistent
-  session (e.g. 5 days) and, optionally, shorten the regular (non-remembered) session too.
+### Session Lengths
+- **Keys:** `session_regular_days`, `remember_me_days`
+- **Defaults:** `2`, `14`
+- **Why:** Core gives every login two days and every remembered login fourteen. Both are
+  policy, not physics. Shortening the regular session limits the window on a walked-away-from
+  desk; the remembered length is the one a client will notice, so it stays at core's default
+  unless you lower it deliberately.
+
+Two things here are easy to get wrong, and Keel handles both:
+
+**Priority.** Registered at `50`, not the default `10`. Another plugin filtering
+`auth_cookie_expiration` at `10` would otherwise be the last word, and a session policy that
+any other plugin can silently override is not a policy.
+
+**Coherence.** A remembered login must never be *shorter* than a regular one — otherwise
+ticking "Remember Me" shortens the session, which is the opposite of what the box says. The
+clamp runs at use, not only at save, so a value written by WP-CLI, a migration, or another
+plugin is caught too.
 
 ```php
 add_filter( 'auth_cookie_expiration', function ( $expiration, $user_id, $remember ) {
-    if ( $remember ) {
-        return 5 * DAY_IN_SECONDS;   // keel_remember_me_days
+    $regular = 2 * DAY_IN_SECONDS;   // session_regular_days
+
+    if ( ! $remember ) {
+        return $regular;
     }
 
-    return 12 * HOUR_IN_SECONDS;     // keel_session_regular_hours
-}, 10, 3 );
+    return max( $regular, 14 * DAY_IN_SECONDS );   // remember_me_days, clamped up
+}, 50, 3 );
 ```
 
 ### Login Logo & Link
-- **Option:** `keel_login_logo_behavior`
+- **Key:** `login_logo_behavior`
 - **Default:** `keep_default` *(leave the login screen untouched)*
 - **Why:** The default WordPress "W" on `wp-login.php` links to wordpress.org — a subtle brand
   and trust leak. Removing or replacing it is worthwhile, but changing the login screen out of
@@ -503,16 +730,36 @@ if ( in_array( $behavior, array( 'remove_logo', 'unlink_logo', 'replace_logo' ),
 }
 ```
 > **Note:** an earlier version of this reference paired the behavior with a separate
-> `keel_login_logo_link_home` toggle. That was redundant — a replacement logo should always link
+> `login_logo_link_home` toggle. That was redundant — a replacement logo should always link
 > home — so the toggle is gone and the behavior option alone covers it.
 
 ---
+
+### Throttle the Heartbeat API
+- **Key:** `throttle_heartbeat`
+- **Default:** `no`
+- **Why:** The Heartbeat API polls `admin-ajax.php` every 15 seconds on the dashboard and
+  every 60 while editing. On shared hosting a couple of idle open tabs can be a meaningful
+  share of a site's PHP workers. Slowing it costs nothing except autosave latency.
+
+Dropping it on the dashboard specifically is where most of the saving is, because that is the
+tab people leave open. It is deregistered at `admin_enqueue_scripts` rather than `init`:
+`wp_deregister_script()` calls `wp_scripts()`, which builds the entire core script registry,
+so doing it at `init` forces that work on every request just to remove one script.
+
+```php
+add_filter( 'heartbeat_settings', function ( $settings ) {
+    $settings['interval'] = 60;
+
+    return $settings;
+} );
+```
 
 ## 5. Update Policy
 
 ### Automatically install core maintenance/security releases
 
-*(`keel_core_update_policy`, default `minor`)*
+*(`core_update_policy`, default `minor`)*
 
 The default enables in-branch maintenance and security releases (`x.y.z`) while leaving major
 core releases (`x.y`) for a tested rollout. The settings screen can also allow every
@@ -542,7 +789,7 @@ References:
 
 ### Automatically update translations
 
-*(`keel_auto_update_translations`, default `yes`)*
+*(`auto_update_translations`, default `yes`)*
 
 WordPress, plugin, and theme language packs are low-risk and update automatically. Turning the
 setting off explicitly refuses translation auto-updates.
@@ -571,7 +818,7 @@ compromised admin account can't rewrite PHP on the fly. Set in `wp-config.php`:
 define( 'DISALLOW_FILE_EDIT', true );
 ```
 
-**Remove the WordPress version fingerprint** *(opt-in — `keel_remove_version`, default `no`)*.
+**Remove the WordPress version fingerprint** *(opt-in — key `remove_version`, default `no`)*.
 Stops the generator tag broadcasting your exact core version.
 
 Deliberately **not** on by default, because this is obscurity rather than hardening. It does
@@ -585,12 +832,12 @@ remove_action( 'wp_head', 'wp_generator' );
 add_filter( 'the_generator', '__return_empty_string' );
 ```
 
-**Send baseline security headers** *(`keel_security_headers`, default `yes`)*. Two headers with
+**Send baseline security headers** *(key `security_headers`, default `yes`)*. Two headers with
 essentially no downside: `nosniff` stops the browser second-guessing a declared `Content-Type`,
 and `Referrer-Policy` keeps full URLs from leaking to other sites.
 
 Note what is *not* in this group. `X-Frame-Options` is a separate setting
-(`keel_frame_options`, default `SAMEORIGIN`) because it is the only one of the three that can
+(key `frame_options`, default `SAMEORIGIN`) because it is the only one of the three that can
 break a working site: blocking cross-origin framing also blocks *legitimate* embedding — a
 client intranet, a partner site, a preview or proofing tool — and it usually fails as a silent
 blank frame. Bundling it with `nosniff` would mean a site that needs to be embeddable has to
@@ -750,35 +997,35 @@ function keel_strip_asset_ver( $src ) {
 
 ## Quick-Reference Table
 
-| Setting | Option key | Default | Category |
+| Setting | Schema key | Default | Category |
 | --- | --- | --- | --- |
-| Disable Comments/Trackbacks/Pingbacks | `keel_disable_comments` | `yes` | Content |
-| Disable Pingbacks (new-post default) | `keel_disable_pingbacks` | `yes` | Content |
-| Restrict REST User Discovery | `keel_restrict_rest_user_discovery` | `yes` | Security |
-| Disable REST (anon) | `keel_disable_rest` | `no` | Security |
-| XML-RPC categories: pingbacks / remote publishing / multicall | `keel_xmlrpc_allow_pingbacks` / `_remote_publishing` / `_multicall` | `no` (each) | Security |
-| Block XML-RPC endpoint | `keel_block_xmlrpc_endpoint` | `no` | Security |
-| Application Passwords (leave available) | `keel_disable_application_passwords` | `no` | Security |
-| Require Strong Passwords | `keel_require_strong_passwords` | `yes` | Security |
-| Disable AI Connectors *(PMP-specific)* | `keel_disable_ai_connectors` | `yes` | Security |
-| Core automatic updates | `keel_core_update_policy` | `minor` | Updates |
-| Translation automatic updates | `keel_auto_update_translations` | `yes` | Updates |
-| Disable Public Author Archives | `keel_disable_author_archives` | `yes` | Content |
-| Disable Emojis | `keel_disable_emojis` | `yes` | Performance |
-| Redirect Attachment Pages | `keel_redirect_attachment_pages` | `yes` | SEO |
-| Title-Only Admin Search | `keel_title_only_admin_search` | `no` | UX |
-| Front-End Admin Bar Behavior | `keel_frontend_admin_bar_behavior` | `''` | UX |
-| Disable Remember Me | `keel_disable_remember_me` | `no` | Login |
-| Remember Me Policy / Days | `keel_remember_me_policy` / `_days` | `default` / `5` | Login |
-| Regular Session Hours | `keel_session_regular_hours` | `0` | Login |
-| Login Logo Behavior | `keel_login_logo_behavior` | `keep_default` | Branding |
+| Disable Comments/Trackbacks/Pingbacks | `disable_comments` | `yes` | Content |
+| Disable Pingbacks (new-post default) | `disable_pingbacks` | `yes` | Content |
+| Restrict REST User Discovery | `restrict_rest_user_discovery` | `yes` | Security |
+| Disable REST (anon) | `disable_rest` | `no` | Security |
+| XML-RPC categories | `xmlrpc_allow_pingbacks`, `xmlrpc_allow_remote_publishing`, `xmlrpc_allow_multicall` | `no` (each) | Security |
+| Block XML-RPC endpoint | `block_xmlrpc_endpoint` | `no` | Security |
+| Application Passwords (leave available) | `disable_application_passwords` | `no` | Security |
+| Require Strong Passwords | `require_strong_passwords` | `yes` | Security |
+| Disable AI Connectors *(PMP-specific)* | `disable_ai_connectors` | `yes` | Security |
+| Core automatic updates | `core_update_policy` | `minor` | Updates |
+| Translation automatic updates | `auto_update_translations` | `yes` | Updates |
+| Disable Public Author Archives | `disable_author_archives` | `yes` | Content |
+| Disable Emojis | `disable_emojis` | `yes` | Performance |
+| Redirect Attachment Pages | `redirect_attachment_pages` | `yes` | SEO |
+| Title-Only Admin Search | `title_only_admin_search` | `no` | UX |
+| Front-End Admin Bar Behavior | `frontend_admin_bar_behavior` | `''` | UX |
+| Disable Remember Me | `disable_remember_me` | `no` | Login |
+| Remember Me Days | `remember_me_days` | `14` | Login |
+| Regular Session Days | `session_regular_days` | `2` | Login |
+| Login Logo Behavior | `login_logo_behavior` | `keep_default` | Branding |
 
 ---
 
 ### Implementation notes
 - Load these from an **mu-plugin** or a dedicated plugin, not the theme, so policy survives
   theme switches.
-- Gate every snippet behind its `get_option()` toggle so site owners keep control.
+- Gate every snippet behind its `keel_defaults_enabled()` / `keel_defaults_get()` check so site owners keep control. There is no per-setting option row: everything lives in the single `keel_settings` array option, which is why the keys above carry no `keel_` prefix.
 - `wp-config.php` constants (`DISALLOW_FILE_EDIT`, `AUTOSAVE_INTERVAL`, `WP_POST_REVISIONS`)
   can't be toggled from options — surface them in your docs as recommended manual settings.
 - Explicit update constants remain operator-owned: the settings screen reports
