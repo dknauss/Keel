@@ -176,11 +176,23 @@ settings.
 
 ### 7. Everyone who closes REST also closes oEmbed and the REST index
 
-Disable WP REST API, Admin and Site Enhancements, Disable Everything and **Keel**
-all return 401/403 for `/wp-json/`, `/wp-json/oembed/1.0/embed` and every route.
-That breaks other sites embedding your posts. It's a defensible trade — but it is a
-consequence worth stating in help text rather than discovering later. None of the
-four allowlist `oembed/1.0`.
+Disable WP REST API, Admin and Site Enhancements and Disable Everything all return
+401/403 for `/wp-json/`, `/wp-json/oembed/1.0/embed` and every route. That breaks
+other sites embedding your posts — silently, and on *their* sites, with nothing on
+the affected site to show it happened.
+
+**Keel was the fourth. It no longer is** (keel#32, 2026-08-04): `oembed/1.0` stays
+reachable past the gate, so the REST API is closed and embeds still work. Re-probed
+with the gate on — `/wp-json/` 401, `/wp/v2/posts` 401, `/wp/v2/users` 401,
+`oembed/1.0/embed` **200**.
+
+The carve-out only became safe once oEmbed stopped disclosing the author (keel#31,
+keel#34). Left alone it returns `author_name` and an `author_url` carrying the
+account nicename — to exactly the anonymous caller the gate has just refused
+`/wp/v2/users`. Opening the route without that fix would have reopened the
+enumeration the gate exists to close.
+
+None of the other three allowlist `oembed/1.0`.
 
 ---
 
