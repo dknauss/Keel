@@ -94,8 +94,75 @@ written down in its place.
 **Severity: low behaviourally (code was already correct), moderate for an audit
 reading the file as its source of truth. Fixed in this commit.**
 
+## Pass 1c — settings-page.php
+
+### Verified
+
+| Claim | Where | Checked against |
+| --- | --- | --- |
+| Dependent settings hide automatically: XML-RPC methods when the endpoint is blocked, Remember Me length when Remember Me is off | Overview help tab | both dependencies declared in the schema and honoured by `keel_defaults_dep_state()` |
+| A forged POST cannot exempt a privileged role | `settings-page.php:210` | posted slugs intersected with `keel_defaults_exemptable_roles()`, which excludes every role holding a sensitive cap |
+| `WP_AUTO_UPDATE_CORE` supersedes the core-update policy | `config_lock()` | core reads it in `class-core-upgrader.php:293`, ahead of the filters Keel uses |
+| `AUTOMATIC_UPDATER_DISABLED` / `DISALLOW_FILE_MODS` stop all background updates | `config_lock()` | `WP_Automatic_Updater::is_disabled()` checks the first directly and the second via `wp_is_file_mod_allowed()` |
+| `DISALLOW_UNFILTERED_HTML` already removes the cap from every role | `config_lock()` | `capabilities.php:597` |
+| Site Health → Info lists every default under a **Keel** section | help sidebar | section label is `Keel`; the builder iterates the whole schema |
+| Site Health → Status flags only what warrants attention | help sidebar | status is `good` unless strong passwords or REST user-discovery is off, and `good` files under Passed tests |
+| A locked control is disabled with the reason shown | `config_lock()` docblock | honoured in both the toggle and select branches, each preserving the stored value in a hidden input — **but see finding 4** |
+
+### 3. The Overview help tab contradicted the code about framing — fixed
+
+The tab told admins that anything able to "change behavior or break an integration"
+is off by default, and gave *cross-origin framing* as its first example.
+
+Keel ships `X-Frame-Options: SAMEORIGIN` out of the box. `frame_options` defaults
+to `SAMEORIGIN`, and its header is registered whenever that value is non-empty —
+deliberately outside the `security_headers` toggle, with a comment at
+`bootstrap.php:237` saying framing "is the only one of the three that can break a
+working site, so it must be switchable without also giving up nosniff."
+
+So the code identifies framing as the risky one and enables it; the help tab
+named it as an example of something switched off. An admin whose embedded site
+went blank would have read that tab and concluded Keel could not be the cause.
+
+Replaced with the two things that *are* off by default and opt-in, plus an
+explicit paragraph naming the framing default, what it breaks, and the exact
+control that turns it off. Wording matches the setting's real label and choices.
+
+**Severity: moderate. User-facing copy that was wrong in the direction that
+costs debugging time.**
+
+### 4. Sectioned settings ignored wp-config locks — fixed
+
+`keel_defaults_config_lock()` documents an invariant: when a constant supersedes
+a setting, "the control is then disabled and the note shown, so the screen never
+offers a switch that cannot take effect."
+
+The single-field branch does this. The sectioned branch — the stacked checkboxes
+used by the REST and XML-RPC groups — passed a hardcoded `false` for the disabled
+argument, never rendered the lock note, and skipped the hidden input that
+preserves a stored `yes` across a save.
+
+No sectioned setting is lockable today, so nothing was broken. But the invariant
+is documented unconditionally and enforced in one of two places, and the gap is
+invisible until someone adds, say, a `KEEL_DISABLE_REST` constant for
+`disable_rest` — which is sectioned. The control would render live, the note
+would not appear, and saving would silently rewrite the stored preference.
+
+Brought the branch in line with the other one.
+
+**Severity: low today, and latent by design — this is what a review is for.**
+
+### Noted, not changed
+
+The `multiselect` sanitize branch hardcodes `'password_exempt_roles' === $key` to
+pick its allow-list. It is the only multiselect, and the allow-list is computed
+from roles at runtime so it cannot live in the schema as a literal. But a second
+multiselect added later would get an empty allow-list and silently store nothing.
+A `choices_callback` in the schema would make it schema-driven like every other
+type. Left alone: it is a real pattern deviation, but changing it is a design
+call rather than a review finding.
+
 ## Not yet covered
 
-- `settings-page.php` and the remaining `admin-ux.php` docblocks below the
-  attachment-redirect section.
+- The remaining `admin-ux.php` docblocks below the attachment-redirect section.
 - Passes 2-4: test integrity, pattern conformance, complexity and duplication.
