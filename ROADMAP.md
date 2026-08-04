@@ -52,8 +52,31 @@ Plugin Review requirements, not niceties.
 - [ ] **Trademark glance on "Keel"** — USPTO and CIPO, Nice classes 9/42 — before the name
       is in public print. The w.org slug is free and `keel.sh` is unrelated devops
       tooling, but neither is a clearance.
-- [ ] **Re-point the test spine**: regression suite, metrics guard, doc-coverage and badge
-      sync all still reference the pre-rename tree.
+- [x] **Test spine** — done 2026-08-04 (keel#24), and the item as written was wrong.
+      It said the regression suite, metrics guard, doc-coverage and badge sync "still
+      reference the pre-rename tree". Nothing did. The sentence was carried over from the
+      scope document, which describes Pixel's tooling: Keel has no metrics guard and no
+      badge to re-point, and the doc-coverage check (`tests/docs-consistency.php`) was
+      written here from scratch.
+
+      Checking it found two real defects instead. `composer test` listed nineteen test
+      files by name when there were twenty, so `tests/readme-spec.php` was never run from
+      the moment it merged — a hand-maintained list silently stops running the next test
+      somebody adds, and still exits zero. It enumerates `tests/*.php` now. And nothing
+      ran on a pull request at all: `release.yml` fires on version tags, so lint and the
+      suite first ran at the last possible moment to find a failure. `ci.yml` runs
+      `php -l`, `composer lint` and `composer test` on every pull request and push to
+      `main`.
+
+      The instructive part is which side was stale. `release.yml` already enumerated, so
+      the release gate was right and the developer-facing command was wrong — a
+      contributor got a green local run for a suite that was not running everything.
+
+- [ ] **A PHP-version matrix in CI.** Keel claims a 7.4 floor and CI tests one version:
+      whatever `ubuntu-latest` ships. Deliberately left out of keel#24 — "does this run
+      on the floor we advertise" is a different question from "did this change break
+      anything", and answering both in one job is how a green tick stops meaning
+      something. Small once someone wants it.
 
 ## v1.x — verification and evidence
 
