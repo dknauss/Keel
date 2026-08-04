@@ -22,14 +22,7 @@ function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
 }
 function get_option( $k, $d = false ) { return $d; }
-class WP_Error {
-	public $code;
-	public $message;
-	public function __construct( $code = '', $message = '' ) { $this->code = $code;
-		$this->message = $message; }
-	public function get_error_code() { return $this->code; }
-	public function get_error_message() { return $this->message; }
-}
+require __DIR__ . '/stubs/wp-error.php';
 function is_wp_error( $t ) { return $t instanceof WP_Error; }
 define( 'ABSPATH', __DIR__ . '/' );
 
