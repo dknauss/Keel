@@ -74,9 +74,31 @@ Plugin Review requirements, not niceties.
       Two stale claims went with it: the "in progress" status, and an FAQ line saying
       REST authentication stops other sites embedding your posts — no longer true since
       the `oembed/1.0` carve-out.
-- [ ] **Trademark glance on "Keel"** — USPTO and CIPO, Nice classes 9/42 — before the name
-      is in public print. Still open, and it needs a professional: the registers are not
-      searchable from here, and this is a legal question in any case.
+- [x] **Trademark glance on "Keel"** — closed 2026-08-04 **as a decision, not as a search.**
+      Read the next paragraph before treating this as cleared.
+
+      What was established: the **wordpress.org slug is free** — `keel` and `keel-defaults`
+      both return "Plugin not found", and a directory search for "keel" returns four
+      unrelated plugins. That was the practical blocker for submission and it is clear.
+
+      What was **not** established: the register. USPTO Trademark Search and CIPO's
+      database are JavaScript applications with no reachable public API, and every
+      third-party mirror (Justia, Trademarkia, uspto.report) refuses automated requests
+      with a 403. No search of live marks in Nice classes 9 or 42 was performed.
+
+      One lead, unverified: **KEEL SYSTEMS LLC** appears as a USPTO owner, holding
+      "CAMTRACK" (serial 87756860, 2018) for database-management software. An entity
+      named Keel operating in software — not a registered KEEL word mark.
+
+      To actually do it, in a browser: `tmsearch.uspto.gov` and CIPO's Canadian
+      Trademarks Database, word mark `keel`, live marks, classes 9 and 42; or WIPO's
+      Global Brand Database for both at once. Expect boat and shipping marks to dominate
+      the results — the ones that matter are software and SaaS. Note the shipped name is
+      "Keel Defaults", not bare "Keel".
+
+      **This remains a legal question and nothing here is advice.** The item is closed
+      because the release-blocking part is answered and the rest is the owner's call, not
+      because a register was searched.
 
       What a common-law sweep on 2026-08-04 did turn up, so whoever runs the real search
       starts from something: **keel.so** (London, founded 2022 — a code-first backend and
