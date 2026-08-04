@@ -73,33 +73,33 @@ unset( $GLOBALS['keel_filters']['keel_environments'] );
 // --- environment detection ---
 $GLOBALS['keel_env']  = 'production';
 $GLOBALS['keel_home'] = 'https://mysite.test';
-keel_assert( 'local' === keel_current_environment(), 'A .test host reads as local.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'A .test host reads as local.' );
 $GLOBALS['keel_home'] = 'https://mysite.local/';
-keel_assert( 'local' === keel_current_environment(), 'A .local host reads as local.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'A .local host reads as local.' );
 $GLOBALS['keel_home'] = 'https://mysite.example-real.ca';
-keel_assert( 'production' === keel_current_environment(), 'A normal host uses wp_get_environment_type().' );
+keel_assert( 'production' === keel_defaults_current_environment(), 'A normal host uses wp_get_environment_type().' );
 
 // The case the whole-URL suffix test used to miss: an explicit port.
 $GLOBALS['keel_home'] = 'http://mysite.test:8080';
-keel_assert( 'local' === keel_current_environment(), 'A .test host on an explicit port still reads as local.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'A .test host on an explicit port still reads as local.' );
 
 // Loopback, however it is written.
 foreach ( array( 'http://localhost:8881', 'http://localhost', 'http://127.0.0.1:8000', 'http://[::1]:8080' ) as $home ) {
 	$GLOBALS['keel_home'] = $home;
-	keel_assert( 'local' === keel_current_environment(), "Loopback home '{$home}' reads as local." );
+	keel_assert( 'local' === keel_defaults_current_environment(), "Loopback home '{$home}' reads as local." );
 }
 
 // Tool-specific default domains.
 foreach ( array( 'https://myproject.ddev.site', 'http://myapp.lndo.site:8000', 'http://myapp.localhost' ) as $home ) {
 	$GLOBALS['keel_home'] = $home;
-	keel_assert( 'local' === keel_current_environment(), "Local-tool home '{$home}' reads as local." );
+	keel_assert( 'local' === keel_defaults_current_environment(), "Local-tool home '{$home}' reads as local." );
 }
 
 // A suffix must match a whole label, not a substring of the host.
 $GLOBALS['keel_home'] = 'https://latest.example.ca';
-keel_assert( 'production' === keel_current_environment(), 'A host merely containing "test" is not local.' );
+keel_assert( 'production' === keel_defaults_current_environment(), 'A host merely containing "test" is not local.' );
 $GLOBALS['keel_home'] = 'https://localhost.example.ca';
-keel_assert( 'production' === keel_current_environment(), 'A real host beginning with "localhost" is not local.' );
+keel_assert( 'production' === keel_defaults_current_environment(), 'A real host beginning with "localhost" is not local.' );
 
 /*
  * A suffix must match at the END of the host, not anywhere inside it.
@@ -115,18 +115,18 @@ keel_assert( 'production' === keel_current_environment(), 'A real host beginning
 foreach ( array( 'https://client.test.agency.com', 'https://shop.local.example.net', 'https://a.ddev.site.example.org' ) as $home ) {
 	$GLOBALS['keel_home'] = $home;
 	keel_assert(
-		'production' === keel_current_environment(),
+		'production' === keel_defaults_current_environment(),
 		"A suffix appearing mid-host does not make '{$home}' local."
 	);
 }
 
 // Case is not significant in host names.
 $GLOBALS['keel_home'] = 'https://MySite.TEST';
-keel_assert( 'local' === keel_current_environment(), 'Host matching is case-insensitive.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'Host matching is case-insensitive.' );
 
 $GLOBALS['keel_filters']['keel_local_host_suffixes'] = array( '.example-real.ca' );
 $GLOBALS['keel_home']                                = 'https://mysite.example-real.ca';
-keel_assert( 'local' === keel_current_environment(), 'The suffix list is filterable.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'The suffix list is filterable.' );
 unset( $GLOBALS['keel_filters']['keel_local_host_suffixes'] );
 
 // --- an explicitly declared environment beats the host heuristic ---
@@ -142,11 +142,11 @@ unset( $GLOBALS['keel_filters']['keel_local_host_suffixes'] );
 $GLOBALS['keel_home'] = 'https://client.ddev.site';
 $GLOBALS['keel_env']  = 'staging';
 
-keel_assert( 'local' === keel_current_environment(), 'With nothing declared, a .ddev.site host reads as local.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'With nothing declared, a .ddev.site host reads as local.' );
 
 putenv( 'WP_ENVIRONMENT_TYPE=staging' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
 keel_assert(
-	'staging' === keel_current_environment(),
+	'staging' === keel_defaults_current_environment(),
 	'A WP_ENVIRONMENT_TYPE environment variable wins over the host heuristic.'
 );
 
@@ -156,19 +156,19 @@ keel_assert(
 putenv( 'WP_ENVIRONMENT_TYPE=stagng' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
 $GLOBALS['keel_env'] = 'production'; // What core answers for an invalid value.
 keel_assert(
-	'local' === keel_current_environment(),
+	'local' === keel_defaults_current_environment(),
 	'A misspelled declaration falls back to the host heuristic, not to production.'
 );
 
 putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- clearing what the previous line set.
-keel_assert( 'local' === keel_current_environment(), 'Clearing the variable restores the heuristic.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'Clearing the variable restores the heuristic.' );
 
 // The constant is the other half of the same test. It cannot be undefined once
 // set, so it is asserted last and the value is one the heuristic would override.
 define( 'WP_ENVIRONMENT_TYPE', 'staging' );
 $GLOBALS['keel_env'] = 'staging';
 keel_assert(
-	'staging' === keel_current_environment(),
+	'staging' === keel_defaults_current_environment(),
 	'The WP_ENVIRONMENT_TYPE constant wins over the host heuristic.'
 );
 

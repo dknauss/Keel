@@ -301,7 +301,77 @@ were chosen for being security-relevant and plausible; they are not exhaustive,
 and a green result here is evidence, not proof. The mutants and the method are
 recorded above so the next pass can extend the set rather than start over.
 
+## Pass 3 — pattern conformance
+
+The brief was to find "deviations from simple repeated coding patterns". Measured
+rather than eyeballed, across every convention the plugin implicitly keeps.
+
+### Conformance is high
+
+| Convention | Result |
+| --- | --- |
+| `defined( 'ABSPATH' ) \|\| exit;` in every include | 11/11 |
+| Docblock on every function | 110/110 |
+| Toggle read through `keel_defaults_enabled()` | 34 of 36 |
+| Function prefix | 106 of 110 |
+
+### 8. Four deviations, all closed
+
+**One naming outlier.** The prefix rule turns out to have three legitimate forms,
+which nothing had ever written down:
+
+1. `keel_defaults_*` — everything, by default.
+2. `keel_hibp_*` — the breach-lookup subsystem, whose helpers only mean anything
+   together.
+3. A function whose whole job is exposing a filterable value takes the filter's
+   name, so `keel_environments()` applies `keel_environments`. The name *is* the
+   hook; a second, different name would make the thing a site filters and the
+   thing that reads it look unrelated.
+
+`keel_current_environment()` fitted none of them — no filter of that name, no
+subsystem, and its neighbour in the same file used the standard prefix. Renamed
+to `keel_defaults_current_environment()`. It is not public API: only
+`keel_environments()` appears in the docs, and the rename touches one internal
+caller and the tests.
+
+**Two open-coded toggle reads.** `site-health.php` had
+`'yes' === keel_defaults_get( … )` twice, where the other 34 call sites use
+`keel_defaults_enabled()`. Not wrong — just a second spelling of one idea, and a
+second spelling is how a stored value's representation ends up asserted in places
+that would not be updated if it ever changed.
+
+**A fourth the review had missed.** Writing the guard immediately failed on
+`keel_uninstall_site()` in `uninstall.php`, which the manual pass had not caught
+because it only scanned `includes/`. Renamed. That is the argument for the test in
+one line: the convention was already leaking somewhere nobody was looking.
+
+### The guard
+
+`tests/naming-conventions.php` enforces all four conventions, and states the
+prefix rule in prose where the next contributor will find it. It includes a
+converse assertion — that the two filter-named functions really do apply their
+own filter — so rule 3 cannot pass by being vacuous, and a scan-found-nothing
+check so an empty result cannot pass everything.
+
+Verified failing on all four rules by breaking each in turn: a dropped prefix, an
+open-coded toggle read, a removed `ABSPATH` guard, and a deleted docblock. Each
+names the file, the line and the rule.
+
+### Noted, not changed
+
+`keel_assert()` has two different meanings depending on the file. In 22 tests it
+exits on the first failure; in 5 it increments a counter and reports them all at
+the end. Both are defensible — the counter files check many independent items
+(readme claims, uninstall keys, 33 headings) where one failure should not hide
+the rest, while the exit-first files test sequences where later assertions depend
+on earlier state.
+
+But the same name means two things, and someone copying a test file inherits
+whichever semantics they happened to copy. Worth a decision at some point:
+either name them differently, or standardise on the counter and let each file
+report fully. Left alone here because it is a judgement call about test design,
+not a defect.
+
 ## Not yet covered
 
-Passes 3-4 — pattern conformance and complexity/duplication — then the same
-sweep for BBD, and PX last.
+Pass 4 — complexity and duplication — then the same sweep for BBD, and PX last.

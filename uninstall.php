@@ -34,7 +34,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  *
  * @return void
  */
-function keel_uninstall_site() {
+function keel_defaults_uninstall_site() {
 	global $wpdb;
 
 	delete_option( 'keel_settings' );
@@ -73,7 +73,7 @@ if ( is_multisite() ) {
 
 		foreach ( $keel_sites as $keel_site_id ) {
 			switch_to_blog( $keel_site_id );
-			keel_uninstall_site();
+			keel_defaults_uninstall_site();
 			restore_current_blog();
 		}
 
@@ -86,6 +86,6 @@ if ( is_multisite() ) {
 	// site on the network.
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 } else {
-	keel_uninstall_site();
+	keel_defaults_uninstall_site();
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 }
