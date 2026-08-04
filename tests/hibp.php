@@ -27,6 +27,14 @@ function esc_attr_e( $s, $d = null ) { echo $s; }
 function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
 }
+$GLOBALS['keel_object_cache'] = array();
+function wp_cache_get( $key, $group = '' ) {
+	return array_key_exists( $group . ':' . $key, $GLOBALS['keel_object_cache'] ) ? $GLOBALS['keel_object_cache'][ $group . ':' . $key ] : false;
+}
+function wp_cache_set( $key, $value, $group = '', $expire = 0 ) {
+	$GLOBALS['keel_object_cache'][ $group . ':' . $key ] = $value;
+	return true;
+}
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }

@@ -741,8 +741,25 @@ function keel_hibp_lookup( $password ) {
 	$limit  = keel_hibp_response_limit();
 
 	$cache_key = 'keel_hibp_' . $prefix;
-	$body      = get_transient( $cache_key );
-	$cached    = false !== $body;
+
+	/*
+	 * Object cache first, transient second. A password change validates the same
+	 * prefix more than once in a request — the profile screen and the REST guard
+	 * both ask — and on a site with a persistent object cache the transient is a
+	 * cache read anyway. Without one, the transient is a database read each time,
+	 * and this makes it one read instead of several.
+	 */
+	$body   = wp_cache_get( $cache_key, 'keel_hibp' );
+	$cached = false !== $body;
+
+	if ( ! $cached ) {
+		$body   = get_transient( $cache_key );
+		$cached = false !== $body;
+
+		if ( $cached ) {
+			wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
+		}
+	}
 
 	if ( ! $cached ) {
 		$response = wp_remote_get(
@@ -774,6 +791,7 @@ function keel_hibp_lookup( $password ) {
 
 	if ( ! $cached ) {
 		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
+		wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
 	}
 
 	return keel_hibp_range_contains( $body, $suffix );
