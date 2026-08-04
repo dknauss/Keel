@@ -19,16 +19,23 @@ GPL-2.0-or-later.
 
 Everything a wordpress.org submission needs, before polish.
 
-- [ ] **Multisite-aware seeding.** v1 target is multisite *compatible*, not governed:
-      network-activatable without breakage, each subsite storing its own settings. Not
-      free — the Better by Default base has essentially no multisite awareness (a single
-      `register_activation_hook`, no per-site or new-subsite seeding). Port the
-      network-aware lifecycle: seeding keyed on an `$is_network` flag plus a
-      `wp_initialize_site` hook so new subsites get seeded.
-- [ ] **Document the shared-user-table caveat.** The password policy acts on the
-      network-wide user table, so on multisite it is effectively network-wide even when
-      configured per-site. Documented in v1, not governed. (This applied to the
-      reserved-usernames default too, until `500c561` removed it.)
+- [x] **Multisite-aware seeding** — done 2026-08-04 (keel#29). Network activation seeds
+      every existing site, paged at 100; `wp_initialize_site` seeds subsites created
+      later, but only when Keel is network-active, since a per-site activation means a
+      new subsite does not have the plugin at all. Nothing is ever overwritten.
+
+      Worth recording why it went unnoticed: an unseeded subsite *looks* correct.
+      `keel_defaults_get()` falls back to the schema default, so the settings screen shows
+      the documented values and the site behaves as documented. The divergence only
+      appears when a default changes in a later release and the unseeded sites move with
+      it while the seeded ones keep what they were given.
+- [x] **Document the shared-user-table caveat** — done 2026-08-04. In the Passwords
+      help tab, rendered only on multisite so a single-site admin is not told about a
+      constraint that cannot apply to them, and in the readme FAQ where someone
+      evaluating the plugin will look. The framing that took a second pass: the setting
+      is stored per site but does not *act* per site, so the strictest site on a network
+      sets the floor for anyone who changes their password there. Documented, not
+      governed — network-wide policy stays a v2 item.
 - [x] **Reference doc coverage** — done 2026-08-04 (keel#18). All 37 schema keys have an
       entry. It was 16 missing, not the handful assumed here: thirteen absent outright,
       three more (`remove_version`, `security_headers`, `frame_options`) described in
@@ -39,7 +46,13 @@ Everything a wordpress.org submission needs, before polish.
       array read through `keel_defaults_get()` — which the document's own introduction
       states three paragraphs above the first contradiction. Two quick-reference rows named
       keys with no counterpart in any version of the plugin.
-- [ ] **Trim `uninstall.php`** to the option set Keel actually ships.
+- [x] **`uninstall.php`** — done 2026-08-04 (keel#27), and "trim" was the wrong verb.
+      There was no `uninstall.php` and no `register_uninstall_hook`: nothing was cleaned
+      up at all, so deleting the plugin left `keel_settings`, every user's
+      `keel_last_login`, and every accumulated breach-cache transient behind. Now removed
+      across every site on a network, with `tests/uninstall-coverage.php` reading the
+      plugin's own source for storage keys so a default added later cannot silently start
+      leaving data behind.
 
 ## v1.0 — wordpress.org submission
 
