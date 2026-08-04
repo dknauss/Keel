@@ -190,7 +190,7 @@ function keel_defaults_strings() {
 		'environment_indicator'           => array(
 			'label'     => __( 'Environment indicator', 'keel' ),
 			'statement' => __( 'Show the current environment in the admin bar', 'keel' ),
-			'help'      => __( 'Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default.', 'keel' ),
+			'help'      => __( 'Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in <code>.test</code> or <code>.local</code> read as Local, unless <code>WP_ENVIRONMENT_TYPE</code> is set. Off by default.', 'keel' ),
 		),
 		'disable_remember_me'             => array(
 			'label'     => __( 'Remember Me', 'keel' ),
