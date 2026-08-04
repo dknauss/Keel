@@ -45,4 +45,12 @@ wp-config.php
 #
 # Note: If you wish to whitelist themes,
 # uncomment the next line
-#/wp-content/themes/vendor/
+#/wp-content/themes
+
+# Composer dependencies
+#
+# Dev-only tooling (phpcs and WPCS). The plugin has no runtime dependencies —
+# nothing here is loaded by WordPress, .distignore keeps it out of the release
+# zip, and the release workflow runs php -l and the test files directly rather
+# than anything from vendor/. Run `composer install` for a working checkout.
+/vendor/
