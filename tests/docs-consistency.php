@@ -1,0 +1,78 @@
+<?php
+/**
+ * Keep TODO.md and ROADMAP.md from disagreeing about the same item.
+ *
+ * Both files track work, in different granularity — ROADMAP by release, TODO by
+ * task — and several items appear in both under the same bolded title. Nothing
+ * connected them, so `Reference doc coverage` and `Schema-key reconcile` sat
+ * ticked in one file and open in the other for a day after the work merged.
+ *
+ * That is the same failure the feature matrix documents about itself: an entry
+ * recording "X is not done yet" is never revisited when the work closing it
+ * lands, because whoever finished the work was reading a different file.
+ *
+ * The check is deliberately narrow. It does not require the two files to cover
+ * the same items — ROADMAP holds long-range items TODO never mentions, and TODO
+ * holds day-to-day work that never reaches ROADMAP. It only fails when a title
+ * appears in both and they disagree about whether it is finished.
+ *
+ * Run: php tests/docs-consistency.php
+ *
+ * @package keel
+ */
+
+function keel_assert( $cond, $msg ) {
+	if ( ! $cond ) {
+		fwrite( STDERR, "Assertion failed: {$msg}\n" );
+		exit( 1 );
+	}
+}
+
+/**
+ * Map bolded checklist titles to their done state.
+ *
+ * @param string $markdown File contents.
+ * @return array<string, bool> Title => done.
+ */
+function keel_checklist_state( $markdown ) {
+	$state = array();
+
+	if ( ! preg_match_all( '/^\s*-\s\[( |x)\]\s\*\*(.+?)\*\*/mu', $markdown, $matches, PREG_SET_ORDER ) ) {
+		return $state;
+	}
+
+	foreach ( $matches as $match ) {
+		// Titles carry trailing punctuation inconsistently ("Foo." vs "Foo").
+		$title = rtrim( trim( $match[2] ), '.,:;—-' );
+		$done  = ( 'x' === $match[1] );
+
+		// A title appearing twice in one file is done only if every copy is.
+		$state[ $title ] = isset( $state[ $title ] ) ? ( $state[ $title ] && $done ) : $done;
+	}
+
+	return $state;
+}
+
+$root    = dirname( __DIR__ );
+$todo    = keel_checklist_state( (string) file_get_contents( $root . '/TODO.md' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a repo file in a CLI test, not a remote request.
+$roadmap = keel_checklist_state( (string) file_get_contents( $root . '/ROADMAP.md' ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a repo file in a CLI test, not a remote request.
+
+keel_assert( ! empty( $todo ), 'TODO.md parsed at least one checklist item.' );
+keel_assert( ! empty( $roadmap ), 'ROADMAP.md parsed at least one checklist item.' );
+
+$shared = array_intersect_key( $todo, $roadmap );
+keel_assert( ! empty( $shared ), 'At least one item appears in both files — otherwise this test is watching nothing.' );
+
+foreach ( $shared as $title => $todo_done ) {
+	keel_assert(
+		$todo_done === $roadmap[ $title ],
+		sprintf(
+			"'%s' is %s in TODO.md but %s in ROADMAP.md — tick it in both, or reword one so they are not claiming to be the same item.",
+			$title,
+			$todo_done ? 'done' : 'open',
+			$roadmap[ $title ] ? 'done' : 'open'
+		)
+	);
+}
+
+printf( "docs consistency: OK (%d shared item%s)\n", count( $shared ), 1 === count( $shared ) ? '' : 's' );

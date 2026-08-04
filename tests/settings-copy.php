@@ -81,11 +81,28 @@ foreach ( $strings as $key => $copy ) {
 }
 
 // --- retired claims ---
-// "Trust leak" overstates what the default login logo does: it links off-site,
-// which is worth saying plainly and is not a leak. Better by Default retired the
-// phrase and asserts against it; this keeps the siblings from disagreeing about
-// the same sentence.
-keel_assert( false === strpos( $strings['login_logo_behavior']['help'], 'trust leak' ), 'Login-logo guidance does not overstate an external link as a trust leak.' );
+// Scanned across every string, not pinned to the setting each phrase was
+// retired from. The failure this exists for was a phrase surviving in one
+// plugin after a sibling retired it, so a guard that only watches the one
+// sentence that diverged would miss the same claim reappearing elsewhere.
+// Retiring another phrase is one array entry, not a new assertion.
+$retired = array(
+	'trust leak' => 'overstates an off-site link as a leak; Better by Default retired it and asserts against it',
+);
+
+foreach ( $retired as $phrase => $why ) {
+	foreach ( $strings as $key => $copy ) {
+		foreach ( array( 'label', 'statement', 'help' ) as $slot ) {
+			if ( ! isset( $copy[ $slot ] ) ) {
+				continue;
+			}
+			keel_assert(
+				false === stripos( $copy[ $slot ], $phrase ),
+				"Retired phrase '{$phrase}' does not appear in {$slot} for '{$key}' — {$why}."
+			);
+		}
+	}
+}
 
 // --- naming a strength scale ---
 // zxcvbn's score 3 is what WordPress labels "Medium". Any copy naming a strength
