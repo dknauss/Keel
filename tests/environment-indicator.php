@@ -101,6 +101,25 @@ keel_assert( 'production' === keel_current_environment(), 'A host merely contain
 $GLOBALS['keel_home'] = 'https://localhost.example.ca';
 keel_assert( 'production' === keel_current_environment(), 'A real host beginning with "localhost" is not local.' );
 
+/*
+ * A suffix must match at the END of the host, not anywhere inside it.
+ *
+ * The two cases above look like they cover this, and do not: neither host
+ * contains the suffix *with* its leading dot, so swapping the suffix test for a
+ * substring search left both of them passing. Mutation testing surfaced it.
+ *
+ * These do contain the dotted suffix mid-host, which is a real naming pattern —
+ * an agency running client staging under a shared parent domain — and exactly
+ * the case where labelling a live client site "Local" would be worst.
+ */
+foreach ( array( 'https://client.test.agency.com', 'https://shop.local.example.net', 'https://a.ddev.site.example.org' ) as $home ) {
+	$GLOBALS['keel_home'] = $home;
+	keel_assert(
+		'production' === keel_current_environment(),
+		"A suffix appearing mid-host does not make '{$home}' local."
+	);
+}
+
 // Case is not significant in host names.
 $GLOBALS['keel_home'] = 'https://MySite.TEST';
 keel_assert( 'local' === keel_current_environment(), 'Host matching is case-insensitive.' );

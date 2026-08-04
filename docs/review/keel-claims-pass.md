@@ -229,8 +229,79 @@ assertion behind it. Both mechanisms are now actually asserted.
 **Severity: moderate. Wrong label on a staging site is the failure this feature
 exists to prevent.**
 
+## Pass 2 — test integrity
+
+Pass 1 asked whether the documentation matches the code. Pass 2 asks the harder
+question: **do the tests fail when the code breaks?** Reading a test cannot
+answer that — this repo has already shipped four tests that passed for the wrong
+reason — so this pass was done by mutation instead of by inspection.
+
+Method: break one security-relevant invariant at a time in the plugin source,
+run `composer test`, record whether the suite noticed, restore the file. A
+mutation the suite does not catch is a claim nothing is defending.
+
+### Result: 12 mutants, 10 killed, 2 survived
+
+Killed on the first run — each of these breaks a documented guarantee, and each
+was caught:
+
+| Mutation | Invariant it attacks |
+| --- | --- |
+| Drop the super-admin exemption | Super Admins keep `unfiltered_html` on multisite |
+| `<` → `<=` on the HIBP truncation boundary | a truncated range must never read as "not breached" |
+| Treat count-0 rows as matches | HIBP padding rows are not breaches |
+| Empty role set stops enforcing | an unknown role set enforces the password policy |
+| Drop the `max()` in session length | a remembered login is never shorter than a regular one |
+| `DENY` ranked equal to `SAMEORIGIN` | a host's `DENY` is never downgraded |
+| Prefix match instead of path boundary | `/oembed/1.0-internal` must not reach through the REST gate |
+| Unset only `author_name` | oEmbed must not leak `author_url` |
+| Remove the never-overwrite guard | reactivation must not discard a configured site |
+| Allow `;` in a CSS colour | a filter value must not terminate its declaration |
+
+### 7. Two survivors — both real gaps, both closed
+
+**`manage_options` could be deleted from the sensitive-capability list and no
+test failed.** That list is the guardrail behind the strongest claim in
+`security.php`: privileged accounts can never be exempted from the password
+policy through the UI.
+
+The cause is instructive. The test's role fixtures are *realistic* — and that is
+precisely why they could not prove this. A real administrator holds
+`manage_options` **and** `edit_posts`, so with `manage_options` deleted the
+assertion "administrator is NOT exemptable" still passed, on the other capability.
+The test asserted the conclusion while testing nothing about the mechanism.
+
+The gap is not theoretical: a custom role holding `manage_options` but no
+editorial capability — a billing or settings-only "Site Manager", which sites
+really do create — would have become exemptable with nothing to catch it.
+
+Closed by asserting each capability independently: one synthetic role per entry,
+holding that capability and nothing else, plus a converse case so the loop cannot
+pass by rejecting everything. Verified by re-running the mutation and then
+deleting three other entries at random — each kills a test that names the missing
+capability.
+
+**Suffix matching could be replaced with a substring search and no test failed.**
+The file has two assertions that look like they cover this (`latest.example.ca`,
+`localhost.example.ca`), and neither does: neither host contains the suffix *with*
+its leading dot.
+
+A host like `client.test.agency.com` does — an agency running client staging
+under a shared parent domain, which is a real naming pattern and the worst case
+to get wrong, since it labels a live client site **Local**. Three such fixtures
+added.
+
+**Severity: moderate. Neither was a live defect; both were undefended
+invariants, which is the thing a test suite exists to prevent.**
+
+### What this pass does not prove
+
+Mutation testing shows the suite catches the mutations that were *tried*. Twelve
+were chosen for being security-relevant and plausible; they are not exhaustive,
+and a green result here is evidence, not proof. The mutants and the method are
+recorded above so the next pass can extend the set rather than start over.
+
 ## Not yet covered
 
-Pass 1 is complete: every file's docblock and user-facing claims have been
-checked. Remaining are passes 2-4 — test integrity, pattern conformance, and
-complexity/duplication — then the same sweep for BBD, and PX last.
+Passes 3-4 — pattern conformance and complexity/duplication — then the same
+sweep for BBD, and PX last.
