@@ -15,6 +15,7 @@ $settings = (array) get_option( 'keel_settings', array() );
 $settings['disable_comments']               = 'yes';
 $settings['disable_rest']                   = 'yes';
 $settings['restrict_rest_user_discovery']   = 'yes';
+$settings['disable_author_archives']        = 'yes';
 $settings['disable_pingbacks']              = 'yes';
 $settings['disable_self_pingbacks']         = 'yes';
 $settings['xmlrpc_allow_pingbacks']         = 'no';

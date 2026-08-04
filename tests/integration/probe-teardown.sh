@@ -98,6 +98,25 @@ rc_posts=$( code "$URL/wp-json/wp/v2/posts" )
 rc_oembed=$( code "$URL/wp-json/oembed/1.0/embed?url=$PERMA" )
 rc_head=$( curl -s -D - -o /dev/null -L "$PERMA" | grep -ci 'rel="https://api.w.org/"' )
 
+# --- Author identity --------------------------------------------------------
+# Hiding author archives is not the same as not publishing the author's login.
+# Three routes serve it and only one is called an author archive: feeds via
+# <dc:creator>, oEmbed via author_name/author_url (the URL carries the
+# nicename), and core's users sitemap, which is a list of author archive URLs
+# by construction.
+#
+# This group exists because a live leak in two of the three sibling plugins
+# survived a document built specifically to measure teardown correctness — the
+# matrix had no row that would have looked.
+pr_archive=$( code "$URL/author/admin/" )
+pr_sitemap_listed=$( curl -s "$URL/wp-sitemap.xml" | grep -c "wp-sitemap-users" )
+pr_sitemap_names=$( curl -s "$URL/wp-sitemap-users-1.xml" | grep -c "<loc>" )
+pr_oembed_author=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c '"author_name"' )
+pr_oembed_url=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c '"author_url"' )
+pr_oembed_works=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c '"title"' )
+pr_feed_creator=$( curl -s "$URL/feed/" | grep -c "dc:creator" )
+pr_feed_login=$( curl -s "$URL/feed/" | grep -c "admin</dc:creator>" )
+
 # --- Feeds and headers ------------------------------------------------------
 fc_site=$( code "$URL/comments/feed/" )
 fc_post=$( code "${PERMA}feed/" )
@@ -179,6 +198,14 @@ rest.head_link            $rc_head
 feed.site_comments        $fc_site
 feed.post_comments        $fc_post
 header.xpingback          $xp
+privacy.author_archive    $pr_archive
+privacy.sitemap_listed    $pr_sitemap_listed
+privacy.sitemap_names     $pr_sitemap_names
+privacy.oembed_author     $pr_oembed_author
+privacy.oembed_authorurl  $pr_oembed_url
+privacy.oembed_usable     $pr_oembed_works
+privacy.feed_creator      $pr_feed_creator
+privacy.feed_login        $pr_feed_login
 xmlrpc.http               $xcode
 xmlrpc.methods            $xn
 xmlrpc.has_pingback       $xping

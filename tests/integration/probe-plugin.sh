@@ -30,7 +30,18 @@ if [ -z "$URL" ] || [ -z "$WP" ] || [ -z "$SLUG" ]; then
 	exit 2
 fi
 
+# Configs may live outside this repository.
+#
+# Pixel Managed Platform is private and Keel is public, so its settings do not
+# belong in probe-configs/ here. PROBE_CONFIG_DIR points at a directory holding
+# <slug>.php files kept alongside that plugin instead; it takes precedence, and
+# the bundled config is the fallback. That keeps the harness able to measure all
+# three siblings without either repository carrying the other's internals.
 CONFIG="$HERE/probe-configs/${SLUG}.php"
+
+if [ -n "${PROBE_CONFIG_DIR:-}" ] && [ -f "${PROBE_CONFIG_DIR}/${SLUG}.php" ]; then
+	CONFIG="${PROBE_CONFIG_DIR}/${SLUG}.php"
+fi
 
 # Configuration runs BEFORE activation, with --skip-plugins.
 #
