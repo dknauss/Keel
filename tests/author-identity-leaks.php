@@ -73,7 +73,7 @@ keel_assert( 'example' === $filtered['provider_name'], 'The provider survives.' 
 
 // Anything that is not an array is handed back untouched.
 foreach ( array( null, false, 'string', 42 ) as $odd ) {
-	keel_assert( $odd === keel_defaults_strip_oembed_author( $odd ), 'A non-array response is returned unchanged.' );
+	keel_assert( keel_defaults_strip_oembed_author( $odd ) === $odd, 'A non-array response is returned unchanged.' );
 }
 
 // --- users sitemap ---
