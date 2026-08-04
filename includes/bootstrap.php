@@ -588,7 +588,9 @@ function keel_defaults_bootstrap() {
 	 * through it, and this is where that would otherwise show up: a remembered
 	 * login that expires sooner than an ordinary one.
 	 */
-	add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
+	if ( keel_defaults_session_policy_is_custom() ) {
+		add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
+	}
 
 	/* ----- Branding ----- */
 

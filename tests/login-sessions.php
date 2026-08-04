@@ -125,3 +125,23 @@ $GLOBALS['keel_options']['disable_remember_me'] = 'yes';
 keel_assert( 5 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, true ), 'With Remember Me disabled, even a remembered login gets the regular length.' );
 
 fwrite( STDOUT, "login-sessions tests passed.\n" );
+
+// --- composing with other plugins ---
+// auth_cookie_expiration is a replacing filter: the callback discards the value
+// it was handed. Two plugins registering one cannot both win, so Keel stays off
+// the hook entirely when its policy is the same answer WordPress already gives.
+$GLOBALS['keel_options'] = array();
+$GLOBALS['keel_options'] = array( 'session_regular_days' => 1 );
+keel_assert( true === keel_defaults_session_policy_is_custom(), 'A shorter regular session is a real policy and does register.' );
+
+$GLOBALS['keel_options'] = array( 'remember_me_days' => 30 );
+keel_assert( true === keel_defaults_session_policy_is_custom(), 'A longer remembered session is a real policy and does register.' );
+
+// Disabling Remember Me changes the remembered answer even though both day
+// values still match core, which is why the test asks the callback rather than
+// comparing the stored numbers.
+$GLOBALS['keel_options'] = array( 'disable_remember_me' => 'yes' );
+keel_assert( true === keel_defaults_session_policy_is_custom(), 'Disabling Remember Me is a policy even with core day values.' );
+
+$GLOBALS['keel_options'] = array( 'session_regular_days' => 2, 'remember_me_days' => 14 );
+keel_assert( false === keel_defaults_session_policy_is_custom(), 'Explicitly setting core values is still core values.' );
