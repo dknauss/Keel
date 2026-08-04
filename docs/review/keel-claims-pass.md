@@ -372,6 +372,82 @@ either name them differently, or standardise on the counter and let each file
 report fully. Left alone here because it is a judgement call about test design,
 not a defect.
 
-## Not yet covered
+## Pass 4 — complexity and duplication
 
-Pass 4 — complexity and duplication — then the same sweep for BBD, and PX last.
+### Duplication: none worth acting on
+
+A 6-line block scan across the plugin returned eleven hits, all incidental —
+schema rows sharing `'type' => 'toggle'`, four functions ending `return true;`,
+a `wp_kses` allow-list written twice in the same help tab. Nothing that a helper
+would improve.
+
+### Complexity: concentrated in exactly one place
+
+Median function length is **14 lines** across 110 functions. The distribution is
+healthy; only the tail is interesting.
+
+| Function | Lines | Branches | Max indent |
+| --- | --- | --- | --- |
+| `keel_defaults_bootstrap` | 626 | 68 | 7 |
+| `keel_defaults_render_settings_page` | 338 | 249 | **13** |
+| `keel_defaults_schema` | 272 | 1 | 4 |
+| `keel_defaults_strings` | 207 | 24 | 4 |
+
+`keel_defaults_bootstrap` is long but flat — 626 lines carrying 68 branches is a
+directory, not a tangle, and it is the plugin's documented architecture. `schema`
+and `strings` are data. None of the three is a problem.
+
+`keel_defaults_render_settings_page` was, and the measurement located the cause
+precisely: **105 of its 338 lines were the `range` branch**, which was the sole
+reason the file reached thirteen levels of indentation. Every other field type
+runs ten to twenty lines. That one branch carries a whole feature — the slider,
+the stylesheet it toggles, and the script driving them — and inlining it put CSS
+at a depth where the surrounding PHP stopped being legible.
+
+### 9. The range field extracted, verified by rendering
+
+Moved to `keel_defaults_render_range_field()`, matching the helpers the file
+already had (`render_checkbox`, `render_help`, `render_warning`).
+
+**How it was verified.** A 105-line move through PHP/HTML mode boundaries is
+exactly the change that silently drops a closing tag, so it was checked by
+rendering rather than by reading: the screen was rendered from the pre-refactor
+tree and from the working tree, in two option states — stock defaults and a
+configured site with every non-toggle moved off its default — and the outputs
+compared.
+
+They differ only in leading whitespace, because raw HTML inside a template emits
+its own indentation literally and de-indenting the source de-indents the output.
+Every tag, attribute and text node is identical. The affected whitespace sits
+between tags and inside `<style>` and `<script>`, where it carries no meaning.
+The docblock originally claimed "byte-for-byte" and was corrected to say this.
+
+**Result:** 338 → 234 lines. Max indent is *unchanged* at 13, and that is worth
+stating plainly rather than dressing up: the remaining depth is the multiselect's
+twelve-line checkbox loop, which is inherent to the markup it emits. Extracting
+that would trade nesting for indirection and gain nothing. The 105-line feature
+at depth 13 is what mattered, and it is gone.
+
+### The harness that made it safe is kept
+
+`tests/settings-render.php` renders the screen in both states and asserts what it
+must contain — every schema key has an input, every field type emits a control,
+the slider's datalist and readout exist with the ids the slider points at, a
+stored value renders back, a dependent row starts hidden.
+
+It asserts structure rather than a snapshot hash, because a hash fails on every
+deliberate edit and says nothing about which part moved.
+
+Verified by mutation: removing the extracted call, breaking the datalist id,
+breaking the readout association, disabling the multiselect branch, and
+neutering the dependency state each kill a named assertion. Two earlier mutants
+survived and both were instructive — one exposed an assertion weak enough to pass
+on the slider's own `list=` attribute while the datalist was gone (tightened),
+and one was an equivalent mutant of my own making, renaming a schema key that
+both the renderer and the test read from the same source.
+
+## Review complete
+
+All four passes are done for Keel: documentation claims, test integrity,
+pattern conformance, and complexity. Remaining: the same sweep for BBD, then PX
+last, since it is undergoing its own intensive review.
