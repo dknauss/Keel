@@ -17,7 +17,7 @@ function keel_defaults_site_health_tests( $tests ) {
 	if ( ! is_array( $tests ) ) {
 		return $tests;
 	}
-	$tests['direct']['keel_defaults_posture'] = array(
+	$tests['direct']['keel_defaults_posture']   = array(
 		'label' => __( 'Keel Defaults', 'keel' ),
 		'test'  => 'keel_defaults_site_health_posture',
 	);
