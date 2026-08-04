@@ -30,6 +30,43 @@ add_action(
 	}
 );
 
+/*
+ * A Settings link beside Deactivate on the Plugins screen. Every other route to
+ * this page — the plugin description, the readme — is text the reader has to act
+ * on; this one is where they are already looking.
+ */
+add_action(
+	'admin_init',
+	function () {
+		// Built here rather than at load: plugin_basename() is a WordPress call,
+		// and nothing in this file should need WordPress before admin_init. The
+		// links are applied when the Plugins table renders, long after this.
+		add_filter( 'plugin_action_links_' . plugin_basename( KEEL_DEFAULTS_FILE ), 'keel_defaults_action_links' );
+	}
+);
+
+/**
+ * Prepend a Settings link to the plugin's action links.
+ *
+ * First in the row, before Deactivate: WordPress orders these by usefulness, not
+ * by destructiveness, and configuring is what someone does far more often than
+ * deactivating.
+ *
+ * @param string[] $links Existing action links.
+ * @return string[]
+ */
+function keel_defaults_action_links( $links ) {
+	$settings = sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( admin_url( 'options-general.php?page=keel' ) ),
+		esc_html__( 'Settings', 'keel' )
+	);
+
+	array_unshift( $links, $settings );
+
+	return $links;
+}
+
 /**
  * Add a short Overview Help tab to the Keel settings screen.
  */

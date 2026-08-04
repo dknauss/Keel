@@ -8,7 +8,7 @@ Stable tag: 0.1.0-dev
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Sane, individually-toggleable defaults for every new WordPress site — security, updates, privacy, UX, and performance.
+More than 30 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
 
 == Description ==
 
