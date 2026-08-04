@@ -568,13 +568,19 @@ function keel_defaults_validate_rest_password( $prepared_user, $request ) {
  * The carve-out is only safe because of what sits in front of it. oEmbed
  * *does* return author_name and author_url by default, and author_url carries
  * the account nicename — opening this route without that fix would reopen the
- * username enumeration `restrict_rest_user_discovery` exists to close. With
- * `disable_author_archives` on, `keel_defaults_strip_oembed_author()` removes
- * both fields before the response is built, and what is left is the title,
- * provider and embed markup of a single published post.
+ * username enumeration `restrict_rest_user_discovery` exists to close.
  *
- * If author archives are *not* hidden, the site has already chosen to publish
- * author names, and oEmbed says nothing the post's own byline does not.
+ * So `keel_defaults_strip_oembed_author()` is registered by the REST gate
+ * itself, not only by hidden author archives: whenever this carve-out is in
+ * play, both fields are removed before the response is built, and what is left
+ * is the title, provider and embed markup of a single published post. Hiding
+ * author archives registers the same filter for its own reasons, which is
+ * harmless — it unsets keys that are already gone.
+ *
+ * The two are deliberately independent. Tying the strip to the archive setting
+ * would mean a site that closed REST but left author archives public handed the
+ * anonymous caller, through oEmbed, the very nicenames the gate had just
+ * refused it at /wp/v2/users.
  *
  * @return string[] Route prefixes, each with a leading slash.
  */
