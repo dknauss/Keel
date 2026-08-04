@@ -117,11 +117,26 @@ $headings = array_values( array_unique( array_map( 'trim', $m[1] ) ) );
 keel_assert( count( $headings ) > 20, 'The render produced a plausible number of row headings (' . count( $headings ) . ').' );
 
 /*
- * Words that stay lowercase inside a title: articles, coordinating
- * conjunctions, and short prepositions. Anything leading is capitalized
- * regardless, which is why position is checked as well as membership.
+ * Words that stay lowercase inside a title: articles and coordinating
+ * conjunctions only. Anything leading is capitalized regardless, which is why
+ * position is checked as well as membership.
+ *
+ * Prepositions capitalize — "Pingbacks On New Posts", "Accounts Per Step". That
+ * is the sibling plugins' rule, adopted here after this file shipped a longer
+ * list that also lowercased short prepositions.
+ *
+ * The two rules were not merely different, they were mutually exclusive: a
+ * heading containing a preposition could not satisfy both, so no such string
+ * could be copied between the three repositories. A sweep meant to end drift had
+ * created a new kind of it.
+ *
+ * This list wins because the other one was arbitrary. It held 'per' and 'vs' but
+ * stopped somewhere, with nothing deciding where — a half-list is worse than
+ * either whole rule, because nothing tells you which half a new word belongs to.
+ * The articles-and-conjunctions rule was derived from copy people had already
+ * written by hand rather than imposed on it.
  */
-$lowercase_ok = array( 'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'in', 'nor', 'of', 'on', 'or', 'per', 'the', 'to', 'via', 'vs' );
+$lowercase_ok = array( 'a', 'an', 'the', 'and', 'or', 'nor', 'but' );
 
 foreach ( $headings as $heading ) {
 	$words = preg_split( '/\s+/', $heading );
@@ -139,7 +154,7 @@ foreach ( $headings as $heading ) {
 		if ( 0 !== $i && in_array( $bare, $lowercase_ok, true ) ) {
 			keel_assert(
 				$first === $bare,
-				"Row heading '{$heading}': '{$word}' is a short word inside a title and should stay lowercase."
+				"Row heading '{$heading}': '{$word}' is an article or coordinating conjunction inside a title and should stay lowercase."
 			);
 			continue;
 		}
@@ -167,15 +182,33 @@ foreach ( $headings as $heading ) {
 	}
 }
 
-// --- the group headings this is meant to match ---
+/*
+ * --- the group headings this is meant to match ---
+ *
+ * Judged by exactly the rule above, including the lowercase half of it. An
+ * earlier version skipped small words here instead of asserting them, so
+ * "Security And Attack Surface" passed while the identical mistake in a row
+ * heading failed — the group loop enforced half a rule and looked like it
+ * enforced all of it.
+ */
 foreach ( keel_defaults_group_labels() as $key => $label ) {
 	$words = preg_split( '/\s+/', $label );
 	foreach ( $words as $i => $word ) {
 		$bare  = strtolower( preg_replace( '/[^A-Za-z-]/', '', $word ) );
 		$first = preg_replace( '/[^A-Za-z-]/', '', $word );
-		if ( '' === $first || ( 0 !== $i && in_array( $bare, $lowercase_ok, true ) ) ) {
+
+		if ( '' === $first ) {
 			continue;
 		}
+
+		if ( 0 !== $i && in_array( $bare, $lowercase_ok, true ) ) {
+			keel_assert(
+				$first === $bare,
+				"Group heading '{$label}': '{$word}' is an article or coordinating conjunction inside a title and should stay lowercase."
+			);
+			continue;
+		}
+
 		keel_assert(
 			preg_match( '/^[A-Z]/', $first ),
 			"Group heading '{$label}' is not Title Case: '{$word}' should be capitalized."

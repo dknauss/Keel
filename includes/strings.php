@@ -113,7 +113,7 @@ function keel_defaults_strings() {
 			'help'      => __( 'Closes comments everywhere, hides existing threads, defaults new content to closed, and reports a count of zero. Removes the admin menu, admin-bar node, Recent Comments dashboard widget, comment feeds, and the comment blocks — both from the inserter and from what a block theme renders. Nothing is deleted: turn this off and every comment comes back.', 'keel' ),
 		),
 		'disable_pingbacks'               => array(
-			'label'     => __( 'Pingbacks on New Posts', 'keel' ),
+			'label'     => __( 'Pingbacks On New Posts', 'keel' ),
 			'statement' => __( 'Close pingbacks and trackbacks on new posts by default', 'keel' ),
 			'help'      => __( 'Sets the "allow pingbacks" default to off for newly created content.', 'keel' ),
 		),
