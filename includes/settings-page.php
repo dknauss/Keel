@@ -82,7 +82,8 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Overview', 'keel' ),
 			'content' =>
 				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default: flip only what you want, and the rest of WordPress is untouched.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'One on-by-default setting is worth knowing about, because it is the only one that can break a working site: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If this site is meant to be embedded elsewhere — a client intranet, a partner site, a proofing tool — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'A setting that cannot take effect given another choice is hidden automatically: the XML-RPC method controls disappear when the whole endpoint is blocked, and Remember Me length hides when Remember Me is disabled.', 'keel' ) . '</p>',
 		)
 	);
@@ -465,7 +466,22 @@ function keel_defaults_render_settings_page() {
 							}
 							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
-							keel_defaults_render_checkbox( $name, $value, $statement, false, $describedby );
+							// Same lock handling as the single-field branch below. No
+							// sectioned setting is lockable today, but the invariant this
+							// screen documents — never offer a switch that cannot take
+							// effect — has to hold wherever a control is drawn, not only
+							// in the branch that happens to draw the locked ones now.
+							if ( $locked && 'yes' === $value ) {
+								printf( '<input type="hidden" name="%s" value="yes" />', esc_attr( $name ) );
+							}
+							keel_defaults_render_checkbox( $name, $value, $statement, $locked, $describedby );
+							if ( $locked ) {
+								printf(
+									'<p class="description keel-config-lock" id="%s">%s</p>',
+									esc_attr( $lock_id ),
+									wp_kses( $lock, array( 'code' => array() ) )
+								);
+							}
 							keel_defaults_render_warning( keel_defaults_jetpack_warning( $key ) );
 							keel_defaults_render_help( $help, $help_id );
 							echo '</div>';
