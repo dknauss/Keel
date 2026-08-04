@@ -8,6 +8,45 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Stretch the admin Heartbeat interval.
+ *
+ * Filterable and clamped to the range core itself accepts: `heartbeat_settings`
+ * values outside 15-120 seconds are ignored by core's own JS for the standard
+ * admin, so a filter returning 600 would look like it worked and change nothing.
+ *
+ * @param array $settings Heartbeat settings.
+ * @return array
+ */
+function keel_defaults_heartbeat_interval( $settings ) {
+	$interval = (int) apply_filters( 'keel_heartbeat_interval', 60 );
+
+	$settings['interval'] = max( 15, min( 120, $interval ) );
+
+	return $settings;
+}
+
+/**
+ * Drop Heartbeat on the dashboard home, where nothing depends on it.
+ *
+ * The post editor keeps its Heartbeat: that is where post locking and autosave
+ * signalling live, and dropping it there would trade a little admin-ajax traffic
+ * for two editors overwriting each other.
+ *
+ * @param string $hook_suffix Current admin screen.
+ */
+function keel_defaults_drop_dashboard_heartbeat( $hook_suffix ) {
+	if ( 'index.php' !== $hook_suffix ) {
+		return;
+	}
+
+	if ( true !== apply_filters( 'keel_heartbeat_drop_on_dashboard', true ) ) {
+		return;
+	}
+
+	wp_deregister_script( 'heartbeat' );
+}
+
+/**
  * Force the classic editing experience.
  *
  * Registers the filters WordPress consults when choosing an editor. They fire

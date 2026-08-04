@@ -369,6 +369,15 @@ function keel_defaults_bootstrap() {
 				}
 			}
 		);
+
+		/*
+		 * Feeds publish author names too, and the redirect above never touches
+		 * them. <dc:creator> in RSS and <author><name> in Atom carry the display
+		 * name of every post's author, so a site that closed its author archives
+		 * to stop enumeration was still handing the same list to anyone who
+		 * fetched /feed/. The redirect closed the front door.
+		 */
+		add_filter( 'the_author', 'keel_defaults_mask_feed_author' );
 	}
 
 	if ( keel_defaults_enabled( 'redirect_attachment_pages' ) ) {
@@ -586,23 +595,15 @@ function keel_defaults_bootstrap() {
 	/* ----- Performance ----- */
 
 	if ( keel_defaults_enabled( 'throttle_heartbeat' ) ) {
-		add_filter(
-			'heartbeat_settings',
-			function ( $settings ) {
-				$settings['interval'] = 60;
-				return $settings;
-			}
-		);
-		add_action(
-			'init',
-			function () {
-				if ( is_admin() ) {
-					global $pagenow;
-					if ( 'index.php' === $pagenow ) {
-						wp_deregister_script( 'heartbeat' );
-					}
-				}
-			}
-		);
+		add_filter( 'heartbeat_settings', 'keel_defaults_heartbeat_interval' );
+
+		/*
+		 * admin_enqueue_scripts, not init. Deregistering at init forces WP_Scripts
+		 * to instantiate early — wp_deregister_script() calls wp_scripts(), which
+		 * fires wp_default_scripts and registers the whole core script list — on
+		 * every dashboard request, well before anything needs it. By
+		 * admin_enqueue_scripts the registry exists anyway and the removal is free.
+		 */
+		add_action( 'admin_enqueue_scripts', 'keel_defaults_drop_dashboard_heartbeat' );
 	}
 }
