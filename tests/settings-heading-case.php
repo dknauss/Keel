@@ -117,26 +117,33 @@ $headings = array_values( array_unique( array_map( 'trim', $m[1] ) ) );
 keel_assert( count( $headings ) > 20, 'The render produced a plausible number of row headings (' . count( $headings ) . ').' );
 
 /*
- * Words that stay lowercase inside a title: articles and coordinating
- * conjunctions only. Anything leading is capitalized regardless, which is why
- * position is checked as well as membership.
+ * Two conventions, not one applied inconsistently.
  *
- * Prepositions capitalize — "Pingbacks On New Posts", "Accounts Per Step". That
- * is the sibling plugins' rule, adopted here after this file shipped a longer
- * list that also lowercased short prepositions.
+ * A function word standing on its own in a title and the same word buried inside
+ * a hyphenated compound are governed by different rules, and trying to express
+ * both with one list cannot work.
  *
- * The two rules were not merely different, they were mutually exclusive: a
- * heading containing a preposition could not satisfy both, so no such string
- * could be copied between the three repositories. A sweep meant to end drift had
- * created a new kind of it.
+ * $lowercase_ok — articles and coordinating conjunctions. Lowercase as a
+ * standalone word unless it leads. Prepositions are NOT here: they capitalize
+ * standing alone, which is the sibling plugins' rule and the one all three
+ * adopted, because it follows copy people had already written by hand —
+ * "Accounts Per Step" predates every guard.
  *
- * This list wins because the other one was arbitrary. It held 'per' and 'vs' but
- * stopped somewhere, with nothing deciding where — a half-list is worse than
- * either whole rule, because nothing tells you which half a new word belongs to.
- * The articles-and-conjunctions rule was derived from copy people had already
- * written by hand rather than imposed on it.
+ * $interior_ok — the same words PLUS prepositions. Lowercase only when interior
+ * to a compound. First and last segments always capitalize.
+ *
+ * That second list is what makes "Out-of-the-Box Defaults" and "Accounts Per
+ * Step" both correct at once. No single list can: 'of' has to be down inside the
+ * compound and 'Per' has to be up on its own.
+ *
+ * This file previously exempted only $lowercase_ok inside compounds, which got
+ * four of sixteen cases wrong — it rejected "State-of-the-Art Tooling" and
+ * accepted "Out-Of-The-Box Defaults". The fixtures below did not cover a
+ * mid-compound function word at all, which is exactly why all three plugins'
+ * self-tests missed it.
  */
 $lowercase_ok = array( 'a', 'an', 'the', 'and', 'or', 'nor', 'but' );
+$interior_ok  = array_merge( $lowercase_ok, array( 'of', 'in', 'on', 'to', 'at', 'by', 'for', 'with', 'from', 'per', 'via', 'as' ) );
 
 /**
  * Everything wrong with one heading's capitalization, as a list of problems.
@@ -152,10 +159,11 @@ $lowercase_ok = array( 'a', 'an', 'the', 'and', 'or', 'nor', 'but' );
  * string is REJECTED. An assertion helper cannot express that.
  *
  * @param string   $heading      Heading text.
- * @param string[] $lowercase_ok Articles and coordinating conjunctions.
+ * @param string[] $lowercase_ok Words that stay lowercase standing alone.
+ * @param string[] $interior_ok  Words that stay lowercase inside a compound.
  * @return string[] Problems found; empty means the heading is well-formed.
  */
-function keel_heading_case_errors( $heading, $lowercase_ok ) {
+function keel_heading_case_errors( $heading, $lowercase_ok, $interior_ok ) {
 	$errors = array();
 
 	foreach ( preg_split( '/\s+/', trim( (string) $heading ) ) as $i => $word ) {
@@ -182,17 +190,35 @@ function keel_heading_case_errors( $heading, $lowercase_ok ) {
 			$errors[] = "'{$word}' should be capitalized.";
 		}
 
-		// Both halves of a hyphenated compound — "Front-End Admin Bar", not
-		// "Front-end". A half that is itself an article or conjunction stays
-		// lowercase, so "Cut-and-Dried Policy" is correct English and passes.
-		if ( false !== strpos( $first, '-' ) ) {
-			foreach ( explode( '-', $first ) as $part ) {
-				if ( '' === $part || in_array( strtolower( $part ), $lowercase_ok, true ) ) {
-					continue;
+		if ( false === strpos( $first, '-' ) ) {
+			continue;
+		}
+
+		/*
+		 * A hyphenated compound: first and last segments capitalize, and an
+		 * interior function word stays down — "Out-of-the-Box", "State-of-the-Art",
+		 * "Cut-and-Dried". Position is what decides, which is why this cannot be
+		 * folded into the standalone check above.
+		 */
+		$parts = explode( '-', $first );
+		$last  = count( $parts ) - 1;
+
+		foreach ( $parts as $k => $part ) {
+			if ( '' === $part ) {
+				continue;
+			}
+
+			$interior = ( 0 !== $k && $last !== $k );
+
+			if ( $interior && in_array( strtolower( $part ), $interior_ok, true ) ) {
+				if ( strtolower( $part ) !== $part ) {
+					$errors[] = "'{$part}' inside '{$word}' is a function word and should stay lowercase.";
 				}
-				if ( ! preg_match( '/^[A-Z]/', $part ) ) {
-					$errors[] = "both halves of '{$word}' should be capitalized.";
-				}
+				continue;
+			}
+
+			if ( ! preg_match( '/^[A-Z]/', $part ) ) {
+				$errors[] = "'{$part}' in '{$word}' should be capitalized.";
 			}
 		}
 	}
@@ -217,23 +243,30 @@ function keel_heading_case_errors( $heading, $lowercase_ok ) {
  * moved between repositories.
  */
 $heading_case_accepts = array(
-	'Pingbacks On New Posts' => 'a preposition capitalizes',
-	'Accounts Per Step'      => 'so does "Per"',
-	'Front-End Admin Bar'    => 'both halves of a hyphenated compound',
-	'Comments and Pings'     => 'a coordinating conjunction stays lowercase',
-	'REST API'               => 'an all-caps acronym',
-	'XML-RPC'                => 'a hyphenated all-caps acronym',
+	'Pingbacks On New Posts'   => 'a preposition capitalizes',
+	'Accounts Per Step'        => 'so does "Per"',
+	'Front-End Admin Bar'      => 'both halves of a hyphenated compound',
+	'Comments and Pings'       => 'a coordinating conjunction stays lowercase',
+	'REST API'                 => 'an all-caps acronym',
+	'XML-RPC'                  => 'a hyphenated all-caps acronym',
+	'Cut-and-Dried Policy'     => 'an interior conjunction in a compound stays down',
+	'State-of-the-Art Tooling' => 'so do interior prepositions',
+	'Out-of-the-Box Defaults'  => 'more than one of them',
+	'Opt-In Defaults'          => 'a function word at a compound EDGE still capitalizes — position decides, not membership',
 );
 
 $heading_case_rejects = array(
-	'Pingbacks on New Posts' => 'a lowercased preposition — the case that inverted when the rule changed',
-	'Front-end Admin Bar'    => 'the second half of a hyphenated compound',
-	'Comments And Pings'     => 'a capitalized conjunction',
-	'pingbacks on new posts' => 'no capitals at all',
+	'Pingbacks on New Posts'  => 'a lowercased preposition — the case that inverted when the rule changed',
+	'Front-end Admin Bar'     => 'the second half of a hyphenated compound',
+	'Comments And Pings'      => 'a capitalized conjunction',
+	'pingbacks on new posts'  => 'no capitals at all',
+	'Cut-And-Dried Policy'    => 'an interior conjunction wrongly capitalized',
+	'Out-Of-The-Box Defaults' => 'interior prepositions wrongly capitalized',
+	'Opt-in Defaults'         => 'the last segment of a compound is not interior, so it must capitalize',
 );
 
 foreach ( $heading_case_accepts as $case => $why ) {
-	$problems = keel_heading_case_errors( $case, $lowercase_ok );
+	$problems = keel_heading_case_errors( $case, $lowercase_ok, $interior_ok );
 	keel_assert(
 		array() === $problems,
 		"Self-test: '{$case}' should be accepted ({$why}), but the checker reported: " . implode( ' ', $problems )
@@ -242,20 +275,20 @@ foreach ( $heading_case_accepts as $case => $why ) {
 
 foreach ( $heading_case_rejects as $case => $why ) {
 	keel_assert(
-		array() !== keel_heading_case_errors( $case, $lowercase_ok ),
+		array() !== keel_heading_case_errors( $case, $lowercase_ok, $interior_ok ),
 		"Self-test: '{$case}' should be rejected ({$why}), but the checker accepted it."
 	);
 }
 
 // --- the headings this plugin actually ships ---
 foreach ( $headings as $heading ) {
-	foreach ( keel_heading_case_errors( $heading, $lowercase_ok ) as $problem ) {
+	foreach ( keel_heading_case_errors( $heading, $lowercase_ok, $interior_ok ) as $problem ) {
 		keel_assert( false, "Row heading '{$heading}': {$problem}" );
 	}
 }
 
 foreach ( keel_defaults_group_labels() as $key => $label ) {
-	foreach ( keel_heading_case_errors( $label, $lowercase_ok ) as $problem ) {
+	foreach ( keel_heading_case_errors( $label, $lowercase_ok, $interior_ok ) as $problem ) {
 		keel_assert( false, "Group heading '{$label}': {$problem}" );
 	}
 }
