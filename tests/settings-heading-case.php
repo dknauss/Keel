@@ -138,81 +138,125 @@ keel_assert( count( $headings ) > 20, 'The render produced a plausible number of
  */
 $lowercase_ok = array( 'a', 'an', 'the', 'and', 'or', 'nor', 'but' );
 
-foreach ( $headings as $heading ) {
-	$words = preg_split( '/\s+/', $heading );
-
-	foreach ( $words as $i => $word ) {
-		// Compare on the first alphabetic character, so a hyphenated compound is
-		// judged on "Self" and its second half is handled below.
-		if ( ! preg_match( '/[A-Za-z]/', $word ) ) {
-			continue;
-		}
-
-		$bare  = strtolower( preg_replace( '/[^A-Za-z-]/', '', $word ) );
-		$first = preg_replace( '/[^A-Za-z-]/', '', $word );
-
-		if ( 0 !== $i && in_array( $bare, $lowercase_ok, true ) ) {
-			keel_assert(
-				$first === $bare,
-				"Row heading '{$heading}': '{$word}' is an article or coordinating conjunction inside a title and should stay lowercase."
-			);
-			continue;
-		}
-
-		// Every other word starts with a capital. An all-caps acronym (REST,
-		// HTML, AI, API) satisfies this too.
-		keel_assert(
-			preg_match( '/^[A-Z]/', $first ),
-			"Row heading '{$heading}' is not Title Case: '{$word}' should be capitalized."
-		);
-
-		// Both halves of a hyphenated compound, to match the group headings —
-		// "Admin and Front-End UX", not "Front-end".
-		if ( false !== strpos( $first, '-' ) ) {
-			foreach ( explode( '-', $first ) as $part ) {
-				if ( '' === $part || in_array( strtolower( $part ), $lowercase_ok, true ) ) {
-					continue;
-				}
-				keel_assert(
-					preg_match( '/^[A-Z]/', $part ),
-					"Row heading '{$heading}': both halves of '{$word}' should be capitalized."
-				);
-			}
-		}
-	}
-}
-
-/*
- * --- the group headings this is meant to match ---
+/**
+ * Everything wrong with one heading's capitalization, as a list of problems.
  *
- * Judged by exactly the rule above, including the lowercase half of it. An
- * earlier version skipped small words here instead of asserting them, so
- * "Security And Attack Surface" passed while the identical mistake in a row
- * heading failed — the group loop enforced half a rule and looked like it
- * enforced all of it.
+ * The rule lives here once, and the row headings, the group headings and the
+ * self-test below all ask this same function. That matters more than the tidiness
+ * of it: the row and group loops used to carry their own copies, and the copies
+ * had already drifted — the group loop never checked hyphenated compounds at all,
+ * so "Front-end UX" as a group label would have passed while the identical string
+ * one row down failed.
+ *
+ * Returns problems rather than asserting them, so a test can require that a
+ * string is REJECTED. An assertion helper cannot express that.
+ *
+ * @param string   $heading      Heading text.
+ * @param string[] $lowercase_ok Articles and coordinating conjunctions.
+ * @return string[] Problems found; empty means the heading is well-formed.
  */
-foreach ( keel_defaults_group_labels() as $key => $label ) {
-	$words = preg_split( '/\s+/', $label );
-	foreach ( $words as $i => $word ) {
-		$bare  = strtolower( preg_replace( '/[^A-Za-z-]/', '', $word ) );
+function keel_heading_case_errors( $heading, $lowercase_ok ) {
+	$errors = array();
+
+	foreach ( preg_split( '/\s+/', trim( (string) $heading ) ) as $i => $word ) {
+		// Judge on the letters, so trailing punctuation and stray markup do not
+		// decide the verdict.
 		$first = preg_replace( '/[^A-Za-z-]/', '', $word );
 
 		if ( '' === $first ) {
 			continue;
 		}
 
+		$bare = strtolower( $first );
+
 		if ( 0 !== $i && in_array( $bare, $lowercase_ok, true ) ) {
-			keel_assert(
-				$first === $bare,
-				"Group heading '{$label}': '{$word}' is an article or coordinating conjunction inside a title and should stay lowercase."
-			);
+			if ( $first !== $bare ) {
+				$errors[] = "'{$word}' is an article or coordinating conjunction inside a title and should stay lowercase.";
+			}
 			continue;
 		}
 
-		keel_assert(
-			preg_match( '/^[A-Z]/', $first ),
-			"Group heading '{$label}' is not Title Case: '{$word}' should be capitalized."
-		);
+		// Every other word starts with a capital. An all-caps acronym (REST,
+		// HTML, AI, API) satisfies this too.
+		if ( ! preg_match( '/^[A-Z]/', $first ) ) {
+			$errors[] = "'{$word}' should be capitalized.";
+		}
+
+		// Both halves of a hyphenated compound — "Front-End Admin Bar", not
+		// "Front-end". A half that is itself an article or conjunction stays
+		// lowercase, so "Cut-and-Dried Policy" is correct English and passes.
+		if ( false !== strpos( $first, '-' ) ) {
+			foreach ( explode( '-', $first ) as $part ) {
+				if ( '' === $part || in_array( strtolower( $part ), $lowercase_ok, true ) ) {
+					continue;
+				}
+				if ( ! preg_match( '/^[A-Z]/', $part ) ) {
+					$errors[] = "both halves of '{$word}' should be capitalized.";
+				}
+			}
+		}
+	}
+
+	return $errors;
+}
+
+/*
+ * --- the self-test ---
+ *
+ * Every heading this plugin ships is currently correct, which is exactly why the
+ * loops below cannot vouch for the checker. They pass whether the rule is
+ * enforced or quietly broken, and a refactor that neuters it would leave this
+ * suite green and silent — indistinguishable from a guard doing its job.
+ *
+ * So the checker is made to classify strings whose verdict is known, in both
+ * directions. A rule added to keel_heading_case_errors() later needs a case in
+ * both lists here, or this self-test silently under-covers it.
+ *
+ * The same fixtures are used by the sibling plugins, so a disagreement between
+ * the three rules shows up as a failing case rather than as copy that cannot be
+ * moved between repositories.
+ */
+$heading_case_accepts = array(
+	'Pingbacks On New Posts' => 'a preposition capitalizes',
+	'Accounts Per Step'      => 'so does "Per"',
+	'Front-End Admin Bar'    => 'both halves of a hyphenated compound',
+	'Comments and Pings'     => 'a coordinating conjunction stays lowercase',
+	'REST API'               => 'an all-caps acronym',
+	'XML-RPC'                => 'a hyphenated all-caps acronym',
+);
+
+$heading_case_rejects = array(
+	'Pingbacks on New Posts' => 'a lowercased preposition — the case that inverted when the rule changed',
+	'Front-end Admin Bar'    => 'the second half of a hyphenated compound',
+	'Comments And Pings'     => 'a capitalized conjunction',
+	'pingbacks on new posts' => 'no capitals at all',
+);
+
+foreach ( $heading_case_accepts as $case => $why ) {
+	$problems = keel_heading_case_errors( $case, $lowercase_ok );
+	keel_assert(
+		array() === $problems,
+		"Self-test: '{$case}' should be accepted ({$why}), but the checker reported: " . implode( ' ', $problems )
+	);
+}
+
+foreach ( $heading_case_rejects as $case => $why ) {
+	keel_assert(
+		array() !== keel_heading_case_errors( $case, $lowercase_ok ),
+		"Self-test: '{$case}' should be rejected ({$why}), but the checker accepted it."
+	);
+}
+
+// --- the headings this plugin actually ships ---
+foreach ( $headings as $heading ) {
+	foreach ( keel_heading_case_errors( $heading, $lowercase_ok ) as $problem ) {
+		keel_assert( false, "Row heading '{$heading}': {$problem}" );
+	}
+}
+
+foreach ( keel_defaults_group_labels() as $key => $label ) {
+	foreach ( keel_heading_case_errors( $label, $lowercase_ok ) as $problem ) {
+		keel_assert( false, "Group heading '{$label}': {$problem}" );
 	}
 }
 
