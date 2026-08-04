@@ -488,7 +488,59 @@ function keel_environments() {
 }
 
 /**
- * The current environment, treating .test/.local hosts as local when no
+ * Whether a host name belongs to a local development tool.
+ *
+ * Matched against the host alone, never the whole URL: a site served on an
+ * explicit port has a home_url() ending in ":8080", so a suffix test against
+ * the URL misses every ported local install.
+ *
+ * @param string $host Host name, without port or scheme.
+ * @return bool
+ */
+function keel_defaults_is_local_host( $host ) {
+	$host = strtolower( trim( (string) $host, '[]' ) );
+
+	if ( '' === $host ) {
+		return false;
+	}
+
+	// Loopback, however it was written. wp-env, MAMP, XAMPP, `wp server`.
+	if ( in_array( $host, array( 'localhost', '127.0.0.1', '::1' ), true ) ) {
+		return true;
+	}
+
+	/**
+	 * Host suffixes that mark a site as a local development install.
+	 *
+	 * .test and .localhost are reserved for this by RFC 6761; .local is
+	 * mDNS/Bonjour but is what Local by WP Engine ships. The rest are the
+	 * default domains of specific tools.
+	 *
+	 * @param string[] $suffixes Host suffixes, each including the leading dot.
+	 */
+	$suffixes = apply_filters(
+		'keel_local_host_suffixes',
+		array(
+			'.test',       // Valet, Herd, Laragon, VVV.
+			'.local',      // Local by WP Engine.
+			'.localhost',  // RFC 6761.
+			'.ddev.site',  // DDEV.
+			'.lndo.site',  // Lando.
+		)
+	);
+
+	foreach ( (array) $suffixes as $suffix ) {
+		$suffix = strtolower( (string) $suffix );
+		if ( '' !== $suffix && substr( $host, - strlen( $suffix ) ) === $suffix ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * The current environment, treating known local-tool hosts as local when no
  * WP_ENVIRONMENT_TYPE constant is set.
  *
  * @return string
@@ -497,11 +549,9 @@ function keel_current_environment() {
 	$type = wp_get_environment_type();
 
 	if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
-		$home = untrailingslashit( home_url() );
-		foreach ( array( '.test', '.local' ) as $suffix ) {
-			if ( substr( $home, - strlen( $suffix ) ) === $suffix ) {
-				return 'local';
-			}
+		$host = wp_parse_url( home_url(), PHP_URL_HOST );
+		if ( keel_defaults_is_local_host( $host ) ) {
+			return 'local';
 		}
 	}
 

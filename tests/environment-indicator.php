@@ -31,6 +31,7 @@ function is_admin_bar_showing() { return $GLOBALS['keel_bar_show']; }
 function sanitize_html_class( $c ) { return preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $c ); }
 function wp_strip_all_tags( $s ) { return preg_replace( '/<[^>]*>/', '', (string) $s ); }
 function wp_parse_args( $args, $defaults = array() ) { return is_array( $args ) ? array_merge( $defaults, $args ) : $defaults; }
+function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- this stub is what stands in for wp_parse_url().
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
@@ -77,6 +78,39 @@ $GLOBALS['keel_home'] = 'https://mysite.local/';
 keel_assert( 'local' === keel_current_environment(), 'A .local host reads as local.' );
 $GLOBALS['keel_home'] = 'https://mysite.example-real.ca';
 keel_assert( 'production' === keel_current_environment(), 'A normal host uses wp_get_environment_type().' );
+
+// The case the whole-URL suffix test used to miss: an explicit port.
+$GLOBALS['keel_home'] = 'http://mysite.test:8080';
+keel_assert( 'local' === keel_current_environment(), 'A .test host on an explicit port still reads as local.' );
+
+// Loopback, however it is written.
+foreach ( array( 'http://localhost:8881', 'http://localhost', 'http://127.0.0.1:8000', 'http://[::1]:8080' ) as $home ) {
+	$GLOBALS['keel_home'] = $home;
+	keel_assert( 'local' === keel_current_environment(), "Loopback home '{$home}' reads as local." );
+}
+
+// Tool-specific default domains.
+foreach ( array( 'https://myproject.ddev.site', 'http://myapp.lndo.site:8000', 'http://myapp.localhost' ) as $home ) {
+	$GLOBALS['keel_home'] = $home;
+	keel_assert( 'local' === keel_current_environment(), "Local-tool home '{$home}' reads as local." );
+}
+
+// A suffix must match a whole label, not a substring of the host.
+$GLOBALS['keel_home'] = 'https://latest.example.ca';
+keel_assert( 'production' === keel_current_environment(), 'A host merely containing "test" is not local.' );
+$GLOBALS['keel_home'] = 'https://localhost.example.ca';
+keel_assert( 'production' === keel_current_environment(), 'A real host beginning with "localhost" is not local.' );
+
+// Case is not significant in host names.
+$GLOBALS['keel_home'] = 'https://MySite.TEST';
+keel_assert( 'local' === keel_current_environment(), 'Host matching is case-insensitive.' );
+
+// The constant always wins — this is what makes Studio (localhost:PORT with
+// WP_ENVIRONMENT_TYPE set) report through core rather than through this list.
+$GLOBALS['keel_filters']['keel_local_host_suffixes'] = array( '.example-real.ca' );
+$GLOBALS['keel_home']                                = 'https://mysite.example-real.ca';
+keel_assert( 'local' === keel_current_environment(), 'The suffix list is filterable.' );
+unset( $GLOBALS['keel_filters']['keel_local_host_suffixes'] );
 
 // --- toolbar node ---
 $GLOBALS['keel_env'] = 'staging';
