@@ -66,4 +66,21 @@ $GLOBALS['keel_options']['keel_settings'] = array( 'disable_emojis' => 'no' );
 $result                                   = keel_defaults_site_health_posture();
 keel_assert( 'good' === $result['status'], 'An opinionated toggle off stays informational (good).' );
 
+
+// --- Site Health → Info ---
+// The Status test only speaks up when something warrants attention, and a
+// passing test is filed inside a collapsed accordion. The inventory belongs in
+// Info, where it is always visible and copyable into a support thread.
+$info = keel_defaults_debug_information( array() );
+keel_assert( isset( $info['keel'] ), 'Keel adds a section to Site Health → Info.' );
+keel_assert( ! empty( $info['keel']['fields'] ), 'The Info section lists fields.' );
+keel_assert(
+	count( $info['keel']['fields'] ) === count( keel_defaults_schema() ),
+	'Every schema key appears in Info — ' . count( $info['keel']['fields'] ) . ' of ' . count( keel_defaults_schema() ) . '.'
+);
+
+// A non-array from another plugin's filter must pass straight through rather
+// than becoming an array and discarding whatever it was.
+keel_assert( 'not-an-array' === keel_defaults_debug_information( 'not-an-array' ), 'A non-array is returned untouched.' );
+
 fwrite( STDOUT, "site health tests passed.\n" );
