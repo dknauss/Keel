@@ -123,6 +123,42 @@ function keel_defaults_hide_zero_reset_notice() {
 }
 
 /**
+ * Say so, on screen, when outgoing mail is being suppressed.
+ *
+ * The setting is visible on the settings screen, which is most of the job — but
+ * the switch being on and mail actually being off are different facts. The
+ * setting does nothing on production, so "on" does not mean "acting". Somebody
+ * requesting a password reset on staging needs to know why it never arrived,
+ * and they are not going to read the settings screen to find out.
+ *
+ * Not dismissible: on the environments where this fires, mail being off is a
+ * standing condition rather than a one-time message.
+ *
+ * @return void
+ */
+function keel_defaults_render_mail_suppressed_notice() {
+	if ( ! current_user_can( 'manage_options' ) || ! keel_defaults_suppresses_mail() ) {
+		return;
+	}
+
+	?>
+	<div class="notice notice-info">
+		<p>
+			<strong><?php esc_html_e( 'Outgoing email is switched off on this site.', 'keel' ); ?></strong>
+			<?php
+			printf(
+				/* translators: %s: environment name, such as staging or local. */
+				esc_html__( 'This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production.', 'keel' ),
+				'<strong>' . esc_html( keel_defaults_current_environment() ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+			);
+			?>
+		</p>
+		<p><?php esc_html_e( 'Turn off "Non-Production Email" under Settings → Keel to send from here anyway.', 'keel' ); ?></p>
+	</div>
+	<?php
+}
+
+/**
  * Whether outgoing mail should be suppressed on this site.
  *
  * True when the setting is on and this is not the production environment. The

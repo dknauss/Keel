@@ -110,4 +110,24 @@ ob_start();
 keel_defaults_render_mail_config_notice();
 keel_assert( '' === trim( (string) ob_get_clean() ), 'No risky-mail warning while mail is suppressed.' );
 
+// --- and it says so on screen ---------------------------------------------
+// The setting being visible is most of the job, but "switched on" and "acting"
+// are different facts — it does nothing on production. Somebody whose password
+// reset never arrived is not going to read the settings screen to find out why.
+$GLOBALS['keel_env'] = 'staging';
+ob_start();
+keel_defaults_render_mail_suppressed_notice();
+$notice = (string) ob_get_clean();
+
+keel_assert( '' !== $notice, 'Suppression is announced on screen, not left to the settings page.' );
+keel_assert( false !== strpos( $notice, 'switched off' ), 'The notice says mail is off.' );
+keel_assert( false !== strpos( $notice, 'staging' ), 'The notice names the environment responsible.' );
+keel_assert( false !== strpos( $notice, 'password resets' ), 'The notice names the consequence someone will actually hit.' );
+keel_assert( false === strpos( $notice, 'is-dismissible' ), 'Not dismissible: mail being off is a standing condition, not a one-time message.' );
+
+$GLOBALS['keel_env'] = 'production';
+ob_start();
+keel_defaults_render_mail_suppressed_notice();
+keel_assert( '' === trim( (string) ob_get_clean() ), 'Production says nothing, because nothing is suppressed.' );
+
 echo "nonproduction mail: OK\n";
