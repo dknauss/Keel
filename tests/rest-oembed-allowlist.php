@@ -59,7 +59,7 @@ function keel_assert( $cond, $msg ) {
  * @param string|null $route Route, or null for a non-REST request.
  */
 function keel_set_route( $route ) {
-	$GLOBALS['wp'] = new stdClass();
+	$GLOBALS['wp']             = new stdClass();
 	$GLOBALS['wp']->query_vars = ( null === $route ) ? array() : array( 'rest_route' => $route );
 }
 
@@ -89,7 +89,7 @@ keel_assert( false === keel_defaults_rest_route_is_public(), 'A request with no 
 // --- an existing error is never overridden ---
 keel_set_route( '/oembed/1.0/embed' );
 $existing = new WP_Error( 'something_else' );
-keel_assert( $existing === keel_defaults_require_rest_auth( $existing ), 'A WP_Error from another plugin survives the carve-out.' );
+keel_assert( keel_defaults_require_rest_auth( $existing ) === $existing, 'A WP_Error from another plugin survives the carve-out.' );
 
 // --- the list is filterable, and emptying it restores the strict gate ---
 $GLOBALS['keel_filters']['keel_public_rest_routes'] = array();

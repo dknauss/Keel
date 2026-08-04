@@ -524,7 +524,7 @@ function keel_defaults_validate_rest_password( $prepared_user, $request ) {
 /**
  * REST route prefixes that stay reachable when anonymous REST is blocked.
  *
- * oEmbed is the carve-out worth making. It is served over REST, so closing REST
+ * The oEmbed route is the carve-out worth making. It is served over REST, so closing REST
  * closes it — and the visible consequence lands on *other people's* sites:
  * every post of yours they have embedded degrades to a bare link, silently,
  * with nothing on this site to show it happened.
