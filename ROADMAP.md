@@ -29,12 +29,16 @@ Everything a wordpress.org submission needs, before polish.
       network-wide user table, so on multisite it is effectively network-wide even when
       configured per-site. Documented in v1, not governed. (This applied to the
       reserved-usernames default too, until `500c561` removed it.)
-- [ ] **Reference doc coverage.** `docs/wordpress-default-settings.md` still describes
-      Better by Default's feature set. Add an entry per ported default.
-- [ ] **Schema-key reconcile.** Some reference-doc keys use Better by Default naming that
-      may not match Keel's shipped keys (`disable_rest` vs `require_auth_rest`,
-      `disable_application_passwords` vs `prohibit_app_passwords`). Align the doc to the
-      schema, which is the source of truth.
+- [x] **Reference doc coverage** — done 2026-08-04 (keel#18). All 37 schema keys have an
+      entry. It was 16 missing, not the handful assumed here: thirteen absent outright,
+      three more (`remove_version`, `security_headers`, `frame_options`) described in
+      prose but never keyed, so searching for the key found nothing.
+- [x] **Schema-key reconcile** — done 2026-08-04 (keel#18). Worse than described: the
+      mismatch was not BBD naming but a prefix that has never existed. Every entry listed a
+      standalone `keel_<key>` option, when settings live in the single `keel_settings`
+      array read through `keel_defaults_get()` — which the document's own introduction
+      states three paragraphs above the first contradiction. Two quick-reference rows named
+      keys with no counterpart in any version of the plugin.
 - [ ] **Trim `uninstall.php`** to the option set Keel actually ships.
 
 ## v1.0 — wordpress.org submission
