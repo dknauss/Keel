@@ -24,7 +24,7 @@ When the **Require strong passwords** default is enabled, Keel screens new passw
 
 == Recommended wp-config.php hardening ==
 
-A few defenses live best in `wp-config.php`, outside any plugin: they apply before plugins load and cannot be switched off from the dashboard. These are optional and independent of Keel — add the ones that fit your site.
+A few defences live best in `wp-config.php`, outside any plugin: they apply before plugins load and cannot be switched off from the dashboard. These are optional and independent of Keel — add the ones that fit your site.
 
 `define( 'DISALLOW_FILE_EDIT', true );` — removes the built-in plugin and theme code editors, so a compromised admin account cannot edit PHP from the dashboard.
 

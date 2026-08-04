@@ -103,4 +103,12 @@ $GLOBALS['keel_filters']['keel_password_is_pwned'] = true;
 keel_assert( true === keel_password_is_pwned( 'anything' ), 'The verdict filter still applies when the lookup is disabled, so a local blocklist works.' );
 unset( $GLOBALS['keel_filters']['keel_password_is_pwned'] );
 
+// --- Jetpack awareness: warn where it applies, nowhere else ---
+keel_assert( '' === keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ), 'With Jetpack absent, the endpoint block carries no warning.' );
+keel_assert( '' === keel_defaults_jetpack_warning( 'disable_rest' ), 'The warning belongs to one setting, not to every setting.' );
+
+define( 'JETPACK__VERSION', '14.0' );
+keel_assert( '' !== keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ), 'With Jetpack active, the endpoint block warns.' );
+keel_assert( '' === keel_defaults_jetpack_warning( 'disable_rest' ), 'Even then the warning stays on its own setting.' );
+
 echo "hibp: OK\n";

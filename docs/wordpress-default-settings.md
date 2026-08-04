@@ -114,9 +114,9 @@ add_filter( 'wp_headers', function ( $headers ) {
 
 `system.multicall` **can't be removed with the `xmlrpc_methods` filter** — `IXR_Server::setCallbacks()`
 re-adds it after the filter runs — so refuse it with a replacement server. This is modest
-defense-in-depth against batching, not a major password control: since WordPress 4.4, after the
-first failed authentication in one XML-RPC request, later authentication attempts fail without
-testing more credentials. Multicall can still batch other work, including pingback calls, but
+defence-in-depth against batching, not a password control: WordPress 4.4 prevented it from being
+used as a password-guessing multiplier, because after the first failed authentication in one
+XML-RPC request later attempts fail without testing more credentials. Multicall can still batch other work, including pingback calls, but
 pingbacks are also directly callable and do not depend on it. See
 [WordPress Trac #34336](https://core.trac.wordpress.org/ticket/34336).
 

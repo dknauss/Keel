@@ -55,6 +55,38 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 }
 
 /**
+ * Whether Jetpack is active on this site.
+ *
+ * Jetpack reaches WordPress.com over XML-RPC, so blocking the endpoint breaks
+ * the connection and everything downstream of it. Nothing here acts on that by
+ * itself: a toggle that quietly refuses to do what it says is worse than one
+ * that warns and then obeys. This only decides whether the warning is shown.
+ *
+ * @return bool
+ */
+function keel_defaults_jetpack_active() {
+	return defined( 'JETPACK__VERSION' ) || class_exists( 'Automattic\\Jetpack\\Connection\\Manager' );
+}
+
+/**
+ * The Jetpack warning for the XML-RPC endpoint block, when it applies.
+ *
+ * Returned for the settings screen rather than written into the help text: it is
+ * only true on some sites, and a warning that is always on teaches people to
+ * stop reading warnings.
+ *
+ * @param string $key Schema key being rendered.
+ * @return string Text, or '' when the warning does not apply.
+ */
+function keel_defaults_jetpack_warning( $key ) {
+	if ( 'block_xmlrpc_endpoint' !== $key || ! keel_defaults_jetpack_active() ) {
+		return '';
+	}
+
+	return __( 'Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC.', 'keel' );
+}
+
+/**
  * Find a header's actual array key, matching case-insensitively, so a caller can
  * overwrite in place instead of adding a second key that differs only in case.
  *
@@ -289,7 +321,25 @@ function keel_defaults_exemptable_roles() {
  * @return true|WP_Error True when acceptable, WP_Error describing the failure.
  */
 function keel_defaults_validate_password( $password, $user = null ) {
-	// Role-scoped: low-privilege accounts (see keel_weak_roles) are exempt.
+	/*
+	 * Breach screening applies to every account, exempt or not, and runs first.
+	 *
+	 * The exemption exists so a hard length rule does not add signup friction for
+	 * subscribers on a membership or commerce site. That reasoning covers length;
+	 * it does not cover a password already published in a breach corpus. Those are
+	 * the credentials that get stuffed, and a subscriber account is a foothold like
+	 * any other. Skipping the check for exempt roles meant the one rule that costs
+	 * the user nothing was the one they did not get.
+	 */
+	if ( keel_password_is_pwned( $password ) ) {
+		return new WP_Error(
+			'keel_password_pwned',
+			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel' )
+		);
+	}
+
+	// Everything below is role-scoped: low-privilege accounts (see keel_weak_roles)
+	// are exempt from the length, blocklist, and personal-context rules.
 	if ( ! keel_defaults_password_enforced_for_user( $user ) ) {
 		return true;
 	}
@@ -352,13 +402,6 @@ function keel_defaults_validate_password( $password, $user = null ) {
 				);
 			}
 		}
-	}
-
-	if ( keel_password_is_pwned( $password ) ) {
-		return new WP_Error(
-			'keel_password_pwned',
-			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel' )
-		);
 	}
 
 	return true;

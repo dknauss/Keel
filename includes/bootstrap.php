@@ -45,10 +45,20 @@ function keel_defaults_bootstrap() {
 		add_filter(
 			'rest_endpoints',
 			function ( $endpoints ) {
-				if ( ! is_user_logged_in() ) {
-					unset( $endpoints['/wp/v2/users'] );
-					unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+				if ( is_user_logged_in() ) {
+					return $endpoints;
 				}
+
+				/*
+				 * Match the route pattern rather than naming two keys. The keys are
+				 * core's own regexes — '/wp/v2/users/(?P<id>[\d]+)' today — and a
+				 * literal list silently stops protecting anything the day core edits
+				 * one of them. Nothing announces that; the endpoint just answers again.
+				 */
+				foreach ( preg_grep( '#^/wp/v2/users\b#', array_keys( $endpoints ) ) as $route ) {
+					unset( $endpoints[ $route ] );
+				}
+
 				return $endpoints;
 			}
 		);
@@ -152,10 +162,9 @@ function keel_defaults_bootstrap() {
 					/**
 					 * Drop-in that refuses only system.multicall.
 					 *
-					 * WordPress 4.4 stopped testing credentials after the first failed
-					 * authentication in one XML-RPC request. Refusing multicall is now
-					 * modest defense-in-depth against general batching, not a fix for
-					 * the obsolete "thousands of password guesses" claim.
+					 * WordPress 4.4 prevented it from being used as a password-guessing
+					 * multiplier, so refusing it now is modest defence-in-depth against
+					 * general batching, not a password control.
 					 */
 					class Keel_Multicall_Disabled_Server extends wp_xmlrpc_server {
 						/**

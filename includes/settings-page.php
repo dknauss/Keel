@@ -205,6 +205,22 @@ function keel_defaults_dep_state( $field ) {
 }
 
 /**
+ * Render a per-setting warning that only applies on some sites.
+ *
+ * Separate from the help text because it is conditional: help describes what a
+ * setting does everywhere, this describes what it would do here.
+ *
+ * @param string $warning Warning text, or '' for none.
+ */
+function keel_defaults_render_warning( $warning ) {
+	if ( '' === (string) $warning ) {
+		return;
+	}
+
+	echo '<p class="description keel-warning"><strong>' . esc_html( $warning ) . '</strong></p>';
+}
+
+/**
  * Echo a field's description paragraph (allows <code> and links).
  *
  * @param string $help Description text (already translated).
@@ -406,6 +422,7 @@ function keel_defaults_render_settings_page() {
 							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
 							keel_defaults_render_checkbox( $name, $value, $statement, false, $describedby );
+							keel_defaults_render_warning( keel_defaults_jetpack_warning( $key ) );
 							keel_defaults_render_help( $help, $help_id );
 							echo '</div>';
 							continue;
@@ -573,6 +590,7 @@ function keel_defaults_render_settings_page() {
 									<p class="description keel-config-lock" id="<?php echo esc_attr( $lock_id ); ?>"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
 								<?php endif; ?>
 
+								<?php keel_defaults_render_warning( keel_defaults_jetpack_warning( $key ) ); ?>
 								<?php keel_defaults_render_help( $help, $help_id ); ?>
 							</td>
 						</tr>
