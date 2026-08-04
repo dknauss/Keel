@@ -15,9 +15,10 @@ GPL-2.0-or-later.
 
 ---
 
-## v0.2 — feature-complete for review
+## v0.2 — feature-complete for review — **complete 2026-08-04**
 
-Everything a wordpress.org submission needs, before polish.
+Everything a wordpress.org submission needs, before polish. Every item below is
+closed; the milestone is done.
 
 - [x] **Multisite-aware seeding** — done 2026-08-04 (keel#29). Network activation seeds
       every existing site, paged at 100; `wp_initialize_site` seeds subsites created
@@ -142,20 +143,24 @@ be re-measurable, not asserted once.
       already has an XML-RPC tab, so the two sides differ: Keel needs the tab, Pixel needs
       the paragraph moved into the one it has.
 
-- [ ] **A policy-collision report in Pixel's Site Health.** Two plugins can set the same
-      policy through the same hook and the loser is silent: Keel and Pixel both register
-      `auth_cookie_expiration` at priority 50, so the last one registered wins outright
-      and neither compares. They agree today, which is exactly when nobody looks.
-      Detect **by hook, not by plugin name** — a rival list only knows yesterday's
-      plugins. Attribute a foreign callback by reflection → file path → `WP_PLUGIN_DIR`.
-      The strongest form, and the one nobody has built: **test the effect, not the
-      registration** — run `apply_filters()` with our callback in place, then again with
-      it briefly removed. If removing ourselves changes nothing while another callback is
-      on the hook, we are being overridden. That needs no knowledge of the other code and
-      catches mu-plugins and themes too. Report, never deactivate: mutual exclusion is
-      hostile and would not help against the third-party plugin nobody has a list for.
-      Design carried over from a prototype that was written and discarded unmerged.
+- [x] **A policy-collision report in Site Health** — done 2026-08-04, in *both*
+      plugins (px#238, keel#26). Detects by hook rather than by plugin name and
+      attributes foreign callbacks by reflection into `WP_PLUGIN_DIR`, so a plugin
+      nobody has heard of is named like a familiar one. Reports only hooks where a
+      callback replaces its input, and never says which plugin to keep — a check
+      answering that would be a plugin arguing for its own retention.
 
+      **The better fix turned out not to be the report.** Better by Default asked
+      whether the setting says anything WordPress does not already do and stopped
+      registering when it did not (WPYEG#41); Keel and Pixel followed (keel#39,
+      px#241). `auth_cookie_expiration` went from three contestants at the same
+      priority to **zero at defaults**, and the check now reports it uncontested
+      because the conflict shrank rather than because it stopped looking.
+
+      Still unbuilt, and still the strongest form: **test the effect, not the
+      registration** — run `apply_filters()` with our callback in place, then again
+      with it removed, and compare. Needs no knowledge of the other code and would
+      catch mu-plugins and themes, which reflection-based attribution skips.
 - [ ] **Decide whether Keel's policy filters compare or assert.** They disagree with each
       other today. `keel_defaults_set_frame_option_header()` reads what another layer
       already sent, ranks it, and refuses to downgrade a stronger value.
@@ -167,12 +172,16 @@ be re-measurable, not asserted once.
       whichever plugin is most aggressive — which is not obviously right either. Worth a
       decision either way, rather than an accident.
 
-- [ ] **Connect the three test suites.** BBD asserts against a phrase Keel was shipping,
-      and only a manual audit found it: the suites do not know about each other, and the
-      matrix that does is a document, not a check. Cheapest useful form is a shared
-      fixture — retired claims, and the conventions each repo already tests
-      independently — read by all three, so retiring a phrase once retires it everywhere.
-      Keel and BBD each have a guard now; Pixel has none.
+- [~] **Connect the three test suites.** Partly done 2026-08-04. Keel and BBD each
+      guard retired claims independently, and `tests/integration/assert-privacy.sh`
+      now runs the *same behavioural probes* against any of the three by slug, which
+      is the cross-repo check that was missing — an author-identity leak lived in two
+      plugins while the fix sat in the third. Pixel's probe config stays outside this
+      repo (`PROBE_CONFIG_DIR`), since it is private and Keel is public.
+
+      What remains is the shared *fixture*: retired phrases and copy conventions are
+      still duplicated per repo, so retiring a phrase once does not retire it
+      everywhere. Pixel still has no copy guard at all.
 
 ## v2 — deferred by decision
 

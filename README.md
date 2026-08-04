@@ -7,11 +7,32 @@ onto any WordPress install — each one a switch under **Settings → Keel**. No
 hidden and nothing is all-or-nothing: you can see exactly what the plugin does to your
 site, in one place, and turn any piece off.
 
-> **Status: early development (`0.1.0-dev`).** The base is imported and the identity is
-> in place; help-text de-branding, the ported hardening/admin defaults, a rebuilt Site
-> Health surface, and multisite-aware seeding are in progress. See
-> [ROADMAP.md](ROADMAP.md) for the milestones and [TODO.md](TODO.md) for what's in
-> flight.
+> **Status: pre-release (`0.1.0-dev`).** Feature-complete for review as of
+> 2026-08-04 — 37 defaults, the Site Health surface, and multisite-aware seeding are
+> all in. What is left before a wordpress.org submission is packaging and
+> verification, not features. See [ROADMAP.md](ROADMAP.md) for the milestones and
+> [TODO.md](TODO.md) for what's in flight.
+
+## What makes it different
+
+Most "disable it" plugins close the front door and leave a side one open. Measured
+against nine of the most-installed ones on wordpress.org — every cell a live HTTP or
+PHP probe, not a readme claim — Keel is the only plugin in the field where *comments
+are off* is true below the presentation layer:
+
+| `get_comments()` with comments disabled | Disable Comments | …RB | Simply DC | ASE | **Keel** |
+| --- | --- | --- | --- | --- | --- |
+| approved comments returned | 1 | 1 | 1 | 1 | **0** |
+
+The same pattern runs through the rest: closing the REST API also means removing the
+discovery link that advertises it, and disabling comments also means the comment feed
+stops answering. The full comparison, and the cases where Keel makes a deliberate
+trade instead, is in
+[docs/competitive-teardown-matrix.md](docs/competitive-teardown-matrix.md).
+
+Keel keeps oEmbed reachable when the REST gate is closed — alone among the four
+plugins measured that close REST outright — so other sites can still embed your posts
+instead of silently degrading them to bare links.
 
 ## How it's built
 
@@ -19,6 +40,19 @@ One array — `keel_defaults_schema()` — is the single source of truth. It dri
 the settings screen and the bootstrap that wires each *enabled* default to its
 WordPress hook. Adding a default is one array entry plus one `if`-block in bootstrap;
 no new settings-page code. A default is an opinionated filter behind a toggle.
+
+Two things it does that a settings screen usually does not:
+
+- **Site Health reports the posture**, read-only — every default and its current
+  state, so the site's actual configuration is legible without clicking through
+  tabs.
+- **It notices when another plugin is setting the same defaults.** Two plugins can
+  both set a session length; WordPress keeps whichever ran last and the loser's
+  settings screen goes on displaying a value the site does not use, with no error
+  anywhere. Keel reports the collision and names what is contesting what — it does
+  not tell you which plugin to keep, because a plugin answering that is arguing for
+  its own retention. Keel also stays off a hook entirely when its setting would only
+  repeat what WordPress already does.
 
 ## Install
 
