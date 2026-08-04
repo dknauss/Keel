@@ -204,6 +204,11 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'email',
 		),
+		'suppress_nonproduction_mail'     => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'email',
+		),
 
 		// --- Admin and front-end UX --------------------------------------
 		'title_only_admin_search'         => array(

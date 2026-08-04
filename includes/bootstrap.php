@@ -548,6 +548,14 @@ function keel_defaults_bootstrap() {
 
 	/* ----- Email ----- */
 
+	/*
+	 * Registered before the notices, because whether mail is suppressed decides
+	 * what those notices should say.
+	 */
+	if ( keel_defaults_suppresses_mail() ) {
+		add_filter( 'pre_wp_mail', 'keel_defaults_suppress_mail', PHP_INT_MAX, 2 );
+	}
+
 	if ( keel_defaults_enabled( 'mail_failure_notice' ) ) {
 		add_action( 'admin_notices', 'keel_defaults_render_mail_config_notice' );
 		add_action( 'admin_notices', 'keel_defaults_render_reset_failure_notice' );

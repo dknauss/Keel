@@ -8,6 +8,7 @@
  */
 
 $GLOBALS['keel_filters'] = array();
+$GLOBALS['keel_options'] = array();
 $GLOBALS['keel_env']     = 'production';
 
 function add_action( ...$args ) {}
@@ -28,9 +29,20 @@ function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $compon
 function is_email( $email ) { return (bool) filter_var( $email, FILTER_VALIDATE_EMAIL ); }
 function current_user_can( $c ) { return true; }
 function wp_get_environment_type() { return $GLOBALS['keel_env']; }
+// The mail notice now asks keel_defaults_current_environment(), which consults
+// the host when WP_ENVIRONMENT_TYPE is undefined — so the harness needs a home
+// URL and a parser for it.
+function home_url() { return isset( $GLOBALS['keel_home'] ) ? $GLOBALS['keel_home'] : 'https://example.ca'; }
+function trailingslashit( $path ) { return rtrim( (string) $path, '/\\' ) . '/'; }
+function wp_normalize_path( $path ) { return str_replace( '\\', '/', (string) $path ); }
 function sanitize_key( $k ) { return strtolower( preg_replace( '/[^a-z0-9_\-]/i', '', (string) $k ) ); }
 function wp_unslash( $v ) { return $v; }
 function absint( $v ) { return abs( (int) $v ); }
+// The notice now consults keel_defaults_suppresses_mail(), which reads the
+// settings array — so this harness needs the option store the others have.
+function get_option( $key, $default = false ) {
+	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
+}
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';

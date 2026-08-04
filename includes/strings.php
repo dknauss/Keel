@@ -162,6 +162,11 @@ function keel_defaults_strings() {
 			'statement' => __( 'Warn when site email looks broken', 'keel' ),
 			'help'      => __( 'Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress\'s misleading "success" notice. On by default.', 'keel' ),
 		),
+		'suppress_nonproduction_mail'     => array(
+			'label'     => __( 'Non-Production Email', 'keel' ),
+			'statement' => __( 'Stop outgoing email unless this is the production site', 'keel' ),
+			'help'      => __( 'A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Filter: <code>keel_suppress_nonproduction_mail</code>.', 'keel' ),
+		),
 		'title_only_admin_search'         => array(
 			'label'     => __( 'Admin Search', 'keel' ),
 			'statement' => __( 'Search titles only in admin list tables', 'keel' ),
