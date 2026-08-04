@@ -56,6 +56,13 @@ function keel_defaults_bootstrap() {
 
 	if ( keel_defaults_enabled( 'disable_rest' ) ) {
 		add_filter( 'rest_authentication_errors', 'keel_defaults_require_rest_auth', PHP_INT_MAX );
+
+		// Stop advertising an endpoint that now answers 401. Core prints the
+		// discovery link three ways: a <link rel> in the head, a Link: header,
+		// and an entry in the RSD document.
+		remove_action( 'wp_head', 'rest_output_link_wp_head', 10 );
+		remove_action( 'template_redirect', 'rest_output_link_header', 11 );
+		remove_action( 'xmlrpc_rsd_apis', 'rest_output_rsd' );
 	}
 
 	/*
@@ -286,9 +293,18 @@ function keel_defaults_bootstrap() {
 			}
 		);
 
-		// Drop the comment feeds from the head and feed-link markup.
+		// Report zero comments. Without this, wp_count_comments() answers zero
+		// while get_comments_number() still answers from the post's cached
+		// comment_count, so a theme prints "1 Comment" above a thread that no
+		// longer exists.
+		add_filter( 'get_comments_number', '__return_zero', 20 );
+
+		// Drop the comment feeds from the head and feed-link markup, then stop
+		// serving the feeds themselves. Removing only the links leaves
+		// /comments/feed/ answering 200 for anyone who guesses the URL.
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
 		add_filter( 'feed_links_extra_show_post_comments_feed', '__return_false' );
+		add_action( 'template_redirect', 'keel_defaults_block_comment_feeds', 9 );
 
 		// Remove the "Recent Comments" dashboard widget.
 		add_action(
@@ -306,6 +322,12 @@ function keel_defaults_bootstrap() {
 		// Take the comment blocks out of the inserter, so the editor stops
 		// offering blocks that can only render nothing.
 		add_filter( 'allowed_block_types_all', 'keel_defaults_remove_comment_blocks', PHP_INT_MAX );
+
+		// The inserter only governs what can be added next. A block theme's
+		// templates already contain the comment blocks, so without this the
+		// front end still prints a "Comments" heading and an empty block shell
+		// on every post.
+		add_filter( 'render_block', 'keel_defaults_suppress_comment_blocks', 10, 2 );
 	}
 
 	if ( keel_defaults_enabled( 'disable_pingbacks' ) ) {

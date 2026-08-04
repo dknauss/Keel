@@ -27,7 +27,7 @@ function keel_defaults_strings() {
 		'disable_rest'                    => array(
 			'label'     => __( 'REST authentication', 'keel' ),
 			'statement' => __( 'Require authentication for all REST requests', 'keel' ),
-			'help'      => __( 'Blocks anonymous REST entirely. The logged-in block editor still works, but public blocks, embeds, search, and integrations may not.', 'keel' ),
+			'help'      => __( 'Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not — and because oEmbed is served over REST, other sites can no longer embed your posts.', 'keel' ),
 		),
 		'xmlrpc_allow_pingbacks'          => array(
 			'label'     => __( 'XML-RPC pingbacks', 'keel' ),
@@ -115,7 +115,7 @@ function keel_defaults_strings() {
 		'disable_comments'                => array(
 			'label'     => __( 'Comments', 'keel' ),
 			'statement' => __( 'Disable comments, trackbacks, and pingbacks', 'keel' ),
-			'help'      => __( 'Closes comments everywhere, hides existing threads, defaults new content to closed, removes the admin menu, admin-bar node, Recent Comments dashboard widget, and comment feeds.', 'keel' ),
+			'help'      => __( 'Closes comments everywhere, hides existing threads, defaults new content to closed, and reports a count of zero. Removes the admin menu, admin-bar node, Recent Comments dashboard widget, comment feeds, and the comment blocks — both from the inserter and from what a block theme renders. Nothing is deleted: turn this off and every comment comes back.', 'keel' ),
 		),
 		'disable_pingbacks'               => array(
 			'label'     => __( 'Pingbacks on new posts', 'keel' ),

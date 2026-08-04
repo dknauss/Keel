@@ -109,6 +109,73 @@ function keel_defaults_comment_blocks() {
 }
 
 /**
+ * Stop the comment blocks rendering on the front end while comments are disabled.
+ *
+ * The inserter filter, keel_defaults_remove_comment_blocks(), only decides what
+ * an editor can add next. A block theme ships the comment blocks inside its
+ * single/post templates already, so on its own that filter leaves every post
+ * printing a "Comments" heading above an empty block wrapper — the site reads as
+ * broken rather than as one that deliberately has no comments.
+ *
+ * Returning an empty string rather than unregistering the block types keeps this
+ * reversible: the blocks stay registered, the template markup is untouched, and
+ * turning the default off brings the whole thing back.
+ *
+ * @param string $block_content Rendered block markup.
+ * @param array  $block         Parsed block, including its blockName.
+ * @return string
+ */
+function keel_defaults_suppress_comment_blocks( $block_content, $block ) {
+	if ( ! isset( $block['blockName'] ) ) {
+		return $block_content;
+	}
+
+	if ( in_array( $block['blockName'], keel_defaults_comment_blocks(), true ) ) {
+		return '';
+	}
+
+	return $block_content;
+}
+
+/**
+ * Answer comment feed requests with a 404 while comments are disabled.
+ *
+ * Removing the <link rel="alternate"> markup only stops the feed being
+ * advertised; /comments/feed/ and <post>/feed/ keep answering 200 for anyone who
+ * types the URL. Because comment queries are already short-circuited the feed
+ * comes back empty, which is arguably worse than either extreme: a live,
+ * crawlable endpoint that exists solely to say nothing.
+ *
+ * set_404() re-runs init_query_flags(), which clears is_feed() as well — so the
+ * template loader stops routing to do_feed() and renders the theme's 404
+ * instead. That ordering is why this runs before the flags are read, and why
+ * is_comment_feed() has to be tested first.
+ *
+ * redirect_canonical() has to go with it. It does not bail on a 404 — it calls
+ * redirect_guess_404_permalink() and, on a query this one has just emptied,
+ * answers /post-name/feed/ with a 301 to /post-name/feed/feed/. Leaving it in
+ * place turns a clean 404 into a redirect to a URL that never existed.
+ *
+ * @return void
+ */
+function keel_defaults_block_comment_feeds() {
+	if ( ! is_comment_feed() ) {
+		return;
+	}
+
+	global $wp_query;
+
+	if ( $wp_query instanceof WP_Query ) {
+		$wp_query->set_404();
+	}
+
+	remove_action( 'template_redirect', 'redirect_canonical' );
+
+	status_header( 404 );
+	nocache_headers();
+}
+
+/**
  * Drop the comment blocks from the editor while comments are disabled.
  *
  * Offering a Comments block on a site with comments off produces a block that
