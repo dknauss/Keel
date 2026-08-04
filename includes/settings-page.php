@@ -357,6 +357,141 @@ function keel_defaults_config_lock( $key ) {
 	return null;
 }
 
+/**
+ * Render a range (slider) field, with its live admin-menu preview.
+ *
+ * Extracted from the settings template, where it was 105 of that function's 338
+ * lines and the sole reason the file reached thirteen levels of indentation. The
+ * other field types run ten to twenty lines each; this one carries a whole
+ * feature — the slider, the preview stylesheet it toggles, and the script that
+ * drives them — and inlining all of it put CSS at a depth where the surrounding
+ * PHP was no longer legible.
+ *
+ * The markup is unchanged apart from leading whitespace: raw HTML inside a
+ * template emits its own indentation literally, so de-indenting the source
+ * de-indents the output. Every tag, attribute and text node is identical — the
+ * affected whitespace sits between tags and inside <style> and <script>, where
+ * it carries no meaning. Verified by diffing the rendered screen before and
+ * after, in two option states, and confirming the only changes were leading
+ * tabs; tests/settings-render.php holds the structural assertions from here on.
+ *
+ * @param string $key         Schema key, used to build element ids.
+ * @param string $name        Input name attribute.
+ * @param mixed  $value       Stored value.
+ * @param array  $field       Schema field.
+ * @param array  $s           Display strings for this field.
+ * @param string $label       Field label.
+ * @param string $describedby Space-separated ids for aria-describedby.
+ * @return void
+ */
+function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby ) {
+	$rvalues = array_map( 'strval', array_values( $field['values'] ) );
+	$rlabels = array_values( isset( $s['labels'] ) ? $s['labels'] : array() );
+	$rcur    = array_search( (string) $value, $rvalues, true );
+	$rcur    = ( false === $rcur ) ? 0 : (int) $rcur;
+	$rpx     = array_map(
+		static function ( $v ) {
+			return ( 'default' === $v ) ? 160 : (int) $v;
+		},
+		$rvalues
+	);
+	$rid     = $key; // raw schema slug; escaped per output context below.
+	?>
+	<fieldset>
+		<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
+			name="<?php echo esc_attr( $name ); ?>"
+			id="<?php echo esc_attr( $rid ); ?>-range"
+			value="<?php echo (int) $rcur; ?>"
+			list="<?php echo esc_attr( $rid ); ?>-stops"
+			aria-label="<?php echo esc_attr( $label ); ?>"
+			aria-describedby="<?php echo esc_attr( trim( $rid . '-output ' . $describedby ) ); ?>" style="vertical-align:middle;max-width:240px;" />
+		<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
+			<?php foreach ( $rlabels as $ri => $rl ) : ?>
+				<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
+			<?php endforeach; ?>
+		</datalist>
+		<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="polite" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
+		<style id="<?php echo esc_attr( $rid ); ?>-preview">
+			@media screen and (min-width: 783px) {
+				body.keel-menu-width-preview #adminmenu,
+				body.keel-menu-width-preview #adminmenuback,
+				body.keel-menu-width-preview #adminmenuwrap,
+				body.keel-menu-width-preview #adminmenu li.menu-top,
+				body.keel-menu-width-preview #adminmenu .wp-submenu {
+					width: var(--keel-menu-preview-width);
+				}
+				body.keel-menu-width-preview #adminmenuback {
+					position: fixed;
+					top: 0;
+					bottom: -120px;
+					background: var(--keel-menu-preview-bg, #1d2327);
+				}
+				body.keel-menu-width-preview #adminmenu li.menu-top > a.menu-top,
+				body.keel-menu-width-preview #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+				body.keel-menu-width-preview #adminmenu li.current a.menu-top {
+					width: auto;
+				}
+				body.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+					left: var(--keel-menu-preview-width);
+				}
+				body.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+					left: auto;
+				}
+				body.keel-menu-width-preview #wpcontent,
+				body.keel-menu-width-preview #wpfooter {
+					margin-left: var(--keel-menu-preview-width);
+				}
+				body.rtl.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+					right: var(--keel-menu-preview-width);
+					left: auto;
+				}
+				body.rtl.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+					right: auto;
+				}
+				body.rtl.keel-menu-width-preview #wpcontent,
+				body.rtl.keel-menu-width-preview #wpfooter {
+					margin-right: var(--keel-menu-preview-width);
+					margin-left: 0;
+				}
+				body.folded.keel-menu-width-preview #wpcontent,
+				body.folded.keel-menu-width-preview #wpfooter {
+					margin-left: 36px;
+				}
+			}
+		</style>
+		<script>
+		( function () {
+			var input  = document.getElementById( '<?php echo esc_js( $rid ); ?>-range' );
+			var output = document.getElementById( '<?php echo esc_js( $rid ); ?>-output' );
+			var labels = <?php echo wp_json_encode( $rlabels, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
+			var widths = <?php echo wp_json_encode( array_values( $rpx ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
+			if ( ! input || ! output || ! document.body ) { return; }
+			function pos() { return parseInt( input.value, 10 ) || 0; }
+			// Cheap: runs live while dragging — only the readout text changes.
+			function updateLabel() { output.textContent = labels[ pos() ] || labels[0]; }
+			// Expensive: reflows the whole admin layout and reads a computed
+			// style, so it runs only when the drag settles (release/keyboard),
+			// not on every 'input' tick — otherwise the slider is janky.
+			function applyPreview() {
+				document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[0] ) + 'px' );
+				var am = document.getElementById( 'adminmenu' );
+				if ( am ) { document.body.style.setProperty( '--keel-menu-preview-bg', window.getComputedStyle( am ).backgroundColor ); }
+				document.body.classList.add( 'keel-menu-width-preview' );
+			}
+			input.addEventListener( 'input', updateLabel );
+			input.addEventListener( 'change', applyPreview );
+			input.addEventListener( 'pointerup', applyPreview );
+			input.addEventListener( 'keyup', function ( event ) {
+				if ( [ 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown' ].indexOf( event.key ) !== -1 ) {
+					applyPreview();
+				}
+			} );
+		} )();
+		</script>
+	</fieldset>
+	<?php
+}
+
 /** Render the settings page. */
 function keel_defaults_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -514,111 +649,7 @@ function keel_defaults_render_settings_page() {
 										<?php endforeach; ?>
 									</select>
 								<?php elseif ( 'range' === $field['type'] ) : ?>
-									<?php
-									$rvalues = array_map( 'strval', array_values( $field['values'] ) );
-									$rlabels = array_values( isset( $s['labels'] ) ? $s['labels'] : array() );
-									$rcur    = array_search( (string) $value, $rvalues, true );
-									$rcur    = ( false === $rcur ) ? 0 : (int) $rcur;
-									$rpx     = array_map(
-										static function ( $v ) {
-											return ( 'default' === $v ) ? 160 : (int) $v;
-										},
-										$rvalues
-									);
-									$rid     = $key; // raw schema slug; escaped per output context below.
-									?>
-									<fieldset>
-										<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
-											name="<?php echo esc_attr( $name ); ?>"
-											id="<?php echo esc_attr( $rid ); ?>-range"
-											value="<?php echo (int) $rcur; ?>"
-											list="<?php echo esc_attr( $rid ); ?>-stops"
-											aria-label="<?php echo esc_attr( $label ); ?>"
-											aria-describedby="<?php echo esc_attr( trim( $rid . '-output ' . $describedby ) ); ?>" style="vertical-align:middle;max-width:240px;" />
-										<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
-											<?php foreach ( $rlabels as $ri => $rl ) : ?>
-												<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
-											<?php endforeach; ?>
-										</datalist>
-										<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="polite" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
-										<style id="<?php echo esc_attr( $rid ); ?>-preview">
-											@media screen and (min-width: 783px) {
-												body.keel-menu-width-preview #adminmenu,
-												body.keel-menu-width-preview #adminmenuback,
-												body.keel-menu-width-preview #adminmenuwrap,
-												body.keel-menu-width-preview #adminmenu li.menu-top,
-												body.keel-menu-width-preview #adminmenu .wp-submenu {
-													width: var(--keel-menu-preview-width);
-												}
-												body.keel-menu-width-preview #adminmenuback {
-													position: fixed;
-													top: 0;
-													bottom: -120px;
-													background: var(--keel-menu-preview-bg, #1d2327);
-												}
-												body.keel-menu-width-preview #adminmenu li.menu-top > a.menu-top,
-												body.keel-menu-width-preview #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
-												body.keel-menu-width-preview #adminmenu li.current a.menu-top {
-													width: auto;
-												}
-												body.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-													left: var(--keel-menu-preview-width);
-												}
-												body.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-													left: auto;
-												}
-												body.keel-menu-width-preview #wpcontent,
-												body.keel-menu-width-preview #wpfooter {
-													margin-left: var(--keel-menu-preview-width);
-												}
-												body.rtl.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-													right: var(--keel-menu-preview-width);
-													left: auto;
-												}
-												body.rtl.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-													right: auto;
-												}
-												body.rtl.keel-menu-width-preview #wpcontent,
-												body.rtl.keel-menu-width-preview #wpfooter {
-													margin-right: var(--keel-menu-preview-width);
-													margin-left: 0;
-												}
-												body.folded.keel-menu-width-preview #wpcontent,
-												body.folded.keel-menu-width-preview #wpfooter {
-													margin-left: 36px;
-												}
-											}
-										</style>
-										<script>
-										( function () {
-											var input  = document.getElementById( '<?php echo esc_js( $rid ); ?>-range' );
-											var output = document.getElementById( '<?php echo esc_js( $rid ); ?>-output' );
-											var labels = <?php echo wp_json_encode( $rlabels, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
-											var widths = <?php echo wp_json_encode( array_values( $rpx ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
-											if ( ! input || ! output || ! document.body ) { return; }
-											function pos() { return parseInt( input.value, 10 ) || 0; }
-											// Cheap: runs live while dragging — only the readout text changes.
-											function updateLabel() { output.textContent = labels[ pos() ] || labels[0]; }
-											// Expensive: reflows the whole admin layout and reads a computed
-											// style, so it runs only when the drag settles (release/keyboard),
-											// not on every 'input' tick — otherwise the slider is janky.
-											function applyPreview() {
-												document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[0] ) + 'px' );
-												var am = document.getElementById( 'adminmenu' );
-												if ( am ) { document.body.style.setProperty( '--keel-menu-preview-bg', window.getComputedStyle( am ).backgroundColor ); }
-												document.body.classList.add( 'keel-menu-width-preview' );
-											}
-											input.addEventListener( 'input', updateLabel );
-											input.addEventListener( 'change', applyPreview );
-											input.addEventListener( 'pointerup', applyPreview );
-											input.addEventListener( 'keyup', function ( event ) {
-												if ( [ 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown' ].indexOf( event.key ) !== -1 ) {
-													applyPreview();
-												}
-											} );
-										} )();
-										</script>
-									</fieldset>
+									<?php keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby ); ?>
 								<?php elseif ( 'number' === $field['type'] ) : ?>
 									<input type="number" min="<?php echo esc_attr( isset( $field['min'] ) ? (int) $field['min'] : 0 ); ?>" step="1"
 										name="<?php echo esc_attr( $name ); ?>"
