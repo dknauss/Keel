@@ -87,6 +87,40 @@ function keel_defaults_add_help_tab() {
 		)
 	);
 
+	$screen->add_help_tab(
+		array(
+			'id'      => 'keel-passwords',
+			'title'   => __( 'Passwords', 'keel' ),
+			'content' =>
+				'<p>' . wp_kses(
+					__( 'Length and breach screening in place of uppercase, number, or symbol rules, following <a href="https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — <code>Password1!</code> — without adding much to guess.', 'keel' ),
+					array(
+						'a'    => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+						'code' => array(),
+					)
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'There is no strength meter. WordPress ships one, but it is JavaScript: it advises the person typing and cannot refuse anything, so a password set over the REST API, WP-CLI, or a form with scripts disabled never meets it. A long invented password that is weak but unbreached can therefore pass.', 'keel' ),
+					array()
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'The breach check sends <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener noreferrer">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. An outage or a malformed response fails open: a breach-data problem never blocks a password change. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter.', 'keel' ),
+					array(
+						'a'    => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+						'code' => array(),
+					)
+				) . '</p>',
+		)
+	);
+
 	$screen->set_help_sidebar(
 		'<p><strong>' . esc_html__( 'Current posture', 'keel' ) . '</strong></p>' .
 		'<p>' . wp_kses(
