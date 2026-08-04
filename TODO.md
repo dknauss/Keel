@@ -12,7 +12,7 @@ into ROADMAP.md or here.
 
 - [ ] **Reference doc coverage** — `docs/wordpress-default-settings.md` documents Better
       by Default's feature set. As PX ports land, add entries for each new default:
-      reserved usernames, `limit_unfiltered_html_to_admins`, `helper_list_columns`,
+      `limit_unfiltered_html_to_admins`, `helper_list_columns`,
       force-classic-editor, environment indicator, post-password disable, mail-failure
       notice, admin-menu-width, lowercase-upload-filenames, media-sizes-panel,
       hide-admin-bar-for-non-admins, title-only-search, hide-welcome-panel.
@@ -26,8 +26,15 @@ into ROADMAP.md or here.
 
 - [x] `limit_unfiltered_html_to_admins` — first port; `user_has_cap` filter, default on,
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
-- [x] reserved usernames — `illegal_user_logins` (block creation, NOT PX's authenticate/
-      login block, which risks locking out existing legit accounts). Test: tests/reserved-usernames.php
+- [~] reserved usernames — ported, then **removed** (`500c561`). The 73-name list is
+      too opinionated for a general-purpose defaults plugin: it includes names an
+      ordinary site legitimately uses (`manager`, `marketing`, `sales`, `office`,
+      `client`), and a plugin that silently refuses to create a user called
+      marketing has decided something on the owner's behalf without saying so.
+      Core's `illegal_user_logins` does it in one call with a list the site chose;
+      readme.txt carries the snippet. Kept in Pixel Managed Platform, where a
+      fleet-wide house policy is the point — and there the login-blocking half is
+      opt-in with the list and the affected accounts shown before you switch it on.
 - [x] force classic editor — new "Editor" group; 4 filters (use_block_editor_for_post
       [+_post_type], gutenberg_can_edit_post, use_widgets_block_editor). Test: tests/force-classic-editor.php
 - [x] admin menu width — PX-style RANGE SLIDER (index-based save, live label); fixed 2 bugs:
