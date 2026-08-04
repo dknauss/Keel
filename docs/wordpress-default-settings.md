@@ -626,6 +626,43 @@ add_action( 'admin_bar_menu', function ( $bar ) {
 }, 7 );
 ```
 
+### Non-Production Email
+- **Key:** `suppress_nonproduction_mail`
+- **Default:** `yes`
+- **Why:** A database copied from production brings real customer addresses with it — and
+  usually whatever mail service production was configured to use. A cron run, a bulk action,
+  or a migration routine then emails real people from a staging site or a laptop.
+
+**"A local site cannot send mail anyway" is not a safeguard.** Measured on a stock local
+install: the only thing preventing delivery was the default `From` address
+`wordpress@localhost` being invalid — an accident of the hostname, and one a production
+`siteurl` removes by definition. With a valid `From`, `wp_mail()` returned `true` having
+handed the message to the local transport. An SMTP plugin, which a production copy also
+carries, skips that question entirely and connects to the real provider.
+
+The environment is read through `keel_defaults_current_environment()` — the same resolver
+behind the admin-bar indicator, host fallback included — so the label and this behaviour
+cannot disagree, and a local install that never set `WP_ENVIRONMENT_TYPE` is still caught.
+
+The short-circuit returns **success**, not failure. Callers branch on that value — "we have
+emailed you a link", an order marked notified — and answering false would exercise the failure
+path on staging while the success path never runs, hiding bugs rather than surfacing them.
+
+```php
+add_filter( 'pre_wp_mail', function ( $pre, $atts ) {
+    if ( 'production' === wp_get_environment_type() ) {
+        return $pre;   // null: carry on and send
+    }
+
+    do_action( 'keel_outgoing_mail_suppressed', $atts );
+
+    return true;       // "sent", without sending
+}, PHP_INT_MAX, 2 );
+```
+
+Override with `keel_suppress_nonproduction_mail`, or the `KEEL_ALLOW_NONPRODUCTION_MAIL`
+constant, for the staging site that genuinely has to send.
+
 ### Mail Failure Notice
 - **Key:** `mail_failure_notice`
 - **Default:** `yes`

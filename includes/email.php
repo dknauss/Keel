@@ -49,7 +49,14 @@ function keel_defaults_mail_is_risky() {
  * Warn admins when a non-local site's default From address looks undeliverable.
  */
 function keel_defaults_render_mail_config_notice() {
-	if ( ! current_user_can( 'manage_options' ) || 'local' === wp_get_environment_type() || ! keel_defaults_mail_is_risky() ) {
+	/*
+	 * Nothing to warn about when nothing is being sent. Uses the same resolver
+	 * as the suppression itself rather than wp_get_environment_type(), which
+	 * has no host fallback and would nag on a local install that never set the
+	 * constant.
+	 */
+	if ( ! current_user_can( 'manage_options' ) || 'production' !== keel_defaults_current_environment()
+		|| keel_defaults_suppresses_mail() || ! keel_defaults_mail_is_risky() ) {
 		return;
 	}
 
@@ -113,4 +120,74 @@ function keel_defaults_hide_zero_reset_notice() {
 		#message.updated { display: none; }
 	</style>
 	<?php
+}
+
+/**
+ * Whether outgoing mail should be suppressed on this site.
+ *
+ * True when the setting is on and this is not the production environment. The
+ * case it exists for is a database restored from production onto staging or a
+ * laptop: it carries real customer addresses *and* whatever mail service
+ * production was using. A cron run, a bulk action, or a migration routine then
+ * emails real people from a copy.
+ *
+ * "A local site cannot send mail anyway" is not a safeguard. Measured on a
+ * stock local install: the only thing preventing delivery was the default From
+ * address `wordpress@localhost` being invalid — an accident of the hostname,
+ * and one a production `siteurl` removes by definition. With a valid From,
+ * `wp_mail()` returned true having handed the message to the local transport.
+ * An SMTP plugin, which a production copy also carries, skips that question
+ * entirely and connects to the real provider.
+ *
+ * Environment is read through `keel_defaults_current_environment()`, the same resolver
+ * behind the admin-bar indicator, so the label and this behaviour cannot
+ * disagree — including its host fallback, which catches a local install that
+ * never set `WP_ENVIRONMENT_TYPE` and therefore reports itself to core as
+ * production.
+ *
+ * @return bool
+ */
+function keel_defaults_suppresses_mail() {
+	$suppress = keel_defaults_enabled( 'suppress_nonproduction_mail' )
+		&& 'production' !== keel_defaults_current_environment();
+
+	if ( defined( 'KEEL_ALLOW_NONPRODUCTION_MAIL' ) && KEEL_ALLOW_NONPRODUCTION_MAIL ) {
+		$suppress = false;
+	}
+
+	/**
+	 * Filter whether outgoing mail is suppressed.
+	 *
+	 * For the staging site that genuinely has to send — a client review round,
+	 * a deliverability test against a seed list.
+	 *
+	 * @param bool $suppress Whether to suppress.
+	 */
+	return (bool) apply_filters( 'keel_suppress_nonproduction_mail', $suppress );
+}
+
+/**
+ * Short-circuit `wp_mail()` without sending.
+ *
+ * Returns true, not false. A non-null return from `pre_wp_mail` is taken as the
+ * result of the send, and callers branch on it — "we have emailed you a link",
+ * an order marked notified, a queue row completed. Answering false would make a
+ * staging site behave differently from production in the direction that hides
+ * bugs: the failure path gets exercised and the success path never does.
+ *
+ * @param null|bool $pre  Short-circuit value.
+ * @param array     $atts Arguments passed to wp_mail().
+ * @return bool
+ */
+function keel_defaults_suppress_mail( $pre, $atts ) {
+	unset( $pre );
+
+	/**
+	 * Fires instead of sending, so a mail catcher can still record the message.
+	 *
+	 * @param array $atts The wp_mail() arguments that were suppressed.
+	 */
+	do_action( 'keel_outgoing_mail_suppressed', $atts );
+
+	return true;
 }
