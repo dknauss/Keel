@@ -522,6 +522,69 @@ function keel_defaults_validate_rest_password( $prepared_user, $request ) {
 }
 
 /**
+ * REST route prefixes that stay reachable when anonymous REST is blocked.
+ *
+ * oEmbed is the carve-out worth making. It is served over REST, so closing REST
+ * closes it — and the visible consequence lands on *other people's* sites:
+ * every post of yours they have embedded degrades to a bare link, silently,
+ * with nothing on this site to show it happened.
+ *
+ * Measuring the field found nobody handling this. Of the four plugins that
+ * close REST outright, none allowlists `oembed/1.0` — see
+ * docs/competitive-teardown-matrix.md, finding 7. The trade was always
+ * defensible; being unable to opt out of it was not.
+ *
+ * The carve-out is only safe because of what sits in front of it. oEmbed
+ * *does* return author_name and author_url by default, and author_url carries
+ * the account nicename — opening this route without that fix would reopen the
+ * username enumeration `restrict_rest_user_discovery` exists to close. With
+ * `disable_author_archives` on, `keel_defaults_strip_oembed_author()` removes
+ * both fields before the response is built, and what is left is the title,
+ * provider and embed markup of a single published post.
+ *
+ * If author archives are *not* hidden, the site has already chosen to publish
+ * author names, and oEmbed says nothing the post's own byline does not.
+ *
+ * @return string[] Route prefixes, each with a leading slash.
+ */
+function keel_defaults_public_rest_routes() {
+	return (array) apply_filters( 'keel_public_rest_routes', array( '/oembed/1.0' ) );
+}
+
+/**
+ * Whether the route being requested is one of the public carve-outs.
+ *
+ * `rest_authentication_errors` fires before dispatch, so the route is not on
+ * the server object yet — but `rest_api_loaded()` has already parsed it into
+ * the query vars by then, which is where this reads it. REQUEST_URI is
+ * deliberately not used: it carries whatever the client sent, traversal
+ * included, and a gate that trusts it can be walked around.
+ *
+ * @return bool
+ */
+function keel_defaults_rest_route_is_public() {
+	$route = isset( $GLOBALS['wp']->query_vars['rest_route'] ) ? (string) $GLOBALS['wp']->query_vars['rest_route'] : '';
+
+	if ( '' === $route ) {
+		return false;
+	}
+
+	$route = '/' . ltrim( $route, '/' );
+
+	foreach ( keel_defaults_public_rest_routes() as $prefix ) {
+		$prefix = '/' . trim( (string) $prefix, '/' );
+
+		// Match on a path boundary, so /oembed/1.0 does not also admit a route
+		// called /oembed/1.0-internal.
+		if ( $route === $prefix || 0 === strpos( $route, $prefix . '/' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Require an authenticated user for every REST request.
  *
  * Registered at PHP_INT_MAX on purpose. Core resolves Application Password auth
@@ -536,6 +599,10 @@ function keel_defaults_validate_rest_password( $prepared_user, $request ) {
  */
 function keel_defaults_require_rest_auth( $result ) {
 	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	if ( keel_defaults_rest_route_is_public() ) {
 		return $result;
 	}
 
