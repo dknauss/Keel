@@ -21,6 +21,10 @@ function keel_defaults_site_health_tests( $tests ) {
 		'label' => __( 'Keel Defaults', 'keel' ),
 		'test'  => 'keel_defaults_site_health_posture',
 	);
+	$tests['direct']['keel_defaults_conflicts'] = array(
+		'label' => __( 'Overlapping defaults plugins', 'keel' ),
+		'test'  => 'keel_defaults_site_health_conflicts',
+	);
 	return $tests;
 }
 
@@ -129,4 +133,184 @@ function keel_defaults_site_health_posture() {
 		),
 		'test'        => 'keel_defaults_posture',
 	);
+}
+
+/**
+ * Report other plugins competing to set the same defaults.
+ *
+ * Two plugins that both set a session length do not error, do not log, and do
+ * not look wrong: WordPress runs both filters and keeps whichever answered
+ * last, so the losing plugin's settings screen goes on displaying a value the
+ * site does not use.
+ *
+ * The result names what is contesting what and deliberately does not say which
+ * plugin to keep. That is a judgement about what the site needs, and a check
+ * answering it would be Keel arguing for its own retention.
+ *
+ * @return array
+ */
+function keel_defaults_site_health_conflicts() {
+	$conflicts = keel_defaults_competing_plugins();
+	$badge     = array(
+		'label' => __( 'Keel', 'keel' ),
+		'color' => 'blue',
+	);
+	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied.', 'keel' ) . '</p>';
+
+	if ( empty( $conflicts ) ) {
+		return array(
+			'label'       => __( 'No other plugin is setting the same defaults', 'keel' ),
+			'status'      => 'good',
+			'badge'       => $badge,
+			'description' => $intro,
+			'test'        => 'keel_defaults_conflicts',
+		);
+	}
+
+	$plugins = array();
+	foreach ( $conflicts as $hook_plugins ) {
+		foreach ( $hook_plugins as $plugin ) {
+			$plugins[ $plugin ] = true;
+		}
+	}
+
+	$description = $intro . '<p><strong>' . sprintf(
+		/* translators: %s: comma-separated plugin directory names. */
+		esc_html__( 'Also setting these defaults: %s', 'keel' ),
+		esc_html( implode( ', ', array_keys( $plugins ) ) )
+	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel' ) . '</p><ul>';
+
+	foreach ( $conflicts as $hook => $hook_plugins ) {
+		$description .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
+			/* translators: %s: comma-separated plugin directory names. */
+			esc_html__( 'contested by %s', 'keel' ),
+			esc_html( implode( ', ', $hook_plugins ) )
+		) . '</li>';
+	}
+
+	$description .= '</ul>';
+
+	return array(
+		'label'       => __( 'More than one plugin is setting the same defaults', 'keel' ),
+		'status'      => 'recommended',
+		'badge'       => $badge,
+		'description' => $description,
+		'test'        => 'keel_defaults_conflicts',
+	);
+}
+
+/**
+ * The hooks Keel sets policy through, and whether sharing one matters.
+ *
+ * `authoritative` — the callback returns a value that replaces its input, so
+ * two callbacks cannot both win and the later registration silently decides.
+ * `additive` — callbacks contribute to a structure, so coexisting is normal.
+ *
+ * This map is the only part of the check needing human judgement, and it stays
+ * short because it covers only the hooks Keel writes policy through.
+ *
+ * @return array<string, string>
+ */
+function keel_defaults_policy_hooks() {
+	return apply_filters(
+		'keel_policy_hooks',
+		array(
+			'auth_cookie_expiration'     => 'authoritative',
+			'login_headerurl'            => 'authoritative',
+			'rest_authentication_errors' => 'authoritative',
+			'wp_headers'                 => 'additive',
+			'user_has_cap'               => 'additive',
+			'rest_endpoints'             => 'additive',
+			'heartbeat_settings'         => 'additive',
+		)
+	);
+}
+
+/**
+ * Resolve a registered callback to the plugin directory it lives in.
+ *
+ * Reflection is what makes this general: it answers "which file is this code
+ * in" for any callable, so a plugin nobody has heard of is attributed exactly
+ * like a known one. No list of rival plugins to maintain — such a list only
+ * ever knows yesterday's plugins.
+ *
+ * @param mixed $callback Registered callback.
+ * @return string Plugin directory name, or '' when it cannot be attributed.
+ */
+function keel_defaults_callback_plugin_dir( $callback ) {
+	$file = '';
+
+	try {
+		if ( $callback instanceof Closure || ( is_string( $callback ) && function_exists( $callback ) ) ) {
+			$reflection = new ReflectionFunction( $callback );
+			$file       = (string) $reflection->getFileName();
+		} elseif ( is_array( $callback ) && isset( $callback[0], $callback[1] ) ) {
+			$class      = is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0];
+			$reflection = new ReflectionMethod( $class, (string) $callback[1] );
+			$file       = (string) $reflection->getFileName();
+		}
+	} catch ( Throwable $e ) {
+		return '';
+	}
+
+	if ( '' === $file || ! defined( 'WP_PLUGIN_DIR' ) ) {
+		return '';
+	}
+
+	$base = trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) );
+	$file = wp_normalize_path( $file );
+
+	if ( 0 !== strpos( $file, $base ) ) {
+		return '';
+	}
+
+	$parts = explode( '/', substr( $file, strlen( $base ) ) );
+
+	return isset( $parts[0] ) ? $parts[0] : '';
+}
+
+/**
+ * Other plugins competing for the policies Keel sets.
+ *
+ * Only `authoritative` hooks are reported. On those, callbacks discard the
+ * value they were handed, so WordPress keeps whichever ran last and the losing
+ * plugin's settings screen goes on displaying a value the site does not use.
+ * Themes, mu-plugins and core resolve to '' and are skipped: this reports
+ * plugins competing to own a setting, which is what an admin can act on.
+ *
+ * @return array<string, string[]> Hook => plugin directory names.
+ */
+function keel_defaults_competing_plugins() {
+	global $wp_filter;
+
+	$self     = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : 'keel';
+	$conflict = array();
+
+	foreach ( keel_defaults_policy_hooks() as $hook => $kind ) {
+		if ( 'authoritative' !== $kind || empty( $wp_filter[ $hook ] ) || ! isset( $wp_filter[ $hook ]->callbacks ) ) {
+			continue;
+		}
+
+		$plugins = array();
+
+		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
+			foreach ( $callbacks as $registered ) {
+				if ( ! isset( $registered['function'] ) ) {
+					continue;
+				}
+
+				$dir = keel_defaults_callback_plugin_dir( $registered['function'] );
+
+				if ( '' !== $dir && $dir !== $self ) {
+					$plugins[ $dir ] = true;
+				}
+			}
+		}
+
+		if ( ! empty( $plugins ) ) {
+			$conflict[ $hook ] = array_keys( $plugins );
+		}
+	}
+
+	return $conflict;
 }
