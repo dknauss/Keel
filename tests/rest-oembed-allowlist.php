@@ -35,13 +35,7 @@ function get_option( $key, $default = false ) {
 function is_user_logged_in() { return (bool) $GLOBALS['keel_loggedin']; }
 function is_wp_error( $thing ) { return $thing instanceof WP_Error; }
 
-/** Minimal WP_Error stand-in. */
-class WP_Error {
-	public $code;
-	public function __construct( $code = '', $message = '', $data = array() ) {
-		$this->code = $code;
-	}
-}
+require __DIR__ . '/stubs/wp-error.php';
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';

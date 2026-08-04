@@ -58,13 +58,29 @@ Everything a wordpress.org submission needs, before polish.
 
 Plugin Review requirements, not niceties.
 
-- [ ] **`readme.txt` to spec** — Stable tag, Tested up to, Contributors, and an explicit
-      external-services disclosure for HIBP (`api.pwnedpasswords.com`, k-anonymity: only
-      a SHA-1 prefix leaves the site, with an opt-out filter). Review blocks without it.
+- [x] **`readme.txt` to spec** — done 2026-08-04 (keel#23). The header fields and the
+      HIBP disclosure were already right; Installation, Frequently Asked Questions and
+      Upgrade Notice were missing. `tests/readme-spec.php` now pins the contract rather
+      than the prose — every field Review parses, the five-tag limit, the 150-character
+      short description, the sections, and each named part of the external-services
+      disclosure. The assertion that matters most is `Stable tag` against the plugin
+      `Version`: they drift silently, the failure lands at release, and it ships the
+      wrong code to every existing install.
 - [ ] **Expand `readme.txt` / `README.md`** once the feature set is frozen.
 - [ ] **Trademark glance on "Keel"** — USPTO and CIPO, Nice classes 9/42 — before the name
-      is in public print. The w.org slug is free and `keel.sh` is unrelated devops
-      tooling, but neither is a clearance.
+      is in public print. Still open, and it needs a professional: the registers are not
+      searchable from here, and this is a legal question in any case.
+
+      What a common-law sweep on 2026-08-04 did turn up, so whoever runs the real search
+      starts from something: **keel.so** (London, founded 2022 — a code-first backend and
+      operations platform, developer-facing and actively marketed), **keel.money**
+      (fintech, virtual IBANs), and **Keel Info Solution** (keelis.com, custom software
+      development). The earlier note here said the w.org slug is free and `keel.sh` is
+      unrelated devops tooling; that understated the field. There are at least three
+      commercial software users of the name, and `keel.so` is the one closest to the
+      goods a filing would cover. Coexistence in a narrow channel is common and this does
+      not make the name unusable — it makes a paid search worth having before the name is
+      in print.
 - [x] **Test spine** — done 2026-08-04 (keel#24), and the item as written was wrong.
       It said the regression suite, metrics guard, doc-coverage and badge sync "still
       reference the pre-rename tree". Nothing did. The sentence was carried over from the
