@@ -190,9 +190,23 @@ Recording these so they stop being re-litigated:
 - **Growing past Better by Default scale.** The budget is roughly 2.5–3.5k LOC against
   the 1,329-LOC base. Pixel Managed Platform is ~24k. The smallness is the point: every
   default is one schema entry plus one bootstrap `if`-block.
-- **Punching holes in security toggles for convenience.** Blocking anonymous REST takes
-  oEmbed down with it. That consequence gets named in the help text; it does not get
-  quietly worked around.
+- **Quiet holes in security toggles.** Rewritten 2026-08-04, after measurement showed the
+  absolute version was not supported by the facts. It read: blocking anonymous REST takes
+  oEmbed down with it, and that does not get worked around. The rule now is narrower and
+  keeps what was actually worth having:
+
+  > A public route may stay reachable past a security gate only if it discloses nothing
+  > the gate was closed to protect. Holes are announced, filterable, and tested — never
+  > quiet.
+
+  What changed the position: blocking oEmbed costs less than assumed and the leak costs
+  more. Self-embeds resolve internally — `wp_oembed_get()` on your own post renders
+  without an HTTP request — so closing the route never touches your own site, only other
+  sites embedding your posts, which degrade to a plain link. But left open it answered
+  anonymous callers with `author_name` and an `author_url` carrying the account nicename,
+  on a site whose `/wp/v2/users` was returning 401 two lines away. The hole was cheap to
+  keep and the disclosure was the whole problem, so `keel#32` keeps the route and the
+  author fields are now stripped whenever the gate is on.
 - **A server-side password entropy meter.** Decided 2026-08-03. The only credible way to
   add one is vendoring `bjeavons/zxcvbn-php` — 5.9 MB, 4.6 MB of it dictionaries —
   into a plugin whose entire `require` block is `php >= 7.4`. Core's zxcvbn is

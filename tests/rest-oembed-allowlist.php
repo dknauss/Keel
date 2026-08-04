@@ -99,4 +99,25 @@ $GLOBALS['keel_loggedin'] = true;
 keel_set_route( '/wp/v2/users' );
 keel_assert( null === keel_defaults_require_rest_auth( null ), 'A logged-in request passes as before.' );
 
+// --- the gate must not disclose what it was closed to protect ---
+// oEmbed staying reachable is only defensible if it stops answering with the
+// author name. Left alone it returns author_name and an author_url carrying the
+// nicename, to the same anonymous caller /wp/v2/users has just refused — which
+// would make the allowlist a hole in restrict_rest_user_discovery.
+keel_assert( function_exists( 'keel_defaults_strip_oembed_author' ), 'The oEmbed author stripper exists.' );
+
+$stripped = keel_defaults_strip_oembed_author(
+	array(
+		'author_name' => 'admin',
+		'author_url'  => 'https://example.com/author/admin/',
+		'title'       => 'Hello world!',
+		'html'        => '<iframe></iframe>',
+	)
+);
+
+keel_assert( ! isset( $stripped['author_name'] ), 'author_name is removed from the oEmbed response.' );
+keel_assert( ! isset( $stripped['author_url'] ), 'author_url is removed — it carries the nicename.' );
+keel_assert( isset( $stripped['title'] ), 'The title survives, so the embed still says what it is.' );
+keel_assert( isset( $stripped['html'] ), 'The embed markup survives, so the embed still works.' );
+
 echo "rest oembed allowlist: OK\n";
