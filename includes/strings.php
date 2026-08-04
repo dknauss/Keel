@@ -61,7 +61,7 @@ function keel_defaults_strings() {
 		),
 		'password_exempt_roles'           => array(
 			'label' => __( 'Password policy exemptions', 'keel' ),
-			'help'  => __( 'Roles that skip the length, common-password and username rules; breach screening still applies to everyone. Only roles with no content or settings capabilities appear — which is why Contributor does not. With several roles, all must be exempt. Filter: <code>keel_weak_roles</code>.', 'keel' ),
+			'help'  => __( 'Roles that skip the length, common-password and username rules; breach screening still applies to everyone. Only roles with no content or settings capabilities appear — which is why Contributor does not. A user is exempt only if every role they hold is listed here. Filter: <code>keel_weak_roles</code>.', 'keel' ),
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'label'     => __( 'Unfiltered HTML', 'keel' ),
