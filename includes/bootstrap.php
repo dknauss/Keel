@@ -45,10 +45,20 @@ function keel_defaults_bootstrap() {
 		add_filter(
 			'rest_endpoints',
 			function ( $endpoints ) {
-				if ( ! is_user_logged_in() ) {
-					unset( $endpoints['/wp/v2/users'] );
-					unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+				if ( is_user_logged_in() ) {
+					return $endpoints;
 				}
+
+				/*
+				 * Match the route pattern rather than naming two keys. The keys are
+				 * core's own regexes — '/wp/v2/users/(?P<id>[\d]+)' today — and a
+				 * literal list silently stops protecting anything the day core edits
+				 * one of them. Nothing announces that; the endpoint just answers again.
+				 */
+				foreach ( preg_grep( '#^/wp/v2/users\b#', array_keys( $endpoints ) ) as $route ) {
+					unset( $endpoints[ $route ] );
+				}
+
 				return $endpoints;
 			}
 		);
@@ -152,10 +162,9 @@ function keel_defaults_bootstrap() {
 					/**
 					 * Drop-in that refuses only system.multicall.
 					 *
-					 * WordPress 4.4 stopped testing credentials after the first failed
-					 * authentication in one XML-RPC request. Refusing multicall is now
-					 * modest defense-in-depth against general batching, not a fix for
-					 * the obsolete "thousands of password guesses" claim.
+					 * WordPress 4.4 prevented it from being used as a password-guessing
+					 * multiplier, so refusing it now is modest defence-in-depth against
+					 * general batching, not a password control.
 					 */
 					class Keel_Multicall_Disabled_Server extends wp_xmlrpc_server {
 						/**
@@ -190,10 +199,6 @@ function keel_defaults_bootstrap() {
 	if ( keel_defaults_enabled( 'limit_unfiltered_html_to_admins' ) ) {
 		// Very late, so it has the final say over other user_has_cap filters.
 		add_filter( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4 );
-	}
-
-	if ( keel_defaults_enabled( 'reserved_usernames' ) ) {
-		add_filter( 'illegal_user_logins', 'keel_defaults_reserved_usernames' );
 	}
 
 	if ( keel_defaults_enabled( 'remove_version' ) ) {
@@ -364,6 +369,15 @@ function keel_defaults_bootstrap() {
 				}
 			}
 		);
+
+		/*
+		 * Feeds publish author names too, and the redirect above never touches
+		 * them. <dc:creator> in RSS and <author><name> in Atom carry the display
+		 * name of every post's author, so a site that closed its author archives
+		 * to stop enumeration was still handing the same list to anyone who
+		 * fetched /feed/. The redirect closed the front door.
+		 */
+		add_filter( 'the_author', 'keel_defaults_mask_feed_author' );
 	}
 
 	if ( keel_defaults_enabled( 'redirect_attachment_pages' ) ) {
@@ -509,37 +523,38 @@ function keel_defaults_bootstrap() {
 				unset( $_POST['rememberme'], $_REQUEST['rememberme'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 			}
 		);
+
+		/*
+		 * Hide the checkbox with CSS, not script. The server-side strip above is
+		 * what disables the feature; this is only about not offering a control the
+		 * site will refuse. An inline <script> fails with JavaScript off and is
+		 * blocked outright by a strict script-src Content-Security-Policy, which
+		 * would leave the checkbox visible and apparently working.
+		 */
 		add_action(
-			'login_footer',
+			'login_head',
 			function () {
-				echo "<script>(function(){var c=document.getElementById('rememberme');if(c&&c.closest('p')){c.closest('p').style.display='none';}})();</script>";
+				echo '<style id="keel-hide-remember-me">.login form .forgetmenot { display: none; }</style>';
 			}
 		);
 	}
 
-	// One filter sets both the remembered and regular session lengths (both in
-	// days). Sanitize guarantees remember >= regular, so ticking Remember Me can
-	// never shorten a login. When Remember Me is disabled every login is regular.
-	add_filter(
-		'auth_cookie_expiration',
-		function ( $expiration, $user_id, $remember ) {
-			$regular_days = (int) keel_defaults_get( 'session_regular_days' );
-			$regular      = $regular_days > 0 ? $regular_days * DAY_IN_SECONDS : $expiration;
-
-			if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
-				return $regular;
-			}
-
-			if ( $remember ) {
-				$remember_days = (int) keel_defaults_get( 'remember_me_days' );
-				return $remember_days > 0 ? $remember_days * DAY_IN_SECONDS : $expiration;
-			}
-
-			return $regular;
-		},
-		10,
-		3
-	);
+	/*
+	 * One filter sets both session lengths, both in days.
+	 *
+	 * Priority 50, not 10. This is a policy clamp, and a clamp has to be the last
+	 * word: at 10 any plugin filtering `auth_cookie_expiration` at a default
+	 * priority lands after it and quietly wins, which is exactly the case a site
+	 * sets a session length to prevent.
+	 *
+	 * The max() at the end is a second belt. Sanitize already keeps a stored
+	 * remembered length at or above the regular one, so ticking Remember Me can
+	 * never shorten a login — but sanitize only runs when the form is saved. An
+	 * option written by WP-CLI, a migration, or another plugin never passes
+	 * through it, and this is where that would otherwise show up: a remembered
+	 * login that expires sooner than an ordinary one.
+	 */
+	add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
 
 	/* ----- Branding ----- */
 
@@ -580,23 +595,15 @@ function keel_defaults_bootstrap() {
 	/* ----- Performance ----- */
 
 	if ( keel_defaults_enabled( 'throttle_heartbeat' ) ) {
-		add_filter(
-			'heartbeat_settings',
-			function ( $settings ) {
-				$settings['interval'] = 60;
-				return $settings;
-			}
-		);
-		add_action(
-			'init',
-			function () {
-				if ( is_admin() ) {
-					global $pagenow;
-					if ( 'index.php' === $pagenow ) {
-						wp_deregister_script( 'heartbeat' );
-					}
-				}
-			}
-		);
+		add_filter( 'heartbeat_settings', 'keel_defaults_heartbeat_interval' );
+
+		/*
+		 * admin_enqueue_scripts, not init. Deregistering at init forces WP_Scripts
+		 * to instantiate early — wp_deregister_script() calls wp_scripts(), which
+		 * fires wp_default_scripts and registers the whole core script list — on
+		 * every dashboard request, well before anything needs it. By
+		 * admin_enqueue_scripts the registry exists anyway and the removal is free.
+		 */
+		add_action( 'admin_enqueue_scripts', 'keel_defaults_drop_dashboard_heartbeat' );
 	}
 }

@@ -8,8 +8,22 @@
  * @package keel
  */
 
-function add_action( ...$args ) {}
-function add_filter( ...$args ) {}
+define( 'DAY_IN_SECONDS', 86400 );
+
+$GLOBALS['keel_hooks']   = array();
+$GLOBALS['keel_options'] = array();
+function get_option( $name, $default_value = false ) {
+	return ( KEEL_DEFAULTS_OPTION === $name ) ? $GLOBALS['keel_options'] : $default_value;
+}
+function is_user_logged_in() {
+	return false;
+}
+function add_action( $hook, $cb = null, $priority = 10, $accepted = 1 ) {
+	$GLOBALS['keel_hooks'][] = array( $hook, $cb, $priority );
+}
+function add_filter( $hook, $cb = null, $priority = 10, $accepted = 1 ) {
+	$GLOBALS['keel_hooks'][] = array( $hook, $cb, $priority );
+}
 function register_activation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
@@ -69,5 +83,45 @@ $clean = keel_defaults_sanitize(
 	)
 );
 keel_assert( 2 === $clean['session_regular_days'] && 30 === $clean['remember_me_days'], 'A valid remember>=regular pair passes through unchanged.' );
+
+/*
+ * The clamp has to be the last word.
+ *
+ * Registered at priority 50, not the default 10: at 10 any plugin filtering
+ * auth_cookie_expiration at a default priority lands after it and silently
+ * wins, which is the case a site sets a session length to prevent. The
+ * priority is asserted against the source because observing it would mean
+ * running the whole bootstrap.
+ */
+// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
+$bootstrap_src = file_get_contents( dirname( __DIR__ ) . '/includes/bootstrap.php' );
+keel_assert(
+	false !== strpos( $bootstrap_src, "add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );" ),
+	'The session clamp runs at priority 50, after plugins filtering at the default 10.'
+);
+
+// Remember Me is hidden with CSS. An inline <script> fails with JavaScript off
+// and is blocked by a strict script-src Content-Security-Policy — either way
+// the checkbox stays visible and looks like it works.
+keel_assert( false !== strpos( $bootstrap_src, 'keel-hide-remember-me' ), 'The Remember Me checkbox is hidden with a stylesheet.' );
+keel_assert( false === strpos( $bootstrap_src, "getElementById('rememberme')" ), 'No inline script is used to hide it.' );
+keel_assert( false !== strpos( $bootstrap_src, "unset( \$_POST['rememberme'], \$_REQUEST['rememberme'] )" ), 'The submitted value is still stripped server-side, which is what actually disables it.' );
+
+// The backstop: a stored remembered length below the regular one cannot make a
+// remembered login shorter. Sanitize keeps them coherent on save; nothing keeps
+// them coherent when WP-CLI or a migration writes the option.
+$GLOBALS['keel_options'] = array(
+	'disable_remember_me'  => 'no',
+	'session_regular_days' => 5,
+	'remember_me_days'     => 2,
+);
+keel_assert( 5 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, true ), 'A remembered login is never shorter than a regular one.' );
+keel_assert( 5 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, false ), 'An ordinary login uses the regular length.' );
+
+$GLOBALS['keel_options']['remember_me_days'] = 30;
+keel_assert( 30 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, true ), 'A longer remembered length is honoured.' );
+
+$GLOBALS['keel_options']['disable_remember_me'] = 'yes';
+keel_assert( 5 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, true ), 'With Remember Me disabled, even a remembered login gets the regular length.' );
 
 fwrite( STDOUT, "login-sessions tests passed.\n" );

@@ -69,8 +69,24 @@ $GLOBALS['keel_filters']['keel_weak_roles'] = array( 'subscriber', 'customer' );
 keel_assert( false === keel_defaults_password_enforced_for_user( keel_user( array( 'customer' ) ) ), 'Extending keel_weak_roles exempts the added role.' );
 unset( $GLOBALS['keel_filters']['keel_weak_roles'] );
 
-// --- validator honours the gate (no network: both paths exit before HIBP) ---
-keel_assert( true === keel_defaults_validate_password( 'short', keel_user( array( 'subscriber' ) ) ), 'Exempt subscriber passes even a weak password (gate short-circuits).' );
+// --- validator honours the gate ---
+
+/*
+ * Breach screening now runs before the role gate and for every account, so these
+ * cases need the network lookup switched off. That is what the documented
+ * opt-out is for; using it here also exercises it.
+ */
+$GLOBALS['keel_filters']['keel_disable_hibp'] = true;
+
+keel_assert( true === keel_defaults_validate_password( 'short', keel_user( array( 'subscriber' ) ) ), 'An exempt subscriber is not held to the length rule.' );
+
+// The rule the exemption does NOT cover: a breached password is refused for
+// everyone, because that is the credential that gets stuffed and the check costs
+// the user nothing.
+$GLOBALS['keel_filters']['keel_password_is_pwned'] = true;
+$breached = keel_defaults_validate_password( 'a password that appears in a breach corpus', keel_user( array( 'subscriber' ) ) );
+keel_assert( is_wp_error( $breached ) && 'keel_password_pwned' === $breached->get_error_code(), 'An exempt subscriber is still refused a breached password.' );
+unset( $GLOBALS['keel_filters']['keel_password_is_pwned'] );
 $result = keel_defaults_validate_password( 'short', keel_user( array( 'administrator' ) ) );
 keel_assert( is_wp_error( $result ) && 'keel_password_too_short' === $result->get_error_code(), 'Enforced admin still fails a short password.' );
 

@@ -47,7 +47,7 @@ function keel_defaults_strings() {
 		'block_xmlrpc_endpoint'           => array(
 			'label'     => __( 'XML-RPC endpoint', 'keel' ),
 			'statement' => __( 'Block the endpoint entirely (returns 403)', 'keel' ),
-			'help'      => __( 'Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Do not enable on a Jetpack site (it needs XML-RPC). This runs inside WordPress, so PHP still starts for each blocked request; blocking it further out — at your host, CDN, or firewall, before the request reaches WordPress — is lighter if that option exists.', 'keel' ),
+			'help'      => __( 'Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Leave XML-RPC reachable while Jetpack is active, unless connection and feature testing proves Jetpack no longer needs it. This runs inside WordPress, so PHP still starts for each blocked request; blocking it further out — at your host, CDN, or firewall, before the request reaches WordPress — is lighter if that option exists.', 'keel' ),
 		),
 		'disable_application_passwords'   => array(
 			'label'     => __( 'Application Passwords', 'keel' ),
@@ -67,11 +67,6 @@ function keel_defaults_strings() {
 			'label'     => __( 'Unfiltered HTML', 'keel' ),
 			'statement' => __( 'Limit raw HTML and JavaScript to Administrators', 'keel' ),
 			'help'      => __( 'Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default.', 'keel' ),
-		),
-		'reserved_usernames'              => array(
-			'label'     => __( 'Reserved usernames', 'keel' ),
-			'statement' => __( 'Reserve common and system usernames', 'keel' ),
-			'help'      => __( 'Refuses to create new accounts with common system/role names (admin, administrator, root, www, support, info, and more) using WordPress\'s <code>illegal_user_logins</code> list — covering registration, the admin Add User screen, REST, and multisite signup. Existing accounts are unaffected. Extend or trim the list with the <code>keel_reserved_usernames</code> filter.', 'keel' ),
 		),
 		'remove_version'                  => array(
 			'label'     => __( 'Version fingerprint', 'keel' ),

@@ -27,6 +27,14 @@ function esc_attr_e( $s, $d = null ) { echo $s; }
 function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
 }
+$GLOBALS['keel_object_cache'] = array();
+function wp_cache_get( $key, $group = '' ) {
+	return array_key_exists( $group . ':' . $key, $GLOBALS['keel_object_cache'] ) ? $GLOBALS['keel_object_cache'][ $group . ':' . $key ] : false;
+}
+function wp_cache_set( $key, $value, $group = '', $expire = 0 ) {
+	$GLOBALS['keel_object_cache'][ $group . ':' . $key ] = $value;
+	return true;
+}
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
@@ -102,5 +110,13 @@ keel_assert( false === keel_password_is_pwned( 'correct horse battery staple' ),
 $GLOBALS['keel_filters']['keel_password_is_pwned'] = true;
 keel_assert( true === keel_password_is_pwned( 'anything' ), 'The verdict filter still applies when the lookup is disabled, so a local blocklist works.' );
 unset( $GLOBALS['keel_filters']['keel_password_is_pwned'] );
+
+// --- Jetpack awareness: warn where it applies, nowhere else ---
+keel_assert( '' === keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ), 'With Jetpack absent, the endpoint block carries no warning.' );
+keel_assert( '' === keel_defaults_jetpack_warning( 'disable_rest' ), 'The warning belongs to one setting, not to every setting.' );
+
+define( 'JETPACK__VERSION', '14.0' );
+keel_assert( '' !== keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ), 'With Jetpack active, the endpoint block warns.' );
+keel_assert( '' === keel_defaults_jetpack_warning( 'disable_rest' ), 'Even then the warning stays on its own setting.' );
 
 echo "hibp: OK\n";

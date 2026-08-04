@@ -98,11 +98,6 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 		),
-		'reserved_usernames'              => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
-		),
 		'remove_version'                  => array(
 			'default' => 'no',
 			'type'    => 'toggle',

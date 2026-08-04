@@ -1,6 +1,6 @@
 <?php
 /**
- * Security defaults: unfiltered HTML, reserved usernames, response headers, and password policy.
+ * Security defaults: unfiltered HTML, response headers, and password policy.
  *
  * @package Keel
  */
@@ -55,104 +55,76 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 }
 
 /**
- * Common system, role, and generic usernames reserved from new-account creation.
+ * Decide how long a login lasts.
  *
- * Returned through the `illegal_user_logins` core filter, so WordPress refuses to
- * *create* an account with any of these names — across registration, the admin
- * Add User screen, the REST users endpoint, and multisite signup (core lower-cases
- * both sides, so entries are lower-case here). Existing accounts are never touched.
- * The names attackers guess first (`admin`, `administrator`, `root`) sit alongside
- * generic role mailboxes that make weak, predictable logins. Filter
- * `keel_reserved_usernames` to extend or trim the list.
+ * Both lengths are stored in days. Registered at priority 50, not the default
+ * 10: this is a policy clamp, and a clamp has to be the last word. At 10 any
+ * plugin filtering `auth_cookie_expiration` at a default priority lands after
+ * it and quietly wins — which is the case a site sets a session length to
+ * prevent.
  *
- * @return string[] Reserved usernames.
+ * The max() is a second belt. Sanitize already keeps a stored remembered length
+ * at or above the regular one, so ticking Remember Me can never shorten a
+ * login — but sanitize only runs when the settings form is saved. An option
+ * written by WP-CLI, a migration, or another plugin never passes through it,
+ * and this is where that would otherwise surface: a remembered login expiring
+ * sooner than an ordinary one.
+ *
+ * @param int  $expiration WordPress's own length, in seconds.
+ * @param int  $user_id    User ID (unused).
+ * @param bool $remember   Whether Remember Me was ticked.
+ * @return int
  */
-function keel_reserved_usernames_list() {
-	$reserved = array(
-		'abuse',
-		'access',
-		'admin',
-		'administrator',
-		'backup',
-		'billing',
-		'blog',
-		'business',
-		'client',
-		'compliance',
-		'contact',
-		'data',
-		'demo',
-		'devnull',
-		'dns',
-		'doctor',
-		'ftp',
-		'guest',
-		'hostmaster',
-		'info',
-		'information',
-		'inoc',
-		'internet',
-		'ispfeedback',
-		'ispsupport',
-		'list',
-		'list-request',
-		'login',
-		'maildaemon',
-		'manager',
-		'marketing',
-		'master',
-		'mysql',
-		'noc',
-		'no-reply',
-		'noreply',
-		'null',
-		'number',
-		'office',
-		'pass',
-		'password',
-		'phish',
-		'phishing',
-		'postmaster',
-		'privacy',
-		'public',
-		'registrar',
-		'root',
-		'sales',
-		'security',
-		'server',
-		'service',
-		'spam',
-		'sql',
-		'support',
-		'sysadmin',
-		'tech',
-		'test',
-		'tester',
-		'undisclosed-recipients',
-		'unsubscribe',
-		'user',
-		'user2',
-		'username',
-		'usenet',
-		'uucp',
-		'webmaster',
-		'www',
-	);
+function keel_defaults_session_length( $expiration, $user_id, $remember ) {
+	unset( $user_id );
 
-	return apply_filters( 'keel_reserved_usernames', $reserved );
+	$regular_days = (int) keel_defaults_get( 'session_regular_days' );
+	$regular      = $regular_days > 0 ? $regular_days * DAY_IN_SECONDS : $expiration;
+
+	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
+		return $regular;
+	}
+
+	if ( $remember ) {
+		$remember_days = (int) keel_defaults_get( 'remember_me_days' );
+		$remembered    = $remember_days > 0 ? $remember_days * DAY_IN_SECONDS : $expiration;
+
+		return max( $regular, $remembered );
+	}
+
+	return $regular;
 }
 
 /**
- * Merge the reserved list into core's `illegal_user_logins`.
+ * Whether Jetpack is active on this site.
  *
- * Merges rather than replaces, so a host or another plugin that already reserves
- * names keeps theirs.
+ * Jetpack reaches WordPress.com over XML-RPC, so blocking the endpoint breaks
+ * the connection and everything downstream of it. Nothing here acts on that by
+ * itself: a toggle that quietly refuses to do what it says is worse than one
+ * that warns and then obeys. This only decides whether the warning is shown.
  *
- * @param array $logins Illegal logins gathered from other sources.
- * @return array
+ * @return bool
  */
-function keel_defaults_reserved_usernames( $logins ) {
-	return array_merge( (array) $logins, keel_reserved_usernames_list() );
+function keel_defaults_jetpack_active() {
+	return defined( 'JETPACK__VERSION' ) || class_exists( 'Automattic\\Jetpack\\Connection\\Manager' );
+}
+
+/**
+ * The Jetpack warning for the XML-RPC endpoint block, when it applies.
+ *
+ * Returned for the settings screen rather than written into the help text: it is
+ * only true on some sites, and a warning that is always on teaches people to
+ * stop reading warnings.
+ *
+ * @param string $key Schema key being rendered.
+ * @return string Text, or '' when the warning does not apply.
+ */
+function keel_defaults_jetpack_warning( $key ) {
+	if ( 'block_xmlrpc_endpoint' !== $key || ! keel_defaults_jetpack_active() ) {
+		return '';
+	}
+
+	return __( 'Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC.', 'keel' );
 }
 
 /**
@@ -390,7 +362,25 @@ function keel_defaults_exemptable_roles() {
  * @return true|WP_Error True when acceptable, WP_Error describing the failure.
  */
 function keel_defaults_validate_password( $password, $user = null ) {
-	// Role-scoped: low-privilege accounts (see keel_weak_roles) are exempt.
+	/*
+	 * Breach screening applies to every account, exempt or not, and runs first.
+	 *
+	 * The exemption exists so a hard length rule does not add signup friction for
+	 * subscribers on a membership or commerce site. That reasoning covers length;
+	 * it does not cover a password already published in a breach corpus. Those are
+	 * the credentials that get stuffed, and a subscriber account is a foothold like
+	 * any other. Skipping the check for exempt roles meant the one rule that costs
+	 * the user nothing was the one they did not get.
+	 */
+	if ( keel_password_is_pwned( $password ) ) {
+		return new WP_Error(
+			'keel_password_pwned',
+			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel' )
+		);
+	}
+
+	// Everything below is role-scoped: low-privilege accounts (see keel_weak_roles)
+	// are exempt from the length, blocklist, and personal-context rules.
 	if ( ! keel_defaults_password_enforced_for_user( $user ) ) {
 		return true;
 	}
@@ -453,13 +443,6 @@ function keel_defaults_validate_password( $password, $user = null ) {
 				);
 			}
 		}
-	}
-
-	if ( keel_password_is_pwned( $password ) ) {
-		return new WP_Error(
-			'keel_password_pwned',
-			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel' )
-		);
 	}
 
 	return true;
@@ -758,8 +741,25 @@ function keel_hibp_lookup( $password ) {
 	$limit  = keel_hibp_response_limit();
 
 	$cache_key = 'keel_hibp_' . $prefix;
-	$body      = get_transient( $cache_key );
-	$cached    = false !== $body;
+
+	/*
+	 * Object cache first, transient second. A password change validates the same
+	 * prefix more than once in a request — the profile screen and the REST guard
+	 * both ask — and on a site with a persistent object cache the transient is a
+	 * cache read anyway. Without one, the transient is a database read each time,
+	 * and this makes it one read instead of several.
+	 */
+	$body   = wp_cache_get( $cache_key, 'keel_hibp' );
+	$cached = false !== $body;
+
+	if ( ! $cached ) {
+		$body   = get_transient( $cache_key );
+		$cached = false !== $body;
+
+		if ( $cached ) {
+			wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
+		}
+	}
 
 	if ( ! $cached ) {
 		$response = wp_remote_get(
@@ -791,6 +791,7 @@ function keel_hibp_lookup( $password ) {
 
 	if ( ! $cached ) {
 		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
+		wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
 	}
 
 	return keel_hibp_range_contains( $body, $suffix );

@@ -8,6 +8,28 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Replace the author name in feeds while author archives are disabled.
+ *
+ * `the_author` is what RSS puts in `<dc:creator>` and Atom in `<author><name>`,
+ * so a feed lists the display name of every post's author whether or not the
+ * author pages exist. Redirecting `/author/x/` closes the page and leaves the
+ * list; this closes the list.
+ *
+ * Only in feeds. Bylines on the site itself are editorial, and a plugin that
+ * silently renamed them everywhere would be doing something nobody asked for.
+ *
+ * @param string $author Display name.
+ * @return string
+ */
+function keel_defaults_mask_feed_author( $author ) {
+	if ( ! is_feed() ) {
+		return $author;
+	}
+
+	return (string) apply_filters( 'keel_feed_author_name', __( 'Site Contributor', 'keel' ) );
+}
+
+/**
  * Comment types that keep working while comments are disabled.
  *
  * WordPress 6.9's Notes feature stores editorial notes as comments of type

@@ -24,7 +24,7 @@ When the **Require strong passwords** default is enabled, Keel screens new passw
 
 == Recommended wp-config.php hardening ==
 
-A few defenses live best in `wp-config.php`, outside any plugin: they apply before plugins load and cannot be switched off from the dashboard. These are optional and independent of Keel — add the ones that fit your site.
+A few defences live best in `wp-config.php`, outside any plugin: they apply before plugins load and cannot be switched off from the dashboard. These are optional and independent of Keel — add the ones that fit your site.
 
 `define( 'DISALLOW_FILE_EDIT', true );` — removes the built-in plugin and theme code editors, so a compromised admin account cannot edit PHP from the dashboard.
 
@@ -35,6 +35,7 @@ A few defenses live best in `wp-config.php`, outside any plugin: they apply befo
 == Changelog ==
 
 = 0.1.0-dev =
+* Removed the reserved-usernames default. It refused to create accounts named `admin`, `support`, `info` and 70 others, which is a reasonable policy for a managed fleet and a presumptuous one for a general-purpose defaults plugin — the list is long, opinionated, and includes names an ordinary site legitimately uses (`manager`, `marketing`, `sales`, `office`, `client`). Existing accounts were never affected and still are not. A stored setting is ignored and drops out of the option on the next save; no migration is needed. To keep the behaviour, WordPress's own filter does it in one call: `add_filter( 'illegal_user_logins', function ( $logins ) { return array_merge( $logins, array( 'admin', 'administrator', 'root' ) ); } );`
 * Initial scaffold: base imported from Better by Default (WPYEG, GPL-3.0-or-later) and re-identified as Keel. Work in progress.
 * Licence is now GPL-2.0-or-later, matching WordPress core and the upstream 10up Experience code some defaults descend from. Relicensed by the sole author of the carried-over work; nothing is withdrawn, since "or later" still permits GPL-3 terms.
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.

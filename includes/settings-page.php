@@ -205,6 +205,22 @@ function keel_defaults_dep_state( $field ) {
 }
 
 /**
+ * Render a per-setting warning that only applies on some sites.
+ *
+ * Separate from the help text because it is conditional: help describes what a
+ * setting does everywhere, this describes what it would do here.
+ *
+ * @param string $warning Warning text, or '' for none.
+ */
+function keel_defaults_render_warning( $warning ) {
+	if ( '' === (string) $warning ) {
+		return;
+	}
+
+	echo '<p class="description keel-warning"><strong>' . esc_html( $warning ) . '</strong></p>';
+}
+
+/**
  * Echo a field's description paragraph (allows <code> and links).
  *
  * @param string $help Description text (already translated).
@@ -325,6 +341,15 @@ function keel_defaults_render_settings_page() {
 				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel' ); ?></p>
 			</div>
 		</div>
+		<?php
+		/*
+		 * Where admin notices go. WordPress relocates every `.notice` to just
+		 * before this marker, and without it falls back to "immediately after the
+		 * first <h1>" — which here is inside the flex header, so "Settings saved."
+		 * landed beside the logo in a column the width of the heading text.
+		 */
+		?>
+		<hr class="wp-header-end">
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
 
 		<style>
@@ -397,6 +422,7 @@ function keel_defaults_render_settings_page() {
 							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
 							keel_defaults_render_checkbox( $name, $value, $statement, false, $describedby );
+							keel_defaults_render_warning( keel_defaults_jetpack_warning( $key ) );
 							keel_defaults_render_help( $help, $help_id );
 							echo '</div>';
 							continue;
@@ -564,6 +590,7 @@ function keel_defaults_render_settings_page() {
 									<p class="description keel-config-lock" id="<?php echo esc_attr( $lock_id ); ?>"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
 								<?php endif; ?>
 
+								<?php keel_defaults_render_warning( keel_defaults_jetpack_warning( $key ) ); ?>
 								<?php keel_defaults_render_help( $help, $help_id ); ?>
 							</td>
 						</tr>
