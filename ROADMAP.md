@@ -25,9 +25,10 @@ Everything a wordpress.org submission needs, before polish.
       `register_activation_hook`, no per-site or new-subsite seeding). Port the
       network-aware lifecycle: seeding keyed on an `$is_network` flag plus a
       `wp_initialize_site` hook so new subsites get seeded.
-- [ ] **Document the shared-user-table caveat.** Password and reserved-username policies
-      act on the network-wide user table, so on multisite they are effectively
-      network-wide even when configured per-site. Documented in v1, not governed.
+- [ ] **Document the shared-user-table caveat.** The password policy acts on the
+      network-wide user table, so on multisite it is effectively network-wide even when
+      configured per-site. Documented in v1, not governed. (This applied to the
+      reserved-usernames default too, until `500c561` removed it.)
 - [ ] **Reference doc coverage.** `docs/wordpress-default-settings.md` still describes
       Better by Default's feature set. Add an entry per ported default.
 - [ ] **Schema-key reconcile.** Some reference-doc keys use Better by Default naming that
@@ -95,3 +96,13 @@ Recording these so they stop being re-litigated:
 - **Punching holes in security toggles for convenience.** Blocking anonymous REST takes
   oEmbed down with it. That consequence gets named in the help text; it does not get
   quietly worked around.
+- **A server-side password entropy meter.** Decided 2026-08-03. The only credible way to
+  add one is vendoring `bjeavons/zxcvbn-php` — 5.9 MB, 4.6 MB of it dictionaries —
+  into a plugin whose entire `require` block is `php >= 7.4`. Core's zxcvbn is
+  JavaScript only (`wp-includes/js/zxcvbn.min.js`, registered in `script-loader.php`,
+  no PHP counterpart), so it is advisory UI that Keel already gets for free and cannot
+  enforce with: stock WordPress accepts `aaa` through WP-CLI, REST, or a form post with
+  JS disabled. The policy stays length + Have I Been Pwned + local blocklist +
+  personal-context. The residual exposure is a long, invented, unbreached, low-entropy
+  password, and the help text says so rather than implying otherwise. Revisit only if a
+  dependency-free estimator with a real dictionary appears.
