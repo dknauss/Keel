@@ -10,9 +10,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Stretch the admin Heartbeat interval.
  *
- * Filterable and clamped to the range core itself accepts: `heartbeat_settings`
- * values outside 15-120 seconds are ignored by core's own JS for the standard
- * admin, so a filter returning 600 would look like it worked and change nothing.
+ * Filterable, and clamped to 15-120 seconds — which is narrower than core's own
+ * limit, deliberately.
+ *
+ * Core accepts anything from 1 to 3600 seconds (`heartbeat.js` bounds
+ * `options.interval` at initialization). The ceiling here is 120 because this
+ * filter applies to every admin Heartbeat, including the post editor's, and post
+ * locks expire after 150 seconds — `wp_check_post_lock_window` in core, and the
+ * reason core's own idle slowdown stops at 120. An interval above that stops
+ * refreshing the lock in time, and two people quietly overwrite each other.
+ *
+ * The floor is 15 to keep the throttle setting from becoming a way to generate
+ * more admin-ajax traffic than core's default 60.
  *
  * @param array $settings Heartbeat settings.
  * @return array
@@ -540,15 +549,52 @@ function keel_defaults_is_local_host( $host ) {
 }
 
 /**
- * The current environment, treating known local-tool hosts as local when no
- * WP_ENVIRONMENT_TYPE constant is set.
+ * Whether this site declares its own environment type.
+ *
+ * Core resolves `WP_ENVIRONMENT_TYPE` from *either* an environment variable or
+ * the constant, the constant winning — so testing only for the constant misses
+ * every host that sets the variable, which is the documented way to do it and
+ * what DDEV, Lando and wp-env generate by default.
+ *
+ * A declared value only counts when core would accept it. Core silently falls
+ * back to production for anything outside its four names, and inheriting that
+ * fallback would paint a red Production badge across somebody's laptop on the
+ * strength of a typo.
+ *
+ * @return bool
+ */
+function keel_defaults_environment_is_declared() {
+	$declared = '';
+
+	if ( function_exists( 'getenv' ) ) {
+		$env = getenv( 'WP_ENVIRONMENT_TYPE' );
+		if ( false !== $env ) {
+			$declared = (string) $env;
+		}
+	}
+
+	if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE ) {
+		$declared = (string) WP_ENVIRONMENT_TYPE;
+	}
+
+	return in_array( $declared, array( 'local', 'development', 'staging', 'production' ), true );
+}
+
+/**
+ * The current environment, treating known local-tool hosts as local when the
+ * site has not declared an environment type of its own.
+ *
+ * The host heuristic is a fallback, never an override. A site that says it is
+ * staging is staging, even on a .ddev.site hostname — an indicator that
+ * contradicts an explicit declaration is worse than no indicator, because the
+ * whole point of it is to be believed at a glance.
  *
  * @return string
  */
 function keel_current_environment() {
 	$type = wp_get_environment_type();
 
-	if ( ! defined( 'WP_ENVIRONMENT_TYPE' ) ) {
+	if ( ! keel_defaults_environment_is_declared() ) {
 		$host = wp_parse_url( home_url(), PHP_URL_HOST );
 		if ( keel_defaults_is_local_host( $host ) ) {
 			return 'local';

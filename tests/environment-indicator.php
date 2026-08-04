@@ -105,12 +105,53 @@ keel_assert( 'production' === keel_current_environment(), 'A real host beginning
 $GLOBALS['keel_home'] = 'https://MySite.TEST';
 keel_assert( 'local' === keel_current_environment(), 'Host matching is case-insensitive.' );
 
-// The constant always wins — this is what makes Studio (localhost:PORT with
-// WP_ENVIRONMENT_TYPE set) report through core rather than through this list.
 $GLOBALS['keel_filters']['keel_local_host_suffixes'] = array( '.example-real.ca' );
 $GLOBALS['keel_home']                                = 'https://mysite.example-real.ca';
 keel_assert( 'local' === keel_current_environment(), 'The suffix list is filterable.' );
 unset( $GLOBALS['keel_filters']['keel_local_host_suffixes'] );
+
+// --- an explicitly declared environment beats the host heuristic ---
+//
+// Core resolves WP_ENVIRONMENT_TYPE from the environment variable as well as the
+// constant, and the variable is the documented way to set it — DDEV, Lando and
+// wp-env all generate one. Testing only for the constant meant a site that said
+// "staging" on a .ddev.site hostname was relabelled Local, which is the one
+// failure an environment indicator must not have.
+//
+// getenv() is called for real here rather than stubbed, because that is the call
+// the fix turns on.
+$GLOBALS['keel_home'] = 'https://client.ddev.site';
+$GLOBALS['keel_env']  = 'staging';
+
+keel_assert( 'local' === keel_current_environment(), 'With nothing declared, a .ddev.site host reads as local.' );
+
+putenv( 'WP_ENVIRONMENT_TYPE=staging' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+keel_assert(
+	'staging' === keel_current_environment(),
+	'A WP_ENVIRONMENT_TYPE environment variable wins over the host heuristic.'
+);
+
+// A value core would reject is not a declaration. Core falls back to production
+// for anything outside its four names, and inheriting that would paint a red
+// Production badge on somebody's laptop because of a typo.
+putenv( 'WP_ENVIRONMENT_TYPE=stagng' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+$GLOBALS['keel_env'] = 'production'; // What core answers for an invalid value.
+keel_assert(
+	'local' === keel_current_environment(),
+	'A misspelled declaration falls back to the host heuristic, not to production.'
+);
+
+putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- clearing what the previous line set.
+keel_assert( 'local' === keel_current_environment(), 'Clearing the variable restores the heuristic.' );
+
+// The constant is the other half of the same test. It cannot be undefined once
+// set, so it is asserted last and the value is one the heuristic would override.
+define( 'WP_ENVIRONMENT_TYPE', 'staging' );
+$GLOBALS['keel_env'] = 'staging';
+keel_assert(
+	'staging' === keel_current_environment(),
+	'The WP_ENVIRONMENT_TYPE constant wins over the host heuristic.'
+);
 
 // --- toolbar node ---
 $GLOBALS['keel_env'] = 'staging';

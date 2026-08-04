@@ -162,7 +162,75 @@ A `choices_callback` in the schema would make it schema-driven like every other
 type. Left alone: it is a real pattern deviation, but changing it is a design
 call rather than a review finding.
 
+## Pass 1d — admin-ux.php
+
+### Verified
+
+| Claim | Where | Checked against |
+| --- | --- | --- |
+| Lowercasing runs after core sanitization, so only new uploads are affected | `admin-ux.php:105` | registered on `sanitize_file_name` at priority 20 |
+| The post editor keeps its Heartbeat; only the dashboard drops it | `admin-ux.php:29` | callback returns unless `index.php` |
+| Colour sanitizer strips what could terminate a declaration or open a comment | `admin-ux.php:641` | allowlist excludes `;`, `}`, `:`, `*`; keeps hex, `rgb()`, `var(--x)` and slash notation |
+| `esc_url()` would be wrong inside `<style>` | `admin-ux.php:659` | `esc_url_raw()` used, then quotes and parens percent-encoded |
+| Host matching uses the host, never the whole URL, so ported installs still match | `admin-ux.php:493` | `wp_parse_url( …, PHP_URL_HOST )`; covered by an explicit-port test |
+
+### 5. The Heartbeat clamp was justified by a false claim about core — docblock fixed
+
+The docblock said the 15-120 clamp matched "the range core itself accepts", and
+that a filter returning 600 "would look like it worked and change nothing".
+
+Core accepts **1 to 3600 seconds** — `heartbeat.js` bounds `options.interval` at
+initialization, and core's PHP (`wp_heartbeat_settings()`) does not clamp at all.
+A filter returning 600 would have worked fine. Keel's own `min( 120, … )` is the
+only thing stopping it.
+
+The ceiling is still right, for a reason the docblock never gave: this filter
+applies to every admin Heartbeat including the post editor's, post locks expire
+after 150 seconds (`wp_check_post_lock_window`), and core's own idle slowdown
+stops at 120 for exactly that reason. Above 150 the lock stops being refreshed in
+time and two editors overwrite each other.
+
+Behaviour unchanged; the docblock now gives the real reason. This mattered
+because `keel_heartbeat_interval` is a public filter documented as clamped "to
+the range core accepts" — a site asking for 300s would have been told, wrongly,
+that core would have ignored it anyway.
+
+**Severity: low behaviourally, but it misinformed anyone using the filter.**
+
+### 6. An explicitly declared environment was overridden by the host heuristic — fixed
+
+`keel_current_environment()` falls back to a hostname heuristic so a `.test` or
+`.ddev.site` install shows as Local. The guard was `! defined( 'WP_ENVIRONMENT_TYPE' )`.
+
+Core resolves `WP_ENVIRONMENT_TYPE` from **either an environment variable or the
+constant**, the constant winning (`load.php`, the `getenv()` branch). The
+variable is the documented way to set it, and DDEV, Lando and wp-env all
+generate one.
+
+So a site that declared itself **staging** through the environment variable, on a
+hostname like `client.ddev.site`, was relabelled **Local**. That is the one
+failure an environment indicator cannot have: its entire job is to be believed at
+a glance, and it was contradicting an explicit declaration.
+
+Fixed with `keel_defaults_environment_is_declared()`, which checks both
+mechanisms. A declared value only counts when core would accept it — core
+silently falls back to production for anything outside its four names, and
+inheriting that fallback would paint a red **Production** badge across somebody's
+laptop on the strength of a typo.
+
+Covered by four new assertions in `tests/environment-indicator.php`, which call
+`getenv()` for real rather than stubbing it, since that is the call the fix turns
+on. **Confirmed failing against the old guard before the fix was restored** —
+`A WP_ENVIRONMENT_TYPE environment variable wins over the host heuristic.`
+
+The file also carried a comment claiming "the constant always wins", with no
+assertion behind it. Both mechanisms are now actually asserted.
+
+**Severity: moderate. Wrong label on a staging site is the failure this feature
+exists to prevent.**
+
 ## Not yet covered
 
-- The remaining `admin-ux.php` docblocks below the attachment-redirect section.
-- Passes 2-4: test integrity, pattern conformance, complexity and duplication.
+Pass 1 is complete: every file's docblock and user-facing claims have been
+checked. Remaining are passes 2-4 — test integrity, pattern conformance, and
+complexity/duplication — then the same sweep for BBD, and PX last.
