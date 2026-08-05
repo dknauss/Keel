@@ -238,9 +238,26 @@ function keel_heading_case_errors( $heading, $lowercase_ok, $interior_ok ) {
  * directions. A rule added to keel_heading_case_errors() later needs a case in
  * both lists here, or this self-test silently under-covers it.
  *
- * The same fixtures are used by the sibling plugins, so a disagreement between
- * the three rules shows up as a failing case rather than as copy that cannot be
- * moved between repositories.
+ * The first twelve accepts and nine rejects are a SHARED set, carried by Keel,
+ * Better by Default and a third, private sibling. All three enforce the same
+ * rule, so a plugin whose rule drifts fails its own copy of these rather than
+ * producing headings that cannot move between the repositories.
+ *
+ * What that does not buy, said plainly because it would otherwise be assumed:
+ * nothing enforces that the copies stay identical. Edit this block without
+ * editing the others and the sets diverge in silence — the drift the shared set
+ * exists to prevent, one level above the code. It happened between keel#57 and
+ * the day's last pass: this file sat two pairs behind while every test passed.
+ *
+ * Keeping them in step is a matter of somebody noticing, which is a deliberate
+ * trade rather than an oversight. Sharing them properly needs vendoring or a
+ * package, and that would need its own release cycle to change one string —
+ * more machinery than the rule is worth now that it has settled. Revisit if a
+ * fourth plugin joins, or if the rule starts moving again.
+ *
+ * Better by Default carries its copy in tests/plugin-policy.php. When two copies
+ * disagree, which one is right is a maintainer call; the strings below each say
+ * what they pin, so the argument can be had on the merits.
  */
 $heading_case_accepts = array(
 	'Pingbacks On New Posts'   => 'a preposition capitalizes',
@@ -252,7 +269,9 @@ $heading_case_accepts = array(
 	'Cut-and-Dried Policy'     => 'an interior conjunction in a compound stays down',
 	'State-of-the-Art Tooling' => 'so do interior prepositions',
 	'Out-of-the-Box Defaults'  => 'more than one of them',
-	'Opt-In Defaults'          => 'a function word at a compound EDGE still capitalizes — position decides, not membership',
+	'Opt-In Defaults'          => 'a function word at the END of a compound still capitalizes — position decides, not membership',
+	'In-House Tooling'         => 'and at the START of one — the mirror case',
+	'The Defaults Screen'      => 'a small word LEADING a title capitalizes',
 );
 
 $heading_case_rejects = array(
@@ -263,6 +282,8 @@ $heading_case_rejects = array(
 	'Cut-And-Dried Policy'    => 'an interior conjunction wrongly capitalized',
 	'Out-Of-The-Box Defaults' => 'interior prepositions wrongly capitalized',
 	'Opt-in Defaults'         => 'the last segment of a compound is not interior, so it must capitalize',
+	'in-House Tooling'        => 'nor is the FIRST',
+	'the Defaults Screen'     => 'a leading small word left lowercase',
 );
 
 foreach ( $heading_case_accepts as $case => $why ) {
