@@ -25,13 +25,22 @@ site, in one place, and turn any piece off.
 ## What makes it different
 
 Most "disable it" plugins close the front door and leave a side one open. Measured
-against nine of the most-installed ones on wordpress.org — every cell a live HTTP or
-PHP probe, not a readme claim — Keel is the only plugin in the field where *comments
-are off* is true below the presentation layer:
+against nine of the most-installed ones on wordpress.org — every result a live HTTP or
+PHP probe against a real install, not a readme claim.
 
-| `get_comments()` with comments disabled | Disable Comments | …RB | Simply DC | ASE | **Keel** |
-| --- | --- | --- | --- | --- | --- |
-| approved comments returned | 1 | 1 | 1 | 1 | **0** |
+Comments were switched off in each plugin's own settings, then the database was asked
+directly for approved comments with `get_comments()`:
+
+- **Disable Comments** (1M+ installs) — the comment is still returned
+- **Admin and Site Enhancements** (200k+) — still returned
+- **Disable Comments RB** (100k+) — still returned
+- **Simply Disable Comments** (6k+) — still returned
+- **Keel** — nothing returned
+
+The others stop at the theme template and the REST route. Keel is the only one in that
+field that short-circuits `comments_pre_query`, so a Recent Comments widget from
+another plugin, a custom `WP_Comment_Query`, or `wp_count_comments()` all see what the
+setting says they should.
 
 The same pattern runs through the rest: closing the REST API also means removing the
 discovery link that advertises it, and disabling comments also means the comment feed
