@@ -1,5 +1,14 @@
 # Keel
 
+![Keel banner](.wordpress-org/banner-1544x500.png)
+
+[![CI](https://github.com/dknauss/keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/keel?include_prereleases)](https://github.com/dknauss/keel/tags) [![Docs](https://img.shields.io/badge/docs-available-0a7ea4.svg)](docs/)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
+[![Tested up to WP 7.0](https://img.shields.io/badge/tested%20up%20to-WP%207.0-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
+[![PHP 7.4+](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg?logo=php&logoColor=white)](https://www.php.net/)
+[![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)
+
 **Sane, individually-toggleable defaults for every new WordPress site.**
 
 Keel flips a menu of sensible security, update, privacy, UX, and performance defaults
@@ -53,6 +62,26 @@ Two things it does that a settings screen usually does not:
   not tell you which plugin to keep, because a plugin answering that is arguing for
   its own retention. Keel also stays off a hook entirely when its setting would only
   repeat what WordPress already does.
+
+## Try it in the browser
+
+A [WordPress Playground](https://playground.wordpress.net/) blueprint spins up a
+throwaway site with Keel installed, so you can see all 37 defaults and their
+states without a host or a local WordPress.
+
+**[▶ Try Keel in Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)**
+
+It installs the rolling build from `main`, opens **Settings → Keel**, and creates
+a published post so the content defaults — comments, pingbacks, author archives,
+attachment redirects — have something to act on. An empty site makes half the
+toggles look inert.
+
+> **One blueprint, not two.** The sibling plugins also ship a "latest release"
+> link built on `/releases/latest/download/`, which resolves to the newest
+> *non-prerelease* release. Keel has none yet — `v0.1.0-dev` and the rolling
+> `latest` are both pre-releases — so that URL 404s today and a badge built on it
+> would ship broken. [`playground/README.md`](playground/README.md) records what
+> to add when the first stable release is cut.
 
 ## Install
 
