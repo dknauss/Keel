@@ -42,7 +42,9 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 2. Activate it. The documented defaults are seeded on activation; nothing is applied before that.
 3. Visit **Settings → Keel** and turn off anything you do not want.
 
-Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — are off out of the box and opt-in.
+Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — are off out of the box and opt-in.
+
+One on-by-default setting is worth knowing about, because it is the only one that can break a working site: Keel sends an `X-Frame-Options` header of `SAMEORIGIN`, so other sites cannot embed yours in an iframe. If this site is meant to be embedded elsewhere — a client intranet, a partner site, a proofing tool — set **Frame options** to "Leave unchanged" under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.
 
 Deactivating stops every default at once; stored settings are kept so reactivating restores the same configuration. Uninstalling removes them.
 
@@ -50,7 +52,9 @@ Deactivating stops every default at once; stored settings are kept so reactivati
 
 = Will this break my site? =
 
-The defaults that are on out of the box are low-risk. The ones that can break something are off and opt-in, and each says on the settings screen what it will cost you — for example that blocking cross-origin framing also blocks legitimate embeds. Requiring authentication for REST is the one place Keel spends a little of that strictness back: `oembed/1.0` stays reachable, so other sites can still embed your posts when every other route is closed.
+The defaults that are on out of the box are low-risk, with one exception worth naming: `X-Frame-Options: SAMEORIGIN` is sent by default, and it stops other sites embedding yours in an iframe. Set **Frame options** to "Leave unchanged" if the site is meant to be embedded, because a blocked frame fails silently as a blank box.
+
+Everything else that can break something is off and opt-in, and each says on the settings screen what it will cost you — for example that blocking the XML-RPC endpoint also stops apps and services that publish through it. Requiring authentication for REST is the one place Keel spends a little of that strictness back: `oembed/1.0` stays reachable, so other sites can still embed your posts when every other route is closed.
 
 = Does it send anything off my site? =
 
