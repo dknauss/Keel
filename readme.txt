@@ -20,7 +20,9 @@ Every default is one entry in a single schema array that drives both the setting
 
 **Site Health shows you the whole posture**, read-only: every default and its current state on one screen, so you can see what the site is actually doing without clicking through tabs. It also reports when another plugin is setting the same defaults, which otherwise fails silently.
 
-**Status:** pre-release. The feature set is frozen at 37 defaults — the ported hardening and admin defaults, the Site Health surface, and multisite-aware seeding are all in. What remains before a wordpress.org release is verification and packaging, not features.
+**Outgoing email stops at the edge of production.** A database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production — on by default, does nothing on production, and says so in an admin notice so nobody is left wondering why a password reset never arrived.
+
+**Status:** pre-release. The feature set is frozen at 38 defaults — the ported hardening and admin defaults, the Site Health surface, and multisite-aware seeding are all in. What remains before a wordpress.org release is verification and packaging, not features.
 
 == External services ==
 
@@ -59,6 +61,14 @@ Everything else that can break something is off and opt-in, and each says on the
 = Does it send anything off my site? =
 
 One thing, and only when the strong-password default is on: the first five characters of a password's SHA-1 hash, to check it against known breaches. Never the password, never the full hash, no personal data. See **External services** above for the full description and how to switch it off.
+
+= Why has email stopped working on my staging site? =
+
+Because Keel switched it off, deliberately, and there is an admin notice on the site saying so. The **Non-Production Email** default suppresses outgoing mail on any environment that is not production, so a database copied down from production cannot email real customers from a staging site or a laptop.
+
+It does nothing on production, so it cannot be left on by mistake. To send from a non-production site anyway, turn the default off under **Settings → Keel**, define `KEEL_ALLOW_NONPRODUCTION_MAIL` in `wp-config.php`, or use the `keel_suppress_nonproduction_mail` filter. A mail catcher can still record what would have been sent by hooking `keel_outgoing_mail_suppressed`.
+
+The environment is read the same way the admin-bar environment indicator reads it: `WP_ENVIRONMENT_TYPE`, whether set as a constant or an environment variable, and a host-name fallback for local development tools when neither is set.
 
 = Does it delete anything? =
 

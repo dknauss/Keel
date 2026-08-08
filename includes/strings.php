@@ -165,7 +165,7 @@ function keel_defaults_strings() {
 		'suppress_nonproduction_mail'     => array(
 			'label'     => __( 'Non-Production Email', 'keel' ),
 			'statement' => __( 'Stop outgoing email unless this is the production site', 'keel' ),
-			'help'      => __( 'A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Filter: <code>keel_suppress_nonproduction_mail</code>.', 'keel' ),
+			'help'      => __( 'A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Override per site with <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> in <code>wp-config.php</code> or the <code>keel_suppress_nonproduction_mail</code> filter.', 'keel' ),
 		),
 		'title_only_admin_search'         => array(
 			'label'     => __( 'Admin Search', 'keel' ),

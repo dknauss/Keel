@@ -11,13 +11,13 @@
 
 **Sane, individually-toggleable defaults for every new WordPress site.**
 
-Keel flips a menu of sensible security, update, privacy, UX, and performance defaults
-onto any WordPress install — each one a switch under **Settings → Keel**. Nothing is
-hidden and nothing is all-or-nothing: you can see exactly what the plugin does to your
-site, in one place, and turn any piece off.
+Keel flips a menu of sensible security, update, privacy, content, media, email, UX,
+and performance defaults onto any WordPress install — each one a switch under
+**Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
+exactly what the plugin does to your site, in one place, and turn any piece off.
 
 > **Status: pre-release (`0.1.0-dev`).** Feature-complete for review as of
-> 2026-08-04 — 37 defaults, the Site Health surface, and multisite-aware seeding are
+> 2026-08-04 — 38 defaults, the Site Health surface, and multisite-aware seeding are
 > all in. What is left before a wordpress.org submission is packaging and
 > verification, not features. See [ROADMAP.md](ROADMAP.md) for the milestones and
 > [TODO.md](TODO.md) for what's in flight.
@@ -52,6 +52,31 @@ Keel keeps oEmbed reachable when the REST gate is closed — alone among the fou
 plugins measured that close REST outright — so other sites can still embed your posts
 instead of silently degrading them to bare links.
 
+## Email stops at the edge of production
+
+A database copied down from production brings real customer addresses *and*
+whatever mail service production was using. A cron run, a bulk action or a
+migration routine then emails real people from a staging site or a laptop. Keel
+suppresses outgoing mail on any environment that is not production, on by
+default, and says so in an admin notice rather than leaving somebody wondering
+why a password reset never arrived.
+
+"A local site cannot send mail anyway" is not a safeguard: measured on a stock
+local install, the only thing stopping delivery was an invalid default `From`
+address, which a copied production `siteurl` removes by definition — and an SMTP
+plugin, which a production copy also carries, skips that question and connects to
+the real provider.
+
+It short-circuits `wp_mail()` with `true`, not `false`, so a staging site does not
+start exercising failure paths that production never takes. Turn it off under
+**Settings → Keel**, or per-site with `KEEL_ALLOW_NONPRODUCTION_MAIL` or the
+`keel_suppress_nonproduction_mail` filter. `keel_outgoing_mail_suppressed` fires
+in place of the send, so a mail catcher can still record the message.
+
+The second email default is a warning, not a change: Keel flags a production site
+whose `From` address looks undeliverable, and catches the bulk password reset that
+reports success after sending zero emails.
+
 ## How it's built
 
 One array — `keel_defaults_schema()` — is the single source of truth. It drives both
@@ -75,7 +100,7 @@ Two things it does that a settings screen usually does not:
 ## Try it in the browser
 
 A [WordPress Playground](https://playground.wordpress.net/) blueprint spins up a
-throwaway site with Keel installed, so you can see all 37 defaults and their
+throwaway site with Keel installed, so you can see all 38 defaults and their
 states without a host or a local WordPress.
 
 **[▶ Try Keel in Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)**

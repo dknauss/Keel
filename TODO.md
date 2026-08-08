@@ -10,7 +10,7 @@ into ROADMAP.md or here.
 
 ## Content / docs
 
-- [x] **Reference doc coverage** — done 2026-08-04. All 37 schema keys now have an
+- [x] **Reference doc coverage** — done 2026-08-04. All 38 schema keys now have an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
       three more (`remove_version`, `security_headers`, `frame_options`) were described
       in prose in section 6 but never keyed, so a search for the key found nothing.
@@ -24,7 +24,7 @@ into ROADMAP.md or here.
       with their real defaults.
 
 - [x] **readme.txt / README** — done 2026-08-04. Both expanded now the feature set is
-      frozen at 37. The HIBP external-services disclosure is current and guarded by
+      frozen at 38. The HIBP external-services disclosure is current and guarded by
       `tests/readme-spec.php`, which asserts it names the opt-out constant and filter,
       says how much of the hash is sent, says what happens when the API is unreachable,
       and links the operator's privacy policy.
