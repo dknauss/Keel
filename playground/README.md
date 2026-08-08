@@ -14,6 +14,22 @@ It also creates a published post, so the content defaults (comments, pingbacks,
 author archives, attachment redirects) have something to act on. Without it the
 site is empty and half the toggles look inert.
 
+## `.wordpress-org/blueprints/blueprint.json`
+
+A second blueprint, in a different directory, for a different consumer: the
+wordpress.org plugin directory reads it from there to power the **Live Preview**
+button on the listing page. It is not referenced from the README and nothing in
+this repository links to it.
+
+It installs the same `latest` zip and lands on the same screen. It differs only
+in the PHP version it prefers and in not going through the CORS proxy, which the
+directory does not need.
+
+Keep the two in step. The sample-post step in particular has to be in both: the
+directory preview is the first look most people get, and without a post the
+content defaults have nothing to act on, which is the "half the toggles look
+inert" problem this blueprint exists to avoid.
+
 ## There is no stable blueprint yet
 
 The sibling plugins ship a second blueprint pointing at

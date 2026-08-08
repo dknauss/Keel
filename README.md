@@ -79,10 +79,13 @@ reports success after sending zero emails.
 
 ## How it's built
 
-One array — `keel_defaults_schema()` — is the single source of truth. It drives both
-the settings screen and the bootstrap that wires each *enabled* default to its
-WordPress hook. Adding a default is one array entry plus one `if`-block in bootstrap;
-no new settings-page code. A default is an opinionated filter behind a toggle.
+One array — `keel_defaults_schema()` — is the single source of truth for structure.
+It drives both the settings screen and the bootstrap that wires each *enabled*
+default to its WordPress hook. Adding a default is usually one schema entry, one
+`if`-block in bootstrap, and its display copy in `includes/strings.php` under the
+same key; no new settings-page code. Several defaults share a bootstrap block where
+they belong together — the XML-RPC family is one — so that is the shape rather than
+a rule. A default is an opinionated filter behind a toggle.
 
 Two things it does that a settings screen usually does not:
 
@@ -105,10 +108,15 @@ states without a host or a local WordPress.
 
 **[▶ Try Keel in Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)**
 
-It installs the rolling build from `main`, opens **Settings → Keel**, and creates
-a published post so the content defaults — comments, pingbacks, author archives,
+It installs the `latest` rolling build, opens **Settings → Keel**, and creates a
+published post so the content defaults — comments, pingbacks, author archives,
 attachment redirects — have something to act on. An empty site makes half the
 toggles look inert.
+
+`latest` is republished by `release.yml` on every version tag, not on every push
+to `main`, so the demo can sit behind the branch. Check what it is actually
+serving before reading anything into it — [`playground/README.md`](playground/README.md)
+has the one-line `curl`.
 
 > **One blueprint, not two.** The sibling plugins also ship a "latest release"
 > link built on `/releases/latest/download/`, which resolves to the newest

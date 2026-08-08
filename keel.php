@@ -20,9 +20,11 @@
  * GPL-2.0-or-later. Original copyright is retained by the respective authors; see
  * LICENSE and the Credits section of readme.txt.
  *
- * Architecture: every default is one entry in keel_defaults_schema() plus one
- * bootstrap `if`-block — a default is an opinionated filter behind a toggle.
- * Read the schema array first; it is the map.
+ * Architecture: a default is usually one entry in keel_defaults_schema(), one
+ * bootstrap `if`-block, and its display copy in includes/strings.php under the
+ * same key — a default is an opinionated filter behind a toggle. Some share a
+ * bootstrap block where they belong together, so that is the shape rather than a
+ * rule. Read the schema array first; it is the map.
  *
  * @package Keel
  */

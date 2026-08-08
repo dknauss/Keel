@@ -3,7 +3,7 @@
 	"meta": {
 		"title": "Keel — live demo",
 		"author": "dknauss",
-		"description": "Sane, individually-toggleable WordPress defaults. Opens on Settings → Keel so every default and its state is visible in one place. (installs the rolling build from main)."
+		"description": "Sane, individually-toggleable WordPress defaults. Opens on Settings → Keel so every default and its state is visible in one place. (installs the 'latest' rolling build, republished on every version tag)."
 	},
 	"landingPage": "/wp-admin/options-general.php?page=keel",
 	"preferredVersions": { "php": "8.3", "wp": "latest" },
