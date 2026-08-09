@@ -30,16 +30,17 @@ directory preview is the first look most people get, and without a post the
 content defaults have nothing to act on, which is the "half the toggles look
 inert" problem this blueprint exists to avoid.
 
-## There is no stable blueprint yet
+## `blueprint-stable.json`
 
-The sibling plugins ship a second blueprint pointing at
-`releases/latest/download/…`, which resolves to the newest **non-prerelease**
-release. Keel has none — `v0.1.0-dev` and the rolling `latest` are both marked
-pre-release — so that URL returns 404 and a badge built on it would be broken on
-arrival.
+The same thing, installing from `releases/latest/download/`, which resolves to
+the newest **non-prerelease** release — `v0.2.0` as of 2026-08-04. This is the
+primary "try it live" link, because it is byte-identical to what somebody would
+download, and it follows each new stable release without the URL changing.
 
-Add `blueprint-stable.json` alongside this one when the first stable release is
-cut; the only difference is the zip URL.
+It could not exist until there was a stable release: `v0.1.0-dev` and the rolling
+`latest` are both marked pre-release, so that path returned 404 and a badge built
+on it would have shipped broken. That is why the README carried one Playground
+badge and not two until now.
 
 ## Checking a change
 

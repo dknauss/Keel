@@ -7,7 +7,7 @@
 [![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
 [![Tested up to WP 7.0](https://img.shields.io/badge/tested%20up%20to-WP%207.0-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg?logo=php&logoColor=white)](https://www.php.net/)
-[![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)
+[![▶ Playground (latest release)](https://img.shields.io/badge/▶_Playground-Latest_release-3858e9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-stable.json) [![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)
 
 **Sane, individually-toggleable defaults for every new WordPress site.**
 
@@ -106,24 +106,18 @@ A [WordPress Playground](https://playground.wordpress.net/) blueprint spins up a
 throwaway site with Keel installed, so you can see all 38 defaults and their
 states without a host or a local WordPress.
 
-**[▶ Try Keel in Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)**
+**[▶ Try the latest release](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-stable.json)** — byte-identical to what you would download, and it follows each new stable release.
 
-It installs the `latest` rolling build, opens **Settings → Keel**, and creates a
-published post so the content defaults — comments, pingbacks, author archives,
-attachment redirects — have something to act on. An empty site makes half the
-toggles look inert.
+**[▶ Try the rolling build](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)** — the `latest` pre-release, for previewing changes before they are cut.
+
+Both open **Settings → Keel** and create a published post, so the content
+defaults — comments, pingbacks, author archives, attachment redirects — have
+something to act on. An empty site makes half the toggles look inert.
 
 `latest` is republished by `release.yml` on every version tag, not on every push
-to `main`, so the demo can sit behind the branch. Check what it is actually
-serving before reading anything into it — [`playground/README.md`](playground/README.md)
-has the one-line `curl`.
-
-> **One blueprint, not two.** The sibling plugins also ship a "latest release"
-> link built on `/releases/latest/download/`, which resolves to the newest
-> *non-prerelease* release. Keel has none yet — `v0.1.0-dev` and the rolling
-> `latest` are both pre-releases — so that URL 404s today and a badge built on it
-> would ship broken. [`playground/README.md`](playground/README.md) records what
-> to add when the first stable release is cut.
+to `main`, so the rolling demo can sit behind the branch. Check what it is
+actually serving before reading anything into it —
+[`playground/README.md`](playground/README.md) has the one-line `curl`.
 
 ## Install
 
