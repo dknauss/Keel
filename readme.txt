@@ -103,6 +103,11 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 = 0.1.0-dev =
 Early development. The reserved-usernames default has been removed; if you relied on it, the readme's changelog shows the one-line filter that replaces it.
 
+== Screenshots ==
+
+1. Settings → Keel. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
+
 == Changelog ==
 
 = 0.2.0 =
