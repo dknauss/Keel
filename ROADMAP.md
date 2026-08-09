@@ -191,13 +191,16 @@ Plugin Review requirements, not niceties.
       moved: paths are required arguments, and the authenticated session is minted per
       run instead of a committed cookie.
 
-- [ ] **An XML-RPC help tab, in Keel and in Pixel.** The copy convention sends reasoning
-      to the help tab, and `block_xmlrpc_endpoint` is the one description still carrying
-      it — a third of its 62 words is "PHP still starts for each blocked request; blocking
-      at the host, CDN or firewall is lighter", which is why-we-chose-this, not
-      what-it-costs-you. Parked until now because it meant a tab for one paragraph. Pixel
-      already has an XML-RPC tab, so the two sides differ: Keel needs the tab, Pixel needs
-      the paragraph moved into the one it has.
+- [x] **An XML-RPC help tab, in Keel** — done 2026-08-09 (keel#69). The tab covers
+      the family rather than the one orphaned paragraph: what XML-RPC is, why four
+      switches instead of one, the Jetpack constraint, why blocking inside WordPress
+      still costs a request, and the out-of-date reputation of `system.multicall`.
+      `block_xmlrpc_endpoint`'s description drops from 62 words to 45 and points at
+      the tab. Guarded four ways in `tests/settings-copy.php`, each break-tested.
+
+      **Pixel still needs the paragraph moved** into the XML-RPC tab it already has.
+      Tracked there, not here.
+
 
 - [x] **A policy-collision report in Site Health** — done 2026-08-04, in *both*
       plugins (px#238, keel#26). Detects by hook rather than by plugin name and

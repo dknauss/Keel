@@ -129,6 +129,25 @@ function keel_defaults_add_help_tab() {
 		)
 	);
 
+	$screen->add_help_tab(
+		array(
+			'id'      => 'keel-xmlrpc',
+			'title'   => __( 'XML-RPC', 'keel' ),
+			'content' =>
+				'<p>' . esc_html__( 'XML-RPC is WordPress\'s original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use any of it; a few depend on it entirely.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'That is why these are four switches rather than one. Turning the endpoint off outright is the strictest answer and the easiest to regret, so the three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while leaving the endpoint answering for anything that still needs it.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'Jetpack is the usual reason to leave it reachable. It talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Keel warns rather than refuses: a toggle that quietly declines to do what it says is worse than one that does as it is told. Test the connection and the features you use before deciding Jetpack no longer needs it.', 'keel' ) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request reaches WordPress at all, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option.', 'keel' ),
+					array( 'code' => array() )
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'One note on <code>system.multicall</code>, because its reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability, which is why it is off by default rather than urged on you.', 'keel' ),
+					array( 'code' => array() )
+				) . '</p>',
+		)
+	);
+
 	$screen->set_help_sidebar(
 		'<p><strong>' . esc_html__( 'Current posture', 'keel' ) . '</strong></p>' .
 		'<p>' . wp_kses(
