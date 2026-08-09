@@ -130,7 +130,7 @@ function keel_defaults_debug_information( $info ) {
 	}
 
 	$info['keel'] = array(
-		'label'       => __( 'Keel', 'keel' ),
+		'label'       => __( 'Keel Defaults', 'keel' ),
 		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel' ),
 		'fields'      => $fields,
 	);

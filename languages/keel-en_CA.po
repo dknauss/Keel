@@ -1,22 +1,28 @@
-# Canadian English (en_CA) for Keel.
-# Source strings are US English; en_CA differs only in specific spellings
-# (colour, behaviour). Canadian English keeps -ize/-ization, so most strings
-# are identical and fall back to the source. Add entries here only where a
-# genuine Canadian spelling differs.
-
+# Canadian English for Keel.
+#
+# en_US is the source locale, so this catalog exists only to swap American
+# spellings for Canadian ones. Three strings need it out of 221; everything else
+# is identical and is deliberately not repeated here, because a duplicated string
+# is one that can drift from its source without anything noticing.
+#
+# Regenerate the template with:  wp i18n make-pot . languages/keel.pot --slug=keel
+# Recompile this catalog with:   wp i18n make-mo languages/
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.1.0-dev\n"
-"Report-Msgid-Bugs-To: https://github.com/dknauss/keel\n"
+"Project-Id-Version: Keel Defaults 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel\n"
 "Language: en_CA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Domain: keel\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in."
-msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — cross-origin framing, requiring authentication for all REST requests, the Classic editor — is off by default and opt-in."
+msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in."
+msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in."
 
-msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default."
-msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Hosts ending in .test/.local read as Local. Off by default."
+msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied."
+msgstr "Settings such as session length and login behaviour are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied."
+
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognised automatically. Off by default."
+
