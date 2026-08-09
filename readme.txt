@@ -4,7 +4,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.0-dev
+Stable tag: 0.2.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,6 +104,18 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 Early development. The reserved-usernames default has been removed; if you relied on it, the readme's changelog shows the one-line filter that replaces it.
 
 == Changelog ==
+
+= 0.2.0 =
+* First stable release. The feature set is frozen at 38 defaults; what changed since the scaffold is listed below.
+* Comment teardown now reaches past the rendered page: comment queries are answered empty, comment blocks stop rendering in block themes, comment feeds return a real 404 instead of a redirect loop, and the comment count reports zero.
+* A closed REST API stops advertising itself — the `<link rel>`, the `Link:` header and the RSD entry all go — and oEmbed stays reachable through the gate so other sites embedding yours do not silently degrade to a bare link.
+* Author identity no longer leaks past a hidden author archive. oEmbed responses drop `author_name` and `author_url`, and the users sitemap provider is removed.
+* Uninstall leaves nothing behind: settings, the last-login user meta and the breach-screening transients are all removed, network-wide on multisite.
+* Activation seeds every existing site on a network, and a subsite created afterwards is seeded too, so a later schema change cannot move some sites and not others.
+* Site Health reports every default and its state under Info, flags only what warrants attention under Status, and names other active plugins setting the same defaults.
+* Outgoing mail is suppressed outside production, and the settings screen says so on screen rather than only in a notice.
+* The session-length filter stands down when it has nothing to say, so it does not overrule a host or another plugin that has already decided.
+* Environment detection no longer overrides a site that declares `WP_ENVIRONMENT_TYPE` through an environment variable rather than the constant.
 
 = 0.1.0-dev =
 * Removed the reserved-usernames default. It refused to create accounts named `admin`, `support`, `info` and 70 others, which is a reasonable policy for a managed fleet and a presumptuous one for a general-purpose defaults plugin — the list is long, opinionated, and includes names an ordinary site legitimately uses (`manager`, `marketing`, `sales`, `office`, `client`). Existing accounts were never affected and still are not. A stored setting is ignored and drops out of the option on the next save; no migration is needed. To keep the behaviour, WordPress's own filter does it in one call: `add_filter( 'illegal_user_logins', function ( $logins ) { return array_merge( $logins, array( 'admin', 'administrator', 'root' ) ); } );`
