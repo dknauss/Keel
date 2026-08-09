@@ -1,0 +1,34 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"meta": {
+		"title": "Keel — latest release demo",
+		"author": "dknauss",
+		"description": "Sane, individually-toggleable WordPress defaults. Opens on Settings → Keel so every default and its state is visible in one place. (installs the latest stable release)."
+	},
+	"landingPage": "/wp-admin/options-general.php?page=keel",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "latest"
+	},
+	"login": true,
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "url",
+				"url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/latest/download/keel.zip"
+			},
+			"options": {
+				"activate": true,
+				"targetFolderName": "keel"
+			},
+			"progress": {
+				"caption": "Installing Keel"
+			}
+		},
+		{
+			"step": "wp-cli",
+			"command": "wp post create --post_type=post --post_title='A post to try the defaults against' --post_status=publish"
+		}
+	]
+}
