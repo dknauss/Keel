@@ -57,9 +57,17 @@ These are not style preferences; `tests/naming-conventions.php` fails on them.
 - **A docblock on every function.**
 - **Read toggles with `keel_defaults_enabled()`**, not by comparing to `'yes'`.
 
-Two more are enforced elsewhere: settings-screen row headings are Title Case
-(`tests/settings-heading-case.php`), and everything the plugin stores must be
-removed by `uninstall.php` (`tests/uninstall-coverage.php`).
+Three more are enforced elsewhere: settings-screen row headings are Title Case
+(`tests/settings-heading-case.php`), everything the plugin stores must be
+removed by `uninstall.php` (`tests/uninstall-coverage.php`), and any document
+that says how many defaults there are has to agree with the schema
+(`tests/default-count.php`).
+
+That last one is why adding a default is a slightly wider change than the two
+edits above: `README.md`, `readme.txt`, `TODO.md`, `ROADMAP.md` and
+`SECURITY.md` all state the count, and `SECURITY.md` also breaks it down by how
+the defaults ship. The test names every file and line that needs moving, so run
+`composer test` and follow the failures rather than hunting for them.
 
 ## Writing tests
 
