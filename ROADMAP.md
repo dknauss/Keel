@@ -239,6 +239,36 @@ Plugin Review requirements, not niceties.
       still duplicated per repo, so retiring a phrase once does not retire it
       everywhere. Pixel still has no copy guard at all.
 
+- [ ] **An accessibility sweep of the settings screen.** Never done. There is real
+      care in the code — nine `aria-describedby` wirings, screen-reader legends on
+      every fieldset, `scope="row"` headings, an `aria-live` readout on the width
+      slider, and the environment label clipped rather than `display:none` so it
+      still reaches a screen reader — but it accumulated one control at a time, and
+      only two assertions in the whole suite touch any of it. Care without coverage
+      is the state this repository spent a day learning not to trust.
+
+      Four things worth checking before anything else, because they are the ones
+      where this screen does something WordPress core does not:
+
+      - **Dependent rows.** Rows hide and show with `style="display:none"` driven by
+        JS on a sibling control. A row that appears has to be announced, and focus
+        must not land in a row that has just been hidden. Nothing tests this.
+      - **The width slider.** A `range` input with a `datalist`, an `aria-live`
+        output, and a live preview that rewrites `document.body` styles. Whether the
+        announcement is useful or a stream of noise is an open question.
+      - **Locked controls.** A `disabled` control plus a lock note, with
+        `aria-describedby` pointing at the note first so the reason is announced
+        before the label. That ordering was deliberate; it has never been verified
+        with an actual screen reader.
+      - **The environment indicator.** Colour carries meaning — red for production,
+        green for development. There is a text label beside it, which is what makes
+        that legal under WCAG 1.4.1, so the label must never become the thing that
+        gets dropped for space.
+
+      Wants a real assistive-technology pass, not an automated scan alone: axe or
+      similar will confirm contrast and labelling and will say nothing about whether
+      a hidden dependent row is announced when it returns.
+
 ## v2 — deferred by decision
 
 *(Multisite governance was here. Promoted to Next up, 2026-08-04.)*
