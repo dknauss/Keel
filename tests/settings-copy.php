@@ -70,6 +70,39 @@ keel_assert( $words >= 40 && $words <= 55, "Password field help states the rule 
 keel_assert( false === strpos( $password_help, 'haveibeenpwned.com' ), 'The HIBP link stays out of the field help — the help tab and readme.txt carry it.' );
 keel_assert( false === strpos( $password_help, 'pages.nist.gov' ), 'The NIST link stays out of the field help for the same reason.' );
 
+/*
+ * The same convention, applied to XML-RPC.
+ *
+ * block_xmlrpc_endpoint's description carried 62 words, and a third of them were
+ * "PHP still starts for each blocked request; blocking at the host or CDN is
+ * lighter" — which is why-we-built-it-this-way, not what-it-costs-you. It sat
+ * there because moving it meant creating a tab for one paragraph.
+ *
+ * The tab exists now, so the field help states the rule and points at it. These
+ * assertions stop the reasoning drifting back into the control, which is the
+ * direction copy always drifts: the person editing is looking at the field.
+ */
+$xmlrpc_help  = $strings['block_xmlrpc_endpoint']['help'];
+$xmlrpc_words = str_word_count( preg_replace( '/<[^>]*>/', '', $xmlrpc_help ) );
+
+keel_assert( $xmlrpc_words <= 50, "The XML-RPC endpoint field help states the rule in 50 words or fewer (currently {$xmlrpc_words})." );
+keel_assert(
+	false === stripos( $xmlrpc_help, 'PHP still starts' ) && false === stripos( $xmlrpc_help, 'CDN' ),
+	'The cost-of-blocking-in-PHP reasoning stays in the XML-RPC help tab, not the field help.'
+);
+keel_assert(
+	false !== stripos( $xmlrpc_help, 'help tab' ),
+	'The XML-RPC endpoint field help points at the tab that carries the reasoning.'
+);
+
+// And the tab has to actually exist, or the pointer above is a dead reference.
+$settings_page = file_get_contents( dirname( __DIR__ ) . '/includes/settings-page.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+keel_assert( false !== strpos( $settings_page, "'keel-xmlrpc'" ), 'An XML-RPC help tab is registered.' );
+keel_assert(
+	false !== stripos( $settings_page, 'before the request reaches WordPress' ),
+	'The reasoning moved out of the field help landed in the tab rather than being deleted.'
+);
+
 // --- no field description sends the reader off-site ---
 // A link in a narrow admin column is a second copy of something readme.txt or a
 // help tab already says properly, and two copies drift.

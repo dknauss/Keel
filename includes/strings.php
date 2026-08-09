@@ -47,7 +47,7 @@ function keel_defaults_strings() {
 		'block_xmlrpc_endpoint'           => array(
 			'label'     => __( 'XML-RPC endpoint', 'keel' ),
 			'statement' => __( 'Block the endpoint entirely (returns 403)', 'keel' ),
-			'help'      => __( 'Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Leave XML-RPC reachable while Jetpack is active, unless connection and feature testing proves Jetpack no longer needs it. This runs inside WordPress, so PHP still starts for each blocked request; blocking it further out — at your host, CDN, or firewall, before the request reaches WordPress — is lighter if that option exists.', 'keel' ),
+			'help'      => __( 'Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Leave XML-RPC reachable while Jetpack is active, unless connection and feature testing proves Jetpack no longer needs it. See the XML-RPC help tab for why this runs inside WordPress and when blocking further out is better.', 'keel' ),
 		),
 		'disable_application_passwords'   => array(
 			'label'     => __( 'Application Passwords', 'keel' ),
