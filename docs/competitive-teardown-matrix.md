@@ -210,7 +210,7 @@ Legend: ✅ correct · ⚠️ partial / caveat · ❌ open or broken · — not 
 | Anonymous user enumeration closed | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
 | **Block editor still works (authed)** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ **403 everywhere** | ⚠️ post type gone | ✅ | ✅ |
 | REST discovery link removed | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ *(fixed)* |
-| oEmbed provider kept working | ✅ | ✅ | ✅ | ❌ 401 | ✅ | ✅ | ❌ 403 | ❌ 404 | ❌ 401 | ❌ 401 |
+| oEmbed provider kept working | ✅ | ✅ | ✅ | ❌ 401 | ✅ | ✅ | ❌ 403 | ❌ 404 | ❌ 401 | ✅ 200 *(fixed)* |
 | Comments route reachable by admins | ❌ 403 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ 403 | ✅ | ⚠️ 404 (route unregistered) | ✅ |
 
 ### Comment teardown
@@ -266,8 +266,9 @@ only plugin that closes server-side comment reads, and its XML-RPC teardown is t
 only granular one (drop pingbacks, keep remote publishing, or any combination). Its
 REST gate is on the correct side of the authenticated/anonymous line.
 
-The probes also found five gaps in Keel itself. Four were bugs and are fixed; the
-fifth is an inherent trade-off, now stated in the help text.
+The probes also found five gaps in Keel itself. All five are fixed. The fifth was
+recorded here as an inherent trade-off before it was closed; the entry below now
+says what actually shipped.
 
 1. **`get_comments_number()` returned 1** while `wp_count_comments()` returned 0 — a
    theme printing "1 Comment" above a thread that no longer exists. **Fixed:**
@@ -286,10 +287,14 @@ fifth is an inherent trade-off, now stated in the help text.
    and crawlable. This was the clearest of the four, because the `disable_comments`
    help text already *claimed* comment feeds were removed; only the `<link>` markup
    was. **Fixed:** comment feed requests 404.
-5. **oEmbed goes down with the REST API.** Not a bug — it is what blocking anonymous
-   REST means, and it is shared with every other plugin that blocks it. Punching a
-   hole for `oembed/1.0` would quietly weaken a security toggle, so the behaviour
-   stands and the `disable_rest` help text now names the consequence.
+5. **oEmbed went down with the REST API** — shared with every other plugin that
+   blocks anonymous REST, and recorded here at first as an acceptable cost of the
+   toggle. It was not: the site paying it is the one doing the embedding, so the
+   breakage lands somewhere the operator never sees. **Fixed** (keel#32):
+   `oembed/1.0` is allowlisted past the gate, and the `disable_rest` help text says
+   so. See finding 7 above for the re-probe. The carve-out is only safe because
+   `keel_defaults_strip_oembed_author()` is registered by the gate itself, so the
+   route cannot hand an anonymous caller the nicenames the gate just refused.
 
 Fix 4 needed a second pass. Calling `set_404()` alone produced a *worse* result than
 the bug: `redirect_canonical()` does not bail on a 404 — it calls
@@ -350,7 +355,7 @@ from a direct method call (`-32601` = method not found, `none` = no response bod
 | `rest.index` | 200 | 200 | 200 | 200 | 401 | 200 | 200 | 403 | 200 | 401 | 401 |
 | `rest.users` | 200 | 200 | 200 | 200 | 401 | 200 | 200 | 403 | 200 | 401 | 401 |
 | `rest.posts` | 200 | 200 | 200 | 200 | 401 | 200 | 200 | 403 | 404 | 401 | 401 |
-| `rest.oembed` | 200 | 200 | 200 | 200 | 401 | 200 | 200 | 403 | 404 | 401 | 401 |
+| `rest.oembed` | 200 | 200 | 200 | 200 | 401 | 200 | 200 | 403 | 404 | 401 | 200 |
 | `rest.head_link` | 1 | 1 | 1 | 1 | 0 | 1 | 1 | 0 | 1 | 0 | 0 |
 | `feed.site_comments` | 200 | 403 | 403 | 200 | 200 | 200 | 200 | 500 | 200 | 200 | 404 |
 | `feed.post_comments` | 200 | 403 | 403 | 200 | 200 | 200 | 200 | 500 | 200 | 200 | 404 |

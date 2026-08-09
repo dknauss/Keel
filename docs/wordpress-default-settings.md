@@ -17,7 +17,7 @@ and depend on Keel's own logic.
 
 ---
 
-## 1. Security & Attack-Surface Reduction
+## 1. Security and Attack-Surface Reduction
 
 ### Restrict REST API User Discovery
 - **Key:** `restrict_rest_user_discovery`
@@ -292,7 +292,7 @@ if ( array_diff( $roles, $exempt ) === array() ) {
 }
 ```
 
-## 2. Content, Comments & Public Surfaces
+## 2. Content, Comments and Public Surfaces
 
 ### Disable Comments, Trackbacks, and Pingbacks
 - **Key:** `disable_comments`
@@ -471,7 +471,7 @@ add_action( 'admin_print_footer_scripts', function () {
 } );
 ```
 
-## 3. Admin & Front-End UX
+## 3. Admin and Front-End UX
 
 ### Title-Only Admin Search
 - **Key:** `title_only_admin_search`
@@ -680,7 +680,7 @@ add_action( 'admin_notices', function () {
 } );
 ```
 
-## 4. Login & Session Policy
+## 4. Login and Session Policy
 
 ### Disable Remember Me
 - **Key:** `disable_remember_me`
@@ -737,7 +737,7 @@ add_filter( 'auth_cookie_expiration', function ( $expiration, $user_id, $remembe
 }, 50, 3 );
 ```
 
-### Login Logo & Link
+### Login Logo and Link
 - **Key:** `login_logo_behavior`
 - **Default:** `keep_default` *(leave the login screen untouched)*
 - **Why:** The default WordPress "W" on `wp-login.php` links to wordpress.org — a subtle brand
@@ -1034,28 +1034,52 @@ function keel_strip_asset_ver( $src ) {
 
 ## Quick-Reference Table
 
+All 38, in schema order. The **Setting** column is the label as it appears under
+**Settings → Keel**, and the **Category** column is the schema `group`, which is the
+fieldset it renders under — so this table and the settings screen can be read side by
+side. An earlier version of this table listed 24 of the 38 and said nothing about
+covering only some, which reads as a full inventory when it is not.
+
 | Setting | Schema key | Default | Category |
 | --- | --- | --- | --- |
-| Disable Comments/Trackbacks/Pingbacks | `disable_comments` | `yes` | Content |
-| Disable Pingbacks (new-post default) | `disable_pingbacks` | `yes` | Content |
-| Restrict REST User Discovery | `restrict_rest_user_discovery` | `yes` | Security |
-| Disable REST (anon) | `disable_rest` | `no` | Security |
-| XML-RPC categories | `xmlrpc_allow_pingbacks`, `xmlrpc_allow_remote_publishing`, `xmlrpc_allow_multicall` | `no` (each) | Security |
-| Block XML-RPC endpoint | `block_xmlrpc_endpoint` | `no` | Security |
-| Application Passwords (leave available) | `disable_application_passwords` | `no` | Security |
-| Require Strong Passwords | `require_strong_passwords` | `yes` | Security |
-| Disable AI Connectors *(PMP-specific)* | `disable_ai_connectors` | `yes` | Security |
-| Core automatic updates | `core_update_policy` | `minor` | Updates |
-| Translation automatic updates | `auto_update_translations` | `yes` | Updates |
-| Disable Public Author Archives | `disable_author_archives` | `yes` | Content |
-| Disable Emojis | `disable_emojis` | `yes` | Performance |
-| Redirect Attachment Pages | `redirect_attachment_pages` | `yes` | SEO |
-| Title-Only Admin Search | `title_only_admin_search` | `no` | UX |
-| Front-End Admin Bar Behavior | `frontend_admin_bar_behavior` | `''` | UX |
-| Disable Remember Me | `disable_remember_me` | `no` | Login |
-| Remember Me Days | `remember_me_days` | `14` | Login |
-| Regular Session Days | `session_regular_days` | `2` | Login |
-| Login Logo Behavior | `login_logo_behavior` | `keep_default` | Branding |
+| REST user discovery | `restrict_rest_user_discovery` | `yes` | Security |
+| REST authentication | `disable_rest` | `no` | Security |
+| XML-RPC pingbacks | `xmlrpc_allow_pingbacks` | `no` | Security |
+| XML-RPC remote publishing | `xmlrpc_allow_remote_publishing` | `no` | Security |
+| XML-RPC multicall | `xmlrpc_allow_multicall` | `no` | Security |
+| XML-RPC endpoint | `block_xmlrpc_endpoint` | `no` | Security |
+| Application Passwords | `disable_application_passwords` | `no` | Security |
+| Password Strength | `require_strong_passwords` | `yes` | Security |
+| Password Policy Exemptions | `password_exempt_roles` | `['subscriber']` | Security |
+| Unfiltered HTML | `limit_unfiltered_html_to_admins` | `yes` | Security |
+| Version Fingerprint | `remove_version` | `no` | Security |
+| Security Headers | `security_headers` | `yes` | Security |
+| Frame Options | `frame_options` | `SAMEORIGIN` | Security |
+| AI Connectors | `disable_ai_connectors` | `yes` | Security |
+| Core Auto-Updates | `core_update_policy` | `minor` | Updates |
+| Translations | `auto_update_translations` | `yes` | Updates |
+| Comments | `disable_comments` | `yes` | Content |
+| Pingbacks On New Posts | `disable_pingbacks` | `yes` | Content |
+| Self-Pingbacks | `disable_self_pingbacks` | `yes` | Content |
+| Author Archives | `disable_author_archives` | `yes` | Content |
+| Attachment Pages | `redirect_attachment_pages` | `yes` | Content |
+| Emoji Script | `disable_emojis` | `yes` | Content |
+| Post Passwords | `disable_post_passwords` | `no` | Content |
+| Classic Editor | `force_classic_editor` | `no` | Editor |
+| Upload Filenames | `lowercase_upload_filenames` | `yes` | Media |
+| Image Sizes | `media_sizes_panel` | `yes` | Media |
+| Email Deliverability | `mail_failure_notice` | `yes` | Email |
+| Non-Production Email | `suppress_nonproduction_mail` | `yes` | Email |
+| Admin Search | `title_only_admin_search` | `no` | UX |
+| Front-End Admin Bar | `frontend_admin_bar_behavior` | `''` | UX |
+| Admin Menu Width | `admin_menu_width` | `default` | UX |
+| Admin List Columns | `helper_list_columns` | `no` | UX |
+| Environment Indicator | `environment_indicator` | `no` | UX |
+| Remember Me | `disable_remember_me` | `no` | Login |
+| Regular Session Length | `session_regular_days` | `2` | Login |
+| Remember Me Length | `remember_me_days` | `14` | Login |
+| Login Logo | `login_logo_behavior` | `keep_default` | Branding |
+| Heartbeat API | `throttle_heartbeat` | `no` | Performance |
 
 ---
 

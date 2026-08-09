@@ -62,7 +62,7 @@ closed; the milestone is done.
       is stored per site but does not *act* per site, so the strictest site on a network
       sets the floor for anyone who changes their password there. Documented, not
       governed — network-wide policy stays a v2 item.
-- [x] **Reference doc coverage** — done 2026-08-04 (keel#18). All 37 schema keys have an
+- [x] **Reference doc coverage** — done 2026-08-04 (keel#18). All 38 schema keys have an
       entry. It was 16 missing, not the handful assumed here: thirteen absent outright,
       three more (`remove_version`, `security_headers`, `frame_options`) described in
       prose but never keyed, so searching for the key found nothing.
@@ -93,7 +93,7 @@ Plugin Review requirements, not niceties.
       `Version`: they drift silently, the failure lands at release, and it ships the
       wrong code to every existing install.
 - [x] **Expand `readme.txt` / `README.md`** — done 2026-08-04. The feature set froze at
-      37 defaults with v0.2, which is what this was waiting on. `README.md` gained the
+      38 defaults with v0.2, which is what this was waiting on. `README.md` gained the
       measured comparison against the field; `readme.txt` gained the same in prose, a
       Site Health paragraph, and an FAQ for running alongside another defaults plugin.
       Two stale claims went with it: the "in progress" status, and an FAQ line saying
