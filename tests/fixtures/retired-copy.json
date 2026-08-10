@@ -1,0 +1,88 @@
+{
+  "_comment": [
+    "Retired copy, shared across the plugin lineage.",
+    "",
+    "Keel, Better by Default and Pixel say many of the same things about the same",
+    "WordPress behaviours, so they retire the same wrong claims — and until this",
+    "file existed each kept its own list. Retiring a phrase in one repo did not",
+    "retire it in the others, which is exactly how an author-identity leak lived in",
+    "two plugins while the fix sat in the third.",
+    "",
+    "Entries in `shared` are enforced by every repo that carries this file. Entries",
+    "under a repo's own key are enforced only there, because they name that",
+    "plugin's functions, options or documents and would be meaningless elsewhere.",
+    "",
+    "Matching is case-insensitive substring. Keep phrases long enough to be",
+    "unambiguous and short enough to survive rewording — a phrase pinned to a whole",
+    "sentence stops matching the moment somebody improves the sentence, which is a",
+    "guard that quietly stops guarding.",
+    "",
+    "A repo that explains why a phrase was retired will contain that phrase. Better",
+    "by Default is a teaching repository and does exactly that, so a bare substring",
+    "scan cannot tell a relapse from a lesson. Quote a retired phrase inside a",
+    "`keel-retired-ok` marker on the same line — a comment saying why it is quoted —",
+    "and the scan skips that line. Nothing else is exempt, so the escape hatch has",
+    "to be written deliberately and is visible in review."
+  ],
+  "shared": [
+    {
+      "phrase": "trust leak",
+      "why": "overstates an off-site link as a leak; retired in Better by Default first"
+    },
+    {
+      "phrase": "amplifier that batches thousands of login guesses",
+      "why": "the obsolete system.multicall claim — WordPress 4.4 stopped multicall being a password-guessing multiplier, so this describes a fixed vulnerability as a live one"
+    },
+    {
+      "phrase": "stopped testing credentials after the first failed login",
+      "why": "the pre-correction multicall wording; core refuses every later login in the same server instance, which is a stronger and different statement"
+    },
+    {
+      "phrase": "Gate the whole endpoint off",
+      "why": "the xmlrpc_enabled misdescription — that filter gates methods calling login(), not the endpoint, and pingback sails straight past it"
+    },
+    {
+      "phrase": "without adding entropy",
+      "why": "concedes the argument: composition rules do enlarge the alphabet, so on paper they add entropy. What they fail to add is guessing resistance"
+    },
+    {
+      "phrase": "without adding much to guess",
+      "why": "the awkward intermediate phrasing of the same point; say 'without making them harder to guess'"
+    }
+  ],
+  "keel": [],
+  "better-by-default": [
+    {
+      "phrase": "Only fill in what nothing else has set",
+      "why": "the 'set only if unset' header rule the reference doc kept teaching after 1.1.1 replaced it"
+    },
+    {
+      "phrase": "only fill in what nothing else set",
+      "why": "the replaced 'set only if unset' header rule"
+    },
+    {
+      "phrase": "all three check whether the",
+      "why": "the claim that this plugin only writes a header nobody else has set"
+    },
+    {
+      "phrase": "wrap.closest('p').style.display",
+      "why": "the login_footer script the Remember Me default deliberately does not use"
+    },
+    {
+      "phrase": "wpyeg_is_pwned(",
+      "why": "a breach-check function this plugin has never shipped"
+    },
+    {
+      "phrase": "hide_for_non_admins",
+      "why": "the misspelled admin-bar choice value"
+    },
+    {
+      "phrase": "Note the isset() guards",
+      "why": "the replaced isset()-guard header note"
+    },
+    {
+      "phrase": "we should not fight that layer",
+      "why": "deference to an upstream header that is now compared against"
+    }
+  ]
+}
