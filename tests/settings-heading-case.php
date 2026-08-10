@@ -315,6 +315,52 @@ foreach ( keel_defaults_group_labels() as $key => $label ) {
 }
 
 /*
+ * --- every label, not only the ones this screen draws ---
+ *
+ * Scraping the render is what a reader sees, but it is not the whole set. A
+ * sectioned toggle stacks under a shared row and draws its checkbox `statement`
+ * instead, so its `label` never becomes a <th> and never reached the loop above.
+ * Six of them — the REST pair and the XML-RPC family — had no presence on this
+ * screen at all, drifted into sentence case, and stayed there while this file
+ * reported OK on 34 headings.
+ *
+ * Site Health is their only consumer, which is exactly why the source has to be
+ * the strings table rather than whatever the settings screen happens to emit.
+ */
+$labelled = 0;
+foreach ( keel_defaults_strings() as $key => $s ) {
+	if ( ! isset( $s['label'] ) ) {
+		continue;
+	}
+
+	++$labelled;
+
+	foreach ( keel_heading_case_errors( $s['label'], $lowercase_ok, $interior_ok ) as $problem ) {
+		keel_assert( false, "Label for '{$key}' ('{$s['label']}'): {$problem}" );
+	}
+}
+
+keel_assert(
+	count( keel_defaults_schema() ) === $labelled,
+	'Every default has a label to check — ' . $labelled . ' of ' . count( keel_defaults_schema() ) . '.'
+);
+
+// The render scrape stays, and it has to keep finding headings the strings table
+// does not supply — the section titles. If these ever coincide, one of the two
+// sources has quietly stopped contributing.
+$string_labels = array();
+foreach ( keel_defaults_strings() as $s ) {
+	if ( isset( $s['label'] ) ) {
+		$string_labels[] = $s['label'];
+	}
+}
+
+keel_assert(
+	array() !== array_diff( $headings, $string_labels ),
+	'The render still contributes headings of its own (section titles); if it does not, the scrape has stopped adding anything.'
+);
+
+/*
  * Sectioned fields draw one heading from the section title; everything else
  * draws its own. Both sources have to reach the assertions above, so pin that
  * a heading of each kind is actually present in the rendered markup — otherwise
