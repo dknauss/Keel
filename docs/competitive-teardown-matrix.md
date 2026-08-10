@@ -14,6 +14,9 @@ the way its own settings screen would configure it.
 
 - **Lab:** a throwaway WordPress 7.0.2 install (SQLite, PHP 8.5, `php -S`), block
   theme, one seeded comment on post 1, pretty permalinks, `ping_status=open`.
+  Keel was additionally re-measured on a **classic** theme (Twenty Twenty-One) —
+  see [The classic-theme run](#the-classic-theme-run). The other plugins have not
+  been; their two rendered-markup rows are block-theme figures.
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries
   empty, which silently contaminated the first run.
@@ -229,7 +232,47 @@ Legend: ✅ correct · ⚠️ partial / caveat · ❌ open or broken · — not 
 | Comment feeds blocked | ✅ 403 | ✅ 403 | ❌ 200 | ❌ 200 | ❌ 200 | ✅ 404 *(fixed)* |
 | `X-Pingback` header stripped | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Block-theme comment markup gone | ✅ | ❌ | ⚠️ | ❌ | ✅ | ✅ *(fixed)* |
+| Classic-theme comment form gone | — | — | — | — | — | ✅ *(measured)* |
 | Comment blocks pulled from inserter | ⚠️ JS, latest-comments only | ❌ | ❌ | ❌ | ⚠️ | ✅ PHP, 15 blocks |
+
+
+#### The classic-theme run
+
+Every other measurement here is from a block-theme install, which left the two
+rendered-markup rows open to a fair objection: a teardown that removes
+`core/comments` from a block template proves nothing about a classic theme, where
+the form comes from `comments_template()` and the theme's own `comments.php`.
+
+Measured 2026-08-09 on one install — WordPress 7.0.2, SQLite, the probe harness in
+`tests/integration/` — by switching only the theme between runs.
+
+**Stock WordPress, no plugins, block theme → classic theme.** Two rows move and
+nothing else does, which is the check that the theme swap did what was intended:
+
+| Probe | Twenty Twenty-Five | Twenty Twenty-One |
+|---|---|---|
+| `html.comment_form` | 6 | 4 |
+| `html.comments_block` | 4 | **0** |
+
+`wp-block-comments` is a block-theme marker and disappears with the theme, so on a
+classic theme that row can never have measured a teardown — it reads 0 whether a
+plugin is active or not. Anyone comparing plugins on a classic install would score
+every one of them as passing it.
+
+**With Keel configured, block theme → classic theme: zero differences.** Not in
+the two markup rows, not anywhere in the other thirty-odd probes. Both themes
+report `html.comment_form 0` and `html.comments_block 0`.
+
+The reason is that the teardown does not run at the theme layer at all. Keel
+closes comments in the data: `comments_open()` false, post-type support removed,
+`get_default_comment_status()` closed. A classic theme calling
+`comments_template()` then renders nothing because `comment_form()` is gated on
+`comments_open()`, and a block theme renders nothing because the same state
+reaches `render_block`. One mechanism, two themes, and no theme-specific code.
+
+So the block-theme-only measurement was not hiding anything for Keel. It is worth
+saying that it *could* have been: the row is the kind that passes for the wrong
+reason, and the only way to know was to switch the theme and look.
 
 ### XML-RPC
 
