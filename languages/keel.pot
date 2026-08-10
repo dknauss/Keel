@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T03:11:31+00:00\n"
+"POT-Creation-Date: 2026-08-10T03:12:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -241,7 +241,7 @@ msgid "XML-RPC is WordPress's original remote API. It predates the REST API and 
 msgstr ""
 
 #: includes/settings-page.php:146
-msgid "That is why these are four switches rather than one. Turning the endpoint off outright is the strictest answer and the easiest to regret, so the three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while leaving the endpoint answering for anything that still needs it."
+msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
 msgstr ""
 
 #: includes/settings-page.php:147
