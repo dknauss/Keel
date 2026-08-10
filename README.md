@@ -16,10 +16,10 @@ and performance defaults onto any WordPress install — each one a switch under
 **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
 exactly what the plugin does to your site, in one place, and turn any piece off.
 
-> **Status: released (`0.2.0`, 2026-08-09).** The feature set is frozen at 38
-> defaults; the Site Health surface and multisite-aware seeding are in. Not yet
-> submitted to wordpress.org — what remains before that is verification, not
-> features. See [ROADMAP.md](ROADMAP.md) for the milestones and
+> **Status: released (`0.3.0`, 2026-08-10).** The feature set is frozen at 38
+> defaults; the Site Health surface, multisite-aware seeding and network-wide
+> policy are in. Not yet submitted to wordpress.org — what remains before that is
+> verification, not features. See [ROADMAP.md](ROADMAP.md) for the milestones and
 > [TODO.md](TODO.md) for what's in flight.
 
 ## What it looks like
