@@ -84,7 +84,7 @@ function keel_defaults_add_help_tab() {
 				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'A setting that cannot take effect given another choice is hidden automatically: the XML-RPC method controls disappear when the whole endpoint is blocked, and Remember Me length hides when Remember Me is disabled.', 'keel' ) . '</p>',
+				'<p>' . esc_html__( 'Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off.', 'keel' ) . '</p>',
 		)
 	);
 
@@ -124,7 +124,7 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password while someone else&#8217;s API is down, which bites hardest just when people are rotating credentials after an incident. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The trade is worth knowing: anything that stops this site reaching the API turns breach screening off quietly.', 'keel' ),
+					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The trade is worth knowing: anything that stops this site reaching the API turns breach screening off quietly.', 'keel' ),
 					array()
 				) . '</p>' .
 				( is_multisite()
@@ -161,7 +161,7 @@ function keel_defaults_add_help_tab() {
 		'<p>' . wp_kses(
 			sprintf(
 				/* translators: %s: URL of the Site Health Info screen. */
-				__( 'Every default and its current state is listed under <a href="%s">Site Health → Info</a>, in the <strong>Keel</strong> section. Site Health → Status flags only the few that warrant attention, and files the rest under “Passed tests”.', 'keel' ),
+				__( 'Every default and its current state is listed under <a href="%s">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”.', 'keel' ),
 				esc_url( admin_url( 'site-health.php?tab=debug' ) )
 			),
 			array(
