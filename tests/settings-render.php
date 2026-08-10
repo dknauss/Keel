@@ -271,6 +271,133 @@ foreach ( array(
 	);
 }
 
+/*
+ * --- a locked control announces why, and refuses to be written ---
+ *
+ * `disabled` takes a control out of the tab sequence, so the aria-describedby
+ * wiring that names the reason is announced on focus that never happens. The
+ * reason was deliberately put first in that attribute and then could not be
+ * heard by anyone.
+ *
+ * aria-disabled keeps it focusable. That makes it submittable, which is only
+ * safe because the lock is now enforced on save — so both halves are pinned
+ * here, and the second is the one that turns a presentational lock into a real
+ * one.
+ */
+// DISALLOW_FILE_MODS locks the two update settings, which is how a real site
+// reaches this branch. Defined here, at the end, because a constant cannot be
+// undefined and every render above must see the unlocked screen.
+define( 'DISALLOW_FILE_MODS', true );
+
+$locked_html = keel_render( array() );
+
+keel_assert(
+	null !== keel_defaults_config_lock( 'core_update_policy' ),
+	'The constant produced a real lock to render (otherwise everything below passes vacuously).'
+);
+keel_assert(
+	false !== strpos( $locked_html, 'aria-disabled="true"' ),
+	'A locked control is marked aria-disabled, so it stays focusable and its reason can be announced.'
+);
+
+/*
+ * Matched as an attribute, not as a substring, and in a way that survives both
+ * spellings. Real WordPress emits disabled='disabled'; the stub in this file
+ * emits a bare ` disabled`. The first version of this assertion looked only for
+ * the real-WordPress spelling, so reverting the fix passed it clean — the test
+ * was checking a format the harness never produces.
+ */
+
+/*
+ * Scanned inside the control tags only, and in a way that survives both
+ * spellings. Real WordPress emits disabled='disabled'; the stub in this file
+ * emits a bare ` disabled`. The first version looked only for the real spelling
+ * and passed when the fix was reverted; the second scanned the whole page and
+ * failed on the word "disabled" inside an inline script comment. The thing being
+ * asserted is a control attribute, so match control tags.
+ */
+preg_match_all( '/<(?:input|select)\b[^>]*>/', $locked_html, $control_tags );
+$still_disabled = array_filter(
+	$control_tags[0],
+	static function ( $tag ) {
+		return 1 === preg_match( '/(?<!aria-)\bdisabled\b/', $tag );
+	}
+);
+
+keel_assert( count( $control_tags[0] ) > 20, 'The locked render produced controls to inspect (' . count( $control_tags[0] ) . ').' );
+keel_assert(
+	array() === $still_disabled,
+	count( $still_disabled ) . ' control(s) still use the disabled attribute, which takes them out of the tab sequence: ' . substr( (string) reset( $still_disabled ), 0, 90 )
+);
+keel_assert(
+	false !== strpos( $locked_html, 'data-keel-locked="1"' ),
+	'The locked control is marked for the script that refuses changes to it.'
+);
+keel_assert(
+	false !== strpos( $locked_html, "querySelectorAll( '[data-keel-locked]' )" ),
+	'That script is emitted.'
+);
+
+/*
+ * --- and the lock is real, not presentational ---
+ *
+ * A focusable control is a submittable one. Before this, the lock existed only
+ * in the rendered attribute: a crafted POST wrote a locked setting happily. It
+ * never took effect, because the constant wins when the value is read, but the
+ * stored value drifted from what the screen showed and the lock was a
+ * suggestion. This is the half that makes the change above safe.
+ */
+$GLOBALS['keel_options'] = array( KEEL_DEFAULTS_OPTION => array( 'core_update_policy' => 'minor' ) );
+
+$attempt = keel_defaults_sanitize_site( array( 'core_update_policy' => 'all' ) );
+keel_assert(
+	'minor' === $attempt['core_update_policy'],
+	"A POST for a locked setting keeps the stored value ('" . $attempt['core_update_policy'] . "'), rather than writing what was submitted."
+);
+
+// An unlocked setting on the same submission still saves, or the guard is just
+// refusing everything.
+$attempt2 = keel_defaults_sanitize_site(
+	array(
+		'core_update_policy' => 'all',
+		'disable_emojis'     => 'yes',
+	)
+);
+keel_assert( 'yes' === $attempt2['disable_emojis'], 'An unlocked setting on the same submission still saves.' );
+
+/*
+ * --- dependent rows say what governs them ---
+ *
+ * A row that appears had no programmatic relationship to the choice that
+ * produced it: the link was a data attribute this plugin's own script reads,
+ * which assistive technology cannot see. The row now carries an id so the
+ * controlling input can point aria-controls at it.
+ */
+preg_match_all( '/<tr[^>]*data-keel-dep-field="([a-z_]+)"[^>]*>/', $stock, $dep_rows, PREG_SET_ORDER );
+
+keel_assert( count( $dep_rows ) > 0, 'The screen renders dependent rows to check (' . count( $dep_rows ) . ').' );
+
+foreach ( $dep_rows as $dep_row ) {
+	keel_assert(
+		false !== strpos( $dep_row[0], 'id="keel-dep-' ),
+		'A dependent row carries an id, so aria-controls has something to point at: ' . substr( $dep_row[0], 0, 90 )
+	);
+}
+
+/*
+ * The script has to actually *set* them, or the ids are decoration.
+ *
+ * Asserting that the string "aria-controls" appears is not the same assertion:
+ * the script also reads it back with getAttribute to append, so deleting the
+ * setter left the getter behind and the check passed. Match the write.
+ */
+foreach ( array( 'aria-controls', 'aria-expanded' ) as $wiring ) {
+	keel_assert(
+		false !== strpos( $stock, "setAttribute( '{$wiring}'" ),
+		"The dependent-row script sets {$wiring}, rather than only reading it."
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "settings render: {$fail} failed\n" );
 	exit( 1 );

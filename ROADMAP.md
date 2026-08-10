@@ -404,25 +404,27 @@ Plugin Review requirements, not niceties.
         arrow-key press. It is now `aria-live="off"`: visible, and silent. That
         answers the item's open question about noise; it was noise.
 
-      **Reported, deliberately unchanged.**
+      **Fixed 2026-08-10 (keel#93), both of the two left standing.**
 
-      - **Locked controls.** `disabled` removes a control from the tab order, so
-        the `aria-describedby` lock note is not announced on focus — there is no
-        focus. The deliberate "reason before label" ordering therefore does not
-        happen. It is *not* unreachable: the note renders as visible `<p>` text
-        immediately after the control, so linear reading finds it. The accessible
-        fix is `aria-disabled` plus a focusable control, which changes what the
-        form submits and undoes the hidden-field preservation that keeps a save
-        under a constant from flipping the stored value. Not worth doing blind.
-      - **Dependent rows.** Hidden with `display:none`, which is the correct
-        technique — it removes them from the accessibility tree rather than
-        leaving a phantom. Focus cannot be stranded, because hiding is always
-        driven by a change on the controlling checkbox, which holds focus at that
-        moment. What is missing is any announcement that a row appeared, and any
-        programmatic controller/row relationship. This is a quality gap rather
-        than a conformance failure: a row disappearing when it cannot apply is not
-        a change of context under 3.2.2, and the Settings help tab already
-        explains the behaviour.
+      - **Locked controls announce their reason.** `disabled` takes a control out
+        of the tab sequence, so the `aria-describedby` note naming *why* it cannot
+        be changed is announced on a focus that never happens — the reason was put
+        first in that attribute deliberately and then could not be heard.
+        `aria-disabled` keeps it focusable and announced as unavailable.
+
+        That was only safe once the lock became real. It had been presentational:
+        `keel_defaults_config_lock()` ran at render time and nothing checked it on
+        save, so a crafted POST wrote a locked setting happily. It never took
+        effect — the constant and the network policy both win when the value is
+        read — but the stored value drifted from what the screen showed.
+        `keel_defaults_sanitize_site()` now keeps the stored value for any locked
+        key, and a focusable control is a submittable one, so the enforcement is
+        the half that makes the accessibility fix defensible.
+
+      - **Dependent rows say what governs them.** Each carries an id, and the
+        controlling input points `aria-controls` at it and keeps `aria-expanded`
+        in step. The link used to be a data attribute this plugin's own script
+        read, which assistive technology cannot see.
 
       **Guarded.** `tests/accessibility.php` computes WCAG relative luminance and
       fails any environment colour under 4.5:1 — checking the formula against

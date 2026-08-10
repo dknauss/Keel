@@ -17,12 +17,18 @@
     "sentence stops matching the moment somebody improves the sentence, which is a",
     "guard that quietly stops guarding.",
     "",
-    "A repo that explains why a phrase was retired will contain that phrase. Better",
-    "by Default is a teaching repository and does exactly that, so a bare substring",
-    "scan cannot tell a relapse from a lesson. Quote a retired phrase inside a",
-    "`keel-retired-ok` marker on the same line — a comment saying why it is quoted —",
-    "and the scan skips that line. Nothing else is exempt, so the escape hatch has",
-    "to be written deliberately and is visible in review."
+    "A repo that explains why a phrase was retired will contain that phrase.",
+    "Better by Default is a teaching repository and does exactly that, so a bare",
+    "substring scan cannot tell a relapse from a lesson. Quote a retired phrase on",
+    "a line carrying that repo's own marker — `keel-retired-ok`,",
+    "`better-by-default-retired-ok`, `pixel-experience-retired-ok` — and the scan",
+    "skips that line. Nothing else is exempt, so the escape hatch has to be written",
+    "deliberately and is visible in review.",
+    "",
+    "Matching is case-insensitive in every repo. That is not cosmetic: Better by",
+    "Default's scan was case-sensitive and its own quotation begins a sentence, so",
+    "it passed by capitalisation rather than by design, and a relapse written at the",
+    "start of a sentence would have sailed through."
   ],
   "shared": [
     {
