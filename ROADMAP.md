@@ -169,15 +169,31 @@ Plugin Review requirements, not niceties.
       No `composer install` in the matrix — the plugin has no runtime dependencies and
       the suite has no autoloader, so installing dev tooling would test whether phpcs
       supports PHP 7.4, which is not the question.
-- [ ] **Probe Clearfy (50k installs) and WP Master Toolkit (5k).** Both were code-reviewed
-      only in [docs/competitive-teardown-matrix.md](docs/competitive-teardown-matrix.md);
-      neither has been measured. They are the closest architectural peers to Keel — a
-      menu of independently toggleable defaults rather than a single-purpose switch — so
-      they are the most informative comparison and the most likely to surface a technique
-      worth adopting. Review suggested Clearfy has the field's other correct pingback
-      teardown (`xmlrpc_methods` plus an `xmlrpc_call` guard) and no REST teardown at all
-      in the free tier; WP Master Toolkit pairs `xmlrpc_enabled` with a
-      `wp_xmlrpc_server_class` swap. Confirm or correct both by measurement.
+- [x] **Probe Clearfy (50k installs) and WP Master Toolkit (5k)** — done 2026-08-09
+      (keel#86). Both measured; the matrix moves them from code review to live, and
+      two of its claims needed correcting.
+
+      **Clearfy 403s `xmlrpc.php` outright**, which the code review missed. Its
+      careful per-method work — unsetting the pingback methods, the `xmlrpc_call`
+      guard — sits behind a door that is already shut, so it is not granular in
+      practice and the XML-RPC rows moved from ⚠️ to ❌. The "no REST teardown in
+      the free tier" claim was confirmed rather than corrected.
+
+      **WP Master Toolkit's REST teardown 401s oEmbed**, where Keel's stays 200 —
+      the trade Keel's non-goals argue from the other side. Its comment teardown is
+      a **pro** module, so the free tier reads exactly like stock: feed 200,
+      `X-Pingback` advertised, and a posted comment lands in the database. That is
+      "not offered" rather than "does nothing".
+
+      Neither closes server-side comment reads, so headline finding 3 now covers
+      every comment-capable plugin in the field. Neither breaks the block editor.
+
+      Configuring them took two attempts each, and both traps are recorded in the
+      probe configs: WPMT writes no option on activation, so an unconfigured probe
+      measures every module off; and Clearfy's bundled comments component declares
+      one option prefix and reads another, which left it inert while the class was
+      loaded, the helper defined and the option present with the right value.
+
 - [ ] **Probe Classic Editor (9M) and Disable Gutenberg (500k)** on the editor surface,
       which the current matrix covers by code review only.
 - [~] **Re-run the matrix against a classic theme.** Keel done 2026-08-09 (keel#79);
