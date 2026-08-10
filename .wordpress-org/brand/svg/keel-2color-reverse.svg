@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" fill="none" role="img" aria-label="Keel">
+  <path d="M96 22 L101 22 L101 122 L96 122 Z" fill="#ffffff"></path>
+  <path d="M108 30 C 103 60 104 92 107 118 L153 118 C 143 88 128 56 108 30 Z" fill="#ffffff"></path>
+  <path d="M92 46 C 78 70 64 96 51 118 L78 118 C 85 94 90 70 92 46 Z" fill="#ffffff"></path>
+  <path d="M32 121 L168 121 L152 137 C 112 145 72 145 42 135 Z" fill="#ffffff"></path>
+  <path d="M95 139 L112 139 L106 192 L100 192 Z" fill="#7ba3c9"></path>
+</svg>
