@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T01:23:06+00:00\n"
+"POT-Creation-Date: 2026-08-10T01:33:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -245,7 +245,7 @@ msgid "That is why these are four switches rather than one. Turning the endpoint
 msgstr ""
 
 #: includes/settings-page.php:147
-msgid "Jetpack is the usual reason to leave it reachable. It talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Keel warns rather than refuses: a toggle that quietly declines to do what it says is worse than one that does as it is told. Test the connection and the features you use before deciding Jetpack no longer needs it."
+msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
 msgstr ""
 
 #: includes/settings-page.php:149
@@ -253,7 +253,7 @@ msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts,
 msgstr ""
 
 #: includes/settings-page.php:153
-msgid "One note on <code>system.multicall</code>, because its reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability, which is why it is off by default rather than urged on you."
+msgid "One note on <code>system.multicall</code>, because its reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
 msgstr ""
 
 #: includes/settings-page.php:160
