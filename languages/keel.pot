@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T03:09:05+00:00\n"
+"POT-Creation-Date: 2026-08-10T03:16:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -237,11 +237,11 @@ msgid "XML-RPC"
 msgstr ""
 
 #: includes/settings-page.php:145
-msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use any of it; a few depend on it entirely."
+msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
 msgstr ""
 
 #: includes/settings-page.php:146
-msgid "That is why these are four switches rather than one. Turning the endpoint off outright is the strictest answer and the easiest to regret, so the three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while leaving the endpoint answering for anything that still needs it."
+msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
 msgstr ""
 
 #: includes/settings-page.php:147
@@ -249,11 +249,11 @@ msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint bre
 msgstr ""
 
 #: includes/settings-page.php:149
-msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request reaches WordPress at all, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
+msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
 msgstr ""
 
 #: includes/settings-page.php:153
-msgid "One note on <code>system.multicall</code>, because its reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
+msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
 msgstr ""
 
 #: includes/settings-page.php:160
