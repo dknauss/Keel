@@ -450,9 +450,18 @@ function keel_defaults_validate_password( $password, $user = null ) {
 		return true;
 	}
 
-	// NIST 800-63B / OWASP: favour length + screening over forced composition
-	// rules (upper/lower/number/symbol), which push users toward predictable
-	// patterns like Password1! without adding entropy.
+	/*
+	 * NIST SP 800-63B-4 § 3.1.1.2 / OWASP: favour length and breach screening
+	 * over forced composition rules, which push users toward predictable shapes
+	 * like Password1!.
+	 *
+	 * "Without adding entropy" is the phrasing this comment used to carry, and it
+	 * concedes the argument. Demanding a symbol *does* enlarge the alphabet, so
+	 * on paper it adds entropy; what it fails to add is guessing resistance,
+	 * because people satisfy the rule the same few ways. Entropy is also the term
+	 * NIST itself stopped using for user-chosen secrets — it does not appear in
+	 * § 3.1.1.2 at all.
+	 */
 	$minimum = (int) apply_filters( 'keel_minimum_password_length', 15 );
 
 	// Count characters, not bytes: strlen() would read eight emoji as 32 and

@@ -94,7 +94,7 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Passwords', 'keel' ),
 			'content' =>
 				'<p>' . wp_kses(
-					__( 'Length and breach screening in place of uppercase, number, or symbol rules, following <a href="https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — <code>Password1!</code> — without adding much to guess.', 'keel' ),
+					__( 'For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href="https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess.', 'keel' ),
 					array(
 						'a'    => array(
 							'href'   => array(),

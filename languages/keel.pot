@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T01:08:00+00:00\n"
+"POT-Creation-Date: 2026-08-10T01:18:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -152,20 +152,20 @@ msgid "<strong>Error:</strong> Choose a password that has not appeared in a know
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:467
+#: includes/security.php:476
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:488
+#: includes/security.php:497
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:507
+#: includes/security.php:516
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:683
+#: includes/security.php:692
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
@@ -208,7 +208,7 @@ msgid "Passwords"
 msgstr ""
 
 #: includes/settings-page.php:97
-msgid "Length and breach screening in place of uppercase, number, or symbol rules, following <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — <code>Password1!</code> — without adding much to guess."
+msgid "For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess."
 msgstr ""
 
 #: includes/settings-page.php:108
