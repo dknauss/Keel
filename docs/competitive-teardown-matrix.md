@@ -15,8 +15,10 @@ the way its own settings screen would configure it.
 - **Lab:** a throwaway WordPress 7.0.2 install (SQLite, PHP 8.5, `php -S`), block
   theme, one seeded comment on post 1, pretty permalinks, `ping_status=open`.
   Keel was additionally re-measured on a **classic** theme (Twenty Twenty-One) —
-  see [The classic-theme run](#the-classic-theme-run). The other plugins have not
-  been; their two rendered-markup rows are block-theme figures.
+  see [The classic-theme run](#the-classic-theme-run) — and on **WordPress 6.4**,
+  the floor it claims — see [The older-WordPress run](#the-older-wordpress-run).
+  The other plugins have not been; their two rendered-markup rows are block-theme
+  figures measured on 7.0.2.
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries
   empty, which silently contaminated the first run.
@@ -273,6 +275,55 @@ reaches `render_block`. One mechanism, two themes, and no theme-specific code.
 So the block-theme-only measurement was not hiding anything for Keel. It is worth
 saying that it *could* have been: the row is the kind that passes for the wrong
 reason, and the only way to know was to switch the theme and look.
+
+#### The older-WordPress run
+
+Keel's header claims `Requires at least: 6.4`, and every measurement here was taken
+on 7.0.2 — six releases above the floor. A support claim nobody has stood on is a
+claim, not a fact.
+
+Measured 2026-08-09 on a second throwaway install: WordPress **6.4** exactly, the
+earliest release the header admits, same SQLite setup, same PHP 8.5, same harness,
+same `probe-configs/keel.php`.
+
+**Stock 6.4 versus stock 7.0.2, no plugins: byte-identical across all 38 probes.**
+That is the control, and it is what makes the rest of this mean anything — without
+it, "no differences with Keel" could as easily have been a harness that stopped
+measuring.
+
+**Keel configured, 6.4 versus 7.0.2: zero differences.** All 38 probes agree. For
+contrast, Keel moves 26 of those rows against stock on 6.4, so the comparison is
+plainly capable of showing a difference.
+
+The HTTP probe cannot see the admin, which is where a missing API would actually
+surface, so two further checks:
+
+| Check | 6.4 | 7.0.2 |
+|---|---|---|
+| Settings screen bytes / row headings / fieldsets | 39000 / 34 / 28 | 39000 / 34 / 28 |
+| Site Health Info groups | 10 | 10 |
+| Site Health posture status | good | good |
+| Site Health tests registered | 2 | 2 |
+| PHP diagnostics raised from `plugins/keel/` | none | none |
+
+The rendered settings markup is identical between the two versions apart from the
+nonce, which is per-session rather than per-version.
+
+Every WordPress function Keel calls was also checked against both loads. The only
+names undefined on 6.4 are undefined on 7.0.2 too — `switch_to_blog()`,
+`restore_current_blog()` and `get_sites()`, which exist only on multisite and which
+Keel calls behind `is_multisite()`. Nothing Keel uses arrived after 6.4.
+
+The diagnostics check was itself verified by planting an undefined variable in
+`keel_defaults_site_health_info_styles()` and confirming it was reported
+(`site-health.php:441 Undefined variable`), because a null result from a listener
+that cannot fire is worth nothing.
+
+**So the 6.4 floor is now measured rather than asserted.** Worth being precise about
+what that does and does not cover: this is 6.4 on PHP 8.5, single-site, with the
+probe's configuration. It does not test 6.4 on PHP 7.4, and it does not test the
+multisite paths — those three functions above are exactly the code this run could
+not reach.
 
 ### XML-RPC
 
