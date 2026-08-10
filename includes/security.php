@@ -101,6 +101,20 @@ function keel_defaults_session_policy_is_custom() {
  * and this is where that would otherwise surface: a remembered login expiring
  * sooner than an ordinary one.
  *
+ * `$expiration` is deliberately not consulted, and that is not an inconsistency
+ * with keel_defaults_set_frame_option_header(), which does consult what it was
+ * handed. The difference is in what an incoming value proves. Core always passes
+ * a number here — 2 or 14 days, from wp_set_auth_cookie() — so "there is an
+ * incoming value" carries no information at all, and nothing distinguishes core's
+ * own default from another plugin's deliberate one. Comparing would therefore
+ * mean capping a site's explicit 30-day setting at core's 14 and displaying 30 on
+ * a settings screen that no longer describes the site.
+ *
+ * The rule the two filters share: compare where an incoming value is evidence of
+ * a decision, assert where it is not. What differs is the hook, not the
+ * philosophy. A refactor that "harmonises" these into one style will break
+ * whichever hook it was not written for; tests/policy-conflicts.php pins both.
+ *
  * @param int  $expiration WordPress's own length, in seconds.
  * @param int  $user_id    User ID (unused).
  * @param bool $remember   Whether Remember Me was ticked.
@@ -204,11 +218,31 @@ function keel_defaults_frame_option_strength( $value ) {
  * value. Writes back to the existing key so a differently cased key does not emit
  * a second header line. Opt out with keel_disable_x_frame_options.
  *
+ * Comparing is right *here* specifically because core never seeds this key:
+ * `send_frame_options_header()` emits the header with `header()` and never touches
+ * the `wp_headers` array, so a value present in it is evidence that some layer
+ * decided on one. That is what makes ranking it meaningful, and it is exactly what
+ * `auth_cookie_expiration` cannot offer — see keel_defaults_session_length().
+ *
+ * The Customizer is the one place that evidence misleads, and it is core itself.
+ * `WP_Customize_Manager::filter_iframe_security_headers()` sets SAMEORIGIN on the
+ * previewed front end at priority 10 so the preview will load in its iframe; Keel
+ * runs at 99, so a site configured DENY escalated core's value and the preview
+ * survived only because core sets `frame-ancestors 'self'` in the same call and
+ * CSP wins over X-Frame-Options wherever both appear. A functional header that
+ * lives behind another header's protection is not something to keep leaning on,
+ * and "stronger" is the wrong question when the incoming value was set to make a
+ * feature work rather than to state a posture. So leave the preview alone.
+ *
  * @param array $headers Headers.
  * @return array
  */
 function keel_defaults_set_frame_option_header( $headers ) {
 	if ( true === apply_filters( 'keel_disable_x_frame_options', false ) ) {
+		return $headers;
+	}
+
+	if ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) {
 		return $headers;
 	}
 
