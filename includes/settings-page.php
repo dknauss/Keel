@@ -105,11 +105,15 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'There is no strength meter. WordPress ships one, but it is JavaScript: it advises the person typing and cannot refuse anything, so a password set over the REST API, WP-CLI, or a form with scripts disabled never meets it. A long invented password that is weak but unbreached can therefore pass.', 'keel' ),
+					__( 'WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all.', 'keel' ),
 					array()
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'The breach check sends <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener noreferrer">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. An outage or a malformed response fails open: a breach-data problem never blocks a password change. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter.', 'keel' ),
+					__( 'So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here.', 'keel' ),
+					array()
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'The breach check sends <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener noreferrer">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter.', 'keel' ),
 					array(
 						'a'    => array(
 							'href'   => array(),
@@ -118,6 +122,10 @@ function keel_defaults_add_help_tab() {
 						),
 						'code' => array(),
 					)
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password while someone else&#8217;s API is down, which bites hardest just when people are rotating credentials after an incident. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The trade is worth knowing: anything that stops this site reaching the API turns breach screening off quietly.', 'keel' ),
+					array()
 				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
