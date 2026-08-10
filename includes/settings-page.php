@@ -124,7 +124,7 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The trade is worth knowing: anything that stops this site reaching the API turns breach screening off quietly.', 'keel' ),
+					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly.', 'keel' ),
 					array()
 				) . '</p>' .
 				( is_multisite()

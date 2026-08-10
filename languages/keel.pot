@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T03:08:10+00:00\n"
+"POT-Creation-Date: 2026-08-10T03:09:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -224,7 +224,7 @@ msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#Search
 msgstr ""
 
 #: includes/settings-page.php:127
-msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The trade is worth knowing: anything that stops this site reaching the API turns breach screening off quietly."
+msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly."
 msgstr ""
 
 #: includes/settings-page.php:132
