@@ -180,9 +180,28 @@ Plugin Review requirements, not niceties.
       `wp_xmlrpc_server_class` swap. Confirm or correct both by measurement.
 - [ ] **Probe Classic Editor (9M) and Disable Gutenberg (500k)** on the editor surface,
       which the current matrix covers by code review only.
-- [ ] **Re-run the matrix against a classic theme.** Every measurement to date is from a
-      single block-theme install. Several comment-teardown rows — anything touching
-      rendered markup or the comment template — are theme-dependent by construction.
+- [~] **Re-run the matrix against a classic theme.** Keel done 2026-08-09 (keel#78);
+      the other nine plugins are not, and their two rendered-markup rows remain
+      block-theme figures.
+
+      **Keel's teardown is theme-independent, measured rather than assumed.** With
+      Keel configured, switching Twenty Twenty-Five to Twenty Twenty-One changed
+      *nothing* — not the two markup rows, not any of the other thirty-odd probes.
+      Both report `html.comment_form 0` and `html.comments_block 0`.
+
+      The reason is that none of it runs at the theme layer. Keel closes comments in
+      the data — `comments_open()` false, post-type support removed,
+      `get_default_comment_status()` closed — so a classic theme's
+      `comments_template()` renders nothing because `comment_form()` is gated on
+      `comments_open()`, and a block theme renders nothing because the same state
+      reaches `render_block`. One mechanism, two themes.
+
+      The item was right to exist even though the answer was clean, and the stock
+      baseline shows why: `html.comments_block` reads **0 on a classic theme with no
+      plugins at all**, because `wp-block-comments` is a block-theme marker. On a
+      classic install that row scores every plugin as passing, including ones that do
+      nothing. A comparison run there would have published a false result for the
+      whole field.
 - [ ] **Re-run against an older supported WordPress.** Keel claims 6.4+; the matrix was
       measured on 7.0.2 only.
 - [x] **Make the probe harness part of the repo** — done 2026-08-04 (keel#21).
