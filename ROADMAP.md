@@ -202,8 +202,32 @@ Plugin Review requirements, not niceties.
       classic install that row scores every plugin as passing, including ones that do
       nothing. A comparison run there would have published a false result for the
       whole field.
-- [ ] **Re-run against an older supported WordPress.** Keel claims 6.4+; the matrix was
-      measured on 7.0.2 only.
+- [~] **Re-run against an older supported WordPress.** Keel done 2026-08-09
+      (keel#82) on **6.4**, the exact floor the header claims — six releases below
+      everything else in the matrix.
+
+      **Zero differences across all 38 probes**, and the control is the part that
+      makes that mean something: stock 6.4 and stock 7.0.2 are byte-identical with
+      no plugins, while Keel moves 26 rows against stock on 6.4. The comparison can
+      show a difference; there is not one to show.
+
+      The HTTP probe cannot see the admin, so the settings screen, both Site Health
+      surfaces and the info stylesheet were rendered on each version too — identical
+      output apart from the nonce, and no PHP diagnostics raised from `plugins/keel/`
+      on either. Every WordPress function Keel calls exists on both; the only names
+      undefined on 6.4 are undefined on 7.0.2 as well, being multisite-only and
+      called behind `is_multisite()`.
+
+      The diagnostics listener was verified by planting an undefined variable and
+      watching it report, since a clean result from a check that cannot fire is
+      worth nothing.
+
+      **Left open, and why this is `[~]`:** 6.4 was measured on PHP 8.5, single
+      site. The floor is a *pair* — `Requires at least: 6.4` and `Requires PHP: 7.4`
+      — and the corner that matters is old WordPress on old PHP, which this run did
+      not touch. Nor did it exercise multisite, which is precisely where the three
+      functions above live. The other plugins in the matrix remain measured on
+      7.0.2 only.
 - [x] **Make the probe harness part of the repo** — done 2026-08-04 (keel#21).
       `tests/integration/probe-teardown.sh`, plugin-agnostic, with the lab setup and the
       five traps in `tests/integration/README.md`. Rewritten for the repo rather than
