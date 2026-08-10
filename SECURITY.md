@@ -2,12 +2,12 @@
 
 ## Supported versions
 
-Keel is pre-release (`0.1.0-dev`) and has not been submitted to wordpress.org.
-There is no stable release to backport to yet, so security fixes land on `main`
-and reach the rolling `latest` build.
+The current release is `0.2.0`. Keel has not been submitted to wordpress.org, so
+it is installed from a GitHub release or the rolling `latest` build.
 
-Once there is a stable release, fixes will target the latest one; older releases
-may receive them when the issue is severe and a safe backport is practical.
+Security fixes target the latest release and land on `main`. Older releases may
+receive them when the issue is severe and a safe backport is practical; with one
+release out, that has not come up yet.
 
 ## Reporting a vulnerability
 

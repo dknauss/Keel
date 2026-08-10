@@ -100,8 +100,8 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Upgrade Notice ==
 
-= 0.1.0-dev =
-Early development. The reserved-usernames default has been removed; if you relied on it, the readme's changelog shows the one-line filter that replaces it.
+= 0.2.0 =
+First stable release. Nothing to do on upgrade: no setting changes meaning and no stored value is rewritten. The comment, REST and author-identity teardowns now cover surfaces they previously missed, so a site relying on those defaults will find them reaching further than before — the changelog lists each one.
 
 == Screenshots ==
 
