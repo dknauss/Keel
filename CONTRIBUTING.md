@@ -86,6 +86,33 @@ and cover each in both directions. If it consults a **list**, assert each entry
 independently and write the expected list out rather than reading it back from
 the code under test.
 
+## Screenshots
+
+`.wordpress-org/screenshot-1..3.png` are the wordpress.org listing images *and*
+the ones `README.md` shows, so they go stale the moment the settings screen or
+the Site Health surface changes — and a stale screenshot is invisible from inside
+the repository. They drifted once already: twenty-one commits touched those
+screens between capture and the day somebody looked.
+
+```bash
+composer verify:screenshots
+```
+
+That names every commit touching the admin screens since the screenshots were
+committed. It is not part of `composer test` on purpose: it reads git history,
+and CI checks out at depth 1, where the range query would find nothing and pass
+vacuously. Run it before a release or after touching an admin screen.
+
+To retake them, against a site running the current code:
+
+```bash
+node bin/screenshots.mjs --url http://localhost:8881 --wp @keel
+```
+
+It needs Playwright (`npm i playwright`) and mints its own admin session, so
+nothing has to be logged in first. `tests/readme-spec.php` separately pins that
+every screenshot file is captioned in `readme.txt` and shown in `README.md`.
+
 ## Coding standards
 
 - Target WordPress 6.4+ and PHP 7.4+ unless the plugin header and `readme.txt`

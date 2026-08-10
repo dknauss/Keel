@@ -14,7 +14,8 @@
         "lint": "phpcs --standard=phpcs.xml",
         "lint:fix": "phpcbf --standard=phpcs.xml",
         "test": "for f in tests/*.php; do php \"$f\" || exit 1; done",
-        "test:integration": "bash tests/integration/verify-behaviors.sh"
+        "test:integration": "bash tests/integration/verify-behaviors.sh",
+        "verify:screenshots": "bash bin/verify-screenshots.sh"
     },
     "config": {
         "allow-plugins": {
