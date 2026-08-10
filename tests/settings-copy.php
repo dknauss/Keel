@@ -56,6 +56,67 @@ function keel_help_words( $help ) {
 	return str_word_count( preg_replace( '/<[^>]*>/', '', (string) $help ) );
 }
 
+/*
+ * The help tabs and the sidebar are built inside keel_defaults_add_help_tab(),
+ * which hands them to WP_Screen. Nothing in this file could see them until now,
+ * which is why the copy assertions below all read $strings — and why a wrong
+ * count and a stale cross-reference could both sit in the tab text unwatched.
+ */
+class Keel_Copy_Test_Screen {
+	public $tabs    = array();
+	public $sidebar = '';
+
+	/**
+	 * Collect a help tab.
+	 *
+	 * @param array $args Tab definition.
+	 */
+	public function add_help_tab( $args ) {
+		$this->tabs[ $args['id'] ] = $args['content'];
+	}
+
+	/**
+	 * Collect the sidebar.
+	 *
+	 * @param string $html Sidebar markup.
+	 */
+	public function set_help_sidebar( $html ) {
+		$this->sidebar = $html;
+	}
+}
+
+$GLOBALS['keel_test_screen'] = new Keel_Copy_Test_Screen();
+
+function get_current_screen() {
+	return $GLOBALS['keel_test_screen'];
+}
+function wp_kses( $html, $allowed = array() ) {
+	return $html;
+}
+function esc_url( $url ) {
+	return $url;
+}
+function admin_url( $path = '' ) {
+	return 'https://example.test/wp-admin/' . $path;
+}
+function is_multisite() {
+	return false;
+}
+function _n( $single, $plural, $number, $domain = null ) {
+	return 1 === (int) $number ? $single : $plural;
+}
+function number_format_i18n( $number ) {
+	return (string) $number;
+}
+
+keel_defaults_add_help_tab();
+
+$overview = $GLOBALS['keel_test_screen']->tabs['keel-overview'];
+$sidebar  = $GLOBALS['keel_test_screen']->sidebar;
+
+keel_assert( '' !== trim( $overview ), 'The Overview help tab has content to check.' );
+keel_assert( '' !== trim( $sidebar ), 'The help sidebar has content to check.' );
+
 $strings = keel_defaults_strings();
 keel_assert( ! empty( $strings ), 'Display strings load.' );
 
@@ -157,5 +218,93 @@ $schema = keel_defaults_schema();
 foreach ( array_keys( $schema ) as $key ) {
 	keel_assert( isset( $strings[ $key ]['label'] ), "Setting '{$key}' has a label." );
 }
+
+/*
+ * --- a stated count, checked against the thing counted ---
+ *
+ * The Overview tab says how many settings hide themselves. The number was very
+ * nearly written as "Two", counted off the two *examples* the old sentence gave
+ * rather than off the schema — which has five, and one of them (Password Policy
+ * Exemptions) the old sentence never mentioned at all.
+ *
+ * This is the shape the sibling deck got wrong too: an agenda promising eight
+ * categories over a deck presenting seven. Every artifact was internally
+ * consistent; the gap lived between the claim and the thing claimed about.
+ */
+$dependent = array();
+foreach ( keel_defaults_schema() as $key => $field ) {
+	if ( isset( $field['depends'] ) ) {
+		$dependent[] = $key;
+	}
+}
+
+keel_assert( count( $dependent ) > 0, 'The schema has dependent settings to count.' );
+
+$number_words = array(
+	1 => 'One',
+	2 => 'Two',
+	3 => 'Three',
+	4 => 'Four',
+	5 => 'Five',
+	6 => 'Six',
+	7 => 'Seven',
+	8 => 'Eight',
+	9 => 'Nine',
+);
+$expected     = isset( $number_words[ count( $dependent ) ] ) ? $number_words[ count( $dependent ) ] : (string) count( $dependent );
+
+keel_assert(
+	false !== strpos( $overview, $expected . ' settings disappear' ),
+	'The Overview tab says "' . $expected . ' settings disappear" — the schema has ' . count( $dependent ) . ' with a "depends" rule.'
+);
+
+/*
+ * Each dependent setting is also named or covered by the sentence, so the count
+ * cannot go on being right while the list quietly stops describing it. The
+ * XML-RPC three are covered collectively, which is why they are matched by their
+ * shared prefix rather than one by one.
+ */
+foreach ( $dependent as $key ) {
+	if ( 0 === strpos( $key, 'xmlrpc_' ) ) {
+		continue;
+	}
+
+	$label = isset( $strings[ $key ]['label'] ) ? $strings[ $key ]['label'] : '';
+	keel_assert(
+		'' !== $label && false !== strpos( $overview, $label ),
+		"The Overview tab names '{$label}' as a setting that hides itself."
+	);
+}
+
+keel_assert(
+	false !== strpos( $overview, 'three XML-RPC method controls' ),
+	'The Overview tab covers the XML-RPC three as a group, and says how many there are.'
+);
+keel_assert(
+	3 === count(
+		array_filter(
+			$dependent,
+			static function ( $k ) {
+				return 0 === strpos( $k, 'xmlrpc_' );
+			}
+		)
+	),
+	'There really are three dependent XML-RPC controls.'
+);
+
+/*
+ * --- a cross-reference to a label, checked against the label ---
+ *
+ * The settings screen tells the reader which Site Health section to look in. That
+ * section was renamed from "Keel" to "Keel Defaults" and this sentence went on
+ * naming the old one, sending people to look for something that is not there.
+ */
+$info_section = keel_defaults_debug_information( array() );
+$info_label   = $info_section[ KEEL_DEFAULTS_INFO_SECTION ]['label'];
+
+keel_assert(
+	false !== strpos( $sidebar, '<strong>' . $info_label . '</strong>' ),
+	"The screen points at the Site Health section by its real label ('{$info_label}')."
+);
 
 echo "settings copy: OK\n";
