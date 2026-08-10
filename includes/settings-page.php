@@ -146,11 +146,11 @@ function keel_defaults_add_help_tab() {
 				'<p>' . esc_html__( 'That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it.', 'keel' ) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request reaches WordPress at all, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option.', 'keel' ),
+					__( 'Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option.', 'keel' ),
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'One note on <code>system.multicall</code>, because its reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel' ),
+					__( 'Please note that <code>system.multicall</code>&#8217;s negative reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel' ),
 					array( 'code' => array() )
 				) . '</p>',
 		)
