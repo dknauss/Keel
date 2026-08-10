@@ -142,7 +142,7 @@ function keel_defaults_add_help_tab() {
 			'id'      => 'keel-xmlrpc',
 			'title'   => __( 'XML-RPC', 'keel' ),
 			'content' =>
-				'<p>' . esc_html__( 'XML-RPC is WordPress\'s original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use any of it; a few depend on it entirely.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'XML-RPC is WordPress\'s original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'That is why these are four switches rather than one. Turning the endpoint off outright is the strictest answer and the easiest to regret, so the three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while leaving the endpoint answering for anything that still needs it.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it.', 'keel' ) . '</p>' .
 				'<p>' . wp_kses(

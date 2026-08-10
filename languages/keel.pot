@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T03:09:05+00:00\n"
+"POT-Creation-Date: 2026-08-10T03:11:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -237,7 +237,7 @@ msgid "XML-RPC"
 msgstr ""
 
 #: includes/settings-page.php:145
-msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use any of it; a few depend on it entirely."
+msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
 msgstr ""
 
 #: includes/settings-page.php:146
