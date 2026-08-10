@@ -218,6 +218,59 @@ keel_assert(
 	'A configured select value renders as the selected option.'
 );
 
+/*
+ * --- accessibility of the one control that is not a checkbox ---
+ *
+ * The width slider stores a position and means a word. Before the first
+ * accessibility sweep it announced "2" to a screen reader while the visible
+ * output beside it read "240px", because the value and the label were different
+ * things and only one of them was exposed. aria-valuetext is what closes that,
+ * and it has to track the stored value rather than sit at whatever the field
+ * was first rendered with — which is the part a static assertion on the default
+ * state would not notice.
+ */
+keel_assert(
+	preg_match( '/type="range"[^>]*aria-valuetext="WordPress default \(160px\)"/s', $stock ),
+	'The slider announces its position as a word, not an index, at the default.'
+);
+keel_assert(
+	preg_match( '/type="range"[^>]*aria-valuetext="200px"/s', $configured ),
+	'And the announced word follows the stored value rather than the rendered default.'
+);
+
+/*
+ * The output stays visible and stops being a live region. aria-valuetext already
+ * announces the word on the focused slider, so leaving <output> live (which it is
+ * implicitly) said it twice on every arrow-key press.
+ */
+keel_assert(
+	preg_match( '/<output[^>]*aria-live="off"/', $stock ),
+	'The visible output is not also a live region, so the word is announced once.'
+);
+
+/*
+ * Every grouping has an accessible name. The slider's fieldset was the only one
+ * of 28 without a legend — invisible in review because the row looked complete
+ * and the input carried its own aria-label.
+ */
+foreach ( array(
+	'stock'      => $stock,
+	'configured' => $configured,
+) as $state => $markup ) {
+	preg_match_all( '#<fieldset.*?</fieldset>#s', $markup, $fm );
+	$unnamed = array_filter(
+		$fm[0],
+		static function ( $block ) {
+			return false === strpos( $block, '<legend' );
+		}
+	);
+
+	keel_assert(
+		array() === $unnamed,
+		count( $unnamed ) . " fieldset(s) in the {$state} state have no <legend>, so the group has no accessible name."
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "settings render: {$fail} failed\n" );
 	exit( 1 );

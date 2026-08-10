@@ -474,7 +474,7 @@ function keel_environments() {
 		'staging'     => array(
 			'label'            => __( 'Staging', 'keel' ),
 			'icon'             => 'dashicons-admin-generic',
-			'background_color' => '#d79d00',
+			'background_color' => '#8f6800',
 			'text_color'       => '#fff',
 		),
 		'development' => array(

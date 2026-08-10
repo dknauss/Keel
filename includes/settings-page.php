@@ -417,19 +417,41 @@ function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $lab
 	$rid     = $key; // raw schema slug; escaped per output context below.
 	?>
 	<fieldset>
+		<legend class="screen-reader-text"><?php echo esc_html( $label ); ?></legend>
+		<?php
+		/*
+		 * aria-valuetext, because the value is a position and the meaning is a
+		 * word. Without it a screen reader announces this slider as "2" — the
+		 * index — and the site owner is choosing between Default, Narrow and
+		 * Wide, none of which are numbers. The visible <output> carries the word
+		 * for sighted users; this is the same information for everyone else, and
+		 * it is announced as the *value* rather than as a description.
+		 */
+		?>
 		<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
 			name="<?php echo esc_attr( $name ); ?>"
 			id="<?php echo esc_attr( $rid ); ?>-range"
 			value="<?php echo (int) $rcur; ?>"
 			list="<?php echo esc_attr( $rid ); ?>-stops"
 			aria-label="<?php echo esc_attr( $label ); ?>"
-			aria-describedby="<?php echo esc_attr( trim( $rid . '-output ' . $describedby ) ); ?>" style="vertical-align:middle;max-width:240px;" />
+			aria-valuetext="<?php echo esc_attr( $rlabels[ $rcur ] ); ?>"
+			<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?> style="vertical-align:middle;max-width:240px;" />
 		<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
 			<?php foreach ( $rlabels as $ri => $rl ) : ?>
 				<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
 			<?php endforeach; ?>
 		</datalist>
-		<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="polite" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
+		<?php
+		/*
+		 * aria-live="off", deliberately, on an element whose implicit live
+		 * politeness is "polite". The word is already announced as the slider's
+		 * own value through aria-valuetext, so leaving this a live region made
+		 * every arrow-key press say it twice — which is the "stream of noise"
+		 * this control was suspected of and the reason to check. It stays a
+		 * visible <output> for sighted users and is silent to a screen reader.
+		 */
+		?>
+		<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="off" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
 		<style id="<?php echo esc_attr( $rid ); ?>-preview">
 			@media screen and (min-width: 783px) {
 				body.keel-menu-width-preview #adminmenu,
@@ -487,7 +509,13 @@ function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $lab
 			if ( ! input || ! output || ! document.body ) { return; }
 			function pos() { return parseInt( input.value, 10 ) || 0; }
 			// Cheap: runs live while dragging — only the readout text changes.
-			function updateLabel() { output.textContent = labels[ pos() ] || labels[0]; }
+			function updateLabel() {
+				var text = labels[ pos() ] || labels[0];
+				output.textContent = text;
+				// The value a screen reader announces has to move with the word,
+				// or the slider goes on saying whatever it was rendered at.
+				input.setAttribute( 'aria-valuetext', text );
+			}
 			// Expensive: reflows the whole admin layout and reads a computed
 			// style, so it runs only when the drag settles (release/keyboard),
 			// not on every 'input' tick — otherwise the slider is janky.

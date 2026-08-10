@@ -276,35 +276,66 @@ Plugin Review requirements, not niceties.
       still duplicated per repo, so retiring a phrase once does not retire it
       everywhere. Pixel still has no copy guard at all.
 
-- [ ] **An accessibility sweep of the settings screen.** Never done. There is real
-      care in the code — nine `aria-describedby` wirings, screen-reader legends on
-      every fieldset, `scope="row"` headings, an `aria-live` readout on the width
-      slider, and the environment label clipped rather than `display:none` so it
-      still reaches a screen reader — but it accumulated one control at a time, and
-      only two assertions in the whole suite touch any of it. Care without coverage
-      is the state this repository spent a day learning not to trust.
+- [~] **An accessibility sweep of the settings screen.** Static sweep done
+      2026-08-09 (keel#74). The four surfaces below were audited against WCAG 2.1
+      AA; two carried real defects and are fixed, two are reported unchanged and
+      still want a screen reader. The premise held up exactly as written — there
+      was real care in the code, almost no coverage of it, and a hard failure
+      living inside the careful part.
 
-      Four things worth checking before anything else, because they are the ones
-      where this screen does something WordPress core does not:
+      **Fixed.**
 
-      - **Dependent rows.** Rows hide and show with `style="display:none"` driven by
-        JS on a sibling control. A row that appears has to be announced, and focus
-        must not land in a row that has just been hidden. Nothing tests this.
-      - **The width slider.** A `range` input with a `datalist`, an `aria-live`
-        output, and a live preview that rewrites `document.body` styles. Whether the
-        announcement is useful or a stream of noise is an open question.
-      - **Locked controls.** A `disabled` control plus a lock note, with
-        `aria-describedby` pointing at the note first so the reason is announced
-        before the label. That ordering was deliberate; it has never been verified
-        with an actual screen reader.
-      - **The environment indicator.** Colour carries meaning — red for production,
-        green for development. There is a text label beside it, which is what makes
-        that legal under WCAG 1.4.1, so the label must never become the thing that
-        gets dropped for space.
+      - **The environment indicator failed WCAG 1.4.3.** Staging rendered white on
+        `#d79d00` at **2.41:1**, against the 4.5:1 that applies at the admin bar's
+        text size. It had shipped that way since the indicator was written, and it
+        was invisible in review because `#d79d00` reads as a perfectly ordinary
+        amber — a colour is three bytes, and whether it is legible is arithmetic
+        nobody does by hand. Now `#8f6800` (5.06:1, and 3.14:1 against the bar
+        itself). Production, development and local always passed.
+      - **The width slider announced a number instead of a word.** The value is a
+        position, the meaning is "Narrow" or "240px", and only the position was
+        exposed — a screen reader said "2" while the visible output beside it read
+        "240px" (WCAG 4.1.2). `aria-valuetext` now carries the word and tracks the
+        stored value. Its fieldset was also the only one of 28 with no `<legend>`.
+      - **The readout announced twice.** With `aria-valuetext` carrying the word,
+        the `<output>` — implicitly a polite live region — repeated it on every
+        arrow-key press. It is now `aria-live="off"`: visible, and silent. That
+        answers the item's open question about noise; it was noise.
 
-      Wants a real assistive-technology pass, not an automated scan alone: axe or
-      similar will confirm contrast and labelling and will say nothing about whether
-      a hidden dependent row is announced when it returns.
+      **Reported, deliberately unchanged.**
+
+      - **Locked controls.** `disabled` removes a control from the tab order, so
+        the `aria-describedby` lock note is not announced on focus — there is no
+        focus. The deliberate "reason before label" ordering therefore does not
+        happen. It is *not* unreachable: the note renders as visible `<p>` text
+        immediately after the control, so linear reading finds it. The accessible
+        fix is `aria-disabled` plus a focusable control, which changes what the
+        form submits and undoes the hidden-field preservation that keeps a save
+        under a constant from flipping the stored value. Not worth doing blind.
+      - **Dependent rows.** Hidden with `display:none`, which is the correct
+        technique — it removes them from the accessibility tree rather than
+        leaving a phantom. Focus cannot be stranded, because hiding is always
+        driven by a change on the controlling checkbox, which holds focus at that
+        moment. What is missing is any announcement that a row appeared, and any
+        programmatic controller/row relationship. This is a quality gap rather
+        than a conformance failure: a row disappearing when it cannot apply is not
+        a change of context under 3.2.2, and the Settings help tab already
+        explains the behaviour.
+
+      **Guarded.** `tests/accessibility.php` computes WCAG relative luminance and
+      fails any environment colour under 4.5:1 — checking the formula against
+      known values first, since a contrast test that quietly computed nonsense
+      would pass everything. It also pins that colour is never the only signal,
+      and that the narrow-viewport label is *clipped* rather than
+      `display:none`'d. `tests/settings-render.php` pins `aria-valuetext` in both
+      states, the silent output, and a `<legend>` on all 28 fieldsets.
+
+      **Still open, and the reason this is `[~]` and not `[x]`:** none of this is
+      a screen-reader pass. Everything above is markup and arithmetic. Whether the
+      slider is pleasant to operate in NVDA, whether the lock note is found before
+      the control it explains, and whether a returning dependent row is noticed at
+      all are questions only VoiceOver/NVDA can answer — and the second and third
+      are exactly where the two unchanged findings sit.
 
 ## v2 — deferred by decision
 
