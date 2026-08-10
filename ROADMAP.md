@@ -45,6 +45,12 @@ already made rather than adding capability.
       `readme.txt` no longer has to explain the shared-user-table problem and then
       say Keel will not solve it — the FAQ now points at the screen that does.
 
+      Verified on a real network by `tests/integration/verify-network.sh`
+      (keel#90), which is the coverage every multisite path in this plugin was
+      missing. Seeding, uninstall and now policy had only ever been proven against
+      stubs the plugin's own tests declare — a stub that is wrong about WordPress
+      lets all of them pass while the plugin misbehaves on a network.
+
 ---
 
 ## v0.2 — feature-complete for review — **complete 2026-08-04**

@@ -20,6 +20,24 @@ does, not what any plugin claims. That is what makes it a comparison tool. The
 numbers in [`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md)
 came from running it against ten plugins on one install.
 
+**`verify-network.sh`** — does the multisite behaviour hold on a real network?
+Everything Keel does on multisite was proven only against stubs the plugin's own
+tests define: `tests/multisite-seeding.php` declares its own `switch_to_blog()`,
+`get_sites()` and `restore_current_blog()`, and `tests/network-policy.php`
+declares its own `get_site_option()`. Those tests pin the logic, but a stub that
+is wrong about WordPress lets every one of them pass while the plugin does the
+wrong thing on a real network.
+
+```bash
+PROBE_PATH=/path/to/multisite-wp bash tests/integration/verify-network.sh
+```
+
+It needs a real network (`wp core multisite-convert`), creates one throwaway
+subsite, removes it again, and restores whatever network policy it found — so it
+is safe to point at a network somebody is using. It clears policy explicitly
+before its baseline assertion rather than assuming the network starts clean; the
+first draft did assume that and reported a failure that was ambient state.
+
 ---
 
 ## Running the probe
