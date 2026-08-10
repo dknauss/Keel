@@ -112,4 +112,94 @@ foreach ( $shared as $title => $todo_done ) {
 	);
 }
 
-printf( "docs consistency: OK (%d shared item%s)\n", count( $shared ), 1 === count( $shared ) ? '' : 's' );
+/*
+ * --- no document still describes a release that has shipped past ---
+ *
+ * The version drifted in four places at once and nothing noticed, because the
+ * only version assertion in the suite compares readme.txt's `Stable tag` against
+ * the plugin header (tests/readme-spec.php). Both were correct. Prose was never
+ * in scope, so ROADMAP, README, SECURITY and the matrix all went on calling a
+ * released plugin a `0.1.0-dev` pre-release, and readme.txt's Upgrade Notice —
+ * which WordPress shows on the update screen — still described the release
+ * before the one being shipped.
+ *
+ * The banned set is derived from readme.txt's own Changelog headings rather than
+ * hardcoded, so it maintains itself: the day 0.3.0 ships, 0.2.0 joins the
+ * changelog and becomes a stale string everywhere else in the same commit.
+ *
+ * Scope is the status-claiming documents only. docs/ is reference material full
+ * of third-party version numbers that will eventually collide with one of ours,
+ * and a guard with false positives gets switched off.
+ */
+$root   = dirname( __DIR__ );
+$plugin = file_get_contents( $root . '/keel.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+$readme = file_get_contents( $root . '/readme.txt' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+preg_match( '/^ \* Version:\s*(\S+)/m', $plugin, $vm );
+$version = isset( $vm[1] ) ? $vm[1] : '';
+keel_assert( '' !== $version, 'The plugin header states a version.' );
+
+// Everything from "== Changelog ==" on is history and is supposed to name old
+// releases. Everything before it describes the plugin as it is now.
+$changelog_at = strpos( $readme, '== Changelog ==' );
+keel_assert( false !== $changelog_at, 'readme.txt has a Changelog section.' );
+
+preg_match_all( '/^= ([0-9][^ =]*) =$/m', substr( $readme, $changelog_at ), $cm );
+$released = array_values( array_diff( $cm[1], array( $version ) ) );
+
+keel_assert( array() !== $released, 'The changelog records at least one earlier release to check against.' );
+keel_assert( in_array( $version, $cm[1], true ), "The changelog has an entry for the current version ({$version})." );
+
+$status_docs = array( 'README.md', 'ROADMAP.md', 'SECURITY.md', 'CONTRIBUTING.md', 'TODO.md' );
+
+foreach ( $status_docs as $doc ) {
+	if ( ! is_file( $root . '/' . $doc ) ) {
+		continue;
+	}
+
+	$text = file_get_contents( $root . '/' . $doc ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+	foreach ( $released as $old ) {
+		keel_assert(
+			false === strpos( $text, $old ),
+			"{$doc} still refers to {$old}; the current version is {$version}."
+		);
+	}
+}
+
+// readme.txt above the changelog, same rule.
+foreach ( $released as $old ) {
+	keel_assert(
+		false === strpos( substr( $readme, 0, $changelog_at ), $old ),
+		"readme.txt refers to {$old} outside the changelog; the current version is {$version}."
+	);
+}
+
+/*
+ * The Upgrade Notice is the one users are actually shown, on the plugins screen,
+ * for the version they are being offered. Naming any other release means the
+ * notice for this one does not exist.
+ */
+$notice_at = strpos( $readme, '== Upgrade Notice ==' );
+keel_assert( false !== $notice_at, 'readme.txt has an Upgrade Notice section.' );
+
+preg_match( '/^= (\S+) =$/m', substr( $readme, $notice_at ), $nm );
+keel_assert(
+	isset( $nm[1] ) && $version === $nm[1],
+	'The Upgrade Notice describes the current version (' . $version . '), not ' . ( isset( $nm[1] ) ? $nm[1] : 'nothing' ) . '.'
+);
+
+// The matrix names the version its Keel row was measured against. It is reference
+// material rather than a status claim, so it is checked by name instead of by the
+// blanket scan above.
+$matrix_path = $root . '/docs/competitive-teardown-matrix.md';
+
+if ( is_file( $matrix_path ) ) {
+	$matrix = file_get_contents( $matrix_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	keel_assert(
+		false !== strpos( $matrix, '**Keel** ' . $version ),
+		"The teardown matrix does not name Keel {$version} in its own row; re-measure or re-label it."
+	);
+}
+
+printf( "docs consistency: OK (%d shared item%s, %d superseded version%s)\n", count( $shared ), 1 === count( $shared ) ? '' : 's', count( $released ), 1 === count( $released ) ? '' : 's' );
