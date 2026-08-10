@@ -154,4 +154,69 @@ keel_assert(
 // than becoming an array and discarding whatever it was.
 keel_assert( 'not-an-array' === keel_defaults_debug_information( 'not-an-array' ), 'A non-array is returned untouched.' );
 
+/*
+ * --- the stylesheet targets the section it is written for ---
+ *
+ * WordPress builds the section's DOM id out of our array key
+ * (`health-check-accordion-block-{key}`, wp-admin/site-health-info.php), so the
+ * key and the selector are two strings that must agree across two files. That is
+ * the whole fragility of styling this section: not core changing, but our own
+ * key being renamed while the CSS goes on pointing at the old one, silently, with
+ * the table still rendering perfectly in core's default style.
+ *
+ * So assert they agree, and assert the section exists under that key rather than
+ * only that some section exists.
+ */
+keel_assert(
+	array_key_exists( KEEL_DEFAULTS_INFO_SECTION, $info ),
+	"The Info section is registered under KEEL_DEFAULTS_INFO_SECTION ('" . KEEL_DEFAULTS_INFO_SECTION . "')."
+);
+
+ob_start();
+keel_defaults_site_health_info_styles();
+$info_css = ob_get_clean();
+
+keel_assert(
+	false !== strpos( $info_css, '#health-check-accordion-block-' . KEEL_DEFAULTS_INFO_SECTION . ' ' ),
+	'The Info stylesheet targets the id WordPress builds from our section key.'
+);
+
+/*
+ * Scoped, and provably so. An unscoped `.health-check-table th` rule would work
+ * on the screen and restyle every other plugin's section on the page as a side
+ * effect — which looks identical while you are looking at Keel's rows.
+ */
+$table_rules = substr_count( $info_css, '.health-check-table' );
+$scoped      = substr_count( $info_css, '#health-check-accordion-block-' . KEEL_DEFAULTS_INFO_SECTION . ' .health-check-table' );
+
+keel_assert( $table_rules > 0, 'The stylesheet has rules to check.' );
+keel_assert(
+	$table_rules === $scoped,
+	"Every .health-check-table rule is scoped to Keel's own section; {$scoped} of {$table_rules} are."
+);
+
+/*
+ * The alignment is the point of the rule; the weight is the cosmetic half. Both
+ * cells are asserted separately, and per selector rather than "the string appears
+ * somewhere" — dropping vertical-align from the th alone left the td's copy in
+ * place and a substring check passed, which is the row the group name is in.
+ */
+foreach ( array( 'th', 'td' ) as $cell ) {
+	keel_assert(
+		(bool) preg_match( '/\.health-check-table ' . $cell . '\{[^}]*vertical-align:top/', $info_css ),
+		"The {$cell} cells are top-aligned, so a group name sits level with the first default under it."
+	);
+}
+
+/*
+ * Core is 400 for .widefat th but 600 for .widefat.health-check-table th below
+ * 782px, so this matches its neighbours on a narrow screen and stands out on a
+ * wide one. 600 rather than 700 to sit at core's own semibold rather than past
+ * it.
+ */
+keel_assert(
+	(bool) preg_match( '/\.health-check-table th\{[^}]*font-weight:600/', $info_css ),
+	'The group name is semibold, matching the weight core itself uses on this table below 782px.'
+);
+
 fwrite( STDOUT, "site health tests passed.\n" );
