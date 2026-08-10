@@ -56,8 +56,8 @@ Raw per-probe output is in the appendix.
 | **Keel** 0.2.0 | — | live |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | code review |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | code review |
-| [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | code review |
-| [WP Master Toolkit](https://wordpress.org/plugins/wpmastertoolkit/) 2.22.0 | 5,000+ | code review |
+| [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
+| [WP Master Toolkit](https://wordpress.org/plugins/wpmastertoolkit/) 2.22.0 | 5,000+ | live |
 
 ---
 
@@ -88,6 +88,10 @@ unset `pingback.ping` and `pingback.extensions.getPingbacks` from `xmlrpc_method
 strip the `X-Pingback` header, and — if you want the endpoint gone — replace
 `wp_xmlrpc_server_class` or 403 the file. Clearfy additionally hooks `xmlrpc_call`
 and `wp_die`s on `pingback.ping`, which is belt-and-braces but correct.
+
+Measuring Clearfy afterwards corrected that description: it does all of the above
+*and* 403s `xmlrpc.php` outright, so none of the method-level work is reachable
+anyway. See [the Clearfy and WP Master Toolkit run](#the-clearfy-and-wp-master-toolkit-run).
 
 ### 2. Disable Everything's REST toggle 403s logged-in administrators
 
@@ -238,6 +242,75 @@ Legend: ✅ correct · ⚠️ partial / caveat · ❌ open or broken · — not 
 | Comment blocks pulled from inserter | ⚠️ JS, latest-comments only | ❌ | ❌ | ❌ | ⚠️ | ✅ PHP, 15 blocks |
 
 
+#### The Clearfy and WP Master Toolkit run
+
+These two were code-reviewed but never measured, and they are the closest
+architectural peers to Keel — a menu of independently toggleable defaults rather
+than a single-purpose switch. Measured 2026-08-09 on the same 7.0.2 install.
+
+Both were configured through their own storage, which took two attempts each and
+is the whole reason this section exists:
+
+- **WP Master Toolkit writes no option at all on activation.** Its modules live in
+  `wpmastertoolkit_settings` as a class-name → `'1'` map, and
+  `admin/class-handle-options.php` instantiates only what is marked. A fresh
+  install therefore has every module **off**. Probing it unconfigured would have
+  measured the plugin doing nothing.
+- **Clearfy's bundled comments component declares one option prefix and reads
+  another.** `comments-plus.php` says `'prefix' => 'wbcr_comments_plus_'`, which is
+  what reading the source gives you; loaded inside Clearfy the component's plugin
+  object carries `wbcr_clearfy_`, so `wbcr_clearfy_disable_comments` is the key it
+  actually reads. Setting the declared name left it inert while every surface said
+  otherwise — class loaded, helper defined, option present with the right value.
+  Caught by asking the plugin (`WCM_Plugin::app()->getOptionName( … )`) after
+  noticing `comments_open` still carried nothing but core's own callback.
+
+| Probe | stock | Clearfy | WPMT | **Keel** |
+|---|---|---|---|---|
+| `rest.index` | 200 | 200 | 401 | 401 |
+| `rest.users` | 200 | 200 | 401 | 401 |
+| `rest.oembed` | 200 | 200 | **401** | **200** |
+| `rest.head_link` | 1 | 1 | 0 | 0 |
+| `feed.site_comments` | 200 | 403 | 200 | 404 |
+| `header.xpingback` | 1 | 0 | 1 | 0 |
+| `xmlrpc.http` | 200 | **403** | 403 | 200 |
+| `xmlrpc.methods` | 80 | 0 | 0 | 3 (`system.*`) |
+| `write.comment_landed_indb` | 1 | 0 | **1** | 0 |
+| `html.comment_form` | 6 | 1 | 6 | 0 |
+| `get_comments()` | 2 | **2** | **2** | **0** |
+| `wp_count_comments()` | 2 | **2** | **2** | **0** |
+| `auth.posts_edit` | 200 | 200 | 200 | 200 |
+
+**Clearfy has no REST teardown.** Confirmed rather than corrected — every REST row
+is identical to stock, and the discovery link is still in `<head>`.
+
+**Clearfy 403s `xmlrpc.php` outright, which the code review missed.**
+`xmlRpcSetDisabledHeader()` checks `basename( $_SERVER['SCRIPT_FILENAME'] )` at
+plugin load and, on `xmlrpc.php`, sends a 403 and `die()`s. Reproduced directly: a
+`system.listMethods` POST returns 403 with a 22-byte body. So Clearfy's careful
+per-method work — unsetting pingback methods, the `xmlrpc_call` guard — sits behind
+a door that is already shut. It is not granular in practice; the matrix rows above
+have been corrected from ⚠️ to ❌.
+
+**WP Master Toolkit's REST teardown takes oEmbed with it.** `rest.oembed` returns
+401, where Keel's returns 200. That is the trade Keel's non-goals argue about from
+the other side: closing the route costs other sites' embeds of your posts, and
+Keel keeps it reachable while stripping the author fields instead.
+
+**WP Master Toolkit has no comment teardown in its free tier.** `Disable Comments`
+is a pro module, so every comment row reads exactly like stock — the feed answers
+200, `X-Pingback` is advertised, `comments_open` is 1, and a posted comment
+**lands in the database**. That is "not offered", not "does nothing", and it is
+why the comment rows above are not a criticism of the implementation.
+
+**Neither closes server-side comment reads.** Clearfy shuts the presentation layer
+properly — `comments_open` 0, post-type support removed, `default_status` closed,
+`html.comment_form` down from 6 to 1 — and `get_comments()` still answers 2. That
+is headline finding 3 holding for two more plugins, and it now covers every
+comment-capable plugin in the field.
+
+Neither breaks the block editor: all four authenticated admin probes return 200.
+
 #### The classic-theme run
 
 Every other measurement here is from a block-theme install, which left the two
@@ -329,12 +402,12 @@ not reach.
 
 | | Disable XML-RPC | Disable XML-RPC API | Disable Everything | Disable Comments | ASE | Clearfy | WPMT | **Keel** |
 |---|---|---|---|---|---|---|---|---|
-| Technique | `xmlrpc_enabled` | 403 the endpoint | `xmlrpc_enabled` | unset `wp.newComment` | 403 the endpoint | unset methods + `xmlrpc_call` die | `xmlrpc_enabled` + server class | unset methods, per-capability |
+| Technique | `xmlrpc_enabled` | 403 the endpoint | `xmlrpc_enabled` | unset `wp.newComment` | 403 the endpoint | **403 the endpoint** (plus unset methods, `xmlrpc_call` die) | `xmlrpc_enabled` + server class 403 | unset methods, per-capability |
 | Methods left listed | ❌ 80 | ✅ 0 | ❌ 80 | ⚠️ 79 | ✅ 0 | ✅ | ✅ | ✅ 3 (`system.*`) |
 | `pingback.ping` unreachable | ❌ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Remote publishing blocked | ⚠️ 405 | ✅ | ⚠️ 405 | ❌ | ✅ | — | ✅ | ✅ |
-| `system.multicall` removable | ❌ | ✅ (all-or-nothing) | ❌ | ❌ | ✅ (all-or-nothing) | ❌ | ✅ (all-or-nothing) | ✅ **individually** |
-| Granular (keep app publishing, drop pingback) | ❌ | ❌ | ❌ | ❌ | ❌ | ⚠️ | ❌ | ✅ |
+| Remote publishing blocked | ⚠️ 405 | ✅ | ⚠️ 405 | ❌ | ✅ | ✅ | ✅ | ✅ |
+| `system.multicall` removable | ❌ | ✅ (all-or-nothing) | ❌ | ❌ | ✅ (all-or-nothing) | ✅ (all-or-nothing) | ✅ (all-or-nothing) | ✅ **individually** |
+| Granular (keep app publishing, drop pingback) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
 ### Classic editor (code review)
 
