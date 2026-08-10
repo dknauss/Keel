@@ -193,26 +193,97 @@ foreach ( $strings as $key => $copy ) {
 }
 
 // --- retired claims ---
+//
+// The list is not here. It lives in tests/fixtures/retired-copy.json, shared
+// with the sibling plugins, because these three say the same things about the
+// same WordPress behaviours and therefore retire the same wrong claims. Each
+// repo used to keep its own copy, so retiring a phrase in one did not retire it
+// in the others — which is how an author-identity leak lived in two plugins
+// while the fix sat in the third.
+//
 // Scanned across every string, not pinned to the setting each phrase was
-// retired from. The failure this exists for was a phrase surviving in one
-// plugin after a sibling retired it, so a guard that only watches the one
-// sentence that diverged would miss the same claim reappearing elsewhere.
-// Retiring another phrase is one array entry, not a new assertion.
-$retired = array(
-	'trust leak' => 'overstates an off-site link as a leak; Better by Default retired it and asserts against it',
-);
+// retired from: a guard that only watches the one sentence that diverged would
+// miss the same claim reappearing elsewhere.
+$fixture_path = __DIR__ . '/fixtures/retired-copy.json';
+keel_assert( is_file( $fixture_path ), 'The shared retired-copy fixture exists.' );
+
+$fixture = json_decode( file_get_contents( $fixture_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+keel_assert( is_array( $fixture ) && isset( $fixture['shared'] ), 'The shared fixture parses and has a shared section.' );
+
+$retired = array();
+foreach ( array_merge( $fixture['shared'], isset( $fixture['keel'] ) ? $fixture['keel'] : array() ) as $entry ) {
+	$retired[ $entry['phrase'] ] = $entry['why'];
+}
+
+// A fixture that loaded but yielded nothing would make every assertion below
+// pass without checking anything.
+keel_assert( count( $retired ) >= count( $fixture['shared'] ), 'The fixture yielded the shared phrases (' . count( $retired ) . ').' );
+
+/*
+ * Every surface that carries copy, not just the schema strings.
+ *
+ * The first version of this scan read $strings only — label, statement, help —
+ * and a retired phrase planted in a help tab passed it clean. Most of this
+ * plugin's prose lives in the help tabs and the sidebar, which is precisely
+ * where the wording being retired tends to be.
+ */
+$copy_surfaces = array();
+
+foreach ( $strings as $key => $copy ) {
+	foreach ( array( 'label', 'statement', 'help' ) as $slot ) {
+		if ( isset( $copy[ $slot ] ) ) {
+			$copy_surfaces[ "strings[{$key}][{$slot}]" ] = $copy[ $slot ];
+		}
+	}
+}
+
+foreach ( $GLOBALS['keel_test_screen']->tabs as $tab_id => $tab_html ) {
+	$copy_surfaces[ "help tab '{$tab_id}'" ] = $tab_html;
+}
+
+$copy_surfaces['help sidebar'] = $GLOBALS['keel_test_screen']->sidebar;
+
+foreach ( array( 'readme.txt', 'README.md' ) as $doc ) {
+	$doc_path = dirname( __DIR__ ) . '/' . $doc;
+	if ( is_file( $doc_path ) ) {
+		$copy_surfaces[ $doc ] = file_get_contents( $doc_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	}
+}
+
+keel_assert( count( $copy_surfaces ) > 40, 'The retired-phrase scan has surfaces to search (' . count( $copy_surfaces ) . ').' );
+keel_assert( isset( $copy_surfaces["help tab 'keel-passwords'"] ), 'The scan reaches the help tabs, not only the schema strings.' );
+
+/**
+ * Strip lines that deliberately quote a retired phrase to explain it.
+ *
+ * A repository that documents why wording was retired necessarily contains that
+ * wording. Better by Default is a teaching repository and does this on purpose;
+ * Keel does it in the comment beside the password rule. A bare substring scan
+ * cannot tell that from a relapse, so a line carrying `keel-retired-ok` is
+ * skipped — and nothing else is, which keeps the escape hatch deliberate and
+ * visible in review rather than a general amnesty.
+ *
+ * @param string $text Copy to scan.
+ * @return string
+ */
+function keel_strip_retired_exemptions( $text ) {
+	$kept = array();
+
+	foreach ( preg_split( '/\r\n|\n/', (string) $text ) as $line ) {
+		if ( false === stripos( $line, 'keel-retired-ok' ) ) {
+			$kept[] = $line;
+		}
+	}
+
+	return implode( "\n", $kept );
+}
 
 foreach ( $retired as $phrase => $why ) {
-	foreach ( $strings as $key => $copy ) {
-		foreach ( array( 'label', 'statement', 'help' ) as $slot ) {
-			if ( ! isset( $copy[ $slot ] ) ) {
-				continue;
-			}
-			keel_assert(
-				false === stripos( $copy[ $slot ], $phrase ),
-				"Retired phrase '{$phrase}' does not appear in {$slot} for '{$key}' — {$why}."
-			);
-		}
+	foreach ( $copy_surfaces as $where => $text ) {
+		keel_assert(
+			false === stripos( keel_strip_retired_exemptions( $text ), $phrase ),
+			"Retired phrase '{$phrase}' appears in {$where} — {$why}."
+		);
 	}
 }
 
