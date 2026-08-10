@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T00:08:34+00:00\n"
+"POT-Creation-Date: 2026-08-10T01:08:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -105,7 +105,7 @@ msgstr ""
 msgid "Local"
 msgstr ""
 
-#: includes/bootstrap.php:265
+#: includes/bootstrap.php:266
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
@@ -143,34 +143,34 @@ msgstr ""
 msgid "Turn off \"Non-Production Email\" under Settings → Keel to send from here anyway."
 msgstr ""
 
-#: includes/security.php:158
+#: includes/security.php:172
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:409
+#: includes/security.php:443
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:433
+#: includes/security.php:467
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:454
+#: includes/security.php:488
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:473
+#: includes/security.php:507
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:649
+#: includes/security.php:683
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:20
-#: includes/settings-page.php:539
+#: includes/settings-page.php:567
 #: includes/site-health.php:245
 msgid "Keel"
 msgstr ""
@@ -188,7 +188,7 @@ msgid "Overview"
 msgstr ""
 
 #: includes/settings-page.php:84
-msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default: flip only what you want, and the rest of WordPress is untouched."
+msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all."
 msgstr ""
 
 #: includes/settings-page.php:85
@@ -196,7 +196,7 @@ msgid "The defaults that are on out of the box are low-risk and safe for nearly 
 msgstr ""
 
 #: includes/settings-page.php:86
-msgid "One on-by-default setting is worth knowing about, because it is the only one that can break a working site: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If this site is meant to be embedded elsewhere — a client intranet, a partner site, a proofing tool — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
+msgid "There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
 msgstr ""
 
 #: includes/settings-page.php:87
@@ -273,15 +273,15 @@ msgstr ""
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:540
+#: includes/settings-page.php:568
 msgid "Sensible defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:552
+#: includes/settings-page.php:580
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:687
+#: includes/settings-page.php:715
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 

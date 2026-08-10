@@ -81,9 +81,9 @@ function keel_defaults_add_help_tab() {
 			'id'      => 'keel-overview',
 			'title'   => __( 'Overview', 'keel' ),
 			'content' =>
-				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default: flip only what you want, and the rest of WordPress is untouched.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'One on-by-default setting is worth knowing about, because it is the only one that can break a working site: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If this site is meant to be embedded elsewhere — a client intranet, a partner site, a proofing tool — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel' ) . '</p>' .
 				'<p>' . esc_html__( 'A setting that cannot take effect given another choice is hidden automatically: the XML-RPC method controls disappear when the whole endpoint is blocked, and Remember Me length hides when Remember Me is disabled.', 'keel' ) . '</p>',
 		)
 	);
