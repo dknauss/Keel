@@ -269,12 +269,24 @@ Plugin Review requirements, not niceties.
       watching it report, since a clean result from a check that cannot fire is
       worth nothing.
 
-      **Left open, and why this is `[~]`:** 6.4 was measured on PHP 8.5, single
-      site. The floor is a *pair* — `Requires at least: 6.4` and `Requires PHP: 7.4`
-      — and the corner that matters is old WordPress on old PHP, which this run did
-      not touch. Nor did it exercise multisite, which is precisely where the three
-      functions above live. The other plugins in the matrix remain measured on
-      7.0.2 only.
+      **Multisite closed 2026-08-10 (keel#91).** A second 6.4 lab installed
+      directly as a network runs `tests/integration/verify-network.sh` clean — all
+      ten checks, including the three functions the single-site run could not reach
+      and the whole network policy layer. Seeding a subsite created after
+      activation behaves on 6.4 exactly as on 7.0.2.
+
+      **Still open, and why this stays `[~]`:** 6.4 served on **PHP 7.4**. CI runs
+      the unit suite on 7.4, so the language floor is tested; what is untested is
+      the oldest supported WordPress running on the oldest supported PHP as a live
+      site, which needs a 7.4 runtime this machine does not have. The other plugins
+      in the matrix also remain measured on 7.0.2 only.
+
+      A trap worth carrying: the first 6.4 lab was WordPress **7.0.3** by the next
+      morning, through a background core update it never announced
+      (`auto_core_update_notified` records it). The original measurement stands —
+      the version was verified in the same session it was taken — but a lab pinned
+      to an old release does not stay pinned unless the updater is switched off.
+      Now in the integration README, with the two constants to set.
 - [x] **Make the probe harness part of the repo** — done 2026-08-04 (keel#21).
       `tests/integration/probe-teardown.sh`, plugin-agnostic, with the lab setup and the
       five traps in `tests/integration/README.md`. Rewritten for the repo rather than

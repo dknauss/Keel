@@ -392,11 +392,26 @@ The diagnostics check was itself verified by planting an undefined variable in
 (`site-health.php:441 Undefined variable`), because a null result from a listener
 that cannot fire is worth nothing.
 
-**So the 6.4 floor is now measured rather than asserted.** Worth being precise about
-what that does and does not cover: this is 6.4 on PHP 8.5, single-site, with the
-probe's configuration. It does not test 6.4 on PHP 7.4, and it does not test the
-multisite paths — those three functions above are exactly the code this run could
-not reach.
+**So the 6.4 floor is now measured rather than asserted.**
+
+The multisite half was closed on 2026-08-10: a second 6.4 lab installed directly
+as a network runs `tests/integration/verify-network.sh` clean — all ten checks,
+including the three functions the single-site run could not reach
+(`switch_to_blog`, `restore_current_blog`, `get_sites`) and the whole network
+policy layer. Seeding a subsite created after activation works on 6.4 exactly as
+it does on 7.0.2.
+
+What is still not covered is **6.4 served on PHP 7.4**. CI runs the unit suite on
+7.4, so the language floor is tested; what is untested is the oldest supported
+WordPress running on the oldest supported PHP as a live site, which needs a 7.4
+runtime this lab does not have.
+
+One caution learned the hard way, now in the integration README: the first 6.4
+lab had become 7.0.3 by the following morning, through a background core update
+it never announced. The original measurement stands — the version was verified in
+the same session it was taken — but a lab pinned to an old release does not stay
+pinned unless the updater is switched off, and the version is worth re-checking
+immediately before every run rather than only at build time.
 
 ### XML-RPC
 

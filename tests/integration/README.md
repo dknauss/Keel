@@ -155,6 +155,23 @@ require __DIR__ . '/index.php';
 
 ## Things that will waste an hour if you do not know them
 
+**A lab pinned to an old WordPress will not stay there.** A throwaway install
+happily updates itself in the background, and it does not ask. The 6.4 lab built
+for the older-WordPress run was WordPress 7.0.3 by the next morning — confirmed by
+`auto_core_update_notified`, which records a successful automatic core update. The
+measurement taken the night before was valid, because the version was checked in
+the same session; a re-run the next day would have measured 7.0.3 while every note
+around it said 6.4.
+
+Build any version-pinned lab with the updater switched off, and check the version
+again immediately before you trust a result:
+
+```bash
+wp config set AUTOMATIC_UPDATER_DISABLED true --raw --path=/tmp/probe-wp
+wp config set WP_AUTO_UPDATE_CORE false --raw --path=/tmp/probe-wp
+wp core version --path=/tmp/probe-wp    # before every run, not just the first
+```
+
 **Check the port is yours.** `php -S` prints `Address already in use` and exits,
 but a stale server from another session answers happily on that port — so the
 probe runs, returns plausible numbers, and measures somebody else's install.
