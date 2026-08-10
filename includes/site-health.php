@@ -118,19 +118,33 @@ function keel_defaults_debug_information( $info ) {
 	$groups = keel_defaults_group_labels();
 	$fields = array();
 
+	/*
+	 * One row per group, not per default. Naming the group on all 38 rows put
+	 * "Security and Attack Surface: " in front of nine of them and made the
+	 * column that should scan fastest the one carrying the most repetition.
+	 *
+	 * Core renders an array value as a definition list inside the value cell, so
+	 * the group is stated once and its defaults sit under it. That is as close as
+	 * the filter reaches: wp-admin/site-health-info.php emits a fixed two columns
+	 * and passes both through esc_html, so a third column, a row-spanning cell
+	 * and a bold group name are all unavailable here. The clipboard export
+	 * indents nested values the same way, so a pasted report groups too.
+	 */
 	foreach ( keel_defaults_posture_by_group() as $group_key => $items ) {
-		$group_label = isset( $groups[ $group_key ] ) ? $groups[ $group_key ] : $group_key;
+		$states = array();
 
 		foreach ( $items as $item ) {
-			$fields[ $item['key'] ] = array(
-				'label' => $group_label . ': ' . $item['label'],
-				'value' => $item['state'],
-			);
+			$states[ $item['label'] ] = $item['state'];
 		}
+
+		$fields[ $group_key ] = array(
+			'label' => isset( $groups[ $group_key ] ) ? $groups[ $group_key ] : $group_key,
+			'value' => $states,
+		);
 	}
 
 	$info['keel'] = array(
-		'label'       => __( 'Keel', 'keel' ),
+		'label'       => __( 'Keel Defaults', 'keel' ),
 		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel' ),
 		'fields'      => $fields,
 	);

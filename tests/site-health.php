@@ -74,9 +74,28 @@ keel_assert( 'good' === $result['status'], 'An opinionated toggle off stays info
 $info = keel_defaults_debug_information( array() );
 keel_assert( isset( $info['keel'] ), 'Keel adds a section to Site Health → Info.' );
 keel_assert( ! empty( $info['keel']['fields'] ), 'The Info section lists fields.' );
+
+// One row per group rather than per default, so the group name is stated once.
 keel_assert(
-	count( $info['keel']['fields'] ) === count( keel_defaults_schema() ),
-	'Every schema key appears in Info — ' . count( $info['keel']['fields'] ) . ' of ' . count( keel_defaults_schema() ) . '.'
+	count( $info['keel']['fields'] ) === count( keel_defaults_group_labels() ),
+	'Info has a row per group — ' . count( $info['keel']['fields'] ) . ' of ' . count( keel_defaults_group_labels() ) . '.'
+);
+
+/*
+ * The count that matters now lives a level down, and it is the one that can go
+ * wrong quietly: the defaults are keyed into the value array by their display
+ * label, so two defaults sharing a label in one group would overwrite each other
+ * and drop one from the report with nothing above this line noticing.
+ */
+$listed = 0;
+foreach ( $info['keel']['fields'] as $group_key => $field ) {
+	keel_assert( is_array( $field['value'] ), "Group '{$group_key}' lists its defaults as an array." );
+	$listed += count( $field['value'] );
+}
+
+keel_assert(
+	count( keel_defaults_schema() ) === $listed,
+	'Every schema key is listed under some group — ' . $listed . ' of ' . count( keel_defaults_schema() ) . '.'
 );
 
 // A non-array from another plugin's filter must pass straight through rather
