@@ -31,6 +31,7 @@ function keel_defaults_bootstrap() {
 	 * support thread actually needs.
 	 */
 	add_filter( 'debug_information', 'keel_defaults_debug_information' );
+	add_action( 'admin_head-site-health.php', 'keel_defaults_site_health_info_styles' );
 
 	/* ----- Updates ----- */
 

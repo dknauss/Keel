@@ -160,7 +160,7 @@ function keel_defaults_debug_information( $info ) {
 		);
 	}
 
-	$info['keel'] = array(
+	$info[ KEEL_DEFAULTS_INFO_SECTION ] = array(
 		'label'       => __( 'Keel Defaults', 'keel' ),
 		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel' ),
 		'fields'      => $fields,
@@ -403,4 +403,43 @@ function keel_defaults_competing_plugins() {
 	}
 
 	return $conflict;
+}
+
+/**
+ * Style Keel's own section of Site Health → Info.
+ *
+ * Two columns is all `wp-admin/site-health-info.php` emits, and it passes both
+ * cells through `esc_html`, so there is no markup lever here — the group name
+ * cannot be marked up as a heading and cannot span rows. CSS is the only
+ * mechanism, which is worth being explicit about rather than dressing up.
+ *
+ * What makes it safe rather than fragile is the scope. The id comes from our own
+ * array key, so nothing here can reach another plugin's section or core's, and
+ * if a future WordPress renames `.health-check-table` the rules stop matching
+ * and the table renders in core's default style. Failure is a plain table, not a
+ * broken one.
+ *
+ * `vertical-align` is the reason this exists. Each value cell holds a list of up
+ * to nine defaults, and a middle-aligned row header floats to the centre of its
+ * own list, level with nothing. Top alignment puts the group name beside the
+ * first default under it.
+ *
+ * The weight is a partial departure, and the qualifier is the interesting half.
+ * Core sets `.widefat th` to 400, but `.widefat.health-check-table th` to 600
+ * inside `@media screen and (max-width: 782px)` — so below 782px every Info
+ * section is already semibold and Keel simply matches, while above it Keel's
+ * group names are the only bold ones on the page. Measured both ways rather than
+ * read off the first rule that matched: the browser reported 600 for core's
+ * section too, which was the narrow-viewport rule and nearly became a correction
+ * in the wrong direction.
+ *
+ * Worth it because these are headings for the lists beside them rather than
+ * field labels. It does mean the section stands out at desktop width, which is
+ * where most people read it.
+ */
+function keel_defaults_site_health_info_styles() {
+	printf(
+		'<style id="keel-site-health-info">#health-check-accordion-block-%1$s .health-check-table th{font-weight:600;vertical-align:top}#health-check-accordion-block-%1$s .health-check-table td{vertical-align:top}</style>',
+		esc_attr( KEEL_DEFAULTS_INFO_SECTION )
+	);
 }

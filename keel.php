@@ -35,6 +35,17 @@ defined( 'ABSPATH' ) || exit;
 /** The single option name that stores all settings as one array. */
 const KEEL_DEFAULTS_OPTION = 'keel_settings';
 
+/**
+ * Our key in the Site Health → Info array.
+ *
+ * Named rather than inlined because WordPress builds the section's DOM id from
+ * it — `health-check-accordion-block-{key}` — and the stylesheet for that section
+ * has to target the same string. Two literals that must agree and sit in
+ * different files are a silent breakage waiting to happen: change one and the
+ * styling stops applying with nothing failing.
+ */
+const KEEL_DEFAULTS_INFO_SECTION = 'keel';
+
 /** This file, for plugin_basename() — the Plugins-screen action links need it. */
 define( 'KEEL_DEFAULTS_FILE', __FILE__ );
 
