@@ -182,12 +182,59 @@ add_action(
 			KEEL_DEFAULTS_OPTION,
 			array(
 				'type'              => 'array',
-				'sanitize_callback' => 'keel_defaults_sanitize',
+				'sanitize_callback' => 'keel_defaults_sanitize_site',
 				'default'           => array(),
 			)
 		);
 	}
 );
+
+/**
+ * Sanitize a submission from *this site's* settings screen.
+ *
+ * Wraps the shared sanitizer with one thing the shared one must not do: refuse
+ * to write a setting this site does not control. A wp-config constant or a
+ * network policy takes a control out of the site owner's hands, and until now
+ * that was enforced only by rendering the control disabled — which is a
+ * presentational lock. A crafted POST, or a browser with the attribute removed,
+ * wrote the value happily. Nothing broke, because the constant and the network
+ * policy both win when the value is *read*, but the stored value drifted away
+ * from what the screen showed and the lock was a suggestion.
+ *
+ * It also has to be enforced here rather than inside keel_defaults_sanitize(),
+ * because the network screen shares that sanitizer — a network admin setting
+ * policy is writing exactly the keys this function is refusing, and folding the
+ * check into the shared path would make the network screen unable to save
+ * anything it manages.
+ *
+ * @param mixed $input Raw submitted settings (untrusted).
+ * @return array
+ */
+function keel_defaults_sanitize_site( $input ) {
+	$clean    = keel_defaults_sanitize( $input );
+	$existing = get_option( KEEL_DEFAULTS_OPTION, array() );
+	$existing = is_array( $existing ) ? $existing : array();
+
+	foreach ( array_keys( keel_defaults_schema() ) as $key ) {
+		$locked = ( null !== keel_defaults_config_lock( $key ) ) || ( null !== keel_defaults_network_lock( $key ) );
+
+		if ( ! $locked ) {
+			continue;
+		}
+
+		// Keep what was already stored rather than dropping the key: the site's
+		// own preference is what it returns to when the lock is lifted, and
+		// discarding it here would silently rewrite a choice the site made
+		// before somebody else took the setting over.
+		if ( array_key_exists( $key, $existing ) ) {
+			$clean[ $key ] = $existing[ $key ];
+		} else {
+			unset( $clean[ $key ] );
+		}
+	}
+
+	return $clean;
+}
 
 /**
  * Sanitize the whole settings array against the schema.
@@ -262,15 +309,24 @@ function keel_defaults_sanitize( $input ) {
  * starts hidden. Applied to the row (single field) or the checkbox wrapper
  * (sectioned field). JS syncs on change; this sets the initial server-side state.
  *
- * @param array $field Schema field.
+ * @param array  $field Schema field.
+ * @param string $key   Schema key, used for the row's id.
  * @return array{0:string,1:bool} [ attribute string, hidden-now ]
  */
-function keel_defaults_dep_state( $field ) {
+function keel_defaults_dep_state( $field, $key = '' ) {
 	if ( empty( $field['depends']['field'] ) ) {
 		return array( '', false );
 	}
+
+	/*
+	 * The id is what makes the relationship programmatic. Without it the only
+	 * thing tying a control to the rows it reveals is a data attribute a script
+	 * reads — invisible to assistive technology, which is why a row appearing had
+	 * no announced connection to the choice that produced it.
+	 */
 	$attr   = sprintf(
-		' data-keel-dep-field="%s" data-keel-dep-hide="%s"',
+		' id="keel-dep-%1$s" data-keel-dep-field="%2$s" data-keel-dep-hide="%3$s"',
+		esc_attr( $key ),
 		esc_attr( $field['depends']['field'] ),
 		esc_attr( (string) $field['depends']['hide_when'] )
 	);
@@ -329,11 +385,28 @@ function keel_defaults_render_help( $help, $id = '' ) {
  */
 function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = false, $describedby = '' ) {
 	$aria = ( '' !== $describedby ) ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '';
+
+	/*
+	 * aria-disabled, not disabled.
+	 *
+	 * A `disabled` control is removed from the tab sequence, so a screen-reader
+	 * user never lands on it — and the aria-describedby wiring that announces
+	 * *why* it cannot be changed is announced on focus, which never happens. The
+	 * reason was written first in that attribute on purpose and then could not be
+	 * heard. `aria-disabled` keeps the control focusable and announced as
+	 * unavailable, so the explanation reaches the person it was written for.
+	 *
+	 * Safe only because the lock is now enforced on save in
+	 * keel_defaults_sanitize_site(): a focusable control is a submittable one, and
+	 * before that enforcement this would have let a locked value be written.
+	 */
+	$locked_attrs = $disabled ? ' aria-disabled="true" data-keel-locked="1"' : '';
+
 	printf(
 		'<label><input type="checkbox" name="%s" value="yes" %s%s%s /> %s</label>',
 		esc_attr( $name ),
 		checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a fixed literal.
-		disabled( $disabled, true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- disabled() returns a fixed literal.
+		$locked_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
 		$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
 		wp_kses( $statement, array( 'code' => array() ) )
 	);
@@ -680,7 +753,7 @@ function keel_defaults_render_settings_page() {
 								echo '<tr><th scope="row">' . esc_html( $stitle ) . '</th><td><fieldset><legend class="screen-reader-text"><span>' . esc_html( $stitle ) . '</span></legend>';
 								$section_open = $sec;
 							}
-							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
+							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field, $key );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
 							// Same lock handling as the single-field branch below. No
 							// sectioned setting is lockable today, but the invariant this
@@ -704,7 +777,7 @@ function keel_defaults_render_settings_page() {
 							continue;
 						}
 
-						list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field );
+						list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field, $key );
 						?>
 						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
 							<th scope="row"><?php echo esc_html( $label ); ?></th>
@@ -722,7 +795,7 @@ function keel_defaults_render_settings_page() {
 									<?php if ( $locked ) : ?>
 										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
 									<?php endif; ?>
-									<select name="<?php echo esc_attr( $name ); ?>" aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?> <?php disabled( $locked ); ?>>
+									<select name="<?php echo esc_attr( $name ); ?>" aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?><?php echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; ?>>
 										<?php foreach ( $field['choices'] as $ck ) : ?>
 											<option value="<?php echo esc_attr( $ck ); ?>" <?php selected( $ck, $value ); ?>>
 												<?php echo esc_html( isset( $s['choices'][ $ck ] ) ? $s['choices'][ $ck ] : $ck ); ?>
@@ -794,12 +867,54 @@ function keel_defaults_render_settings_page() {
 				}
 				return el.value;
 			}
+			/*
+			 * A locked control is aria-disabled rather than disabled, so it stays
+			 * focusable and can announce why it cannot be changed. That also makes
+			 * it operable, so refuse the change here. The server refuses it too —
+			 * keel_defaults_sanitize_site() keeps the stored value for any locked
+			 * key — so this is the courtesy, not the enforcement.
+			 */
+			document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
+				control.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); } );
+				control.addEventListener( 'keydown', function ( event ) {
+					if ( ' ' === event.key || 'Enter' === event.key ) { event.preventDefault(); }
+				} );
+				control.addEventListener( 'change', function () {
+					if ( 'checkbox' === control.type ) {
+						control.checked = ! control.checked;
+					}
+				} );
+			} );
+
 			document.querySelectorAll( 'tr[data-keel-dep-field]' ).forEach( function ( row ) {
 				var field = row.getAttribute( 'data-keel-dep-field' );
 				var hide  = row.getAttribute( 'data-keel-dep-hide' );
 				var ctrls = document.querySelectorAll( '[name="keel_settings[' + field + ']"]' );
 				if ( ! ctrls.length ) { return; }
-				function sync() { row.style.display = ( controllerValue( field ) === hide ) ? 'none' : ''; }
+
+				/*
+				 * Tell assistive technology which control governs this row, and
+				 * whether the row is showing. Without aria-controls the only link
+				 * between the two is a data attribute this script reads, which no
+				 * screen reader can see — so a row appearing had no announced
+				 * relationship to the choice that produced it.
+				 */
+				ctrls.forEach( function ( c ) {
+					var owned = ( c.getAttribute( 'aria-controls' ) || '' ).split( ' ' ).filter( Boolean );
+					if ( row.id && -1 === owned.indexOf( row.id ) ) {
+						owned.push( row.id );
+						c.setAttribute( 'aria-controls', owned.join( ' ' ) );
+					}
+				} );
+
+				function sync() {
+					var hidden = controllerValue( field ) === hide;
+					row.style.display = hidden ? 'none' : '';
+					ctrls.forEach( function ( c ) {
+						c.setAttribute( 'aria-expanded', hidden ? 'false' : 'true' );
+					} );
+				}
+
 				ctrls.forEach( function ( c ) { c.addEventListener( 'change', sync ); } );
 				sync();
 			} );
