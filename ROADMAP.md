@@ -220,16 +220,50 @@ Plugin Review requirements, not niceties.
       registration** — run `apply_filters()` with our callback in place, then again
       with it removed, and compare. Needs no knowledge of the other code and would
       catch mu-plugins and themes, which reflection-based attribution skips.
-- [ ] **Decide whether Keel's policy filters compare or assert.** They disagree with each
-      other today. `keel_defaults_set_frame_option_header()` reads what another layer
-      already sent, ranks it, and refuses to downgrade a stronger value.
-      `keel_defaults_session_length()` ignores the incoming `$expiration` entirely
-      whenever its own setting is non-zero — it compares its own two values with `max()`
-      and never compares against anyone else's. Same plugin, two philosophies, and only
-      the header one survives running alongside a sibling. The awkward part is that
-      "stricter" for a session means *shorter*, so a comparing version hands victory to
-      whichever plugin is most aggressive — which is not obviously right either. Worth a
-      decision either way, rather than an accident.
+- [x] **Decide whether Keel's policy filters compare or assert** — decided 2026-08-09
+      (keel#72). **Both, and the rule is: compare where an incoming value is evidence of
+      a decision, assert where it is not.** The two filters were not inconsistent; the
+      reason they differ was simply never written down.
+
+      What settles it is what an incoming value proves on each hook, and that is a fact
+      about core rather than a preference:
+
+      - **`wp_headers`.** Core never seeds `X-Frame-Options` into the array —
+        `send_frame_options_header()` emits it with `header()` and never touches the
+        filter (`wp-includes/functions.php:7194`). So a value present in the array means
+        some layer decided on one. That is evidence, ranking it is meaningful, and
+        refusing to downgrade is right.
+      - **`auth_cookie_expiration`.** Core *always* passes a number — 2 or 14 days from
+        `wp_set_auth_cookie()` (`wp-includes/pluggable.php:1082`, `1091`). "There is an
+        incoming value" therefore carries no information whatsoever, and core's own
+        default is indistinguishable from another plugin's deliberate one. Comparing
+        would cap a site's explicit 30-day setting at core's 14 while the settings screen
+        went on displaying 30.
+
+      The item's stated worry — that comparing hands victory to whichever plugin is most
+      aggressive — is real but downstream of that. Even if shorter-wins were desirable,
+      there is nothing here to compare *against*.
+
+      **One live defect fell out of asking.** Core's Customizer sets
+      `X-Frame-Options: SAMEORIGIN` on the previewed front end at priority 10 so the
+      preview loads in its iframe (`WP_Customize_Manager::filter_iframe_security_headers()`).
+      Keel runs at 99, so a site configured `DENY` escalated core's value — confirmed by
+      running both filters in order on a real install. The preview kept working only
+      because core sets `frame-ancestors 'self'` in the same call and CSP takes
+      precedence over X-Frame-Options wherever both appear. A functional header surviving
+      behind another header's protection is not something to keep leaning on, and
+      "stronger" is the wrong question when the incoming value exists to make a feature
+      work rather than to state a posture. Keel now leaves a Customizer preview alone.
+
+      `tests/policy-conflicts.php` pins the rule rather than the two behaviours, because
+      the regression to fear is a tidying refactor that makes both filters agree in
+      style — and either direction is a real break. Break-tested in both directions plus
+      the Customizer carve-out.
+
+      Worth recording how the session half was nearly under-tested: a single
+      incoming-value-insensitivity check happened to exercise only one of that
+      function's three exits, and a `min()` planted on the Remember Me disabled branch
+      passed it. The assertions enumerate all three now.
 
 - [~] **Connect the three test suites.** Partly done 2026-08-04. Keel and BBD each
       guard retired claims independently, and `tests/integration/assert-privacy.sh`
