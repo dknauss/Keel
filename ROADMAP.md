@@ -194,8 +194,26 @@ Plugin Review requirements, not niceties.
       one option prefix and reads another, which left it inert while the class was
       loaded, the helper defined and the option present with the right value.
 
-- [ ] **Probe Classic Editor (9M) and Disable Gutenberg (500k)** on the editor surface,
-      which the current matrix covers by code review only.
+- [x] **Probe Classic Editor (9M) and Disable Gutenberg (500k)** — done 2026-08-09
+      (keel#87). The editor surface needed a harness of its own:
+      `tests/integration/probe-editor.sh` renders the post-edit screen as a
+      logged-in administrator and counts what came back.
+
+      All three replace the editor — the block-editor container is gone from the
+      edit and new-post screens in every one, with TinyMCE loaded instead. Classic
+      Editor is the only plugin in the whole matrix that needs no configuration at
+      all; Disable Gutenberg ships `disable-all => 1` in its defaults and is the
+      only one that adds per-row editor links to the posts list.
+
+      Two things the run taught the harness. `auth_redirect()` resolves its scheme
+      through an empty string, so wp-admin validates the **auth** cookie while REST
+      accepts `logged_in` — sending only the latter gets a 302 to wp-login and the
+      probe reports every marker as 0, which reads exactly like a plugin stripping
+      the editor. The script sends both and now refuses to run if the edit screen
+      is not a 200. And a filter registered from an admin-only hook is invisible
+      under CLI, which is why Disable Gutenberg's `use_block_editor_for_post_type`
+      reads `block` there while its rendered screen is the classic editor — the
+      precise reason this column could not be settled by reading code.
 - [~] **Re-run the matrix against a classic theme.** Keel done 2026-08-09 (keel#79);
       the other nine plugins are not, and their two rendered-markup rows remain
       block-theme figures.
