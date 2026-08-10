@@ -4,7 +4,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,7 +22,7 @@ Every default is one entry in a single schema array that drives both the setting
 
 **Outgoing email stops at the edge of production.** A database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production — on by default, does nothing on production, and says so in an admin notice so nobody is left wondering why a password reset never arrived.
 
-**Status:** pre-release. The feature set is frozen at 38 defaults — the ported hardening and admin defaults, the Site Health surface, and multisite-aware seeding are all in. What remains before a wordpress.org release is verification and packaging, not features.
+**Status:** released. The feature set is frozen at 38 defaults — the hardening and admin defaults, the Site Health surface, multisite-aware seeding and network-wide policy are all in. What remains before a wordpress.org submission is verification, not features.
 
 == External services ==
 
@@ -46,7 +46,7 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — are off out of the box and opt-in.
 
-One on-by-default setting is worth knowing about, because it is the only one that can break a working site: Keel sends an `X-Frame-Options` header of `SAMEORIGIN`, so other sites cannot embed yours in an iframe. If this site is meant to be embedded elsewhere — a client intranet, a partner site, a proofing tool — set **Frame options** to "Leave unchanged" under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.
+There is one exception: Keel sends an `X-Frame-Options` header of `SAMEORIGIN`, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set **Frame options** to "Leave unchanged" under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.
 
 Deactivating stops every default at once; stored settings are kept so reactivating restores the same configuration. Uninstalling removes them.
 
@@ -102,8 +102,8 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Upgrade Notice ==
 
-= 0.2.0 =
-First stable release. Nothing to do on upgrade: no setting changes meaning and no stored value is rewritten. The comment, REST and author-identity teardowns now cover surfaces they previously missed, so a site relying on those defaults will find them reaching further than before — the changelog lists each one.
+= 0.3.0 =
+Nothing to do on upgrade: no setting changes meaning and no stored value is rewritten. Multisite networks gain a Network Admin screen that can set any default for every site; it does nothing until a Super Admin uses it.
 
 == Screenshots ==
 
@@ -112,6 +112,20 @@ First stable release. Nothing to do on upgrade: no setting changes meaning and n
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
 
 == Changelog ==
+
+= 0.3.0 =
+* Multisite: a Super Admin can decide any setting for the whole network, under Network Admin → Settings → Keel Defaults. Sites see those settings as locked. Policy applies when a value is read rather than being written into each site, so a site's own saved settings are untouched and lifting the policy returns every site to exactly what it had.
+* A locked setting now stays locked when the form is saved, not only when it is drawn. A wp-config constant or a network policy was enforced in the rendered control and nowhere else, so a submission could still write the value it protected. It never took effect, but the stored setting drifted from what the screen showed.
+* Locked controls can be reached by keyboard and screen reader, and say why they are locked. They were disabled, which removes them from the tab order — so the explanation attached to them was announced on a focus that never happened.
+* Settings that hide when another choice makes them irrelevant now tell assistive technology which control governs them, and whether they are showing.
+* The staging environment indicator failed WCAG AA contrast at 2.41:1 against the 4.5:1 minimum for text that size. Every environment colour is now checked by the test suite.
+* The admin menu width slider announces its setting as a word rather than a position, and no longer repeats itself on every keypress.
+* Site Health → Info groups the defaults by category instead of repeating the group name on all 38 rows, and the section is named "Keel Defaults" rather than "Keel".
+* Number settings report their unit, so Site Health says "14 days" rather than "14".
+* X-Frame-Options is left alone inside the Customizer preview, which sets that header itself so the preview can load.
+* Translation catalogs rebuilt: 68 strings in the code were missing from the template, and the en_CA catalog translated nothing because every string it named had been reworded.
+* An XML-RPC help tab covering the whole family — what it is, why four switches rather than one, the Jetpack constraint, and why system.multicall's reputation is out of date.
+* A "try it live" Playground link that follows each stable release.
 
 = 0.2.0 =
 * First stable release. The feature set is frozen at 38 defaults; what changed since the scaffold is listed below.

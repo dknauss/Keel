@@ -36,31 +36,48 @@ const out = path.resolve( fileURLToPath( new URL( '../.wordpress-org', import.me
 // Mint a session through WP-CLI. Two cookies, not one: wp-admin validates the
 // auth cookie while REST accepts logged_in alone, and sending only the latter
 // silently redirects every capture to wp-login.php.
-const wp = ( php ) =>
-	execFileSync( 'wp', [ alias, 'eval', php ], { encoding: 'utf8' } )
+const wp = ( php ) => {
+	const out = execFileSync( 'wp', [ alias, 'eval', php ], { encoding: 'utf8' } )
 		.split( '\n' )
-		.filter( ( l ) => l.includes( '=' ) )
-		.pop()
-		.trim();
+		.map( ( l ) => l.trim() )
+		// WP-CLI prints PHP deprecation notices on some toolchains; the payload is
+		// the last non-empty line that is not one of those.
+		.filter( ( l ) => l && ! /^(Deprecated|Warning|Notice):/.test( l ) );
 
+	const payload = out.pop();
+
+	if ( ! payload ) {
+		throw new Error( `No output from \`wp ${ alias } eval\`. Is the alias correct and the site reachable?` );
+	}
+
+	return payload;
+};
+
+// JSON, not a delimited string. A WordPress auth cookie value is itself
+// pipe-separated — `admin|1786344862|CUzh...` — so any single-character
+// delimiter chosen without looking at the data shreds the value it is meant to
+// carry. This is what broke the first version of this script.
 const cookieLine = wp( `
 $u   = get_users( array( "role" => "administrator", "number" => 1 ) );
 $uid = $u ? $u[0]->ID : 1;
 $exp = time() + 3600;
 $tok = WP_Session_Tokens::get_instance( $uid )->create( $exp );
-printf(
-	"%s|%s|%s|%s",
-	AUTH_COOKIE, wp_generate_auth_cookie( $uid, $exp, "auth", $tok ),
-	LOGGED_IN_COOKIE, wp_generate_auth_cookie( $uid, $exp, "logged_in", $tok )
+echo wp_json_encode(
+	array(
+		AUTH_COOKIE      => wp_generate_auth_cookie( $uid, $exp, "auth", $tok ),
+		LOGGED_IN_COOKIE => wp_generate_auth_cookie( $uid, $exp, "logged_in", $tok ),
+	)
 );
 ` );
 
-const [ authName, authVal, loggedName, loggedVal ] = cookieLine.split( '|' );
 const domain = new URL( base ).hostname;
-const cookies = [
-	{ name: authName, value: authVal, domain, path: '/' },
-	{ name: loggedName, value: loggedVal, domain, path: '/' },
-];
+const cookies = Object.entries( JSON.parse( cookieLine ) ).map(
+	( [ name, value ] ) => ( { name, value, domain, path: '/' } )
+);
+
+if ( 2 !== cookies.length ) {
+	throw new Error( `Expected two cookies, got ${ cookies.length }.` );
+}
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext( { viewport: { width: 1280, height: 900 } } );

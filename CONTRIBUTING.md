@@ -98,8 +98,13 @@ screens between capture and the day somebody looked.
 composer verify:screenshots
 ```
 
-That names every commit touching the admin screens since the screenshots were
-committed. It is not part of `composer test` on purpose: it reads git history,
+That names every commit touching the admin screens since the screenshots were last
+*reviewed* — `.wordpress-org/.screenshots-reviewed` records that commit. Reviewed
+rather than changed, because a UI change does not always alter the picture: an
+ARIA-only fix, or a new screen these three do not show, leaves the images
+byte-identical, and comparing against the images' own commit made the check
+impossible to satisfy in exactly that case. If the pictures are unchanged,
+confirm you looked and record it with `git rev-parse HEAD > .wordpress-org/.screenshots-reviewed`. It is not part of `composer test` on purpose: it reads git history,
 and CI checks out at depth 1, where the range query would find nothing and pass
 vacuously. Run it before a release or after touching an admin screen.
 

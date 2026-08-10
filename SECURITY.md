@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The current release is `0.2.0`. Keel has not been submitted to wordpress.org, so
+The current release is `0.3.0`. Keel has not been submitted to wordpress.org, so
 it is installed from a GitHub release or the rolling `latest` build.
 
 Security fixes target the latest release and land on `main`. Older releases may
