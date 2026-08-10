@@ -180,7 +180,7 @@ Plugin Review requirements, not niceties.
       `wp_xmlrpc_server_class` swap. Confirm or correct both by measurement.
 - [ ] **Probe Classic Editor (9M) and Disable Gutenberg (500k)** on the editor surface,
       which the current matrix covers by code review only.
-- [~] **Re-run the matrix against a classic theme.** Keel done 2026-08-09 (keel#78);
+- [~] **Re-run the matrix against a classic theme.** Keel done 2026-08-09 (keel#79);
       the other nine plugins are not, and their two rendered-markup rows remain
       block-theme figures.
 
