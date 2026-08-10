@@ -58,6 +58,23 @@ function keel_defaults_state_label( $field, $value, $s = array() ) {
 		$idx    = array_search( (string) $value, $values, true );
 		return ( false !== $idx && isset( $labels[ $idx ] ) ) ? (string) $labels[ $idx ] : (string) $value;
 	}
+
+	/*
+	 * A bare number is not a state. The settings screen prints the unit beside the
+	 * input, so "14" reads as days there and nowhere else; in Site Health and in
+	 * the Status summary it arrived as "Remember Me Length: 14".
+	 *
+	 * Both number fields are days and the minimum is 1, so "1 days" is reachable
+	 * and this needs _n() rather than a suffix. Hard-coding the unit here is safe
+	 * only for as long as that stays true, so tests/site-health.php asserts it and
+	 * names this function when it stops being true.
+	 */
+	if ( 'number' === $type ) {
+		$days = (int) $value;
+		/* translators: %s: number of days. */
+		return sprintf( _n( '%s day', '%s days', $days, 'keel' ), number_format_i18n( $days ) );
+	}
+
 	return (string) $value;
 }
 

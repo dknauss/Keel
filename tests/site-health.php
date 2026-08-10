@@ -13,6 +13,8 @@ function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
+function _n( $single, $plural, $number, $d = null ) { return ( 1 === (int) $number ) ? $single : $plural; }
+function number_format_i18n( $n ) { return (string) $n; }
 function esc_html( $s ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }
@@ -96,6 +98,56 @@ foreach ( $info['keel']['fields'] as $group_key => $field ) {
 keel_assert(
 	count( keel_defaults_schema() ) === $listed,
 	'Every schema key is listed under some group — ' . $listed . ' of ' . count( keel_defaults_schema() ) . '.'
+);
+
+/*
+ * --- a number carries its unit ---
+ *
+ * "Remember Me Length: 14" is not a state anyone can read. The settings screen
+ * prints the unit beside the input, so the number reads correctly there and
+ * nowhere else.
+ */
+$strings = keel_defaults_strings();
+$schema  = keel_defaults_schema();
+
+$numbers = 0;
+foreach ( $schema as $key => $field ) {
+	if ( ! isset( $field['type'] ) || 'number' !== $field['type'] ) {
+		continue;
+	}
+
+	++$numbers;
+
+	// keel_defaults_state_label() hard-codes day/days because both number fields
+	// are days. That is fine while it holds and wrong the moment it does not, so
+	// assert it here rather than leaving it as an assumption in a comment.
+	keel_assert(
+		isset( $strings[ $key ]['unit'] ) && 'days' === $strings[ $key ]['unit'],
+		"'{$key}' is a number measured in something other than days; keel_defaults_state_label() needs a case for it."
+	);
+
+	$state = keel_defaults_state_label( $field, $field['default'], isset( $strings[ $key ] ) ? $strings[ $key ] : array() );
+	keel_assert(
+		(string) $field['default'] !== $state,
+		"'{$key}' reports a bare number ('{$state}') with no unit."
+	);
+	keel_assert(
+		false !== strpos( $state, 'day' ),
+		"'{$key}' reports '{$state}', which does not name its unit."
+	);
+}
+
+keel_assert( $numbers > 0, 'The unit check found number fields to check (' . $numbers . ').' );
+
+// min is 1 on both, so the singular is reachable and a bare "%s days" would
+// print "1 days".
+keel_assert(
+	'1 day' === keel_defaults_state_label( array( 'type' => 'number' ), 1, array( 'unit' => 'days' ) ),
+	'A value of 1 uses the singular, not "1 days".'
+);
+keel_assert(
+	'2 days' === keel_defaults_state_label( array( 'type' => 'number' ), 2, array( 'unit' => 'days' ) ),
+	'A value above 1 uses the plural.'
 );
 
 // A non-array from another plugin's filter must pass straight through rather

@@ -20,32 +20,32 @@ defined( 'ABSPATH' ) || exit;
 function keel_defaults_strings() {
 	return array(
 		'restrict_rest_user_discovery'    => array(
-			'label'     => __( 'REST user discovery', 'keel' ),
+			'label'     => __( 'REST User Discovery', 'keel' ),
 			'statement' => __( 'Hide users from anonymous REST requests', 'keel' ),
 			'help'      => __( 'Stops the REST API from listing account login names to logged-out visitors. Without it, anyone can read <code>/wp/v2/users</code> and collect valid usernames — half of what a password-guessing attack needs, so the attacker no longer has to find the username first.', 'keel' ),
 		),
 		'disable_rest'                    => array(
-			'label'     => __( 'REST authentication', 'keel' ),
+			'label'     => __( 'REST Authentication', 'keel' ),
 			'statement' => __( 'Require authentication for all REST requests', 'keel' ),
 			'help'      => __( 'Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not. <code>oembed/1.0</code> stays open so other sites can still embed your posts — it serves only what a published post already shows. Filter: <code>keel_public_rest_routes</code>.', 'keel' ),
 		),
 		'xmlrpc_allow_pingbacks'          => array(
-			'label'     => __( 'XML-RPC pingbacks', 'keel' ),
+			'label'     => __( 'XML-RPC Pingbacks', 'keel' ),
 			'statement' => __( 'Accept incoming pingbacks', 'keel' ),
 			'help'      => __( 'Off by default. Removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header.', 'keel' ),
 		),
 		'xmlrpc_allow_remote_publishing'  => array(
-			'label'     => __( 'XML-RPC remote publishing', 'keel' ),
+			'label'     => __( 'XML-RPC Remote Publishing', 'keel' ),
 			'statement' => __( 'Allow remote publishing (blogging apps)', 'keel' ),
 			'help'      => __( 'Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave it on while Jetpack is active unless connection and feature testing proves it unnecessary.', 'keel' ),
 		),
 		'xmlrpc_allow_multicall'          => array(
-			'label'     => __( 'XML-RPC multicall', 'keel' ),
+			'label'     => __( 'XML-RPC Multicall', 'keel' ),
 			'statement' => __( 'Allow <code>system.multicall</code>', 'keel' ),
 			'help'      => __( 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 removed its old use as a password-guessing multiplier, so refusing it today is minor attack-surface reduction, not a fix for a live threat — almost nothing legitimately uses it, so leaving it off is safe.', 'keel' ),
 		),
 		'block_xmlrpc_endpoint'           => array(
-			'label'     => __( 'XML-RPC endpoint', 'keel' ),
+			'label'     => __( 'XML-RPC Endpoint', 'keel' ),
 			'statement' => __( 'Block the endpoint entirely (returns 403)', 'keel' ),
 			'help'      => __( 'Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Leave XML-RPC reachable while Jetpack is active, unless connection and feature testing proves Jetpack no longer needs it. See the XML-RPC help tab for why this runs inside WordPress and when blocking further out is better.', 'keel' ),
 		),
