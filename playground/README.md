@@ -6,9 +6,16 @@ your machine.
 
 ## `blueprint-hosted.json`
 
-Installs the rolling `latest` build — the zip `release.yml` republishes on every
-version tag — and opens **Settings → Keel**, which is the whole point of the
+Installs the rolling `latest` build — the zip `ci.yml` republishes on **every push
+to `main`** — and opens **Settings → Keel**, which is the whole point of the
 plugin: every default and its state on one screen.
+
+That trigger is the point of this blueprint, and it was wrong until 2026-08-09.
+The asset was written only by `release.yml`, which fires on version tags, so "the
+rolling build" was really "the last tagged release" and this blueprint served the
+same zip as `blueprint-stable.json`. Anything merged since the last tag — every
+copy fix, every new default — was invisible in the demo, which is the one place a
+reviewer looks to find out what the plugin currently does.
 
 It also creates a published post, so the content defaults (comments, pingbacks,
 author archives, attachment redirects) have something to act on. Without it the
@@ -33,7 +40,7 @@ inert" problem this blueprint exists to avoid.
 ## `blueprint-stable.json`
 
 The same thing, installing from `releases/latest/download/`, which resolves to
-the newest **non-prerelease** release — `v0.2.0` as of 2026-08-04. This is the
+the newest **non-prerelease** release — `v0.2.0` as of 2026-08-09. This is the
 primary "try it live" link, because it is byte-identical to what somebody would
 download, and it follows each new stable release without the URL changing.
 
