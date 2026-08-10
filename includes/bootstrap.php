@@ -31,6 +31,16 @@ function keel_defaults_bootstrap() {
 	 * support thread actually needs.
 	 */
 	add_filter( 'debug_information', 'keel_defaults_debug_information' );
+
+	/*
+	 * Network policy, on multisite only. The screen lives in Network Admin and is
+	 * gated on manage_network_options; the save handler runs on admin_init because
+	 * Network Admin has no options.php to post to.
+	 */
+	if ( is_multisite() ) {
+		add_action( 'network_admin_menu', 'keel_defaults_network_menu' );
+		add_action( 'admin_init', 'keel_defaults_handle_network_save' );
+	}
 	add_action( 'admin_head-site-health.php', 'keel_defaults_site_health_info_styles' );
 
 	/* ----- Updates ----- */

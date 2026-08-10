@@ -43,6 +43,16 @@ function absint( $v ) { return abs( (int) $v ); }
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
+
+/*
+ * Keel reads network policy before the site option, so every harness that calls
+ * keel_defaults_get() needs this. Single site is the honest default here: the
+ * multisite path has its own coverage in tests/network-policy.php.
+ */
+function is_multisite() {
+	return false;
+}
+
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';

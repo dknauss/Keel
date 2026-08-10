@@ -24,6 +24,16 @@ function apply_filters( $hook, $value ) {
 function get_option( $k, $d = false ) { return $d; }
 require __DIR__ . '/stubs/wp-error.php';
 function is_wp_error( $t ) { return $t instanceof WP_Error; }
+
+/*
+ * Keel reads network policy before the site option, so every harness that calls
+ * keel_defaults_get() needs this. Single site is the honest default here: the
+ * multisite path has its own coverage in tests/network-policy.php.
+ */
+function is_multisite() {
+	return false;
+}
+
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
@@ -63,6 +73,7 @@ keel_assert( false === keel_defaults_password_enforced_for_user( keel_user( arra
 unset( $GLOBALS['keel_filters']['keel_weak_roles'] );
 
 // --- validator honours the gate ---
+
 
 /*
  * Breach screening now runs before the role gate and for every account, so these

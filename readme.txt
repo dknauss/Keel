@@ -82,7 +82,9 @@ Yes. Every default reads its value through the plugin's own option, and the beha
 
 The setting is stored per site; the effect is not. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is being set on — and once set, it is that person's password everywhere. Exempting a role on one subsite decides what happens when a password is changed *there*; it does not exempt those accounts from another site's policy. In practice the strictest site on the network sets the floor for anyone who changes their password on it.
 
-Keel documents this rather than governing it. Network-wide policy — one setting applied across every subsite from network admin — is deliberately out of scope for now.
+Keel can now govern it as well as document it. Under **Network Admin → Settings → Keel Defaults**, a Super Admin can decide any setting for the whole network; sites see it as locked and cannot change it. Tick the password rules there and the network has one policy instead of a floor set by whichever site is strictest.
+
+Nothing is written into your sites. A network value is applied when a setting is read, so a site's own saved settings are untouched — untick a setting later and every site returns to exactly the value it had. Settings left unticked stay each site's own business.
 
 = I already have another defaults or security plugin. Can I run both? =
 

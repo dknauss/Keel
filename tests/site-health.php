@@ -26,6 +26,16 @@ function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
 function admin_url( $path = '' ) { return 'https://example.test/wp-admin/' . $path; }
+
+/*
+ * Keel reads network policy before the site option, so every harness that calls
+ * keel_defaults_get() needs this. Single site is the honest default here: the
+ * multisite path has its own coverage in tests/network-policy.php.
+ */
+function is_multisite() {
+	return false;
+}
+
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
@@ -83,6 +93,7 @@ keel_assert(
 	'Info has a row per group — ' . count( $info['keel']['fields'] ) . ' of ' . count( keel_defaults_group_labels() ) . '.'
 );
 
+
 /*
  * The count that matters now lives a level down, and it is the one that can go
  * wrong quietly: the defaults are keyed into the value array by their display
@@ -99,6 +110,7 @@ keel_assert(
 	count( keel_defaults_schema() ) === $listed,
 	'Every schema key is listed under some group — ' . $listed . ' of ' . count( keel_defaults_schema() ) . '.'
 );
+
 
 /*
  * --- a number carries its unit ---
@@ -154,6 +166,7 @@ keel_assert(
 // than becoming an array and discarding whatever it was.
 keel_assert( 'not-an-array' === keel_defaults_debug_information( 'not-an-array' ), 'A non-array is returned untouched.' );
 
+
 /*
  * --- the stylesheet targets the section it is written for ---
  *
@@ -181,6 +194,7 @@ keel_assert(
 	'The Info stylesheet targets the id WordPress builds from our section key.'
 );
 
+
 /*
  * Scoped, and provably so. An unscoped `.health-check-table th` rule would work
  * on the screen and restyle every other plugin's section on the page as a side
@@ -195,6 +209,7 @@ keel_assert(
 	"Every .health-check-table rule is scoped to Keel's own section; {$scoped} of {$table_rules} are."
 );
 
+
 /*
  * The alignment is the point of the rule; the weight is the cosmetic half. Both
  * cells are asserted separately, and per selector rather than "the string appears
@@ -207,6 +222,7 @@ foreach ( array( 'th', 'td' ) as $cell ) {
 		"The {$cell} cells are top-aligned, so a group name sits level with the first default under it."
 	);
 }
+
 
 /*
  * Core is 400 for .widefat th but 600 for .widefat.health-check-table th below

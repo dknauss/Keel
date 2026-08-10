@@ -20,23 +20,30 @@ GPL-2.0-or-later.
 Chosen deliberately over the probe-coverage items below, which strengthen claims
 already made rather than adding capability.
 
-- [ ] **Multisite governance.** Network-admin settings screen, network-scoped policy
-      pushed to subsites, Super-Admin-only controls. Promoted from v2 on 2026-08-04.
+- [x] **Multisite governance** — done 2026-08-09 (keel#89). Network Admin →
+      Settings → Keel Defaults lets a Super Admin decide any of the 38 settings for
+      the whole network; sites see those as locked and cannot change them.
 
-      The reason it is worth doing now is that the gap is already documented and
-      user-visible. `readme.txt` tells multisite operators that the password policy is
-      stored per site but takes effect network-wide — because WordPress keeps one user
-      table — and that "the strictest site on the network sets the floor for anyone who
-      changes their password on it." That is an honest description of a design that
-      nobody chose, and the FAQ has to spend a paragraph explaining it.
+      **Enforced at read, not pushed into subsites.** Writing values into every
+      site's options would overwrite settings the site owner chose, need undoing if
+      the policy were relaxed, and disagree with the network screen the moment a
+      subsite saved its own form. Resolving at read means policy can be set and
+      unset without touching a single subsite — verified on a real two-site network:
+      a subsite storing the opposite value obeys the policy while the policy stands,
+      and returns to its own value the moment it is lifted.
 
-      Network-scoped policy replaces that paragraph with a setting. It is also the one
-      remaining item that changes what the plugin can do, rather than what is known
-      about it.
+      **Presence is the switch.** A key in the network option is managed; a key
+      absent is the site's own business. There is no separate "enforce" flag,
+      because a flag that can disagree with a value is a third state to keep
+      consistent and a fourth to get wrong.
 
-      Prior art is in Pixel: `wpmu_options` / `ms_save_settings` for the network screen,
-      `get_site_option` fallbacks, and Super-Admin-only capability checks. Multisite-aware
-      seeding already landed here in keel#29, so the lifecycle half is done.
+      A wp-config constant still beats a network policy on the site screen. It is
+      the operator's highest-level declaration and it is true of that site
+      specifically, so saying "your network admin set this" when wp-config decided
+      would send somebody to argue with the wrong person.
+
+      `readme.txt` no longer has to explain the shared-user-table problem and then
+      say Keel will not solve it — the FAQ now points at the screen that does.
 
 ---
 
