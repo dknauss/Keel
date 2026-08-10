@@ -150,7 +150,7 @@ function keel_defaults_add_help_tab() {
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'Please note that <code>system.multicall</code>&#8217;s negative reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel' ),
+					__( 'The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel' ),
 					array( 'code' => array() )
 				) . '</p>',
 		)

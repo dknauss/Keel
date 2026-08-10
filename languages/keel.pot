@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T03:15:33+00:00\n"
+"POT-Creation-Date: 2026-08-10T03:16:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel\n"
@@ -253,7 +253,7 @@ msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts,
 msgstr ""
 
 #: includes/settings-page.php:153
-msgid "Please note that <code>system.multicall</code>&#8217;s negative reputation is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
+msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
 msgstr ""
 
 #: includes/settings-page.php:160
