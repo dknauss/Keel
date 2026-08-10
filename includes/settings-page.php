@@ -559,16 +559,22 @@ function keel_defaults_render_settings_page() {
 	?>
 	<div class="wrap">
 		<div class="keel-page-header" style="display:flex;align-items:center;gap:14px;margin:8px 0 6px;">
-			<span aria-hidden="true" style="flex:0 0 auto;line-height:0;color:#1d2327;">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="48" height="48" focusable="false" aria-hidden="true">
-					<g fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-						<line x1="2" y1="40" x2="62" y2="40" stroke-width="3" fill="none" opacity="0.5"/>
-						<path d="M31 43 L32 57 L36 57 L37 43 Z"/>
-						<path d="M12 37 Q32 35 55 36 Q55 40 51 43 L16 43 Q12 42 12 37 Z"/>
-						<line x1="33" y1="6" x2="33" y2="38" stroke-width="2.5" fill="none"/>
-						<path d="M35 8 Q54 19 51 34.3 L35 34.3 Q38 21 35 8 Z"/>
-						<path d="M31 12 Q24 24 21 34.3 L31 34.3 Z"/>
-					</g>
+			<?php
+			/*
+			 * The brand mark, identical to the one in .wordpress-org/. Fixed fills
+			 * rather than currentColor: the keel is the namesake and the brand rules
+			 * say it is never recoloured to anything but the steel or the ground.
+			 * The mark sits on `.wrap`, which stays white under every admin colour
+			 * scheme, so the light colourway is always the right one here.
+			 */
+			?>
+			<span aria-hidden="true" style="flex:0 0 auto;line-height:0;">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="48" height="48" fill="none" focusable="false" aria-hidden="true">
+					<path d="M96 22 L101 22 L101 122 L96 122 Z" fill="#1d1f20"/>
+					<path d="M108 30 C 103 60 104 92 107 118 L153 118 C 143 88 128 56 108 30 Z" fill="#75797c"/>
+					<path d="M92 46 C 78 70 64 96 51 118 L78 118 C 85 94 90 70 92 46 Z" fill="#75797c"/>
+					<path d="M32 121 L168 121 L152 137 C 112 145 72 145 42 135 Z" fill="#1d1f20"/>
+					<path d="M95 139 L112 139 L106 192 L100 192 Z" fill="#5980a6"/>
 				</svg>
 			</span>
 			<div>
