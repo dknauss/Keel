@@ -52,6 +52,13 @@ function keel_defaults_uninstall_site() {
 
 if ( is_multisite() ) {
 	/*
+	 * Network policy first, and unconditionally: it is a single site option that
+	 * belongs to no subsite, so the per-site loop below would never reach it and
+	 * it would outlive the plugin as an orphan.
+	 */
+	delete_site_option( 'keel_network_settings' );
+
+	/*
 	 * Options are per site, so every site needs clearing — including ones this
 	 * plugin was never active on, because a network-activated plugin seeded
 	 * them all.

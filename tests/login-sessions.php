@@ -32,6 +32,16 @@ function esc_attr( $s ) { return $s; }
 function esc_attr_e( $s, $d = null ) { echo $s; }
 function apply_filters( $hook, $value ) { return $value; }
 function absint( $v ) { return abs( (int) $v ); }
+
+/*
+ * Keel reads network policy before the site option, so every harness that calls
+ * keel_defaults_get() needs this. Single site is the honest default here: the
+ * multisite path has its own coverage in tests/network-policy.php.
+ */
+function is_multisite() {
+	return false;
+}
+
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
@@ -83,6 +93,7 @@ $clean = keel_defaults_sanitize(
 	)
 );
 keel_assert( 2 === $clean['session_regular_days'] && 30 === $clean['remember_me_days'], 'A valid remember>=regular pair passes through unchanged.' );
+
 
 /*
  * The clamp has to be the last word.

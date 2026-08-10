@@ -45,6 +45,16 @@ function home_url() { return $GLOBALS['keel_home']; }
 function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- test stub.
 function trailingslashit( $p ) { return rtrim( (string) $p, '/\\' ) . '/'; }
 function wp_normalize_path( $p ) { return str_replace( '\\', '/', (string) $p ); }
+
+/*
+ * Keel reads network policy before the site option, so every harness that calls
+ * keel_defaults_get() needs this. Single site is the honest default here: the
+ * multisite path has its own coverage in tests/network-policy.php.
+ */
+function is_multisite() {
+	return false;
+}
+
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';

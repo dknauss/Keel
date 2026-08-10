@@ -305,6 +305,26 @@ function keel_defaults_get( $key ) {
 		return null;
 	}
 
+	/*
+	 * Network policy wins, when there is any.
+	 *
+	 * Checked before the site option rather than after, because a super admin
+	 * deciding for the network is deciding *instead of* the site, not offering a
+	 * fallback. The site's own stored value is left untouched either way — unset
+	 * the network key and the site returns to exactly what it had.
+	 *
+	 * The is_multisite() guard is what keeps single-site installs paying nothing
+	 * for a feature they cannot use: no extra option read, on the function every
+	 * default on the site goes through.
+	 */
+	if ( is_multisite() ) {
+		$network = keel_defaults_network_settings();
+
+		if ( array_key_exists( $key, $network ) ) {
+			return $network[ $key ];
+		}
+	}
+
 	// Deliberately uncached: the option is autoloaded, so get_option() answers
 	// from the options cache without a query. A static here would only add a
 	// second cache that goes stale the moment anything calls update_option()

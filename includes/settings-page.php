@@ -7,6 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+
 /*
  * =====================================================================
  * SETTINGS SCREEN — Settings → Keel
@@ -29,6 +30,7 @@ add_action(
 		}
 	}
 );
+
 
 /*
  * A Settings link beside Deactivate on the Plugins screen. Every other route to
@@ -129,7 +131,7 @@ function keel_defaults_add_help_tab() {
 				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
-						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A subsite that exempts a role is not exempting those accounts from another site\'s policy; it is deciding what happens when the password is changed there. The practical effect is that the strictest site on the network sets the floor for anyone who changes their password on it. Keel documents this rather than governing it: network-wide policy is deliberately out of scope for now.', 'keel' ),
+						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there.', 'keel' ),
 						array()
 					) . '</p>'
 					: ''
@@ -362,6 +364,7 @@ function keel_defaults_config_lock( $key ) {
 				return __( 'Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here.', 'keel' );
 			}
 			if ( $updates_off ) {
+
 				/* translators: %s: a wp-config.php constant name. */
 				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel' ), $updates_off );
 			}
@@ -369,6 +372,7 @@ function keel_defaults_config_lock( $key ) {
 
 		case 'auto_update_translations':
 			if ( $updates_off ) {
+
 				/* translators: %s: a wp-config.php constant name. */
 				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel' ), $updates_off );
 			}
@@ -594,6 +598,7 @@ function keel_defaults_render_settings_page() {
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
 
 		<style>
+
 			/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
 			.form-table .keel-dep-item {
 				margin-bottom: 14px;
@@ -640,7 +645,22 @@ function keel_defaults_render_settings_page() {
 
 						// A wp-config.php constant may supersede this setting; if so the
 						// control is disabled and the reason shown next to it.
+
+						/*
+						 * Two things can take a setting out of a site owner's hands: a
+						 * wp-config constant, and a Super Admin deciding it for the
+						 * network. They render identically — disabled control, reason
+						 * beside it — because a site administrator should not have to
+						 * learn two explanations for the same experience.
+						 *
+						 * The constant wins when both apply. It is the operator's
+						 * highest-level declaration and it is true of this site
+						 * specifically, so saying "your network admin set this" when
+						 * wp-config is what actually decided would send somebody to
+						 * argue with the wrong person.
+						 */
 						$lock   = keel_defaults_config_lock( $key );
+						$lock   = ( null === $lock ) ? keel_defaults_network_lock( $key ) : $lock;
 						$locked = null !== $lock;
 
 						// Accessible-name / description wiring for screen readers: the

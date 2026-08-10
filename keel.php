@@ -46,11 +46,21 @@ const KEEL_DEFAULTS_OPTION = 'keel_settings';
  */
 const KEEL_DEFAULTS_INFO_SECTION = 'keel';
 
+/**
+ * Where network-scoped policy lives, on multisite.
+ *
+ * A *site* option — `get_site_option()` — so one value serves the whole network
+ * rather than being copied into every subsite. A key present here is decided by
+ * a Super Admin; a key absent is each site's own business.
+ */
+const KEEL_DEFAULTS_NETWORK_OPTION = 'keel_network_settings';
+
 /** This file, for plugin_basename() — the Plugins-screen action links need it. */
 define( 'KEEL_DEFAULTS_FILE', __FILE__ );
 
 // Load the plugin's modules.
 require_once __DIR__ . '/includes/schema.php';
+require_once __DIR__ . '/includes/network.php';
 require_once __DIR__ . '/includes/lifecycle.php';
 require_once __DIR__ . '/includes/strings.php';
 require_once __DIR__ . '/includes/updates.php';

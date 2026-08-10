@@ -34,6 +34,16 @@ function get_option( $key, $default = false ) {
 function is_customize_preview() { return ! empty( $GLOBALS['keel_is_customize_preview'] ); }
 function wp_normalize_path( $path ) { return str_replace( '\\', '/', (string) $path ); }
 function trailingslashit( $path ) { return rtrim( (string) $path, '/\\' ) . '/'; }
+
+/*
+ * Keel reads network policy before the site option, so every harness that calls
+ * keel_defaults_get() needs this. Single site is the honest default here: the
+ * multisite path has its own coverage in tests/network-policy.php.
+ */
+function is_multisite() {
+	return false;
+}
+
 define( 'ABSPATH', __DIR__ . '/' );
 defined( 'DAY_IN_SECONDS' ) || define( 'DAY_IN_SECONDS', 86400 );
 define( 'WP_PLUGIN_DIR', '/srv/site/wp-content/plugins' );
@@ -87,6 +97,7 @@ $clear = keel_defaults_site_health_conflicts();
 keel_assert( 'good' === $clear['status'], 'With no rivals the check passes.' );
 keel_assert( false === strpos( $clear['description'], 'deactivate' ), 'A passing result does not tell anyone to deactivate anything.' );
 
+
 /*
  * --- compare or assert: the rule, not the two behaviours ---
  *
@@ -125,6 +136,7 @@ keel_assert(
 	30 * DAY_IN_SECONDS === keel_defaults_session_length( 2 * DAY_IN_SECONDS, 1, false ),
 	'The same for an ordinary login.'
 );
+
 
 /*
  * And the incoming value must not sway the result at all, in either direction —
@@ -165,6 +177,7 @@ foreach ( $session_exits as $exit => $case ) {
 $GLOBALS['keel_options']['keel_settings'] = array( 'frame_options' => 'SAMEORIGIN' );
 $r                                        = keel_defaults_set_frame_option_header( array( 'X-Frame-Options' => 'DENY' ) );
 keel_assert( 'DENY' === $r['X-Frame-Options'], 'A stronger incoming header IS evidence, and is not downgraded.' );
+
 
 /*
  * --- the one place the evidence misleads, and it is core ---
