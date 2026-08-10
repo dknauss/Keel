@@ -150,6 +150,20 @@ $released = array_values( array_diff( $cm[1], array( $version ) ) );
 keel_assert( array() !== $released, 'The changelog records at least one earlier release to check against.' );
 keel_assert( in_array( $version, $cm[1], true ), "The changelog has an entry for the current version ({$version})." );
 
+/*
+ * And it has to be the NEWEST entry, not merely present somewhere.
+ *
+ * The assertion above passes if the version appears anywhere in the changelog, so
+ * a `= 0.3.0 =` heading written above the current one — a release drafted but
+ * never shipped, or a version bumped in the changelog and nowhere else — reads as
+ * fine. The sibling plugin drifted exactly that way: a version in its CHANGELOG
+ * that was never tagged.
+ */
+keel_assert(
+	isset( $cm[1][0] ) && $version === $cm[1][0],
+	'The newest changelog entry is the current version (' . $version . '), not ' . ( isset( $cm[1][0] ) ? $cm[1][0] : 'nothing' ) . '.'
+);
+
 $status_docs = array( 'README.md', 'ROADMAP.md', 'SECURITY.md', 'CONTRIBUTING.md', 'TODO.md' );
 
 foreach ( $status_docs as $doc ) {

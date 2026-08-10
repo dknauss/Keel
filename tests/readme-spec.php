@@ -72,6 +72,32 @@ keel_readme_assert(
 	"readme.txt Stable tag ({$readme_stable}) matches the plugin Version ({$version})."
 );
 
+/*
+ * --- the floors, in both places ---
+ *
+ * `Requires at least` and `Requires PHP` exist in the plugin header and again in
+ * readme.txt, and nothing compared them. They agree today by luck rather than by
+ * guard, which is the state the Stable tag assertion above exists to prevent.
+ *
+ * Which copy matters depends on where the plugin came from. WordPress reads the
+ * *header* to decide whether to activate, and wordpress.org reads *readme.txt* to
+ * decide whether to offer the plugin and its updates at all. A readme floor lower
+ * than the header's therefore offers an update to a site that then cannot run it;
+ * a readme floor higher hides the plugin from sites that could. Neither shows up
+ * on the install this suite runs on.
+ */
+foreach ( array( 'Requires at least', 'Requires PHP' ) as $floor ) {
+	preg_match( '/^\s*\*\s*' . preg_quote( $floor, '/' ) . ':\s*(.+)$/mi', $plugin, $fm );
+	$header_floor = isset( $fm[1] ) ? trim( $fm[1] ) : '';
+	$readme_floor = keel_readme_field( $readme, $floor );
+
+	keel_readme_assert( '' !== $header_floor, "keel.php declares a {$floor} header." );
+	keel_readme_assert(
+		$header_floor === $readme_floor,
+		"{$floor} agrees: keel.php says {$header_floor}, readme.txt says {$readme_floor}."
+	);
+}
+
 // Licence must agree in both places, or the two say different things about the
 // same code.
 keel_readme_assert(
