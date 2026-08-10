@@ -24,21 +24,7 @@ jobs:
           for t in tests/*.php; do php "$t"; done
 
       - name: Build plugin zip
-        run: |
-          set -e
-          mkdir -p build/keel
-          # Copy the whole tree, then drop everything .distignore excludes, so the
-          # zip stays in sync with a single source of truth.
-          rsync -a --exclude='.git' --exclude='build' ./ build/keel/
-          while IFS= read -r pattern; do
-            pattern="${pattern%%$'\r'}"
-            [ -z "$pattern" ] && continue
-            case "$pattern" in \#*) continue ;; esac
-            rm -rf "build/keel/${pattern#/}"
-          done < .distignore
-          (cd build && zip -rq keel.zip keel)
-          echo "== zip contents =="
-          unzip -l build/keel.zip
+        run: bash bin/build-zip.sh build
 
       - name: Publish release
         env:
@@ -55,15 +41,9 @@ jobs:
               --generate-notes $PRE
           fi
 
-      - name: Update rolling 'latest' release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -e
-          NOTES="Automatically updated to the newest tagged build (currently ${GITHUB_REF_NAME}). The WordPress Playground preview installs this asset; download keel.zip below for the current build."
-          if gh release view latest >/dev/null 2>&1; then
-            gh release upload latest build/keel.zip --clobber
-            gh release edit latest --notes "$NOTES" --prerelease >/dev/null
-          else
-            gh release create latest build/keel.zip --title "Latest build (rolling)" --prerelease --notes "$NOTES"
-          fi
+      # The rolling `latest` asset is deliberately NOT written here.
+      #
+      # It used to be, and that was the whole defect: this workflow fires on
+      # version tags, so the asset only moved at release time and the Playground
+      # demo showed the last tagged build rather than main. ci.yml republishes it
+      # on every push to main now. Two publishers would race, so there is one.

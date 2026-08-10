@@ -95,3 +95,41 @@ jobs:
         run: |
           set -e
           for f in tests/*.php; do php "$f" || exit 1; done
+
+  # Rebuild the zip the Playground demo installs, on every push to main.
+  #
+  # The `latest` release asset used to be written only by release.yml, which fires
+  # on version tags — so "the rolling latest build" was really "the last tagged
+  # release", and the hosted blueprint served the same zip as the stable one. Work
+  # that had merged to main was invisible in the demo, which is the one place a
+  # reviewer looks to see what the plugin currently does.
+  #
+  # Gated to pushes on main so a pull request never republishes the demo; the fork
+  # case is covered by the same condition, since a fork's push does not run here.
+  rolling:
+    name: Republish the rolling build
+    needs: [ test, compat ]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build plugin zip
+        run: bash bin/build-zip.sh build
+
+      - name: Upload to the rolling 'latest' release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          NOTES="Rolling build of main (${GITHUB_SHA:0:7}). Not a release — see the tagged releases for those."
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest build/keel.zip --clobber
+            gh release edit latest --notes "$NOTES" --prerelease >/dev/null
+          else
+            gh release create latest build/keel.zip \
+              --title "Latest build (rolling)" --prerelease --notes "$NOTES"
+          fi
