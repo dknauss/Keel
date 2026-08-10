@@ -54,8 +54,8 @@ Raw per-probe output is in the appendix.
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
 | **Keel** 0.2.0 | — | live |
-| [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | code review |
-| [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | code review |
+| [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
+| [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
 | [WP Master Toolkit](https://wordpress.org/plugins/wpmastertoolkit/) 2.22.0 | 5,000+ | live |
 
@@ -409,20 +409,53 @@ not reach.
 | `system.multicall` removable | ❌ | ✅ (all-or-nothing) | ❌ | ❌ | ✅ (all-or-nothing) | ✅ (all-or-nothing) | ✅ (all-or-nothing) | ✅ **individually** |
 | Granular (keep app publishing, drop pingback) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-### Classic editor (code review)
+### Classic editor
 
-| | Classic Editor (9M) | Disable Gutenberg (500k) | **Keel** |
-|---|---|---|---|
-| `use_block_editor_for_post_type` | ✅ | ✅ | ✅ |
-| Per-post `use_block_editor_for_post` | ✅ | ❌ | ❌ |
-| Per-user opt-in / both-editors mode | ✅ | ⚠️ role/type rules | ❌ single switch |
-| Unhooks Gutenberg-plugin REST routes | ✅ | ✅ | ❌ |
-| Edit links, row actions, post states | ✅ | ⚠️ | ❌ |
+Measured 2026-08-09 with `tests/integration/probe-editor.sh`, which renders the
+post-edit screen as a logged-in administrator and counts what came back. The
+capability rows below stay as code review — they describe options a probe of one
+configuration cannot see — but the top three rows are now measurement.
+
+| | stock | Classic Editor (9M) | Disable Gutenberg (500k) | **Keel** |
+|---|---|---|---|---|
+| `block-editor-page` on the edit screen | 1 | **0** | **0** | **0** |
+| TinyMCE references | 3 | 8 | 8 | 8 |
+| Classic editor on `post-new.php` too | ❌ | ✅ | ✅ | ✅ |
+| Adds per-row editor links to the posts list | — | 0 | **2** | 0 |
+| `use_block_editor_for_post_type` | — | ✅ | ✅ | ✅ |
+| Per-post `use_block_editor_for_post` | — | ✅ | ❌ | ❌ |
+| Per-user opt-in / both-editors mode | — | ✅ | ⚠️ role/type rules | ❌ single switch |
+| Unhooks Gutenberg-plugin REST routes | — | ✅ | ✅ | ❌ |
+
+**All three actually replace the editor.** That is the part code review could not
+settle, and it is settled: the block editor container is gone from both the edit
+and the new-post screens in all three, and TinyMCE loads instead.
+
+**Classic Editor needs no configuration.** It writes no option on activation and
+its filters already answer `classic` — the only plugin in this whole matrix that
+is correctly configured out of the box. **Disable Gutenberg** writes no option
+either but ships `disable-all => 1` in its defaults, so it is on out of the box as
+well; it is the only one of the two that adds editor links to the posts list.
 
 Classic Editor remains the reference implementation; nothing in this field improves
 on it. Keel's `force_classic_editor` is a blunt site-wide switch by comparison —
 appropriate for a defaults plugin, but it should say so in its help text rather than
 imply parity.
+
+**One difference in the numbers is not an editor difference.** Keel's edit screen
+carries one `wp-editor-area` where the other two carry two. The second is
+`replycontent`, the comment-reply box in the comments metabox, and it is absent
+because the probe configuration has Keel's comment teardown on. Turning comments
+back on brings it back. Worth recording because the raw count reads like a missing
+piece of the editor and is nothing of the kind.
+
+**A note on what the probe cannot see from CLI.** `probe-editor.sh` also reports
+what `use_block_editor_for_post_type()` answers in a WP-CLI context, and for
+Disable Gutenberg that reads `block` — for a plugin whose rendered screen is
+demonstrably the classic editor. It registers from an admin-only hook that never
+fires under CLI. That divergence is the reason this column could not be settled by
+reading code: a filter can be present and invisible, or absent and irrelevant, and
+only the rendered screen tells you which.
 
 ---
 
