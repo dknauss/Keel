@@ -161,6 +161,40 @@ foreach ( array(
 	);
 }
 
+/*
+ * --- the screenshots exist, and both readmes agree on how many ---
+ *
+ * README.md now shows the listing screenshots rather than only readme.txt naming
+ * them. That is two files referencing the same images with no connection between
+ * them, and a broken <img> in a GitHub README is invisible from inside the repo.
+ *
+ * The numbered captions in readme.txt are what wordpress.org pairs with
+ * screenshot-N.png; the README embeds the same files. So assert three things: the
+ * files exist, readme.txt captions one per file, and README.md shows one per file.
+ */
+$shots = glob( dirname( __DIR__ ) . '/.wordpress-org/screenshot-*.png' );
+sort( $shots );
+
+keel_readme_assert( count( $shots ) > 0, 'The listing screenshots exist in .wordpress-org/.' );
+
+preg_match( '/^== Screenshots ==(.*?)^== /ms', $readme, $shot_block );
+preg_match_all( '/^\d+\.\s+\S/m', isset( $shot_block[1] ) ? $shot_block[1] : '', $captions );
+
+keel_readme_assert(
+	count( $captions[0] ) === count( $shots ),
+	'readme.txt captions every screenshot: ' . count( $captions[0] ) . ' captions for ' . count( $shots ) . ' files.'
+);
+
+$project_readme = file_get_contents( dirname( __DIR__ ) . '/README.md' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+foreach ( $shots as $shot ) {
+	$name = basename( $shot );
+	keel_readme_assert(
+		false !== strpos( $project_readme, '.wordpress-org/' . $name ),
+		"README.md shows {$name}, so a screenshot cannot be added to the listing and left off the project page."
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "readme spec: {$fail} failed\n" );
 	exit( 1 );

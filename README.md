@@ -22,6 +22,26 @@ exactly what the plugin does to your site, in one place, and turn any piece off.
 > features. See [ROADMAP.md](ROADMAP.md) for the milestones and
 > [TODO.md](TODO.md) for what's in flight.
 
+## What it looks like
+
+<img src=".wordpress-org/screenshot-1.png" alt="Settings → Keel: each default is one switch with the reason it exists written beside it" width="900">
+
+**Settings → Keel.** Every default is one switch with the reason it exists written
+beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+
+<img src=".wordpress-org/screenshot-2.png" alt="The Passwords help tab, explaining length and breach screening in place of composition rules" width="900">
+
+**The Passwords help tab.** Length and breach screening in place of composition
+rules, with what the breach check actually sends spelled out — five characters of
+a hash, never the password — and what it costs when the API is unreachable.
+
+<img src=".wordpress-org/screenshot-3.png" alt="Site Health → Info showing every Keel default and its current state, grouped by category" width="900">
+
+**Site Health → Info.** Every default and its current state on one read-only
+screen, grouped by category and copyable as a block, so you can answer "what is
+this plugin doing to my site?" without opening the settings and reading
+checkboxes.
+
 ## What makes it different
 
 Most "disable it" plugins close the front door and leave a side one open. Measured
