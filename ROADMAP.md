@@ -441,6 +441,71 @@ Plugin Review requirements, not niceties.
       all are questions only VoiceOver/NVDA can answer — and the second and third
       are exactly where the two unchanged findings sit.
 
+## v0.4 — candidate defaults
+
+Four defaults surveyed from [coffee2code's plugin
+catalogue](https://coffee2code.com/wp-plugins/) on 2026-08-10. Sixty-nine plugins,
+of which these four are the only ones shaped like a Keel default: one toggle, one
+core filter, no new admin UI, and reversible by turning it off.
+
+**The feature set was frozen at 38 for v0.2 deliberately, and the LOC budget is a
+stated non-goal below.** So this is a list to decide on, not a list to work
+through. Each of these already exists as a mature, narrowly-scoped plugin, and for
+a site that wants exactly one of them, installing that plugin is a legitimate
+answer — Keel absorbing it mainly saves a plugin from the list.
+
+- [ ] **Keep password-protected posts out of site search.** The only one of the
+      four that closes a real leak rather than adding a convenience. A protected
+      post still surfaces its title, and usually an excerpt, in site search
+      results — the protection covers the body and nothing else. One filter on the
+      search query.
+
+      Related to `disable_post_passwords`, which is not the same thing: that hides
+      the password control *in the editor*, so it stops new protected posts being
+      made and does nothing about the ones already there. Prior art: coffee2code's
+      Omit Passworded Posts From Search.
+
+- [ ] **Straight quotes.** Unhook `wptexturize` so quotation marks and apostrophes
+      are left as typed. Exactly the shape of `disable_emojis`: one core filter,
+      one toggle, nothing left behind when it is off. Wanted by sites publishing
+      code, technical documentation, or anything where a curly apostrophe corrupts
+      a copied string. Prior art: wpuntexturize.
+
+- [ ] **Drop the browser nag.** Remove the "your browser is out of date" dashboard
+      widget. Admin noise about the *visitor's* software on a screen only staff
+      see. One `remove_meta_box`. Prior art: No Browser Nag.
+
+      Deliberately not the *update* nag, which the same author also removes.
+      Hiding a pending core update from the people who can apply it is a different
+      thing from hiding a browser notice, and it argues against Keel's own update
+      defaults.
+
+- [ ] **Hide broken shortcodes.** Strip the residue of shortcodes whose plugin is
+      gone, rather than printing `[some_shortcode]` to visitors. One content
+      filter. Prior art: Hide Broken Shortcodes.
+
+**Smaller, in an area Keel already owns.** `Remember Me Controls` overlaps
+`disable_remember_me`, `session_regular_days` and `remember_me_days` almost
+entirely; the one thing missing is *checking the box by default*, which is a
+couple of lines in a group that already exists rather than a new default.
+
+**Ruled out, and worth recording so it is not re-proposed.** `Restrict Usernames`
+is the reserved-usernames default Keel **removed before its first stable
+release**. The reasoning
+stands: the list is long, opinionated, and includes names an ordinary site
+legitimately uses — `manager`, `marketing`, `sales`, `office`. WordPress's own
+`illegal_user_logins` filter does it in one call for anyone who wants it.
+
+Most of the remaining sixty-odd are out of scope structurally rather than by
+judgement: template tags, shortcodes and widgets (`Linkify *`, `Get Custom Field
+Values`, `Text Replace`) are content features, not defaults; several add admin UI
+rather than set a default, and `helper_list_columns` is precedent for one such
+thing rather than for a category; `Configure SMTP` handles credentials and
+`Disable Directory Listings` writes server files, both against the non-goals
+below.
+
+---
+
 ## v2 — deferred by decision
 
 *(Multisite governance was here. Promoted to Next up, 2026-08-04.)*
