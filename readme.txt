@@ -1,4 +1,4 @@
-=== Keel Defaults ===
+=== Keel ===
 Contributors: dknauss
 Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4

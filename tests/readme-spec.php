@@ -195,6 +195,57 @@ foreach ( $shots as $shot ) {
 	);
 }
 
+/*
+ * --- the name, the slug, and the text domain are one decision ---
+ *
+ * wordpress.org derives the permalink from the plugin name it is submitted
+ * under, and then serves language packs as `{slug}-{locale}.mo`. The text
+ * domain has to be that same slug or translate.wordpress.org's catalogs are
+ * downloaded to a filename nothing ever asks for — the plugin stays in English
+ * with no error anywhere to say why.
+ *
+ * That is three values in three files agreeing by hand: the `=== Name ===`
+ * heading here, the `Plugin Name` header in keel.php, and `Text Domain`. The
+ * slug is permanent once the directory assigns it, so this is pinned before
+ * submission rather than discovered after.
+ */
+preg_match( '/^===\s*(.+?)\s*===/m', $readme, $rname );
+$readme_name = isset( $rname[1] ) ? $rname[1] : '';
+
+preg_match( '/^\s*\*\s*Plugin Name:\s*(.+)$/mi', $plugin, $pname );
+$plugin_name = isset( $pname[1] ) ? trim( $pname[1] ) : '';
+
+preg_match( '/^\s*\*\s*Text Domain:\s*(.+)$/mi', $plugin, $pdomain );
+$text_domain = isset( $pdomain[1] ) ? trim( $pdomain[1] ) : '';
+
+keel_readme_assert( '' !== $readme_name, 'readme.txt opens with a === Plugin Name === heading.' );
+keel_readme_assert( '' !== $plugin_name, 'keel.php declares a Plugin Name header.' );
+keel_readme_assert( '' !== $text_domain, 'keel.php declares a Text Domain header.' );
+
+keel_readme_assert(
+	$readme_name === $plugin_name,
+	"readme.txt is titled \"{$readme_name}\" and keel.php declares \"{$plugin_name}\". The directory reads the name to build the slug, so these cannot differ."
+);
+
+// The same derivation wordpress.org applies: lowercase, non-alphanumerics to
+// hyphens, collapsed and trimmed.
+$slug = trim( preg_replace( '/-+/', '-', preg_replace( '/[^a-z0-9]+/', '-', strtolower( $plugin_name ) ) ), '-' );
+
+keel_readme_assert(
+	$slug === $text_domain,
+	"The plugin name \"{$plugin_name}\" yields the slug \"{$slug}\", but the text domain is \"{$text_domain}\". Language packs are served as {slug}-{locale}.mo, so a mismatch means no translation ever loads."
+);
+
+// The catalogs are named for the domain too, and a rename that misses them is
+// the same silent failure one directory further down.
+foreach ( glob( dirname( __DIR__ ) . '/languages/*.{po,mo,pot}', GLOB_BRACE ) as $catalog ) {
+	$base = basename( $catalog );
+	keel_readme_assert(
+		0 === strpos( $base, $text_domain . '-' ) || $base === $text_domain . '.pot',
+		"languages/{$base} is not named for the text domain \"{$text_domain}\", so WordPress will not load it."
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "readme spec: {$fail} failed\n" );
 	exit( 1 );

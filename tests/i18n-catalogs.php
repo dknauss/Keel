@@ -119,7 +119,7 @@ $version = isset( $vm[1] ) ? $vm[1] : '';
 
 keel_assert( '' !== $version, 'The plugin header states a version.' );
 keel_assert(
-	false !== strpos( $pot, 'Project-Id-Version: Keel Defaults ' . $version ),
+	false !== strpos( $pot, 'Project-Id-Version: Keel ' . $version ),
 	"keel.pot names the current version ({$version}). Run: wp i18n make-pot . languages/keel.pot --slug=keel"
 );
 keel_assert(
