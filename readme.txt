@@ -1,5 +1,6 @@
 === Keel Defaults ===
-Contributors: dknauss
+Contributors: dpknauss
+Donate link: https://github.com/sponsors/dknauss
 Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
@@ -100,16 +101,25 @@ Keel also stays out of the fight where it has nothing to say: when a setting is 
 
 WordPress ships one, but it is JavaScript: it advises the person typing and cannot refuse anything, so a password set over the REST API, WP-CLI, or a form with scripts disabled never meets it. Keel enforces length, breach screening, a blocklist and a personal-context check server-side instead, where they cannot be bypassed. See the Help tab on the settings screen.
 
-== Upgrade Notice ==
-
-= 0.3.0 =
-Nothing to do on upgrade: no setting changes meaning and no stored value is rewritten. Multisite networks gain a Network Admin screen that can set any default for every site; it does nothing until a Super Admin uses it.
-
 == Screenshots ==
 
 1. Settings → Keel. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
 2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
+
+== Credits ==
+
+Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
+
+Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel, additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later).
+
+Pixel Managed Platform is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
+
+== Support This Plugin ==
+
+Keel is free and stays free. If it saves you an afternoon of hardening a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through [GitHub Sponsors](https://github.com/sponsors/dknauss).
+
+Bug reports and feature requests are welcome on the issue tracker: [https://github.com/dknauss/keel/issues](https://github.com/dknauss/keel/issues). If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how.
 
 == Changelog ==
 
@@ -145,10 +155,7 @@ Nothing to do on upgrade: no setting changes meaning and no stored value is rewr
 * Licence is now GPL-2.0-or-later, matching WordPress core and the upstream 10up Experience code some defaults descend from. Relicensed by the sole author of the carried-over work; nothing is withdrawn, since "or later" still permits GPL-3 terms.
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
-== Credits ==
+== Upgrade Notice ==
 
-Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
-
-Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel, additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later).
-
-Pixel Managed Platform is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
+= 0.3.0 =
+Nothing to do on upgrade: no setting changes meaning and no stored value is rewritten. Multisite networks gain a Network Admin screen that can set any default for every site; it does nothing until a Super Admin uses it.
