@@ -61,8 +61,3 @@ into ROADMAP.md or here.
 
 - [x] Multisite-aware seeding — done 2026-08-04 (keel#29). Network activation seeds
       each site; `lifecycle.php` is network-aware throughout.
-- [x] Trademark glance on "Keel" — closed 2026-08-04 as a decision, not as a search.
-      The wordpress.org slug is free (`keel` and `keel-defaults` both unclaimed), which
-      was the release-blocking part. The USPTO and CIPO registers were **not** searched —
-      both are JavaScript apps with no reachable API, and every mirror refuses automated
-      requests. See ROADMAP.md for the searches to run and the one unverified lead.

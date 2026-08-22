@@ -22,7 +22,7 @@ Every default is one entry in a single schema array that drives both the setting
 
 **Outgoing email stops at the edge of production.** A database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production — on by default, does nothing on production, and says so in an admin notice so nobody is left wondering why a password reset never arrived.
 
-**Status:** released. The feature set is frozen at 38 defaults — the hardening and admin defaults, the Site Health surface, multisite-aware seeding and network-wide policy are all in. What remains before a wordpress.org submission is verification, not features.
+**It works the same on a network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot move some sites and not others. A Super Admin can decide any setting for the whole network under Network Admin → Settings → Keel Defaults; sites see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
 
 == External services ==
 
