@@ -53,9 +53,40 @@ function keel_readme_field( $readme, $field ) {
 }
 
 // --- header fields Review parses ---
-foreach ( array( 'Contributors', 'Tags', 'Requires at least', 'Tested up to', 'Requires PHP', 'Stable tag', 'License', 'License URI' ) as $field ) {
+foreach ( array( 'Contributors', 'Donate link', 'Tags', 'Requires at least', 'Tested up to', 'Requires PHP', 'Stable tag', 'License', 'License URI' ) as $field ) {
 	keel_readme_assert( '' !== keel_readme_field( $readme, $field ), "readme.txt has a {$field} header." );
 }
+
+/*
+ * --- Contributors names an account that exists ---
+ *
+ * The field is a list of wordpress.org usernames, and the directory resolves
+ * each one to a profile: a name that is merely well-formed gets no avatar, no
+ * profile link and no plugin listed on the author's page. Keel said `dknauss`,
+ * which is the GitHub handle — profiles.wordpress.org/dknauss/ is a 404, while
+ * profiles.wordpress.org/dpknauss/ is the real account, and it is what the
+ * other plugins from the same author already ship.
+ *
+ * Pinned to the value rather than to a shape, because the failure this catches
+ * is a plausible username that happens to be the wrong one. A test cannot
+ * resolve a profile over HTTP, so it holds the answer that was resolved once.
+ */
+$contributors = array_map( 'trim', explode( ',', keel_readme_field( $readme, 'Contributors' ) ) );
+
+keel_readme_assert(
+	in_array( 'dpknauss', $contributors, true ),
+	'readme.txt credits dpknauss — the wordpress.org account. The GitHub handle (dknauss) is a different string and resolves to nothing there.'
+);
+
+// The donate link is a header the directory renders as a button on the listing.
+// Asserted as an absolute URL because a relative one silently renders a dead
+// button rather than failing.
+$donate = keel_readme_field( $readme, 'Donate link' );
+
+keel_readme_assert(
+	1 === preg_match( '#^https?://#', $donate ),
+	"readme.txt Donate link is an absolute URL (found \"{$donate}\")."
+);
 
 // wordpress.org indexes at most five tags and ignores the rest, so a sixth is
 // not a small overrun — it is a tag that silently does nothing.
@@ -119,7 +150,7 @@ keel_readme_assert( '' !== $short, 'readme.txt has a short description.' );
 keel_readme_assert( strlen( $short ) <= 150, 'The short description is 150 characters or fewer (found ' . strlen( $short ) . ').' );
 
 // --- sections a reader looks for ---
-foreach ( array( 'Description', 'Installation', 'Frequently Asked Questions', 'Changelog', 'Upgrade Notice' ) as $section ) {
+foreach ( array( 'Description', 'Installation', 'Frequently Asked Questions', 'Changelog', 'Upgrade Notice', 'Support This Plugin' ) as $section ) {
 	keel_readme_assert(
 		1 === preg_match( '/^==\s*' . preg_quote( $section, '/' ) . '\s*==$/mi', $readme ),
 		"readme.txt has a == {$section} == section."
