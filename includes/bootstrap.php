@@ -251,7 +251,7 @@ function keel_defaults_bootstrap() {
 		add_filter( 'wp_headers', 'keel_defaults_set_frame_option_header', 99 );
 	}
 
-	if ( keel_defaults_enabled( 'disable_ai_connectors' ) ) {
+	if ( keel_defaults_enabled( 'disable_ai_connectors' ) && keel_defaults_key_supported( 'disable_ai_connectors' ) ) {
 		// WordPress 7.0 gates AI provider connectors behind wp_supports_ai
 		// (default true). Returning false stops them registering.
 		add_filter( 'wp_supports_ai', '__return_false' );

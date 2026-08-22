@@ -119,9 +119,14 @@ function keel_defaults_schema() {
 			),
 		),
 		'disable_ai_connectors'           => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'security',
+			'default'  => 'yes',
+			'type'     => 'toggle',
+			'group'    => 'security',
+			// Only WordPress 7.0 and later has AI provider connectors to turn
+			// off. Named as the core function rather than a version so the
+			// probe tests for the thing itself; see
+			// keel_defaults_key_supported().
+			'requires' => 'wp_supports_ai',
 		),
 
 		// --- Updates ----------------------------------------------------
@@ -335,6 +340,37 @@ function keel_defaults_get( $key ) {
 	}
 
 	return array_key_exists( $key, $stored ) ? $stored[ $key ] : $schema[ $key ]['default'];
+}
+
+/**
+ * Whether the core feature a setting depends on exists on this WordPress.
+ *
+ * Most defaults filter something core has had for years and need no check. A
+ * few extend a feature newer than the floor this plugin declares —
+ * `disable_ai_connectors` turns off the AI provider connectors added in 7.0,
+ * and on 6.4 there is no gate to filter and no Connectors screen to close.
+ *
+ * A schema entry names the core *function* it needs, not a version. The
+ * function is the feature: `wp_supports_ai()` is the exact thing that setting
+ * extends, so the probe cannot fall out of step with a release schedule the way
+ * a `version_compare()` against a hard-coded number does.
+ *
+ * This gates display only — the settings screen and the Site Health posture.
+ * The key stays in the schema, keeps its documented default, and is still
+ * seeded, so a site that upgrades to 7.0 finds the setting already there rather
+ * than appearing for the first time with no stored value.
+ *
+ * @param string $key Schema key.
+ * @return bool True when the setting applies to this WordPress.
+ */
+function keel_defaults_key_supported( $key ) {
+	$schema = keel_defaults_schema();
+
+	if ( ! isset( $schema[ $key ]['requires'] ) ) {
+		return true;
+	}
+
+	return function_exists( $schema[ $key ]['requires'] );
 }
 
 /**

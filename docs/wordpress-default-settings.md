@@ -245,6 +245,14 @@ add_action( 'admin_init', function () {
 > additionally fires a `disable_ai_connectors` action as a seam for AI
 > integrations core does not know about (a plugin's own provider, say).
 
+> **This is the one default that does not appear on every supported WordPress.** Keel's
+> floor is 6.4 and connectors arrived in 7.0, so on 6.4–6.9 there is no `wp_supports_ai`
+> gate to filter and no Connectors screen to close. The schema entry names the core
+> function it needs (`'requires' => 'wp_supports_ai'`) and the settings screen and Site
+> Health both skip it where that function is absent — a switch that cannot move anything
+> is worse than one that is not offered. The key stays in the schema and is still seeded,
+> so a site that upgrades to 7.0 finds the setting already at its documented default.
+
 ---
 
 ### Limit Unfiltered HTML to Administrators

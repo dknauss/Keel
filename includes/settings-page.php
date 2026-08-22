@@ -698,6 +698,14 @@ function keel_defaults_render_settings_page() {
 							continue;
 						}
 
+						// A setting whose core feature this WordPress does not
+						// have is not drawn. Showing a switch that cannot move
+						// anything is worse than not offering it: the screen's
+						// whole promise is that every control does what it says.
+						if ( ! keel_defaults_key_supported( $key ) ) {
+							continue;
+						}
+
 						$sec = isset( $field['section'] ) ? $field['section'] : null;
 
 						// Close an open section once the run of same-section fields ends.

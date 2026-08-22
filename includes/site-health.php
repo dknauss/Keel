@@ -97,6 +97,14 @@ function keel_defaults_posture_by_group() {
 	$by_group = array();
 
 	foreach ( $schema as $key => $field ) {
+		// Same rule as the settings screen: do not report a posture on a
+		// feature this WordPress does not have. Site Health is read as the
+		// answer to "what is this plugin doing to my site?", and a row for a
+		// setting with nothing to act on is a wrong answer.
+		if ( ! keel_defaults_key_supported( $key ) ) {
+			continue;
+		}
+
 		$group                = isset( $field['group'] ) ? $field['group'] : 'other';
 		$s                    = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
 		$by_group[ $group ][] = array(

@@ -106,9 +106,18 @@ foreach ( $info['keel']['fields'] as $group_key => $field ) {
 	$listed += count( $field['value'] );
 }
 
+/*
+ * Counted against the keys that apply to this WordPress, not against the whole
+ * schema. A setting naming a core feature newer than the plugin's floor is not
+ * reported where that feature is absent, and no stub here supplies one — so on
+ * this harness the expected total is one short of the schema. The gating itself
+ * is owned by `tests/core-feature-gating.php`, which asserts both core states.
+ */
+$applicable = count( array_filter( array_keys( keel_defaults_schema() ), 'keel_defaults_key_supported' ) );
+
 keel_assert(
-	count( keel_defaults_schema() ) === $listed,
-	'Every schema key is listed under some group — ' . $listed . ' of ' . count( keel_defaults_schema() ) . '.'
+	$applicable === $listed,
+	'Every applicable schema key is listed under some group — ' . $listed . ' of ' . $applicable . '.'
 );
 
 
