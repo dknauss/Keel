@@ -389,7 +389,8 @@ function keel_defaults_competing_plugins() {
 			continue;
 		}
 
-		$plugins = array();
+		$plugins  = array();
+		$keel_too = false;
 
 		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
 			foreach ( $callbacks as $registered ) {
@@ -399,13 +400,30 @@ function keel_defaults_competing_plugins() {
 
 				$dir = keel_defaults_callback_plugin_dir( $registered['function'] );
 
-				if ( '' !== $dir && $dir !== $self ) {
+				if ( '' === $dir ) {
+					continue;
+				}
+
+				if ( $dir === $self ) {
+					$keel_too = true;
+				} else {
 					$plugins[ $dir ] = true;
 				}
 			}
 		}
 
-		if ( ! empty( $plugins ) ) {
+		/*
+		 * Both sides, or it is not a contest.
+		 *
+		 * Keel stands down on several of these — `auth_cookie_expiration` is
+		 * registered only when the session policy differs from WordPress's own
+		 * — and a hook Keel is not on is another plugin doing its job. Reported
+		 * without this, a site that left session length alone was told that
+		 * "more than one plugin is setting the same defaults" when exactly one
+		 * was, and the advice attached to it was to go and deactivate
+		 * something.
+		 */
+		if ( $keel_too && ! empty( $plugins ) ) {
 			$conflict[ $hook ] = array_keys( $plugins );
 		}
 	}

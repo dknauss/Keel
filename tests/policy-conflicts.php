@@ -46,7 +46,51 @@ function is_multisite() {
 
 define( 'ABSPATH', __DIR__ . '/' );
 defined( 'DAY_IN_SECONDS' ) || define( 'DAY_IN_SECONDS', 86400 );
-define( 'WP_PLUGIN_DIR', '/srv/site/wp-content/plugins' );
+
+/*
+ * A plugins directory with something actually in it.
+ *
+ * `keel_defaults_callback_plugin_dir()` resolves a callback by the file its code
+ * lives in and keeps the first path segment below WP_PLUGIN_DIR. Pointed at a
+ * path nothing resolves inside — as this harness used to be — every callback
+ * attributes to nothing, so only negative assertions were possible and the
+ * positive case went uncovered for the life of the check.
+ *
+ * Two one-line files under a temporary root fix that: one in a rival plugin's
+ * directory, one in a directory named the same as Keel's own, since the check
+ * identifies itself by `basename( dirname( KEEL_DEFAULTS_FILE ) )`. The
+ * callbacks do nothing; only the file they live in is read.
+ */
+$keel_fixture_root = sys_get_temp_dir() . '/keel-policy-conflicts-' . getmypid();
+$keel_self_dir     = basename( dirname( dirname( __DIR__ ) . '/keel.php' ) );
+
+foreach ( array(
+	'rival-plugin' => 'keel_test_rival_callback',
+	$keel_self_dir => 'keel_test_self_callback',
+) as $keel_dir => $keel_fn ) {
+	@mkdir( $keel_fixture_root . '/' . $keel_dir, 0777, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- a temp fixture in a CLI test, not a WordPress filesystem write.
+	file_put_contents( $keel_fixture_root . '/' . $keel_dir . '/plugin.php', "<?php\nfunction {$keel_fn}() {}\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- as above.
+	require $keel_fixture_root . '/' . $keel_dir . '/plugin.php';
+}
+
+register_shutdown_function(
+	function () use ( $keel_fixture_root ) {
+		foreach ( (array) glob( $keel_fixture_root . '/*/plugin.php' ) as $keel_file ) {
+			unlink( $keel_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink -- removing this test's own fixture; wp_delete_file() is not loaded in a CLI test.
+			rmdir( dirname( $keel_file ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- as above.
+		}
+		@rmdir( $keel_fixture_root ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- as above.
+	}
+);
+
+/*
+ * realpath(), because the prefix comparison is literal. On macOS
+ * sys_get_temp_dir() answers /var/folders/... while Reflection reports the file
+ * as /private/var/folders/... — the same directory by two names, and a string
+ * compare of one against the other resolves every callback to nothing, which
+ * looks exactly like "no conflicts" rather than like a broken fixture.
+ */
+define( 'WP_PLUGIN_DIR', realpath( $keel_fixture_root ) );
 
 require dirname( __DIR__ ) . '/keel.php';
 
@@ -91,6 +135,58 @@ keel_assert( ! array_key_exists( 'wp_headers', keel_defaults_competing_plugins()
 
 $GLOBALS['wp_filter'] = array();
 keel_assert( array() === keel_defaults_competing_plugins(), 'An empty filter registry produces no conflicts.' );
+
+/*
+ * --- a conflict needs two sides, and one of them has to be Keel ---
+ *
+ * The check walks the contested hooks and reports foreign plugins on them. What
+ * it never asked was whether Keel is on that hook at all — and Keel stands down
+ * on several. `auth_cookie_expiration` is registered only when the session
+ * policy differs from WordPress's own, so on a site that left it alone, another
+ * plugin setting a session length was reported as "more than one plugin is
+ * setting the same defaults" when exactly one was.
+ *
+ * That is the shape of false positive that makes a check ignorable, and it
+ * scales with the size of the hook map: every hook added multiplies it. So it
+ * is fixed before the map grows.
+ *
+ * These stub a callback in a plugin directory the way the real registry holds
+ * it — the resolver reads the file a callback lives in, so the two sides are
+ * told apart by where their code is, not by what they are called.
+ */
+$GLOBALS['wp_filter'] = array(
+	'auth_cookie_expiration' => new Keel_Test_Hook(
+		array( 10 => array( array( 'function' => 'keel_test_rival_callback' ) ) )
+	),
+);
+
+keel_assert(
+	array() === keel_defaults_competing_plugins(),
+	'A rival alone on a contested hook is not a conflict — Keel is not setting it, so nothing is contested.'
+);
+
+// The other side of the same rule, which nothing covered either: with Keel on
+// the hook too, the rival is reported. A self-presence check that reported
+// nothing at all would have passed every assertion above this line.
+$GLOBALS['wp_filter']['auth_cookie_expiration'] = new Keel_Test_Hook(
+	array(
+		10 => array( array( 'function' => 'keel_test_rival_callback' ) ),
+		50 => array( array( 'function' => 'keel_test_self_callback' ) ),
+	)
+);
+
+$both = keel_defaults_competing_plugins();
+
+keel_assert(
+	isset( $both['auth_cookie_expiration'] ),
+	'With Keel on the hook as well, the rival is reported.'
+);
+keel_assert(
+	array( 'rival-plugin' ) === $both['auth_cookie_expiration'],
+	'The report names the rival and not Keel itself.'
+);
+
+$GLOBALS['wp_filter'] = array();
 
 // --- the report reads as informational, and never picks a winner ---
 $clear = keel_defaults_site_health_conflicts();
