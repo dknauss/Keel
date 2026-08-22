@@ -169,7 +169,7 @@ function keel_defaults_jetpack_warning( $key ) {
 		return '';
 	}
 
-	return __( 'Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC.', 'keel' );
+	return __( 'Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC.', 'keel-defaults' );
 }
 
 /**
@@ -440,7 +440,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
 	if ( keel_password_is_pwned( $password ) ) {
 		return new WP_Error(
 			'keel_password_pwned',
-			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel' )
+			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel-defaults' )
 		);
 	}
 
@@ -473,7 +473,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
 			'keel_password_too_short',
 			sprintf(
 				/* translators: %d: minimum password length. */
-				__( '<strong>Error:</strong> Password must be at least %d characters.', 'keel' ),
+				__( '<strong>Error:</strong> Password must be at least %d characters.', 'keel-defaults' ),
 				$minimum
 			)
 		);
@@ -494,7 +494,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
 	if ( in_array( $normalize( $password ), array_map( $normalize, $blocklist ), true ) ) {
 		return new WP_Error(
 			'keel_password_common',
-			__( '<strong>Error:</strong> Choose a password that is not commonly used.', 'keel' )
+			__( '<strong>Error:</strong> Choose a password that is not commonly used.', 'keel-defaults' )
 		);
 	}
 
@@ -513,7 +513,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
 			if ( strlen( $value ) >= 4 && false !== strpos( $normalize( $password ), $value ) ) {
 				return new WP_Error(
 					'keel_password_personal',
-					__( '<strong>Error:</strong> Password must not contain your username or email name.', 'keel' )
+					__( '<strong>Error:</strong> Password must not contain your username or email name.', 'keel-defaults' )
 				);
 			}
 		}
@@ -689,7 +689,7 @@ function keel_defaults_require_rest_auth( $result ) {
 	if ( ! is_user_logged_in() ) {
 		return new WP_Error(
 			'rest_not_logged_in',
-			__( 'REST API restricted to authenticated users.', 'keel' ),
+			__( 'REST API restricted to authenticated users.', 'keel-defaults' ),
 			array( 'status' => 401 )
 		);
 	}

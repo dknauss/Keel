@@ -148,9 +148,22 @@ foreach ( array(
 ) as $state => $html ) {
 	keel_assert( '' !== trim( $html ), "The screen renders in the {$state} state." );
 
-	// Every schema key reaches the form. This is the assertion that would have
-	// caught the extraction dropping a field type on the floor.
+	/*
+	 * Every schema key that applies to this WordPress reaches the form. This is
+	 * the assertion that would have caught the extraction dropping a field type
+	 * on the floor.
+	 *
+	 * "Applies to" rather than "exists", because a setting can name a core
+	 * feature newer than the plugin's floor and is not drawn where that feature
+	 * is absent. This harness stubs no such function, so `disable_ai_connectors`
+	 * is legitimately missing here; `tests/core-feature-gating.php` renders the
+	 * screen in both core states and owns that behaviour.
+	 */
 	foreach ( array_keys( keel_defaults_schema() ) as $key ) {
+		if ( ! keel_defaults_key_supported( $key ) ) {
+			continue;
+		}
+
 		keel_assert(
 			false !== strpos( $html, KEEL_DEFAULTS_OPTION . '[' . $key . ']' ),
 			"[{$state}] Setting '{$key}' has an input on the screen."

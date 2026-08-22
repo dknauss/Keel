@@ -81,7 +81,7 @@ function keel_source_strings( $root ) {
 	foreach ( $files as $file ) {
 		$code = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
-		if ( preg_match_all( "/\b(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'keel'\s*\)/", $code, $m ) ) {
+		if ( preg_match_all( "/\b(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'keel-defaults'\s*\)/", $code, $m ) ) {
 			foreach ( $m[1] as $s ) {
 				// PHP single-quoted literals escape ' and \; the PO file holds the
 				// literal characters. Comparing them raw reports every string with an
@@ -109,8 +109,8 @@ function keel_msgid_to_source( $id ) {
 }
 
 // --- the template exists and describes this version of the plugin ---
-$pot_path = $root . '/languages/keel.pot';
-keel_assert( is_file( $pot_path ), 'languages/keel.pot exists.' );
+$pot_path = $root . '/languages/keel-defaults.pot';
+keel_assert( is_file( $pot_path ), 'languages/keel-defaults.pot exists.' );
 
 $pot = file_get_contents( $pot_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
@@ -120,11 +120,11 @@ $version = isset( $vm[1] ) ? $vm[1] : '';
 keel_assert( '' !== $version, 'The plugin header states a version.' );
 keel_assert(
 	false !== strpos( $pot, 'Project-Id-Version: Keel Defaults ' . $version ),
-	"keel.pot names the current version ({$version}). Run: wp i18n make-pot . languages/keel.pot --slug=keel"
+	"keel-defaults.pot names the current version ({$version}). Run: wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults"
 );
 keel_assert(
 	false !== strpos( $pot, 'GPL-2.0-or-later' ),
-	'keel.pot states the licence the plugin actually ships under. It said GPL-3.0-or-later for a week after the relicence.'
+	'keel-defaults.pot states the licence the plugin actually ships under. It said GPL-3.0-or-later for a week after the relicence.'
 );
 
 // --- every translatable string in the code is in the template ---
@@ -138,7 +138,7 @@ $missing = array_values( array_diff( $source, $pot_ids ) );
 keel_assert(
 	array() === $missing,
 	count( $missing ) . ' translatable string(s) are not in keel.pot — regenerate it with '
-		. '`wp i18n make-pot . languages/keel.pot --slug=keel`. First: "'
+		. '`wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults`. First: "'
 		. ( isset( $missing[0] ) ? substr( $missing[0], 0, 70 ) : '' ) . '"'
 );
 
@@ -175,8 +175,8 @@ foreach ( array_merge( array( $root . '/keel.php', $root . '/uninstall.php' ), g
 	if ( preg_match_all( "/\b(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)\([^;]*?,\s*'([a-z0-9_-]+)'\s*\)/", $code, $m ) ) {
 		foreach ( array_unique( $m[1] ) as $domain ) {
 			keel_assert(
-				'keel' === $domain,
-				basename( $file ) . " uses the text domain '{$domain}'; this plugin's domain is 'keel'."
+				'keel-defaults' === $domain,
+				basename( $file ) . " uses the text domain '{$domain}'; this plugin's domain is 'keel-defaults'."
 			);
 		}
 	}

@@ -112,42 +112,32 @@ Plugin Review requirements, not niceties.
       Two stale claims went with it: the "in progress" status, and an FAQ line saying
       REST authentication stops other sites embedding your posts — no longer true since
       the `oembed/1.0` carve-out.
-- [x] **Trademark glance on "Keel"** — closed 2026-08-04 **as a decision, not as a search.**
-      Read the next paragraph before treating this as cleared.
+- [x] **The submission name, the slug, and the text domain** — settled 2026-08-22.
+      Submitted as **"Keel Defaults"**, slug `keel-defaults`, text domain
+      `keel-defaults`, and that is the install directory too.
 
-      What was established: the **wordpress.org slug is free** — `keel` and `keel-defaults`
-      both return "Plugin not found", and a directory search for "keel" returns four
-      unrelated plugins. That was the practical blocker for submission and it is clear.
+      The directory builds the permalink from the name a plugin is submitted under and
+      then serves language packs as `{slug}-{locale}.mo`. "Keel Defaults" against a text
+      domain of `keel` meant every catalog from translate.wordpress.org would land on a
+      filename nothing asks for — English everywhere, no error, nothing to search for.
+      Three values in three files agreeing by hand, and the slug is permanent once
+      assigned.
 
-      What was **not** established: the register. USPTO Trademark Search and CIPO's
-      database are JavaScript applications with no reachable public API, and every
-      third-party mirror (Justia, Trademarkia, uspto.report) refuses automated requests
-      with a 403. No search of live marks in Nice classes 9 or 42 was performed.
+      The first attempt went the other way: rename the plugin to "Keel" and keep the
+      domain, since the domain, the catalog filenames, the zip folder and the settings
+      heading were all `keel` already. Plugin Check rejects that outright —
+      `plugin_header_unsupported_plugin_name`, the `Plugin Name` header must contain at
+      least five latin letters or numbers *because the slug is generated from it*. Four
+      letters is not a submittable name, so a slug of `keel` was never available and the
+      shorter name was never the cheaper option. Worth recording: nothing in the readme
+      spec or the header docs says this, and it is the kind of rule you find by running
+      the tool rather than by reading.
 
-      One lead, unverified: **KEEL SYSTEMS LLC** appears as a USPTO owner, holding
-      "CAMTRACK" (serial 87756860, 2018) for database-management software. An entity
-      named Keel operating in software — not a registered KEEL word mark.
-
-      To actually do it, in a browser: `tmsearch.uspto.gov` and CIPO's Canadian
-      Trademarks Database, word mark `keel`, live marks, classes 9 and 42; or WIPO's
-      Global Brand Database for both at once. Expect boat and shipping marks to dominate
-      the results — the ones that matter are software and SaaS. Note the shipped name is
-      "Keel Defaults", not bare "Keel".
-
-      **This remains a legal question and nothing here is advice.** The item is closed
-      because the release-blocking part is answered and the rest is the owner's call, not
-      because a register was searched.
-
-      What a common-law sweep on 2026-08-04 did turn up, so whoever runs the real search
-      starts from something: **keel.so** (London, founded 2022 — a code-first backend and
-      operations platform, developer-facing and actively marketed), **keel.money**
-      (fintech, virtual IBANs), and **Keel Info Solution** (keelis.com, custom software
-      development). The earlier note here said the w.org slug is free and `keel.sh` is
-      unrelated devops tooling; that understated the field. There are at least three
-      commercial software users of the name, and `keel.so` is the one closest to the
-      goods a filing would cover. Coexistence in a narrow channel is common and this does
-      not make the name unusable — it makes a paid search worth having before the name is
-      in print.
+      So the domain moved instead, along with the catalog filenames and the folder
+      inside the release zip — WordPress identifies a plugin by `folder/file.php`, so
+      the zip has to carry the directory the plugin will really install into.
+      `tests/readme-spec.php` now derives the slug the way the directory does and fails
+      if the name, the slug and the domain stop agreeing.
 - [x] **Test spine** — done 2026-08-04 (keel#24), and the item as written was wrong.
       It said the regression suite, metrics guard, doc-coverage and badge sync "still
       reference the pre-rename tree". Nothing did. The sentence was carried over from the

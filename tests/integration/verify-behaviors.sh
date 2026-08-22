@@ -30,7 +30,14 @@ else
 	WPBIN() { wp --path="$SITE" "$@"; }
 fi
 # Strip Studio's spinner frames, ANSI, and PHP deprecation noise from output.
-WP() { WPBIN "$@" 2>&1 | LC_ALL=C sed -E 's/\x1b\[[0-9;]*m//g; s/[[:cntrl:]]//g' | grep -avE "Deprecated: Case|react/promise|Loading sites"; }
+#
+# The second filter drops any line containing a box-drawing character. Studio
+# prints an "Update available" banner in a Unicode box on every invocation, and
+# it survives the control-character strip above — every probe then read as the
+# banner text with the answer glued on the end, and the run stopped at "keel not
+# loaded on this site". WP-CLI draws its own tables with ASCII +-|, so nothing
+# the harness actually reads is caught by this.
+WP() { WPBIN "$@" 2>&1 | LC_ALL=C sed -E 's/\x1b\[[0-9;]*m//g; s/[[:cntrl:]]//g' | grep -avE "Deprecated: Case|react/promise|Loading sites" | LC_ALL=C grep -av -e $'\342\224' -e $'\342\225'; }
 
 pass=0; fail=0
 setopt() { WPBIN option patch update keel_settings "$1" "$2" >/dev/null 2>&1; }

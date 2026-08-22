@@ -20,7 +20,7 @@
 			},
 			"options": {
 				"activate": true,
-				"targetFolderName": "keel"
+				"targetFolderName": "keel-defaults"
 			},
 			"progress": {
 				"caption": "Installing Keel"

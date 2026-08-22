@@ -9,7 +9,7 @@
  * Author:            Dan Knauss
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       keel
+ * Text Domain:       keel-defaults
  * Domain Path:       /languages
  *
  * Keel is a de-branded evolution of "Better by Default" (WPYEG,

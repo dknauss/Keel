@@ -15,7 +15,7 @@
 				"resource": "url",
 				"url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"
 			},
-			"options": { "activate": true, "targetFolderName": "keel" },
+			"options": { "activate": true, "targetFolderName": "keel-defaults" },
 			"progress": { "caption": "Installing Keel" }
 		},
 		{

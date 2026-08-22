@@ -28,14 +28,26 @@ wordpress.org plugin directory reads it from there to power the **Live Preview**
 button on the listing page. It is not referenced from the README and nothing in
 this repository links to it.
 
-It installs the same `latest` zip and lands on the same screen. It differs only
-in the PHP version it prefers and in not going through the CORS proxy, which the
-directory does not need.
+**It must not install Keel.** The directory mounts the copy of the plugin it is
+serving into the Playground instance itself, before the blueprint runs. That is
+the whole point of the preview — it shows the version on the listing, which is
+the version that was reviewed. So this file carries no `installPlugin` step at
+all: only the landing page, the login, and the sample post.
 
-Keep the two in step. The sample-post step in particular has to be in both: the
-directory preview is the first look most people get, and without a post the
-content defaults have nothing to act on, which is the "half the toggles look
-inert" problem this blueprint exists to avoid.
+Until 2026-08-22 it did carry one, pointing at
+`releases/download/latest/keel.zip`. Two things were wrong with that, and the
+instruction that used to sit here — "keep the two in step" — is what kept it
+wrong. The directory restricts blueprint resources to wordpress.org, so a GitHub
+URL was unlikely to run at all; and `latest` is the **rolling build of `main`**,
+so on the occasions it did run, the listing's preview would have demonstrated
+code nobody had reviewed. A preview that installs something other than the
+listed plugin is not a preview of the listing.
+
+So the two blueprints are deliberately *not* in step, and only one thing has to
+be carried across: the sample-post step. The directory preview is the first look
+most people get, and without a post the content defaults have nothing to act on,
+which is the "half the toggles look inert" problem these blueprints exist to
+avoid.
 
 ## `blueprint-stable.json`
 

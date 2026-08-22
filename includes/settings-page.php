@@ -18,8 +18,8 @@ add_action(
 	'admin_menu',
 	function () {
 		$hook = add_options_page(
-			__( 'Keel', 'keel' ),
-			__( 'Site Defaults', 'keel' ),
+			__( 'Keel', 'keel-defaults' ),
+			__( 'Site Defaults', 'keel-defaults' ),
 			'manage_options',
 			'keel',
 			'keel_defaults_render_settings_page'
@@ -61,7 +61,7 @@ function keel_defaults_action_links( $links ) {
 	$settings = sprintf(
 		'<a href="%s">%s</a>',
 		esc_url( admin_url( 'options-general.php?page=keel' ) ),
-		esc_html__( 'Settings', 'keel' )
+		esc_html__( 'Settings', 'keel-defaults' )
 	);
 
 	array_unshift( $links, $settings );
@@ -81,22 +81,22 @@ function keel_defaults_add_help_tab() {
 	$screen->add_help_tab(
 		array(
 			'id'      => 'keel-overview',
-			'title'   => __( 'Overview', 'keel' ),
+			'title'   => __( 'Overview', 'keel-defaults' ),
 			'content' =>
-				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off.', 'keel' ) . '</p>',
+				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off.', 'keel-defaults' ) . '</p>',
 		)
 	);
 
 	$screen->add_help_tab(
 		array(
 			'id'      => 'keel-passwords',
-			'title'   => __( 'Passwords', 'keel' ),
+			'title'   => __( 'Passwords', 'keel-defaults' ),
 			'content' =>
 				'<p>' . wp_kses(
-					__( 'For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href="https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess.', 'keel' ),
+					__( 'For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href="https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver" target="_blank" rel="noopener noreferrer">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess.', 'keel-defaults' ),
 					array(
 						'a'    => array(
 							'href'   => array(),
@@ -107,15 +107,15 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all.', 'keel' ),
+					__( 'WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all.', 'keel-defaults' ),
 					array()
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here.', 'keel' ),
+					__( 'So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here.', 'keel-defaults' ),
 					array()
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'The breach check sends <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener noreferrer">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter.', 'keel' ),
+					__( 'The breach check sends <a href="https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange" target="_blank" rel="noopener noreferrer">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter.', 'keel-defaults' ),
 					array(
 						'a'    => array(
 							'href'   => array(),
@@ -126,12 +126,12 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly.', 'keel' ),
+					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly.', 'keel-defaults' ),
 					array()
 				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
-						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there.', 'keel' ),
+						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there.', 'keel-defaults' ),
 						array()
 					) . '</p>'
 					: ''
@@ -142,28 +142,28 @@ function keel_defaults_add_help_tab() {
 	$screen->add_help_tab(
 		array(
 			'id'      => 'keel-xmlrpc',
-			'title'   => __( 'XML-RPC', 'keel' ),
+			'title'   => __( 'XML-RPC', 'keel-defaults' ),
 			'content' =>
-				'<p>' . esc_html__( 'XML-RPC is WordPress\'s original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available.', 'keel' ) . '</p>' .
-				'<p>' . esc_html__( 'Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it.', 'keel' ) . '</p>' .
+				'<p>' . esc_html__( 'XML-RPC is WordPress\'s original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it.', 'keel-defaults' ) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option.', 'keel' ),
+					__( 'Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel' ),
+					__( 'The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>',
 		)
 	);
 
 	$screen->set_help_sidebar(
-		'<p><strong>' . esc_html__( 'Current posture', 'keel' ) . '</strong></p>' .
+		'<p><strong>' . esc_html__( 'Current posture', 'keel-defaults' ) . '</strong></p>' .
 		'<p>' . wp_kses(
 			sprintf(
 				/* translators: %s: URL of the Site Health Info screen. */
-				__( 'Every default and its current state is listed under <a href="%s">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”.', 'keel' ),
+				__( 'Every default and its current state is listed under <a href="%s">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”.', 'keel-defaults' ),
 				esc_url( admin_url( 'site-health.php?tab=debug' ) )
 			),
 			array(
@@ -434,12 +434,12 @@ function keel_defaults_config_lock( $key ) {
 	switch ( $key ) {
 		case 'core_update_policy':
 			if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-				return __( 'Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here.', 'keel' );
+				return __( 'Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here.', 'keel-defaults' );
 			}
 			if ( $updates_off ) {
 
 				/* translators: %s: a wp-config.php constant name. */
-				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel' ), $updates_off );
+				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel-defaults' ), $updates_off );
 			}
 			break;
 
@@ -447,13 +447,13 @@ function keel_defaults_config_lock( $key ) {
 			if ( $updates_off ) {
 
 				/* translators: %s: a wp-config.php constant name. */
-				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel' ), $updates_off );
+				return sprintf( __( 'Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates.', 'keel-defaults' ), $updates_off );
 			}
 			break;
 
 		case 'limit_unfiltered_html_to_admins':
 			if ( defined( 'DISALLOW_UNFILTERED_HTML' ) && DISALLOW_UNFILTERED_HTML ) {
-				return __( '<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect.', 'keel' );
+				return __( '<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect.', 'keel-defaults' );
 			}
 			break;
 	}
@@ -655,8 +655,8 @@ function keel_defaults_render_settings_page() {
 				</svg>
 			</span>
 			<div>
-				<h1 style="margin:0;padding:0;line-height:1.2;"><?php esc_html_e( 'Keel', 'keel' ); ?></h1>
-				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel' ); ?></p>
+				<h1 style="margin:0;padding:0;line-height:1.2;"><?php esc_html_e( 'Keel', 'keel-defaults' ); ?></h1>
+				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel-defaults' ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -668,7 +668,7 @@ function keel_defaults_render_settings_page() {
 		 */
 		?>
 		<hr class="wp-header-end">
-		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel' ); ?></p>
+		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
 
 		<style>
 
@@ -695,6 +695,14 @@ function keel_defaults_render_settings_page() {
 					$section_open = null;
 					foreach ( $schema as $key => $field ) :
 						if ( $field['group'] !== $group_key ) {
+							continue;
+						}
+
+						// A setting whose core feature this WordPress does not
+						// have is not drawn. Showing a switch that cannot move
+						// anything is worse than not offering it: the screen's
+						// whole promise is that every control does what it says.
+						if ( ! keel_defaults_key_supported( $key ) ) {
 							continue;
 						}
 
@@ -819,7 +827,7 @@ function keel_defaults_render_settings_page() {
 									<fieldset<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>>
 										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
 										<?php if ( empty( $ms_options ) ) : ?>
-											<p class="description"><?php esc_html_e( 'No low-privilege roles are available to exempt.', 'keel' ); ?></p>
+											<p class="description"><?php esc_html_e( 'No low-privilege roles are available to exempt.', 'keel-defaults' ); ?></p>
 										<?php else : ?>
 											<?php foreach ( $ms_options as $role_slug => $role_name ) : ?>
 												<label style="display:block;margin-bottom:6px;">
