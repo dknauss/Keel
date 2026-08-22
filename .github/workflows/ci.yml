@@ -61,8 +61,10 @@ jobs:
       matrix:
         # The floor is what keel.php, composer.json and readme.txt all claim, so
         # it is tested rather than asserted. The rest are every release still
-        # receiving security support, plus the current one.
-        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        # receiving security support, plus the current one — which hosts offer
+        # well before it is the default, so it belongs here rather than in a
+        # later catch-up.
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
 
     steps:
       - uses: actions/checkout@v4
