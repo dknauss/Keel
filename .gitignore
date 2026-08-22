@@ -54,3 +54,10 @@ wp-config.php
 # zip, and the release workflow runs php -l and the test files directly rather
 # than anything from vendor/. Run `composer install` for a working checkout.
 /vendor/
+
+# Agent tooling
+#
+# Not the plugin, not the tests, and not something a checkout needs. It is
+# listed in .distignore too: a local `bin/build-zip.sh` copies the working tree,
+# so an untracked directory here still lands in the zip.
+/.claude/
