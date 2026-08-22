@@ -18,11 +18,11 @@ function keel_defaults_site_health_tests( $tests ) {
 		return $tests;
 	}
 	$tests['direct']['keel_defaults_posture']   = array(
-		'label' => __( 'Keel Defaults', 'keel' ),
+		'label' => __( 'Keel Defaults', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_posture',
 	);
 	$tests['direct']['keel_defaults_conflicts'] = array(
-		'label' => __( 'Overlapping defaults plugins', 'keel' ),
+		'label' => __( 'Overlapping defaults plugins', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_conflicts',
 	);
 	return $tests;
@@ -40,17 +40,17 @@ function keel_defaults_state_label( $field, $value, $s = array() ) {
 	$type = isset( $field['type'] ) ? $field['type'] : 'toggle';
 
 	if ( 'toggle' === $type ) {
-		return ( 'yes' === $value ) ? __( 'On', 'keel' ) : __( 'Off', 'keel' );
+		return ( 'yes' === $value ) ? __( 'On', 'keel-defaults' ) : __( 'Off', 'keel-defaults' );
 	}
 	if ( 'select' === $type ) {
 		if ( '' === $value ) {
-			return __( 'Unchanged', 'keel' );
+			return __( 'Unchanged', 'keel-defaults' );
 		}
 		return isset( $s['choices'][ $value ] ) ? (string) $s['choices'][ $value ] : (string) $value;
 	}
 	if ( 'multiselect' === $type ) {
 		$vals = array_map( 'strval', (array) $value );
-		return empty( $vals ) ? __( 'None', 'keel' ) : implode( ', ', $vals );
+		return empty( $vals ) ? __( 'None', 'keel-defaults' ) : implode( ', ', $vals );
 	}
 	if ( 'range' === $type ) {
 		$values = isset( $field['values'] ) ? array_map( 'strval', array_values( $field['values'] ) ) : array();
@@ -72,7 +72,7 @@ function keel_defaults_state_label( $field, $value, $s = array() ) {
 	if ( 'number' === $type ) {
 		$days = (int) $value;
 		/* translators: %s: number of days. */
-		return sprintf( _n( '%s day', '%s days', $days, 'keel' ), number_format_i18n( $days ) );
+		return sprintf( _n( '%s day', '%s days', $days, 'keel-defaults' ), number_format_i18n( $days ) );
 	}
 
 	return (string) $value;
@@ -169,8 +169,8 @@ function keel_defaults_debug_information( $info ) {
 	}
 
 	$info[ KEEL_DEFAULTS_INFO_SECTION ] = array(
-		'label'       => __( 'Keel Defaults', 'keel' ),
-		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel' ),
+		'label'       => __( 'Keel Defaults', 'keel-defaults' ),
+		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel-defaults' ),
 		'fields'      => $fields,
 	);
 
@@ -190,7 +190,7 @@ function keel_defaults_site_health_posture() {
 	$rest_ok   = keel_defaults_enabled( 'restrict_rest_user_discovery' );
 	$status    = ( $strong_ok && $rest_ok ) ? 'good' : 'recommended';
 
-	$description = '<p>' . esc_html__( 'Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning.', 'keel' ) . '</p>';
+	$description = '<p>' . esc_html__( 'Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning.', 'keel-defaults' ) . '</p>';
 
 	foreach ( $groups as $group_key => $group_label ) {
 		if ( empty( $by_group[ $group_key ] ) ) {
@@ -206,28 +206,28 @@ function keel_defaults_site_health_posture() {
 	if ( 'recommended' === $status ) {
 		$notes = array();
 		if ( ! $strong_ok ) {
-			$notes[] = esc_html__( 'Strong passwords are off, so privileged accounts can set weak or breached passwords.', 'keel' );
+			$notes[] = esc_html__( 'Strong passwords are off, so privileged accounts can set weak or breached passwords.', 'keel-defaults' );
 		}
 		if ( ! $rest_ok ) {
-			$notes[] = esc_html__( 'REST user discovery is open, so anonymous visitors can enumerate usernames.', 'keel' );
+			$notes[] = esc_html__( 'REST user discovery is open, so anonymous visitors can enumerate usernames.', 'keel-defaults' );
 		}
-		$description .= '<p><strong>' . esc_html__( 'Worth a look:', 'keel' ) . '</strong> ' . esc_html( implode( ' ', $notes ) ) . '</p>';
+		$description .= '<p><strong>' . esc_html__( 'Worth a look:', 'keel-defaults' ) . '</strong> ' . esc_html( implode( ' ', $notes ) ) . '</p>';
 	}
 
 	return array(
 		'label'       => ( 'good' === $status )
-			? __( 'Keel defaults are in place', 'keel' )
-			: __( 'Some Keel security defaults are off', 'keel' ),
+			? __( 'Keel defaults are in place', 'keel-defaults' )
+			: __( 'Some Keel security defaults are off', 'keel-defaults' ),
 		'status'      => $status,
 		'badge'       => array(
-			'label' => __( 'Security', 'keel' ),
+			'label' => __( 'Security', 'keel-defaults' ),
 			'color' => ( 'good' === $status ) ? 'green' : 'orange',
 		),
 		'description' => $description,
 		'actions'     => sprintf(
 			'<p><a href="%s">%s</a></p>',
 			esc_url( admin_url( 'options-general.php?page=keel' ) ),
-			esc_html__( 'Review Keel settings', 'keel' )
+			esc_html__( 'Review Keel settings', 'keel-defaults' )
 		),
 		'test'        => 'keel_defaults_posture',
 	);
@@ -250,14 +250,14 @@ function keel_defaults_site_health_posture() {
 function keel_defaults_site_health_conflicts() {
 	$conflicts = keel_defaults_competing_plugins();
 	$badge     = array(
-		'label' => __( 'Keel', 'keel' ),
+		'label' => __( 'Keel', 'keel-defaults' ),
 		'color' => 'blue',
 	);
-	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied.', 'keel' ) . '</p>';
+	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied.', 'keel-defaults' ) . '</p>';
 
 	if ( empty( $conflicts ) ) {
 		return array(
-			'label'       => __( 'No other plugin is setting the same defaults', 'keel' ),
+			'label'       => __( 'No other plugin is setting the same defaults', 'keel-defaults' ),
 			'status'      => 'good',
 			'badge'       => $badge,
 			'description' => $intro,
@@ -274,14 +274,14 @@ function keel_defaults_site_health_conflicts() {
 
 	$description = $intro . '<p><strong>' . sprintf(
 		/* translators: %s: comma-separated plugin directory names. */
-		esc_html__( 'Also setting these defaults: %s', 'keel' ),
+		esc_html__( 'Also setting these defaults: %s', 'keel-defaults' ),
 		esc_html( implode( ', ', array_keys( $plugins ) ) )
-	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel' ) . '</p><ul>';
+	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel-defaults' ) . '</p><ul>';
 
 	foreach ( $conflicts as $hook => $hook_plugins ) {
 		$description .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
 			/* translators: %s: comma-separated plugin directory names. */
-			esc_html__( 'contested by %s', 'keel' ),
+			esc_html__( 'contested by %s', 'keel-defaults' ),
 			esc_html( implode( ', ', $hook_plugins ) )
 		) . '</li>';
 	}
@@ -289,7 +289,7 @@ function keel_defaults_site_health_conflicts() {
 	$description .= '</ul>';
 
 	return array(
-		'label'       => __( 'More than one plugin is setting the same defaults', 'keel' ),
+		'label'       => __( 'More than one plugin is setting the same defaults', 'keel-defaults' ),
 		'status'      => 'recommended',
 		'badge'       => $badge,
 		'description' => $description,
@@ -381,7 +381,7 @@ function keel_defaults_callback_plugin_dir( $callback ) {
 function keel_defaults_competing_plugins() {
 	global $wp_filter;
 
-	$self     = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : 'keel';
+	$self     = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : 'keel-defaults';
 	$conflict = array();
 
 	foreach ( keel_defaults_policy_hooks() as $hook => $kind ) {

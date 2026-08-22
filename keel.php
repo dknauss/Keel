@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Keel
+ * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
  * Description:       More than 30 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
  * Version:           0.3.0
@@ -9,7 +9,7 @@
  * Author:            Dan Knauss
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       keel
+ * Text Domain:       keel-defaults
  * Domain Path:       /languages
  *
  * Keel is a de-branded evolution of "Better by Default" (WPYEG,

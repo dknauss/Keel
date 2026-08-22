@@ -96,7 +96,7 @@ function keel_defaults_network_lock( $key ) {
 		return null;
 	}
 
-	return __( 'Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Keel Defaults.', 'keel' );
+	return __( 'Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Keel Defaults.', 'keel-defaults' );
 }
 
 /**
@@ -159,8 +159,8 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
 function keel_defaults_network_menu() {
 	add_submenu_page(
 		'settings.php',
-		__( 'Keel Defaults', 'keel' ),
-		__( 'Keel Defaults', 'keel' ),
+		__( 'Keel Defaults', 'keel-defaults' ),
+		__( 'Keel Defaults', 'keel-defaults' ),
 		'manage_network_options',
 		'keel-network',
 		'keel_defaults_render_network_page'
@@ -180,7 +180,7 @@ function keel_defaults_handle_network_save() {
 	}
 
 	if ( ! keel_defaults_can_manage_network() ) {
-		wp_die( esc_html__( 'You do not have permission to set network policy.', 'keel' ) );
+		wp_die( esc_html__( 'You do not have permission to set network policy.', 'keel-defaults' ) );
 	}
 
 	check_admin_referer( 'keel-network-save', 'keel_network_nonce' );
@@ -211,18 +211,18 @@ function keel_defaults_render_network_page() {
 	$sections = keel_defaults_section_labels();
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Keel Defaults — network policy', 'keel' ); ?></h1>
+		<h1><?php esc_html_e( 'Keel Defaults — network policy', 'keel-defaults' ); ?></h1>
 
 		<?php if ( isset( $_GET['keel-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only notice flag. ?>
-			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Network policy saved.', 'keel' ); ?></p></div>
+			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Network policy saved.', 'keel-defaults' ); ?></p></div>
 		<?php endif; ?>
 
 		<p class="description" style="max-width:46em;">
-			<?php esc_html_e( 'Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site\'s own business, and their saved values are untouched — untick it later and every site returns to exactly what it had.', 'keel' ); ?>
+			<?php esc_html_e( 'Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site\'s own business, and their saved values are untouched — untick it later and every site returns to exactly what it had.', 'keel-defaults' ); ?>
 		</p>
 
 		<p class="description" style="max-width:46em;">
-			<?php esc_html_e( 'The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there.', 'keel' ); ?>
+			<?php esc_html_e( 'The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there.', 'keel-defaults' ); ?>
 		</p>
 
 		<form method="post" action="<?php echo esc_url( network_admin_url( 'settings.php?page=keel-network' ) ); ?>">
@@ -254,7 +254,7 @@ function keel_defaults_render_network_page() {
 
 									<label>
 										<input type="checkbox" name="keel_network_manage[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( $managed ); ?> />
-										<?php esc_html_e( 'Decide this for the whole network', 'keel' ); ?>
+										<?php esc_html_e( 'Decide this for the whole network', 'keel-defaults' ); ?>
 									</label>
 
 									<p style="margin:6px 0 0;">
@@ -272,7 +272,7 @@ function keel_defaults_render_network_page() {
 				</table>
 			<?php endforeach; ?>
 
-			<?php submit_button( __( 'Save network policy', 'keel' ) ); ?>
+			<?php submit_button( __( 'Save network policy', 'keel-defaults' ) ); ?>
 		</form>
 	</div>
 	<?php

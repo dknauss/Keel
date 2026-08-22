@@ -62,11 +62,11 @@ function keel_defaults_render_mail_config_notice() {
 
 	$recommendation = apply_filters(
 		'keel_smtp_plugin_recommendation',
-		__( 'Use a trusted SMTP or transactional email plugin such as WP Mail SMTP, Post SMTP, or a host-provided mail plugin.', 'keel' )
+		__( 'Use a trusted SMTP or transactional email plugin such as WP Mail SMTP, Post SMTP, or a host-provided mail plugin.', 'keel-defaults' )
 	);
 	?>
 	<div class="notice notice-warning">
-		<p><strong><?php esc_html_e( 'Site email may be misconfigured.', 'keel' ); ?></strong></p>
+		<p><strong><?php esc_html_e( 'Site email may be misconfigured.', 'keel-defaults' ); ?></strong></p>
 		<p><?php echo esc_html( $recommendation ); ?></p>
 	</div>
 	<?php
@@ -101,8 +101,8 @@ function keel_defaults_render_reset_failure_notice() {
 	?>
 	<div class="notice notice-error is-dismissible">
 		<p>
-			<strong><?php esc_html_e( 'No password reset links were sent.', 'keel' ); ?></strong>
-			<?php esc_html_e( 'Site email may not be configured, or the selected users may not have deliverable email addresses.', 'keel' ); ?>
+			<strong><?php esc_html_e( 'No password reset links were sent.', 'keel-defaults' ); ?></strong>
+			<?php esc_html_e( 'Site email may not be configured, or the selected users may not have deliverable email addresses.', 'keel-defaults' ); ?>
 		</p>
 	</div>
 	<?php
@@ -144,16 +144,16 @@ function keel_defaults_render_mail_suppressed_notice() {
 	?>
 	<div class="notice notice-info">
 		<p>
-			<strong><?php esc_html_e( 'Outgoing email is switched off on this site.', 'keel' ); ?></strong>
+			<strong><?php esc_html_e( 'Outgoing email is switched off on this site.', 'keel-defaults' ); ?></strong>
 			<?php
 			printf(
 				/* translators: %s: environment name, such as staging or local. */
-				esc_html__( 'This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production.', 'keel' ),
+				esc_html__( 'This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production.', 'keel-defaults' ),
 				'<strong>' . esc_html( keel_defaults_current_environment() ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
 			);
 			?>
 		</p>
-		<p><?php esc_html_e( 'Turn off "Non-Production Email" under Settings → Keel to send from here anyway.', 'keel' ); ?></p>
+		<p><?php esc_html_e( 'Turn off "Non-Production Email" under Settings → Keel to send from here anyway.', 'keel-defaults' ); ?></p>
 	</div>
 	<?php
 }

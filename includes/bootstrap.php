@@ -273,7 +273,7 @@ function keel_defaults_bootstrap() {
 				global $pagenow;
 				if ( 'options-connectors.php' === $pagenow ) {
 					wp_die(
-						esc_html__( 'AI connectors are disabled on this site.', 'keel' ),
+						esc_html__( 'AI connectors are disabled on this site.', 'keel-defaults' ),
 						'',
 						array( 'response' => 403 )
 					);

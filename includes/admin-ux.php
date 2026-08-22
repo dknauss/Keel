@@ -239,9 +239,9 @@ function keel_defaults_register_helper_post_columns( $screen ) {
  * @return array
  */
 function keel_defaults_filter_post_columns( $columns ) {
-	$columns['keel_id']       = __( 'ID', 'keel' );
-	$columns['keel_thumb']    = __( 'Image', 'keel' );
-	$columns['keel_modified'] = __( 'Modified', 'keel' );
+	$columns['keel_id']       = __( 'ID', 'keel-defaults' );
+	$columns['keel_thumb']    = __( 'Image', 'keel-defaults' );
+	$columns['keel_modified'] = __( 'Modified', 'keel-defaults' );
 	return $columns;
 }
 
@@ -272,7 +272,7 @@ function keel_defaults_render_post_column( $column, $post_id ) {
  * @return array
  */
 function keel_defaults_filter_media_columns( $columns ) {
-	$columns['keel_file_size'] = __( 'File size', 'keel' );
+	$columns['keel_file_size'] = __( 'File size', 'keel-defaults' );
 	return $columns;
 }
 
@@ -297,8 +297,8 @@ function keel_defaults_render_media_column( $column, $attachment_id ) {
  * @return array
  */
 function keel_defaults_filter_user_columns( $columns ) {
-	$columns['keel_registered'] = __( 'Registered', 'keel' );
-	$columns['keel_last_login'] = __( 'Last login', 'keel' );
+	$columns['keel_registered'] = __( 'Registered', 'keel-defaults' );
+	$columns['keel_last_login'] = __( 'Last login', 'keel-defaults' );
 	return $columns;
 }
 
@@ -362,7 +362,7 @@ function keel_defaults_media_sizes_meta_box( $post ) {
 	if ( ! current_user_can( 'upload_files' ) || ! wp_attachment_is_image( $post ) ) {
 		return;
 	}
-	add_meta_box( 'keel-media-sizes', __( 'Generated Image Sizes', 'keel' ), 'keel_defaults_render_media_sizes_meta_box', 'attachment', 'normal', 'low' );
+	add_meta_box( 'keel-media-sizes', __( 'Generated Image Sizes', 'keel-defaults' ), 'keel_defaults_render_media_sizes_meta_box', 'attachment', 'normal', 'low' );
 }
 
 /**
@@ -374,12 +374,12 @@ function keel_defaults_render_media_sizes_meta_box( $post ) {
 	$rows = keel_defaults_attachment_image_size_rows( $post->ID );
 
 	if ( empty( $rows ) ) {
-		echo '<p>' . esc_html__( 'No generated image sizes were found for this attachment.', 'keel' ) . '</p>';
+		echo '<p>' . esc_html__( 'No generated image sizes were found for this attachment.', 'keel-defaults' ) . '</p>';
 		return;
 	}
 
-	echo '<p>' . esc_html__( 'Read-only view of the generated image files and URLs.', 'keel' ) . '</p>';
-	echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Size', 'keel' ) . '</th><th>' . esc_html__( 'Dimensions', 'keel' ) . '</th><th>' . esc_html__( 'File size', 'keel' ) . '</th><th>' . esc_html__( 'URL', 'keel' ) . '</th></tr></thead><tbody>';
+	echo '<p>' . esc_html__( 'Read-only view of the generated image files and URLs.', 'keel-defaults' ) . '</p>';
+	echo '<table class="widefat striped"><thead><tr><th>' . esc_html__( 'Size', 'keel-defaults' ) . '</th><th>' . esc_html__( 'Dimensions', 'keel-defaults' ) . '</th><th>' . esc_html__( 'File size', 'keel-defaults' ) . '</th><th>' . esc_html__( 'URL', 'keel-defaults' ) . '</th></tr></thead><tbody>';
 	foreach ( $rows as $row ) {
 		echo '<tr>';
 		echo '<td>' . esc_html( $row['size'] ) . '</td>';
@@ -416,7 +416,7 @@ function keel_defaults_attachment_image_size_rows( $attachment_id ) {
 		$rows[] = array(
 			'size'       => (string) $size,
 			'dimensions' => sprintf( '%d × %d', isset( $image[1] ) ? (int) $image[1] : 0, isset( $image[2] ) ? (int) $image[2] : 0 ),
-			'file_size'  => $bytes ? size_format( $bytes ) : __( 'Unknown', 'keel' ),
+			'file_size'  => $bytes ? size_format( $bytes ) : __( 'Unknown', 'keel-defaults' ),
 			'url'        => $image[0],
 		);
 	}
@@ -466,25 +466,25 @@ function keel_defaults_attachment_size_bytes( $attachment_id, $size, $metadata )
 function keel_environments() {
 	$defaults = array(
 		'production'  => array(
-			'label'            => __( 'Production', 'keel' ),
+			'label'            => __( 'Production', 'keel-defaults' ),
 			'icon'             => 'dashicons-admin-site',
 			'background_color' => '#b92a2a',
 			'text_color'       => '#fff',
 		),
 		'staging'     => array(
-			'label'            => __( 'Staging', 'keel' ),
+			'label'            => __( 'Staging', 'keel-defaults' ),
 			'icon'             => 'dashicons-admin-generic',
 			'background_color' => '#8f6800',
 			'text_color'       => '#fff',
 		),
 		'development' => array(
-			'label'            => __( 'Development', 'keel' ),
+			'label'            => __( 'Development', 'keel-defaults' ),
 			'icon'             => 'dashicons-admin-tools',
 			'background_color' => '#34863b',
 			'text_color'       => '#fff',
 		),
 		'local'       => array(
-			'label'            => __( 'Local', 'keel' ),
+			'label'            => __( 'Local', 'keel-defaults' ),
 			'icon'             => 'dashicons-admin-home',
 			'background_color' => '#0073aa',
 			'text_color'       => '#fff',

@@ -26,7 +26,7 @@ function keel_defaults_mask_feed_author( $author ) {
 		return $author;
 	}
 
-	return (string) apply_filters( 'keel_feed_author_name', __( 'Site Contributor', 'keel' ) );
+	return (string) apply_filters( 'keel_feed_author_name', __( 'Site Contributor', 'keel-defaults' ) );
 }
 
 /**

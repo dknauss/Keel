@@ -11,6 +11,11 @@
 # The file list comes from .distignore rather than from an allowlist here, so
 # there is one answer to "what ships" and it lives beside the plugin.
 #
+# The folder inside the zip is `keel-defaults`, which is the slug wordpress.org
+# will assign and therefore the directory the plugin installs into. WordPress
+# identifies a plugin by folder/file.php, so this has to be the name it will
+# have on a real install rather than a shorter one that only ever existed here.
+#
 # Usage: bash bin/build-zip.sh [output-dir]   (default: build)
 set -euo pipefail
 
@@ -19,20 +24,20 @@ ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 cd "$ROOT"
 rm -rf "$OUT"
-mkdir -p "$OUT/keel"
+mkdir -p "$OUT/keel-defaults"
 
 # Copy the whole tree, then drop everything .distignore excludes, so the zip
 # stays in sync with a single source of truth.
-rsync -a --exclude='.git' --exclude="$OUT" ./ "$OUT/keel/"
+rsync -a --exclude='.git' --exclude="$OUT" ./ "$OUT/keel-defaults/"
 
 while IFS= read -r pattern; do
 	pattern="${pattern%%$'\r'}"
 	[ -z "$pattern" ] && continue
 	case "$pattern" in \#*) continue ;; esac
-	rm -rf "$OUT/keel/${pattern#/}"
+	rm -rf "$OUT/keel-defaults/${pattern#/}"
 done < .distignore
 
-( cd "$OUT" && zip -rq keel.zip keel )
+( cd "$OUT" && zip -rq keel.zip keel-defaults )
 
 echo "== zip contents =="
 unzip -l "$OUT/keel.zip"
