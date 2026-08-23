@@ -528,6 +528,84 @@ below.
 
 ---
 
+## v0.5 — the gaps the field agrees on
+
+Surveyed 2026-08-23 against nineteen "disable something" plugins installed
+together on a WordPress 7.1 site — Admin and Site Enhancements, Disabler, Disable
+Comments, Disable Blog, Featherweight, Disable Gutenberg, Classic Editor and
+twelve narrower ones. The survey was run to answer three questions: do they do
+what they claim, do any of them do Keel's own features better, and is anything
+missing here that belongs.
+
+The answer to the second was no. Measured by files actually loaded on an admin
+request, Keel does 38 defaults in 14 files and 250 KB; Disabler pulls in 212 files
+and 1.4 MB to reach a comparable feature set, shipping Action Scheduler and
+monolog to switch things off. The comment claim in `readme.txt` was re-verified
+the hard way — a comment written straight to the table with `$wpdb`, then queried
+with Keel on and with Disable Comments 2.8.0 alone in its strongest mode. Keel
+returns nothing; Disable Comments returns the comment while reporting a count of
+zero. The claim holds against the current version.
+
+The answer to the third was these four. What makes them worth listing is not that
+competitors have them — competitors have dozens of things Keel should not have —
+but that every one of them sits directly against work Keel has already done, and
+each is one core filter behind one toggle. That is the same shape as the other 38.
+
+**The same caveat as v0.4 applies: the feature set was frozen at 38 deliberately.**
+This is a list to decide on. What is different from v0.4 is the direction of the
+evidence — those four came from one publisher's catalogue and are each served by a
+mature single-purpose plugin, where these four are held in common by most of the
+field and are gaps in defaults Keel already ships half of.
+
+- [ ] **Disable embeds.** Keel removes the emoji script from every page and leaves
+      `wp-embed.js` on it. The argument is the same argument, the shape is the
+      same shape, and a site that has turned off emojis has already said what it
+      thinks about core's front-end payload. Held by Admin and Site Enhancements,
+      Disabler and Featherweight.
+
+      Not to be confused with the oEmbed *provider* work already done: Keel strips
+      author identity from oEmbed responses and keeps `oembed/1.0` reachable when
+      REST is closed, both deliberate. This is the consumer side — the script core
+      enqueues so your pages can embed other people's.
+
+- [ ] **Disable feeds.** Keel disables comment feeds today and nothing else, which
+      is the odd half of the pair: a site with comments off gets its comment feeds
+      closed and goes on publishing a global feed, author feeds and per-post-type
+      feeds. Held by Admin and Site Enhancements, Disabler (granular, per feed
+      type) and Disable Blog.
+
+      Wants a decision on granularity before it is planned. Disabler exposes six
+      switches; the Keel-shaped answer is probably one toggle for the feeds a
+      site that has closed comments and hidden author archives would not want,
+      which is not the same as all of them — a global feed is how readers
+      subscribe.
+
+- [ ] **Revisions control.** `readme.txt` recommends `WP_POST_REVISIONS` in
+      `wp-config.php` and offers no switch, which is the only place in the plugin
+      that tells somebody to go and edit a file to get a default Keel is otherwise
+      happy to set. Held by Admin and Site Enhancements and Disabler.
+
+      The wp-config constant should still win and lock the control, as it does for
+      the update policy — that machinery already exists.
+
+- [ ] **Disable dashboard widgets.** Keel already drops Heartbeat on the dashboard,
+      so it is on that screen for that reason. The widgets core puts there are
+      Activity, Quick Draft, Events and News, and Site Health — noise on most
+      sites, and one `remove_meta_box` each. Held by Admin and Site Enhancements
+      and Disabler.
+
+      Site Health is the one to think about rather than sweep: Keel puts its own
+      posture report under Site Health, so removing the widget that points at it
+      is working against the rest of the plugin.
+
+Explicitly **not** taken from the survey, recorded so the decision is not made
+twice: change-login-URL (obscurity, and WPS Hide Login owns it), maintenance mode,
+captcha, media replacement, view-as-role, limit login attempts. The first five are
+site-management features rather than defaults. Login-attempt limiting has real
+security value and no home in Keel as it stands — it needs per-request storage,
+lockout state and an unlock path, which would make it the first thing here that
+writes on an anonymous request.
+
 ## v2 — deferred by decision
 
 *(Multisite governance was here. Promoted to Next up, 2026-08-04.)*
