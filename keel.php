@@ -68,6 +68,7 @@ require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/content.php';
 require_once __DIR__ . '/includes/admin-ux.php';
 require_once __DIR__ . '/includes/email.php';
+require_once __DIR__ . '/includes/conflicts.php';
 require_once __DIR__ . '/includes/site-health.php';
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/settings-page.php';
