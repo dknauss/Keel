@@ -198,3 +198,161 @@ function keel_defaults_competing_plugins() {
 
 	return $conflict;
 }
+
+/**
+ * A stable identity for a set of conflicts.
+ *
+ * Dismissing the dashboard notice has to mean "I have seen these", not "never
+ * tell me again": a second competing plugin activated next month is new
+ * information, and somebody who dismissed the first notice has not seen it. So
+ * what is stored is a fingerprint of the conflicts rather than a boolean, and
+ * the notice returns whenever the set changes.
+ *
+ * Sorted on both axes before hashing. The registry hands hooks back in
+ * registration order, which changes when any plugin on the site is activated,
+ * deactivated or reordered — an unsorted hash would treat that as a new
+ * conflict and bring the notice back for no reason.
+ *
+ * @param array<string, string[]> $conflicts Hook => plugin directory names.
+ * @return string sha1 hash, or '' when there is nothing to fingerprint.
+ */
+function keel_defaults_conflicts_fingerprint( $conflicts ) {
+	if ( empty( $conflicts ) ) {
+		return '';
+	}
+
+	ksort( $conflicts );
+
+	foreach ( $conflicts as $hook => $plugins ) {
+		sort( $plugins );
+		$conflicts[ $hook ] = $plugins;
+	}
+
+	return sha1( (string) wp_json_encode( $conflicts ) );
+}
+
+/**
+ * Where the conflict notice is shown, and whether it can be dismissed there.
+ *
+ * The plugins screen is where somebody lands the moment they activate a
+ * competing plugin, and Keel's settings screen is where they would go to do
+ * something about it. On both, the notice is the point of the visit rather than
+ * an interruption, so there is nothing to dismiss — hiding it there would hide
+ * the reason for being there.
+ *
+ * The dashboard is daily-driver space, where a banner that cannot be dismissed
+ * is an obstruction rather than information.
+ *
+ * @return array<string, bool> Screen id => whether dismissal is offered.
+ */
+function keel_defaults_conflict_notice_screens() {
+	return apply_filters(
+		'keel_conflict_notice_screens',
+		array(
+			'plugins'            => false,
+			'settings_page_keel' => false,
+			'dashboard'          => true,
+		)
+	);
+}
+
+/**
+ * Print the notice, if this screen is one of the three and there is a conflict.
+ *
+ * @return void
+ */
+function keel_defaults_render_conflicts_notice() {
+	if ( ! current_user_can( 'manage_options' ) || ! function_exists( 'get_current_screen' ) ) {
+		return;
+	}
+
+	$screen  = get_current_screen();
+	$screens = keel_defaults_conflict_notice_screens();
+	$id      = is_object( $screen ) && isset( $screen->id ) ? $screen->id : '';
+
+	if ( ! isset( $screens[ $id ] ) ) {
+		return;
+	}
+
+	$conflicts = keel_defaults_competing_plugins();
+
+	if ( empty( $conflicts ) ) {
+		return;
+	}
+
+	$dismissible = $screens[ $id ];
+	$fingerprint = keel_defaults_conflicts_fingerprint( $conflicts );
+
+	if ( $dismissible && get_user_meta( get_current_user_id(), 'keel_conflicts_dismissed', true ) === $fingerprint ) {
+		return;
+	}
+
+	$plugins = array();
+	foreach ( $conflicts as $hook_plugins ) {
+		foreach ( $hook_plugins as $plugin ) {
+			$plugins[ $plugin ] = true;
+		}
+	}
+
+	$health = admin_url( 'site-health.php' );
+	?>
+	<div class="notice notice-warning">
+		<p>
+			<strong>
+			<?php
+			printf(
+				/* translators: %s: comma-separated plugin directory names. */
+				esc_html__( 'Another plugin is setting the same defaults as Keel: %s', 'keel-defaults' ),
+				esc_html( implode( ', ', array_keys( $plugins ) ) )
+			);
+			?>
+			</strong>
+		</p>
+		<p>
+			<?php esc_html_e( 'These settings are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last and there is no error — the plugin that lost goes on showing the value it believes it applied.', 'keel-defaults' ); ?>
+		</p>
+		<p>
+			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings are contested, under Site Health', 'keel-defaults' ); ?></a>
+			<?php if ( $dismissible ) : ?>
+				&nbsp;|&nbsp;
+				<a class="keel-dismiss-conflicts" href="<?php echo esc_url( wp_nonce_url( admin_url( 'index.php?keel-dismiss-conflicts=1' ), 'keel-dismiss-conflicts' ) ); ?>">
+					<?php esc_html_e( 'Dismiss until this changes', 'keel-defaults' ); ?>
+				</a>
+			<?php endif; ?>
+		</p>
+	</div>
+	<?php
+}
+
+/**
+ * Record a dismissal.
+ *
+ * Stores the fingerprint of what was on screen, not a flag, so the notice comes
+ * back when the conflicts change rather than staying gone forever. Per user,
+ * because dismissing is one person saying they have read it.
+ *
+ * Handled here rather than with core's `is-dismissible` class, which only hides
+ * the notice for the current page view and stores nothing.
+ *
+ * @return void
+ */
+function keel_defaults_handle_conflicts_dismissal() {
+	if ( ! isset( $_GET['keel-dismiss-conflicts'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the nonce is checked immediately below; this is the presence test that decides whether to look.
+		return;
+	}
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	check_admin_referer( 'keel-dismiss-conflicts' );
+
+	update_user_meta(
+		get_current_user_id(),
+		'keel_conflicts_dismissed',
+		keel_defaults_conflicts_fingerprint( keel_defaults_competing_plugins() )
+	);
+
+	wp_safe_redirect( admin_url( 'index.php' ) );
+	exit;
+}

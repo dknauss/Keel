@@ -28,6 +28,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_last_login` — user meta, written on each login by the Last login
  *   column. On multisite the user table is shared across the network, so this
  *   is deleted once for the whole network rather than per site.
+ * - `keel_conflicts_dismissed` — user meta, the fingerprint of the competing
+ *   plugins a person last dismissed the notice for. Network-wide for the same
+ *   reason as the above: it belongs to the user, not the site.
  * - `keel_hibp_*` — breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
@@ -88,11 +91,13 @@ if ( is_multisite() ) {
 		++$keel_paged;
 	} while ( 200 === $keel_found );
 
-	// The user table is network-wide, so this is deleted once rather than once
-	// per site. Doing it inside the loop would repeat the same query for every
+	// The user table is network-wide, so these are deleted once rather than once
+	// per site. Doing it inside the loop would repeat the same queries for every
 	// site on the network.
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
+	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 } else {
 	keel_defaults_uninstall_site();
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
+	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 }

@@ -574,6 +574,17 @@ function keel_defaults_bootstrap() {
 		add_action( 'admin_head-users.php', 'keel_defaults_hide_zero_reset_notice' );
 	}
 
+	/* ----- Competing plugins ----- */
+
+	/*
+	 * Not behind a toggle. Every other entry in this function is a default the
+	 * site chose; this is the plugin reporting that something else is
+	 * overriding it, which is true whether or not anybody asked. A switch here
+	 * would only offer to turn off the bad news.
+	 */
+	add_action( 'admin_notices', 'keel_defaults_render_conflicts_notice' );
+	add_action( 'admin_init', 'keel_defaults_handle_conflicts_dismissal' );
+
 	/* ----- Login and sessions ----- */
 
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
