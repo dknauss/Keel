@@ -91,7 +91,7 @@ Nothing is written into your sites. A network value is applied when a setting is
 
 You can, but you probably should not, and Keel will tell you when it matters.
 
-Some settings are applied through WordPress filters that return a single value — session length is the clearest example. When more than one plugin sets the same one, WordPress keeps whichever ran last. There is no error and nothing in a log; the ones that lost simply go on showing their own numbers on their own settings screens while the site uses the winner's.
+Some settings are applied through WordPress filters that return a single value — session length is the clearest example. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect.
 
 Keel checks for this and says so where you will see it: on the Plugins screen — where you land the moment you activate something — on **Settings → Keel**, and on the dashboard, where it can be dismissed until the situation changes. The full detail is under **Tools → Site Health**, naming which plugins are contesting which setting. It does not tell you which plugin to keep — that is a judgement about your site, and a plugin answering it would be arguing for its own retention.
 

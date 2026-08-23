@@ -369,7 +369,7 @@ function keel_defaults_render_conflicts_notice() {
 			</strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'These settings are applied through WordPress filters that return a single value. When more than one plugin sets the same one, WordPress keeps whichever ran last and there is no error — the ones that lost go on showing the values they believe they applied.', 'keel-defaults' ); ?>
+			<?php esc_html_e( 'These settings are applied through WordPress filters that return a single value. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect.', 'keel-defaults' ); ?>
 		</p>
 		<p>
 			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings are contested, under Site Health', 'keel-defaults' ); ?></a>
