@@ -248,7 +248,7 @@ keel_assert(
 $one = keel_notice_on( 'plugins' );
 
 keel_assert(
-	false !== strpos( $one, 'Another plugin is setting' ),
+	false !== strpos( $one, 'Another plugin controls' ),
 	'With a single rival the heading stays singular.'
 );
 keel_assert(
@@ -269,11 +269,11 @@ $many = keel_notice_on( 'plugins' );
 
 keel_assert( false !== strpos( $many, 'second-rival' ), 'The fixture stages more than one rival.' );
 keel_assert(
-	false === strpos( $many, 'Another plugin is setting' ),
+	false === strpos( $many, 'Another plugin controls' ),
 	'With several rivals the heading stops saying "Another plugin".'
 );
 keel_assert(
-	false !== strpos( $many, 'Other plugins are setting' ),
+	false !== strpos( $many, 'Other plugins control' ),
 	'And reads as a plural instead.'
 );
 

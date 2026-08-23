@@ -257,7 +257,7 @@ function keel_defaults_conflict_list( $conflicts ) {
 }
 
 /**
- * Report other plugins competing to set the same defaults.
+ * Report other plugins competing for the same settings.
  *
  * Two plugins that both set a session length do not error, do not log, and do
  * not look wrong: WordPress runs both filters and keeps whichever answered
@@ -281,7 +281,7 @@ function keel_defaults_site_health_conflicts() {
 
 	if ( empty( $conflicts ) && empty( $likely ) ) {
 		return array(
-			'label'       => __( 'No other plugin is setting the same defaults', 'keel-defaults' ),
+			'label'       => __( 'No other plugin controls the same settings', 'keel-defaults' ),
 			'status'      => 'good',
 			'badge'       => $badge,
 			'description' => $intro,
@@ -298,7 +298,7 @@ function keel_defaults_site_health_conflicts() {
 
 	$description = $intro . '<p><strong>' . sprintf(
 		/* translators: %s: comma-separated plugin directory names. */
-		esc_html__( 'Also setting these defaults: %s', 'keel-defaults' ),
+		esc_html__( 'Also controlling these settings: %s', 'keel-defaults' ),
 		esc_html( implode( ', ', array_keys( $plugins ) ) )
 	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel-defaults' ) . '</p>';
 
@@ -360,7 +360,7 @@ function keel_defaults_site_health_conflicts() {
 	}
 
 	return array(
-		'label'       => __( 'More than one plugin is setting the same defaults', 'keel-defaults' ),
+		'label'       => __( 'More than one plugin controls the same settings', 'keel-defaults' ),
 		'status'      => 'recommended',
 		'badge'       => $badge,
 		'description' => $description,

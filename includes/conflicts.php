@@ -232,7 +232,7 @@ function keel_defaults_competing_plugins() {
 		 * registered only when the session policy differs from WordPress's own
 		 * — and a hook Keel is not on is another plugin doing its job. Reported
 		 * without this, a site that left session length alone was told that
-		 * "more than one plugin is setting the same defaults" when exactly one
+		 * "more than one plugin controls the same settings" when exactly one
 		 * was, and the advice attached to it was to go and deactivate
 		 * something.
 		 */
@@ -398,8 +398,8 @@ function keel_defaults_render_conflicts_notice() {
 			<?php
 			/* translators: %s: comma-separated plugin directory names. */
 			$heading = _n(
-				'Another plugin is setting the same defaults as Keel: %s',
-				'Other plugins are setting the same defaults as Keel: %s',
+				'Another plugin controls some of the same settings as Keel: %s',
+				'Other plugins control some of the same settings as Keel: %s',
 				count( $plugins ),
 				'keel-defaults'
 			);
