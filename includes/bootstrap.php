@@ -62,7 +62,7 @@ function keel_defaults_bootstrap() {
 	/* ----- Security ----- */
 
 	if ( keel_defaults_enabled( 'restrict_rest_user_discovery' ) ) {
-		add_filter(
+		keel_defaults_add_policy_filter(
 			'rest_endpoints',
 			function ( $endpoints ) {
 				if ( is_user_logged_in() ) {
@@ -85,7 +85,7 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'disable_rest' ) ) {
-		add_filter( 'rest_authentication_errors', 'keel_defaults_require_rest_auth', PHP_INT_MAX );
+		keel_defaults_add_policy_filter( 'rest_authentication_errors', 'keel_defaults_require_rest_auth', PHP_INT_MAX );
 
 		/*
 		 * oEmbed stays reachable past the gate so other sites can still embed
@@ -150,7 +150,7 @@ function keel_defaults_bootstrap() {
 	);
 
 	// Strip the pingback discovery header when pingbacks are off.
-	add_filter(
+	keel_defaults_add_policy_filter(
 		'wp_headers',
 		function ( $headers ) {
 			if ( ! keel_defaults_enabled( 'xmlrpc_allow_pingbacks' ) ) {
@@ -220,19 +220,19 @@ function keel_defaults_bootstrap() {
 	);
 
 	if ( keel_defaults_enabled( 'disable_application_passwords' ) ) {
-		add_filter( 'wp_is_application_passwords_available', '__return_false' );
+		keel_defaults_add_policy_filter( 'wp_is_application_passwords_available', '__return_false' );
 	}
 
 	if ( keel_defaults_enabled( 'require_strong_passwords' ) ) {
 		add_action( 'user_profile_update_errors', 'keel_defaults_validate_profile_password', 10, 3 );
 		add_action( 'validate_password_reset', 'keel_defaults_validate_reset_password', 10, 2 );
-		add_filter( 'rest_endpoints', 'keel_defaults_guard_rest_password_arg' );
+		keel_defaults_add_policy_filter( 'rest_endpoints', 'keel_defaults_guard_rest_password_arg' );
 		add_filter( 'rest_pre_insert_user', 'keel_defaults_validate_rest_password', 10, 2 );
 	}
 
 	if ( keel_defaults_enabled( 'limit_unfiltered_html_to_admins' ) ) {
 		// Very late, so it has the final say over other user_has_cap filters.
-		add_filter( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4 );
+		keel_defaults_add_policy_filter( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4 );
 	}
 
 	if ( keel_defaults_enabled( 'remove_version' ) ) {
@@ -241,20 +241,20 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'security_headers' ) ) {
-		add_filter( 'wp_headers', 'keel_defaults_set_content_type_header', 99 );
-		add_filter( 'wp_headers', 'keel_defaults_set_referrer_policy_header', 99 );
+		keel_defaults_add_policy_filter( 'wp_headers', 'keel_defaults_set_content_type_header', 99 );
+		keel_defaults_add_policy_filter( 'wp_headers', 'keel_defaults_set_referrer_policy_header', 99 );
 	}
 
 	// Framing is its own setting: it is the only one of the three that can break
 	// a working site, so it must be switchable without also giving up nosniff.
 	if ( '' !== keel_defaults_get( 'frame_options' ) ) {
-		add_filter( 'wp_headers', 'keel_defaults_set_frame_option_header', 99 );
+		keel_defaults_add_policy_filter( 'wp_headers', 'keel_defaults_set_frame_option_header', 99 );
 	}
 
 	if ( keel_defaults_enabled( 'disable_ai_connectors' ) && keel_defaults_key_supported( 'disable_ai_connectors' ) ) {
 		// WordPress 7.0 gates AI provider connectors behind wp_supports_ai
 		// (default true). Returning false stops them registering.
-		add_filter( 'wp_supports_ai', '__return_false' );
+		keel_defaults_add_policy_filter( 'wp_supports_ai', '__return_false' );
 
 		// Settings → Connectors is where those providers get configured.
 		add_action(
@@ -291,8 +291,8 @@ function keel_defaults_bootstrap() {
 	/* ----- Content and public surfaces ----- */
 
 	if ( keel_defaults_enabled( 'disable_comments' ) ) {
-		add_filter( 'comments_open', '__return_false', 20 );
-		add_filter( 'pings_open', '__return_false', 20 );
+		keel_defaults_add_policy_filter( 'comments_open', '__return_false', 20 );
+		keel_defaults_add_policy_filter( 'pings_open', '__return_false', 20 );
 		add_filter( 'comments_array', '__return_empty_array', 20 );
 
 		add_action(
@@ -336,7 +336,7 @@ function keel_defaults_bootstrap() {
 		// while get_comments_number() still answers from the post's cached
 		// comment_count, so a theme prints "1 Comment" above a thread that no
 		// longer exists.
-		add_filter( 'get_comments_number', '__return_zero', 20 );
+		keel_defaults_add_policy_filter( 'get_comments_number', '__return_zero', 20 );
 
 		// Drop the comment feeds from the head and feed-link markup, then stop
 		// serving the feeds themselves. Removing only the links leaves
@@ -356,11 +356,11 @@ function keel_defaults_bootstrap() {
 		// Answer comment queries as empty. comments_array only covers the theme's
 		// comment template; without this, /wp/v2/comments still serves every
 		// comment on a site that says comments are off.
-		add_filter( 'comments_pre_query', 'keel_defaults_empty_comment_queries', 10, 2 );
+		keel_defaults_add_policy_filter( 'comments_pre_query', 'keel_defaults_empty_comment_queries', 10, 2 );
 
 		// Take the comment blocks out of the inserter, so the editor stops
 		// offering blocks that can only render nothing.
-		add_filter( 'allowed_block_types_all', 'keel_defaults_remove_comment_blocks', PHP_INT_MAX );
+		keel_defaults_add_policy_filter( 'allowed_block_types_all', 'keel_defaults_remove_comment_blocks', PHP_INT_MAX );
 
 		// The inserter only governs what can be added next. A block theme's
 		// templates already contain the comment blocks, so without this the
@@ -516,9 +516,9 @@ function keel_defaults_bootstrap() {
 
 	$bar = keel_defaults_get( 'frontend_admin_bar_behavior' );
 	if ( 'hide_all' === $bar ) {
-		add_filter( 'show_admin_bar', '__return_false' );
+		keel_defaults_add_policy_filter( 'show_admin_bar', '__return_false' );
 	} elseif ( 'hide_non_admins' === $bar ) {
-		add_filter(
+		keel_defaults_add_policy_filter(
 			'show_admin_bar',
 			function ( $show ) {
 				return current_user_can( 'manage_options' ) ? $show : false;
@@ -550,7 +550,7 @@ function keel_defaults_bootstrap() {
 	/* ----- Media ----- */
 
 	if ( keel_defaults_enabled( 'lowercase_upload_filenames' ) ) {
-		add_filter( 'sanitize_file_name', 'keel_defaults_lowercase_filename', 20 );
+		keel_defaults_add_policy_filter( 'sanitize_file_name', 'keel_defaults_lowercase_filename', 20 );
 	}
 
 	if ( keel_defaults_enabled( 'media_sizes_panel' ) ) {
@@ -564,7 +564,7 @@ function keel_defaults_bootstrap() {
 	 * what those notices should say.
 	 */
 	if ( keel_defaults_suppresses_mail() ) {
-		add_filter( 'pre_wp_mail', 'keel_defaults_suppress_mail', PHP_INT_MAX, 2 );
+		keel_defaults_add_policy_filter( 'pre_wp_mail', 'keel_defaults_suppress_mail', PHP_INT_MAX, 2 );
 		add_action( 'admin_notices', 'keel_defaults_render_mail_suppressed_notice' );
 	}
 
@@ -573,6 +573,17 @@ function keel_defaults_bootstrap() {
 		add_action( 'admin_notices', 'keel_defaults_render_reset_failure_notice' );
 		add_action( 'admin_head-users.php', 'keel_defaults_hide_zero_reset_notice' );
 	}
+
+	/* ----- Competing plugins ----- */
+
+	/*
+	 * Not behind a toggle. Every other entry in this function is a default the
+	 * site chose; this is the plugin reporting that something else is
+	 * overriding it, which is true whether or not anybody asked. A switch here
+	 * would only offer to turn off the bad news.
+	 */
+	add_action( 'admin_notices', 'keel_defaults_render_conflicts_notice' );
+	add_action( 'admin_init', 'keel_defaults_handle_conflicts_dismissal' );
 
 	/* ----- Login and sessions ----- */
 
@@ -618,7 +629,7 @@ function keel_defaults_bootstrap() {
 	 * login that expires sooner than an ordinary one.
 	 */
 	if ( keel_defaults_session_policy_is_custom() ) {
-		add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
+		keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
 	}
 
 	/* ----- Branding ----- */
@@ -640,7 +651,7 @@ function keel_defaults_bootstrap() {
 	// at the site home instead of wordpress.org. There is no separate toggle:
 	// a replacement/removed logo linking back to wp.org makes no sense.
 	if ( in_array( $login_logo, array( 'remove_logo', 'unlink_logo', 'replace_logo' ), true ) ) {
-		add_filter( 'login_headerurl', 'home_url' );
+		keel_defaults_add_policy_filter( 'login_headerurl', 'home_url' );
 		add_filter(
 			'login_headertext',
 			function () {
@@ -652,7 +663,7 @@ function keel_defaults_bootstrap() {
 	/* ----- Performance ----- */
 
 	if ( keel_defaults_enabled( 'throttle_heartbeat' ) ) {
-		add_filter( 'heartbeat_settings', 'keel_defaults_heartbeat_interval' );
+		keel_defaults_add_policy_filter( 'heartbeat_settings', 'keel_defaults_heartbeat_interval' );
 
 		/*
 		 * admin_enqueue_scripts, not init. Deregistering at init forces WP_Scripts

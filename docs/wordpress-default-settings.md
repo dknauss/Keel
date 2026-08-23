@@ -1102,3 +1102,52 @@ covering only some, which reads as a full inventory when it is not.
   silently fighting them.
 - Test REST and comment changes against the block editor before shipping; those two touch the
   most core functionality.
+
+---
+
+## When another plugin sets the same default
+
+Two plugins that both set a session length do not error, do not log, and do not look
+wrong. WordPress runs both filters and keeps whichever answered last, so the losing
+plugin's settings screen goes on displaying a value the site does not use. Keel cannot
+change that outcome — WordPress decides it — so it reports it instead, on the Plugins
+screen, on **Settings → Keel**, on the dashboard, and in full under **Tools → Site
+Health**.
+
+`keel_defaults_policy_hooks()` in `includes/conflicts.php` is the map, and it classifies
+hooks by what losing on them costs:
+
+| kind | what contention does | examples |
+|---|---|---|
+| `authoritative` | The callback replaces its input; the last registration decides and the others keep showing a value the site does not use. | `auth_cookie_expiration`, `use_block_editor_for_post`, `comments_open` |
+| `short_circuit` | Core returns on the first non-null answer, so the losing callback never runs at all — and neither does whatever it existed to do. | `pre_wp_mail`, `comments_pre_query` |
+| `additive` | Callbacks contribute to a structure or transform a value in turn. Sharing is normal and is never reported. | `wp_headers`, `user_has_cap`, `sanitize_file_name` |
+
+Two rules keep the report worth reading.
+
+**Both sides, or it is not a contest.** A hook is only reported when Keel is itself
+registered on it. Keel stands down on several — the session filter is not registered at
+all when the policy matches WordPress's own — and a hook Keel is not on is another plugin
+doing its job, not a conflict.
+
+**An unmapped hook is not a gap.** The map is an allowlist of hooks where losing has a
+consequence somebody can act on, not an inventory of the 60-odd hooks the plugin touches.
+`the_generator` is the shape of thing deliberately left out: two plugins both emptying it
+reach the same place, so naming a winner would be noise. A check that fires on every
+well-behaved plugin is one people learn to ignore.
+
+The map is filterable through `keel_policy_hooks`, and the notice placements through
+`keel_conflict_notice_screens`.
+
+### Outgoing mail is the deliberate exception
+
+Keel registers `pre_wp_mail` at `PHP_INT_MAX` and discards any value already set, because
+a site that is not production must not send mail whatever else decided. That means Keel
+wins on purpose, and a mail catcher or logger will never see the message. The report says
+so rather than leaving somebody to work it out, and names the action to hook instead:
+
+```php
+add_action( 'keel_outgoing_mail_suppressed', function ( $atts ) {
+    // Same arguments wp_mail() was called with, fired in place of the send.
+} );
+```
