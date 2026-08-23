@@ -81,13 +81,52 @@ function keel_defaults_policy_hooks() {
 			'pre_wp_mail'                           => 'short_circuit',
 			'comments_pre_query'                    => 'short_circuit',
 
+			/*
+			 * Structurally additive — callbacks add keys to an array rather
+			 * than replacing a value — but the keys collide. Keel takes
+			 * `unfiltered_html` away here, and a plugin that grants it back
+			 * writes the same key, where the last writer wins exactly as it
+			 * does on a filter returning a scalar.
+			 */
+			'user_has_cap'                          => 'authoritative',
+
 			// Shared without harm; listed so the decision is recorded rather
 			// than looking like an omission.
 			'wp_headers'                            => 'additive',
-			'user_has_cap'                          => 'additive',
 			'rest_endpoints'                        => 'additive',
 			'heartbeat_settings'                    => 'additive',
 			'sanitize_file_name'                    => 'additive',
+		)
+	);
+}
+
+/**
+ * Hooks where being registered is not yet a conflict.
+ *
+ * `user_has_cap` is the case this exists for. Its callbacks add keys to an
+ * array rather than replacing a value, so two coexist happily right up until
+ * they write the same key — and then the last one wins exactly as it would on a
+ * filter returning a scalar. Classifying the hook either way is wrong:
+ * "additive" misses a plugin handing back the capability Keel just took, and
+ * "authoritative" reports every plugin implementing a custom role, which is most
+ * of them, forever, for a collision that cannot happen. On a stock site core
+ * itself keeps three callbacks here.
+ *
+ * So the hook is contested only over named keys. A rival is reported when its
+ * own source mentions one, and ignored otherwise. That is the same kind of
+ * evidence the unattributable-callback fallback runs on and it is read the same
+ * way: a mention does not prove the plugin writes the key, but a plugin that
+ * never names it cannot be writing it.
+ *
+ * A hook absent from this map is contested by anyone registered on it.
+ *
+ * @return array<string, string[]> Hook => the keys that make it a collision.
+ */
+function keel_defaults_hook_scope() {
+	return apply_filters(
+		'keel_hook_scope',
+		array(
+			'user_has_cap' => array( 'unfiltered_html' ),
 		)
 	);
 }
@@ -168,6 +207,10 @@ function keel_defaults_competing_plugins() {
 				}
 
 				$dir = keel_defaults_callback_plugin_dir( $registered['function'] );
+
+				if ( '' !== $dir && $dir !== $self && ! keel_defaults_plugin_in_scope( $dir, $hook ) ) {
+					continue;
+				}
 
 				if ( '' === $dir ) {
 					continue;
@@ -443,7 +486,7 @@ function keel_defaults_handle_conflicts_dismissal() {
  *
  * @return array<string, string[]> Hook => plugin directory names.
  */
-function keel_defaults_plugin_hook_declarations() {
+function keel_defaults_plugin_source_index() {
 	$hooks  = array_keys( keel_defaults_policy_hooks() );
 	$active = keel_defaults_active_plugin_dirs();
 
@@ -455,18 +498,32 @@ function keel_defaults_plugin_hook_declarations() {
 	$declared = apply_filters( 'keel_plugin_hook_declarations', null );
 
 	if ( is_array( $declared ) ) {
-		return $declared;
+		return array(
+			'declares' => $declared,
+			'mentions' => (array) apply_filters( 'keel_plugin_scope_mentions', array() ),
+		);
 	}
 
 	$cached = get_transient( 'keel_conflict_scan' );
 
 	if ( is_array( $cached ) && isset( $cached['for'] ) && md5( (string) wp_json_encode( $active ) ) === $cached['for'] ) {
-		return $cached['found'];
+		return $cached['index'];
 	}
 
-	$pattern = '/add_filter\s*\(\s*[\'"](' . implode( '|', array_map( 'preg_quote', $hooks ) ) . ')[\'"]/';
-	$found   = array();
-	$self    = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : '';
+	$pattern  = '/add_filter\s*\(\s*[\'"](' . implode( '|', array_map( 'preg_quote', $hooks ) ) . ')[\'"]/';
+	$found    = array();
+	$mentions = array();
+	$self     = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : '';
+
+	// Every key any scoped hook cares about, flattened. The files are being read
+	// for the hook names anyway, so a key costs one more strpos each.
+	$keys = array();
+	foreach ( keel_defaults_hook_scope() as $scope_keys ) {
+		foreach ( (array) $scope_keys as $scope_key ) {
+			$keys[ $scope_key ] = true;
+		}
+	}
+	$keys = array_keys( $keys );
 
 	foreach ( $active as $dir ) {
 		if ( $dir === $self || ! is_dir( WP_PLUGIN_DIR . '/' . $dir ) ) {
@@ -475,6 +532,12 @@ function keel_defaults_plugin_hook_declarations() {
 
 		foreach ( keel_defaults_plugin_php_files( WP_PLUGIN_DIR . '/' . $dir ) as $file ) {
 			$code = (string) file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a local plugin file, not an HTTP request.
+
+			foreach ( $keys as $scope_key ) {
+				if ( false !== strpos( $code, $scope_key ) ) {
+					$mentions[ $dir ][ $scope_key ] = true;
+				}
+			}
 
 			if ( ! preg_match_all( $pattern, $code, $m ) ) {
 				continue;
@@ -490,16 +553,32 @@ function keel_defaults_plugin_hook_declarations() {
 		$found[ $hook ] = array_keys( $dirs );
 	}
 
+	$index = array(
+		'declares' => $found,
+		'mentions' => $mentions,
+	);
+
 	set_transient(
 		'keel_conflict_scan',
 		array(
 			'for'   => md5( (string) wp_json_encode( $active ) ),
-			'found' => $found,
+			'index' => $index,
 		),
 		DAY_IN_SECONDS
 	);
 
-	return $found;
+	return $index;
+}
+
+/**
+ * Hook => the plugin directories whose source declares a filter on it.
+ *
+ * @return array<string, string[]>
+ */
+function keel_defaults_plugin_hook_declarations() {
+	$index = keel_defaults_plugin_source_index();
+
+	return isset( $index['declares'] ) ? $index['declares'] : array();
 }
 
 /**
@@ -573,6 +652,33 @@ function keel_defaults_plugin_php_files( $dir ) {
 }
 
 /**
+ * Whether a plugin counts as contesting a scoped hook.
+ *
+ * True for every hook with no scope, so this can only ever narrow.
+ *
+ * @param string $dir  Plugin directory name.
+ * @param string $hook Hook name.
+ * @return bool
+ */
+function keel_defaults_plugin_in_scope( $dir, $hook ) {
+	$scope = keel_defaults_hook_scope();
+
+	if ( empty( $scope[ $hook ] ) ) {
+		return true;
+	}
+
+	$index = keel_defaults_plugin_source_index();
+
+	foreach ( (array) $scope[ $hook ] as $key ) {
+		if ( isset( $index['mentions'][ $dir ][ $key ] ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Plugins that are probably contesting a hook, but cannot be proven to be.
  *
  * Two pieces of evidence, and both are required. The hook has to carry a
@@ -621,6 +727,15 @@ function keel_defaults_likely_competing_plugins( $confirmed = array() ) {
 
 		$known = isset( $confirmed[ $hook ] ) ? (array) $confirmed[ $hook ] : array();
 		$rest  = array_values( array_diff( $declared[ $hook ], $known, array( $self ) ) );
+
+		$rest = array_values(
+			array_filter(
+				$rest,
+				function ( $dir ) use ( $hook ) {
+					return keel_defaults_plugin_in_scope( $dir, $hook );
+				}
+			)
+		);
 
 		if ( ! empty( $rest ) ) {
 			$likely[ $hook ] = $rest;

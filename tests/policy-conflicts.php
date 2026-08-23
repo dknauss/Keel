@@ -75,9 +75,19 @@ $keel_self_dir     = basename( dirname( dirname( __DIR__ ) . '/keel.php' ) );
 foreach ( array(
 	'rival-plugin' => 'keel_test_rival_callback',
 	$keel_self_dir => 'keel_test_self_callback',
+	// Registers on user_has_cap and never names the capability Keel governs:
+	// a role plugin minding its own business.
+	'role-plugin'  => 'keel_test_role_callback',
+	// Hands the capability back, which is the collision worth reporting.
+	'grant-plugin' => 'keel_test_grant_callback',
 ) as $keel_dir => $keel_fn ) {
 	@mkdir( $keel_fixture_root . '/' . $keel_dir, 0777, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- a temp fixture in a CLI test, not a WordPress filesystem write.
-	file_put_contents( $keel_fixture_root . '/' . $keel_dir . '/plugin.php', "<?php\nfunction {$keel_fn}() {}\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- as above.
+
+	$keel_body = ( 'grant-plugin' === $keel_dir )
+		? "<?php\nfunction {$keel_fn}( \$caps ) { \$caps['unfiltered_html'] = true; return \$caps; }\n"
+		: "<?php\nfunction {$keel_fn}() {}\n";
+
+	file_put_contents( $keel_fixture_root . '/' . $keel_dir . '/plugin.php', $keel_body ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- as above.
 	require $keel_fixture_root . '/' . $keel_dir . '/plugin.php';
 }
 
@@ -123,6 +133,15 @@ keel_assert( 'authoritative' === $hooks['auth_cookie_expiration'], 'Session leng
 keel_assert( 'additive' === $hooks['wp_headers'], 'Headers are additive: callbacks add keys, so sharing is normal.' );
 
 /*
+ * user_has_cap is the exception to that reasoning, and it is worth stating why
+ * rather than leaving it looking like an inconsistency. Its callbacks do add
+ * keys to an array — but Keel's key is `unfiltered_html`, and a plugin granting
+ * that back writes the same one. Adding to an array is only harmless while two
+ * callbacks are adding different things.
+ */
+keel_assert( 'authoritative' === $hooks['user_has_cap'], 'Capabilities are contested: two callbacks can write the same key.' );
+
+/*
  * The third shape, and the reason it is not just another authoritative hook.
  *
  * Core reads `pre_wp_mail` and returns the moment the value is not null; the
@@ -138,6 +157,75 @@ keel_assert( 'short_circuit' === $hooks['comments_pre_query'], 'The comment quer
 // The editor filters, which is where the Classic Editor plugin lives.
 keel_assert( 'authoritative' === $hooks['use_block_editor_for_post'], 'The editor choice is authoritative.' );
 keel_assert( 'authoritative' === $hooks['comments_open'], 'Whether comments are open is authoritative.' );
+
+/*
+ * --- a hook contested only over particular keys ---
+ *
+ * user_has_cap adds keys to an array rather than replacing a value, so being
+ * registered on it is not by itself a collision — and on a stock site core keeps
+ * three callbacks there. Reporting everyone registered would name every plugin
+ * that implements a custom role, which is most of them, for a clash that cannot
+ * happen. Reporting no one misses a plugin handing back the capability Keel just
+ * took away, which is the one case that matters.
+ *
+ * So the rival has to name the key. Both fixtures below are registered on the
+ * hook with resolvable callbacks; only one of them mentions `unfiltered_html`.
+ */
+/*
+ * The source scan reads the plugins WordPress says are active, so the harness
+ * has to say so. These are the fixture directories created above.
+ */
+$GLOBALS['keel_options']['active_plugins'] = array(
+	'rival-plugin/plugin.php',
+	'role-plugin/plugin.php',
+	'grant-plugin/plugin.php',
+);
+
+keel_defaults_add_policy_filter( 'user_has_cap', 'keel_test_self_callback' );
+
+$GLOBALS['wp_filter'] = array(
+	'user_has_cap' => new Keel_Test_Hook(
+		array( 10 => array( array( 'function' => 'keel_test_role_callback' ) ) )
+	),
+);
+
+keel_assert(
+	! isset( keel_defaults_competing_plugins()['user_has_cap'] ),
+	'A plugin on user_has_cap that never names the capability is not reported.'
+);
+
+$GLOBALS['wp_filter']['user_has_cap'] = new Keel_Test_Hook(
+	array( 10 => array( array( 'function' => 'keel_test_grant_callback' ) ) )
+);
+
+keel_assert(
+	array( 'grant-plugin' ) === keel_defaults_competing_plugins()['user_has_cap'],
+	'A plugin that writes the capability Keel governs is reported.'
+);
+
+// Both at once: the scope narrows the list rather than emptying it.
+$GLOBALS['wp_filter']['user_has_cap'] = new Keel_Test_Hook(
+	array(
+		10 => array(
+			array( 'function' => 'keel_test_role_callback' ),
+			array( 'function' => 'keel_test_grant_callback' ),
+		),
+	)
+);
+
+keel_assert(
+	array( 'grant-plugin' ) === keel_defaults_competing_plugins()['user_has_cap'],
+	'With both registered, only the one naming the capability is named.'
+);
+
+// An unscoped hook is contested by anyone, which is the behaviour every other
+// hook in the map relies on.
+keel_assert(
+	keel_defaults_plugin_in_scope( 'role-plugin', 'comments_open' ),
+	'A hook with no scope entry accepts any plugin registered on it.'
+);
+
+$GLOBALS['wp_filter'] = array();
 
 /*
  * --- the plugins reflection cannot see ---
