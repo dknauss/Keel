@@ -557,7 +557,7 @@ evidence — those four came from one publisher's catalogue and are each served 
 mature single-purpose plugin, where these four are held in common by most of the
 field and are gaps in defaults Keel already ships half of.
 
-- [ ] **Disable embeds.** Keel removes the emoji script from every page and leaves
+- [ ] **Disable embeds** ([#100](https://github.com/dknauss/Keel/issues/100)). Keel removes the emoji script from every page and leaves
       `wp-embed.js` on it. The argument is the same argument, the shape is the
       same shape, and a site that has turned off emojis has already said what it
       thinks about core's front-end payload. Held by Admin and Site Enhancements,
@@ -568,7 +568,7 @@ field and are gaps in defaults Keel already ships half of.
       REST is closed, both deliberate. This is the consumer side — the script core
       enqueues so your pages can embed other people's.
 
-- [ ] **Disable feeds.** Keel disables comment feeds today and nothing else, which
+- [ ] **Disable feeds** ([#101](https://github.com/dknauss/Keel/issues/101)). Keel disables comment feeds today and nothing else, which
       is the odd half of the pair: a site with comments off gets its comment feeds
       closed and goes on publishing a global feed, author feeds and per-post-type
       feeds. Held by Admin and Site Enhancements, Disabler (granular, per feed
@@ -580,7 +580,7 @@ field and are gaps in defaults Keel already ships half of.
       which is not the same as all of them — a global feed is how readers
       subscribe.
 
-- [ ] **Revisions control.** `readme.txt` recommends `WP_POST_REVISIONS` in
+- [ ] **Revisions control** ([#102](https://github.com/dknauss/Keel/issues/102)). `readme.txt` recommends `WP_POST_REVISIONS` in
       `wp-config.php` and offers no switch, which is the only place in the plugin
       that tells somebody to go and edit a file to get a default Keel is otherwise
       happy to set. Held by Admin and Site Enhancements and Disabler.
@@ -588,7 +588,7 @@ field and are gaps in defaults Keel already ships half of.
       The wp-config constant should still win and lock the control, as it does for
       the update policy — that machinery already exists.
 
-- [ ] **Disable dashboard widgets.** Keel already drops Heartbeat on the dashboard,
+- [ ] **Disable dashboard widgets** ([#103](https://github.com/dknauss/Keel/issues/103)). Keel already drops Heartbeat on the dashboard,
       so it is on that screen for that reason. The widgets core puts there are
       Activity, Quick Draft, Events and News, and Site Health — noise on most
       sites, and one `remove_meta_box` each. Held by Admin and Site Enhancements
