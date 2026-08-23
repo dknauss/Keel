@@ -234,6 +234,29 @@ function keel_defaults_site_health_posture() {
 }
 
 /**
+ * One <li> per contested hook, naming what is contesting it.
+ *
+ * Extracted only because the report emits the same list twice under different
+ * headings, and a second copy is how the two would drift apart.
+ *
+ * @param array<string, string[]> $conflicts Hook => plugin directory names.
+ * @return string
+ */
+function keel_defaults_conflict_list( $conflicts ) {
+	$out = '';
+
+	foreach ( $conflicts as $hook => $hook_plugins ) {
+		$out .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
+			/* translators: %s: comma-separated plugin directory names. */
+			esc_html__( 'contested by %s', 'keel-defaults' ),
+			esc_html( implode( ', ', $hook_plugins ) )
+		) . '</li>';
+	}
+
+	return $out;
+}
+
+/**
  * Report other plugins competing to set the same defaults.
  *
  * Two plugins that both set a session length do not error, do not log, and do
@@ -276,17 +299,50 @@ function keel_defaults_site_health_conflicts() {
 		/* translators: %s: comma-separated plugin directory names. */
 		esc_html__( 'Also setting these defaults: %s', 'keel-defaults' ),
 		esc_html( implode( ', ', array_keys( $plugins ) ) )
-	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel-defaults' ) . '</p><ul>';
+	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel-defaults' ) . '</p>';
+
+	/*
+	 * Split by what losing costs, because the two are different problems.
+	 *
+	 * On an authoritative hook the loser's value is overwritten and its screen
+	 * goes on claiming it. On a short-circuiting one the loser's callback never
+	 * runs at all — telling somebody their setting is being ignored, when the
+	 * truth is that half their plugin is not executing, sends them to the wrong
+	 * place.
+	 */
+	$kinds  = keel_defaults_policy_hooks();
+	$sorted = array(
+		'authoritative' => array(),
+		'short_circuit' => array(),
+	);
 
 	foreach ( $conflicts as $hook => $hook_plugins ) {
-		$description .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
-			/* translators: %s: comma-separated plugin directory names. */
-			esc_html__( 'contested by %s', 'keel-defaults' ),
-			esc_html( implode( ', ', $hook_plugins ) )
-		) . '</li>';
+		$kind = isset( $kinds[ $hook ] ) ? $kinds[ $hook ] : 'authoritative';
+
+		if ( isset( $sorted[ $kind ] ) ) {
+			$sorted[ $kind ][ $hook ] = $hook_plugins;
+		}
 	}
 
-	$description .= '</ul>';
+	if ( ! empty( $sorted['authoritative'] ) ) {
+		$description .= '<p>' . esc_html__( 'Settings where the last plugin to answer decides, and the others go on displaying a value the site does not use:', 'keel-defaults' ) . '</p><ul>';
+		$description .= keel_defaults_conflict_list( $sorted['authoritative'] );
+		$description .= '</ul>';
+	}
+
+	if ( ! empty( $sorted['short_circuit'] ) ) {
+		$description .= '<p>' . esc_html__( 'Settings where only one plugin runs at all — WordPress stops at the first one that answers, so the other never executes:', 'keel-defaults' ) . '</p><ul>';
+		$description .= keel_defaults_conflict_list( $sorted['short_circuit'] );
+		$description .= '</ul>';
+
+		if ( isset( $sorted['short_circuit']['pre_wp_mail'] ) ) {
+			$description .= '<p>' . sprintf(
+				/* translators: %s: the name of a WordPress action hook, already wrapped in <code>. */
+				esc_html__( 'Keel takes outgoing mail at the last possible priority and wins on purpose: a site that is not production must not send mail whatever else decided. A mail catcher or logger will not see the message, so hook %s instead — it fires with the same arguments in place of the send.', 'keel-defaults' ),
+				'<code>keel_outgoing_mail_suppressed</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a literal hook name, no variable part.
+			) . '</p>';
+		}
+	}
 
 	return array(
 		'label'       => __( 'More than one plugin is setting the same defaults', 'keel-defaults' ),

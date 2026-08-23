@@ -114,6 +114,47 @@ $hooks = keel_defaults_policy_hooks();
 keel_assert( 'authoritative' === $hooks['auth_cookie_expiration'], 'Session length is authoritative: the callback replaces its input, so two cannot both win.' );
 keel_assert( 'additive' === $hooks['wp_headers'], 'Headers are additive: callbacks add keys, so sharing is normal.' );
 
+/*
+ * The third shape, and the reason it is not just another authoritative hook.
+ *
+ * Core reads `pre_wp_mail` and returns the moment the value is not null; the
+ * same is true of `comments_pre_query`. So the loser does not merely have its
+ * value overwritten — its callback never runs, and neither does whatever it
+ * was there to do. Keel takes pre_wp_mail at PHP_INT_MAX and discards the
+ * incoming value on purpose, because a staging site must not send mail
+ * whatever else decided; that is exactly the case where saying so matters.
+ */
+keel_assert( 'short_circuit' === $hooks['pre_wp_mail'], 'Suppressing mail is a short circuit: core stops at the first non-null answer.' );
+keel_assert( 'short_circuit' === $hooks['comments_pre_query'], 'The comment query short-circuits the same way.' );
+
+// The editor filters, which is where the Classic Editor plugin lives.
+keel_assert( 'authoritative' === $hooks['use_block_editor_for_post'], 'The editor choice is authoritative.' );
+keel_assert( 'authoritative' === $hooks['comments_open'], 'Whether comments are open is authoritative.' );
+
+/*
+ * --- the map may only name hooks Keel actually registers ---
+ *
+ * A map entry for a hook Keel never uses can do exactly one thing: report a
+ * conflict that cannot exist, since the self-presence check means Keel has to
+ * be on the hook for anything to be reported at all. So it would not even
+ * misfire — it would sit there looking like coverage and provide none.
+ *
+ * The reverse is deliberately not asserted. Keel registers 60-odd hooks and
+ * most of them should stay unmapped; the map is an allowlist of hooks where
+ * losing has a consequence, not an inventory of what the plugin touches.
+ */
+$keel_source = '';
+foreach ( (array) glob( dirname( __DIR__ ) . '/includes/*.php' ) as $keel_inc ) {
+	$keel_source .= file_get_contents( $keel_inc ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading repo files in a CLI test.
+}
+
+foreach ( array_keys( $hooks ) as $keel_hook ) {
+	keel_assert(
+		1 === preg_match( "/add_(?:action|filter)\(\s*'" . preg_quote( $keel_hook, '/' ) . "'/", $keel_source ),
+		"The hook map names '{$keel_hook}', but nothing in includes/ registers it — the entry can only ever report nothing."
+	);
+}
+
 $GLOBALS['keel_filters']['keel_policy_hooks'] = array( 'auth_cookie_expiration' => 'authoritative' );
 keel_assert( 1 === count( keel_defaults_policy_hooks() ), 'The hook map is filterable.' );
 unset( $GLOBALS['keel_filters']['keel_policy_hooks'] );

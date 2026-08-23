@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Keel Defaults 0.3.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T05:50:43+00:00\n"
+"POT-Creation-Date: 2026-08-23T01:58:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -19,7 +19,7 @@ msgstr ""
 #: includes/network.php:162
 #: includes/network.php:163
 #: includes/site-health.php:21
-#: includes/site-health.php:164
+#: includes/site-health.php:172
 msgid "Keel Defaults"
 msgstr ""
 
@@ -205,7 +205,7 @@ msgstr ""
 
 #: includes/settings-page.php:21
 #: includes/settings-page.php:658
-#: includes/site-health.php:245
+#: includes/site-health.php:276
 msgid "Keel"
 msgstr ""
 
@@ -323,7 +323,7 @@ msgstr ""
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:822
+#: includes/settings-page.php:830
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
@@ -355,67 +355,81 @@ msgid_plural "%s days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:165
+#: includes/site-health.php:173
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel."
 msgstr ""
 
-#: includes/site-health.php:185
+#: includes/site-health.php:193
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning."
 msgstr ""
 
-#: includes/site-health.php:201
+#: includes/site-health.php:209
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:204
+#: includes/site-health.php:212
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:206
+#: includes/site-health.php:214
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:211
+#: includes/site-health.php:219
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:212
+#: includes/site-health.php:220
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:215
+#: includes/site-health.php:223
 msgid "Security"
 msgstr ""
 
-#: includes/site-health.php:222
+#: includes/site-health.php:230
 msgid "Review Keel settings"
 msgstr ""
 
-#: includes/site-health.php:248
-msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied."
-msgstr ""
-
-#: includes/site-health.php:252
-msgid "No other plugin is setting the same defaults"
-msgstr ""
-
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:269
-#, php-format
-msgid "Also setting these defaults: %s"
-msgstr ""
-
-#: includes/site-health.php:271
-msgid "Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth."
-msgstr ""
-
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:276
+#: includes/site-health.php:251
 #, php-format
 msgid "contested by %s"
 msgstr ""
 
-#: includes/site-health.php:284
+#: includes/site-health.php:279
+msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied."
+msgstr ""
+
+#: includes/site-health.php:283
+msgid "No other plugin is setting the same defaults"
+msgstr ""
+
+#. translators: %s: comma-separated plugin directory names.
+#: includes/site-health.php:300
+#, php-format
+msgid "Also setting these defaults: %s"
+msgstr ""
+
+#: includes/site-health.php:302
+msgid "Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth."
+msgstr ""
+
+#: includes/site-health.php:328
+msgid "Settings where the last plugin to answer decides, and the others go on displaying a value the site does not use:"
+msgstr ""
+
+#: includes/site-health.php:334
+msgid "Settings where only one plugin runs at all — WordPress stops at the first one that answers, so the other never executes:"
+msgstr ""
+
+#. translators: %s: the name of a WordPress action hook, already wrapped in <code>.
+#: includes/site-health.php:341
+#, php-format
+msgid "Keel takes outgoing mail at the last possible priority and wins on purpose: a site that is not production must not send mail whatever else decided. A mail catcher or logger will not see the message, so hook %s instead — it fires with the same arguments in place of the send."
+msgstr ""
+
+#: includes/site-health.php:348
 msgid "More than one plugin is setting the same defaults"
 msgstr ""
 

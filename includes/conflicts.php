@@ -25,14 +25,28 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The hooks Keel sets policy through, and whether sharing one matters.
+ * The hooks Keel sets policy through, and what sharing one costs.
+ *
+ * Three shapes, classified by what contention *does* rather than by what kind
+ * of hook it is:
  *
  * `authoritative` — the callback returns a value that replaces its input, so
  * two callbacks cannot both win and the later registration silently decides.
- * `additive` — callbacks contribute to a structure, so coexisting is normal.
+ * The loser keeps showing its own number on its own settings screen.
  *
- * This map is the only part of the check needing human judgement, and it stays
- * short because it covers only the hooks Keel writes policy through.
+ * `short_circuit` — core reads the filtered value and returns the moment it is
+ * not null. The loser does not have its value overwritten; its callback never
+ * runs at all, and neither does whatever it existed to do. Worth telling apart
+ * from the above, because "your setting is being ignored" and "your plugin is
+ * not running" are different problems with different answers.
+ *
+ * `additive` — callbacks contribute to a structure or transform a value in
+ * turn, so coexisting is normal and is never reported.
+ *
+ * A hook earns an entry only when losing on it has a consequence somebody can
+ * act on. `the_generator` is the shape of thing left out: two plugins both
+ * emptying it reach the same place, so naming a winner would be noise. An
+ * unmapped hook is not a gap.
  *
  * @return array<string, string>
  */
@@ -40,13 +54,40 @@ function keel_defaults_policy_hooks() {
 	return apply_filters(
 		'keel_policy_hooks',
 		array(
-			'auth_cookie_expiration'     => 'authoritative',
-			'login_headerurl'            => 'authoritative',
-			'rest_authentication_errors' => 'authoritative',
-			'wp_headers'                 => 'additive',
-			'user_has_cap'               => 'additive',
-			'rest_endpoints'             => 'additive',
-			'heartbeat_settings'         => 'additive',
+			// Sessions, login and REST access.
+			'auth_cookie_expiration'                => 'authoritative',
+			'login_headerurl'                       => 'authoritative',
+			'rest_authentication_errors'            => 'authoritative',
+			'wp_is_application_passwords_available' => 'authoritative',
+
+			// The editor. Contested by every plugin that forces the classic
+			// one, which is why Keel's own force-classic default is opt-in.
+			'use_block_editor_for_post'             => 'authoritative',
+			'use_block_editor_for_post_type'        => 'authoritative',
+			'gutenberg_can_edit_post'               => 'authoritative',
+			'use_widgets_block_editor'              => 'authoritative',
+			'allowed_block_types_all'               => 'authoritative',
+
+			// Comments and pingbacks, contested by any disable-comments plugin.
+			'comments_open'                         => 'authoritative',
+			'pings_open'                            => 'authoritative',
+			'get_comments_number'                   => 'authoritative',
+
+			// Admin surface.
+			'show_admin_bar'                        => 'authoritative',
+			'wp_supports_ai'                        => 'authoritative',
+
+			// Core returns on the first non-null: the loser never runs.
+			'pre_wp_mail'                           => 'short_circuit',
+			'comments_pre_query'                    => 'short_circuit',
+
+			// Shared without harm; listed so the decision is recorded rather
+			// than looking like an omission.
+			'wp_headers'                            => 'additive',
+			'user_has_cap'                          => 'additive',
+			'rest_endpoints'                        => 'additive',
+			'heartbeat_settings'                    => 'additive',
+			'sanitize_file_name'                    => 'additive',
 		)
 	);
 }
@@ -112,7 +153,7 @@ function keel_defaults_competing_plugins() {
 	$conflict = array();
 
 	foreach ( keel_defaults_policy_hooks() as $hook => $kind ) {
-		if ( 'authoritative' !== $kind || empty( $wp_filter[ $hook ] ) || ! isset( $wp_filter[ $hook ]->callbacks ) ) {
+		if ( 'additive' === $kind || empty( $wp_filter[ $hook ] ) || ! isset( $wp_filter[ $hook ]->callbacks ) ) {
 			continue;
 		}
 
