@@ -65,10 +65,10 @@ function keel_defaults_drop_dashboard_heartbeat( $hook_suffix ) {
  * On a block theme the Site Editor (a separate gate) stays available.
  */
 function keel_defaults_force_classic_editor() {
-	add_filter( 'use_block_editor_for_post', '__return_false' );
-	add_filter( 'use_block_editor_for_post_type', '__return_false' );
-	add_filter( 'gutenberg_can_edit_post', '__return_false' );  // Standalone Gutenberg feature plugin.
-	add_filter( 'use_widgets_block_editor', '__return_false' ); // Classic Widgets screen.
+	keel_defaults_add_policy_filter( 'use_block_editor_for_post', '__return_false' );
+	keel_defaults_add_policy_filter( 'use_block_editor_for_post_type', '__return_false' );
+	keel_defaults_add_policy_filter( 'gutenberg_can_edit_post', '__return_false' );  // Standalone Gutenberg feature plugin.
+	keel_defaults_add_policy_filter( 'use_widgets_block_editor', '__return_false' ); // Classic Widgets screen.
 }
 
 /**

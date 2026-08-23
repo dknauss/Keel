@@ -107,7 +107,7 @@ keel_assert( 2 === $clean['session_regular_days'] && 30 === $clean['remember_me_
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
 $bootstrap_src = file_get_contents( dirname( __DIR__ ) . '/includes/bootstrap.php' );
 keel_assert(
-	false !== strpos( $bootstrap_src, "add_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );" ),
+	false !== strpos( $bootstrap_src, "keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );" ),
 	'The session clamp runs at priority 50, after plugins filtering at the default 10.'
 );
 

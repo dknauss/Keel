@@ -173,12 +173,17 @@ foreach ( $screens as $screen => $label ) {
 
 // --- a real conflict ------------------------------------------------------
 
+/*
+ * Keel declares its own side through the registration wrapper — it registers
+ * `__return_false` here on a real site, which resolves to core and is
+ * indistinguishable from anybody else's. The rival goes in the filter registry,
+ * which is the only place a rival can be found.
+ */
+keel_defaults_add_policy_filter( 'comments_open', '__return_false', 20 );
+
 $GLOBALS['wp_filter'] = array(
 	'comments_open' => new Keel_Notice_Test_Hook(
-		array(
-			10 => array( array( 'function' => 'keel_notice_rival' ) ),
-			20 => array( array( 'function' => 'keel_notice_self' ) ),
-		)
+		array( 10 => array( array( 'function' => 'keel_notice_rival' ) ) )
 	),
 );
 
@@ -243,11 +248,10 @@ keel_assert(
  * The reason a fingerprint and not a boolean. A second competing plugin is new
  * information, and somebody who dismissed the first notice has not seen it.
  */
+keel_defaults_add_policy_filter( 'use_block_editor_for_post', '__return_false' );
+
 $GLOBALS['wp_filter']['use_block_editor_for_post'] = new Keel_Notice_Test_Hook(
-	array(
-		10 => array( array( 'function' => 'keel_notice_rival' ) ),
-		20 => array( array( 'function' => 'keel_notice_self' ) ),
-	)
+	array( 10 => array( array( 'function' => 'keel_notice_rival' ) ) )
 );
 
 keel_assert(

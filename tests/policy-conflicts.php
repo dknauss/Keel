@@ -148,10 +148,25 @@ foreach ( (array) glob( dirname( __DIR__ ) . '/includes/*.php' ) as $keel_inc ) 
 	$keel_source .= file_get_contents( $keel_inc ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading repo files in a CLI test.
 }
 
+preg_match_all( "/keel_defaults_add_policy_filter\(\s*'([a-z0-9_]+)'/", $keel_source, $keel_registered );
+$keel_registered = array_unique( $keel_registered[1] );
+
 foreach ( array_keys( $hooks ) as $keel_hook ) {
 	keel_assert(
-		1 === preg_match( "/add_(?:action|filter)\(\s*'" . preg_quote( $keel_hook, '/' ) . "'/", $keel_source ),
-		"The hook map names '{$keel_hook}', but nothing in includes/ registers it — the entry can only ever report nothing."
+		in_array( $keel_hook, $keel_registered, true ),
+		"The hook map names '{$keel_hook}', but nothing registers it through keel_defaults_add_policy_filter() — so Keel never counts as present and the entry can only ever report nothing."
+	);
+}
+
+/*
+ * And the other way. Registering through the wrapper is what declares a hook
+ * contested, so doing it for a hook the map does not name means one of the two
+ * edits was forgotten — and nothing would ever check it.
+ */
+foreach ( $keel_registered as $keel_hook ) {
+	keel_assert(
+		isset( $hooks[ $keel_hook ] ),
+		"'{$keel_hook}' is registered as a policy hook but is not in the map, so nothing will ever check it."
 	);
 }
 
@@ -206,14 +221,19 @@ keel_assert(
 	'A rival alone on a contested hook is not a conflict — Keel is not setting it, so nothing is contested.'
 );
 
-// The other side of the same rule, which nothing covered either: with Keel on
-// the hook too, the rival is reported. A self-presence check that reported
-// nothing at all would have passed every assertion above this line.
+/*
+ * The other side of the same rule, which nothing covered either: with Keel on
+ * the hook too, the rival is reported. A self-presence check that reported
+ * nothing at all would have passed every assertion above this line.
+ *
+ * Keel's side is declared, not staged in the registry, because that is how the
+ * plugin declares it — see keel_defaults_add_policy_filter(). The rival stays in
+ * $wp_filter, because that is the only place a rival can be found.
+ */
+keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_test_self_callback', 50, 3 );
+
 $GLOBALS['wp_filter']['auth_cookie_expiration'] = new Keel_Test_Hook(
-	array(
-		10 => array( array( 'function' => 'keel_test_rival_callback' ) ),
-		50 => array( array( 'function' => 'keel_test_self_callback' ) ),
-	)
+	array( 10 => array( array( 'function' => 'keel_test_rival_callback' ) ) )
 );
 
 $both = keel_defaults_competing_plugins();

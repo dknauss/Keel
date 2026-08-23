@@ -157,8 +157,9 @@ function keel_defaults_competing_plugins() {
 			continue;
 		}
 
+		$mine     = keel_defaults_registered_policy_hooks();
 		$plugins  = array();
-		$keel_too = false;
+		$keel_too = isset( $mine[ $hook ] );
 
 		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
 			foreach ( $callbacks as $registered ) {
@@ -172,9 +173,10 @@ function keel_defaults_competing_plugins() {
 					continue;
 				}
 
-				if ( $dir === $self ) {
-					$keel_too = true;
-				} else {
+				// Still excluded from the rival list by directory: a callback of
+				// Keel's own that does resolve must not be reported as competition
+				// with itself.
+				if ( $dir !== $self ) {
 					$plugins[ $dir ] = true;
 				}
 			}
@@ -197,6 +199,54 @@ function keel_defaults_competing_plugins() {
 	}
 
 	return $conflict;
+}
+
+/**
+ * Register one of Keel's own callbacks on a contested hook, and remember it.
+ *
+ * Presence has to be asked of Keel, not inferred from the filter registry. Ten
+ * of the mapped hooks are registered with a *core* callback — `__return_false`
+ * on the editor and comment filters, `__return_zero` on the comment count,
+ * `home_url` on the login logo link — and a core callback resolves to core, so
+ * nothing can tell Keel's `__return_false` from another plugin's. Left to
+ * reflection, Keel never looked present on those hooks and the check quietly
+ * covered none of them.
+ *
+ * So this is the seam: everything Keel registers on a hook in
+ * `keel_defaults_policy_hooks()` goes through here, and the map and this list
+ * are asserted against each other in both directions. Reflection still does the
+ * other half of the job, identifying *rivals*, where a plugin's own named
+ * callback resolves to its own directory.
+ *
+ * @param string   $hook          Hook name.
+ * @param callable $callback      Callback.
+ * @param int      $priority      Priority.
+ * @param int      $accepted_args Number of arguments.
+ * @return void
+ */
+function keel_defaults_add_policy_filter( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
+	keel_defaults_registered_policy_hooks( $hook );
+	add_filter( $hook, $callback, $priority, $accepted_args );
+}
+
+/**
+ * The contested hooks Keel has registered something on this request.
+ *
+ * Static rather than an option: it describes what this page load wired up, which
+ * depends on the settings, the environment and the screen. Storing it would only
+ * create something to go stale.
+ *
+ * @param string $add Hook to record. Omit to read the list.
+ * @return array<string, bool> Hook name => true.
+ */
+function keel_defaults_registered_policy_hooks( $add = '' ) {
+	static $registered = array();
+
+	if ( '' !== $add ) {
+		$registered[ $add ] = true;
+	}
+
+	return $registered;
 }
 
 /**

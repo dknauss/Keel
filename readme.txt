@@ -93,9 +93,11 @@ You can, but you probably should not, and Keel will tell you when it matters.
 
 Some settings are applied through WordPress filters that return a single value — session length is the clearest example. When two plugins set the same one, WordPress keeps whichever ran last. There is no error and nothing in a log; the plugin that lost simply goes on showing its own number on its own settings screen while the site uses the other one.
 
-Keel checks for this and reports it under **Tools → Site Health**, naming which plugins are contesting which setting. It does not tell you which plugin to keep — that is a judgement about your site, and a plugin answering it would be arguing for its own retention.
+Keel checks for this and says so where you will see it: on the Plugins screen — where you land the moment you activate something — on **Settings → Keel**, and on the dashboard, where it can be dismissed until the situation changes. The full detail is under **Tools → Site Health**, naming which plugins are contesting which setting. It does not tell you which plugin to keep — that is a judgement about your site, and a plugin answering it would be arguing for its own retention.
 
-Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made.
+Two kinds of collision are reported, because they are different problems. On most settings the last plugin to answer decides, and the others go on displaying a value the site does not use. On a few — suppressing outgoing mail, and answering comment queries — WordPress stops at the first plugin that answers, so the other never runs at all. Outgoing mail is the one case where Keel deliberately takes the last word, because a site that is not production must not send mail whatever else decided; the report says so, and names the `keel_outgoing_mail_suppressed` action a mail catcher should hook instead.
+
+Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made — and it will not report a conflict on a setting it is not itself setting.
 
 = Why is there no password strength meter? =
 

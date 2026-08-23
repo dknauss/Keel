@@ -138,6 +138,38 @@ Plugin Review requirements, not niceties.
       the zip has to carry the directory the plugin will really install into.
       `tests/readme-spec.php` now derives the slug the way the directory does and fails
       if the name, the slug and the domain stop agreeing.
+- [x] **Competing-plugin detection, widened** — done 2026-08-22. The check existed
+      and covered almost nothing: 7 hooks mapped, 3 reported, against the 62 Keel
+      registers. Missing were the collisions that actually happen — the editor
+      filters the Classic Editor plugin owns, the comment teardown any
+      disable-comments plugin contests, and outgoing mail.
+
+      The prerequisite was a bug, not a feature. `keel_defaults_competing_plugins()`
+      never asked whether Keel was on the hook it was examining, and Keel stands
+      down on several — `auth_cookie_expiration` is registered only when the
+      session policy differs from WordPress's own. So a site that left session
+      length alone, running any plugin that set one, was told more than one plugin
+      was setting the same defaults when exactly one was, and told to go
+      deactivate something. Widening the map without fixing that first would have
+      multiplied the false positive by the number of hooks added.
+
+      Worth recording why it survived: the harness pointed `WP_PLUGIN_DIR` at a
+      path nothing resolved inside, so every callback attributed to nothing and
+      only negative assertions were possible. The positive case — a rival
+      *is* reported — had never been written, because it could not be.
+
+      The map now carries 21 entries in three shapes, classified by what losing
+      costs rather than by kind of hook. `short_circuit` is the new one: core
+      returns on the first non-null from `pre_wp_mail` and `comments_pre_query`,
+      so the loser's callback never runs at all, which is a different problem from
+      having a value overwritten and needs saying differently.
+
+      A hook earns an entry only where losing has a consequence somebody can act
+      on; `the_generator` is the shape of thing left out, since two plugins both
+      emptying it reach the same place. An unmapped hook is not a gap, and a guard
+      asserts the map only names hooks `includes/` actually registers — the
+      reverse is deliberately not asserted.
+
 - [x] **Test spine** — done 2026-08-04 (keel#24), and the item as written was wrong.
       It said the regression suite, metrics guard, doc-coverage and badge sync "still
       reference the pre-rename tree". Nothing did. The sentence was carried over from the
