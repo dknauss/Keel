@@ -277,7 +277,7 @@ function keel_defaults_site_health_conflicts() {
 		'label' => __( 'Keel', 'keel-defaults' ),
 		'color' => 'blue',
 	);
-	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied.', 'keel-defaults' ) . '</p>';
+	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When more than one plugin sets the same one, WordPress keeps whichever ran last. There is no error, and the ones that lost go on showing the values they believe they applied.', 'keel-defaults' ) . '</p>';
 
 	if ( empty( $conflicts ) && empty( $likely ) ) {
 		return array(

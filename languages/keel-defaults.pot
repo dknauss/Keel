@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-23T19:14:39+00:00\n"
+"POT-Creation-Date: 2026-08-23T20:40:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -136,23 +136,24 @@ msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
 #: build/keel-defaults/includes/conflicts.php:358
-#: includes/conflicts.php:358
+#: includes/conflicts.php:357
 #, php-format
 msgid "Another plugin is setting the same defaults as Keel: %s"
-msgstr ""
+msgid_plural "Other plugins are setting the same defaults as Keel: %s"
+msgstr[0] ""
+msgstr[1] ""
 
 #: build/keel-defaults/includes/conflicts.php:365
-#: includes/conflicts.php:365
 msgid "These settings are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last and there is no error — the plugin that lost goes on showing the value it believes it applied."
 msgstr ""
 
 #: build/keel-defaults/includes/conflicts.php:368
-#: includes/conflicts.php:368
+#: includes/conflicts.php:375
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
 #: build/keel-defaults/includes/conflicts.php:372
-#: includes/conflicts.php:372
+#: includes/conflicts.php:379
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -514,7 +515,6 @@ msgid "contested by %s"
 msgstr ""
 
 #: build/keel-defaults/includes/site-health.php:280
-#: includes/site-health.php:280
 msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied."
 msgstr ""
 
@@ -1259,4 +1259,12 @@ msgstr ""
 #: build/keel-defaults/includes/strings.php:260
 #: includes/strings.php:260
 msgid "REST API"
+msgstr ""
+
+#: includes/conflicts.php:372
+msgid "These settings are applied through WordPress filters that return a single value. When more than one plugin sets the same one, WordPress keeps whichever ran last and there is no error — the ones that lost go on showing the values they believe they applied."
+msgstr ""
+
+#: includes/site-health.php:280
+msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When more than one plugin sets the same one, WordPress keeps whichever ran last. There is no error, and the ones that lost go on showing the values they believe they applied."
 msgstr ""

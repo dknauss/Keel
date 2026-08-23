@@ -33,6 +33,8 @@ $GLOBALS['keel_screen']     = '';
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function _n( $single, $plural, $number, $d = null ) {
+	return 1 === (int) $number ? $single : $plural; }
 function __( $s, $d = null ) {
 	return $s; }
 function esc_html( $s ) {
@@ -112,6 +114,7 @@ $keel_self_dir     = basename( dirname( dirname( __DIR__ ) . '/keel.php' ) );
 
 foreach ( array(
 	'rival-plugin' => 'keel_notice_rival',
+	'second-rival' => 'keel_notice_second_rival',
 	$keel_self_dir => 'keel_notice_self',
 ) as $keel_dir => $keel_fn ) {
 	@mkdir( $keel_fixture_root . '/' . $keel_dir, 0777, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- a temp fixture in a CLI test.
@@ -227,6 +230,56 @@ keel_assert(
 keel_assert(
 	false !== strpos( keel_notice_on( 'dashboard' ), 'keel-dismiss-conflicts' ),
 	'The dashboard offers a dismissal, because a permanent banner there is an obstruction.'
+);
+
+/*
+ * --- the copy has to survive counting ---
+ *
+ * The notice named three plugins under a heading reading "Another plugin is
+ * setting the same defaults", and explained the mechanism as what happens
+ * "when two plugins set the same one". Both sentences were written for the case
+ * in front of us at the time. Neither is a fault in the detection and both are
+ * wrong on the screen, which is the only place they are read.
+ *
+ * The count that governs the heading is how many plugins were named, not how
+ * many settings are contested: three plugins fighting over one setting is still
+ * plural.
+ */
+$one = keel_notice_on( 'plugins' );
+
+keel_assert(
+	false !== strpos( $one, 'Another plugin is setting' ),
+	'With a single rival the heading stays singular.'
+);
+keel_assert(
+	false === stripos( $one, 'when two plugins' ),
+	'The mechanism is never described as something that happens between exactly two plugins.'
+);
+
+$GLOBALS['wp_filter']['comments_open'] = new Keel_Notice_Test_Hook(
+	array(
+		10 => array(
+			array( 'function' => 'keel_notice_rival' ),
+			array( 'function' => 'keel_notice_second_rival' ),
+		),
+	)
+);
+
+$many = keel_notice_on( 'plugins' );
+
+keel_assert( false !== strpos( $many, 'second-rival' ), 'The fixture stages more than one rival.' );
+keel_assert(
+	false === strpos( $many, 'Another plugin is setting' ),
+	'With several rivals the heading stops saying "Another plugin".'
+);
+keel_assert(
+	false !== strpos( $many, 'Other plugins are setting' ),
+	'And reads as a plural instead.'
+);
+
+// Back to one, so nothing downstream inherits the larger fixture.
+$GLOBALS['wp_filter']['comments_open'] = new Keel_Notice_Test_Hook(
+	array( 10 => array( array( 'function' => 'keel_notice_rival' ) ) )
 );
 
 // --- dismissing records what was dismissed --------------------------------

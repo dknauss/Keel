@@ -353,16 +353,23 @@ function keel_defaults_render_conflicts_notice() {
 		<p>
 			<strong>
 			<?php
+			/* translators: %s: comma-separated plugin directory names. */
+			$heading = _n(
+				'Another plugin is setting the same defaults as Keel: %s',
+				'Other plugins are setting the same defaults as Keel: %s',
+				count( $plugins ),
+				'keel-defaults'
+			);
+
 			printf(
-				/* translators: %s: comma-separated plugin directory names. */
-				esc_html__( 'Another plugin is setting the same defaults as Keel: %s', 'keel-defaults' ),
+				esc_html( $heading ),
 				esc_html( implode( ', ', array_keys( $plugins ) ) )
 			);
 			?>
 			</strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'These settings are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last and there is no error — the plugin that lost goes on showing the value it believes it applied.', 'keel-defaults' ); ?>
+			<?php esc_html_e( 'These settings are applied through WordPress filters that return a single value. When more than one plugin sets the same one, WordPress keeps whichever ran last and there is no error — the ones that lost go on showing the values they believe they applied.', 'keel-defaults' ); ?>
 		</p>
 		<p>
 			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings are contested, under Site Health', 'keel-defaults' ); ?></a>
