@@ -97,6 +97,8 @@ Keel checks for this and says so where you will see it: on the Plugins screen �
 
 Two kinds of collision are reported, because they are different problems. On most settings the last plugin to answer decides, and the others go on displaying a value the site does not use. On a few — suppressing outgoing mail, and answering comment queries — WordPress stops at the first plugin that answers, so the other never runs at all. Outgoing mail is the one case where Keel deliberately takes the last word, because a site that is not production must not send mail whatever else decided; the report says so, and names the `keel_outgoing_mail_suppressed` action a mail catcher should hook instead.
 
+Some of it is reported as unconfirmed, and that is worth understanding. WordPress ships a handful of tiny helper functions — `__return_false` is the common one — and turning a feature off by handing one of those to a filter is the ordinary way a "disable something" plugin is written. Keel cannot trace those back to the plugin that used them: the function belongs to WordPress, so it looks exactly like WordPress doing it. Where that happens, Keel falls back to reading the active plugins for a filter on the same setting, and reports what it finds as likely rather than certain. A plugin named that way may be declaring the filter in a mode it is not currently in.
+
 Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made — and it will not report a conflict on a setting it is not itself setting.
 
 = Why is there no password strength meter? =

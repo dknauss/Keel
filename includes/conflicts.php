@@ -325,22 +325,25 @@ function keel_defaults_render_conflicts_notice() {
 	}
 
 	$conflicts = keel_defaults_competing_plugins();
+	$likely    = keel_defaults_likely_competing_plugins( $conflicts );
 
-	if ( empty( $conflicts ) ) {
+	if ( empty( $conflicts ) && empty( $likely ) ) {
 		return;
 	}
 
 	$dismissible = $screens[ $id ];
-	$fingerprint = keel_defaults_conflicts_fingerprint( $conflicts );
+	$fingerprint = keel_defaults_conflicts_fingerprint( array_merge( $conflicts, $likely ) );
 
 	if ( $dismissible && get_user_meta( get_current_user_id(), 'keel_conflicts_dismissed', true ) === $fingerprint ) {
 		return;
 	}
 
 	$plugins = array();
-	foreach ( $conflicts as $hook_plugins ) {
-		foreach ( $hook_plugins as $plugin ) {
-			$plugins[ $plugin ] = true;
+	foreach ( array( $conflicts, $likely ) as $set ) {
+		foreach ( $set as $hook_plugins ) {
+			foreach ( $hook_plugins as $plugin ) {
+				$plugins[ $plugin ] = true;
+			}
 		}
 	}
 
@@ -400,9 +403,222 @@ function keel_defaults_handle_conflicts_dismissal() {
 	update_user_meta(
 		get_current_user_id(),
 		'keel_conflicts_dismissed',
-		keel_defaults_conflicts_fingerprint( keel_defaults_competing_plugins() )
+		keel_defaults_conflicts_fingerprint(
+			array_merge(
+				keel_defaults_competing_plugins(),
+				keel_defaults_likely_competing_plugins( keel_defaults_competing_plugins() )
+			)
+		)
 	);
 
 	wp_safe_redirect( admin_url( 'index.php' ) );
 	exit;
+}
+
+/**
+ * Active plugins whose source declares a filter on a contested hook.
+ *
+ * The fallback for what reflection cannot see. `__return_false` is a core
+ * function, so a plugin that turns something off with it is indistinguishable
+ * from core turning it off — and that is the ordinary way "disable X" plugins
+ * are written, which is to say the check was blind to most of the category it
+ * exists for. Classic Editor in its default mode does exactly this on
+ * `use_block_editor_for_post_type`.
+ *
+ * Reading source is evidence of intent, not of registration: a declaration can
+ * sit in a branch the plugin never takes. It is only ever used alongside a
+ * runtime callback that resolves to nothing, and only ever reported as
+ * unconfirmed.
+ *
+ * Cached against the active-plugin list, because scanning every PHP file of
+ * every plugin is not something to do on a page load. The list changing is
+ * exactly when the answer changes.
+ *
+ * @return array<string, string[]> Hook => plugin directory names.
+ */
+function keel_defaults_plugin_hook_declarations() {
+	$hooks  = array_keys( keel_defaults_policy_hooks() );
+	$active = keel_defaults_active_plugin_dirs();
+
+	/**
+	 * Short-circuit the source scan.
+	 *
+	 * @param array<string, string[]>|null $declared Hook => plugin dirs, or null to scan.
+	 */
+	$declared = apply_filters( 'keel_plugin_hook_declarations', null );
+
+	if ( is_array( $declared ) ) {
+		return $declared;
+	}
+
+	$cached = get_transient( 'keel_conflict_scan' );
+
+	if ( is_array( $cached ) && isset( $cached['for'] ) && md5( (string) wp_json_encode( $active ) ) === $cached['for'] ) {
+		return $cached['found'];
+	}
+
+	$pattern = '/add_filter\s*\(\s*[\'"](' . implode( '|', array_map( 'preg_quote', $hooks ) ) . ')[\'"]/';
+	$found   = array();
+	$self    = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : '';
+
+	foreach ( $active as $dir ) {
+		if ( $dir === $self || ! is_dir( WP_PLUGIN_DIR . '/' . $dir ) ) {
+			continue;
+		}
+
+		foreach ( keel_defaults_plugin_php_files( WP_PLUGIN_DIR . '/' . $dir ) as $file ) {
+			$code = (string) file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a local plugin file, not an HTTP request.
+
+			if ( ! preg_match_all( $pattern, $code, $m ) ) {
+				continue;
+			}
+
+			foreach ( array_unique( $m[1] ) as $hook ) {
+				$found[ $hook ][ $dir ] = true;
+			}
+		}
+	}
+
+	foreach ( $found as $hook => $dirs ) {
+		$found[ $hook ] = array_keys( $dirs );
+	}
+
+	set_transient(
+		'keel_conflict_scan',
+		array(
+			'for'   => md5( (string) wp_json_encode( $active ) ),
+			'found' => $found,
+		),
+		DAY_IN_SECONDS
+	);
+
+	return $found;
+}
+
+/**
+ * The directory name of every active plugin, network included.
+ *
+ * @return string[]
+ */
+function keel_defaults_active_plugin_dirs() {
+	$plugins = (array) get_option( 'active_plugins', array() );
+
+	if ( is_multisite() && function_exists( 'get_site_option' ) ) {
+		$plugins = array_merge( $plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+	}
+
+	$dirs = array();
+
+	foreach ( $plugins as $plugin ) {
+		$dir = strtok( (string) $plugin, '/' );
+
+		if ( $dir && false !== strpos( (string) $plugin, '/' ) ) {
+			$dirs[ $dir ] = true;
+		}
+	}
+
+	$dirs = array_keys( $dirs );
+	sort( $dirs );
+
+	return $dirs;
+}
+
+/**
+ * PHP files in a plugin, bounded.
+ *
+ * Bounded twice over, because this walks somebody else's code: page builders and
+ * commerce plugins ship thousands of files and tens of megabytes, and a scan
+ * that reads all of it to answer a question about a filter name is a worse
+ * problem than the one being solved. Vendor and asset directories are skipped
+ * outright — a hook registration lives in a plugin's own code.
+ *
+ * @param string $dir Plugin directory.
+ * @return string[]
+ */
+function keel_defaults_plugin_php_files( $dir ) {
+	$files = array();
+	$skip  = array( 'vendor', 'node_modules', 'assets', 'languages', 'build', 'dist', 'tests' );
+
+	try {
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveCallbackFilterIterator(
+				new RecursiveDirectoryIterator( $dir, FilesystemIterator::SKIP_DOTS ),
+				function ( $current ) use ( $skip ) {
+					return ! $current->isDir() || ! in_array( $current->getFilename(), $skip, true );
+				}
+			)
+		);
+
+		foreach ( $iterator as $file ) {
+			if ( $file->isFile() && 'php' === strtolower( $file->getExtension() ) ) {
+				$files[] = $file->getPathname();
+			}
+
+			if ( count( $files ) >= 400 ) {
+				break;
+			}
+		}
+	} catch ( Throwable $e ) {
+		return $files;
+	}
+
+	return $files;
+}
+
+/**
+ * Plugins that are probably contesting a hook, but cannot be proven to be.
+ *
+ * Two pieces of evidence, and both are required. The hook has to carry a
+ * callback that resolves to nothing — something is registered that is neither
+ * Keel nor attributable — and an active plugin's source has to declare a filter
+ * on that hook. Either alone is too weak to report: unresolved callbacks include
+ * core's own, and a declaration may sit in a branch that never runs.
+ *
+ * Anything already confirmed by reflection is dropped, so nothing appears twice
+ * as both a fact and a guess.
+ *
+ * @param array<string, string[]> $confirmed Hook => plugin dirs already proven.
+ * @return array<string, string[]> Hook => plugin dirs.
+ */
+function keel_defaults_likely_competing_plugins( $confirmed = array() ) {
+	global $wp_filter;
+
+	$mine     = keel_defaults_registered_policy_hooks();
+	$declared = keel_defaults_plugin_hook_declarations();
+	$self     = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : '';
+	$likely   = array();
+
+	foreach ( keel_defaults_policy_hooks() as $hook => $kind ) {
+		if ( 'additive' === $kind || ! isset( $mine[ $hook ] ) || empty( $declared[ $hook ] ) ) {
+			continue;
+		}
+
+		if ( empty( $wp_filter[ $hook ] ) || ! isset( $wp_filter[ $hook ]->callbacks ) ) {
+			continue;
+		}
+
+		$unresolved = false;
+
+		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
+			foreach ( $callbacks as $registered ) {
+				if ( isset( $registered['function'] ) && '' === keel_defaults_callback_plugin_dir( $registered['function'] ) ) {
+					$unresolved = true;
+					break 2;
+				}
+			}
+		}
+
+		if ( ! $unresolved ) {
+			continue;
+		}
+
+		$known = isset( $confirmed[ $hook ] ) ? (array) $confirmed[ $hook ] : array();
+		$rest  = array_values( array_diff( $declared[ $hook ], $known, array( $self ) ) );
+
+		if ( ! empty( $rest ) ) {
+			$likely[ $hook ] = $rest;
+		}
+	}
+
+	return $likely;
 }

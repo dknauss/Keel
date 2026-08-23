@@ -31,6 +31,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_conflicts_dismissed` — user meta, the fingerprint of the competing
  *   plugins a person last dismissed the notice for. Network-wide for the same
  *   reason as the above: it belongs to the user, not the site.
+ * - `keel_conflict_scan` — cache of which active plugins declare a filter on a
+ *   contested hook. Per site, because the active plugins are.
  * - `keel_hibp_*` — breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
@@ -41,6 +43,7 @@ function keel_defaults_uninstall_site() {
 	global $wpdb;
 
 	delete_option( 'keel_settings' );
+	delete_transient( 'keel_conflict_scan' );
 
 	// Transients are options with a known prefix, and the timeout row is a
 	// second option that outlives the value if only the value is deleted.

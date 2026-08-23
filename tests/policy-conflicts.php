@@ -12,9 +12,10 @@
  * @package keel
  */
 
-$GLOBALS['keel_filters'] = array();
-$GLOBALS['keel_options'] = array();
-$GLOBALS['wp_filter']    = array();
+$GLOBALS['keel_filters']    = array();
+$GLOBALS['keel_options']    = array();
+$GLOBALS['wp_filter']       = array();
+$GLOBALS['keel_transients'] = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -32,6 +33,13 @@ function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
 function is_customize_preview() { return ! empty( $GLOBALS['keel_is_customize_preview'] ); }
+function wp_json_encode( $v, $f = 0 ) {
+	return json_encode( $v ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- this stub is what stands in for wp_json_encode().
+function get_transient( $k ) {
+	return isset( $GLOBALS['keel_transients'][ $k ] ) ? $GLOBALS['keel_transients'][ $k ] : false; }
+function set_transient( $k, $v, $t = 0 ) {
+	$GLOBALS['keel_transients'][ $k ] = $v;
+	return true; }
 function wp_normalize_path( $path ) { return str_replace( '\\', '/', (string) $path ); }
 function trailingslashit( $path ) { return rtrim( (string) $path, '/\\' ) . '/'; }
 
@@ -130,6 +138,83 @@ keel_assert( 'short_circuit' === $hooks['comments_pre_query'], 'The comment quer
 // The editor filters, which is where the Classic Editor plugin lives.
 keel_assert( 'authoritative' === $hooks['use_block_editor_for_post'], 'The editor choice is authoritative.' );
 keel_assert( 'authoritative' === $hooks['comments_open'], 'Whether comments are open is authoritative.' );
+
+/*
+ * --- the plugins reflection cannot see ---
+ *
+ * `__return_false` is the idiom for "disable X" plugins, and it is a *core*
+ * function: it resolves to wp-includes, so a plugin that disables something
+ * this way is indistinguishable from core doing it. That is not a corner case.
+ * Classic Editor in its default mode registers
+ * `add_filter( 'use_block_editor_for_post_type', '__return_false', 100 )`, and
+ * Disable XML-RPC-API does the same on `pings_open` — so the check found
+ * neither on a real site while happily reporting the one plugin that happened
+ * to use an object method.
+ *
+ * The fallback is evidence of two kinds at once. The hook has to carry a
+ * callback that resolves to nothing — something is there that is not Keel and
+ * not attributable — *and* an active plugin's source has to declare a filter on
+ * that hook. Either alone is too weak: unresolved callbacks include core's own,
+ * and a declaration may sit in a branch the plugin never runs. Together they are
+ * worth reporting, and are reported as unconfirmed rather than as fact.
+ */
+$GLOBALS['keel_filters']['keel_plugin_hook_declarations'] = array(
+	'comments_open' => array( 'quiet-plugin' ),
+);
+
+keel_defaults_add_policy_filter( 'comments_open', '__return_false', 20 );
+
+// A callback that resolves to nothing, exactly as a plugin's __return_false does.
+$GLOBALS['wp_filter'] = array(
+	'comments_open' => new Keel_Test_Hook(
+		array( 20 => array( array( 'function' => '__return_false' ) ) )
+	),
+);
+
+$likely = keel_defaults_likely_competing_plugins( keel_defaults_competing_plugins() );
+
+keel_assert(
+	isset( $likely['comments_open'] ) && array( 'quiet-plugin' ) === $likely['comments_open'],
+	'A plugin whose source declares the hook is named when something unattributable is registered on it.'
+);
+
+// Confirmed beats likely: a plugin already identified by reflection must not be
+// listed twice, once as fact and once as a guess.
+$GLOBALS['keel_filters']['keel_plugin_hook_declarations'] = array(
+	'comments_open' => array( 'rival-plugin', 'quiet-plugin' ),
+);
+$GLOBALS['wp_filter']['comments_open']                    = new Keel_Test_Hook(
+	array(
+		10 => array( array( 'function' => 'keel_test_rival_callback' ) ),
+		20 => array( array( 'function' => '__return_false' ) ),
+	)
+);
+
+$confirmed = keel_defaults_competing_plugins();
+$likely    = keel_defaults_likely_competing_plugins( $confirmed );
+
+keel_assert(
+	array( 'rival-plugin' ) === $confirmed['comments_open'],
+	'The plugin reflection can see is still reported as confirmed.'
+);
+keel_assert(
+	array( 'quiet-plugin' ) === $likely['comments_open'],
+	'And is not repeated among the unconfirmed ones.'
+);
+
+// No unattributable callback means no guessing, however much a plugin's source
+// mentions the hook — a declaration in a branch that never runs is not evidence.
+$GLOBALS['wp_filter']['comments_open'] = new Keel_Test_Hook(
+	array( 10 => array( array( 'function' => 'keel_test_rival_callback' ) ) )
+);
+
+keel_assert(
+	array() === keel_defaults_likely_competing_plugins( keel_defaults_competing_plugins() ),
+	'With every callback accounted for, nothing is guessed at.'
+);
+
+unset( $GLOBALS['keel_filters']['keel_plugin_hook_declarations'] );
+$GLOBALS['wp_filter'] = array();
 
 /*
  * --- the map may only name hooks Keel actually registers ---

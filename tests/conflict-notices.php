@@ -23,11 +23,12 @@
  * @package keel
  */
 
-$GLOBALS['keel_filters']   = array();
-$GLOBALS['keel_options']   = array();
-$GLOBALS['wp_filter']      = array();
-$GLOBALS['keel_user_meta'] = array();
-$GLOBALS['keel_screen']    = '';
+$GLOBALS['keel_filters']    = array();
+$GLOBALS['keel_options']    = array();
+$GLOBALS['wp_filter']       = array();
+$GLOBALS['keel_transients'] = array();
+$GLOBALS['keel_user_meta']  = array();
+$GLOBALS['keel_screen']     = '';
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -71,6 +72,11 @@ function wp_unslash( $v ) {
 	return $v; }
 function sanitize_key( $v ) {
 	return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $v ) ); }
+function get_transient( $k ) {
+	return isset( $GLOBALS['keel_transients'][ $k ] ) ? $GLOBALS['keel_transients'][ $k ] : false; }
+function set_transient( $k, $v, $t = 0 ) {
+	$GLOBALS['keel_transients'][ $k ] = $v;
+	return true; }
 function wp_normalize_path( $path ) {
 	return str_replace( '\\', '/', (string) $path ); }
 function trailingslashit( $path ) {

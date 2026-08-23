@@ -9,13 +9,17 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-23T02:10:03+00:00\n"
+"POT-Creation-Date: 2026-08-23T19:14:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
 
 #. Plugin Name of the plugin
 #: keel.php
+#: build/keel-defaults/includes/network.php:162
+#: build/keel-defaults/includes/network.php:163
+#: build/keel-defaults/includes/site-health.php:21
+#: build/keel-defaults/includes/site-health.php:172
 #: includes/network.php:162
 #: includes/network.php:163
 #: includes/site-health.php:21
@@ -38,334 +42,418 @@ msgstr ""
 msgid "Dan Knauss"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:242
 #: includes/admin-ux.php:242
 msgid "ID"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:243
 #: includes/admin-ux.php:243
 msgid "Image"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:244
 #: includes/admin-ux.php:244
 msgid "Modified"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:275
+#: build/keel-defaults/includes/admin-ux.php:382
 #: includes/admin-ux.php:275
 #: includes/admin-ux.php:382
 msgid "File size"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:300
 #: includes/admin-ux.php:300
 msgid "Registered"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:301
 #: includes/admin-ux.php:301
 msgid "Last login"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:365
 #: includes/admin-ux.php:365
 msgid "Generated Image Sizes"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:377
 #: includes/admin-ux.php:377
 msgid "No generated image sizes were found for this attachment."
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:381
 #: includes/admin-ux.php:381
 msgid "Read-only view of the generated image files and URLs."
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:382
 #: includes/admin-ux.php:382
 msgid "Size"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:382
 #: includes/admin-ux.php:382
 msgid "Dimensions"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:382
 #: includes/admin-ux.php:382
 msgid "URL"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:419
 #: includes/admin-ux.php:419
 msgid "Unknown"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:469
 #: includes/admin-ux.php:469
 msgid "Production"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:475
 #: includes/admin-ux.php:475
 msgid "Staging"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:481
 #: includes/admin-ux.php:481
 msgid "Development"
 msgstr ""
 
+#: build/keel-defaults/includes/admin-ux.php:487
 #: includes/admin-ux.php:487
 msgid "Local"
 msgstr ""
 
-#: includes/bootstrap.php:274
+#: build/keel-defaults/includes/bootstrap.php:276
+#: includes/bootstrap.php:276
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:355
+#: build/keel-defaults/includes/conflicts.php:358
+#: includes/conflicts.php:358
 #, php-format
 msgid "Another plugin is setting the same defaults as Keel: %s"
 msgstr ""
 
-#: includes/conflicts.php:362
+#: build/keel-defaults/includes/conflicts.php:365
+#: includes/conflicts.php:365
 msgid "These settings are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last and there is no error — the plugin that lost goes on showing the value it believes it applied."
 msgstr ""
 
-#: includes/conflicts.php:365
+#: build/keel-defaults/includes/conflicts.php:368
+#: includes/conflicts.php:368
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:369
+#: build/keel-defaults/includes/conflicts.php:372
+#: includes/conflicts.php:372
 msgid "Dismiss until this changes"
 msgstr ""
 
+#: build/keel-defaults/includes/content.php:29
 #: includes/content.php:29
 msgid "Site Contributor"
 msgstr ""
 
+#: build/keel-defaults/includes/email.php:65
 #: includes/email.php:65
 msgid "Use a trusted SMTP or transactional email plugin such as WP Mail SMTP, Post SMTP, or a host-provided mail plugin."
 msgstr ""
 
+#: build/keel-defaults/includes/email.php:69
 #: includes/email.php:69
 msgid "Site email may be misconfigured."
 msgstr ""
 
+#: build/keel-defaults/includes/email.php:104
 #: includes/email.php:104
 msgid "No password reset links were sent."
 msgstr ""
 
+#: build/keel-defaults/includes/email.php:105
 #: includes/email.php:105
 msgid "Site email may not be configured, or the selected users may not have deliverable email addresses."
 msgstr ""
 
+#: build/keel-defaults/includes/email.php:147
 #: includes/email.php:147
 msgid "Outgoing email is switched off on this site."
 msgstr ""
 
 #. translators: %s: environment name, such as staging or local.
+#: build/keel-defaults/includes/email.php:151
 #: includes/email.php:151
 #, php-format
 msgid "This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production."
 msgstr ""
 
+#: build/keel-defaults/includes/email.php:156
 #: includes/email.php:156
 msgid "Turn off \"Non-Production Email\" under Settings → Keel to send from here anyway."
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:99
 #: includes/network.php:99
 msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Keel Defaults."
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:183
 #: includes/network.php:183
 msgid "You do not have permission to set network policy."
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:214
 #: includes/network.php:214
 msgid "Keel Defaults — network policy"
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:217
 #: includes/network.php:217
 msgid "Network policy saved."
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:221
 #: includes/network.php:221
 msgid "Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site's own business, and their saved values are untouched — untick it later and every site returns to exactly what it had."
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:225
 #: includes/network.php:225
 msgid "The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there."
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:257
 #: includes/network.php:257
 msgid "Decide this for the whole network"
 msgstr ""
 
+#: build/keel-defaults/includes/network.php:275
 #: includes/network.php:275
 msgid "Save network policy"
 msgstr ""
 
+#: build/keel-defaults/includes/security.php:172
 #: includes/security.php:172
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
+#: build/keel-defaults/includes/security.php:443
 #: includes/security.php:443
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
+#: build/keel-defaults/includes/security.php:476
 #: includes/security.php:476
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
+#: build/keel-defaults/includes/security.php:497
 #: includes/security.php:497
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
+#: build/keel-defaults/includes/security.php:516
 #: includes/security.php:516
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
+#: build/keel-defaults/includes/security.php:692
 #: includes/security.php:692
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:21
+#: build/keel-defaults/includes/settings-page.php:658
+#: build/keel-defaults/includes/site-health.php:277
 #: includes/settings-page.php:21
 #: includes/settings-page.php:658
-#: includes/site-health.php:276
+#: includes/site-health.php:277
 msgid "Keel"
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:22
 #: includes/settings-page.php:22
 msgid "Site Defaults"
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:64
 #: includes/settings-page.php:64
 msgid "Settings"
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:84
 #: includes/settings-page.php:84
 msgid "Overview"
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:86
 #: includes/settings-page.php:86
 msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:87
 #: includes/settings-page.php:87
 msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:88
 #: includes/settings-page.php:88
 msgid "There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:89
 #: includes/settings-page.php:89
 msgid "Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:96
 #: includes/settings-page.php:96
 msgid "Passwords"
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:99
 #: includes/settings-page.php:99
 msgid "For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:110
 #: includes/settings-page.php:110
 msgid "WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:114
 #: includes/settings-page.php:114
 msgid "So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:118
 #: includes/settings-page.php:118
 msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange\" target=\"_blank\" rel=\"noopener noreferrer\">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:129
 #: includes/settings-page.php:129
 msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:134
 #: includes/settings-page.php:134
 msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:145
+#: build/keel-defaults/includes/strings.php:261
 #: includes/settings-page.php:145
 #: includes/strings.php:261
 msgid "XML-RPC"
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:147
 #: includes/settings-page.php:147
 msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:148
 #: includes/settings-page.php:148
 msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:149
 #: includes/settings-page.php:149
 msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:151
 #: includes/settings-page.php:151
 msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:155
 #: includes/settings-page.php:155
 msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:162
 #: includes/settings-page.php:162
 msgid "Current posture"
 msgstr ""
 
 #. translators: %s: URL of the Site Health Info screen.
+#: build/keel-defaults/includes/settings-page.php:166
 #: includes/settings-page.php:166
 #, php-format
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:437
 #: includes/settings-page.php:437
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
+#: build/keel-defaults/includes/settings-page.php:442
+#: build/keel-defaults/includes/settings-page.php:450
 #: includes/settings-page.php:442
 #: includes/settings-page.php:450
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:456
 #: includes/settings-page.php:456
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:659
 #: includes/settings-page.php:659
 msgid "Sensible defaults for steady sites."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:671
 #: includes/settings-page.php:671
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
+#: build/keel-defaults/includes/settings-page.php:830
 #: includes/settings-page.php:830
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:25
 #: includes/site-health.php:25
 msgid "Overlapping defaults plugins"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:43
 #: includes/site-health.php:43
 msgid "On"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:43
 #: includes/site-health.php:43
 msgid "Off"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:47
 #: includes/site-health.php:47
 msgid "Unchanged"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:53
 #: includes/site-health.php:53
 msgid "None"
 msgstr ""
 
 #. translators: %s: number of days.
+#: build/keel-defaults/includes/site-health.php:75
 #: includes/site-health.php:75
 #, php-format
 msgid "%s day"
@@ -373,633 +461,802 @@ msgid_plural "%s days"
 msgstr[0] ""
 msgstr[1] ""
 
+#: build/keel-defaults/includes/site-health.php:173
 #: includes/site-health.php:173
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel."
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:193
 #: includes/site-health.php:193
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning."
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:209
 #: includes/site-health.php:209
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:212
 #: includes/site-health.php:212
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:214
 #: includes/site-health.php:214
 msgid "Worth a look:"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:219
 #: includes/site-health.php:219
 msgid "Keel defaults are in place"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:220
 #: includes/site-health.php:220
 msgid "Some Keel security defaults are off"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:223
 #: includes/site-health.php:223
 msgid "Security"
 msgstr ""
 
+#: build/keel-defaults/includes/site-health.php:230
 #: includes/site-health.php:230
 msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
+#: build/keel-defaults/includes/site-health.php:251
 #: includes/site-health.php:251
 #, php-format
 msgid "contested by %s"
 msgstr ""
 
-#: includes/site-health.php:279
+#: build/keel-defaults/includes/site-health.php:280
+#: includes/site-health.php:280
 msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied."
 msgstr ""
 
-#: includes/site-health.php:283
+#: build/keel-defaults/includes/site-health.php:284
+#: includes/site-health.php:284
 msgid "No other plugin is setting the same defaults"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:300
+#: build/keel-defaults/includes/site-health.php:301
+#: includes/site-health.php:301
 #, php-format
 msgid "Also setting these defaults: %s"
 msgstr ""
 
-#: includes/site-health.php:302
+#: build/keel-defaults/includes/site-health.php:303
+#: includes/site-health.php:303
 msgid "Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth."
 msgstr ""
 
-#: includes/site-health.php:328
+#: build/keel-defaults/includes/site-health.php:329
+#: includes/site-health.php:329
 msgid "Settings where the last plugin to answer decides, and the others go on displaying a value the site does not use:"
 msgstr ""
 
-#: includes/site-health.php:334
+#: build/keel-defaults/includes/site-health.php:335
+#: includes/site-health.php:335
 msgid "Settings where only one plugin runs at all — WordPress stops at the first one that answers, so the other never executes:"
 msgstr ""
 
 #. translators: %s: the name of a WordPress action hook, already wrapped in <code>.
-#: includes/site-health.php:341
+#: build/keel-defaults/includes/site-health.php:342
+#: includes/site-health.php:342
 #, php-format
 msgid "Keel takes outgoing mail at the last possible priority and wins on purpose: a site that is not production must not send mail whatever else decided. A mail catcher or logger will not see the message, so hook %s instead — it fires with the same arguments in place of the send."
 msgstr ""
 
-#: includes/site-health.php:348
+#: build/keel-defaults/includes/site-health.php:349
+#: includes/site-health.php:349
+msgid "These could not be confirmed. Something other than Keel is registered on each of these settings, and the plugin named declares a filter on it — but it does so through one of WordPress's own callbacks, which cannot be traced back to the plugin that used it. That is the ordinary way a plugin turns a feature off, so it is worth reporting even unproven:"
+msgstr ""
+
+#. translators: %s: comma-separated plugin directory names.
+#: build/keel-defaults/includes/site-health.php:354
+#: includes/site-health.php:354
+#, php-format
+msgid "likely contested by %s"
+msgstr ""
+
+#: build/keel-defaults/includes/site-health.php:363
+#: includes/site-health.php:363
 msgid "More than one plugin is setting the same defaults"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:23
 #: includes/strings.php:23
 msgid "REST User Discovery"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:24
 #: includes/strings.php:24
 msgid "Hide users from anonymous REST requests"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:25
 #: includes/strings.php:25
 msgid "Stops the REST API from listing account login names to logged-out visitors. Without it, anyone can read <code>/wp/v2/users</code> and collect valid usernames — half of what a password-guessing attack needs, so the attacker no longer has to find the username first."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:28
 #: includes/strings.php:28
 msgid "REST Authentication"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:29
 #: includes/strings.php:29
 msgid "Require authentication for all REST requests"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:30
 #: includes/strings.php:30
 msgid "Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not. <code>oembed/1.0</code> stays open so other sites can still embed your posts — it serves only what a published post already shows. Filter: <code>keel_public_rest_routes</code>."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:33
 #: includes/strings.php:33
 msgid "XML-RPC Pingbacks"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:34
 #: includes/strings.php:34
 msgid "Accept incoming pingbacks"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:35
 #: includes/strings.php:35
 msgid "Off by default. Removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:38
 #: includes/strings.php:38
 msgid "XML-RPC Remote Publishing"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:39
 #: includes/strings.php:39
 msgid "Allow remote publishing (blogging apps)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:40
 #: includes/strings.php:40
 msgid "Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave it on while Jetpack is active unless connection and feature testing proves it unnecessary."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:43
 #: includes/strings.php:43
 msgid "XML-RPC Multicall"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:44
 #: includes/strings.php:44
 msgid "Allow <code>system.multicall</code>"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:45
 #: includes/strings.php:45
 msgid "Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 removed its old use as a password-guessing multiplier, so refusing it today is minor attack-surface reduction, not a fix for a live threat — almost nothing legitimately uses it, so leaving it off is safe."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:48
 #: includes/strings.php:48
 msgid "XML-RPC Endpoint"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:49
 #: includes/strings.php:49
 msgid "Block the endpoint entirely (returns 403)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:50
 #: includes/strings.php:50
 msgid "Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Leave XML-RPC reachable while Jetpack is active, unless connection and feature testing proves Jetpack no longer needs it. See the XML-RPC help tab for why this runs inside WordPress and when blocking further out is better."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:53
 #: includes/strings.php:53
 msgid "Application Passwords"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:54
 #: includes/strings.php:54
 msgid "Prohibit application passwords"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:55
 #: includes/strings.php:55
 msgid "Off by default — application passwords are hashed, revocable, per-application credentials for REST and XML-RPC, and usually the safest way to grant API access. They carry the owning account's full access and skip interactive 2FA, so prohibit them only when policy requires every login to pass 2FA or SSO, or when no integration needs API access at all."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:58
 #: includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:59
 #: includes/strings.php:59
 msgid "Require strong passwords"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:60
 #: includes/strings.php:60
 msgid "15+ characters, not your username or email name, not a common choice, and not found in a known breach. Every account is breach-screened, including the roles exempted below — the exemption covers the other rules only. See the Help tab for why the rules are shaped this way and what the breach check sends."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:63
 #: includes/strings.php:63
 msgid "Password Policy Exemptions"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:64
 #: includes/strings.php:64
 msgid "Roles that skip the length, common-password and username rules; breach screening still applies to everyone. Only roles with no content or settings capabilities appear — which is why Contributor does not. A user is exempt only if every role they hold is listed here. Filter: <code>keel_weak_roles</code>."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:67
 #: includes/strings.php:67
 msgid "Unfiltered HTML"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:68
 #: includes/strings.php:68
 msgid "Limit raw HTML and JavaScript to Administrators"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:69
 #: includes/strings.php:69
 msgid "Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:72
 #: includes/strings.php:72
 msgid "Version Fingerprint"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:73
 #: includes/strings.php:73
 msgid "Remove the WordPress version fingerprint"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:74
 #: includes/strings.php:74
 msgid "Strips the generator meta tag. Obscurity, not hardening — it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:77
 #: includes/strings.php:77
 msgid "Security Headers"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:78
 #: includes/strings.php:78
 msgid "Send baseline security headers"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:79
 #: includes/strings.php:79
 msgid "<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:82
 #: includes/strings.php:82
 msgid "Frame Options"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:83
 #: includes/strings.php:83
 msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:85
 #: includes/strings.php:85
 msgid "SAMEORIGIN — only this site may frame it"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:86
 #: includes/strings.php:86
 msgid "DENY — nobody may frame it"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:87
 #: includes/strings.php:87
 msgid "Leave unchanged (host/CDN sets it, or the site is embedded elsewhere)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:91
 #: includes/strings.php:91
 msgid "AI Connectors"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:92
 #: includes/strings.php:92
 msgid "Disable AI provider connectors"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:93
 #: includes/strings.php:93
 msgid "Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:96
 #: includes/strings.php:96
 msgid "Core Auto-Updates"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:97
 #: includes/strings.php:97
 msgid "Chooses which core updates install automatically. Minor releases are maintenance and security fixes; major releases are feature updates that can affect themes and plugins. An explicit <code>wp-config.php</code> policy takes precedence, and then this control is locked."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:99
 #: includes/strings.php:99
 msgid "Maintenance/security releases only — recommended"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:100
 #: includes/strings.php:100
 msgid "All stable releases"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:101
 #: includes/strings.php:101
 msgid "No automatic core releases"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:102
 #: includes/strings.php:102
 msgid "Leave unchanged (WordPress, host, or another plugin decides)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:106
 #: includes/strings.php:106
 msgid "Translations"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:107
 #: includes/strings.php:107
 msgid "Automatically update translation files"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:108
 #: includes/strings.php:108
 msgid "Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress's individual per-item choices."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:111
 #: includes/strings.php:111
 msgid "Comments"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:112
 #: includes/strings.php:112
 msgid "Disable comments, trackbacks, and pingbacks"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:113
 #: includes/strings.php:113
 msgid "Closes comments everywhere, hides existing threads, defaults new content to closed, and reports a count of zero. Removes the admin menu, admin-bar node, Recent Comments dashboard widget, comment feeds, and the comment blocks — both from the inserter and from what a block theme renders. Nothing is deleted: turn this off and every comment comes back."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:116
 #: includes/strings.php:116
 msgid "Pingbacks On New Posts"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:117
 #: includes/strings.php:117
 msgid "Close pingbacks and trackbacks on new posts by default"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:118
 #: includes/strings.php:118
 msgid "Sets the \"allow pingbacks\" default to off for newly created content."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:121
 #: includes/strings.php:121
 msgid "Self-Pingbacks"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:122
 #: includes/strings.php:122
 msgid "Disable self-pingbacks"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:123
 #: includes/strings.php:123
 msgid "Stops internal links from generating pingback noise."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:126
 #: includes/strings.php:126
 msgid "Author Archives"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:127
 #: includes/strings.php:127
 msgid "Disable public author archives"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:128
 #: includes/strings.php:128
 msgid "Redirects <code>/author/{slug}/</code> to the home page. Author pages leak usernames (like the REST list above) and are usually thin, duplicate content."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:131
 #: includes/strings.php:131
 msgid "Attachment Pages"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:132
 #: includes/strings.php:132
 msgid "Redirect attachment pages to the parent post"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:133
 #: includes/strings.php:133
 msgid "Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since the theme means to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:136
 #: includes/strings.php:136
 msgid "Emoji Script"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:137
 #: includes/strings.php:137
 msgid "Disable the emoji detection script"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:138
 #: includes/strings.php:138
 msgid "Removes the emoji detection script and inline CSS from every page."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:141
 #: includes/strings.php:141
 msgid "Post Passwords"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:142
 #: includes/strings.php:142
 msgid "Hide post password protection in the editor"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:143
 #: includes/strings.php:143
 msgid "Hides the \"Password protected\" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:146
 #: includes/strings.php:146
 msgid "Classic Editor"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:147
 #: includes/strings.php:147
 msgid "Use the Classic editor instead of the block editor"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:148
 #: includes/strings.php:148
 msgid "Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:151
 #: includes/strings.php:151
 msgid "Upload Filenames"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:152
 #: includes/strings.php:152
 msgid "Lowercase new upload filenames"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:153
 #: includes/strings.php:153
 msgid "Avoids case-sensitivity surprises when files move between case-insensitive local/staging and case-sensitive Linux production. On by default; only affects new uploads."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:156
 #: includes/strings.php:156
 msgid "Image Sizes"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:157
 #: includes/strings.php:157
 msgid "Show generated image sizes on attachments"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:158
 #: includes/strings.php:158
 msgid "Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:161
 #: includes/strings.php:161
 msgid "Email Deliverability"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:162
 #: includes/strings.php:162
 msgid "Warn when site email looks broken"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:163
 #: includes/strings.php:163
 msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:166
 #: includes/strings.php:166
 msgid "Non-Production Email"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:167
 #: includes/strings.php:167
 msgid "Stop outgoing email unless this is the production site"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:168
 #: includes/strings.php:168
 msgid "A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Override per site with <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> in <code>wp-config.php</code> or the <code>keel_suppress_nonproduction_mail</code> filter."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:171
 #: includes/strings.php:171
 msgid "Admin Search"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:172
 #: includes/strings.php:172
 msgid "Search titles only in admin list tables"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:173
 #: includes/strings.php:173
 msgid "Speeds up admin list-table search on big sites by matching titles only."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:176
 #: includes/strings.php:176
 msgid "Front-End Admin Bar"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:177
 #: includes/strings.php:177
 msgid "The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins or everyone, or auto-hide it so it slides out of the way and returns on hover or keyboard focus (desktop only)."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:179
 #: includes/strings.php:179
 msgid "Leave unchanged (WordPress default)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:180
 #: includes/strings.php:180
 msgid "Hide for non-admins"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:181
 #: includes/strings.php:181
 msgid "Hide for everyone"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:182
 #: includes/strings.php:182
 msgid "Auto-hide, reveal on hover or keyboard focus (desktop)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:186
 #: includes/strings.php:186
 msgid "Admin Menu Width"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:187
 #: includes/strings.php:187
 msgid "Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:188
 #: includes/strings.php:188
 msgid "WordPress default (160px)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:188
 #: includes/strings.php:188
 msgid "200px"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:188
 #: includes/strings.php:188
 msgid "240px"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:188
 #: includes/strings.php:188
 msgid "280px"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:188
 #: includes/strings.php:188
 msgid "300px"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:191
 #: includes/strings.php:191
 msgid "Admin List Columns"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:192
 #: includes/strings.php:192
 msgid "Add helper columns to admin list tables"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:193
 #: includes/strings.php:193
 msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:196
 #: includes/strings.php:196
 msgid "Environment Indicator"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:197
 #: includes/strings.php:197
 msgid "Show the current environment in the admin bar"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:198
 #: includes/strings.php:198
 msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:201
 #: includes/strings.php:201
 msgid "Remember Me"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:202
 #: includes/strings.php:202
 msgid "Disable Remember Me and remove the login checkbox"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:203
 #: includes/strings.php:203
 msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:206
 #: includes/strings.php:206
 msgid "Regular Session Length"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:207
+#: build/keel-defaults/includes/strings.php:212
 #: includes/strings.php:207
 #: includes/strings.php:212
 msgid "days"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:208
 #: includes/strings.php:208
 msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:211
 #: includes/strings.php:211
 msgid "Remember Me Length"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:213
 #: includes/strings.php:213
 msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:216
 #: includes/strings.php:216
 msgid "Login Logo"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:217
 #: includes/strings.php:217
 msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:219
 #: includes/strings.php:219
 msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:220
 #: includes/strings.php:220
 msgid "Remove the logo and the wordpress.org link"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:221
 #: includes/strings.php:221
 msgid "Keep the logo, drop the wordpress.org link"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:222
 #: includes/strings.php:222
 msgid "Replace the logo with your site logo"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:226
 #: includes/strings.php:226
 msgid "Heartbeat API"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:227
 #: includes/strings.php:227
 msgid "Slow background admin polling"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:228
 #: includes/strings.php:228
 msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:240
 #: includes/strings.php:240
 msgid "Security and Attack Surface"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:241
 #: includes/strings.php:241
 msgid "Updates"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:242
 #: includes/strings.php:242
 msgid "Content and Public Surfaces"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:243
 #: includes/strings.php:243
 msgid "Editor"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:244
 #: includes/strings.php:244
 msgid "Media"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:245
 #: includes/strings.php:245
 msgid "Email"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:246
 #: includes/strings.php:246
 msgid "Admin and Front-End UX"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:247
 #: includes/strings.php:247
 msgid "Login and Sessions"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:248
 #: includes/strings.php:248
 msgid "Branding"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:249
 #: includes/strings.php:249
 msgid "Performance"
 msgstr ""
 
+#: build/keel-defaults/includes/strings.php:260
 #: includes/strings.php:260
 msgid "REST API"
 msgstr ""

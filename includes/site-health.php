@@ -272,13 +272,14 @@ function keel_defaults_conflict_list( $conflicts ) {
  */
 function keel_defaults_site_health_conflicts() {
 	$conflicts = keel_defaults_competing_plugins();
+	$likely    = keel_defaults_likely_competing_plugins( $conflicts );
 	$badge     = array(
 		'label' => __( 'Keel', 'keel-defaults' ),
 		'color' => 'blue',
 	);
 	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When two plugins set the same one, WordPress keeps whichever ran last. There is no error, and the plugin that lost goes on showing the value it believes it applied.', 'keel-defaults' ) . '</p>';
 
-	if ( empty( $conflicts ) ) {
+	if ( empty( $conflicts ) && empty( $likely ) ) {
 		return array(
 			'label'       => __( 'No other plugin is setting the same defaults', 'keel-defaults' ),
 			'status'      => 'good',
@@ -342,6 +343,20 @@ function keel_defaults_site_health_conflicts() {
 				'<code>keel_outgoing_mail_suppressed</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a literal hook name, no variable part.
 			) . '</p>';
 		}
+	}
+
+	if ( ! empty( $likely ) ) {
+		$description .= '<p>' . esc_html__( 'These could not be confirmed. Something other than Keel is registered on each of these settings, and the plugin named declares a filter on it — but it does so through one of WordPress\'s own callbacks, which cannot be traced back to the plugin that used it. That is the ordinary way a plugin turns a feature off, so it is worth reporting even unproven:', 'keel-defaults' ) . '</p><ul>';
+
+		foreach ( $likely as $hook => $hook_plugins ) {
+			$description .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
+				/* translators: %s: comma-separated plugin directory names. */
+				esc_html__( 'likely contested by %s', 'keel-defaults' ),
+				esc_html( implode( ', ', $hook_plugins ) )
+			) . '</li>';
+		}
+
+		$description .= '</ul>';
 	}
 
 	return array(
