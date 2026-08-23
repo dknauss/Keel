@@ -170,10 +170,9 @@ keel_assert( 'authoritative' === $hooks['comments_open'], 'Whether comments are 
  *
  * So the rival has to name the key. Both fixtures below are registered on the
  * hook with resolvable callbacks; only one of them mentions `unfiltered_html`.
- */
-/*
- * The source scan reads the plugins WordPress says are active, so the harness
- * has to say so. These are the fixture directories created above.
+ *
+ * The scan reads the plugins WordPress says are active, so the harness has to
+ * say so: the three directories created above.
  */
 $GLOBALS['keel_options']['active_plugins'] = array(
 	'rival-plugin/plugin.php',
