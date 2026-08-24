@@ -17,8 +17,14 @@ GPL-2.0-or-later.
 
 ## Next up
 
-Chosen deliberately over the probe-coverage items below, which strengthen claims
-already made rather than adding capability.
+Nothing. The submission milestone is closed — 0.4.1 is released, `Stable tag`
+matches, Plugin Check is clean and the plugin is in the wordpress.org review
+queue. What comes after is the v0.5 group further down, which is a list to decide
+on rather than a queue to work through, and it is deliberately not promoted here
+until one of its four is chosen.
+
+The item below is kept because it is the last thing that moved, and because the
+section reads wrong if it is empty.
 
 - [x] **Multisite governance** — done 2026-08-09 (keel#89). Network Admin →
       Settings → Keel Defaults lets a Super Admin decide any of the 38 settings for

@@ -18,7 +18,7 @@ exactly what the plugin does to your site, in one place, and turn any piece off.
 
 > **Status: released (`0.4.1`, 2026-08-23).** The feature set is frozen at 38
 > defaults; the Site Health surface, multisite-aware seeding, network-wide policy
-> and detection of other plugins setting the same things are in. Verified against
+> and detection of other plugins controlling the same settings are in. Verified against
 > WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
 > milestones and [TODO.md](TODO.md) for what's in flight.
 
@@ -112,13 +112,19 @@ Two things it does that a settings screen usually does not:
 - **Site Health reports the posture**, read-only — every default and its current
   state, so the site's actual configuration is legible without clicking through
   tabs.
-- **It notices when another plugin is setting the same defaults.** Two plugins can
+- **It notices when another plugin controls the same settings.** Two plugins can
   both set a session length; WordPress keeps whichever ran last and the loser's
   settings screen goes on displaying a value the site does not use, with no error
   anywhere. Keel reports the collision and names what is contesting what — it does
   not tell you which plugin to keep, because a plugin answering that is arguing for
   its own retention. Keel also stays off a hook entirely when its setting would only
   repeat what WordPress already does.
+
+  It reports only what it can prove. A plugin that turns a feature off by handing
+  one of WordPress's own helper functions to a filter leaves nothing to trace back
+  to it, so a clear result means nothing traceable was found rather than nothing
+  competing. Keel briefly guessed at those and stopped in 0.4.1, because the guess
+  named plugins that were doing nothing.
 
 ## Try it in the browser
 

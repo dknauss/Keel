@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-24T01:22:59+00:00\n"
+"POT-Creation-Date: 2026-08-24T15:20:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -135,7 +135,7 @@ msgid "AI connectors are disabled on this site."
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: build/keel-defaults/includes/conflicts.php:400
+#: build/keel-defaults/includes/conflicts.php:397
 #: includes/conflicts.php:397
 #, php-format
 msgid "Another plugin controls some of the same settings as Keel: %s"
@@ -143,17 +143,17 @@ msgid_plural "Other plugins control some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: build/keel-defaults/includes/conflicts.php:415
+#: build/keel-defaults/includes/conflicts.php:412
 #: includes/conflicts.php:412
 msgid "These settings are applied through WordPress filters that return a single value. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect."
 msgstr ""
 
-#: build/keel-defaults/includes/conflicts.php:418
+#: build/keel-defaults/includes/conflicts.php:415
 #: includes/conflicts.php:415
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: build/keel-defaults/includes/conflicts.php:422
+#: build/keel-defaults/includes/conflicts.php:419
 #: includes/conflicts.php:419
 msgid "Dismiss until this changes"
 msgstr ""
@@ -274,7 +274,7 @@ msgstr ""
 
 #: build/keel-defaults/includes/settings-page.php:21
 #: build/keel-defaults/includes/settings-page.php:658
-#: build/keel-defaults/includes/site-health.php:277
+#: build/keel-defaults/includes/site-health.php:276
 #: includes/settings-page.php:21
 #: includes/settings-page.php:658
 #: includes/site-health.php:276
@@ -515,9 +515,14 @@ msgstr ""
 msgid "contested by %s"
 msgstr ""
 
-#: build/keel-defaults/includes/site-health.php:280
+#: build/keel-defaults/includes/site-health.php:279
 #: includes/site-health.php:279
 msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect."
+msgstr ""
+
+#: build/keel-defaults/includes/site-health.php:280
+#: includes/site-health.php:280
+msgid "A plugin that turns a feature off by handing one of WordPress's own helper functions to a filter cannot be traced back from it, because the function belongs to WordPress. A clear result here means nothing traceable was found, not that nothing is competing."
 msgstr ""
 
 #: build/keel-defaults/includes/site-health.php:284
@@ -555,16 +560,6 @@ msgid "Keel takes outgoing mail at the last possible priority and wins on purpos
 msgstr ""
 
 #: build/keel-defaults/includes/site-health.php:349
-msgid "These could not be confirmed. Something other than Keel is registered on each of these settings, and the plugin named declares a filter on it — but it does so through one of WordPress's own callbacks, which cannot be traced back to the plugin that used it. That is the ordinary way a plugin turns a feature off, so it is worth reporting even unproven:"
-msgstr ""
-
-#. translators: %s: comma-separated plugin directory names.
-#: build/keel-defaults/includes/site-health.php:354
-#, php-format
-msgid "likely contested by %s"
-msgstr ""
-
-#: build/keel-defaults/includes/site-health.php:363
 #: includes/site-health.php:349
 msgid "More than one plugin controls the same settings"
 msgstr ""
@@ -1259,8 +1254,4 @@ msgstr ""
 #: build/keel-defaults/includes/strings.php:260
 #: includes/strings.php:260
 msgid "REST API"
-msgstr ""
-
-#: includes/site-health.php:280
-msgid "A plugin that turns a feature off by handing one of WordPress's own helper functions to a filter cannot be traced back from it, because the function belongs to WordPress. A clear result here means nothing traceable was found, not that nothing is competing."
 msgstr ""

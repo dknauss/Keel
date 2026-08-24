@@ -460,23 +460,24 @@ function keel_defaults_handle_conflicts_dismissal() {
 /**
  * Active plugins whose source names a capability a scoped hook is contested over.
  *
- * The fallback for what reflection cannot see. `__return_false` is a core
- * function, so a plugin that turns something off with it is indistinguishable
- * from core turning it off — and that is the ordinary way "disable X" plugins
- * are written, which is to say the check was blind to most of the category it
- * exists for. Classic Editor in its default mode does exactly this on
- * `use_block_editor_for_post_type`.
- *
  * Reading source is evidence of intent, not of registration: a declaration can
- * sit in a branch the plugin never takes. It is only ever used alongside a
- * runtime callback that resolves to nothing, and only ever reported as
- * unconfirmed.
+ * sit in a branch the plugin never takes. That is why this is used in exactly
+ * one place and only ever to *narrow* — `keel_defaults_plugin_in_scope()`, where
+ * a plugin that never names a capability cannot be writing it. Weak evidence is
+ * safe when its only power is to remove a report.
+ *
+ * It was briefly used the other way, to name plugins that reflection cannot
+ * attribute, and that is why the caution above is written down rather than
+ * assumed. Removed in 0.4.1: the runtime condition it was paired with is
+ * satisfied by core and by Keel itself on nearly every hook, so a source mention
+ * ended up naming plugins on its own. Two of them were reported across five
+ * hooks while registering nothing at all.
  *
  * Cached against the active-plugin list, because scanning every PHP file of
  * every plugin is not something to do on a page load. The list changing is
  * exactly when the answer changes.
  *
- * @return array<string, string[]> Hook => plugin directory names.
+ * @return array{mentions: array<string, array<string, bool>>} Plugin dir => keys it names.
  */
 function keel_defaults_plugin_source_index() {
 	$hooks  = array_keys( keel_defaults_policy_hooks() );
