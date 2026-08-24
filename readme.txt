@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.0
+Stable tag: 0.5.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,11 +91,11 @@ Nothing is written into your sites. A network value is applied when a setting is
 
 You can, but you probably should not, and Keel will tell you when it matters.
 
-Some settings are applied through WordPress filters that transform a value in priority order — session length is the clearest example. Another callback on the same filter is not automatically a conflict: two plugins may reach the same outcome or govern different parts of a structured result.
+Some settings are applied through WordPress filters that transform a value in priority order — session length is the clearest example. Another callback on the same filter does not prove a conflict: two plugins may reach the same outcome or govern different parts of a structured result.
 
-Keel checks effects where replay is safe and says so where you will see it: on the Plugins screen, on **Settings → Keel**, and on the dashboard, where it can be dismissed until the confirmed situation changes. The full detail is under **Tools → Site Health**.
+Keel reports a structural overlap only when it is registered on an authoritative policy hook and a callback attributable to another active plugin is registered there too. It never executes the other plugin's callback to diagnose the overlap. The notice appears on the Plugins screen, on **Settings → Keel**, and on the dashboard, where it can be dismissed until the overlap changes. The full detail is under **Tools → Site Health**.
 
-The result is tri-state. A safely reproduced different final outcome is a confirmed collision and may produce an actionable warning. The same governed outcome is a compatible overlap. Mail, authentication, comment-query, capability, failed, and unattributable probes stay unconfirmed and informational; they never receive deactivation advice merely because a callback exists.
+That evidence confirms shared ownership of a hook, not that the plugins' configured outcomes disagree. Keel asks you to compare their settings and never recommends deactivation from callback presence alone. Mail, authentication, comment-query, capability, and unattributable overlaps stay unconfirmed and informational.
 
 There is a limit worth knowing. WordPress ships tiny helper callbacks such as `__return_false`; the callback belongs to WordPress, not the plugin that registered it. Keel labels that limitation unconfirmed instead of guessing from source code or naming a plugin without evidence.
 
@@ -126,6 +126,11 @@ Keel is free and stays free. If it saves you an afternoon of hardening a new sit
 Bug reports and feature requests are welcome on the issue tracker: [https://github.com/dknauss/keel/issues](https://github.com/dknauss/keel/issues). If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how.
 
 == Changelog ==
+
+= 0.5.1 =
+* Removed effect probes from policy-overlap detection. Diagnostics no longer execute another plugin's callbacks with synthetic or real user/post context, so reporting an overlap cannot send mail, write data, terminate the request, mutate hooks, or trigger other callback side effects.
+* Restored structural detection on authoritative hooks: Keel must be registered on the hook and the other callback must be attributable to an active plugin. The report confirms shared ownership only, tells administrators to compare settings, and does not recommend deactivation from presence alone.
+* Memoized the overlap report for each request and added adversarial coverage for mutating, throwing, and terminating callbacks, plus guards against hook-registry mutation and overstated UI copy.
 
 = 0.5.0 =
 * Added post-revision retention: new activations keep 10 revisions, existing sites preserve their previous unlimited behavior on upgrade, `-1` means unlimited, and `0` disables future revisions. Numeric or false `WP_POST_REVISIONS` policy locks both site and network controls.
@@ -178,6 +183,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.1 =
+Policy-overlap diagnostics no longer execute other plugins' callbacks. Re-check prior 0.5.0 conflict results; 0.5.1 reports structural overlap without claiming the configured outcomes disagree.
 
 = 0.5.0 =
 Existing sites keep unlimited revision history unless you choose a limit; new activations default to 10. Re-check overlapping-policy results because Keel now reports only confirmed incompatible effects as actionable.

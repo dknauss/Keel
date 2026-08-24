@@ -2,11 +2,11 @@
 /**
  * Which other active plugins are contesting the same settings.
  *
- * Two plugins that both set a session length do not error, do not log, and do
- * not look wrong. WordPress runs both filters and keeps whichever answered
- * last, so the losing plugin's settings screen goes on displaying a value the
- * site does not use. Nothing here changes that outcome — WordPress decides it —
- * this only makes it visible.
+ * Two plugins registered on the same policy hook do not error or log. Their
+ * callbacks may agree, may apply only in different contexts, or may produce a
+ * different final value. The registry proves shared participation, not which
+ * configured outcome WordPress will use. Nothing here invokes those callbacks;
+ * this only makes the structural overlap visible.
  *
  * Detection lives in its own file because it has two consumers now: the Site
  * Health report in site-health.php, and the admin notices in admin-ux.php. It
@@ -25,11 +25,12 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * The hooks Keel sets policy through, and whether their governed effect can be
- * evaluated safely. Registration alone is never a collision: every WordPress
- * filter callback runs in order and core examines the final value afterwards.
- * A mapped hook is either safely `probe`able, deliberately `unconfirmed`, or
- * structurally `additive` and omitted from overlap reporting.
+ * The hooks Keel sets policy through, classified by what registration proves.
+ * An `authoritative` hook returns one final policy value, so another plugin on
+ * that hook is a structural overlap worth showing to an administrator. It does
+ * not prove the plugins disagree. `unconfirmed` hooks are too compositional to
+ * make even that inference, while `additive` hooks are shared without harm and
+ * omitted from overlap reporting.
  *
  * A hook earns an entry only when losing on it has a consequence somebody can
  * act on. `the_generator` is the shape of thing left out: two plugins both
@@ -43,33 +44,33 @@ function keel_defaults_policy_hooks() {
 		'keel_policy_hooks',
 		array(
 			// Sessions, login and REST access.
-			'auth_cookie_expiration'                => 'probe',
-			'login_headerurl'                       => 'probe',
-			// Authentication results are compositional and unsafe to replay with
-			// a synthetic request on an admin page.
+			'auth_cookie_expiration'                => 'authoritative',
+			'login_headerurl'                       => 'authoritative',
+			// Authentication results are compositional, so registration alone
+			// does not identify a competing policy.
 			'rest_authentication_errors'            => 'additive',
-			'wp_is_application_passwords_available' => 'probe',
+			'wp_is_application_passwords_available' => 'authoritative',
 
 			// The editor. Contested by every plugin that forces the classic
 			// one, which is why Keel's own force-classic default is opt-in.
-			'use_block_editor_for_post'             => 'probe',
-			'use_block_editor_for_post_type'        => 'probe',
-			'gutenberg_can_edit_post'               => 'probe',
-			'use_widgets_block_editor'              => 'probe',
-			'allowed_block_types_all'               => 'probe',
+			'use_block_editor_for_post'             => 'authoritative',
+			'use_block_editor_for_post_type'        => 'authoritative',
+			'gutenberg_can_edit_post'               => 'authoritative',
+			'use_widgets_block_editor'              => 'authoritative',
+			'allowed_block_types_all'               => 'authoritative',
 
 			// Comments and pingbacks, contested by any disable-comments plugin.
-			'comments_open'                         => 'probe',
-			'pings_open'                            => 'probe',
-			'get_comments_number'                   => 'probe',
+			'comments_open'                         => 'authoritative',
+			'pings_open'                            => 'authoritative',
+			'get_comments_number'                   => 'authoritative',
 
 			// Admin surface.
-			'show_admin_bar'                        => 'probe',
-			'wp_supports_ai'                        => 'probe',
-			'wp_revisions_to_keep'                  => 'probe',
+			'show_admin_bar'                        => 'authoritative',
+			'wp_supports_ai'                        => 'authoritative',
+			'wp_revisions_to_keep'                  => 'authoritative',
 
-			// Both are final-value filters, but callbacks may send/log mail or run
-			// database queries when replayed. Presence is informational only.
+			// Both are final-value filters whose callbacks may perform independent
+			// work. Shared registration is informational only.
 			'pre_wp_mail'                           => 'unconfirmed',
 			'comments_pre_query'                    => 'unconfirmed',
 
@@ -193,16 +194,16 @@ function keel_defaults_active_plugin_roots() {
 /**
  * Other plugins competing for the policies Keel sets.
  *
- * Compatibility is decided by replaying attributable callbacks on an isolated
- * clone of the live hook. Only a reproduced change to the governed effect is
- * actionable; compatible and unconfirmed overlaps remain informational.
+ * Only structural overlaps on authoritative hooks are returned. No registered
+ * callback is invoked: this check must not cause the conflict it is reporting.
  *
+ * @param bool $refresh Rebuild the request-local report cache.
  * @return array<string, string[]> Hook => plugin directory names.
  */
-function keel_defaults_competing_plugins() {
-	$report = keel_defaults_policy_overlap_report();
+function keel_defaults_competing_plugins( $refresh = false ) {
+	$report = keel_defaults_policy_overlap_report( $refresh );
 
-	return $report['confirmed'];
+	return $report['structural'];
 }
 
 /**
@@ -230,195 +231,26 @@ function keel_defaults_callable_id( $callback ) {
 }
 
 /**
- * Safe representative inputs and governed projections for effect probes.
+ * Structural and unconfirmed policy overlaps.
  *
- * A missing specification means callbacks are not replayed. That overlap is
- * informational, never actionable.
+ * The callback registry is complete before any production caller reaches this
+ * function. Cache the result for the rest of that request so a notice, Site
+ * Health, or dismissal fingerprint does not repeat the same reflection scan.
+ * Tests that deliberately rewrite the registry can request a refresh.
  *
- * @param string $hook Hook name.
- * @return array|null
- */
-function keel_defaults_policy_probe_spec( $hook ) {
-	$scalar = static function ( $value ) {
-		$encoded = wp_json_encode( $value );
-
-		return gettype( $value ) . ':' . ( false !== $encoded ? $encoded : '' );
-	};
-
-	$specs = array(
-		'auth_cookie_expiration'                => array(
-			'value'   => 14 * DAY_IN_SECONDS,
-			'args'    => array( 1, true ),
-			'project' => $scalar,
-		),
-		'login_headerurl'                       => array(
-			'value'   => 'https://wordpress.org/',
-			'args'    => array(),
-			'project' => $scalar,
-		),
-		'wp_is_application_passwords_available' => array(
-			'value'   => true,
-			'args'    => array(),
-			'project' => $scalar,
-		),
-		'use_block_editor_for_post'             => array(
-			'value'   => true,
-			'args'    => array( null ),
-			'project' => $scalar,
-		),
-		'use_block_editor_for_post_type'        => array(
-			'value'   => true,
-			'args'    => array( 'post' ),
-			'project' => $scalar,
-		),
-		'gutenberg_can_edit_post'               => array(
-			'value'   => true,
-			'args'    => array( null ),
-			'project' => $scalar,
-		),
-		'use_widgets_block_editor'              => array(
-			'value'   => true,
-			'args'    => array(),
-			'project' => $scalar,
-		),
-		'comments_open'                         => array(
-			'value'   => true,
-			'args'    => array( 1 ),
-			'project' => $scalar,
-		),
-		'pings_open'                            => array(
-			'value'   => true,
-			'args'    => array( 1 ),
-			'project' => $scalar,
-		),
-		'get_comments_number'                   => array(
-			'value'   => 7,
-			'args'    => array( 1 ),
-			'project' => $scalar,
-		),
-		'show_admin_bar'                        => array(
-			'value'   => true,
-			'args'    => array(),
-			'project' => $scalar,
-		),
-		'wp_supports_ai'                        => array(
-			'value'   => true,
-			'args'    => array(),
-			'project' => $scalar,
-		),
-	);
-
-	if ( 'allowed_block_types_all' === $hook ) {
-		$specs[ $hook ] = array(
-			'value'   => true,
-			'args'    => array( null ),
-			'project' => static function ( $value ) {
-				if ( false === $value ) {
-					return 'comments-blocked';
-				}
-				if ( ! is_array( $value ) ) {
-					return 'comments-allowed';
-				}
-				return empty( array_intersect( $value, keel_defaults_comment_blocks() ) ) ? 'comments-blocked' : 'comments-allowed';
-			},
-		);
-	}
-
-	if ( 'wp_revisions_to_keep' === $hook || preg_match( '/^wp_.+_revisions_to_keep$/', $hook ) ) {
-		$post = function_exists( 'get_post' ) ? get_post( 1 ) : null;
-		if ( ! is_object( $post ) ) {
-			return null;
-		}
-		$specs[ $hook ] = array(
-			'value'   => -1,
-			'args'    => array( $post ),
-			'project' => $scalar,
-		);
-	}
-
-	return isset( $specs[ $hook ] ) ? $specs[ $hook ] : null;
-}
-
-/**
- * Execute a filtered clone through WordPress's real filter API.
- *
- * @param string   $hook       Hook name.
- * @param object   $original   Live WP_Hook-compatible object.
- * @param callable $keep       Whether a registered callback stays in the clone.
- * @param array    $spec       Probe specification.
- * @return array{ok:bool,value:mixed}
- */
-function keel_defaults_run_policy_probe( $hook, $original, $keep, $spec ) {
-	global $wp_filter;
-
-	if ( ! is_object( $original ) || ! isset( $original->callbacks ) || ! function_exists( 'apply_filters' ) ) {
-		return array(
-			'ok'    => false,
-			'value' => null,
-		);
-	}
-
-	$clone = clone $original;
-	if ( ! method_exists( $clone, 'remove_filter' ) ) {
-		return array(
-			'ok'    => false,
-			'value' => null,
-		);
-	}
-
-	foreach ( $clone->callbacks as $priority => $callbacks ) {
-		foreach ( $callbacks as $registered ) {
-			if ( empty( $registered['function'] ) || ! call_user_func( $keep, $registered['function'], (int) $priority, $registered ) ) {
-				/*
-				 * WP_Hook keeps a protected priority index alongside callbacks.
-				 * Its API updates both; unsetting callbacks directly leaves stale
-				 * priorities and makes apply_filters() read missing array keys.
-				 */
-				$clone->remove_filter( $hook, $registered['function'], (int) $priority );
-			}
-		}
-	}
-
-	$had = array_key_exists( $hook, $wp_filter );
-	$old = $had ? $wp_filter[ $hook ] : null;
-
-	try {
-		// The isolated clone is installed only for the duration of this probe.
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_filter[ $hook ] = $clone;
-		$args               = array_merge( array( $hook, $spec['value'] ), $spec['args'] );
-		$value              = call_user_func_array( 'apply_filters', $args );
-	} catch ( Throwable $e ) {
-		return array(
-			'ok'    => false,
-			'value' => null,
-		);
-	} finally {
-		if ( $had ) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$wp_filter[ $hook ] = $old;
-		} else {
-			unset( $wp_filter[ $hook ] );
-		}
-	}
-
-	return array(
-		'ok'    => true,
-		'value' => $value,
-	);
-}
-
-/**
- * Confirmed, compatible, and unconfirmed policy overlaps.
- *
+ * @param bool $refresh Rebuild the request-local report cache.
  * @return array<string,array<string,string[]>> State => hook => plugin labels.
  */
-function keel_defaults_policy_overlap_report() {
+function keel_defaults_policy_overlap_report( $refresh = false ) {
 	global $wp_filter;
+	static $cached = null;
+
+	if ( ! $refresh && is_array( $cached ) ) {
+		return $cached;
+	}
 
 	$report = array(
-		'confirmed'   => array(),
-		'compatible'  => array(),
+		'structural'  => array(),
 		'unconfirmed' => array(),
 	);
 	$mine   = keel_defaults_registered_policy_hooks();
@@ -429,7 +261,7 @@ function keel_defaults_policy_overlap_report() {
 	if ( isset( $mine['wp_revisions_to_keep'] ) ) {
 		foreach ( array_keys( (array) $wp_filter ) as $live_hook ) {
 			if ( preg_match( '/^wp_.+_revisions_to_keep$/', (string) $live_hook ) ) {
-				$hooks[ $live_hook ] = 'probe';
+				$hooks[ $live_hook ] = 'authoritative';
 			}
 		}
 	}
@@ -446,10 +278,8 @@ function keel_defaults_policy_overlap_report() {
 			continue;
 		}
 
-		$mine_ids        = array();
 		$mine_signatures = array();
 		foreach ( $mine_for_hook as $record ) {
-			$mine_ids[ keel_defaults_callable_id( $record['callback'] ) ] = true;
 			$mine_signatures[ (int) $record['priority'] . '|' . keel_defaults_callable_id( $record['callback'] ) . '|' . (int) $record['accepted_args'] ] = true;
 		}
 
@@ -492,49 +322,7 @@ function keel_defaults_policy_overlap_report() {
 		}
 
 		foreach ( array_keys( $rivals ) as $plugin ) {
-			if ( 'probe' !== $kind ) {
-				$report['unconfirmed'][ $hook ][] = $plugin;
-				continue;
-			}
-
-			$spec = keel_defaults_policy_probe_spec( $hook );
-			if ( null === $spec ) {
-				$report['unconfirmed'][ $hook ][] = $plugin;
-				continue;
-			}
-
-			$expected = $is_dynamic_revision
-				? array(
-					'ok'    => true,
-					'value' => (int) keel_defaults_get( 'post_revisions_limit' ),
-				)
-				: keel_defaults_run_policy_probe(
-					$hook,
-					$wp_filter[ $hook ],
-					static function ( $callback, $priority, $registered ) use ( $mine_signatures ) {
-						$signature = (int) $priority . '|' . keel_defaults_callable_id( $callback ) . '|' . (int) ( isset( $registered['accepted_args'] ) ? $registered['accepted_args'] : 1 );
-						return isset( $mine_signatures[ $signature ] );
-					},
-					$spec
-				);
-
-			$combined_spec = $is_dynamic_revision ? array_merge( $spec, array( 'value' => $expected['value'] ) ) : $spec;
-			$combined      = keel_defaults_run_policy_probe(
-				$hook,
-				$wp_filter[ $hook ],
-				static function ( $callback, $priority, $registered ) use ( $mine_signatures, $plugin ) {
-					$signature = (int) $priority . '|' . keel_defaults_callable_id( $callback ) . '|' . (int) ( isset( $registered['accepted_args'] ) ? $registered['accepted_args'] : 1 );
-						return isset( $mine_signatures[ $signature ] ) || keel_defaults_callback_plugin_dir( $callback ) === $plugin;
-				},
-				$combined_spec
-			);
-
-			if ( ! $expected['ok'] || ! $combined['ok'] ) {
-				$state = 'unconfirmed';
-			} else {
-				$project = $spec['project'];
-				$state   = call_user_func( $project, $expected['value'] ) === call_user_func( $project, $combined['value'] ) ? 'compatible' : 'confirmed';
-			}
+			$state                       = 'authoritative' === $kind ? 'structural' : 'unconfirmed';
 			$report[ $state ][ $hook ][] = $plugin;
 		}
 	}
@@ -545,7 +333,9 @@ function keel_defaults_policy_overlap_report() {
 		}
 	}
 
-	return $report;
+	$cached = $report;
+
+	return $cached;
 }
 
 /**
@@ -740,14 +530,14 @@ function keel_defaults_render_conflicts_notice() {
 
 	$health = admin_url( 'site-health.php' );
 	?>
-	<div class="notice notice-warning">
+		<div class="notice notice-info">
 		<p>
 			<strong>
 			<?php
 			/* translators: %s: comma-separated plugin directory names. */
 			$heading = _n(
-				'Another plugin controls some of the same settings as Keel: %s',
-				'Other plugins control some of the same settings as Keel: %s',
+				'Another plugin may influence some of the same settings as Keel: %s',
+				'Other plugins may influence some of the same settings as Keel: %s',
 				count( $plugins ),
 				'keel-defaults'
 			);
@@ -760,7 +550,7 @@ function keel_defaults_render_conflicts_notice() {
 			</strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'A safe effect probe reproduced a different final value when these plugins ran together. Their settings screens can therefore disagree with the behavior WordPress actually uses.', 'keel-defaults' ); ?>
+				<?php esc_html_e( 'These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree.', 'keel-defaults' ); ?>
 		</p>
 		<p>
 			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings are contested, under Site Health', 'keel-defaults' ); ?></a>

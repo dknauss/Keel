@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.5.0`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
+**Current version: `0.5.1`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
@@ -158,11 +158,13 @@ Plugin Review requirements, not niceties.
       only negative assertions were possible. The positive case — a rival
       *is* reported — had never been written, because it could not be.
 
-	  Superseded in v0.5: that execution model was wrong. WordPress runs every
-	  callback on `pre_wp_mail` and `comments_pre_query`, then core examines the
-	  final result. Detection is now tri-state and effect-based: confirmed opposing
-	  outcomes may warn, compatible outcomes do not, and unsafe or unattributable
-	  overlaps remain informational without deactivation advice.
+	  Superseded in the initial v0.5 release by effect replay, then corrected again
+	  in v0.5.1. A
+	  diagnostic cannot prove another plugin's callback is safe to execute: a hook
+	  clone does not isolate mail, database writes, network calls, globals, exits,
+	  or object state. Detection is structural again and its copy says exactly what
+	  that evidence proves—both plugins participate in the same authoritative
+	  policy hook, not that their configured outcomes disagree.
 
       A hook earns an entry only where losing has a consequence somebody can act
       on; `the_generator` is the shape of thing left out, since two plugins both
@@ -326,8 +328,9 @@ Plugin Review requirements, not niceties.
       Tracked there, not here.
 
 
-- [x] **A policy-collision report in Site Health** — done 2026-08-04 and rebuilt
-      effect-first for Keel 0.5.0. It detects by hook rather than by plugin name,
+- [x] **A policy-collision report in Site Health** — done 2026-08-04, rebuilt
+      effect-first for the initial v0.5 release, and made non-executing in 0.5.1.
+      It detects by hook rather than by plugin name,
       attributes every callable form it safely can (including symlinked and
       single-file plugins), and never says which plugin to keep—a check answering
       that would be a plugin arguing for its own retention.
@@ -339,12 +342,14 @@ Plugin Review requirements, not niceties.
       priority to **zero at defaults**, and the check now reports it uncontested
       because the conflict shrank rather than because it stopped looking.
 
-      **The stronger form shipped in 0.5.0: test the effect, not the registration.**
-      Keel replays whitelisted-safe callbacks through a cloned real `WP_Hook`,
-      compares only the governed outcome, and classifies the result as confirmed,
-      compatible, or unconfirmed. Unsafe callbacks and unknown provenance remain
-      informational. Source-code scanning was removed; it inferred intent without
-      proving runtime behavior.
+      **The effect replay shipped in the initial v0.5 release and was removed in
+      0.5.1.** No
+      allowlist can make arbitrary third-party PHP safe to run in a privileged
+      admin request. Keel now confirms only structural overlap: Keel is registered
+      on an authoritative hook and reflection attributes another registered
+      callback to an active plugin. Unknown provenance and compositional hooks
+      remain informational. Source-code scanning stays removed; it inferred intent
+      without proving runtime behavior.
 - [x] **Decide whether Keel's policy filters compare or assert** — decided 2026-08-09
       (keel#72). **Both, and the rule is: compare where an incoming value is evidence of
       a decision, assert where it is not.** The two filters were not inconsistent; the

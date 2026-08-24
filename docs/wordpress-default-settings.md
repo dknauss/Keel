@@ -1130,22 +1130,20 @@ covering only some, which reads as a full inventory when it is not.
 ## When another plugin touches the same policy
 
 WordPress runs every callback on a filter in priority order and then uses the final value.
-Callback presence alone therefore proves no collision: two callbacks can agree, and structured
-results can carry independent restrictions. `keel_defaults_policy_overlap_report()` reports
-three evidence levels:
+Callback presence alone proves no conflicting outcome: two callbacks can agree, and structured
+results can carry independent restrictions. Keel never executes foreign callbacks to diagnose
+an overlap. `keel_defaults_policy_overlap_report()` reports two evidence levels:
 
 | state | evidence and response |
 |---|---|
-| `confirmed` | A safe replay demonstrated that the final governed outcome differs. An actionable warning is allowed. |
-| `compatible` | Both plugins touch the hook, but the governed final outcome still matches Keel. Informational only. |
-| `unconfirmed` | Replay is unsafe, failed, or attribution is incomplete. Informational only, with no deactivation advice. |
+| `structural` | Keel and an attributable active plugin are both registered on an authoritative policy hook. Review both settings; this does not prove they disagree. |
+| `unconfirmed` | The hook is compositional or attribution is incomplete. Informational only, with no deactivation advice. |
 
 `pre_wp_mail` and `comments_pre_query` are final-value filters, not callback short circuits:
-every callback runs before core examines the non-null result. They are left unconfirmed because
-blindly replaying mail or query callbacks on a Site Health request can have side effects.
+every callback runs before core examines the non-null result. They remain unconfirmed because
+registration on a compositional hook does not establish which policy wins. `user_has_cap` stays
+unconfirmed for the same reason: callbacks can govern independent capabilities.
 `rest_authentication_errors` is compositional and is not accused from registration alone.
-For block restrictions, the projector compares only whether comment blocks remain excluded;
-another plugin removing unrelated blocks is compatible.
 
 Two rules keep the report worth reading.
 
@@ -1154,9 +1152,10 @@ registered on it. Keel stands down on several — the session filter is not regi
 all when the policy matches WordPress's own — and a hook Keel is not on is another plugin
 doing its job, not a conflict.
 
-**Only safe evidence is actionable.** Capability direction is never inferred from a source
-mention, and a core helper such as `__return_false` is labelled unattributable rather than
-assigned to whichever plugin happened to contain the same words in a file.
+**Diagnostics never execute foreign callbacks.** Capability direction is never inferred from a
+source mention, and a core helper such as `__return_false` is labelled unattributable rather than
+assigned to whichever plugin happened to contain the same words in a file. A structural overlap
+prompts settings review, never deactivation based on presence alone.
 
 The map is filterable through `keel_policy_hooks`, and the notice placements through
 `keel_conflict_notice_screens`.
