@@ -19,6 +19,10 @@ GPL-2.0-or-later.
 
 Nothing is queued, and that is the accurate state rather than an omission.
 
+**Releases are on hold** while the wordpress.org submission is in review — merge
+to `main`, do not tag. See [CONTRIBUTING.md](CONTRIBUTING.md) for why and for what
+overrides it.
+
 The submission milestone is closed: 0.5.0 is released, `Stable tag` matches, the
 plugin is clean under Plugin Check and it is in the wordpress.org review queue.
 The v0.5 group below has been decided rather than deferred — two of its four were
