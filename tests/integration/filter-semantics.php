@@ -47,33 +47,6 @@ $assert( array( 'comment-first', 'comment-second' ) === $events, 'Every comments
 remove_filter( 'comments_pre_query', $comment_first, PHP_INT_MIN );
 remove_filter( 'comments_pre_query', $comment_second, PHP_INT_MIN + 1 );
 
-/* A filtered WP_Hook clone must keep its protected priority index in sync. */
-$clone_hook = 'keel_test_clone_priority_index';
-$early      = static function ( $value ) {
-	return $value + 1;
-};
-$late       = static function ( $value ) {
-	return $value + 10;
-};
-add_filter( $clone_hook, $early, 10 );
-add_filter( $clone_hook, $late, PHP_INT_MAX );
-
-$probe = keel_defaults_run_policy_probe(
-	$clone_hook,
-	$GLOBALS['wp_filter'][ $clone_hook ],
-	static function ( $callback, $priority ) {
-		unset( $callback );
-		return PHP_INT_MAX === $priority;
-	},
-	array(
-		'value' => 0,
-		'args'  => array(),
-	)
-);
-
-$assert( $probe['ok'] && 10 === $probe['value'], 'Policy probes keep WP_Hook callbacks and its protected priority index synchronized.' );
-remove_all_filters( $clone_hook );
-
 if ( $fail ) {
 	exit( 1 );
 }

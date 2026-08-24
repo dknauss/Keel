@@ -267,10 +267,9 @@ function keel_defaults_conflict_list( $conflicts ) {
 /**
  * Report other plugins competing for the same settings.
  *
- * Two plugins that both set a session length do not error, do not log, and do
- * not look wrong: WordPress composes both callbacks in priority order and core
- * uses the final result, so a plugin's settings screen can display a value the
- * site does not use.
+ * Two plugins registered on the same policy hook do not error or log. WordPress
+ * composes both callbacks in priority order, so their settings may agree or may
+ * disagree. Registration proves only that both participate in the decision.
  *
  * The result names what is contesting what and deliberately does not say which
  * plugin to keep. That is a judgement about what the site needs, and a check
@@ -279,28 +278,23 @@ function keel_defaults_conflict_list( $conflicts ) {
  * @return array
  */
 function keel_defaults_site_health_conflicts() {
-	$report    = keel_defaults_policy_overlap_report();
-	$conflicts = $report['confirmed'];
-	$badge     = array(
+	$report   = keel_defaults_policy_overlap_report();
+	$overlaps = $report['structural'];
+	$badge    = array(
 		'label' => __( 'Keel', 'keel-defaults' ),
 		'color' => 'blue',
 	);
-	$intro     = '<p>' . esc_html__( 'WordPress runs every callback on a filter in priority order and uses the final value. Another callback is not automatically a conflict: Keel compares the part of the result it governs when that can be evaluated safely.', 'keel-defaults' ) . '</p>';
-	$details   = '';
-
-	if ( ! empty( $report['compatible'] ) ) {
-		$details .= '<p><strong>' . esc_html__( 'Compatible overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These plugins touch the same filters, but the safely tested final outcome still matches Keel.', 'keel-defaults' ) . '</p><ul>';
-		$details .= keel_defaults_conflict_list( $report['compatible'] ) . '</ul>';
-	}
+	$intro    = '<p>' . esc_html__( 'WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes.', 'keel-defaults' ) . '</p>';
+	$details  = '';
 
 	if ( ! empty( $report['unconfirmed'] ) ) {
-		$details .= '<p><strong>' . esc_html__( 'Unconfirmed overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These callbacks could not be replayed or attributed safely. This is informational only; it is not a reason to deactivate anything.', 'keel-defaults' ) . '</p><ul>';
+		$details .= '<p><strong>' . esc_html__( 'Unconfirmed overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything.', 'keel-defaults' ) . '</p><ul>';
 		$details .= keel_defaults_conflict_list( $report['unconfirmed'] ) . '</ul>';
 	}
 
-	if ( empty( $conflicts ) ) {
+	if ( empty( $overlaps ) ) {
 		return array(
-			'label'       => __( 'No conflicting policy outcome was confirmed', 'keel-defaults' ),
+			'label'       => __( 'No attributable policy overlap was found', 'keel-defaults' ),
 			'status'      => 'good',
 			'badge'       => $badge,
 			'description' => $intro . $details,
@@ -309,7 +303,7 @@ function keel_defaults_site_health_conflicts() {
 	}
 
 	$plugins = array();
-	foreach ( $conflicts as $hook_plugins ) {
+	foreach ( $overlaps as $hook_plugins ) {
 		foreach ( $hook_plugins as $plugin ) {
 			$plugins[ $plugin ] = true;
 		}
@@ -317,13 +311,13 @@ function keel_defaults_site_health_conflicts() {
 
 	$description = $intro . '<p><strong>' . sprintf(
 		/* translators: %s: comma-separated plugin directory names. */
-		esc_html__( 'Also controlling these settings: %s', 'keel-defaults' ),
+		esc_html__( 'Also registered on these policy hooks: %s', 'keel-defaults' ),
 		esc_html( implode( ', ', array_keys( $plugins ) ) )
-	) . '</strong></p><p>' . esc_html__( 'A safe effect probe demonstrated a different final policy. Choose which plugin should own that setting and disable the overlapping policy in the other.', 'keel-defaults' ) . '</p><ul>';
-	$description .= keel_defaults_conflict_list( $conflicts ) . '</ul>' . $details;
+	) . '</strong></p><p>' . esc_html__( 'Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone.', 'keel-defaults' ) . '</p><ul>';
+	$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
 
 	return array(
-		'label'       => __( 'More than one plugin controls the same settings', 'keel-defaults' ),
+		'label'       => __( 'More than one plugin may influence the same settings', 'keel-defaults' ),
 		'status'      => 'recommended',
 		'badge'       => $badge,
 		'description' => $description,

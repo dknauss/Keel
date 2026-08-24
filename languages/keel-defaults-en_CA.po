@@ -1,7 +1,7 @@
 # Canadian English for Keel Defaults.
 #
 # en_US is the source locale, so this catalog exists only to swap American
-# spellings for Canadian ones. Two strings need it out of 244; everything else
+# spellings for Canadian ones. Two strings need it out of 242; everything else
 # is identical and is deliberately not repeated here, because a duplicated string
 # is one that can drift from its source without anything noticing.
 #
@@ -9,7 +9,7 @@
 # Recompile this catalog with:  wp i18n make-mo languages/
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.5.0\n"
+"Project-Id-Version: Keel Defaults 0.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Language: en_CA\n"
 "MIME-Version: 1.0\n"

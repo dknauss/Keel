@@ -60,8 +60,8 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
  * `auth_cookie_expiration` composes every callback in priority order, but a
  * callback may replace the incoming number with its own. The final callback is
  * not necessarily the sole decision-maker—a later callback can preserve or
- * transform an earlier result—so Keel's overlap report compares observed final
- * effects instead of inferring a winner from registration.
+ * transform an earlier result. Keel's overlap report therefore describes shared
+ * registration without inferring which configured outcome wins.
  *
  * Keel's defaults are WordPress's own values, so the honest move is to stay out
  * of a policy decision it does not need to make. On a site that has not changed them,

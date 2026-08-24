@@ -237,7 +237,7 @@ $GLOBALS['wp_filter'] = array(
 	),
 );
 
-keel_assert( array() !== keel_defaults_competing_plugins(), 'The fixture stages a conflict the detector sees.' );
+keel_assert( array() !== keel_defaults_competing_plugins( true ), 'The fixture stages an overlap the detector sees.' );
 
 foreach ( $screens as $screen => $label ) {
 	$html = keel_notice_on( $screen );
@@ -289,7 +289,7 @@ keel_assert(
 $one = keel_notice_on( 'plugins' );
 
 keel_assert(
-	false !== strpos( $one, 'Another plugin controls' ),
+	false !== strpos( $one, 'Another plugin may influence' ),
 	'With a single rival the heading stays singular.'
 );
 keel_assert(
@@ -318,15 +318,16 @@ $GLOBALS['wp_filter']['comments_open'] = new Keel_Notice_Test_Hook(
 	)
 );
 
+keel_defaults_competing_plugins( true );
 $many = keel_notice_on( 'plugins' );
 
 keel_assert( false !== strpos( $many, 'second-rival' ), 'The fixture stages more than one rival.' );
 keel_assert(
-	false === strpos( $many, 'Another plugin controls' ),
+	false === strpos( $many, 'Another plugin may influence' ),
 	'With several rivals the heading stops saying "Another plugin".'
 );
 keel_assert(
-	false !== strpos( $many, 'Other plugins control' ),
+	false !== strpos( $many, 'Other plugins may influence' ),
 	'And reads as a plural instead.'
 );
 
@@ -347,6 +348,7 @@ $GLOBALS['wp_filter']['comments_open'] = new Keel_Notice_Test_Hook(
 		),
 	)
 );
+keel_defaults_competing_plugins( true );
 
 // --- dismissing records what was dismissed --------------------------------
 
@@ -393,7 +395,7 @@ $GLOBALS['wp_filter']['use_block_editor_for_post'] = new Keel_Notice_Test_Hook(
 );
 
 keel_assert(
-	keel_defaults_conflicts_fingerprint( keel_defaults_competing_plugins() ) !== $fingerprint,
+	keel_defaults_conflicts_fingerprint( keel_defaults_competing_plugins( true ) ) !== $fingerprint,
 	'A new conflict changes the fingerprint.'
 );
 keel_assert(

@@ -16,7 +16,7 @@ and performance defaults onto any WordPress install — each one a switch under
 **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
 exactly what the plugin does to your site, in one place, and turn any piece off.
 
-> **Current release: `0.5.0`.** Keel now has 39 defaults; the Site Health
+> **Current release: `0.5.1`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins setting the same things are in. Verified against
 > WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
@@ -112,12 +112,13 @@ Two things it does that a settings screen usually does not:
 - **Site Health reports the posture**, read-only — every default and its current
   state, so the site's actual configuration is legible without clicking through
   tabs.
-- **It tests overlaps by effect.** Another callback on the same WordPress filter is
-  not automatically a collision. Where replay is safe, Keel compares the part of
-  the final result it governs: a different outcome is confirmed, the same outcome
-  is compatible, and anything unsafe or unattributable stays informational. Only a
-  confirmed opposing effect produces an actionable warning. Keel also stays off a
-  hook entirely when its setting would only repeat what WordPress already does.
+- **It reports structural policy overlaps without executing foreign code.** Keel
+  reports an attributable plugin only when both plugins are registered on an
+  authoritative policy hook. That confirms shared ownership, not disagreement, so
+  the report asks you to compare settings and never recommends deactivation from
+  callback presence alone. Unattributable and compositional hooks stay
+  informational. Keel also stays off a hook entirely when its setting would only
+  repeat what WordPress already does.
 
 ## Try it in the browser
 

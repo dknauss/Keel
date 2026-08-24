@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.5.0\n"
+"Project-Id-Version: Keel Defaults 0.5.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-24T02:18:18+00:00\n"
+"POT-Creation-Date: 2026-08-24T16:03:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -111,27 +111,27 @@ msgstr ""
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
-#: includes/conflicts.php:434
+#: includes/conflicts.php:321
 msgid "Unattributed callback"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:687
+#: includes/conflicts.php:538
 #, php-format
-msgid "Another plugin controls some of the same settings as Keel: %s"
-msgid_plural "Other plugins control some of the same settings as Keel: %s"
+msgid "Another plugin may influence some of the same settings as Keel: %s"
+msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:702
-msgid "A safe effect probe reproduced a different final value when these plugins ran together. Their settings screens can therefore disagree with the behavior WordPress actually uses."
+#: includes/conflicts.php:553
+msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
 msgstr ""
 
-#: includes/conflicts.php:705
+#: includes/conflicts.php:556
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:709
+#: includes/conflicts.php:560
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -201,35 +201,35 @@ msgstr ""
 msgid "Save network policy"
 msgstr ""
 
-#: includes/security.php:172
+#: includes/security.php:171
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:443
+#: includes/security.php:442
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:476
+#: includes/security.php:475
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:497
+#: includes/security.php:496
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:516
+#: includes/security.php:515
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:692
+#: includes/security.php:691
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:21
 #: includes/settings-page.php:679
-#: includes/site-health.php:285
+#: includes/site-health.php:284
 msgid "Keel"
 msgstr ""
 
@@ -351,7 +351,7 @@ msgstr ""
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:856
+#: includes/settings-page.php:857
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
@@ -417,42 +417,34 @@ msgstr ""
 msgid "callbacks from %s"
 msgstr ""
 
-#: includes/site-health.php:288
-msgid "WordPress runs every callback on a filter in priority order and uses the final value. Another callback is not automatically a conflict: Keel compares the part of the result it governs when that can be evaluated safely."
+#: includes/site-health.php:287
+msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
 msgstr ""
 
-#: includes/site-health.php:292
-msgid "Compatible overlaps"
-msgstr ""
-
-#: includes/site-health.php:292
-msgid "These plugins touch the same filters, but the safely tested final outcome still matches Keel."
-msgstr ""
-
-#: includes/site-health.php:297
+#: includes/site-health.php:291
 msgid "Unconfirmed overlaps"
 msgstr ""
 
-#: includes/site-health.php:297
-msgid "These callbacks could not be replayed or attributed safely. This is informational only; it is not a reason to deactivate anything."
+#: includes/site-health.php:291
+msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
 msgstr ""
 
-#: includes/site-health.php:303
-msgid "No conflicting policy outcome was confirmed"
+#: includes/site-health.php:297
+msgid "No attributable policy overlap was found"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:320
+#: includes/site-health.php:314
 #, php-format
-msgid "Also controlling these settings: %s"
+msgid "Also registered on these policy hooks: %s"
 msgstr ""
 
-#: includes/site-health.php:322
-msgid "A safe effect probe demonstrated a different final policy. Choose which plugin should own that setting and disable the overlapping policy in the other."
+#: includes/site-health.php:316
+msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
 msgstr ""
 
-#: includes/site-health.php:326
-msgid "More than one plugin controls the same settings"
+#: includes/site-health.php:320
+msgid "More than one plugin may influence the same settings"
 msgstr ""
 
 #: includes/strings.php:23
