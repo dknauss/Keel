@@ -16,7 +16,7 @@ and performance defaults onto any WordPress install — each one a switch under
 **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
 exactly what the plugin does to your site, in one place, and turn any piece off.
 
-> **Status: `0.5.0` in development.** Keel now has 39 defaults; the Site Health
+> **Current release: `0.5.0`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins setting the same things are in. Verified against
 > WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
