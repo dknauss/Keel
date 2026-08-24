@@ -272,6 +272,7 @@ function keel_defaults_add_policy_filter( $hook, $callback, $priority = 10, $acc
 	add_filter( $hook, $callback, $priority, $accepted_args );
 }
 
+
 /**
  * The contested hooks Keel has registered something on this request.
  *
@@ -368,25 +369,21 @@ function keel_defaults_render_conflicts_notice() {
 	}
 
 	$conflicts = keel_defaults_competing_plugins();
-	$likely    = keel_defaults_likely_competing_plugins( $conflicts );
-
-	if ( empty( $conflicts ) && empty( $likely ) ) {
+	if ( empty( $conflicts ) ) {
 		return;
 	}
 
 	$dismissible = $screens[ $id ];
-	$fingerprint = keel_defaults_conflicts_fingerprint( array_merge( $conflicts, $likely ) );
+	$fingerprint = keel_defaults_conflicts_fingerprint( $conflicts );
 
 	if ( $dismissible && get_user_meta( get_current_user_id(), 'keel_conflicts_dismissed', true ) === $fingerprint ) {
 		return;
 	}
 
 	$plugins = array();
-	foreach ( array( $conflicts, $likely ) as $set ) {
-		foreach ( $set as $hook_plugins ) {
-			foreach ( $hook_plugins as $plugin ) {
-				$plugins[ $plugin ] = true;
-			}
+	foreach ( $conflicts as $hook_plugins ) {
+		foreach ( $hook_plugins as $plugin ) {
+			$plugins[ $plugin ] = true;
 		}
 	}
 
@@ -453,12 +450,7 @@ function keel_defaults_handle_conflicts_dismissal() {
 	update_user_meta(
 		get_current_user_id(),
 		'keel_conflicts_dismissed',
-		keel_defaults_conflicts_fingerprint(
-			array_merge(
-				keel_defaults_competing_plugins(),
-				keel_defaults_likely_competing_plugins( keel_defaults_competing_plugins() )
-			)
-		)
+		keel_defaults_conflicts_fingerprint( keel_defaults_competing_plugins() )
 	);
 
 	wp_safe_redirect( admin_url( 'index.php' ) );
@@ -466,7 +458,7 @@ function keel_defaults_handle_conflicts_dismissal() {
 }
 
 /**
- * Active plugins whose source declares a filter on a contested hook.
+ * Active plugins whose source names a capability a scoped hook is contested over.
  *
  * The fallback for what reflection cannot see. `__return_false` is a core
  * function, so a plugin that turns something off with it is indistinguishable
@@ -493,15 +485,12 @@ function keel_defaults_plugin_source_index() {
 	/**
 	 * Short-circuit the source scan.
 	 *
-	 * @param array<string, string[]>|null $declared Hook => plugin dirs, or null to scan.
+	 * @param array<string, array<string, bool>>|null $mentions Plugin dir => keys named, or null to scan.
 	 */
-	$declared = apply_filters( 'keel_plugin_hook_declarations', null );
+	$mentions = apply_filters( 'keel_plugin_scope_mentions', null );
 
-	if ( is_array( $declared ) ) {
-		return array(
-			'declares' => $declared,
-			'mentions' => (array) apply_filters( 'keel_plugin_scope_mentions', array() ),
-		);
+	if ( is_array( $mentions ) ) {
+		return array( 'mentions' => $mentions );
 	}
 
 	$cached = get_transient( 'keel_conflict_scan' );
@@ -553,10 +542,7 @@ function keel_defaults_plugin_source_index() {
 		$found[ $hook ] = array_keys( $dirs );
 	}
 
-	$index = array(
-		'declares' => $found,
-		'mentions' => $mentions,
-	);
+	$index = array( 'mentions' => $mentions );
 
 	set_transient(
 		'keel_conflict_scan',
@@ -570,16 +556,6 @@ function keel_defaults_plugin_source_index() {
 	return $index;
 }
 
-/**
- * Hook => the plugin directories whose source declares a filter on it.
- *
- * @return array<string, string[]>
- */
-function keel_defaults_plugin_hook_declarations() {
-	$index = keel_defaults_plugin_source_index();
-
-	return isset( $index['declares'] ) ? $index['declares'] : array();
-}
 
 /**
  * The directory name of every active plugin, network included.
@@ -678,69 +654,3 @@ function keel_defaults_plugin_in_scope( $dir, $hook ) {
 	return false;
 }
 
-/**
- * Plugins that are probably contesting a hook, but cannot be proven to be.
- *
- * Two pieces of evidence, and both are required. The hook has to carry a
- * callback that resolves to nothing — something is registered that is neither
- * Keel nor attributable — and an active plugin's source has to declare a filter
- * on that hook. Either alone is too weak to report: unresolved callbacks include
- * core's own, and a declaration may sit in a branch that never runs.
- *
- * Anything already confirmed by reflection is dropped, so nothing appears twice
- * as both a fact and a guess.
- *
- * @param array<string, string[]> $confirmed Hook => plugin dirs already proven.
- * @return array<string, string[]> Hook => plugin dirs.
- */
-function keel_defaults_likely_competing_plugins( $confirmed = array() ) {
-	global $wp_filter;
-
-	$mine     = keel_defaults_registered_policy_hooks();
-	$declared = keel_defaults_plugin_hook_declarations();
-	$self     = defined( 'KEEL_DEFAULTS_FILE' ) ? basename( dirname( KEEL_DEFAULTS_FILE ) ) : '';
-	$likely   = array();
-
-	foreach ( keel_defaults_policy_hooks() as $hook => $kind ) {
-		if ( 'additive' === $kind || ! isset( $mine[ $hook ] ) || empty( $declared[ $hook ] ) ) {
-			continue;
-		}
-
-		if ( empty( $wp_filter[ $hook ] ) || ! isset( $wp_filter[ $hook ]->callbacks ) ) {
-			continue;
-		}
-
-		$unresolved = false;
-
-		foreach ( $wp_filter[ $hook ]->callbacks as $callbacks ) {
-			foreach ( $callbacks as $registered ) {
-				if ( isset( $registered['function'] ) && '' === keel_defaults_callback_plugin_dir( $registered['function'] ) ) {
-					$unresolved = true;
-					break 2;
-				}
-			}
-		}
-
-		if ( ! $unresolved ) {
-			continue;
-		}
-
-		$known = isset( $confirmed[ $hook ] ) ? (array) $confirmed[ $hook ] : array();
-		$rest  = array_values( array_diff( $declared[ $hook ], $known, array( $self ) ) );
-
-		$rest = array_values(
-			array_filter(
-				$rest,
-				function ( $dir ) use ( $hook ) {
-					return keel_defaults_plugin_in_scope( $dir, $hook );
-				}
-			)
-		);
-
-		if ( ! empty( $rest ) ) {
-			$likely[ $hook ] = $rest;
-		}
-	}
-
-	return $likely;
-}
