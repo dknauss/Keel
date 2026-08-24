@@ -209,6 +209,9 @@ function keel_defaults_block_comment_feeds() {
 	remove_action( 'template_redirect', 'redirect_canonical' );
 
 	status_header( 404 );
+	if ( ! headers_sent() ) {
+		header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+	}
 	nocache_headers();
 }
 
@@ -239,6 +242,9 @@ function keel_defaults_block_author_feeds() {
 	remove_action( 'template_redirect', 'redirect_canonical' );
 
 	status_header( 404 );
+	if ( ! headers_sent() ) {
+		header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+	}
 	nocache_headers();
 }
 

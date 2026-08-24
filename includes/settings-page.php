@@ -843,6 +843,7 @@ function keel_defaults_render_settings_page() {
 										value="<?php echo esc_attr( $value ); ?>"
 										aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>
 										<?php echo $locked ? 'aria-disabled="true" data-keel-locked="1"' : ''; ?>
+										<?php echo $locked ? 'readonly' : ''; ?>
 										class="small-text" />
 									<?php if ( ! empty( $s['unit'] ) ) : ?>
 										<span class="keel-unit" id="<?php echo esc_attr( $unit_id ); ?>" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>
@@ -909,13 +910,18 @@ function keel_defaults_render_settings_page() {
 			 * key — so this is the courtesy, not the enforcement.
 			 */
 			document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
+				var initialValue   = control.value;
+				var initialChecked = control.checked;
 				control.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); } );
+				control.addEventListener( 'click', function ( event ) { event.preventDefault(); } );
 				control.addEventListener( 'keydown', function ( event ) {
-					if ( ' ' === event.key || 'Enter' === event.key ) { event.preventDefault(); }
+					if ( 'Tab' !== event.key && ! event.altKey && ! event.ctrlKey && ! event.metaKey ) { event.preventDefault(); }
 				} );
 				control.addEventListener( 'change', function () {
 					if ( 'checkbox' === control.type ) {
-						control.checked = ! control.checked;
+						control.checked = initialChecked;
+					} else {
+						control.value = initialValue;
 					}
 				} );
 			} );

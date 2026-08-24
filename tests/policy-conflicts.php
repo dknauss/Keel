@@ -38,6 +38,17 @@ function get_post( $id ) { return (object) array(
 class Keel_Test_Hook {
 	public $callbacks = array();
 	public function __construct( array $callbacks ) { $this->callbacks = $callbacks; }
+	public function remove_filter( $hook, $callback, $priority ) {
+		unset( $hook );
+		foreach ( isset( $this->callbacks[ $priority ] ) ? $this->callbacks[ $priority ] : array() as $id => $registered ) {
+			if ( $registered['function'] === $callback ) {
+				unset( $this->callbacks[ $priority ][ $id ] );
+			}
+		}
+		if ( empty( $this->callbacks[ $priority ] ) ) {
+			unset( $this->callbacks[ $priority ] );
+		}
+	}
 	public function apply_filters( $value, $args ) {
 		foreach ( $this->callbacks as $callbacks ) {
 			foreach ( $callbacks as $registered ) {

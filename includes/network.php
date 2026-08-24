@@ -296,9 +296,16 @@ function keel_defaults_render_network_page() {
 		<script>
 		( function () {
 			document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
+				var initialValue   = control.value;
+				var initialChecked = control.checked;
 				control.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); } );
+				control.addEventListener( 'click', function ( event ) { event.preventDefault(); } );
 				control.addEventListener( 'keydown', function ( event ) {
-					if ( ' ' === event.key || 'Enter' === event.key ) { event.preventDefault(); }
+					if ( 'Tab' !== event.key && ! event.altKey && ! event.ctrlKey && ! event.metaKey ) { event.preventDefault(); }
+				} );
+				control.addEventListener( 'change', function () {
+					control.checked = initialChecked;
+					control.value   = initialValue;
 				} );
 			} );
 		} )();
@@ -343,13 +350,14 @@ function keel_defaults_render_network_control( $key, $name, $value, $field, $s, 
 
 	if ( 'number' === $type ) {
 		printf(
-			'<input type="number" name="%s" value="%s" min="%d" max="%d" class="small-text"%s%s /> %s',
+			'<input type="number" name="%s" value="%s" min="%d" max="%d" class="small-text"%s%s%s /> %s',
 			esc_attr( $name ),
 			esc_attr( (string) $value ),
 			isset( $field['min'] ) ? (int) $field['min'] : 0,
 			isset( $field['max'] ) ? (int) $field['max'] : 3650,
 			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
 			$lock, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
+			$locked ? ' readonly' : '',
 			esc_html( isset( $s['unit'] ) ? $s['unit'] : '' )
 		);
 		return;
