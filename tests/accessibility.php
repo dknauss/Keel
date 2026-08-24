@@ -3,7 +3,7 @@
  * Accessibility invariants for the settings screen and the admin bar.
  *
  * Written after the first accessibility sweep of this plugin, which found real
- * care in the code — 38 aria-describedby wirings, screen-reader legends on every
+ * care in the code — aria-describedby wiring, screen-reader legends on every
  * fieldset, scope="row" headings, an environment label clipped rather than
  * display:none'd so it survives for a screen reader — and almost no coverage of
  * any of it. Two assertions in the whole suite touched accessibility. Care

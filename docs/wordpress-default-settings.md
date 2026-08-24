@@ -479,6 +479,26 @@ add_action( 'admin_print_footer_scripts', function () {
 } );
 ```
 
+### Limit Post Revisions
+- **Key:** `post_revisions_limit`
+- **Default:** `10` on a new activation; existing installations migrate to `-1`
+  so updating does not replace their previous unlimited behavior
+- **Why:** Revisions are valuable recovery history, but unlimited copies can grow large on
+  frequently edited sites. A moderate cap keeps recovery useful without unbounded retention.
+  Use `-1` for unlimited or `0` to disable future revisions. Changing the setting does not
+  immediately delete revisions already stored; pruning occurs through later saves.
+
+```php
+add_filter( 'wp_revisions_to_keep', function ( $number, $post ) {
+    return 10;
+}, 10, 2 );
+```
+
+WordPress defines `WP_POST_REVISIONS` to `true` itself when wp-config does not. A numeric or
+false value therefore proves an operator supplied a distinguishable policy and Keel stands
+down. An explicit `true` is indistinguishable from core's default `true`; no plugin loaded
+afterward can honestly claim to know which file defined it.
+
 ## 3. Admin and Front-End UX
 
 ### Title-Only Admin Search
@@ -1073,6 +1093,7 @@ covering only some, which reads as a full inventory when it is not.
 | Attachment Pages | `redirect_attachment_pages` | `yes` | Content |
 | Emoji Script | `disable_emojis` | `yes` | Content |
 | Post Passwords | `disable_post_passwords` | `no` | Content |
+| Post Revision Retention | `post_revisions_limit` | `10` | Content |
 | Classic Editor | `force_classic_editor` | `no` | Editor |
 | Upload Filenames | `lowercase_upload_filenames` | `yes` | Media |
 | Image Sizes | `media_sizes_panel` | `yes` | Media |
@@ -1095,8 +1116,9 @@ covering only some, which reads as a full inventory when it is not.
 - Load these from an **mu-plugin** or a dedicated plugin, not the theme, so policy survives
   theme switches.
 - Gate every snippet behind its `keel_defaults_enabled()` / `keel_defaults_get()` check so site owners keep control. There is no per-setting option row: everything lives in the single `keel_settings` array option, which is why the keys above carry no `keel_` prefix.
-- `wp-config.php` constants (`DISALLOW_FILE_EDIT`, `AUTOSAVE_INTERVAL`, `WP_POST_REVISIONS`)
-  can't be toggled from options — surface them in your docs as recommended manual settings.
+- `DISALLOW_FILE_EDIT` and `AUTOSAVE_INTERVAL` still belong in wp-config. Keel can govern
+  revision retention through core's filter; a numeric or false `WP_POST_REVISIONS` constant
+  remains operator-owned and locks the corresponding controls.
 - Explicit update constants remain operator-owned: the settings screen reports
   `WP_AUTO_UPDATE_CORE`, `AUTOMATIC_UPDATER_DISABLED`, and `DISALLOW_FILE_MODS` rather than
   silently fighting them.
@@ -1105,23 +1127,25 @@ covering only some, which reads as a full inventory when it is not.
 
 ---
 
-## When another plugin sets the same default
+## When another plugin touches the same policy
 
-Two plugins that both set a session length do not error, do not log, and do not look
-wrong. WordPress runs both filters and keeps whichever answered last, so the losing
-plugin's settings screen goes on displaying a value the site does not use. Keel cannot
-change that outcome — WordPress decides it — so it reports it instead, on the Plugins
-screen, on **Settings → Keel**, on the dashboard, and in full under **Tools → Site
-Health**.
+WordPress runs every callback on a filter in priority order and then uses the final value.
+Callback presence alone therefore proves no collision: two callbacks can agree, and structured
+results can carry independent restrictions. `keel_defaults_policy_overlap_report()` reports
+three evidence levels:
 
-`keel_defaults_policy_hooks()` in `includes/conflicts.php` is the map, and it classifies
-hooks by what losing on them costs:
+| state | evidence and response |
+|---|---|
+| `confirmed` | A safe replay demonstrated that the final governed outcome differs. An actionable warning is allowed. |
+| `compatible` | Both plugins touch the hook, but the governed final outcome still matches Keel. Informational only. |
+| `unconfirmed` | Replay is unsafe, failed, or attribution is incomplete. Informational only, with no deactivation advice. |
 
-| kind | what contention does | examples |
-|---|---|---|
-| `authoritative` | The callback replaces its input; the last registration decides and the others keep showing a value the site does not use. | `auth_cookie_expiration`, `use_block_editor_for_post`, `comments_open` |
-| `short_circuit` | Core returns on the first non-null answer, so the losing callback never runs at all — and neither does whatever it existed to do. | `pre_wp_mail`, `comments_pre_query` |
-| `additive` | Callbacks contribute to a structure or transform a value in turn. Sharing is normal and is never reported. | `wp_headers`, `user_has_cap`, `sanitize_file_name` |
+`pre_wp_mail` and `comments_pre_query` are final-value filters, not callback short circuits:
+every callback runs before core examines the non-null result. They are left unconfirmed because
+blindly replaying mail or query callbacks on a Site Health request can have side effects.
+`rest_authentication_errors` is compositional and is not accused from registration alone.
+For block restrictions, the projector compares only whether comment blocks remain excluded;
+another plugin removing unrelated blocks is compatible.
 
 Two rules keep the report worth reading.
 
@@ -1130,11 +1154,9 @@ registered on it. Keel stands down on several — the session filter is not regi
 all when the policy matches WordPress's own — and a hook Keel is not on is another plugin
 doing its job, not a conflict.
 
-**An unmapped hook is not a gap.** The map is an allowlist of hooks where losing has a
-consequence somebody can act on, not an inventory of the 60-odd hooks the plugin touches.
-`the_generator` is the shape of thing deliberately left out: two plugins both emptying it
-reach the same place, so naming a winner would be noise. A check that fires on every
-well-behaved plugin is one people learn to ignore.
+**Only safe evidence is actionable.** Capability direction is never inferred from a source
+mention, and a core helper such as `__return_false` is labelled unattributable rather than
+assigned to whichever plugin happened to contain the same words in a file.
 
 The map is filterable through `keel_policy_hooks`, and the notice placements through
 `keel_conflict_notice_screens`.

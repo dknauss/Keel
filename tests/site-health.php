@@ -58,6 +58,10 @@ $schema = keel_defaults_schema();
 keel_assert( 'On' === keel_defaults_state_label( $schema['require_strong_passwords'], 'yes' ), 'Toggle On label.' );
 keel_assert( 'Off' === keel_defaults_state_label( $schema['require_strong_passwords'], 'no' ), 'Toggle Off label.' );
 keel_assert( 'Unchanged' === keel_defaults_state_label( $schema['frontend_admin_bar_behavior'], '' ), 'Empty select reads Unchanged.' );
+$revision_strings = keel_defaults_strings()['post_revisions_limit'];
+keel_assert( 'Unlimited' === keel_defaults_state_label( $schema['post_revisions_limit'], -1, $revision_strings ), 'Revision -1 reads Unlimited.' );
+keel_assert( 'Disabled' === keel_defaults_state_label( $schema['post_revisions_limit'], 0, $revision_strings ), 'Revision zero reads Disabled.' );
+keel_assert( '10 revisions' === keel_defaults_state_label( $schema['post_revisions_limit'], 10, $revision_strings ), 'A positive revision limit names its unit.' );
 
 // Default posture (schema defaults: strong passwords + rest discovery both on) → good.
 $GLOBALS['keel_options'] = array();
@@ -139,12 +143,10 @@ foreach ( $schema as $key => $field ) {
 
 	++$numbers;
 
-	// keel_defaults_state_label() hard-codes day/days because both number fields
-	// are days. That is fine while it holds and wrong the moment it does not, so
-	// assert it here rather than leaving it as an assumption in a comment.
+	// Every number must supply a readable unit or named sentinel states.
 	keel_assert(
-		isset( $strings[ $key ]['unit'] ) && 'days' === $strings[ $key ]['unit'],
-		"'{$key}' is a number measured in something other than days; keel_defaults_state_label() needs a case for it."
+		isset( $strings[ $key ]['unit'], $strings[ $key ]['unit_singular'] ),
+		"'{$key}' has no singular/plural unit for Site Health."
 	);
 
 	$state = keel_defaults_state_label( $field, $field['default'], isset( $strings[ $key ] ) ? $strings[ $key ] : array() );
@@ -152,10 +154,7 @@ foreach ( $schema as $key => $field ) {
 		(string) $field['default'] !== $state,
 		"'{$key}' reports a bare number ('{$state}') with no unit."
 	);
-	keel_assert(
-		false !== strpos( $state, 'day' ),
-		"'{$key}' reports '{$state}', which does not name its unit."
-	);
+	keel_assert( false !== strpos( $state, $strings[ $key ]['unit'] ), "'{$key}' reports '{$state}', which does not name its unit." );
 }
 
 keel_assert( $numbers > 0, 'The unit check found number fields to check (' . $numbers . ').' );
@@ -163,11 +162,25 @@ keel_assert( $numbers > 0, 'The unit check found number fields to check (' . $nu
 // min is 1 on both, so the singular is reachable and a bare "%s days" would
 // print "1 days".
 keel_assert(
-	'1 day' === keel_defaults_state_label( array( 'type' => 'number' ), 1, array( 'unit' => 'days' ) ),
+	'1 day' === keel_defaults_state_label(
+		array( 'type' => 'number' ),
+		1,
+		array(
+			'unit'          => 'days',
+			'unit_singular' => 'day',
+		)
+	),
 	'A value of 1 uses the singular, not "1 days".'
 );
 keel_assert(
-	'2 days' === keel_defaults_state_label( array( 'type' => 'number' ), 2, array( 'unit' => 'days' ) ),
+	'2 days' === keel_defaults_state_label(
+		array( 'type' => 'number' ),
+		2,
+		array(
+			'unit'          => 'days',
+			'unit_singular' => 'day',
+		)
+	),
 	'A value above 1 uses the plural.'
 );
 

@@ -8,9 +8,21 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
+## v0.5 selected scope
+
+This release expands the schema to 39 defaults.
+
+- [x] **Author-feed status** ([#101](https://github.com/dknauss/Keel/issues/101)) — done 2026-08-23. The feed was already caught by the
+      archive's broad 301 because WordPress sets both query flags. It now returns
+      an explicit 404 while the HTML archive keeps its existing 301. No new setting.
+- [x] **Revisions control** ([#102](https://github.com/dknauss/Keel/issues/102)) — done 2026-08-23. New activations seed 10; existing
+      installs migrate to unlimited instead of changing on update. `-1` means
+      unlimited and `0` disabled. Numeric/false wp-config policy locks site and
+      network controls; core's indistinguishable default `true` cannot be detected.
+
 ## Content / docs
 
-- [x] **Reference doc coverage** — done 2026-08-04. All 38 schema keys now have an
+- [x] **Reference doc coverage** — done 2026-08-04. Every schema key then present received an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
       three more (`remove_version`, `security_headers`, `frame_options`) were described
       in prose in section 6 but never keyed, so a search for the key found nothing.
@@ -23,8 +35,8 @@ into ROADMAP.md or here.
       `keel_session_regular_hours`) and are now `remember_me_days` / `session_regular_days`
       with their real defaults.
 
-- [x] **readme.txt / README** — done 2026-08-04. Both expanded now the feature set is
-      frozen at 38. The HIBP external-services disclosure is current and guarded by
+- [x] **readme.txt / README** — done 2026-08-04. Both expanded once the initial
+      feature set had settled. The HIBP external-services disclosure is current and guarded by
       `tests/readme-spec.php`, which asserts it names the opt-out constant and filter,
       says how much of the hash is sent, says what happens when the API is unreachable,
       and links the operator's privacy policy.

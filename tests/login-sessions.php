@@ -94,6 +94,21 @@ $clean = keel_defaults_sanitize(
 );
 keel_assert( 2 === $clean['session_regular_days'] && 30 === $clean['remember_me_days'], 'A valid remember>=regular pair passes through unchanged.' );
 
+// Revision retention shares the numeric field but deliberately admits the two
+// core sentinel values that day-based settings do not.
+$clean = keel_defaults_sanitize( array( 'post_revisions_limit' => '-1' ) );
+keel_assert( -1 === $clean['post_revisions_limit'], 'Revision -1 survives sanitizing as unlimited.' );
+$clean = keel_defaults_sanitize( array( 'post_revisions_limit' => '0' ) );
+keel_assert( 0 === $clean['post_revisions_limit'], 'Revision zero survives sanitizing as disabled.' );
+$clean = keel_defaults_sanitize( array( 'post_revisions_limit' => '-2' ) );
+keel_assert( -1 === $clean['post_revisions_limit'], 'Values below the unlimited sentinel clamp to -1 rather than becoming positive.' );
+$clean = keel_defaults_sanitize( array( 'post_revisions_limit' => 'not-a-number' ) );
+keel_assert( 10 === $clean['post_revisions_limit'], 'Malformed revision input returns to the seeded default.' );
+
+$GLOBALS['keel_options']['post_revisions_limit'] = 25;
+keel_assert( 25 === keel_defaults_revision_limit( -1, null ), 'The revision filter asserts the stored limit.' );
+keel_assert( null === keel_defaults_config_lock( 'post_revisions_limit' ), 'Core/default true or an absent constant leaves revision policy manageable.' );
+
 
 /*
  * The clamp has to be the last word.
@@ -134,6 +149,9 @@ keel_assert( 30 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, true 
 
 $GLOBALS['keel_options']['disable_remember_me'] = 'yes';
 keel_assert( 5 * DAY_IN_SECONDS === keel_defaults_session_length( 999, 1, true ), 'With Remember Me disabled, even a remembered login gets the regular length.' );
+
+define( 'WP_POST_REVISIONS', 7 );
+keel_assert( null !== keel_defaults_config_lock( 'post_revisions_limit' ), 'A distinguishable numeric wp-config revision policy locks Keel.' );
 
 fwrite( STDOUT, "login-sessions tests passed.\n" );
 

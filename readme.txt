@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.1
+Stable tag: 0.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ More than 30 sane WordPress defaults, each one a switch you can see and turn off
 
 Keel flips a menu of sensible defaults onto any WordPress install, each one a switch under **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any piece off.
 
-Every default is one entry in a single schema array that drives both the settings screen and the code that wires it to WordPress. A default is an opinionated filter behind a toggle.
+All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. A default is an opinionated filter behind a control.
 
 **Disabling something means it is actually disabled.** Measured against nine of the most-installed plugins in this space — every result a live request against a real install, not a readme claim — Keel is the only one where "comments are off" is true below the presentation layer. The others stop at the theme template and the REST route: ask the database directly, with `get_comments()`, and the comments are still there. The same care runs through the rest — closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed answering.
 
@@ -35,7 +35,7 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 `define( 'DISALLOW_FILE_EDIT', true );` — removes the built-in plugin and theme code editors, so a compromised admin account cannot edit PHP from the dashboard.
 
-`define( 'WP_POST_REVISIONS', 10 );` — caps stored post revisions so the database does not grow without bound.
+`define( 'WP_POST_REVISIONS', 10 );` — caps stored post revisions so the database does not grow without bound. Keel's **Post Revision Retention** control can govern the same policy after plugins load; a numeric or false constant remains the higher-level operator choice and locks that control.
 
 `define( 'AUTOSAVE_INTERVAL', 120 );` — lengthens the editor autosave interval. This is independent of Keel's Heartbeat throttle: both influence how often the editor saves in the background, but neither replaces or overrides the other.
 
@@ -91,13 +91,13 @@ Nothing is written into your sites. A network value is applied when a setting is
 
 You can, but you probably should not, and Keel will tell you when it matters.
 
-Some settings are applied through WordPress filters that return a single value — session length is the clearest example. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect.
+Some settings are applied through WordPress filters that transform a value in priority order — session length is the clearest example. Another callback on the same filter is not automatically a conflict: two plugins may reach the same outcome or govern different parts of a structured result.
 
-Keel checks for this and says so where you will see it: on the Plugins screen — where you land the moment you activate something — on **Settings → Keel**, and on the dashboard, where it can be dismissed until the situation changes. The full detail is under **Tools → Site Health**, naming which plugins are contesting which setting. It does not tell you which plugin to keep — that is a judgement about your site, and a plugin answering it would be arguing for its own retention.
+Keel checks effects where replay is safe and says so where you will see it: on the Plugins screen, on **Settings → Keel**, and on the dashboard, where it can be dismissed until the confirmed situation changes. The full detail is under **Tools → Site Health**.
 
-Two kinds of collision are reported, because they are different problems. On most settings the last plugin to answer decides, and the others go on displaying a value the site does not use. On a few — suppressing outgoing mail, and answering comment queries — WordPress stops at the first plugin that answers, so the other never runs at all. Outgoing mail is the one case where Keel deliberately takes the last word, because a site that is not production must not send mail whatever else decided; the report says so, and names the `keel_outgoing_mail_suppressed` action a mail catcher should hook instead.
+The result is tri-state. A safely reproduced different final outcome is a confirmed collision and may produce an actionable warning. The same governed outcome is a compatible overlap. Mail, authentication, comment-query, capability, failed, and unattributable probes stay unconfirmed and informational; they never receive deactivation advice merely because a callback exists.
 
-There is a limit worth knowing. WordPress ships a handful of tiny helper functions — `__return_false` is the common one — and turning a feature off by handing one of those to a filter is the ordinary way a "disable something" plugin is written. Keel cannot trace those back to the plugin that used them: the function belongs to WordPress, so it looks exactly like WordPress doing it. A clear result therefore means nothing traceable was found, not that nothing is competing for the setting.
+There is a limit worth knowing. WordPress ships tiny helper callbacks such as `__return_false`; the callback belongs to WordPress, not the plugin that registered it. Keel labels that limitation unconfirmed instead of guessing from source code or naming a plugin without evidence.
 
 Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made — and it will not report a conflict on a setting it is not itself setting.
 
@@ -127,6 +127,11 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.5.0 =
+* Added post-revision retention: new activations keep 10 revisions, existing sites preserve their previous unlimited behavior on upgrade, `-1` means unlimited, and `0` disables future revisions. Numeric or false `WP_POST_REVISIONS` policy locks both site and network controls.
+* Author feeds now return an explicit 404 when author archives are disabled. They were already closed by the archive's broad 301 because WordPress sets both query flags; the corrected test now proves that routing fact against the real request.
+* Rebuilt overlapping-policy detection around confirmed, compatible, and unconfirmed effects. Callback presence alone no longer generates deactivation advice, and the incorrect claim that mail/comment-query callbacks stop after the first non-null value is gone.
+
 = 0.4.1 =
 * Removed the unconfirmed half of the overlapping-settings check. It reported a plugin when something untraceable was registered on a setting Keel also sets and that plugin's source mentioned the same filter — but WordPress itself, and Keel itself, both register through the same untraceable helper functions, so the first of those two conditions was true on nearly every setting. That left one weak signal doing the work of two, and it named plugins that were not doing anything: Clearfy and WP Master Toolkit were both reported on five settings between them while registering nothing at all. Confirmed detection is unchanged and unaffected.
 * The check now says what it cannot see, on the settings screen and in Site Health. A plugin that turns something off by handing one of WordPress's own helper functions to a filter cannot be traced back from that filter, so a clear result means nothing traceable was found rather than nothing competing.
@@ -147,7 +152,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Settings that hide when another choice makes them irrelevant now tell assistive technology which control governs them, and whether they are showing.
 * The staging environment indicator failed WCAG AA contrast at 2.41:1 against the 4.5:1 minimum for text that size. Every environment colour is now checked by the test suite.
 * The admin menu width slider announces its setting as a word rather than a position, and no longer repeats itself on every keypress.
-* Site Health → Info groups the defaults by category instead of repeating the group name on all 38 rows, and the section is named "Keel Defaults" rather than "Keel".
+* Site Health → Info groups the defaults by category instead of repeating the group name on every row, and the section is named "Keel Defaults" rather than "Keel".
 * Number settings report their unit, so Site Health says "14 days" rather than "14".
 * X-Frame-Options is left alone inside the Customizer preview, which sets that header itself so the preview can load.
 * Translation catalogs rebuilt: 68 strings in the code were missing from the template, and the en_CA catalog translated nothing because every string it named had been reworded.
@@ -155,7 +160,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * A "try it live" Playground link that follows each stable release.
 
 = 0.2.0 =
-* First stable release. The feature set is frozen at 38 defaults; what changed since the scaffold is listed below.
+* First stable release. The initial feature set was frozen; what changed since the scaffold is listed below.
 * Comment teardown now reaches past the rendered page: comment queries are answered empty, comment blocks stop rendering in block themes, comment feeds return a real 404 instead of a redirect loop, and the comment count reports zero.
 * A closed REST API stops advertising itself — the `<link rel>`, the `Link:` header and the RSD entry all go — and oEmbed stays reachable through the gate so other sites embedding yours do not silently degrade to a bare link.
 * Author identity no longer leaks past a hidden author archive. oEmbed responses drop `author_name` and `author_url`, and the users sitemap provider is removed.
@@ -173,6 +178,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.0 =
+Existing sites keep unlimited revision history unless you choose a limit; new activations default to 10. Re-check overlapping-policy results because Keel now reports only confirmed incompatible effects as actionable.
 
 = 0.4.1 =
 Fixes the overlapping-settings check naming plugins that were not competing. If 0.4.0 told you another plugin was setting the same things and you have not acted on it yet, re-check under Site Health before deactivating anything. Confirmed results were always correct; the unconfirmed ones are gone.

@@ -8,6 +8,19 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Apply Keel's stored revision limit.
+ *
+ * @param int      $number Current revision limit.
+ * @param \WP_Post $post   Post being revisioned.
+ * @return int
+ */
+function keel_defaults_revision_limit( $number, $post ) {
+	unset( $number, $post );
+
+	return (int) keel_defaults_get( 'post_revisions_limit' );
+}
+
+/**
  * Replace the author name in feeds while author archives are disabled.
  *
  * `the_author` is what RSS puts in `<dc:creator>` and Atom in `<author><name>`,
@@ -168,10 +181,11 @@ function keel_defaults_suppress_comment_blocks( $block_content, $block ) {
  * comes back empty, which is arguably worse than either extreme: a live,
  * crawlable endpoint that exists solely to say nothing.
  *
- * set_404() re-runs init_query_flags(), which clears is_feed() as well — so the
- * template loader stops routing to do_feed() and renders the theme's 404
- * instead. That ordering is why this runs before the flags are read, and why
- * is_comment_feed() has to be tested first.
+ * Core's set_404() clears the other query flags but deliberately restores
+ * is_feed afterwards. Keel clears it explicitly so the template loader stops
+ * routing to do_feed() and renders the theme's 404 instead. That ordering is why
+ * this runs before the flags are read, and why is_comment_feed() has to be tested
+ * first.
  *
  * redirect_canonical() has to go with it. It does not bail on a 404 — it calls
  * redirect_guess_404_permalink() and, on a query this one has just emptied,
@@ -189,12 +203,60 @@ function keel_defaults_block_comment_feeds() {
 
 	if ( $wp_query instanceof WP_Query ) {
 		$wp_query->set_404();
+		$wp_query->is_feed = false;
 	}
 
 	remove_action( 'template_redirect', 'redirect_canonical' );
 
 	status_header( 404 );
 	nocache_headers();
+}
+
+/**
+ * Answer an author-feed request with a real 404 while author archives are off.
+ *
+ * WordPress marks `/author/{slug}/feed/` as both an author query and a feed.
+ * Keel's existing `is_author()` redirect therefore already closed it with the
+ * same 301 used for the HTML archive. A feed is not a useful redirect target,
+ * though: it is a machine endpoint mirroring a public surface the site disabled.
+ * Return 404 explicitly before the archive redirect runs.
+ *
+ * @return void
+ */
+function keel_defaults_block_author_feeds() {
+	if ( ! is_author() || ! is_feed() ) {
+		return;
+	}
+
+	global $wp_query;
+
+	if ( $wp_query instanceof WP_Query ) {
+		$wp_query->set_404();
+		// WP_Query::set_404() preserves the feed flag; the 404 template needs it off.
+		$wp_query->is_feed = false;
+	}
+
+	remove_action( 'template_redirect', 'redirect_canonical' );
+
+	status_header( 404 );
+	nocache_headers();
+}
+
+/**
+ * Redirect a disabled HTML author archive to the site home page.
+ *
+ * Author feeds are converted to a 404 at priority 9, whose `set_404()` call
+ * clears the author flag before this priority-10 callback runs.
+ *
+ * @return void
+ */
+function keel_defaults_redirect_author_archive() {
+	if ( ! is_author() ) {
+		return;
+	}
+
+	wp_safe_redirect( home_url( '/' ), 301 );
+	exit;
 }
 
 /**

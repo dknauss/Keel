@@ -57,15 +57,14 @@ function keel_defaults_limit_unfiltered_html( $allcaps, $caps, $args, $user ) {
 /**
  * Whether the session policy says anything WordPress does not already do.
  *
- * `auth_cookie_expiration` is a *replacing* filter: the callback returns its own
- * number and discards the one it was handed. That kind of filter cannot
- * compose. When two plugins register one, WordPress keeps whichever ran last,
- * the other silently does nothing, and both settings screens go on displaying
- * their own value — measured happening across all three sibling plugins on one
- * install.
+ * `auth_cookie_expiration` composes every callback in priority order, but a
+ * callback may replace the incoming number with its own. The final callback is
+ * not necessarily the sole decision-maker—a later callback can preserve or
+ * transform an earlier result—so Keel's overlap report compares observed final
+ * effects instead of inferring a winner from registration.
  *
- * A number filter cannot be made additive, so the honest move is to stay out of
- * a fight there is nothing to win. Keel's defaults are WordPress's own values,
+ * Keel's defaults are WordPress's own values, so the honest move is to stay out
+ * of a policy decision it does not need to make. On a site that has not changed them,
  * so on a site that has not changed them, registering would assert core's answer
  * over another plugin's deliberate one.
  *

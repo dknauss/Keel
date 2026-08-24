@@ -63,6 +63,12 @@ function add_option( $key, $value ) {
 	return true;
 }
 
+function update_option( $key, $value ) {
+	$id                                   = $GLOBALS['keel_current_site'];
+	$GLOBALS['keel_sites'][ $id ][ $key ] = $value;
+	return true;
+}
+
 function get_sites( $args = array() ) {
 	$ids = array_keys( $GLOBALS['keel_sites'] );
 	sort( $ids );
@@ -116,6 +122,25 @@ $seeded = $GLOBALS['keel_sites'][1]['keel_settings'];
 $schema = keel_defaults_schema();
 keel_assert( count( $seeded ) === count( $schema ), 'Every schema key is seeded.' );
 keel_assert( $seeded['disable_comments'] === $schema['disable_comments']['default'], 'Seeded values are the schema defaults.' );
+keel_assert( 10 === $seeded['post_revisions_limit'], 'New activations seed the recommended ten-revision limit.' );
+keel_assert( KEEL_DEFAULTS_DATA_VERSION === $GLOBALS['keel_sites'][1][ KEEL_DEFAULTS_DATA_VERSION_OPTION ], 'Activation records the current data version.' );
+
+// --- upgrade: established sites keep WordPress's previous unlimited policy ---
+$GLOBALS['keel_sites'][1] = array(
+	'keel_settings' => array( 'disable_comments' => 'yes' ),
+);
+keel_assert( true === keel_defaults_maybe_upgrade(), 'An old settings array is migrated before bootstrap reads it.' );
+keel_assert( -1 === $GLOBALS['keel_sites'][1]['keel_settings']['post_revisions_limit'], 'Existing installs preserve unlimited revisions on upgrade.' );
+keel_assert( false === keel_defaults_maybe_upgrade(), 'The migration is idempotent.' );
+
+// A site with no settings was never seeded; migration must not activate policy
+// behind activation's back.
+$GLOBALS['keel_sites'][1] = array();
+keel_assert( false === keel_defaults_maybe_upgrade(), 'Migration leaves an unseeded site alone.' );
+keel_assert( ! isset( $GLOBALS['keel_sites'][1]['keel_settings'] ), 'An unseeded site remains unseeded.' );
+
+// Restore an activated site for the reactivation cases below.
+keel_defaults_activate( false );
 
 // --- reactivation must not overwrite a configured site ---
 // Asserted on the return value, not just the stored data. add_option() refuses

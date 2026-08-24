@@ -128,6 +128,7 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
 	$schema = keel_defaults_schema();
 	$raw    = is_array( $raw ) ? $raw : array();
 	$manage = is_array( $manage ) ? $manage : array();
+	$stored = keel_defaults_network_settings();
 
 	// Sanitize the whole submission once, then keep only the managed keys. Doing
 	// it in this order means the sanitizer sees a complete payload, which is what
@@ -137,6 +138,16 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
 	$out   = array();
 
 	foreach ( array_keys( $schema ) as $key ) {
+		// wp-config.php is above network policy. Preserve an existing policy
+		// underneath the lock, or keep an unmanaged key absent, exactly as the
+		// site sanitizer preserves a site's dormant preference.
+		if ( null !== keel_defaults_config_lock( $key ) ) {
+			if ( array_key_exists( $key, $stored ) ) {
+				$out[ $key ] = $stored[ $key ];
+			}
+			continue;
+		}
+
 		if ( ! array_key_exists( $key, $manage ) ) {
 			continue;
 		}
@@ -245,6 +256,10 @@ function keel_defaults_render_network_page() {
 						$value     = $managed ? $network[ $key ] : $field['default'];
 						$name      = KEEL_DEFAULTS_OPTION . '[' . $key . ']';
 						$desc_id   = 'keel-net-' . $key . '-desc';
+						$lock      = keel_defaults_config_lock( $key );
+						$locked    = null !== $lock;
+						$lock_id   = $locked ? 'keel-net-' . $key . '-lock' : '';
+						$described = trim( implode( ' ', array_filter( array( $lock_id, ! empty( $s['help'] ) ? $desc_id : '' ) ) ) );
 						?>
 						<tr>
 							<th scope="row"><?php echo esc_html( $label ); ?></th>
@@ -253,13 +268,17 @@ function keel_defaults_render_network_page() {
 									<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
 
 									<label>
-										<input type="checkbox" name="keel_network_manage[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( $managed ); ?> />
+										<input type="checkbox" name="keel_network_manage[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( $managed ); ?><?php echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; ?><?php echo '' !== $described ? ' aria-describedby="' . esc_attr( $described ) . '"' : ''; ?> />
 										<?php esc_html_e( 'Decide this for the whole network', 'keel-defaults' ); ?>
 									</label>
 
 									<p style="margin:6px 0 0;">
-										<?php keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $desc_id ); ?>
+										<?php keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $described, $locked ); ?>
 									</p>
+
+									<?php if ( $locked ) : ?>
+										<p class="description keel-config-lock" id="<?php echo esc_attr( $lock_id ); ?>"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>
+									<?php endif; ?>
 
 									<?php if ( ! empty( $s['help'] ) ) : ?>
 										<p class="description" id="<?php echo esc_attr( $desc_id ); ?>"><?php echo wp_kses( $s['help'], array( 'code' => array() ) ); ?></p>
@@ -274,6 +293,16 @@ function keel_defaults_render_network_page() {
 
 			<?php submit_button( __( 'Save network policy', 'keel-defaults' ) ); ?>
 		</form>
+		<script>
+		( function () {
+			document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
+				control.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); } );
+				control.addEventListener( 'keydown', function ( event ) {
+					if ( ' ' === event.key || 'Enter' === event.key ) { event.preventDefault(); }
+				} );
+			} );
+		} )();
+		</script>
 	</div>
 	<?php
 }
@@ -292,18 +321,21 @@ function keel_defaults_render_network_page() {
  * @param array  $field     Schema entry.
  * @param array  $s         Display strings.
  * @param string $statement Checkbox statement.
- * @param string $desc_id   Description id for aria-describedby.
+ * @param string $describedby Description ids for aria-describedby.
+ * @param bool   $locked      Whether wp-config.php supersedes this control.
  */
-function keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $desc_id ) {
+function keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked = false ) {
 	$type = isset( $field['type'] ) ? $field['type'] : 'toggle';
-	$aria = ! empty( $s['help'] ) ? ' aria-describedby="' . esc_attr( $desc_id ) . '"' : '';
+	$aria = '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '';
+	$lock = $locked ? ' aria-disabled="true" data-keel-locked="1"' : '';
 
 	if ( 'toggle' === $type ) {
 		printf(
-			'<label><input type="checkbox" name="%s" value="yes" %s%s /> %s</label>',
+			'<label><input type="checkbox" name="%s" value="yes" %s%s%s /> %s</label>',
 			esc_attr( $name ),
 			checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
 			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
+			$lock, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
 			wp_kses( $statement, array( 'code' => array() ) )
 		);
 		return;
@@ -311,12 +343,13 @@ function keel_defaults_render_network_control( $key, $name, $value, $field, $s, 
 
 	if ( 'number' === $type ) {
 		printf(
-			'<input type="number" name="%s" value="%s" min="%d" max="%d" class="small-text"%s /> %s',
+			'<input type="number" name="%s" value="%s" min="%d" max="%d" class="small-text"%s%s /> %s',
 			esc_attr( $name ),
 			esc_attr( (string) $value ),
 			isset( $field['min'] ) ? (int) $field['min'] : 0,
 			isset( $field['max'] ) ? (int) $field['max'] : 3650,
 			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
+			$lock, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
 			esc_html( isset( $s['unit'] ) ? $s['unit'] : '' )
 		);
 		return;
@@ -351,7 +384,7 @@ function keel_defaults_render_network_control( $key, $name, $value, $field, $s, 
 		}
 	}
 
-	printf( '<select name="%s"%s>', esc_attr( $name ), $aria ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
+	printf( '<select name="%s"%s%s>', esc_attr( $name ), $aria, $lock ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() or fixed.
 
 	foreach ( $choices as $cval => $clabel ) {
 		printf(
