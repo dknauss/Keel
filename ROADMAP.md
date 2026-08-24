@@ -17,8 +17,21 @@ GPL-2.0-or-later.
 
 ## Next up
 
-Chosen deliberately over the probe-coverage items below, which strengthen claims
-already made rather than adding capability.
+Nothing is queued, and that is the accurate state rather than an omission.
+
+The submission milestone is closed: 0.5.0 is released, `Stable tag` matches, the
+plugin is clean under Plugin Check and it is in the wordpress.org review queue.
+The v0.5 group below has been decided rather than deferred — two of its four were
+taken and are done, two were declined with the reasons recorded, which is what
+"selected scope" means in that heading.
+
+What is genuinely undecided is the four v0.4 candidates, and they are deliberately
+not promoted here. Each already exists as a mature single-purpose plugin, the
+feature set is held near its current size on purpose, and a list that reads as a
+queue invites working through it rather than choosing from it.
+
+So the next thing is a decision, not a task. The item below is kept because it is
+the last thing that moved and the section reads oddly empty without it.
 
 - [x] **Multisite governance** — done 2026-08-09 (keel#89). Network Admin →
       Settings → Keel Defaults lets a Super Admin decide any of the 38 settings for
