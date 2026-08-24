@@ -394,15 +394,8 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'disable_author_archives' ) ) {
-		add_action(
-			'template_redirect',
-			function () {
-				if ( is_author() ) {
-					wp_safe_redirect( home_url( '/' ), 301 );
-					exit;
-				}
-			}
-		);
+		add_action( 'template_redirect', 'keel_defaults_block_author_feeds', 9 );
+		add_action( 'template_redirect', 'keel_defaults_redirect_author_archive' );
 
 		/*
 		 * Feeds publish author names too, and the redirect above never touches
@@ -426,6 +419,15 @@ function keel_defaults_bootstrap() {
 		 */
 		add_filter( 'oembed_response_data', 'keel_defaults_strip_oembed_author' );
 		add_filter( 'wp_sitemaps_add_provider', 'keel_defaults_drop_users_sitemap', 10, 2 );
+	}
+
+	/* ----- Revisions ----- */
+
+	// Core defines WP_POST_REVISIONS=true when wp-config.php does not. Only a
+	// non-true value proves that an operator supplied a distinct policy; in that
+	// case Keel stands down and the settings control is locked.
+	if ( null === keel_defaults_config_lock( 'post_revisions_limit' ) ) {
+		keel_defaults_add_policy_filter( 'wp_revisions_to_keep', 'keel_defaults_revision_limit', 10, 2, 'post_revisions_limit' );
 	}
 
 	if ( keel_defaults_enabled( 'redirect_attachment_pages' ) ) {

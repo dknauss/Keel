@@ -5,6 +5,9 @@ Two scripts, asking different questions.
 **`verify-behaviors.sh`** — does each setting register the filters it should, and
 do they answer correctly? Runs against a real WordPress load, so the
 schema-driven bootstrap re-wires with each value, but it stops at the filter.
+It also runs `filter-semantics.php` through the real WordPress plugin API, pinning
+that every callback executes on `pre_wp_mail` and `comments_pre_query`; standalone
+hook stubs are not allowed to redefine that execution model.
 
 **`probe-teardown.sh`** — with the plugin active, what does the site still
 *serve*? Thirty probes over HTTP plus a direct database check.

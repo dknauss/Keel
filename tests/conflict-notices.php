@@ -47,8 +47,14 @@ function esc_attr( $s ) {
 	return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function esc_url( $s ) {
 	return (string) $s; }
-function apply_filters( $hook, $value ) {
+function apply_filters( $hook, $value, ...$args ) {
+	if ( isset( $GLOBALS['wp_filter'][ $hook ] ) && method_exists( $GLOBALS['wp_filter'][ $hook ], 'apply_filters' ) ) {
+		return $GLOBALS['wp_filter'][ $hook ]->apply_filters( $value, array_merge( array( $value ), $args ) );
+	}
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value; }
+// This fixture mirrors WordPress's core helper exactly.
+// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore
+function __return_false() { return false; }
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function is_multisite() {
@@ -98,6 +104,15 @@ class Keel_Notice_Test_Hook {
 	public $callbacks = array();
 	public function __construct( array $callbacks ) {
 		$this->callbacks = $callbacks; }
+	public function apply_filters( $value, $args ) {
+		foreach ( $this->callbacks as $callbacks ) {
+			foreach ( $callbacks as $registered ) {
+				$args[0] = $value;
+				$value   = call_user_func_array( $registered['function'], array_slice( $args, 0, isset( $registered['accepted_args'] ) ? $registered['accepted_args'] : 1 ) );
+			}
+		}
+		return $value;
+	}
 }
 
 define( 'ABSPATH', __DIR__ . '/' );
@@ -118,7 +133,7 @@ foreach ( array(
 	$keel_self_dir => 'keel_notice_self',
 ) as $keel_dir => $keel_fn ) {
 	@mkdir( $keel_fixture_root . '/' . $keel_dir, 0777, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- a temp fixture in a CLI test.
-	file_put_contents( $keel_fixture_root . '/' . $keel_dir . '/plugin.php', "<?php\nfunction {$keel_fn}() {}\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- as above.
+	file_put_contents( $keel_fixture_root . '/' . $keel_dir . '/plugin.php', "<?php\nfunction {$keel_fn}( \$value = null ) { return true; }\n" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- as above.
 	require $keel_fixture_root . '/' . $keel_dir . '/plugin.php';
 }
 
@@ -133,6 +148,8 @@ register_shutdown_function(
 );
 
 define( 'WP_PLUGIN_DIR', realpath( $keel_fixture_root ) );
+
+$GLOBALS['keel_options']['active_plugins'] = array( 'rival-plugin/plugin.php', 'second-rival/plugin.php' );
 
 require dirname( __DIR__ ) . '/keel.php';
 
@@ -192,7 +209,20 @@ keel_defaults_add_policy_filter( 'comments_open', '__return_false', 20 );
 
 $GLOBALS['wp_filter'] = array(
 	'comments_open' => new Keel_Notice_Test_Hook(
-		array( 10 => array( array( 'function' => 'keel_notice_rival' ) ) )
+		array(
+			20 => array(
+				array(
+					'function'      => '__return_false',
+					'accepted_args' => 1,
+				),
+			),
+			30 => array(
+				array(
+					'function'      => 'keel_notice_rival',
+					'accepted_args' => 1,
+				),
+			),
+		)
 	),
 );
 
@@ -258,9 +288,21 @@ keel_assert(
 
 $GLOBALS['wp_filter']['comments_open'] = new Keel_Notice_Test_Hook(
 	array(
-		10 => array(
-			array( 'function' => 'keel_notice_rival' ),
-			array( 'function' => 'keel_notice_second_rival' ),
+		20 => array(
+			array(
+				'function'      => '__return_false',
+				'accepted_args' => 1,
+			),
+		),
+		30 => array(
+			array(
+				'function'      => 'keel_notice_rival',
+				'accepted_args' => 1,
+			),
+			array(
+				'function'      => 'keel_notice_second_rival',
+				'accepted_args' => 1,
+			),
 		),
 	)
 );
@@ -279,7 +321,20 @@ keel_assert(
 
 // Back to one, so nothing downstream inherits the larger fixture.
 $GLOBALS['wp_filter']['comments_open'] = new Keel_Notice_Test_Hook(
-	array( 10 => array( array( 'function' => 'keel_notice_rival' ) ) )
+	array(
+		20 => array(
+			array(
+				'function'      => '__return_false',
+				'accepted_args' => 1,
+			),
+		),
+		30 => array(
+			array(
+				'function'      => 'keel_notice_rival',
+				'accepted_args' => 1,
+			),
+		),
+	)
 );
 
 // --- dismissing records what was dismissed --------------------------------
@@ -310,7 +365,20 @@ keel_assert(
 keel_defaults_add_policy_filter( 'use_block_editor_for_post', '__return_false' );
 
 $GLOBALS['wp_filter']['use_block_editor_for_post'] = new Keel_Notice_Test_Hook(
-	array( 10 => array( array( 'function' => 'keel_notice_rival' ) ) )
+	array(
+		10 => array(
+			array(
+				'function'      => '__return_false',
+				'accepted_args' => 1,
+			),
+		),
+		20 => array(
+			array(
+				'function'      => 'keel_notice_rival',
+				'accepted_args' => 1,
+			),
+		),
+	)
 );
 
 keel_assert(

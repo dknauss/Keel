@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.4.1`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
+**Current version: `0.5.0`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
@@ -75,7 +75,7 @@ closed; the milestone is done.
       is stored per site but does not *act* per site, so the strictest site on a network
       sets the floor for anyone who changes their password there. Documented, not
       governed — network-wide policy stays a v2 item.
-- [x] **Reference doc coverage** — done 2026-08-04 (keel#18). All 38 schema keys have an
+- [x] **Reference doc coverage** — done 2026-08-04 (keel#18). Every schema key then present received an
       entry. It was 16 missing, not the handful assumed here: thirteen absent outright,
       three more (`remove_version`, `security_headers`, `frame_options`) described in
       prose but never keyed, so searching for the key found nothing.
@@ -105,8 +105,8 @@ Plugin Review requirements, not niceties.
       disclosure. The assertion that matters most is `Stable tag` against the plugin
       `Version`: they drift silently, the failure lands at release, and it ships the
       wrong code to every existing install.
-- [x] **Expand `readme.txt` / `README.md`** — done 2026-08-04. The feature set froze at
-      38 defaults with v0.2, which is what this was waiting on. `README.md` gained the
+- [x] **Expand `readme.txt` / `README.md`** — done 2026-08-04. The initial feature set
+      had settled with v0.2, which is what this was waiting on. `README.md` gained the
       measured comparison against the field; `readme.txt` gained the same in prose, a
       Site Health paragraph, and an FAQ for running alongside another defaults plugin.
       Two stale claims went with it: the "in progress" status, and an FAQ line saying
@@ -158,11 +158,11 @@ Plugin Review requirements, not niceties.
       only negative assertions were possible. The positive case — a rival
       *is* reported — had never been written, because it could not be.
 
-      The map now carries 21 entries in three shapes, classified by what losing
-      costs rather than by kind of hook. `short_circuit` is the new one: core
-      returns on the first non-null from `pre_wp_mail` and `comments_pre_query`,
-      so the loser's callback never runs at all, which is a different problem from
-      having a value overwritten and needs saying differently.
+	  Superseded in v0.5: that execution model was wrong. WordPress runs every
+	  callback on `pre_wp_mail` and `comments_pre_query`, then core examines the
+	  final result. Detection is now tri-state and effect-based: confirmed opposing
+	  outcomes may warn, compatible outcomes do not, and unsafe or unattributable
+	  overlaps remain informational without deactivation advice.
 
       A hook earns an entry only where losing has a consequence somebody can act
       on; `the_generator` is the shape of thing left out, since two plugins both
@@ -326,12 +326,11 @@ Plugin Review requirements, not niceties.
       Tracked there, not here.
 
 
-- [x] **A policy-collision report in Site Health** — done 2026-08-04, in *both*
-      plugins (px#238, keel#26). Detects by hook rather than by plugin name and
-      attributes foreign callbacks by reflection into `WP_PLUGIN_DIR`, so a plugin
-      nobody has heard of is named like a familiar one. Reports only hooks where a
-      callback replaces its input, and never says which plugin to keep — a check
-      answering that would be a plugin arguing for its own retention.
+- [x] **A policy-collision report in Site Health** — done 2026-08-04 and rebuilt
+      effect-first for Keel 0.5.0. It detects by hook rather than by plugin name,
+      attributes every callable form it safely can (including symlinked and
+      single-file plugins), and never says which plugin to keep—a check answering
+      that would be a plugin arguing for its own retention.
 
       **The better fix turned out not to be the report.** Better by Default asked
       whether the setting says anything WordPress does not already do and stopped
@@ -340,10 +339,12 @@ Plugin Review requirements, not niceties.
       priority to **zero at defaults**, and the check now reports it uncontested
       because the conflict shrank rather than because it stopped looking.
 
-      Still unbuilt, and still the strongest form: **test the effect, not the
-      registration** — run `apply_filters()` with our callback in place, then again
-      with it removed, and compare. Needs no knowledge of the other code and would
-      catch mu-plugins and themes, which reflection-based attribution skips.
+      **The stronger form shipped in 0.5.0: test the effect, not the registration.**
+      Keel replays whitelisted-safe callbacks through a cloned real `WP_Hook`,
+      compares only the governed outcome, and classifies the result as confirmed,
+      compatible, or unconfirmed. Unsafe callbacks and unknown provenance remain
+      informational. Source-code scanning was removed; it inferred intent without
+      proving runtime behavior.
 - [x] **Decide whether Keel's policy filters compare or assert** — decided 2026-08-09
       (keel#72). **Both, and the rule is: compare where an incoming value is evidence of
       a decision, assert where it is not.** The two filters were not inconsistent; the
@@ -470,7 +471,7 @@ catalogue](https://coffee2code.com/wp-plugins/) on 2026-08-10. Sixty-nine plugin
 of which these four are the only ones shaped like a Keel default: one toggle, one
 core filter, no new admin UI, and reversible by turning it off.
 
-**The feature set was frozen at 38 for v0.2 deliberately, and the LOC budget is a
+**The feature set was frozen after v0.2 deliberately, and the LOC budget is a
 stated non-goal below.** So this is a list to decide on, not a list to work
 through. Each of these already exists as a mature, narrowly-scoped plugin, and for
 a site that wants exactly one of them, installing that plugin is a legitimate
@@ -528,7 +529,7 @@ below.
 
 ---
 
-## v0.5 — the gaps the field agrees on
+## v0.5 — selected scope
 
 Surveyed 2026-08-23 against nineteen "disable something" plugins installed
 together on a WordPress 7.1 site — Admin and Site Enhancements, Disabler, Disable
@@ -538,7 +539,7 @@ what they claim, do any of them do Keel's own features better, and is anything
 missing here that belongs.
 
 The answer to the second was no. Measured by files actually loaded on an admin
-request, Keel does 38 defaults in 14 files and 250 KB; Disabler pulls in 212 files
+request, Keel now does 39 defaults in 14 files and roughly 250 KB; Disabler pulls in 212 files
 and 1.4 MB to reach a comparable feature set, shipping Action Scheduler and
 monolog to switch things off. The comment claim in `readme.txt` was re-verified
 the hard way — a comment written straight to the table with `$wpdb`, then queried
@@ -546,57 +547,67 @@ with Keel on and with Disable Comments 2.8.0 alone in its strongest mode. Keel
 returns nothing; Disable Comments returns the comment while reporting a count of
 zero. The claim holds against the current version.
 
-The answer to the third was these four. What makes them worth listing is not that
+The answer to the third was these four. What made them worth considering was not that
 competitors have them — competitors have dozens of things Keel should not have —
 but that every one of them sits directly against work Keel has already done, and
-each is one core filter behind one toggle. That is the same shape as the other 38.
+each is one core filter behind one control. That is the same shape as the existing set.
 
-**The same caveat as v0.4 applies: the feature set was frozen at 38 deliberately.**
-This is a list to decide on. What is different from v0.4 is the direction of the
-evidence — those four came from one publisher's catalogue and are each served by a
-mature single-purpose plugin, where these four are held in common by most of the
-field and are gaps in defaults Keel already ships half of.
+**Decided 2026-08-23: take revisions control as the one new setting, and close
+author feeds as completion of the existing author-archive default.** Do not take
+broad embed disabling or dashboard cleanup. The feature set had been deliberately frozen
+deliberately; one new setting earns an exception because Keel already recommends
+the exact policy and currently sends the user to `wp-config.php` to get it. The
+author-feed fix adds no setting. The two rejected items would trade away useful
+core behaviour or hide ordinary admin UI for a preference.
 
-- [ ] **Disable embeds** ([#100](https://github.com/dknauss/Keel/issues/100)). Keel removes the emoji script from every page and leaves
-      `wp-embed.js` on it. The argument is the same argument, the shape is the
-      same shape, and a site that has turned off emojis has already said what it
-      thinks about core's front-end payload. Held by Admin and Site Enhancements,
-      Disabler and Featherweight.
+- [~] **Disable embeds — not taken** ([#100](https://github.com/dknauss/Keel/issues/100)). The proposal joined two different surfaces.
+      `wp-embed.js` is conditionally enqueued on a page that contains another
+      WordPress site's post embed, but the discovery links advertise this site's
+      posts to other consumers. Removing both is not a front-end payload default;
+      it partially disables the provider behaviour Keel deliberately preserved
+      when it kept `oembed/1.0` reachable past the REST gate.
 
-      Not to be confused with the oEmbed *provider* work already done: Keel strips
-      author identity from oEmbed responses and keeps `oembed/1.0` reachable when
-      REST is closed, both deliberate. This is the consumer side — the script core
-      enqueues so your pages can embed other people's.
+      Removing the host script alone would save nothing on pages without a
+      WordPress post embed and would make the ones that have one less robust.
+      That is too small and too conditional a gain to justify another switch.
 
-- [ ] **Disable feeds** ([#101](https://github.com/dknauss/Keel/issues/101)). Keel disables comment feeds today and nothing else, which
-      is the odd half of the pair: a site with comments off gets its comment feeds
-      closed and goes on publishing a global feed, author feeds and per-post-type
-      feeds. Held by Admin and Site Enhancements, Disabler (granular, per feed
-      type) and Disable Blog.
+- [x] **Return 404 for author feeds with author archives** ([#101](https://github.com/dknauss/Keel/issues/101)). Done 2026-08-23. Do not add a broad feed switch.
+      The main feed is a public publishing surface readers deliberately subscribe
+      to, and per-post-type feeds are equally capable of being intentional. An
+      author feed is different: it is the feed form of an archive Keel already
+      disables, and it keeps the account nicename reachable after the archive is
+      gone.
 
-      Wants a decision on granularity before it is planned. Disabler exposes six
-      switches; the Keel-shaped answer is probably one toggle for the feeds a
-      site that has closed comments and hidden author archives would not want,
-      which is not the same as all of them — a global feed is how readers
-      subscribe.
+      WordPress already marked an author feed as `is_author()`, so Keel's broad
+      author redirect closed it with a 301; the original issue's claim that the
+      feed remained served was wrong. The completed change is narrower and more
+      accurate: the machine endpoint now returns a deliberate 404 before the HTML
+      archive keeps its existing home-page redirect. Global and post-type feeds
+      remain untouched, and a real-query integration probe guards the two flags.
 
-- [ ] **Revisions control** ([#102](https://github.com/dknauss/Keel/issues/102)). `readme.txt` recommends `WP_POST_REVISIONS` in
+- [x] **Revisions control — accepted as the one new setting** ([#102](https://github.com/dknauss/Keel/issues/102)). Done 2026-08-23. `readme.txt` recommends `WP_POST_REVISIONS` in
       `wp-config.php` and offers no switch, which is the only place in the plugin
       that tells somebody to go and edit a file to get a default Keel is otherwise
       happy to set. Held by Admin and Site Enhancements and Disabler.
 
-      The wp-config constant should still win and lock the control, as it does for
-      the update policy — that machinery already exists.
+      New activations seed 10; existing installations migrate to `-1` so an
+      update does not silently replace WordPress's previous unlimited policy.
+      Zero disables revisions and `-1` means unlimited. A numeric or false
+      `WP_POST_REVISIONS` value wins and locks both site and network controls.
+      Core itself defines the constant to `true` when wp-config says nothing, so
+      an explicit `true` is indistinguishable from that default and cannot be
+      presented as a detectable operator lock.
 
-- [ ] **Disable dashboard widgets** ([#103](https://github.com/dknauss/Keel/issues/103)). Keel already drops Heartbeat on the dashboard,
-      so it is on that screen for that reason. The widgets core puts there are
-      Activity, Quick Draft, Events and News, and Site Health — noise on most
-      sites, and one `remove_meta_box` each. Held by Admin and Site Enhancements
-      and Disabler.
+- [~] **Disable dashboard widgets — not taken** ([#103](https://github.com/dknauss/Keel/issues/103)). Keel removes a dashboard widget
+      when the feature behind it is disabled — Recent Comments goes with comments
+      — but Activity, Quick Draft, and Events and News are ordinary core UI, not
+      residue of a policy Keel already applies. Calling them noise is a preference,
+      not a default.
 
-      Site Health is the one to think about rather than sweep: Keel puts its own
-      posture report under Site Health, so removing the widget that points at it
-      is working against the rest of the plugin.
+      Site Health makes the mismatch sharper: Keel puts its own posture report
+      there, so removing the widget that points at it would work against one of the
+      plugin's most useful surfaces. Sites that want a curated dashboard are
+      better served by an admin-customisation plugin.
 
 Explicitly **not** taken from the survey, recorded so the decision is not made
 twice: change-login-URL (obscurity, and WPS Hide Login owns it), maintenance mode,

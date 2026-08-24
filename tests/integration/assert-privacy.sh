@@ -103,6 +103,7 @@ case "$POSTURE" in
 		expect privacy.sitemap_listed   0 "the users sitemap must not be advertised in the index"
 		expect privacy.sitemap_names    0 "the users sitemap must not enumerate author archives"
 		expect privacy.feed_login       0 "feeds must not publish the login in dc:creator"
+		expect privacy.author_feed      404 "a disabled author archive's feed must be a real 404"
 		;;
 
 	rest-gate )

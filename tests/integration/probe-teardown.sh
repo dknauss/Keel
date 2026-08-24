@@ -109,6 +109,7 @@ rc_head=$( curl -s -D - -o /dev/null -L "$PERMA" | grep -ci 'rel="https://api.w.
 # survived a document built specifically to measure teardown correctness — the
 # matrix had no row that would have looked.
 pr_archive=$( code "$URL/author/admin/" )
+pr_author_feed=$( code "$URL/author/admin/feed/" )
 pr_sitemap_listed=$( curl -s "$URL/wp-sitemap.xml" | grep -c "wp-sitemap-users" )
 pr_sitemap_names=$( curl -s "$URL/wp-sitemap-users-1.xml" | grep -c "<loc>" )
 pr_oembed_author=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c '"author_name"' )
@@ -199,6 +200,7 @@ feed.site_comments        $fc_site
 feed.post_comments        $fc_post
 header.xpingback          $xp
 privacy.author_archive    $pr_archive
+privacy.author_feed       $pr_author_feed
 privacy.sitemap_listed    $pr_sitemap_listed
 privacy.sitemap_names     $pr_sitemap_names
 privacy.oembed_author     $pr_oembed_author

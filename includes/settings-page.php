@@ -254,9 +254,18 @@ function keel_defaults_sanitize( $input ) {
 				break;
 
 			case 'number':
-				$min           = isset( $field['min'] ) ? (int) $field['min'] : 0;
-				$val           = isset( $input[ $key ] ) ? absint( $input[ $key ] ) : (int) $field['default'];
-				$clean[ $key ] = max( $min, $val );
+				$min = isset( $field['min'] ) ? (int) $field['min'] : 0;
+				$max = isset( $field['max'] ) ? (int) $field['max'] : PHP_INT_MAX;
+				$raw = isset( $input[ $key ] ) ? $input[ $key ] : $field['default'];
+
+				if ( $min < 0 ) {
+					$valid = is_scalar( $raw ) && preg_match( '/^-?\d+$/', trim( (string) $raw ) );
+					$val   = $valid ? (int) $raw : (int) $field['default'];
+				} else {
+					$val = abs( (int) $raw );
+				}
+
+				$clean[ $key ] = min( $max, max( $min, $val ) );
 				break;
 
 			case 'select':
@@ -454,6 +463,18 @@ function keel_defaults_config_lock( $key ) {
 		case 'limit_unfiltered_html_to_admins':
 			if ( defined( 'DISALLOW_UNFILTERED_HTML' ) && DISALLOW_UNFILTERED_HTML ) {
 				return __( '<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect.', 'keel-defaults' );
+			}
+			break;
+
+		case 'post_revisions_limit':
+			/*
+			 * Core supplies true itself when wp-config.php says nothing, so
+			 * defined() alone would lock this control on every site. A false or
+			 * numeric value is distinguishable from that default and therefore
+			 * proves that the operator chose a policy outside Keel.
+			 */
+			if ( defined( 'WP_POST_REVISIONS' ) && true !== WP_POST_REVISIONS ) {
+				return __( 'Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here.', 'keel-defaults' );
 			}
 			break;
 	}
@@ -813,10 +834,15 @@ function keel_defaults_render_settings_page() {
 								<?php elseif ( 'range' === $field['type'] ) : ?>
 									<?php keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby ); ?>
 								<?php elseif ( 'number' === $field['type'] ) : ?>
+									<?php if ( $locked ) : ?>
+										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
+									<?php endif; ?>
 									<input type="number" min="<?php echo esc_attr( isset( $field['min'] ) ? (int) $field['min'] : 0 ); ?>" step="1"
+										<?php echo isset( $field['max'] ) ? 'max="' . esc_attr( (int) $field['max'] ) . '"' : ''; ?>
 										name="<?php echo esc_attr( $name ); ?>"
 										value="<?php echo esc_attr( $value ); ?>"
 										aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>
+										<?php echo $locked ? 'aria-disabled="true" data-keel-locked="1"' : ''; ?>
 										class="small-text" />
 									<?php if ( ! empty( $s['unit'] ) ) : ?>
 										<span class="keel-unit" id="<?php echo esc_attr( $unit_id ); ?>" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>

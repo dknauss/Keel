@@ -16,8 +16,8 @@ and performance defaults onto any WordPress install — each one a switch under
 **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
 exactly what the plugin does to your site, in one place, and turn any piece off.
 
-> **Status: released (`0.4.1`, 2026-08-23).** The feature set is frozen at 38
-> defaults; the Site Health surface, multisite-aware seeding, network-wide policy
+> **Status: `0.5.0` in development.** Keel now has 39 defaults; the Site Health
+> surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins setting the same things are in. Verified against
 > WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
 > milestones and [TODO.md](TODO.md) for what's in flight.
@@ -112,18 +112,17 @@ Two things it does that a settings screen usually does not:
 - **Site Health reports the posture**, read-only — every default and its current
   state, so the site's actual configuration is legible without clicking through
   tabs.
-- **It notices when another plugin is setting the same defaults.** Two plugins can
-  both set a session length; WordPress keeps whichever ran last and the loser's
-  settings screen goes on displaying a value the site does not use, with no error
-  anywhere. Keel reports the collision and names what is contesting what — it does
-  not tell you which plugin to keep, because a plugin answering that is arguing for
-  its own retention. Keel also stays off a hook entirely when its setting would only
-  repeat what WordPress already does.
+- **It tests overlaps by effect.** Another callback on the same WordPress filter is
+  not automatically a collision. Where replay is safe, Keel compares the part of
+  the final result it governs: a different outcome is confirmed, the same outcome
+  is compatible, and anything unsafe or unattributable stays informational. Only a
+  confirmed opposing effect produces an actionable warning. Keel also stays off a
+  hook entirely when its setting would only repeat what WordPress already does.
 
 ## Try it in the browser
 
 A [WordPress Playground](https://playground.wordpress.net/) blueprint spins up a
-throwaway site with Keel installed, so you can see all 38 defaults and their
+throwaway site with Keel installed, so you can see all 39 defaults and their
 states without a host or a local WordPress.
 
 **[▶ Try the latest release](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-stable.json)** — byte-identical to what you would download, and it follows each new stable release.

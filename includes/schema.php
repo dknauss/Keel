@@ -183,6 +183,14 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'content',
 		),
+		'post_revisions_limit'            => array(
+			'default' => 10,
+			'type'    => 'number',
+			'group'   => 'content',
+			// -1 is WordPress's runtime value for unlimited; 0 disables revisions.
+			'min'     => -1,
+			'max'     => 9999,
+		),
 
 		// --- Editor ----------------------------------------------------
 		'force_classic_editor'            => array(

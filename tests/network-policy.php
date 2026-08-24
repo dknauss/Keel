@@ -353,6 +353,23 @@ keel_assert(
 keel_assert( array() === keel_defaults_sanitize_network( array( 'require_strong_passwords' => 'yes' ), array() ), 'Ticking nothing stores nothing.' );
 
 /*
+ * A wp-config policy is above network policy too. The network form must not
+ * create a dormant value while locked, and must preserve one that predates the
+ * lock so removing the constant restores the Super Admin's earlier choice.
+ */
+define( 'WP_POST_REVISIONS', 6 );
+$GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ] = array();
+$locked_new = keel_defaults_sanitize_network(
+	array( 'post_revisions_limit' => 20 ),
+	array( 'post_revisions_limit' => '1' )
+);
+keel_assert( ! array_key_exists( 'post_revisions_limit', $locked_new ), 'A forged network save cannot create policy beneath a revision constant lock.' );
+
+$GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ] = array( 'post_revisions_limit' => 30 );
+$locked_existing = keel_defaults_sanitize_network( array(), array() );
+keel_assert( 30 === $locked_existing['post_revisions_limit'], 'A pre-existing network preference survives beneath the constant lock.' );
+
+/*
  * --- uninstall removes the network option ---
  *
  * It belongs to no subsite, so the per-site loop in uninstall.php cannot reach

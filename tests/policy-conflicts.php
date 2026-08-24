@@ -1,21 +1,14 @@
 <?php
 /**
- * Regression test for overlapping-defaults detection.
- *
- * The behaviour is a Site Health report; the part worth pinning is the
- * classification — which hooks count as contested, and which foreign code
- * counts as a competing plugin. Get either wrong and the check is noise people
- * learn to ignore.
+ * Effect-based, tri-state policy-overlap tests.
  *
  * Run: php tests/policy-conflicts.php
  *
  * @package keel
  */
 
-$GLOBALS['keel_filters']    = array();
-$GLOBALS['keel_options']    = array();
-$GLOBALS['wp_filter']       = array();
-$GLOBALS['keel_transients'] = array();
+$GLOBALS['keel_options'] = array();
+$GLOBALS['wp_filter']    = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -26,440 +19,183 @@ function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }
 function esc_attr( $s ) { return $s; }
 function esc_attr_e( $s, $d = null ) { echo $s; }
-function apply_filters( $hook, $value ) {
-	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
+function wp_json_encode( $v, $f = 0 ) {
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+	return json_encode( $v, $f );
 }
+function wp_normalize_path( $path ) { return str_replace( '\\', '/', (string) $path ); }
+function trailingslashit( $path ) { return rtrim( (string) $path, '/\\' ) . '/'; }
+function is_multisite() { return false; }
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
-function is_customize_preview() { return ! empty( $GLOBALS['keel_is_customize_preview'] ); }
-function wp_json_encode( $v, $f = 0 ) {
-	return json_encode( $v ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- this stub is what stands in for wp_json_encode().
-function get_transient( $k ) {
-	return isset( $GLOBALS['keel_transients'][ $k ] ) ? $GLOBALS['keel_transients'][ $k ] : false; }
-function set_transient( $k, $v, $t = 0 ) {
-	$GLOBALS['keel_transients'][ $k ] = $v;
-	return true; }
-function wp_normalize_path( $path ) { return str_replace( '\\', '/', (string) $path ); }
-function trailingslashit( $path ) { return rtrim( (string) $path, '/\\' ) . '/'; }
+function get_post( $id ) { return (object) array(
+	'ID'        => (int) $id,
+	'post_type' => 'post',
+); }
 
-/*
- * Keel reads network policy before the site option, so every harness that calls
- * keel_defaults_get() needs this. Single site is the honest default here: the
- * multisite path has its own coverage in tests/network-policy.php.
- */
-function is_multisite() {
-	return false;
+/** A small WP_Hook-compatible registry for standalone effect probes. */
+class Keel_Test_Hook {
+	public $callbacks = array();
+	public function __construct( array $callbacks ) { $this->callbacks = $callbacks; }
+	public function apply_filters( $value, $args ) {
+		foreach ( $this->callbacks as $callbacks ) {
+			foreach ( $callbacks as $registered ) {
+				$args[0] = $value;
+				$value   = call_user_func_array(
+					$registered['function'],
+					array_slice( $args, 0, isset( $registered['accepted_args'] ) ? $registered['accepted_args'] : 1 )
+				);
+			}
+		}
+		return $value;
+	}
+}
+
+function apply_filters( $hook, $value, ...$args ) {
+	if ( isset( $GLOBALS['wp_filter'][ $hook ] ) && method_exists( $GLOBALS['wp_filter'][ $hook ], 'apply_filters' ) ) {
+		return $GLOBALS['wp_filter'][ $hook ]->apply_filters( $value, array_merge( array( $value ), $args ) );
+	}
+	return $value;
 }
 
 define( 'ABSPATH', __DIR__ . '/' );
-defined( 'DAY_IN_SECONDS' ) || define( 'DAY_IN_SECONDS', 86400 );
+define( 'DAY_IN_SECONDS', 86400 );
 
-/*
- * A plugins directory with something actually in it.
- *
- * `keel_defaults_callback_plugin_dir()` resolves a callback by the file its code
- * lives in and keeps the first path segment below WP_PLUGIN_DIR. Pointed at a
- * path nothing resolves inside — as this harness used to be — every callback
- * attributes to nothing, so only negative assertions were possible and the
- * positive case went uncovered for the life of the check.
- *
- * Two one-line files under a temporary root fix that: one in a rival plugin's
- * directory, one in a directory named the same as Keel's own, since the check
- * identifies itself by `basename( dirname( KEEL_DEFAULTS_FILE ) )`. The
- * callbacks do nothing; only the file they live in is read.
- */
-$keel_fixture_root = sys_get_temp_dir() . '/keel-policy-conflicts-' . getmypid();
-$keel_self_dir     = basename( dirname( dirname( __DIR__ ) . '/keel.php' ) );
+// Native filesystem calls are appropriate for this standalone temporary fixture.
+// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.NoSilencedErrors
+$fixture = sys_get_temp_dir() . '/keel-policy-effects-' . getmypid();
+@mkdir( $fixture . '/rival-plugin', 0777, true );
+@mkdir( $fixture . '/compatible-plugin', 0777, true );
 
-foreach ( array(
-	'rival-plugin' => 'keel_test_rival_callback',
-	$keel_self_dir => 'keel_test_self_callback',
-	// Registers on user_has_cap and never names the capability Keel governs:
-	// a role plugin minding its own business.
-	'role-plugin'  => 'keel_test_role_callback',
-	// Hands the capability back, which is the collision worth reporting.
-	'grant-plugin' => 'keel_test_grant_callback',
-) as $keel_dir => $keel_fn ) {
-	@mkdir( $keel_fixture_root . '/' . $keel_dir, 0777, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- a temp fixture in a CLI test, not a WordPress filesystem write.
-
-	$keel_body = ( 'grant-plugin' === $keel_dir )
-		? "<?php\nfunction {$keel_fn}( \$caps ) { \$caps['unfiltered_html'] = true; return \$caps; }\n"
-		: "<?php\nfunction {$keel_fn}() {}\n";
-
-	file_put_contents( $keel_fixture_root . '/' . $keel_dir . '/plugin.php', $keel_body ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- as above.
-	require $keel_fixture_root . '/' . $keel_dir . '/plugin.php';
-}
+file_put_contents(
+	$fixture . '/rival-plugin/plugin.php',
+	"<?php\nfunction keel_test_rival_short_session( \$value ) { return 60; }\nfunction keel_test_rival_revision( \$value ) { return 3; }\nfunction keel_test_rival_mail( \$value ) { return \$value; }\nclass Keel_Test_Static_Callback { public static function run( \$v ) { return \$v; } }\nclass Keel_Test_Invokable { public function __invoke( \$v ) { return \$v; } }\n"
+);
+file_put_contents(
+	$fixture . '/compatible-plugin/plugin.php',
+	"<?php\nfunction keel_test_compatible_session( \$value ) { return \$value; }\n"
+);
+require $fixture . '/rival-plugin/plugin.php';
+require $fixture . '/compatible-plugin/plugin.php';
 
 register_shutdown_function(
-	function () use ( $keel_fixture_root ) {
-		foreach ( (array) glob( $keel_fixture_root . '/*/plugin.php' ) as $keel_file ) {
-			unlink( $keel_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_unlink, WordPress.WP.AlternativeFunctions.unlink_unlink -- removing this test's own fixture; wp_delete_file() is not loaded in a CLI test.
-			rmdir( dirname( $keel_file ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- as above.
+	function () use ( $fixture ) {
+		foreach ( glob( $fixture . '/*/plugin.php' ) as $file ) {
+			unlink( $file );
+			rmdir( dirname( $file ) );
 		}
-		@rmdir( $keel_fixture_root ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- as above.
+		@rmdir( $fixture );
 	}
 );
+// phpcs:enable WordPress.WP.AlternativeFunctions, WordPress.PHP.NoSilencedErrors
 
-/*
- * realpath(), because the prefix comparison is literal. On macOS
- * sys_get_temp_dir() answers /var/folders/... while Reflection reports the file
- * as /private/var/folders/... — the same directory by two names, and a string
- * compare of one against the other resolves every callback to nothing, which
- * looks exactly like "no conflicts" rather than like a broken fixture.
- */
-define( 'WP_PLUGIN_DIR', realpath( $keel_fixture_root ) );
+define( 'WP_PLUGIN_DIR', realpath( $fixture ) );
+$GLOBALS['keel_options']['active_plugins'] = array( 'rival-plugin/plugin.php', 'compatible-plugin/plugin.php' );
 
 require dirname( __DIR__ ) . '/keel.php';
 
-function keel_assert( $cond, $msg ) {
-	if ( ! $cond ) {
-		fwrite( STDERR, "Assertion failed: {$msg}\n" );
+function keel_assert( $condition, $message ) {
+	if ( ! $condition ) {
+		fwrite( STDERR, "Assertion failed: {$message}\n" );
 		exit( 1 );
 	}
 }
 
-/** Minimal stand-in for WP_Hook. */
-class Keel_Test_Hook {
-	public $callbacks = array();
-	public function __construct( array $callbacks ) {
-		$this->callbacks = $callbacks;
-	}
-}
-
-// --- the hook map ---
 $hooks = keel_defaults_policy_hooks();
-keel_assert( 'authoritative' === $hooks['auth_cookie_expiration'], 'Session length is authoritative: the callback replaces its input, so two cannot both win.' );
-keel_assert( 'additive' === $hooks['wp_headers'], 'Headers are additive: callbacks add keys, so sharing is normal.' );
+keel_assert( 'probe' === $hooks['auth_cookie_expiration'], 'Session overlap is evaluated by effect.' );
+keel_assert( 'unconfirmed' === $hooks['pre_wp_mail'], 'Mail callbacks are never replayed blindly.' );
+keel_assert( 'unconfirmed' === $hooks['comments_pre_query'], 'Comment-query callbacks are final-value filters but unsafe to replay.' );
+keel_assert( 'additive' === $hooks['rest_authentication_errors'], 'REST authentication callback presence is compositional, not an accusation.' );
+keel_assert( 'unconfirmed' === $hooks['user_has_cap'], 'Capability source mentions no longer prove direction.' );
 
-/*
- * user_has_cap is the exception to that reasoning, and it is worth stating why
- * rather than leaving it looking like an inconsistency. Its callbacks do add
- * keys to an array — but Keel's key is `unfiltered_html`, and a plugin granting
- * that back writes the same one. Adding to an array is only harmless while two
- * callbacks are adding different things.
- */
-keel_assert( 'authoritative' === $hooks['user_has_cap'], 'Capabilities are contested: two callbacks can write the same key.' );
+keel_defaults_registered_policy_hooks( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, 'session_regular_days' );
+$records = keel_defaults_registered_policy_hooks();
+keel_assert( 'keel_defaults_session_length' === $records['auth_cookie_expiration'][0]['callback'], 'The callback is recorded.' );
+keel_assert( 50 === $records['auth_cookie_expiration'][0]['priority'], 'The priority is recorded.' );
+keel_assert( 3 === $records['auth_cookie_expiration'][0]['accepted_args'], 'Accepted arguments are recorded.' );
+keel_assert( 'session_regular_days' === $records['auth_cookie_expiration'][0]['setting'], 'The governing setting is recorded.' );
 
-/*
- * The third shape, and the reason it is not just another authoritative hook.
- *
- * Core reads `pre_wp_mail` and returns the moment the value is not null; the
- * same is true of `comments_pre_query`. So the loser does not merely have its
- * value overwritten — its callback never runs, and neither does whatever it
- * was there to do. Keel takes pre_wp_mail at PHP_INT_MAX and discards the
- * incoming value on purpose, because a staging site must not send mail
- * whatever else decided; that is exactly the case where saying so matters.
- */
-keel_assert( 'short_circuit' === $hooks['pre_wp_mail'], 'Suppressing mail is a short circuit: core stops at the first non-null answer.' );
-keel_assert( 'short_circuit' === $hooks['comments_pre_query'], 'The comment query short-circuits the same way.' );
-
-// The editor filters, which is where the Classic Editor plugin lives.
-keel_assert( 'authoritative' === $hooks['use_block_editor_for_post'], 'The editor choice is authoritative.' );
-keel_assert( 'authoritative' === $hooks['comments_open'], 'Whether comments are open is authoritative.' );
-
-/*
- * --- a hook contested only over particular keys ---
- *
- * user_has_cap adds keys to an array rather than replacing a value, so being
- * registered on it is not by itself a collision — and on a stock site core keeps
- * three callbacks there. Reporting everyone registered would name every plugin
- * that implements a custom role, which is most of them, for a clash that cannot
- * happen. Reporting no one misses a plugin handing back the capability Keel just
- * took away, which is the one case that matters.
- *
- * So the rival has to name the key. Both fixtures below are registered on the
- * hook with resolvable callbacks; only one of them mentions `unfiltered_html`.
- *
- * The scan reads the plugins WordPress says are active, so the harness has to
- * say so: the three directories created above.
- */
-$GLOBALS['keel_options']['active_plugins'] = array(
-	'rival-plugin/plugin.php',
-	'role-plugin/plugin.php',
-	'grant-plugin/plugin.php',
-);
-
-keel_defaults_add_policy_filter( 'user_has_cap', 'keel_test_self_callback' );
-
-$GLOBALS['wp_filter'] = array(
-	'user_has_cap' => new Keel_Test_Hook(
-		array( 10 => array( array( 'function' => 'keel_test_role_callback' ) ) )
-	),
-);
-
-keel_assert(
-	! isset( keel_defaults_competing_plugins()['user_has_cap'] ),
-	'A plugin on user_has_cap that never names the capability is not reported.'
-);
-
-$GLOBALS['wp_filter']['user_has_cap'] = new Keel_Test_Hook(
-	array( 10 => array( array( 'function' => 'keel_test_grant_callback' ) ) )
-);
-
-keel_assert(
-	array( 'grant-plugin' ) === keel_defaults_competing_plugins()['user_has_cap'],
-	'A plugin that writes the capability Keel governs is reported.'
-);
-
-// Both at once: the scope narrows the list rather than emptying it.
-$GLOBALS['wp_filter']['user_has_cap'] = new Keel_Test_Hook(
-	array(
-		10 => array(
-			array( 'function' => 'keel_test_role_callback' ),
-			array( 'function' => 'keel_test_grant_callback' ),
-		),
-	)
-);
-
-keel_assert(
-	array( 'grant-plugin' ) === keel_defaults_competing_plugins()['user_has_cap'],
-	'With both registered, only the one naming the capability is named.'
-);
-
-// An unscoped hook is contested by anyone, which is the behaviour every other
-// hook in the map relies on.
-keel_assert(
-	keel_defaults_plugin_in_scope( 'role-plugin', 'comments_open' ),
-	'A hook with no scope entry accepts any plugin registered on it.'
-);
-
-$GLOBALS['wp_filter'] = array();
-
-/*
- * --- the map may only name hooks Keel actually registers ---
- *
- * A map entry for a hook Keel never uses can do exactly one thing: report a
- * conflict that cannot exist, since the self-presence check means Keel has to
- * be on the hook for anything to be reported at all. So it would not even
- * misfire — it would sit there looking like coverage and provide none.
- *
- * The reverse is deliberately not asserted. Keel registers 60-odd hooks and
- * most of them should stay unmapped; the map is an allowlist of hooks where
- * losing has a consequence, not an inventory of what the plugin touches.
- */
-$keel_source = '';
-foreach ( (array) glob( dirname( __DIR__ ) . '/includes/*.php' ) as $keel_inc ) {
-	$keel_source .= file_get_contents( $keel_inc ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading repo files in a CLI test.
-}
-
-preg_match_all( "/keel_defaults_add_policy_filter\(\s*'([a-z0-9_]+)'/", $keel_source, $keel_registered );
-$keel_registered = array_unique( $keel_registered[1] );
-
-foreach ( array_keys( $hooks ) as $keel_hook ) {
-	keel_assert(
-		in_array( $keel_hook, $keel_registered, true ),
-		"The hook map names '{$keel_hook}', but nothing registers it through keel_defaults_add_policy_filter() — so Keel never counts as present and the entry can only ever report nothing."
-	);
-}
-
-/*
- * And the other way. Registering through the wrapper is what declares a hook
- * contested, so doing it for a hook the map does not name means one of the two
- * edits was forgotten — and nothing would ever check it.
- */
-foreach ( $keel_registered as $keel_hook ) {
-	keel_assert(
-		isset( $hooks[ $keel_hook ] ),
-		"'{$keel_hook}' is registered as a policy hook but is not in the map, so nothing will ever check it."
-	);
-}
-
-$GLOBALS['keel_filters']['keel_policy_hooks'] = array( 'auth_cookie_expiration' => 'authoritative' );
-keel_assert( 1 === count( keel_defaults_policy_hooks() ), 'The hook map is filterable.' );
-unset( $GLOBALS['keel_filters']['keel_policy_hooks'] );
-
-// --- attribution ---
-keel_assert( '' === keel_defaults_callback_plugin_dir( 'a_function_that_does_not_exist' ), 'An unresolvable callback is attributed to nothing.' );
-keel_assert( '' === keel_defaults_callback_plugin_dir( '__return_false' ), 'Core code resolves outside WP_PLUGIN_DIR and is ignored.' );
-
-// --- classification ---
-$GLOBALS['wp_filter'] = array(
-	'auth_cookie_expiration' => new Keel_Test_Hook( array( 10 => array( array( 'function' => '__return_false' ) ) ) ),
-);
-keel_assert( array() === keel_defaults_competing_plugins(), 'Core callbacks on a contested hook are not reported as a competing plugin.' );
-
-// An additive hook is never reported however crowded it gets — otherwise the
-// check flags every well-behaved plugin that sets a header, and gets ignored.
-$GLOBALS['wp_filter']['wp_headers'] = new Keel_Test_Hook( array( 10 => array( array( 'function' => 'strlen' ), array( 'function' => 'strtolower' ) ) ) );
-keel_assert( ! array_key_exists( 'wp_headers', keel_defaults_competing_plugins() ), 'An additive hook is never reported.' );
-
-$GLOBALS['wp_filter'] = array();
-keel_assert( array() === keel_defaults_competing_plugins(), 'An empty filter registry produces no conflicts.' );
-
-/*
- * --- a conflict needs two sides, and one of them has to be Keel ---
- *
- * The check walks the contested hooks and reports foreign plugins on them. What
- * it never asked was whether Keel is on that hook at all — and Keel stands down
- * on several. `auth_cookie_expiration` is registered only when the session
- * policy differs from WordPress's own, so on a site that left it alone, another
- * plugin setting a session length was reported as "more than one plugin is
- * setting the same defaults" when exactly one was.
- *
- * That is the shape of false positive that makes a check ignorable, and it
- * scales with the size of the hook map: every hook added multiplies it. So it
- * is fixed before the map grows.
- *
- * These stub a callback in a plugin directory the way the real registry holds
- * it — the resolver reads the file a callback lives in, so the two sides are
- * told apart by where their code is, not by what they are called.
- */
-$GLOBALS['wp_filter'] = array(
-	'auth_cookie_expiration' => new Keel_Test_Hook(
-		array( 10 => array( array( 'function' => 'keel_test_rival_callback' ) ) )
-	),
-);
-
-keel_assert(
-	array() === keel_defaults_competing_plugins(),
-	'A rival alone on a contested hook is not a conflict — Keel is not setting it, so nothing is contested.'
-);
-
-/*
- * The other side of the same rule, which nothing covered either: with Keel on
- * the hook too, the rival is reported. A self-presence check that reported
- * nothing at all would have passed every assertion above this line.
- *
- * Keel's side is declared, not staged in the registry, because that is how the
- * plugin declares it — see keel_defaults_add_policy_filter(). The rival stays in
- * $wp_filter, because that is the only place a rival can be found.
- */
-keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_test_self_callback', 50, 3 );
-
-$GLOBALS['wp_filter']['auth_cookie_expiration'] = new Keel_Test_Hook(
-	array( 10 => array( array( 'function' => 'keel_test_rival_callback' ) ) )
-);
-
-$both = keel_defaults_competing_plugins();
-
-keel_assert(
-	isset( $both['auth_cookie_expiration'] ),
-	'With Keel on the hook as well, the rival is reported.'
-);
-keel_assert(
-	array( 'rival-plugin' ) === $both['auth_cookie_expiration'],
-	'The report names the rival and not Keel itself.'
-);
-
-$GLOBALS['wp_filter'] = array();
-
-// --- the report reads as informational, and never picks a winner ---
-$clear = keel_defaults_site_health_conflicts();
-keel_assert( 'good' === $clear['status'], 'With no rivals the check passes.' );
-keel_assert( false === strpos( $clear['description'], 'deactivate' ), 'A passing result does not tell anyone to deactivate anything.' );
-
-
-/*
- * --- compare or assert: the rule, not the two behaviours ---
- *
- * These two filters look inconsistent and are not. The roadmap carried the
- * disagreement as an open question for days because both readings are defensible
- * until you ask what an incoming value proves on each hook.
- *
- *   wp_headers              core never seeds X-Frame-Options into the array —
- *                           send_frame_options_header() calls header() directly —
- *                           so a value present in it means a layer decided on one.
- *                           Evidence. Rank it, and never downgrade.
- *
- *   auth_cookie_expiration  core always passes a number (2 or 14 days, from
- *                           wp_set_auth_cookie), so an incoming value proves
- *                           nothing and cannot be told apart from another
- *                           plugin's. No evidence. Assert, and let the settings
- *                           screen stay true.
- *
- * The failure this guards against is a tidying refactor that makes both filters
- * agree in style. Either direction is a real regression and neither would fail a
- * test that only checked current outputs, so these assert the *reason*.
- */
-$GLOBALS['keel_options']['keel_settings'] = array(
+$GLOBALS['keel_options'][ KEEL_DEFAULTS_OPTION ] = array(
 	'session_regular_days' => 30,
 	'remember_me_days'     => 60,
 );
-
-// The case that dies if session length starts comparing: core hands 14 days, the
-// site asked for 60. min() or any "never lengthen" clamp returns core's 14 and the
-// settings screen goes on claiming 60.
-keel_assert(
-	60 * DAY_IN_SECONDS === keel_defaults_session_length( 14 * DAY_IN_SECONDS, 1, true ),
-	'A session longer than core\'s own default is honoured — the incoming value is not a ceiling.'
-);
-keel_assert(
-	30 * DAY_IN_SECONDS === keel_defaults_session_length( 2 * DAY_IN_SECONDS, 1, false ),
-	'The same for an ordinary login.'
-);
-
-
-/*
- * And the incoming value must not sway the result at all, in either direction —
- * a "defer to whoever is stricter" version would pass the two above and fail here.
- *
- * Once per exit, not once. keel_defaults_session_length() returns from three
- * places — the Remember Me disabled branch, the remembered branch, and the
- * ordinary fall-through — and a clamp added to any one of them is the same
- * regression. A single check happened to exercise only the fall-through, and a
- * min() planted on the disabled branch passed it.
- */
-$session_exits = array(
-	'Remember Me disabled' => array( array( 'disable_remember_me' => 'yes' ), true ),
-	'a remembered login'   => array( array(), true ),
-	'an ordinary login'    => array( array(), false ),
-);
-
-foreach ( $session_exits as $exit => $case ) {
-	list( $extra, $remember ) = $case;
-
-	$GLOBALS['keel_options']['keel_settings'] = array_merge(
-		array(
-			'session_regular_days' => 30,
-			'remember_me_days'     => 60,
+$GLOBALS['wp_filter']['auth_cookie_expiration']  = new Keel_Test_Hook(
+	array(
+		10 => array(
+			'compatible' => array(
+				'function'      => 'keel_test_compatible_session',
+				'accepted_args' => 1,
+			),
 		),
-		$extra
-	);
-
-	keel_assert(
-		keel_defaults_session_length( 1, 1, $remember ) === keel_defaults_session_length( PHP_INT_MAX, 1, $remember ),
-		"The incoming expiration does not influence the result at the '{$exit}' exit, however large or small."
-	);
-}
-
-// The mirror on the comparing side: a stronger incoming value survives. This is
-// already covered in tests/headers.php; it is restated here because the pair is
-// the point, and a reader who changes one should meet the other.
-$GLOBALS['keel_options']['keel_settings'] = array( 'frame_options' => 'SAMEORIGIN' );
-$r                                        = keel_defaults_set_frame_option_header( array( 'X-Frame-Options' => 'DENY' ) );
-keel_assert( 'DENY' === $r['X-Frame-Options'], 'A stronger incoming header IS evidence, and is not downgraded.' );
-
-
-/*
- * --- the one place the evidence misleads, and it is core ---
- *
- * WP_Customize_Manager::filter_iframe_security_headers() sets SAMEORIGIN on the
- * previewed front end at priority 10 so the preview loads in its iframe. Keel runs
- * at 99. A site configured DENY escalated core's value, and the preview kept
- * working only because core sets frame-ancestors 'self' in the same call and CSP
- * takes precedence over X-Frame-Options wherever both are present.
- *
- * Relying on that is relying on a second header to undo the first. "Stronger" is
- * the wrong question when the incoming value was set to make a feature work rather
- * than to state a posture.
- */
-$GLOBALS['keel_options']['keel_settings'] = array( 'frame_options' => 'DENY' );
-$customizer                               = array(
-	'X-Frame-Options'         => 'SAMEORIGIN',
-	'Content-Security-Policy' => "frame-ancestors 'self'",
+		50 => array(
+			'keel' => array(
+				'function'      => 'keel_defaults_session_length',
+				'accepted_args' => 3,
+			),
+		),
+	)
 );
+$report = keel_defaults_policy_overlap_report();
+keel_assert( array( 'compatible-plugin' ) === $report['compatible']['auth_cookie_expiration'], 'A rival that leaves Keel\'s governed result unchanged is compatible.' );
+keel_assert( empty( $report['confirmed'] ), 'Compatible callback presence creates no actionable collision.' );
 
-$GLOBALS['keel_is_customize_preview'] = false;
-$r                                    = keel_defaults_set_frame_option_header( $customizer );
-keel_assert( 'DENY' === $r['X-Frame-Options'], 'Outside the Customizer a configured DENY still tightens.' );
-
-$GLOBALS['keel_is_customize_preview'] = true;
-$r                                    = keel_defaults_set_frame_option_header( $customizer );
-keel_assert(
-	$customizer === $r,
-	'Inside a Customizer preview the headers are left exactly as core set them.'
+$GLOBALS['wp_filter']['auth_cookie_expiration']->callbacks[60] = array(
+	'rival' => array(
+		'function'      => 'keel_test_rival_short_session',
+		'accepted_args' => 1,
+	),
 );
-$GLOBALS['keel_is_customize_preview'] = false;
+$report = keel_defaults_policy_overlap_report();
+keel_assert( array( 'rival-plugin' ) === $report['confirmed']['auth_cookie_expiration'], 'A reproduced opposing final value is confirmed.' );
+keel_assert( array( 'rival-plugin' ) === keel_defaults_competing_plugins()['auth_cookie_expiration'], 'Only confirmed effects reach the actionable compatibility API.' );
 
-echo "policy conflicts: OK\n";
+keel_defaults_registered_policy_hooks( 'pre_wp_mail', '__return_false', PHP_INT_MAX, 2, 'suppress_nonproduction_mail' );
+$GLOBALS['wp_filter']['pre_wp_mail'] = new Keel_Test_Hook(
+	array(
+		10 => array(
+			'rival' => array(
+				'function'      => 'keel_test_rival_mail',
+				'accepted_args' => 1,
+			),
+		),
+	)
+);
+$report                              = keel_defaults_policy_overlap_report();
+keel_assert( array( 'rival-plugin' ) === $report['unconfirmed']['pre_wp_mail'], 'Unsafe mail overlap is informational.' );
+keel_assert( ! isset( $report['confirmed']['pre_wp_mail'] ), 'Unsafe mail overlap cannot recommend deactivation.' );
+
+keel_defaults_registered_policy_hooks( 'wp_revisions_to_keep', 'keel_defaults_revision_limit', 10, 2, 'post_revisions_limit' );
+$GLOBALS['keel_options'][ KEEL_DEFAULTS_OPTION ]['post_revisions_limit'] = 10;
+$GLOBALS['wp_filter']['wp_revisions_to_keep']                            = new Keel_Test_Hook(
+	array(
+		10 => array(
+			'keel' => array(
+				'function'      => 'keel_defaults_revision_limit',
+				'accepted_args' => 2,
+			),
+		),
+	)
+);
+$GLOBALS['wp_filter']['wp_post_revisions_to_keep']                       = new Keel_Test_Hook(
+	array(
+		10 => array(
+			'rival' => array(
+				'function'      => 'keel_test_rival_revision',
+				'accepted_args' => 2,
+			),
+		),
+	)
+);
+$report = keel_defaults_policy_overlap_report();
+keel_assert( array( 'rival-plugin' ) === $report['confirmed']['wp_post_revisions_to_keep'], 'A post-type revision override is detected by its final effect.' );
+
+keel_assert( 'rival-plugin' === keel_defaults_callback_plugin_dir( 'Keel_Test_Static_Callback::run' ), 'Class::method strings are attributed.' );
+keel_assert( 'rival-plugin' === keel_defaults_callback_plugin_dir( array( 'Keel_Test_Static_Callback', 'run' ) ), 'Static callback arrays are attributed.' );
+keel_assert( 'rival-plugin' === keel_defaults_callback_plugin_dir( new Keel_Test_Invokable() ), 'Invokable objects are attributed.' );
+
+$health = keel_defaults_site_health_conflicts();
+keel_assert( 'recommended' === $health['status'], 'A confirmed effect is actionable in Site Health.' );
+keel_assert( false !== strpos( $health['description'], 'safe effect probe' ), 'The report explains why the warning is justified.' );
+
+fwrite( STDOUT, "policy conflicts: OK\n" );

@@ -38,6 +38,47 @@ function keel_defaults_seed_site() {
 	}
 
 	add_option( KEEL_DEFAULTS_OPTION, keel_defaults_seed_values() );
+	update_option( KEEL_DEFAULTS_DATA_VERSION_OPTION, KEEL_DEFAULTS_DATA_VERSION );
+
+	return true;
+}
+
+/**
+ * Upgrade one site's stored settings without moving established choices.
+ *
+ * Version 1 introduces `post_revisions_limit`. New activations seed the recommended
+ * limit of 10, but an existing installation previously left WordPress's
+ * unlimited default alone. Store -1 before bootstrap reads the new schema key,
+ * so merely updating Keel does not turn that old behaviour into a cap.
+ *
+ * The migration is deliberately lazy on multisite. `plugins_loaded` runs in
+ * each site's context before Keel reads the setting, so a large network does
+ * not need one unbounded upgrade request and every subsite is safe on its first
+ * request after the update.
+ *
+ * @return bool True when this request advanced the data version.
+ */
+function keel_defaults_maybe_upgrade() {
+	$version = (int) get_option( KEEL_DEFAULTS_DATA_VERSION_OPTION, 0 );
+	if ( $version >= KEEL_DEFAULTS_DATA_VERSION ) {
+		return false;
+	}
+
+	$stored = get_option( KEEL_DEFAULTS_OPTION, false );
+
+	// An absent settings option belongs to activation/seeding, not migration.
+	if ( false === $stored ) {
+		return false;
+	}
+
+	$stored = is_array( $stored ) ? $stored : array();
+
+	if ( $version < 1 && ! array_key_exists( 'post_revisions_limit', $stored ) ) {
+		$stored['post_revisions_limit'] = -1;
+		update_option( KEEL_DEFAULTS_OPTION, $stored );
+	}
+
+	update_option( KEEL_DEFAULTS_DATA_VERSION_OPTION, KEEL_DEFAULTS_DATA_VERSION );
 
 	return true;
 }

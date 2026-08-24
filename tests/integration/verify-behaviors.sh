@@ -56,6 +56,14 @@ echo "Target: $SITE"
 probe=$(WP eval 'echo function_exists("keel_defaults_schema") ? "READY" : "NO";' | tr -d '[:space:]')
 [ "$probe" = "READY" ] || { echo "keel not loaded on this site (probe: $probe)"; exit 2; }
 
+echo; echo "== WordPress filter semantics =="
+semantics=$(WP eval-file "$(cd "$(dirname "$0")" && pwd)/filter-semantics.php" | tr -d '\r')
+if printf '%s' "$semantics" | grep -q 'filter semantics: OK'; then
+	printf '  \033[32mPASS\033[0m  all callbacks execute on final-value filters\n'; pass=$((pass+1))
+else
+	printf '  \033[31mFAIL\033[0m  real WP_Hook semantics  (got: %s)\n' "$semantics"; fail=$((fail+1))
+fi
+
 echo; echo "== Security headers =="
 setopt security_headers yes; setopt frame_options SAMEORIGIN
 check "X-Content-Type-Options: nosniff is sent"        '$h=apply_filters("wp_headers",array());echo (($h["X-Content-Type-Options"]??"")==="nosniff")?"OK":"no";'
@@ -119,7 +127,12 @@ check "emoji detection script unhooked"                'echo has_action("wp_head
 
 echo; echo "== Author archives =="
 setopt disable_author_archives yes
-check "author archive redirect hooked"                 'echo has_action("template_redirect")?"OK":"no";'
+check "author archive redirect hooked"                 'echo (false!==has_action("template_redirect","keel_defaults_redirect_author_archive"))?"OK":"no";'
+check "author feed 404 handler runs first"              'echo (9===has_action("template_redirect","keel_defaults_block_author_feeds"))?"OK":"no";'
+
+echo; echo "== Revisions =="
+setopt post_revisions_limit 10
+check "revision policy honours constant precedence"     '$lock=keel_defaults_config_lock("post_revisions_limit");$hook=has_filter("wp_revisions_to_keep","keel_defaults_revision_limit");if(null!==$lock){echo false===$hook?"OK":"hooked";}else{$p=get_post(1);echo ($p&&10===wp_revisions_to_keep($p))?"OK":"wrong";}'
 
 echo; echo "== Admin menu width =="
 setopt admin_menu_width 240

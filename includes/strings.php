@@ -125,7 +125,7 @@ function keel_defaults_strings() {
 		'disable_author_archives'         => array(
 			'label'     => __( 'Author Archives', 'keel-defaults' ),
 			'statement' => __( 'Disable public author archives', 'keel-defaults' ),
-			'help'      => __( 'Redirects <code>/author/{slug}/</code> to the home page. Author pages leak usernames (like the REST list above) and are usually thin, duplicate content.', 'keel-defaults' ),
+			'help'      => __( 'Redirects the HTML <code>/author/{slug}/</code> archive to the home page and returns 404 for its feed. Author pages leak usernames (like the REST list above) and are usually thin, duplicate content.', 'keel-defaults' ),
 		),
 		'redirect_attachment_pages'       => array(
 			'label'     => __( 'Attachment Pages', 'keel-defaults' ),
@@ -141,6 +141,16 @@ function keel_defaults_strings() {
 			'label'     => __( 'Post Passwords', 'keel-defaults' ),
 			'statement' => __( 'Hide post password protection in the editor', 'keel-defaults' ),
 			'help'      => __( 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default.', 'keel-defaults' ),
+		),
+		'post_revisions_limit'            => array(
+			'label'         => __( 'Post Revision Retention', 'keel-defaults' ),
+			'unit'          => __( 'revisions', 'keel-defaults' ),
+			'unit_singular' => __( 'revision', 'keel-defaults' ),
+			'states'        => array(
+				'-1' => __( 'Unlimited', 'keel-defaults' ),
+				'0'  => __( 'Disabled', 'keel-defaults' ),
+			),
+			'help'          => __( 'Maximum revisions WordPress keeps for each post. Enter <code>-1</code> for unlimited or <code>0</code> to disable revisions. Changing this governs future saves; it does not immediately delete revisions already stored. A numeric or false <code>WP_POST_REVISIONS</code> value in <code>wp-config.php</code> takes precedence.', 'keel-defaults' ),
 		),
 		'force_classic_editor'            => array(
 			'label'     => __( 'Classic Editor', 'keel-defaults' ),
@@ -203,14 +213,16 @@ function keel_defaults_strings() {
 			'help'      => __( 'Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines.', 'keel-defaults' ),
 		),
 		'session_regular_days'            => array(
-			'label' => __( 'Regular Session Length', 'keel-defaults' ),
-			'unit'  => __( 'days', 'keel-defaults' ),
-			'help'  => __( 'How long a normal (non-remembered) login stays signed in. WordPress\'s default is 2 days.', 'keel-defaults' ),
+			'label'         => __( 'Regular Session Length', 'keel-defaults' ),
+			'unit'          => __( 'days', 'keel-defaults' ),
+			'unit_singular' => __( 'day', 'keel-defaults' ),
+			'help'          => __( 'How long a normal (non-remembered) login stays signed in. WordPress\'s default is 2 days.', 'keel-defaults' ),
 		),
 		'remember_me_days'                => array(
-			'label' => __( 'Remember Me Length', 'keel-defaults' ),
-			'unit'  => __( 'days', 'keel-defaults' ),
-			'help'  => __( 'How long a remembered login stays signed in. WordPress\'s default is 14 days. It cannot be shorter than the regular session length above.', 'keel-defaults' ),
+			'label'         => __( 'Remember Me Length', 'keel-defaults' ),
+			'unit'          => __( 'days', 'keel-defaults' ),
+			'unit_singular' => __( 'day', 'keel-defaults' ),
+			'help'          => __( 'How long a remembered login stays signed in. WordPress\'s default is 14 days. It cannot be shorter than the regular session length above.', 'keel-defaults' ),
 		),
 		'login_logo_behavior'             => array(
 			'label'   => __( 'Login Logo', 'keel-defaults' ),

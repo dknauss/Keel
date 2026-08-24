@@ -70,9 +70,17 @@ function keel_defaults_state_label( $field, $value, $s = array() ) {
 	 * names this function when it stops being true.
 	 */
 	if ( 'number' === $type ) {
-		$days = (int) $value;
-		/* translators: %s: number of days. */
-		return sprintf( _n( '%s day', '%s days', $days, 'keel-defaults' ), number_format_i18n( $days ) );
+		$key = (string) (int) $value;
+		if ( isset( $s['states'][ $key ] ) ) {
+			return (string) $s['states'][ $key ];
+		}
+
+		$number   = (int) $value;
+		$singular = isset( $s['unit_singular'] ) ? (string) $s['unit_singular'] : ( isset( $s['unit'] ) ? (string) $s['unit'] : '' );
+		$plural   = isset( $s['unit'] ) ? (string) $s['unit'] : $singular;
+		$unit     = 1 === $number ? $singular : $plural;
+
+		return trim( number_format_i18n( $number ) . ' ' . $unit );
 	}
 
 	return (string) $value;
@@ -248,7 +256,7 @@ function keel_defaults_conflict_list( $conflicts ) {
 	foreach ( $conflicts as $hook => $hook_plugins ) {
 		$out .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
 			/* translators: %s: comma-separated plugin directory names. */
-			esc_html__( 'contested by %s', 'keel-defaults' ),
+			esc_html__( 'callbacks from %s', 'keel-defaults' ),
 			esc_html( implode( ', ', $hook_plugins ) )
 		) . '</li>';
 	}
@@ -260,8 +268,8 @@ function keel_defaults_conflict_list( $conflicts ) {
  * Report other plugins competing for the same settings.
  *
  * Two plugins that both set a session length do not error, do not log, and do
- * not look wrong: WordPress runs both filters and keeps whichever answered
- * last, so the losing plugin's settings screen goes on displaying a value the
+ * not look wrong: WordPress composes both callbacks in priority order and core
+ * uses the final result, so a plugin's settings screen can display a value the
  * site does not use.
  *
  * The result names what is contesting what and deliberately does not say which
@@ -271,20 +279,31 @@ function keel_defaults_conflict_list( $conflicts ) {
  * @return array
  */
 function keel_defaults_site_health_conflicts() {
-	$conflicts = keel_defaults_competing_plugins();
+	$report    = keel_defaults_policy_overlap_report();
+	$conflicts = $report['confirmed'];
 	$badge     = array(
 		'label' => __( 'Keel', 'keel-defaults' ),
 		'color' => 'blue',
 	);
-	$intro     = '<p>' . esc_html__( 'Settings such as session length and login behavior are applied through WordPress filters that return a single value. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect.', 'keel-defaults' ) . '</p>'
-		. '<p>' . esc_html__( 'A plugin that turns a feature off by handing one of WordPress\'s own helper functions to a filter cannot be traced back from it, because the function belongs to WordPress. A clear result here means nothing traceable was found, not that nothing is competing.', 'keel-defaults' ) . '</p>';
+	$intro     = '<p>' . esc_html__( 'WordPress runs every callback on a filter in priority order and uses the final value. Another callback is not automatically a conflict: Keel compares the part of the result it governs when that can be evaluated safely.', 'keel-defaults' ) . '</p>';
+	$details   = '';
+
+	if ( ! empty( $report['compatible'] ) ) {
+		$details .= '<p><strong>' . esc_html__( 'Compatible overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These plugins touch the same filters, but the safely tested final outcome still matches Keel.', 'keel-defaults' ) . '</p><ul>';
+		$details .= keel_defaults_conflict_list( $report['compatible'] ) . '</ul>';
+	}
+
+	if ( ! empty( $report['unconfirmed'] ) ) {
+		$details .= '<p><strong>' . esc_html__( 'Unconfirmed overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These callbacks could not be replayed or attributed safely. This is informational only; it is not a reason to deactivate anything.', 'keel-defaults' ) . '</p><ul>';
+		$details .= keel_defaults_conflict_list( $report['unconfirmed'] ) . '</ul>';
+	}
 
 	if ( empty( $conflicts ) ) {
 		return array(
-			'label'       => __( 'No other plugin controls the same settings', 'keel-defaults' ),
+			'label'       => __( 'No conflicting policy outcome was confirmed', 'keel-defaults' ),
 			'status'      => 'good',
 			'badge'       => $badge,
-			'description' => $intro,
+			'description' => $intro . $details,
 			'test'        => 'keel_defaults_conflicts',
 		);
 	}
@@ -300,50 +319,8 @@ function keel_defaults_site_health_conflicts() {
 		/* translators: %s: comma-separated plugin directory names. */
 		esc_html__( 'Also controlling these settings: %s', 'keel-defaults' ),
 		esc_html( implode( ', ', array_keys( $plugins ) ) )
-	) . '</strong></p><p>' . esc_html__( 'Only one plugin should own these settings. Choose the one this site keeps and deactivate the others — whichever you keep, its settings screen will then be telling the truth.', 'keel-defaults' ) . '</p>';
-
-	/*
-	 * Split by what losing costs, because the two are different problems.
-	 *
-	 * On an authoritative hook the loser's value is overwritten and its screen
-	 * goes on claiming it. On a short-circuiting one the loser's callback never
-	 * runs at all — telling somebody their setting is being ignored, when the
-	 * truth is that half their plugin is not executing, sends them to the wrong
-	 * place.
-	 */
-	$kinds  = keel_defaults_policy_hooks();
-	$sorted = array(
-		'authoritative' => array(),
-		'short_circuit' => array(),
-	);
-
-	foreach ( $conflicts as $hook => $hook_plugins ) {
-		$kind = isset( $kinds[ $hook ] ) ? $kinds[ $hook ] : 'authoritative';
-
-		if ( isset( $sorted[ $kind ] ) ) {
-			$sorted[ $kind ][ $hook ] = $hook_plugins;
-		}
-	}
-
-	if ( ! empty( $sorted['authoritative'] ) ) {
-		$description .= '<p>' . esc_html__( 'Settings where the last plugin to answer decides, and the others go on displaying a value the site does not use:', 'keel-defaults' ) . '</p><ul>';
-		$description .= keel_defaults_conflict_list( $sorted['authoritative'] );
-		$description .= '</ul>';
-	}
-
-	if ( ! empty( $sorted['short_circuit'] ) ) {
-		$description .= '<p>' . esc_html__( 'Settings where only one plugin runs at all — WordPress stops at the first one that answers, so the other never executes:', 'keel-defaults' ) . '</p><ul>';
-		$description .= keel_defaults_conflict_list( $sorted['short_circuit'] );
-		$description .= '</ul>';
-
-		if ( isset( $sorted['short_circuit']['pre_wp_mail'] ) ) {
-			$description .= '<p>' . sprintf(
-				/* translators: %s: the name of a WordPress action hook, already wrapped in <code>. */
-				esc_html__( 'Keel takes outgoing mail at the last possible priority and wins on purpose: a site that is not production must not send mail whatever else decided. A mail catcher or logger will not see the message, so hook %s instead — it fires with the same arguments in place of the send.', 'keel-defaults' ),
-				'<code>keel_outgoing_mail_suppressed</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a literal hook name, no variable part.
-			) . '</p>';
-		}
-	}
+	) . '</strong></p><p>' . esc_html__( 'A safe effect probe demonstrated a different final policy. Choose which plugin should own that setting and disable the overlapping policy in the other.', 'keel-defaults' ) . '</p><ul>';
+	$description .= keel_defaults_conflict_list( $conflicts ) . '</ul>' . $details;
 
 	return array(
 		'label'       => __( 'More than one plugin controls the same settings', 'keel-defaults' ),

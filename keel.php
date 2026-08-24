@@ -3,7 +3,7 @@
  * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
  * Description:       More than 30 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
- * Version:           0.4.1
+ * Version:           0.5.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            Dan Knauss
@@ -55,6 +55,12 @@ const KEEL_DEFAULTS_INFO_SECTION = 'keel';
  */
 const KEEL_DEFAULTS_NETWORK_OPTION = 'keel_network_settings';
 
+/** Data-schema version, stored per site so new defaults can migrate safely. */
+const KEEL_DEFAULTS_DATA_VERSION_OPTION = 'keel_settings_data_version';
+
+/** Current data-schema version. */
+const KEEL_DEFAULTS_DATA_VERSION = 1;
+
 /** This file, for plugin_basename() — the Plugins-screen action links need it. */
 define( 'KEEL_DEFAULTS_FILE', __FILE__ );
 
@@ -84,3 +90,5 @@ require_once __DIR__ . '/includes/settings-page.php';
  */
 register_activation_hook( __FILE__, 'keel_defaults_activate' );
 add_action( 'wp_initialize_site', 'keel_defaults_seed_new_site', 100 );
+// Migrate before the default-priority bootstrap reads any newly added key.
+add_action( 'plugins_loaded', 'keel_defaults_maybe_upgrade', 0 );

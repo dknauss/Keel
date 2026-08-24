@@ -1,16 +1,16 @@
-# Canadian English for Keel.
+# Canadian English for Keel Defaults.
 #
 # en_US is the source locale, so this catalog exists only to swap American
-# spellings for Canadian ones. Three strings need it out of 221; everything else
+# spellings for Canadian ones. Two strings need it out of 244; everything else
 # is identical and is deliberately not repeated here, because a duplicated string
 # is one that can drift from its source without anything noticing.
 #
-# Regenerate the template with:  wp i18n make-pot . languages/keel.pot --slug=keel
-# Recompile this catalog with:   wp i18n make-mo languages/
+# Regenerate the template with: wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults
+# Recompile this catalog with:  wp i18n make-mo languages/
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.2.0\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel\n"
+"Project-Id-Version: Keel Defaults 0.5.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Language: en_CA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,9 +20,5 @@ msgstr ""
 msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in."
 msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in."
 
-msgid "Settings such as session length and login behavior are applied through WordPress filters that return a single value. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect."
-msgstr "Settings such as session length and login behaviour are applied through WordPress filters that return a single value. When more than one plugin uses the same filter, only one of them takes effect. There is no error — the others go on showing the values they set, as if they were still in effect."
-
 msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
 msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognised automatically. Off by default."
-
