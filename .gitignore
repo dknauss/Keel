@@ -55,6 +55,14 @@ wp-config.php
 # than anything from vendor/. Run `composer install` for a working checkout.
 /vendor/
 
+# Build output
+#
+# `bin/build-zip.sh` writes the assembled plugin and the zip here, and defaults
+# to this path, so it appears after any local build and after every CI run. The
+# script excludes its own output directory when it copies the tree, so this is
+# only about keeping `git status` honest.
+/build/
+
 # Agent tooling
 #
 # Not the plugin, not the tests, and not something a checkout needs. It is

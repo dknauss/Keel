@@ -19,14 +19,18 @@ the way its own settings screen would configure it.
   the floor it claims — see [The older-WordPress run](#the-older-wordpress-run).
   The other plugins have not been; their two rendered-markup rows are block-theme
   figures measured on 7.0.2.
-  **Re-checked for 0.4.0** on 2026-08-23, on WordPress 7.1: the server-side
-  comment-read row below (§3) was re-run against Disable Comments 2.8.0 in its
-  "everywhere" mode, with a comment written straight to the table by `$wpdb` so
-  no plugin could intercept the write. Keel returned nothing from
-  `get_comments()`; Disable Comments returned the comment while reporting a count
-  of zero. Nothing else in this document was re-measured for 0.4.0, which changed
-  conflict reporting, the text domain and the AI-connectors gate — none of the
-  teardowns tabulated here.
+  **Re-checked on 2026-08-23**, on WordPress 7.1: the server-side comment-read
+  row below (§3) was re-run against Disable Comments 2.8.0 in its "everywhere"
+  mode, with a comment written straight to the table by `$wpdb` so no plugin
+  could intercept the write. Keel returned nothing from `get_comments()`; Disable
+  Comments returned the comment while reporting a count of zero.
+
+  Nothing else in this document has been re-measured since. The Keel row is
+  relabelled to the current version rather than re-run, and this note is what
+  that relabelling rests on: 0.4.0, 0.4.1 and 0.5.0 changed conflict reporting,
+  the text domain and the AI-connectors gate, and none of those is a teardown
+  tabulated here. A release that changes one has to re-run the probes rather than
+  edit the label.
 
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries

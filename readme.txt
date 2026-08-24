@@ -19,7 +19,7 @@ All 39 defaults are declared in a single schema array that drives both the setti
 
 **Disabling something means it is actually disabled.** Measured against nine of the most-installed plugins in this space — every result a live request against a real install, not a readme claim — Keel is the only one where "comments are off" is true below the presentation layer. The others stop at the theme template and the REST route: ask the database directly, with `get_comments()`, and the comments are still there. The same care runs through the rest — closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed answering.
 
-**Site Health shows you the whole posture**, read-only: every default and its current state on one screen, so you can see what the site is actually doing without clicking through tabs. It also reports when another plugin is setting the same defaults, which otherwise fails silently.
+**Site Health shows you the whole posture**, read-only: every default and its current state on one screen, so you can see what the site is actually doing without clicking through tabs. It also reports when another plugin is controlling the same settings, which otherwise fails silently.
 
 **Outgoing email stops at the edge of production.** A database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production — on by default, does nothing on production, and says so in an admin notice so nobody is left wondering why a password reset never arrived.
 
