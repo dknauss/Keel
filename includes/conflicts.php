@@ -359,14 +359,23 @@ function keel_defaults_run_policy_probe( $hook, $original, $keep, $spec ) {
 	}
 
 	$clone = clone $original;
+	if ( ! method_exists( $clone, 'remove_filter' ) ) {
+		return array(
+			'ok'    => false,
+			'value' => null,
+		);
+	}
+
 	foreach ( $clone->callbacks as $priority => $callbacks ) {
-		foreach ( $callbacks as $id => $registered ) {
+		foreach ( $callbacks as $registered ) {
 			if ( empty( $registered['function'] ) || ! call_user_func( $keep, $registered['function'], (int) $priority, $registered ) ) {
-				unset( $clone->callbacks[ $priority ][ $id ] );
+				/*
+				 * WP_Hook keeps a protected priority index alongside callbacks.
+				 * Its API updates both; unsetting callbacks directly leaves stale
+				 * priorities and makes apply_filters() read missing array keys.
+				 */
+				$clone->remove_filter( $hook, $registered['function'], (int) $priority );
 			}
-		}
-		if ( empty( $clone->callbacks[ $priority ] ) ) {
-			unset( $clone->callbacks[ $priority ] );
 		}
 	}
 
@@ -461,7 +470,19 @@ function keel_defaults_policy_overlap_report() {
 				if ( '' !== $plugin ) {
 					$rivals[ $plugin ] = true;
 				} else {
-					$unattributed = true;
+					$file    = wp_normalize_path( keel_defaults_callback_file( $registered['function'] ) );
+					$core    = trailingslashit( wp_normalize_path( ABSPATH ) );
+					$wpinc   = defined( 'WPINC' ) ? trailingslashit( $core . WPINC ) : '';
+					$wpadmin = $core . 'wp-admin/';
+					$helper  = is_string( $registered['function'] ) && 0 === strpos( $registered['function'], '__return_' );
+
+					// Named core callbacks are known platform behavior, not a rival.
+					// Core helpers remain unconfirmed because a plugin may have
+					// registered the shared callable and left no ownership trace.
+					$is_named_core = ! $helper && '' !== $file && ( ( '' !== $wpinc && 0 === strpos( $file, $wpinc ) ) || 0 === strpos( $file, $wpadmin ) );
+					if ( ! $is_named_core ) {
+						$unattributed = true;
+					}
 				}
 			}
 		}
