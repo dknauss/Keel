@@ -142,6 +142,28 @@ every screenshot file is captioned in `readme.txt` and shown in `README.md`.
 - If the change rests on a decision shared with the sibling plugins, restate the
   reasoning here rather than citing a document this repository does not contain.
 
+## Releases are on hold
+
+**Do not tag a release while the wordpress.org submission is in review.** Merge
+to `main` as normal; do not bump the version, do not push a `v*` tag, and do not
+publish.
+
+The reason is disclosure, not risk. A plugin in the review queue is reviewed as
+the version that was submitted, and every release made in the meantime is one the
+maintainer has to go and tell the reviewer about — twice already in a single day,
+each time for something found after the submission rather than before it. Holding
+is cheaper than the note, and a queue that is about to clear makes the note
+pointless anyway.
+
+Work that would otherwise be a release accumulates on `main` and ships as one
+version when the queue clears. Something genuinely urgent — a security fix, or a
+defect bad enough that shipping late is worse than the disclosure — overrides
+this, and then the disclosure is part of the job rather than an accident.
+
+Lifting this is a decision for the maintainer once the plugin is listed. Until
+then, if you are an agent session and the work you just finished feels like it
+wants a version bump, it does not.
+
 ## Security
 
 Do not report vulnerabilities in public issues or pull requests. See
