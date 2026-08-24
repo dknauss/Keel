@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.4.0
+Stable tag: 0.4.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,7 +97,7 @@ Keel checks for this and says so where you will see it: on the Plugins screen �
 
 Two kinds of collision are reported, because they are different problems. On most settings the last plugin to answer decides, and the others go on displaying a value the site does not use. On a few — suppressing outgoing mail, and answering comment queries — WordPress stops at the first plugin that answers, so the other never runs at all. Outgoing mail is the one case where Keel deliberately takes the last word, because a site that is not production must not send mail whatever else decided; the report says so, and names the `keel_outgoing_mail_suppressed` action a mail catcher should hook instead.
 
-Some of it is reported as unconfirmed, and that is worth understanding. WordPress ships a handful of tiny helper functions — `__return_false` is the common one — and turning a feature off by handing one of those to a filter is the ordinary way a "disable something" plugin is written. Keel cannot trace those back to the plugin that used them: the function belongs to WordPress, so it looks exactly like WordPress doing it. Where that happens, Keel falls back to reading the active plugins for a filter on the same setting, and reports what it finds as likely rather than certain. A plugin named that way may be declaring the filter in a mode it is not currently in.
+There is a limit worth knowing. WordPress ships a handful of tiny helper functions — `__return_false` is the common one — and turning a feature off by handing one of those to a filter is the ordinary way a "disable something" plugin is written. Keel cannot trace those back to the plugin that used them: the function belongs to WordPress, so it looks exactly like WordPress doing it. A clear result therefore means nothing traceable was found, not that nothing is competing for the setting.
 
 Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made — and it will not report a conflict on a setting it is not itself setting.
 
@@ -127,10 +127,14 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.4.1 =
+* Removed the unconfirmed half of the overlapping-settings check. It reported a plugin when something untraceable was registered on a setting Keel also sets and that plugin's source mentioned the same filter — but WordPress itself, and Keel itself, both register through the same untraceable helper functions, so the first of those two conditions was true on nearly every setting. That left one weak signal doing the work of two, and it named plugins that were not doing anything: Clearfy and WP Master Toolkit were both reported on five settings between them while registering nothing at all. Confirmed detection is unchanged and unaffected.
+* The check now says what it cannot see, on the settings screen and in Site Health. A plugin that turns something off by handing one of WordPress's own helper functions to a filter cannot be traced back from that filter, so a clear result means nothing traceable was found rather than nothing competing.
+
 = 0.4.0 =
 * The plugin folder is now `keel-defaults` rather than `keel`, and the text domain moved with it. WordPress.org serves translations as `{slug}-{locale}.mo`, so a text domain that is not the slug means no translation ever loads — silently, with nothing to search for.
 * Keel now tells you when another plugin is setting the same things it is. Session length, comment behaviour, the editor and a dozen other settings are applied through WordPress filters that return a single value: when more than one plugin uses the same filter, only one of them takes effect, there is no error, and the ones that lost go on showing the values they set. The check names the plugins and the settings — on the Plugins screen, on Keel's own screen, and in full under Site Health.
-* It finds plugins WordPress cannot attribute. Turning a feature off with one of core's own callbacks is the ordinary way it is done and leaves nothing to trace back to a plugin, which is why the first version of this check missed most of what it was built to find. A second kind of evidence covers them, reported as unconfirmed rather than as fact.
+* What it cannot see is stated where it is reported. A plugin that turns a feature off by handing one of WordPress's own helper functions to a filter leaves nothing to trace back to it, so a clear result means nothing traceable was found rather than nothing competing.
 * A conflict needs Keel to be on the hook too. Turning a default off takes Keel out of the contest and the report follows, instead of warning about a setting Keel has stopped touching.
 * Capability conflicts are judged by the capability rather than by the filter. Nearly every plugin that adds a custom role uses the same filter Keel uses to take `unfiltered_html` away, and almost none of them touch that capability; only the ones that do are reported.
 * AI Connectors no longer appears on WordPress versions that have no AI connectors. The setting is gated on the core function rather than a version number, and its stored value is left alone, so a site that upgrades to 7.0 finds the default already there.
@@ -169,6 +173,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.4.1 =
+Fixes the overlapping-settings check naming plugins that were not competing. If 0.4.0 told you another plugin was setting the same things and you have not acted on it yet, re-check under Site Health before deactivating anything. Confirmed results were always correct; the unconfirmed ones are gone.
 
 = 0.4.0 =
 From wordpress.org: nothing to do, and your settings are kept. From GitHub before this release: the folder changed from `keel` to `keel-defaults`, so WordPress sees a new plugin rather than an update. Deactivate and delete the old copy — your settings are stored separately and survive it.
