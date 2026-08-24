@@ -2,12 +2,17 @@
 
 ## Supported versions
 
-The current release is `0.3.0`. Keel has not been submitted to wordpress.org, so
+The current release is `0.4.0`. Keel has not been submitted to wordpress.org, so
 it is installed from a GitHub release or the rolling `latest` build.
 
+Note that `0.4.0` changed the plugin folder from `keel` to `keel-defaults`. A site
+that installed an earlier release from GitHub has the old folder until it is
+removed by hand, and WordPress will not update it — check which copy is active
+before reporting against a version.
+
 Security fixes target the latest release and land on `main`. Older releases may
-receive them when the issue is severe and a safe backport is practical; with one
-release out, that has not come up yet.
+receive them when the issue is severe and a safe backport is practical; with two
+releases out, that has not come up yet.
 
 ## Reporting a vulnerability
 

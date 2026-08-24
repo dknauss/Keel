@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,6 +127,15 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.4.0 =
+* The plugin folder is now `keel-defaults` rather than `keel`, and the text domain moved with it. WordPress.org serves translations as `{slug}-{locale}.mo`, so a text domain that is not the slug means no translation ever loads — silently, with nothing to search for.
+* Keel now tells you when another plugin is setting the same things it is. Session length, comment behaviour, the editor and a dozen other settings are applied through WordPress filters that return a single value: when more than one plugin uses the same filter, only one of them takes effect, there is no error, and the ones that lost go on showing the values they set. The check names the plugins and the settings — on the Plugins screen, on Keel's own screen, and in full under Site Health.
+* It finds plugins WordPress cannot attribute. Turning a feature off with one of core's own callbacks is the ordinary way it is done and leaves nothing to trace back to a plugin, which is why the first version of this check missed most of what it was built to find. A second kind of evidence covers them, reported as unconfirmed rather than as fact.
+* A conflict needs Keel to be on the hook too. Turning a default off takes Keel out of the contest and the report follows, instead of warning about a setting Keel has stopped touching.
+* Capability conflicts are judged by the capability rather than by the filter. Nearly every plugin that adds a custom role uses the same filter Keel uses to take `unfiltered_html` away, and almost none of them touch that capability; only the ones that do are reported.
+* AI Connectors no longer appears on WordPress versions that have no AI connectors. The setting is gated on the core function rather than a version number, and its stored value is left alone, so a site that upgrades to 7.0 finds the default already there.
+* Tested against WordPress 7.1, behaviourally rather than by reading the release notes.
+
 = 0.3.0 =
 * Multisite: a Super Admin can decide any setting for the whole network, under Network Admin → Settings → Keel Defaults. Sites see those settings as locked. Policy applies when a value is read rather than being written into each site, so a site's own saved settings are untouched and lifting the policy returns every site to exactly what it had.
 * A locked setting now stays locked when the form is saved, not only when it is drawn. A wp-config constant or a network policy was enforced in the rendered control and nowhere else, so a submission could still write the value it protected. It never took effect, but the stored setting drifted from what the screen showed.
@@ -160,6 +169,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.4.0 =
+From wordpress.org: nothing to do, and your settings are kept. From GitHub before this release: the folder changed from `keel` to `keel-defaults`, so WordPress sees a new plugin rather than an update. Deactivate and delete the old copy — your settings are stored separately and survive it.
 
 = 0.3.0 =
 Nothing to do on upgrade: no setting changes meaning and no stored value is rewritten. Multisite networks gain a Network Admin screen that can set any default for every site; it does nothing until a Super Admin uses it.
