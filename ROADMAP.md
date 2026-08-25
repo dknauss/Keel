@@ -17,14 +17,29 @@ GPL-2.0-or-later.
 
 ## Next up
 
-Two defaults are accepted and unbuilt: excluding password-protected posts from
-site search, and a toggle that leaves typographic punctuation as typed. Both are
-decided in the v0.4 section below, with the evidence and the edge cases, and
-neither is started while the release hold holds. Nothing else is queued.
+Three defaults are accepted and unbuilt: excluding password-protected posts from
+site search, a toggle that leaves typographic punctuation as typed, and hiding
+broken-shortcode residue from readers while reporting it in Site Health. All three
+are decided in the v0.4 section below, with the evidence, the edge cases and what
+each costs, measured. With the plugin approved they are buildable rather than
+blocked. Nothing else is queued.
 
-**Releases are on hold** while the wordpress.org submission is in review — merge
-to `main`, do not tag. See [CONTRIBUTING.md](CONTRIBUTING.md) for why and for what
-overrides it.
+**The plugin was approved on 2026-08-25**, on the 0.5.3 package. SVN is
+`https://plugins.svn.wordpress.org/keel-defaults`; the public page at
+`https://wordpress.org/plugins/keel-defaults` stays blank until the first commit.
+
+**The release hold is therefore liftable.** CONTRIBUTING makes lifting it a decision
+for the maintainer once the plugin is listed, and listing is what just happened — so
+the hold and its exceptions below are now history rather than active policy, kept for
+the record. The paragraphs are left in place because the exceptions they document are
+what the review team was told, and a hold that vanishes from the file it was written
+in reads as though it never applied.
+
+**One thing to settle before the first SVN commit:** 0.5.3 is the approved package,
+0.5.4 is the tag. They differ by two real defect fixes and no new setting, so the
+first push should almost certainly be 0.5.4 — but "approved version" and "version
+shipped to users" being different numbers is worth deciding deliberately rather than
+by whichever is checked out.
 
 **Exceptions used for 0.5.3 and 0.5.4.** 0.5.3 is the answer to the review itself:
 the Plugins team pended the submission and asked for a corrected package, so a new
@@ -68,10 +83,11 @@ taken and are done, two were declined with the reasons recorded, which is what
 "selected scope" means in that heading.
 
 **The four v0.4 candidates have now been decided** (2026-08-25), which is what that
-section was waiting for. Two are accepted, one is rejected outright, one is held
-with a note on why the obvious implementation is wrong. They are still not promoted
-into a queue here: the decision records what Keel will and will not absorb, and the
-two accepted ones are built when the release hold lifts, not before.
+section was waiting for. Three are accepted and one is rejected outright. Broken
+shortcodes was briefly held — the strip alone destroys the evidence that a plugin is
+missing — and is accepted on the condition that the strip and the Site Health report
+ship together. The decision records what Keel will and will not absorb, and each
+accepted item carries what it costs, measured rather than assumed.
 
 The item below is kept because it is the last thing that moved and the section reads
 oddly empty without it.
@@ -538,10 +554,9 @@ through. Each of these already exists as a mature, narrowly-scoped plugin, and f
 a site that wants exactly one of them, installing that plugin is a legitimate
 answer — Keel absorbing it mainly saves a plugin from the list.
 
-**Outcome: two accepted, one rejected, one held.** Marked in the house convention
+**Outcome: three accepted, one rejected.** Marked in the house convention
 below — `[x]` is built, `[~]` is not taken, and an accepted item stays `[ ]` until
-it ships. The accepted two are built when the release hold lifts, not before. The
-reasoning is kept in full, including where the original justification turned out to
+it ships. The reasoning is kept in full, including where the original justification turned out to
 be wrong on measurement, because a decision recorded without its evidence gets
 re-argued.
 
@@ -663,12 +678,14 @@ re-argued.
       people who can apply it argues against Keel's own update defaults, so neither
       half of that prior art belongs here.
 
-- [~] **Hide broken shortcodes — held.** Stripping the residue of shortcodes whose
-      plugin is gone, rather than printing `[some_shortcode]` to visitors. One
-      content filter. Prior art: Hide Broken Shortcodes.
+- [ ] **Hide broken shortcodes — accepted, with the report.** Stripping the residue
+      of shortcodes whose plugin is gone, rather than printing `[some_shortcode]` to
+      visitors — *and* telling an administrator which posts they are in. Prior art:
+      Hide Broken Shortcodes, which does the first half only.
 
-      **Not rejected — the obvious implementation is wrong, and a better one may
-      exist.** Held rather than declined so it can be picked up if it does.
+      **Accepted on the condition that both halves ship together.** The strip alone
+      was the wrong feature, and shipping it first "for now" would be the same
+      mistake in instalments.
 
       The risk is that hiding the residue also hides the diagnosis. `[some_shortcode]`
       appearing on a page is ugly, but it is *evidence*: a plugin the content depends
@@ -684,14 +701,75 @@ re-argued.
       claiming to strip "unregistered shortcodes" has to be sure the thing it removed
       was ever meant to be one.
 
-      **The shape that would have it both ways** is hiding the residue from visitors
-      while surfacing it to the people who can act — strip on the front end for users
-      who cannot edit, and report the affected posts and the missing tags somewhere an
-      administrator already looks. Keel has that surface: this is a Site Health entry
-      with a list of posts, sitting beside the policy-overlap report, and the front-end
-      strip becomes safe once the information is not being destroyed but moved. Costed
-      as a Site Health check plus a filter rather than "one content filter", which is
-      why it is held rather than accepted.
+      **The shape that has it both ways** — hide the residue from visitors, surface it
+      to the people who can act. Strip on the front end for readers, leave it visible
+      to anyone who can edit the post, and report the affected posts and the missing
+      tags in Site Health beside the policy-overlap report. The strip is safe once the
+      information is moved rather than destroyed.
+
+      **The report must not be a scan.** A Site Health check that walks every post
+      looking for unregistered tags is the one genuinely expensive way to build this,
+      and it would run on a screen an administrator opens when something is already
+      wrong — the worst moment to make them wait. It is also unnecessary, because the
+      front-end filter is already reading every rendered post: the residue is found as
+      a by-product of work being done anyway.
+
+      So it takes the same shape as the divergence observer in `conflicts.php`, for the
+      same reasons and with the same properties: record only when there is something to
+      record, write only when the answer changes, cap what is stored, and let the record
+      expire rather than having anything clear it. A site with no broken shortcodes
+      never writes, and Site Health reads a record instead of building one. The
+      observer is a proven pattern here rather than a new one, which is most of the
+      argument for accepting this now.
+
+      Bounded deliberately: the record holds post IDs and tag names, capped, not
+      content. A page nobody visits is not in it, and that is correct — an unvisited
+      page has no broken output to see.
+
+### What these cost, measured
+
+Taken together on 2026-08-25, on the WordPress 7.1 test install, because "one
+filter" hides a wide range of actual cost and the three accepted items sit in
+different places on it.
+
+**The hot path is already fine, and was left alone.** The divergence observers run
+on every front-end request, and `comments_open` / `pings_open` fire once per post in
+a loop — the shape most likely to be a problem. Measured at **0.020 ms per observer
+call**, 0.81 ms for the 40 calls a twenty-post archive makes. `keel_defaults_policy_expectations()`
+is rebuilt on each call and memoising it would roughly halve that, which is not worth
+a request-scoped cache that can go stale against a setting saved mid-request. Adding
+`pings_open` in 0.5.4 was suspected of being a per-post regression and measurement
+says it is not. Recorded so it is not re-optimised on suspicion.
+
+**Straight quotes is a saving, not a cost.** `wptexturize()` is one of the more
+expensive filters core runs over content — several regex passes per text run.
+Turning it off makes those pages faster. It is the only item here that gives
+performance back.
+
+**The search default costs nothing for most traffic.** The measurement that corrected
+its justification also hands it a free guard: core already excludes protected posts
+for logged-out users, so the filter returns immediately when `! is_user_logged_in()`.
+Anonymous visitors — the majority of requests on nearly every site — pay one boolean.
+Search queries are rare against page views, and the capability check the carve-out
+needs is once per query, not once per row.
+
+**Broken shortcodes is the only one that touches every rendered post, and the scan is
+not where its cost is.** Measured on 3.4 KB of prose: an unguarded regex over content
+with no shortcodes is 0.0005 ms per post; a `strpos( $content, '[' )` gate first cuts
+that by 70%, to 0.0002 ms. Both are noise. The gate is worth having because it is one
+line, not because the regex was a problem.
+
+The cost that would matter is the report, and it is designed out rather than tuned:
+a Site Health check that walks every post to find residue is expensive and runs at
+the worst moment. Recording during the render that is already happening makes the
+report free to read and costs the front end nothing beyond the scan above.
+
+**The rule the three of them share.** Do the work where the work is already being
+done, guard on the cheap test before the expensive one, and let a healthy site pay
+nothing — the same reasoning already written into the divergence observer, which
+reads no storage at all unless there is something to record.
+
+---
 
 **Smaller, in an area Keel already owns.** `Remember Me Controls` overlaps
 `disable_remember_me`, `session_regular_days` and `remember_me_days` almost
