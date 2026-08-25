@@ -211,14 +211,25 @@ foreach ( $status_docs as $doc ) {
 		continue;
 	}
 
+	/*
+	 * Whole version, not substring. `0.5.2` occurs inside `0.5.20`, so a plain
+	 * strpos() would read a claim of 0.5.20 as satisfying 0.5.2 — and, on the
+	 * other side, would find the superseded 0.5.1 inside a perfectly current
+	 * 0.5.10. The lookahead rejects a match followed by another digit or a
+	 * further dotted component.
+	 */
+	$whole = static function ( $haystack, $needle ) {
+		return 1 === preg_match( '/' . preg_quote( $needle, '/' ) . '(?![0-9]|\.[0-9])/', $haystack );
+	};
+
 	keel_assert(
-		false !== strpos( $claim[0], $version ),
+		$whole( $claim[0], $version ),
 		"{$doc} claims a release that is not {$version}: \"" . trim( $claim[0] ) . '"'
 	);
 
 	foreach ( $released as $old ) {
 		keel_assert(
-			false === strpos( $claim[0], $old ),
+			! $whole( $claim[0], $old ),
 			"{$doc} still claims {$old} as current; the current version is {$version}."
 		);
 	}
