@@ -374,6 +374,55 @@ function keel_defaults_render_warning( $warning ) {
 }
 
 /**
+ * The screen a setting lives on, anchored to the setting itself.
+ *
+ * A notice that names a setting should hand over the place rather than the
+ * directions. "Turn off Non-Production Email under Settings → Keel" is a correct
+ * sentence and a small chore: find the screen, then find the row among
+ * thirty-nine of them.
+ *
+ * @param string $key Schema key.
+ * @return string
+ */
+function keel_defaults_setting_url( $key ) {
+	$url = admin_url( 'options-general.php?page=keel' );
+
+	return ( '' === (string) $key ) ? $url : $url . '#' . keel_defaults_setting_anchor( $key );
+}
+
+/**
+ * The anchor id a setting is reachable at.
+ *
+ * Its own element rather than the row's: a dependent row already carries
+ * `keel-dep-<key>`, which `aria-controls` points at, and an element gets one id.
+ *
+ * @param string $key Schema key.
+ * @return string
+ */
+function keel_defaults_setting_anchor( $key ) {
+	return 'keel-setting-' . str_replace( '_', '-', (string) $key );
+}
+
+/**
+ * A link to a setting, for use in notices.
+ *
+ * One helper so every notice spells the destination the same way. Three notices
+ * describing the same journey in three registers is how a screen stops feeling
+ * like one plugin.
+ *
+ * @param string $key  Schema key.
+ * @param string $text Link text, already translated.
+ * @return string
+ */
+function keel_defaults_setting_link( $key, $text ) {
+	return sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( keel_defaults_setting_url( $key ) ),
+		esc_html( $text )
+	);
+}
+
+/**
  * Echo a field's description paragraph (allows <code> and links).
  *
  * @param string $help Description text (already translated).
@@ -708,6 +757,24 @@ function keel_defaults_render_settings_page() {
 		<style>
 
 			/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
+			/*
+			 * Landing on a setting should show you which one.
+			 *
+			 * The anchor is an empty span so it can sit inside a cell that
+			 * already owns its id, which means the highlight has to reach the row
+			 * from the inside. It is decoration: without :has() the link still
+			 * scrolls to the right place, which is the part that matters.
+			 */
+			.keel-anchor {
+				display: block;
+				position: relative;
+				top: -46px;
+			}
+			tr:has( > td > .keel-anchor:target ),
+			.keel-dep-item:has( > .keel-anchor:target ) {
+				box-shadow: inset 4px 0 0 #2271b1;
+				background: #f0f6fc;
+			}
 			.form-table .keel-dep-item {
 				margin-bottom: 14px;
 			}
@@ -798,6 +865,7 @@ function keel_defaults_render_settings_page() {
 							}
 							list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field, $key );
 							echo '<div class="keel-dep-item"' . $dep_attr . ( $dep_hidden ? ' style="display:none;"' : '' ) . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- dep_attr is built from esc_attr().
+							printf( '<span class="keel-anchor" id="%s"></span>', esc_attr( keel_defaults_setting_anchor( $key ) ) );
 							// Same lock handling as the single-field branch below. No
 							// sectioned setting is lockable today, but the invariant this
 							// screen documents — never offer a switch that cannot take
@@ -825,6 +893,8 @@ function keel_defaults_render_settings_page() {
 						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
 							<th scope="row"><?php echo esc_html( $label ); ?></th>
 							<td>
+								<?php // The anchor lives in the control cell, not the heading: tests/settings-heading-case.php reads that heading, and an id is not part of a label. ?>
+								<span class="keel-anchor" id="<?php echo esc_attr( keel_defaults_setting_anchor( $key ) ); ?>"></span>
 								<?php if ( 'toggle' === $field['type'] ) : ?>
 									<fieldset>
 										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>

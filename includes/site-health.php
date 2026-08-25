@@ -178,7 +178,11 @@ function keel_defaults_debug_information( $info ) {
 
 	$info[ KEEL_DEFAULTS_INFO_SECTION ] = array(
 		'label'       => __( 'Keel Defaults', 'keel-defaults' ),
-		'description' => __( 'Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel.', 'keel-defaults' ),
+		'description' => sprintf(
+			/* translators: %s: link to the Keel settings screen. */
+			__( 'Every default Keel manages and its current state on this site. Read-only — change them under %s.', 'keel-defaults' ),
+			keel_defaults_setting_link( '', __( 'Settings → Keel', 'keel-defaults' ) )
+		),
 		'fields'      => $fields,
 	);
 
@@ -198,7 +202,11 @@ function keel_defaults_site_health_posture() {
 	$rest_ok   = keel_defaults_enabled( 'restrict_rest_user_discovery' );
 	$status    = ( $strong_ok && $rest_ok ) ? 'good' : 'recommended';
 
-	$description = '<p>' . esc_html__( 'Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning.', 'keel-defaults' ) . '</p>';
+	$description = '<p>' . sprintf(
+		/* translators: %s: link to the Keel settings screen. */
+		esc_html__( 'Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning.', 'keel-defaults' ),
+		keel_defaults_setting_link( '', __( 'Settings → Keel', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+	) . '</p>';
 
 	foreach ( $groups as $group_key => $group_label ) {
 		if ( empty( $by_group[ $group_key ] ) ) {

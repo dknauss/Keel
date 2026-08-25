@@ -3,13 +3,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Keel Defaults 0.5.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/Keel\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-25T04:27:56+00:00\n"
+"POT-Creation-Date: 2026-08-25T05:07:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -165,8 +165,15 @@ msgstr ""
 msgid "This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production."
 msgstr ""
 
-#: includes/email.php:156
-msgid "Turn off \"Non-Production Email\" under Settings → Keel to send from here anyway."
+#. translators: %s: link to the Non-Production Email setting.
+#: includes/email.php:160
+#, php-format
+msgid "Turn off %s to send from here anyway."
+msgstr ""
+
+#: includes/email.php:163
+#: includes/strings.php:176
+msgid "Non-Production Email"
 msgstr ""
 
 #: includes/network.php:99
@@ -228,8 +235,8 @@ msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:21
-#: includes/settings-page.php:693
-#: includes/site-health.php:284
+#: includes/settings-page.php:742
+#: includes/site-health.php:292
 msgid "Keel"
 msgstr ""
 
@@ -324,34 +331,34 @@ msgstr ""
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:460
+#: includes/settings-page.php:509
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:465
-#: includes/settings-page.php:473
+#: includes/settings-page.php:514
+#: includes/settings-page.php:522
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
-#: includes/settings-page.php:479
+#: includes/settings-page.php:528
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:491
+#: includes/settings-page.php:540
 msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
 msgstr ""
 
-#: includes/settings-page.php:694
+#: includes/settings-page.php:743
 msgid "Sensible defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:706
+#: includes/settings-page.php:755
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:871
+#: includes/settings-page.php:941
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
@@ -375,85 +382,94 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: includes/site-health.php:181
-msgid "Every default Keel manages and its current state on this site. Read-only — change them under Settings → Keel."
+#. translators: %s: link to the Keel settings screen.
+#: includes/site-health.php:183
+#, php-format
+msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
 msgstr ""
 
-#: includes/site-health.php:201
-msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under Settings → Keel, not a warning."
+#: includes/site-health.php:184
+#: includes/site-health.php:208
+msgid "Settings → Keel"
 msgstr ""
 
-#: includes/site-health.php:217
+#. translators: %s: link to the Keel settings screen.
+#: includes/site-health.php:207
+#, php-format
+msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning."
+msgstr ""
+
+#: includes/site-health.php:225
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:220
+#: includes/site-health.php:228
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:222
+#: includes/site-health.php:230
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:227
+#: includes/site-health.php:235
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:228
+#: includes/site-health.php:236
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:231
+#: includes/site-health.php:239
 msgid "Security"
 msgstr ""
 
-#: includes/site-health.php:238
+#: includes/site-health.php:246
 msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:259
+#: includes/site-health.php:267
 #, php-format
 msgid "callbacks from %s"
 msgstr ""
 
-#: includes/site-health.php:287
+#: includes/site-health.php:295
 msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
 msgstr ""
 
 #. translators: %s: comma-separated list of filter names.
-#: includes/site-health.php:303
+#: includes/site-health.php:311
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:305
+#: includes/site-health.php:313
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:310
+#: includes/site-health.php:318
 msgid "Unconfirmed overlaps"
 msgstr ""
 
-#: includes/site-health.php:310
+#: includes/site-health.php:318
 msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
 msgstr ""
 
-#: includes/site-health.php:316
+#: includes/site-health.php:324
 msgid "No attributable policy overlap was found"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:333
+#: includes/site-health.php:341
 #, php-format
 msgid "Also registered on these policy hooks: %s"
 msgstr ""
 
-#: includes/site-health.php:335
+#: includes/site-health.php:343
 msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
 msgstr ""
 
-#: includes/site-health.php:339
+#: includes/site-health.php:347
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
@@ -819,10 +835,6 @@ msgstr ""
 
 #: includes/strings.php:173
 msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
-msgstr ""
-
-#: includes/strings.php:176
-msgid "Non-Production Email"
 msgstr ""
 
 #: includes/strings.php:177
