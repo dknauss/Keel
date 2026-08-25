@@ -17,11 +17,44 @@ GPL-2.0-or-later.
 
 ## Next up
 
-Nothing is queued, and that is the accurate state rather than an omission.
+Three defaults are accepted and unbuilt: excluding password-protected posts from
+site search, a toggle that leaves typographic punctuation as typed, and hiding
+broken-shortcode residue from readers while reporting it in Site Health. All three
+are decided in the v0.4 section below, with the evidence, the edge cases and what
+each costs, measured. With the plugin approved they are buildable rather than
+blocked. Nothing else is queued.
 
-**Releases are on hold** while the wordpress.org submission is in review — merge
-to `main`, do not tag. See [CONTRIBUTING.md](CONTRIBUTING.md) for why and for what
-overrides it.
+**The plugin was approved on 2026-08-25**, on the 0.5.3 package. SVN is
+`https://plugins.svn.wordpress.org/keel-defaults`; the public page at
+`https://wordpress.org/plugins/keel-defaults` stays blank until the first commit.
+
+**The release hold is therefore liftable.** CONTRIBUTING makes lifting it a decision
+for the maintainer once the plugin is listed, and listing is what just happened — so
+the hold and its exceptions below are now history rather than active policy, kept for
+the record. The paragraphs are left in place because the exceptions they document are
+what the review team was told, and a hold that vanishes from the file it was written
+in reads as though it never applied.
+
+**One thing to settle before the first SVN commit:** 0.5.3 is the approved package,
+0.5.4 is the tag. They differ by two real defect fixes and no new setting, so the
+first push should almost certainly be 0.5.4 — but "approved version" and "version
+shipped to users" being different numbers is worth deciding deliberately rather than
+by whichever is checked out.
+
+**Exceptions used for 0.5.3 and 0.5.4.** 0.5.3 is the answer to the review itself:
+the Plugins team pended the submission and asked for a corrected package, so a new
+version was the thing being requested rather than a release made alongside the
+review. It routes every stylesheet and script through `wp_enqueue`, drops a
+comparative claim the guidelines do not allow, stops shipping the compiled en_CA
+catalog, and clears the pre-rename settings option on uninstall.
+
+0.5.4 is the weaker of the two and is recorded as such. It carries a real defect —
+core's Comments Title block rendered a comments heading on posts with comments
+switched off, because Keel reported the count as an int where core compares against
+the string — and a diagnostic that was reaching Site Health but not the dashboard.
+Neither is the "silently reversed a setting the site chose" class that justified
+0.5.1 and 0.5.2. Shipping it during the hold was a judgement call by the
+maintainer, not an urgent-defect override, and the disclosure obligation applies.
 
 **Exception used for 0.5.2:** saving any setting on WordPress 6.4–6.9 silently
 rewrote the stored AI Connectors value from on to off, because the control is
@@ -37,18 +70,27 @@ package and disclosing the version change to the review team are part of this
 release. The general hold remains in place afterwards.
 
 The submission milestone is closed: the initial v0.5 release is out, `Stable tag` matches, the
-plugin is clean under Plugin Check and it is in the wordpress.org review queue.
+plugin is clean under Plugin Check and it has been through a first review pass.
+
+**The review came back pended** (2026-08-25), on four points: every `<style>` and
+`<script>` written straight into the page rather than enqueued, a prohibited
+comparative claim in the description, bundled translation catalogs, and an automated
+flag against guideline 11 that needed no change. All four are answered in 0.5.3 and
+the reply is with the Plugins team. The queue is not clear, so the hold above still
+stands.
 The v0.5 group below has been decided rather than deferred — two of its four were
 taken and are done, two were declined with the reasons recorded, which is what
 "selected scope" means in that heading.
 
-What is genuinely undecided is the four v0.4 candidates, and they are deliberately
-not promoted here. Each already exists as a mature single-purpose plugin, the
-feature set is held near its current size on purpose, and a list that reads as a
-queue invites working through it rather than choosing from it.
+**The four v0.4 candidates have now been decided** (2026-08-25), which is what that
+section was waiting for. Three are accepted and one is rejected outright. Broken
+shortcodes was briefly held — the strip alone destroys the evidence that a plugin is
+missing — and is accepted on the condition that the strip and the Site Health report
+ship together. The decision records what Keel will and will not absorb, and each
+accepted item carries what it costs, measured rather than assumed.
 
-So the next thing is a decision, not a task. The item below is kept because it is
-the last thing that moved and the section reads oddly empty without it.
+The item below is kept because it is the last thing that moved and the section reads
+oddly empty without it.
 
 - [x] **Multisite governance** — done 2026-08-09 (keel#89). Network Admin →
       Settings → Keel Defaults lets a Super Admin decide any of the 38 settings for
@@ -499,7 +541,7 @@ Plugin Review requirements, not niceties.
       all are questions only VoiceOver/NVDA can answer — and the second and third
       are exactly where the two unchanged findings sit.
 
-## v0.4 — candidate defaults
+## v0.4 — candidate defaults — **decided 2026-08-25**
 
 Four defaults surveyed from [coffee2code's plugin
 catalogue](https://coffee2code.com/wp-plugins/) on 2026-08-10. Sixty-nine plugins,
@@ -507,40 +549,227 @@ of which these four are the only ones shaped like a Keel default: one toggle, on
 core filter, no new admin UI, and reversible by turning it off.
 
 **The feature set was frozen after v0.2 deliberately, and the LOC budget is a
-stated non-goal below.** So this is a list to decide on, not a list to work
+stated non-goal below.** So this was a list to decide on, not a list to work
 through. Each of these already exists as a mature, narrowly-scoped plugin, and for
 a site that wants exactly one of them, installing that plugin is a legitimate
 answer — Keel absorbing it mainly saves a plugin from the list.
 
-- [ ] **Keep password-protected posts out of site search.** The only one of the
-      four that closes a real leak rather than adding a convenience. A protected
-      post still surfaces its title, and usually an excerpt, in site search
-      results — the protection covers the body and nothing else. One filter on the
-      search query.
+**Outcome: three accepted, one rejected.** Marked in the house convention
+below — `[x]` is built, `[~]` is not taken, and an accepted item stays `[ ]` until
+it ships. The reasoning is kept in full, including where the original justification turned out to
+be wrong on measurement, because a decision recorded without its evidence gets
+re-argued.
 
-      Related to `disable_post_passwords`, which is not the same thing: that hides
-      the password control *in the editor*, so it stops new protected posts being
-      made and does nothing about the ones already there. Prior art: coffee2code's
-      Omit Passworded Posts From Search.
+- [ ] **Keep password-protected posts out of site search — accepted.** The only one
+      of the four that closes a real leak rather than adding a convenience. One
+      filter on the search query. Prior art: coffee2code's Omit Passworded Posts
+      From Search.
 
-- [ ] **Straight quotes.** Unhook `wptexturize` so quotation marks and apostrophes
-      are left as typed. Exactly the shape of `disable_emojis`: one core filter,
-      one toggle, nothing left behind when it is off. Wanted by sites publishing
-      code, technical documentation, or anything where a curly apostrophe corrupts
-      a copied string. Prior art: wpuntexturize.
+      **The original justification here was wrong, and the corrected one is
+      narrower.** This entry used to say a protected post "still surfaces its title,
+      and usually an excerpt, in site search results". Measured on WordPress 7.1
+      with a control post alongside the protected one:
 
-- [ ] **Drop the browser nag.** Remove the "your browser is out of date" dashboard
-      widget. Admin noise about the *visitor's* software on a screen only staff
-      see. One `remove_meta_box`. Prior art: No Browser Nag.
+      | searcher | result |
+      | --- | --- |
+      | logged out (anonymous visitor) | 0 results — no leak |
+      | logged in as **Subscriber** | 1 result: title *and* excerpt exposed |
 
-      Deliberately not the *update* nag, which the same author also removes.
-      Hiding a pending core update from the people who can apply it is a different
-      thing from hiding a browser notice, and it argues against Keel's own update
-      defaults.
+      Core already handles the anonymous case. `WP_Query::parse_search()` appends
+      `AND post_password = ''`, but only inside `if ( ! is_user_logged_in() )` — a
+      guard old enough to behave the same on 6.4, Keel's floor. So the exposure is
+      **logged-in users only**, and it is worth more rather than less for that:
+      the sites with registered non-editor users are membership sites, shops and
+      communities, where "any subscriber can read the titles and excerpts of every
+      protected post" is a real disclosure. The probe leaked the excerpt *"Summary:
+      layoffs planned for Q3."* to a Subscriber account.
 
-- [ ] **Hide broken shortcodes.** Strip the residue of shortcodes whose plugin is
-      gone, rather than printing `[some_shortcode]` to visitors. One content
-      filter. Prior art: Hide Broken Shortcodes.
+      **Related to `disable_post_passwords`, and not made redundant by it.** That
+      hides the password control *in the editor*, so it stops new protected posts
+      being made and does nothing about the ones already there — which are exactly
+      the posts still leaking. The two compose: one stops the supply, this one
+      stops the disclosure.
+
+      **The scenarios to get right, because "protected posts" can be disabled from
+      several directions at once:**
+
+      - *A user who is entitled to the post.* Excluding by `post_password != ''`
+        for every logged-in user takes the post away from its own author and from
+        editors, who can open it regardless. Front-end search would stop finding a
+        post the searcher can read — a false negative that reads as broken search,
+        not as privacy. The filter needs a carve-out for users who can already read
+        or edit the post, not a flat exclusion.
+      - *A membership plugin that grants protected-post access.* Several deliberately
+        let logged-in members read protected posts. Keel hiding those from search
+        hides content the member is entitled to find, and the site owner would have
+        no way to connect the two. This is a case for the divergence/overlap
+        reporting to notice, not for Keel to win silently.
+      - *A plugin that neutralises passwords rather than hiding the UI.* Some strip
+        `post_password` on save, or filter `post_password_required()` to false. Then
+        the post is publicly readable while Keel is still excluding it from search:
+        the search index disagrees with what a visitor can actually open. Excluding
+        a *readable* post is the worst of both — it neither protects anything nor
+        finds anything.
+      - *Keel's own `disable_post_passwords` on the same site.* Harmless but worth
+        stating: the search filter becomes a no-op once the last protected post is
+        gone, and must not error on a site that has none.
+
+      The shape that survives all four is "exclude posts the current user cannot
+      read", not "exclude posts with a password".
+
+- [ ] **Straight quotes — accepted.** `add_filter( 'run_wptexturize', '__return_false' )`,
+      so punctuation is left as typed. Structurally the shape of `disable_emojis`:
+      one core filter, one toggle, nothing left behind when it is off. Wanted by
+      sites publishing code, technical documentation, or anything where a curly
+      apostrophe corrupts a copied string. Prior art: wpuntexturize.
+
+      **The name undersells the blast radius, and the setting copy must not.**
+      `wptexturize()` is not a smart-quotes filter; quotes are one of its jobs.
+      Turning it off also reverts `...` to three periods instead of an ellipsis,
+      ` (tm)` to literal text instead of `™`, en and em dashes back to hyphens,
+      the multiplication sign back to `x`, prime marks for feet and inches, and
+      the cockney contractions (`'twas`, `'tis`, `'twere`) core special-cases.
+      A toggle labelled "straight quotes" that silently changes six other things
+      is the kind of surprise Keel exists not to spring, so this one is labelled
+      for what it does: leave typographic punctuation as typed.
+
+      **Prior work, from the Dirtbag research** (`docs/wordpress-contributions.md`
+      in dknauss/Dirtbag). The complaint that usually sends people looking for this
+      toggle is narrower than the toggle: core
+      [Trac #18549](https://core.trac.wordpress.org/ticket/18549), resurfaced as
+      [Gutenberg #42345](https://github.com/WordPress/gutenberg/issues/42345). An
+      apostrophe immediately after a closing inline tag — `<strong>He</strong>'s` —
+      curls the wrong way, into U+2018 LEFT single quote instead of U+2019, because
+      `wptexturize()` splits content into text runs at HTML boundaries and the
+      run beginning `'s` looks like an opening quote. A patch is submitted upstream
+      ([wordpress-develop #12249](https://github.com/WordPress/wordpress-develop/pull/12249),
+      green on trunk) with a standalone stopgap plugin at
+      [dknauss/wp-texturize-inline-quote-fix](https://github.com/dknauss/wp-texturize-inline-quote-fix).
+
+      That matters here in two ways. It is the argument for **not** making this a
+      default-on setting: most people hitting the bug want the one case fixed, not
+      typography switched off site-wide, and the targeted fix already exists. And it
+      is the argument for Keel being the right layer for the blunt switch anyway —
+      the Dirtbag analysis concludes a *theme* must not disable texturization for
+      every site, but that "a plugin or mu-plugin can", which is precisely this
+      toggle. Off by default, opt-in, and the help text should point at the
+      narrower fix for anyone whose actual problem is #18549.
+
+- [~] **Drop the browser nag — rejected.** Removing the "your browser is out of
+      date" dashboard widget. Not deferred: decided against, and not to be
+      re-proposed. Prior art: No Browser Nag.
+
+      **This is the dashboard-widgets decision again**, already made in the v0.5
+      survey below and reached independently here. Keel removes a dashboard widget
+      when the feature behind it is disabled — Recent Comments goes with comments —
+      but a widget that is ordinary core UI rather than residue of a policy Keel
+      applies is not Keel's to remove. Calling it noise is a preference, not a
+      default, and sites wanting a curated dashboard are better served by an
+      admin-customisation plugin. Nothing about the browser notice distinguishes it
+      from Activity or Events and News.
+
+      It is in fact the weakest case of the three, because WordPress already lets
+      each user hide this widget from Screen Options. A site-wide setting that
+      pre-empts a per-user checkbox takes the choice from the person who has it and
+      gives it to the site.
+
+      The original entry's point about the *update* nag stands and is worth keeping
+      rather than dropping with the rest: hiding a pending core update from the
+      people who can apply it argues against Keel's own update defaults, so neither
+      half of that prior art belongs here.
+
+- [ ] **Hide broken shortcodes — accepted, with the report.** Stripping the residue
+      of shortcodes whose plugin is gone, rather than printing `[some_shortcode]` to
+      visitors — *and* telling an administrator which posts they are in. Prior art:
+      Hide Broken Shortcodes, which does the first half only.
+
+      **Accepted on the condition that both halves ship together.** The strip alone
+      was the wrong feature, and shipping it first "for now" would be the same
+      mistake in instalments.
+
+      The risk is that hiding the residue also hides the diagnosis. `[some_shortcode]`
+      appearing on a page is ugly, but it is *evidence*: a plugin the content depends
+      on is missing or deactivated, and it is visible precisely where the missing
+      output was supposed to be. A filter that strips it makes the page tidy and the
+      breakage silent — the post now renders as though it were complete, and the one
+      signal that would have sent somebody to reactivate the plugin is gone. That is
+      the same failure Keel's own conflict reporting exists to prevent, arriving from
+      the other direction.
+
+      Second, smaller risk: square brackets in ordinary prose are not rare — citations,
+      editorial insertions, `[sic]`, code samples outside a code block. Anything
+      claiming to strip "unregistered shortcodes" has to be sure the thing it removed
+      was ever meant to be one.
+
+      **The shape that has it both ways** — hide the residue from visitors, surface it
+      to the people who can act. Strip on the front end for readers, leave it visible
+      to anyone who can edit the post, and report the affected posts and the missing
+      tags in Site Health beside the policy-overlap report. The strip is safe once the
+      information is moved rather than destroyed.
+
+      **The report must not be a scan.** A Site Health check that walks every post
+      looking for unregistered tags is the one genuinely expensive way to build this,
+      and it would run on a screen an administrator opens when something is already
+      wrong — the worst moment to make them wait. It is also unnecessary, because the
+      front-end filter is already reading every rendered post: the residue is found as
+      a by-product of work being done anyway.
+
+      So it takes the same shape as the divergence observer in `conflicts.php`, for the
+      same reasons and with the same properties: record only when there is something to
+      record, write only when the answer changes, cap what is stored, and let the record
+      expire rather than having anything clear it. A site with no broken shortcodes
+      never writes, and Site Health reads a record instead of building one. The
+      observer is a proven pattern here rather than a new one, which is most of the
+      argument for accepting this now.
+
+      Bounded deliberately: the record holds post IDs and tag names, capped, not
+      content. A page nobody visits is not in it, and that is correct — an unvisited
+      page has no broken output to see.
+
+### What these cost, measured
+
+Taken together on 2026-08-25, on the WordPress 7.1 test install, because "one
+filter" hides a wide range of actual cost and the three accepted items sit in
+different places on it.
+
+**The hot path is already fine, and was left alone.** The divergence observers run
+on every front-end request, and `comments_open` / `pings_open` fire once per post in
+a loop — the shape most likely to be a problem. Measured at **0.020 ms per observer
+call**, 0.81 ms for the 40 calls a twenty-post archive makes. `keel_defaults_policy_expectations()`
+is rebuilt on each call and memoising it would roughly halve that, which is not worth
+a request-scoped cache that can go stale against a setting saved mid-request. Adding
+`pings_open` in 0.5.4 was suspected of being a per-post regression and measurement
+says it is not. Recorded so it is not re-optimised on suspicion.
+
+**Straight quotes is a saving, not a cost.** `wptexturize()` is one of the more
+expensive filters core runs over content — several regex passes per text run.
+Turning it off makes those pages faster. It is the only item here that gives
+performance back.
+
+**The search default costs nothing for most traffic.** The measurement that corrected
+its justification also hands it a free guard: core already excludes protected posts
+for logged-out users, so the filter returns immediately when `! is_user_logged_in()`.
+Anonymous visitors — the majority of requests on nearly every site — pay one boolean.
+Search queries are rare against page views, and the capability check the carve-out
+needs is once per query, not once per row.
+
+**Broken shortcodes is the only one that touches every rendered post, and the scan is
+not where its cost is.** Measured on 3.4 KB of prose: an unguarded regex over content
+with no shortcodes is 0.0005 ms per post; a `strpos( $content, '[' )` gate first cuts
+that by 70%, to 0.0002 ms. Both are noise. The gate is worth having because it is one
+line, not because the regex was a problem.
+
+The cost that would matter is the report, and it is designed out rather than tuned:
+a Site Health check that walks every post to find residue is expensive and runs at
+the worst moment. Recording during the render that is already happening makes the
+report free to read and costs the front end nothing beyond the scan above.
+
+**The rule the three of them share.** Do the work where the work is already being
+done, guard on the cheap test before the expensive one, and let a healthy site pay
+nothing — the same reasoning already written into the divergence observer, which
+reads no storage at all unless there is something to record.
+
+---
 
 **Smaller, in an area Keel already owns.** `Remember Me Controls` overlaps
 `disable_remember_me`, `session_regular_days` and `remember_me_days` almost
