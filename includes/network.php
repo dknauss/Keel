@@ -388,8 +388,21 @@ function keel_defaults_render_network_control( $key, $name, $value, $field, $s, 
 	}
 
 	if ( 'multiselect' === $type ) {
-		$chosen = (array) $value;
-		foreach ( (array) $field['choices'] as $choice ) {
+		/*
+		 * The schema carries no `choices` for the one multiselect there is: the
+		 * roles are discovered at runtime, because which roles exist is a
+		 * property of the site rather than of this plugin. The site screen has
+		 * always asked keel_defaults_exemptable_roles() for them; this screen
+		 * read a key that has never existed and emitted a warning per option.
+		 *
+		 * Nothing caught it because nothing had rendered this page in a test.
+		 */
+		$chosen  = (array) $value;
+		$choices = isset( $field['choices'] )
+			? (array) $field['choices']
+			: array_keys( keel_defaults_exemptable_roles() );
+
+		foreach ( $choices as $choice ) {
 			printf(
 				'<label style="margin-inline-end:12px;"><input type="checkbox" name="%s[]" value="%s" %s /> %s</label>',
 				esc_attr( $name ),
