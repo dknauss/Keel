@@ -153,7 +153,17 @@ function keel_defaults_render_mail_suppressed_notice() {
 			);
 			?>
 		</p>
-		<p><?php esc_html_e( 'Turn off "Non-Production Email" under Settings → Keel to send from here anyway.', 'keel-defaults' ); ?></p>
+		<p>
+			<?php
+			printf(
+				/* translators: %s: link to the Non-Production Email setting. */
+				esc_html__( 'Turn off %s to send from here anyway.', 'keel-defaults' ),
+				// The setting itself, not the screen it is on: the reader should
+				// land on the row rather than go looking for it among thirty-nine.
+				keel_defaults_setting_link( 'suppress_nonproduction_mail', __( 'Non-Production Email', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+			);
+			?>
+		</p>
 	</div>
 	<?php
 }

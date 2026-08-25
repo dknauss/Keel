@@ -23,6 +23,9 @@ function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html( $s ) { return $s; }
+function admin_url( $p = '' ) {
+	return 'https://example.test/wp-admin/' . $p; }
+
 function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }
 function esc_attr( $s ) { return $s; }
