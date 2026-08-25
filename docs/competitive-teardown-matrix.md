@@ -27,7 +27,7 @@ the way its own settings screen would configure it.
 
   Nothing else in this document has been re-measured since. The Keel row is
   relabelled to the current version rather than re-run, and this note is what
-  that relabelling rests on: 0.4.0, 0.4.1, 0.5.0 and 0.5.1 changed conflict reporting,
+  that relabelling rests on: 0.4.0, 0.4.1, 0.5.0, 0.5.1 and 0.5.2 changed conflict reporting,
   the text domain and the AI-connectors gate, and none of those is a teardown
   tabulated here. A release that changes one has to re-run the probes rather than
   edit the label.
@@ -66,7 +66,7 @@ Raw per-probe output is in the appendix.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.5.1 | — | live |
+| **Keel** 0.5.2 | — | live |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |

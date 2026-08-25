@@ -173,10 +173,38 @@ foreach ( $status_docs as $doc ) {
 
 	$text = file_get_contents( $root . '/' . $doc ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
+	/*
+	 * Check the status *claim*, not every mention of a number.
+	 *
+	 * This used to ban any released version anywhere in the file, which works
+	 * only while these documents carry no history. They do now: the roadmap
+	 * records which release changed what, and CONTRIBUTING logs which release
+	 * took a hold exception and why. Those entries name an older version
+	 * forever, and correctly.
+	 *
+	 * The blunt version also broke on every release rather than on drift — a
+	 * mention became a failure the moment the version it named stopped being
+	 * current, so the fix was always to reword true history until the guard
+	 * stopped objecting. The folder-rename note in SECURITY.md lost its version
+	 * number that way.
+	 *
+	 * So it reads the one line in each document that makes the claim, and asks
+	 * whether that line is current. Silence is a failure too: a status document
+	 * that stops saying which release it describes is how this drifts unnoticed.
+	 */
+	if ( ! preg_match( '/^.*(?:[Cc]urrent (?:release|version)).*$/m', $text, $claim ) ) {
+		continue;
+	}
+
+	keel_assert(
+		false !== strpos( $claim[0], $version ),
+		"{$doc} claims a release that is not {$version}: \"" . trim( $claim[0] ) . '"'
+	);
+
 	foreach ( $released as $old ) {
 		keel_assert(
-			false === strpos( $text, $old ),
-			"{$doc} still refers to {$old}; the current version is {$version}."
+			false === strpos( $claim[0], $old ),
+			"{$doc} still claims {$old} as current; the current version is {$version}."
 		);
 	}
 }
