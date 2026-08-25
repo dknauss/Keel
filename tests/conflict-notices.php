@@ -418,6 +418,67 @@ keel_assert(
 	'The fingerprint is stable under ordering, so a notice does not reappear because a hook fired in a different order.'
 );
 
+/*
+ * --- a setting not taking effect must reach the notice, not only Site Health ---
+ *
+ * The overlap half of this report names plugins. The divergence half says a
+ * governed setting is not producing the value it asks for, and it exists
+ * precisely for the case the overlap half cannot see: a plugin that overrides
+ * Keel through one of WordPress's own helper functions leaves nothing to
+ * attribute it by.
+ *
+ * That is the case where the administrator has no other way to find out, and it
+ * was the one case with no notice at all. Measured on a real install: Site
+ * Health said "A setting is not taking effect" while the dashboard and plugins
+ * screens showed nothing, because the notice read only the structural overlaps
+ * and returned early when there were none.
+ */
+$GLOBALS['wp_filter']                      = array();
+$GLOBALS['keel_user_meta']                 = array();
+$GLOBALS['keel_options']['keel_settings']  = array( 'xmlrpc_allow_remote_publishing' => 'yes' );
+$GLOBALS['keel_options']['active_plugins'] = array( 'rival/rival.php' );
+
+$GLOBALS['keel_transients']['keel_policy_divergence'] = array(
+	'plugins' => keel_defaults_active_plugin_fingerprint(),
+	'hooks'   => array( 'xmlrpc_enabled' => true ),
+);
+
+keel_assert(
+	array( 'xmlrpc_enabled' => true ) === keel_defaults_policy_divergences(),
+	'The fixture records a divergence with no structural overlap beside it.'
+);
+keel_assert(
+	array() === keel_defaults_competing_plugins( true ),
+	'And there is no attributable overlap, so only the divergence can trigger a notice.'
+);
+
+foreach ( array( 'plugins', 'dashboard', 'settings_page_keel' ) as $screen ) {
+	$html = keel_notice_on( $screen );
+	keel_assert(
+		'' !== trim( $html ),
+		"A divergence alone shows a notice on {$screen}; it was silent there while Site Health reported it."
+	);
+	keel_assert(
+		false !== strpos( $html, 'xmlrpc_enabled' ),
+		"The {$screen} notice names the setting that is not taking effect."
+	);
+}
+
+// Dismissing has to cover the divergence too, or the dashboard notice either
+// never goes away or goes away and never comes back when a new one appears.
+$fingerprint = keel_defaults_notice_fingerprint();
+keel_assert( '' !== $fingerprint, 'A divergence alone produces a dismissal fingerprint.' );
+
+$GLOBALS['keel_user_meta']['1:keel_conflicts_dismissed'] = $fingerprint;
+keel_assert( '' === trim( keel_notice_on( 'dashboard' ) ), 'Dismissing the divergence notice hides it on the dashboard.' );
+
+$GLOBALS['keel_transients']['keel_policy_divergence']['hooks']['comments_open'] = false;
+$GLOBALS['keel_options']['keel_settings']['disable_comments']                   = 'yes';
+keel_assert(
+	'' !== trim( keel_notice_on( 'dashboard' ) ),
+	'A second setting failing to take effect brings the notice back: the dismissal covered what was there then.'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, sprintf( "conflict notices: %d assertion%s failed\n", $fail, 1 === $fail ? '' : 's' ) );
 	exit( 1 );

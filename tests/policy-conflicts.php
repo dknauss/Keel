@@ -156,7 +156,7 @@ keel_assert( 'additive' === $hooks['rest_authentication_errors'], 'Compositional
 $GLOBALS['keel_map_reads'] = 0;
 
 keel_defaults_registered_policy_hooks( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, 'session_regular_days' );
-keel_defaults_registered_policy_hooks( 'login_headerurl', 'home_url', 10, 1, 'login_logo_behavior' );
+keel_defaults_registered_policy_hooks( 'login_headerurl', 'keel_defaults_login_header_url', 10, 1, 'login_logo_behavior' );
 keel_defaults_registered_policy_hooks( 'pre_wp_mail', '__return_false', PHP_INT_MAX, 2, 'suppress_nonproduction_mail' );
 keel_defaults_registered_policy_hooks( 'wp_revisions_to_keep', 'keel_defaults_revision_limit', 10, 2, 'post_revisions_limit' );
 

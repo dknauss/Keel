@@ -140,7 +140,28 @@ keel_assert(
 	'That stylesheet is registered for the login screen.'
 );
 keel_assert( false === strpos( $bootstrap_src, "getElementById('rememberme')" ), 'No inline script is used to hide it.' );
-keel_assert( false !== strpos( $bootstrap_src, "unset( \$_POST['rememberme'], \$_REQUEST['rememberme'] )" ), 'The submitted value is still stripped server-side, which is what actually disables it.' );
+
+/*
+ * --- and the strip is exercised, not just read ---
+ *
+ * This was asserted by searching bootstrap.php for the text of the unset(). That
+ * checks the code looks right, which is not the same as checking it works, and
+ * it is the half that actually disables the feature: hiding the checkbox is
+ * cosmetic, refusing the submitted value is the control. A grep would go on
+ * passing if the line moved somewhere it never ran.
+ */
+// phpcs:disable WordPress.Security.NonceVerification -- Seeding superglobals to
+// exercise the strip; this test is the forged request, not a handler of one.
+$_POST['rememberme']    = 'forever';
+$_REQUEST['rememberme'] = 'forever';
+$_POST['log']           = 'someone';
+
+keel_defaults_strip_remember_me();
+
+keel_assert( ! isset( $_POST['rememberme'] ), 'A forged rememberme POST value is removed, so it cannot opt back into a persistent session.' );
+keel_assert( ! isset( $_REQUEST['rememberme'] ), 'And removed from $_REQUEST, which is what wp-login.php actually reads.' );
+keel_assert( isset( $_POST['log'] ) && 'someone' === $_POST['log'], 'The rest of the submission is left alone.' );
+// phpcs:enable WordPress.Security.NonceVerification
 
 // The backstop: a stored remembered length below the regular one cannot make a
 // remembered login shorter. Sanitize keeps them coherent on save; nothing keeps
