@@ -56,8 +56,14 @@ function keel_assert( $cond, $msg ) {
 function keel_msgids( $path ) {
 	$out = array();
 
+	/*
+	 * `msgid_plural` counts too. A plural entry carries two translatable strings
+	 * and only the singular is on a `msgid` line, so reading one of them left the
+	 * plural unverified in both directions: a missing one never failed, and once
+	 * the obsolete-entry check existed the source copy read as unused.
+	 */
 	foreach ( file( $path ) as $line ) {
-		if ( preg_match( '/^msgid "(.+)"$/', rtrim( $line, "\r\n" ), $m ) ) {
+		if ( preg_match( '/^msgid(?:_plural)? "(.+)"$/', rtrim( $line, "\r\n" ), $m ) ) {
 			$out[] = $m[1];
 		}
 	}
@@ -87,8 +93,28 @@ function keel_source_strings( $root ) {
 	foreach ( $files as $file ) {
 		$code = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
-		if ( preg_match_all( "/\b(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'keel-defaults'\s*\)/", $code, $m ) ) {
-			foreach ( $m[1] as $s ) {
+		$patterns = array(
+			// Singular forms: the call ends at the text domain.
+			"/\b(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'keel-defaults'\s*\)/",
+
+			/*
+			 * Plural forms carry two translatable strings before the count, and
+			 * neither was being read. _n() was invisible to this scan in both
+			 * directions — a missing plural would not have failed, and once the
+			 * reverse check existed the template's copy read as obsolete.
+			 */
+			"/\b_n\(\s*'((?:[^'\\\\]|\\\\.)*)'\s*,\s*'((?:[^'\\\\]|\\\\.)*)'\s*,/",
+		);
+
+		foreach ( $patterns as $pattern ) {
+			if ( ! preg_match_all( $pattern, $code, $m ) ) {
+				continue;
+			}
+
+			// Group 1 is always a translatable string; group 2 exists for plurals.
+			$found = isset( $m[2] ) ? array_merge( $m[1], $m[2] ) : $m[1];
+
+			foreach ( $found as $s ) {
 				// PHP single-quoted literals escape ' and \; the PO file holds the
 				// literal characters. Comparing them raw reports every string with an
 				// apostrophe as drifted, which is eight of them here.
@@ -112,6 +138,39 @@ function keel_source_strings( $root ) {
  */
 function keel_msgid_to_source( $id ) {
 	return str_replace( array( '\\"', '\\\\' ), array( '"', '\\' ), $id );
+}
+
+/**
+ * Msgids `make-pot` lifts from the plugin header rather than from a gettext call.
+ *
+ * The Plugin Name, Plugin URI, Description and Author are translatable and
+ * belong in the template, but no `__()` call produces them, so a scan of the
+ * source will never find them and they would read as obsolete. They are
+ * annotated `#. <Field> of the plugin`, which is what identifies them here —
+ * a count would go stale the moment a header field is added or dropped.
+ *
+ * @param string $path Path to the .pot file.
+ * @return string[] Header-derived msgids.
+ */
+function keel_pot_header_msgids( $path ) {
+	// Reading a catalog off disk in a CLI test; wp_remote_get() is for HTTP.
+	$lines  = explode( "\n", (string) file_get_contents( $path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	$ids    = array();
+	$header = false;
+
+	foreach ( $lines as $line ) {
+		if ( 1 === preg_match( '/^#\. .+ of the plugin\s*$/', $line ) ) {
+			$header = true;
+			continue;
+		}
+
+		if ( $header && 1 === preg_match( '/^msgid "(.*)"$/', $line, $m ) ) {
+			$ids[]  = keel_msgid_to_source( $m[1] );
+			$header = false;
+		}
+	}
+
+	return $ids;
 }
 
 // --- the template exists and describes this version of the plugin ---
@@ -146,6 +205,30 @@ keel_assert(
 	count( $missing ) . ' translatable string(s) are not in keel.pot — regenerate it with '
 		. '`wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults --exclude=build`. First: "'
 		. ( isset( $missing[0] ) ? substr( $missing[0], 0, 70 ) : '' ) . '"'
+);
+
+/*
+ * --- and the template carries nothing the source no longer says ---
+ *
+ * The check above is one-directional: it fails when source has a string the
+ * template lacks, and says nothing about the reverse. That is the direction the
+ * contamination actually travels. `make-pot` scans the working tree, and
+ * `bin/build-zip.sh` assembles the plugin into `build/`, so a regeneration after
+ * a build finds every string twice and keeps the build's copies after they have
+ * been deleted from source. Guidance alone does not stop it — an instruction is
+ * not a check, and the instruction is exactly what somebody skips.
+ *
+ * Obsolete entries are not harmless. They reach translate.wordpress.org, where
+ * people spend real effort translating copy that can never render.
+ */
+$obsolete = array_values( array_diff( $pot_ids, $source, keel_pot_header_msgids( $pot_path ) ) );
+
+keel_assert(
+	array() === $obsolete,
+	count( $obsolete ) . ' template string(s) no longer exist in the source. This is what a regeneration '
+		. 'that scanned build/ leaves behind — rebuild with '
+		. '`wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults --exclude=build`. First: "'
+		. ( isset( $obsolete[0] ) ? substr( $obsolete[0], 0, 70 ) : '' ) . '"'
 );
 
 /*
