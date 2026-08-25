@@ -30,6 +30,7 @@ $GLOBALS['keel_foreign']    = 0;
 
 define( 'ABSPATH', __DIR__ . '/' );
 defined( 'DAY_IN_SECONDS' ) || define( 'DAY_IN_SECONDS', 86400 );
+defined( 'HOUR_IN_SECONDS' ) || define( 'HOUR_IN_SECONDS', 3600 );
 define( 'WP_PLUGIN_DIR', sys_get_temp_dir() . '/keel-divergence-' . getmypid() );
 define( 'KEEL_DEFAULTS_OPTION', 'keel_settings' );
 define( 'KEEL_DEFAULTS_NETWORK_OPTION', 'keel_network_settings' );
@@ -49,6 +50,7 @@ function is_customize_preview() { return false; }
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function get_transient( $k ) {
+	++$GLOBALS['keel_transient_reads'];
 	return array_key_exists( $k, $GLOBALS['keel_transients'] ) ? $GLOBALS['keel_transients'][ $k ] : false; }
 function set_transient( $k, $v, $t = 0 ) {
 	++$GLOBALS['keel_transient_writes'];
@@ -72,7 +74,8 @@ require dirname( __DIR__ ) . '/includes/schema.php';
 require dirname( __DIR__ ) . '/includes/conflicts.php';
 
 $GLOBALS['keel_transient_writes'] = 0;
-$fail = 0;
+$GLOBALS['keel_transient_reads']  = 0;
+$fail                             = 0;
 
 function keel_assert( $cond, $msg ) {
 	global $fail;
@@ -134,17 +137,31 @@ keel_assert(
 	'An unchanged divergence is not rewritten on every request.'
 );
 
-// --- it clears when the override goes away ---
+/*
+ * --- the healthy path touches no storage at all ---
+ *
+ * This is the cost of the feature on every ordinary request, so it has to be
+ * nothing. Reading first, to find out whether a past divergence needed clearing,
+ * put a query on every front-end page load — measured, constant, whether or not
+ * anything was wrong. Clearing is the record expiring instead.
+ */
+$GLOBALS['keel_transient_reads'] = 0;
+$writes_healthy                  = $GLOBALS['keel_transient_writes'];
 
 keel_defaults_observe_policy_result( 'xmlrpc_enabled', true );
 
 keel_assert(
-	array() === keel_defaults_policy_divergences(),
-	'Removing the other plugin clears the record without anybody dismissing it.'
+	0 === $GLOBALS['keel_transient_reads'],
+	'A setting that is working reads nothing.'
+);
+keel_assert(
+	$writes_healthy === $GLOBALS['keel_transient_writes'],
+	'And writes nothing.'
 );
 
 // --- a setting Keel is not governing is not Keel's business ---
 
+$GLOBALS['keel_transients']               = array();
 $GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'no' );
 
 keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );

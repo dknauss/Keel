@@ -689,25 +689,35 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 		return $value;
 	}
 
-	$known   = keel_defaults_policy_divergences();
-	$diverged = (bool) $expectations[ $hook ] !== (bool) $value;
-	$recorded = isset( $known[ $hook ] );
-
-	if ( $diverged === $recorded ) {
+	/*
+	 * The comparison happens before any storage is touched, and a site where
+	 * everything is working never touches it at all.
+	 *
+	 * This runs on ordinary front-end requests, so the cost of the ordinary case
+	 * is the cost of the feature. Reading first — to find out whether a previous
+	 * divergence needed clearing — added a query to every page load of a plugin
+	 * whose point is being light. Measured: one query per request, constant,
+	 * whether or not anything was wrong.
+	 *
+	 * So nothing is read unless there is a divergence to record, and clearing is
+	 * handled by the record expiring rather than by anybody looking. While the
+	 * override persists something re-records it; when it stops, the record ages
+	 * out on its own. A diagnostic that is at most an hour stale is worth a page
+	 * load that costs nothing.
+	 */
+	if ( (bool) $expectations[ $hook ] === (bool) $value ) {
 		return $value;
 	}
 
-	if ( $diverged ) {
-		$known[ $hook ] = true;
-	} else {
-		unset( $known[ $hook ] );
+	$known = keel_defaults_policy_divergences();
+
+	if ( isset( $known[ $hook ] ) ) {
+		return $value;
 	}
 
-	if ( empty( $known ) ) {
-		delete_transient( 'keel_policy_divergence' );
-	} else {
-		set_transient( 'keel_policy_divergence', $known, DAY_IN_SECONDS );
-	}
+	$known[ $hook ] = true;
+
+	set_transient( 'keel_policy_divergence', $known, HOUR_IN_SECONDS );
 
 	return $value;
 }
@@ -724,8 +734,12 @@ function keel_defaults_policy_divergences() {
 		return array();
 	}
 
-	// A hook that has left the expectation map, or a setting since changed, must
-	// not keep reporting from a stale record.
+	/*
+	 * A hook that has left the expectation map, or a setting since changed, must
+	 * not keep reporting from a stale record. The record also expires on its own
+	 * — see keel_defaults_observe_policy_result() — so a divergence that stops
+	 * happening stops being reported without anybody clearing it.
+	 */
 	return array_intersect_key( $stored, keel_defaults_policy_expectations() );
 }
 

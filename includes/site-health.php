@@ -304,7 +304,7 @@ function keel_defaults_site_health_conflicts() {
 			esc_html( implode( ', ', array_keys( $divergences ) ) )
 		) . '</strong></p><p>' . esc_html__( 'These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ) . '</p>';
 	}
-	$details  = '';
+	$details = '';
 
 	if ( ! empty( $report['unconfirmed'] ) ) {
 		$details .= '<p><strong>' . esc_html__( 'Unconfirmed overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything.', 'keel-defaults' ) . '</p><ul>';
