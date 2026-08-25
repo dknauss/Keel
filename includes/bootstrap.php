@@ -116,7 +116,7 @@ function keel_defaults_bootstrap() {
 	 * system.multicall and a full endpoint block need a server-class swap,
 	 * because IXR re-adds multicall after the filter runs.
 	 */
-	add_filter(
+	keel_defaults_add_policy_filter(
 		'xmlrpc_methods',
 		function ( $methods ) {
 			// demo.* are inert core test methods with no legitimate use. Always drop
@@ -142,7 +142,16 @@ function keel_defaults_bootstrap() {
 	// Disable core methods that require authentication when remote publishing is
 	// off. Despite its name, xmlrpc_enabled does not disable the endpoint,
 	// pingbacks, or custom unauthenticated methods.
-	add_filter(
+
+	/*
+	 * Through the wrapper, so the overlap check knows Keel holds this hook.
+	 * Registered whichever way the setting is set: the callback passes the
+	 * incoming value through when remote publishing is allowed, and that is
+	 * precisely the case worth reporting — Keel's screen says XML-RPC works
+	 * while another plugin has switched it off, which is the losing-plugin lie
+	 * this check exists for.
+	 */
+	keel_defaults_add_policy_filter(
 		'xmlrpc_enabled',
 		function ( $enabled ) {
 			return keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ) ? $enabled : false;

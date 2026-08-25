@@ -79,6 +79,19 @@ function keel_defaults_policy_hooks() {
 			// Admin surface.
 			'show_admin_bar'                        => 'authoritative',
 			'wp_supports_ai'                        => 'authoritative',
+
+			/*
+			 * XML-RPC. Both were missed until somebody installed Disable XML-RPC
+			 * next to Keel, set the two to disagree, and was told nothing.
+			 *
+			 * `xmlrpc_enabled` returns a bool, so it is the ordinary
+			 * winner-takes-all shape. `xmlrpc_methods` is subtractive — the
+			 * callback unsets the methods it objects to and returns the rest —
+			 * so two plugins pruning the list both get their way, exactly like
+			 * `allowed_block_types_all`.
+			 */
+			'xmlrpc_enabled'                        => 'authoritative',
+			'xmlrpc_methods'                        => 'additive',
 			'wp_revisions_to_keep'                  => 'authoritative',
 
 			// Both are final-value filters whose callbacks may perform independent

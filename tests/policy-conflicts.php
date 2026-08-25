@@ -82,6 +82,7 @@ file_put_contents(
 	. "function keel_test_rival_terminates( \$value ) { file_put_contents( \$GLOBALS['keel_exit_sentinel'], 'ran' ); exit( 97 ); }\n"
 	. "function keel_test_rival_mail( \$value ) { \$GLOBALS['keel_foreign_calls'][] = 'mail'; return \$value; }\n"
 	. "function keel_test_rival_revision( \$value ) { \$GLOBALS['keel_foreign_calls'][] = 'revision'; return 3; }\n"
+	. "function keel_test_rival_xmlrpc( \$enabled ) { return false; }\n"
 	. "class Keel_Test_Static_Callback { public static function run( \$v ) { return \$v; } }\n"
 	. "class Keel_Test_Invokable { public function __invoke( \$v ) { return \$v; } }\n"
 );
@@ -248,5 +249,48 @@ keel_assert( false !== strpos( $health['description'], 'does not prove' ), 'Site
 keel_assert( false !== strpos( $health['description'], 'do not deactivate' ), 'Site Health explicitly rejects deactivation based on presence alone.' );
 keel_assert( array() === $GLOBALS['keel_foreign_calls'], 'Site Health invokes no foreign callback.' );
 keel_assert( 1 === $GLOBALS['keel_map_reads'], 'The overlap report is computed once per request and reused by every consumer.' );
+
+/*
+ * --- XML-RPC ---
+ *
+ * Missed entirely until somebody installed Disable XML-RPC beside Keel in
+ * Playground, set the two to disagree, and was told nothing. Two gaps at once:
+ * Keel registered these with a bare add_filter(), so the check did not know it
+ * held the hook, and neither hook was in the map to be looked at.
+ *
+ * The case that matters is the contradictory one. Keel's callback passes the
+ * incoming value through when remote publishing is allowed, so a rival forcing
+ * false wins and Keel's settings screen goes on saying XML-RPC works. That is
+ * the losing-plugin lie this whole check exists for.
+ */
+$hooks = keel_defaults_policy_hooks();
+
+keel_assert( 'authoritative' === $hooks['xmlrpc_enabled'], 'xmlrpc_enabled returns a bool, so one plugin wins it.' );
+keel_assert( 'additive' === $hooks['xmlrpc_methods'], 'xmlrpc_methods is subtractive: two plugins pruning the list both get their way.' );
+
+// Keel's side, recorded the way the wrapper records it.
+keel_defaults_registered_policy_hooks( 'xmlrpc_enabled', 'keel_defaults_xmlrpc_enabled', 10, 1, 'xmlrpc_allow_remote_publishing' );
+
+$GLOBALS['wp_filter'] = array(
+	'xmlrpc_enabled' => new Keel_Test_Hook(
+		array(
+			10 => array(
+				array( 'function' => 'keel_test_rival_xmlrpc' ),
+				array( 'function' => 'keel_defaults_xmlrpc_enabled' ),
+			),
+		)
+	),
+);
+
+// Refreshed: the report is memoised per request, and the assertion above pins
+// that. Without this the block reads a cache built before the fixture existed.
+$xmlrpc = keel_defaults_competing_plugins( true );
+
+keel_assert(
+	isset( $xmlrpc['xmlrpc_enabled'] ) && array( 'rival-plugin' ) === $xmlrpc['xmlrpc_enabled'],
+	'A plugin disabling XML-RPC beside Keel is reported.'
+);
+
+$GLOBALS['wp_filter'] = array();
 
 fwrite( STDOUT, "policy conflicts: OK (foreign callbacks never executed)\n" );
