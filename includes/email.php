@@ -110,16 +110,15 @@ function keel_defaults_render_reset_failure_notice() {
 
 /**
  * Hide WordPress core's misleading "success" notice when zero resets were sent.
+ *
+ * @return string CSS, or '' on any other request.
  */
-function keel_defaults_hide_zero_reset_notice() {
+function keel_defaults_hide_zero_reset_css() {
 	if ( ! keel_defaults_is_zero_reset_result() ) {
-		return;
+		return '';
 	}
-	?>
-	<style id="keel-zero-reset-notice-fix">
-		#message.updated { display: none; }
-	</style>
-	<?php
+
+	return '#message.updated { display: none; }';
 }
 
 /**

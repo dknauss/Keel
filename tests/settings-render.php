@@ -193,8 +193,17 @@ foreach ( array(
 	keel_assert( false !== strpos( $html, 'list="admin_menu_width-stops"' ), "[{$state}] The slider points at that datalist." );
 	keel_assert( false !== strpos( $html, 'id="admin_menu_width-output"' ), "[{$state}] The live readout exists with the id the slider points at." );
 	keel_assert( false !== strpos( $html, 'for="admin_menu_width-range"' ), "[{$state}] The readout is associated with the slider." );
-	keel_assert( false !== strpos( $html, 'keel-menu-width-preview' ), "[{$state}] The range field emits its preview styles." );
-	keel_assert( false !== strpos( $html, "getElementById( 'admin_menu_width-range' )" ), "[{$state}] The range field emits the script that drives the preview." );
+
+	/*
+	 * The stylesheet and the script are no longer inline, so what the markup
+	 * has to carry is the data that reaches them: the id of the readout to
+	 * write into, and this field's labels and pixel widths. Those three
+	 * attributes are the whole contract between the template and settings.js —
+	 * the asset side of it is asserted once, further down.
+	 */
+	keel_assert( false !== strpos( $html, 'data-keel-range="admin_menu_width-output"' ), "[{$state}] The slider names the readout the script writes into." );
+	keel_assert( false !== strpos( $html, 'data-keel-range-labels="' ), "[{$state}] The slider carries its labels for the script." );
+	keel_assert( false !== strpos( $html, 'data-keel-range-widths="' ), "[{$state}] The slider carries its pixel widths for the script." );
 
 	// Accessible structure.
 	keel_assert( substr_count( $html, '<th scope="row">' ) > 25, "[{$state}] Every row carries a heading." );
@@ -337,6 +346,20 @@ $still_disabled = array_filter(
 	}
 );
 
+/*
+ * The asset files, read once. Keyed by the same relative path assets.php uses,
+ * so a rename shows up here as an empty string rather than a missing key.
+ */
+$locked_assets = array();
+foreach ( array( 'css/settings.css', 'js/settings.js', 'js/locked-controls.js' ) as $asset ) {
+	$asset_path = dirname( __DIR__ ) . '/assets/' . $asset;
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
+	$locked_assets[ $asset ] = is_readable( $asset_path ) ? (string) file_get_contents( $asset_path ) : '';
+}
+
+// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
+$assets_src = (string) file_get_contents( dirname( __DIR__ ) . '/includes/assets.php' );
+
 keel_assert( count( $control_tags[0] ) > 20, 'The locked render produced controls to inspect (' . count( $control_tags[0] ) . ').' );
 keel_assert(
 	array() === $still_disabled,
@@ -347,8 +370,8 @@ keel_assert(
 	'The locked control is marked for the script that refuses changes to it.'
 );
 keel_assert(
-	false !== strpos( $locked_html, "querySelectorAll( '[data-keel-locked]' )" ),
-	'That script is emitted.'
+	false !== strpos( $locked_assets['js/locked-controls.js'], "querySelectorAll( '[data-keel-locked]' )" ),
+	'The shared script that refuses those changes looks for that marker.'
 );
 
 /*
@@ -406,8 +429,45 @@ foreach ( $dep_rows as $dep_row ) {
  */
 foreach ( array( 'aria-controls', 'aria-expanded' ) as $wiring ) {
 	keel_assert(
-		false !== strpos( $stock, "setAttribute( '{$wiring}'" ),
+		false !== strpos( $locked_assets['js/settings.js'], "setAttribute( '{$wiring}'" ),
 		"The dependent-row script sets {$wiring}, rather than only reading it."
+	);
+}
+
+/*
+ * --- the assets exist, carry the behaviour, and are actually enqueued ---
+ *
+ * Moving the CSS and JS out of the template satisfies the wp_enqueue rule, and
+ * introduces a failure the inline version could not have: a stylesheet that is
+ * never enqueued, or a script whose file was renamed, breaks the screen with
+ * nothing in the markup to show it. Each of the three has to be reachable from
+ * assets.php by the same path this test reads.
+ */
+foreach ( array( 'css/settings.css', 'js/settings.js', 'js/locked-controls.js' ) as $asset ) {
+	keel_assert( '' !== $locked_assets[ $asset ], "assets/{$asset} exists and is not empty." );
+	keel_assert(
+		false !== strpos( $assets_src, "'" . $asset . "'" ),
+		"assets/{$asset} is enqueued by name from includes/assets.php."
+	);
+}
+
+keel_assert(
+	false !== strpos( $locked_assets['css/settings.css'], 'keel-menu-width-preview' ),
+	'The stylesheet carries the slider preview the markup toggles.'
+);
+keel_assert(
+	false !== strpos( $locked_assets['js/settings.js'], 'data-keel-range' ),
+	'The script reads the slider data the markup carries.'
+);
+
+// Both screens reach their assets through the shared screen-scoped helper, so
+// neither can enqueue on every admin page.
+foreach ( array( 'settings-page.php', 'network.php' ) as $screen_file ) {
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
+	$screen_src = (string) file_get_contents( dirname( __DIR__ ) . '/includes/' . $screen_file );
+	keel_assert(
+		false !== strpos( $screen_src, 'keel_defaults_enqueue_on_screen(' ),
+		"includes/{$screen_file} enqueues its assets only on its own screen."
 	);
 }
 

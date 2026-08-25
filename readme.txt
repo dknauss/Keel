@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.2
+Stable tag: 0.5.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Keel flips a menu of sensible defaults onto any WordPress install, each one a sw
 
 All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. A default is an opinionated filter behind a control.
 
-**Disabling something means it is actually disabled.** Measured against nine of the most-installed plugins in this space — every result a live request against a real install, not a readme claim — Keel is the only one where "comments are off" is true below the presentation layer. The others stop at the theme template and the REST route: ask the database directly, with `get_comments()`, and the comments are still there. The same care runs through the rest — closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed answering.
+**Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed answering.
 
 **Site Health shows you the whole posture**, read-only: every default and its current state on one screen, so you can see what the site is actually doing without clicking through tabs. It also reports when another plugin is controlling the same settings, which otherwise fails silently.
 
@@ -127,6 +127,12 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.5.3 =
+* Every stylesheet and script Keel adds now goes through the WordPress asset API instead of being written straight into the page. Nothing changes on screen. It means a site can dequeue, override, or defer any of it by handle, and that caching and asset-optimizing plugins can see it — none of which was possible while the markup was printed directly.
+* The settings screen's CSS and JavaScript are now static files rather than markup rebuilt on every page load, so a browser caches them. The admin-menu-width slider carries its labels and widths as data attributes, which also makes its script work for any number of sliders rather than being re-emitted once per field.
+* The network policy screen and the per-site settings screen now share one copy of the script that refuses changes to a locked control. There were two, and they had already drifted apart.
+* Dropped the compiled Canadian English translation from the plugin package. Translations for every locale are generated and delivered by translate.wordpress.org; shipping a catalog alongside that only means two sources for the same strings.
+
 = 0.5.2 =
 * Fixed a setting being switched off by saving a different one. On WordPress 6.4 to 6.9 the AI Connectors control is not shown, because those versions have no AI connectors to turn off — but saving any other setting still read the missing checkbox as "off" and rewrote the stored value from on to off. Silently, and against a note in 0.4.0 saying the stored value was left alone. A site that had chosen to block connectors would have reached WordPress 7.0 with them enabled.
 * A setting the screen does not show is no longer changed by saving the screen. This is the same protection settings locked by `wp-config.php` already had, for the same reason: the form has no business speaking for a control it did not draw.
@@ -190,6 +196,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.3 =
+Internal change to how Keel's own CSS and JavaScript reach the page; no setting changes and nothing looks different. The Canadian English catalog is no longer bundled — translations now come from translate.wordpress.org like every other locale.
 
 = 0.5.2 =
 On WordPress 6.4–6.9 an earlier release could switch the stored AI Connectors value off when you saved any setting. It has no effect before WordPress 7.0, where the control appears under Settings → Keel. To correct it now: `wp option patch update keel_settings disable_ai_connectors yes`

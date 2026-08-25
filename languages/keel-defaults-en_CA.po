@@ -1,5 +1,10 @@
 # Canadian English for Keel Defaults.
 #
+# Not shipped in the plugin zip — see .distignore. wordpress.org generates and
+# delivers per-locale catalogs from translate.wordpress.org, so this is kept as
+# the source of the two Canadian spellings to contribute there, not as a copy
+# that installs alongside them.
+#
 # en_US is the source locale, so this catalog exists only to swap American
 # spellings for Canadian ones. Two strings need it out of 244; everything else
 # is identical and is deliberately not repeated here, because a duplicated string
@@ -9,7 +14,7 @@
 # Recompile this catalog with:  wp i18n make-mo languages/
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.5.1\n"
+"Project-Id-Version: Keel Defaults 0.5.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Language: en_CA\n"
 "MIME-Version: 1.0\n"

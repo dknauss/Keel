@@ -139,6 +139,23 @@ preg_match( '/^ \* Version:\s*(\S+)/m', $plugin, $vm );
 $version = isset( $vm[1] ) ? $vm[1] : '';
 keel_assert( '' !== $version, 'The plugin header states a version.' );
 
+/*
+ * The asset version has to track the plugin version.
+ *
+ * KEEL_DEFAULTS_VERSION is what every wp_enqueue_* call passes as its $ver, so
+ * a constant left behind at the previous release means browsers go on serving
+ * the old stylesheet from cache after it changed — a bug that shows up as "the
+ * fix did not apply" on other people's machines and nowhere on yours.
+ */
+// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
+$plugin_src = (string) file_get_contents( dirname( __DIR__ ) . '/keel.php' );
+preg_match( "/const KEEL_DEFAULTS_VERSION = '([^']+)';/", $plugin_src, $am );
+$asset_version = isset( $am[1] ) ? $am[1] : '';
+keel_assert(
+	$asset_version === $version,
+	"KEEL_DEFAULTS_VERSION ({$asset_version}) matches the plugin header version ({$version}); it is the cache-buster on every enqueued asset."
+);
+
 // Everything from "== Changelog ==" on is history and is supposed to name old
 // releases. Everything before it describes the plugin as it is now.
 $changelog_at = strpos( $readme, '== Changelog ==' );

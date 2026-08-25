@@ -68,15 +68,11 @@ keel_assert( 'default' === $saved['admin_menu_width'], 'An out-of-range index fa
 
 // Default width prints no CSS.
 $GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => 'default' );
-ob_start();
-keel_defaults_admin_menu_width_css();
-keel_assert( '' === trim( ob_get_clean() ), 'Default admin menu width prints no CSS.' );
+keel_assert( '' === trim( keel_defaults_admin_menu_width_css() ), 'Default admin menu width prints no CSS.' );
 
 // A chosen width prints scoped CSS with that pixel value.
 $GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => '240' );
-ob_start();
-keel_defaults_admin_menu_width_css();
-$css = ob_get_clean();
+$css                                      = keel_defaults_admin_menu_width_css();
 keel_assert( false !== strpos( $css, '240px' ), 'Chosen width appears in the CSS.' );
 keel_assert( false !== strpos( $css, '#adminmenu' ), 'CSS targets the admin menu.' );
 keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the non-collapsed breakpoint.' );

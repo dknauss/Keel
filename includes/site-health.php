@@ -405,10 +405,12 @@ function keel_defaults_site_health_conflicts() {
  * Worth it because these are headings for the lists beside them rather than
  * field labels. It does mean the section stands out at desktop width, which is
  * where most people read it.
+ *
+ * @return string
  */
-function keel_defaults_site_health_info_styles() {
-	printf(
-		'<style id="keel-site-health-info">#health-check-accordion-block-%1$s .health-check-table th{font-weight:600;vertical-align:top}#health-check-accordion-block-%1$s .health-check-table td{vertical-align:top}</style>',
-		esc_attr( KEEL_DEFAULTS_INFO_SECTION )
+function keel_defaults_site_health_info_css() {
+	return sprintf(
+		'#health-check-accordion-block-%1$s .health-check-table th{font-weight:600;vertical-align:top}#health-check-accordion-block-%1$s .health-check-table td{vertical-align:top}',
+		sanitize_html_class( KEEL_DEFAULTS_INFO_SECTION )
 	);
 }

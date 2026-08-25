@@ -278,9 +278,7 @@ foreach ( $environments as $type => $environment ) {
  * failing 1.4.1 at exactly one viewport width — the kind of thing an automated
  * scan at a single breakpoint never sees.
  */
-ob_start();
-keel_defaults_environment_styles();
-$env_css = ob_get_clean();
+$env_css = keel_defaults_environment_css();
 
 if ( '' !== trim( $env_css ) ) {
 	keel_assert( false !== strpos( $env_css, 'clip-path: inset(50%)' ), 'The narrow-viewport label is clipped.' );

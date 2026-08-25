@@ -28,9 +28,11 @@ the way its own settings screen would configure it.
   Nothing else in this document has been re-measured since. The Keel row is
   relabelled to the current version rather than re-run, and this note is what
   that relabelling rests on: 0.4.0, 0.4.1, 0.5.0, 0.5.1 and 0.5.2 changed conflict reporting,
-  the text domain and the AI-connectors gate, and none of those is a teardown
-  tabulated here. A release that changes one has to re-run the probes rather than
-  edit the label.
+  the text domain and the AI-connectors gate, and 0.5.3 changed how Keel's own CSS
+  and JavaScript reach the page and what ships in the zip. None of those is a
+  teardown tabulated here — every row is a server-side probe, and none of them
+  reads a stylesheet. A release that changes one has to re-run the probes rather
+  than edit the label.
 
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries
@@ -66,7 +68,7 @@ Raw per-probe output is in the appendix.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.5.2 | — | live |
+| **Keel** 0.5.3 | — | live |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |

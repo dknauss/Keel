@@ -1,0 +1,108 @@
+/*
+ * Settings → Keel, and the network policy screen.
+ *
+ * Two unrelated jobs in one file because they load together on one screen and a
+ * second HTTP request to save eight rules is a worse trade than a comment.
+ */
+
+/*
+ * Landing on a setting should show you which one.
+ *
+ * The anchor is an empty span so it can sit inside a cell that already owns its
+ * id, which means the highlight has to reach the row from the inside. It is
+ * decoration: without :has() the link still scrolls to the right place, which is
+ * the part that matters.
+ */
+.keel-anchor {
+	display: block;
+	position: relative;
+	top: -46px;
+}
+
+tr:has( > td > .keel-anchor:target ),
+.keel-dep-item:has( > .keel-anchor:target ) {
+	box-shadow: inset 4px 0 0 #2271b1;
+	background: #f0f6fc;
+}
+
+/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
+.form-table .keel-dep-item {
+	margin-bottom: 14px;
+}
+
+.form-table .keel-dep-item:last-child {
+	margin-bottom: 0;
+}
+
+.form-table .keel-dep-item .description {
+	margin-top: 2px;
+}
+
+/*
+ * The admin-menu-width slider's live preview.
+ *
+ * Every rule is driven by --keel-menu-preview-width, which the script sets on
+ * <body> as the slider settles; the class is what switches the preview on. That
+ * is why this is a static stylesheet and not computed CSS: the value moves, the
+ * rules never do.
+ *
+ * No !important anywhere, unlike the real widen in admin-ux.php. This is a
+ * preview layered over the admin's own stylesheet on one screen, and losing to
+ * a more specific core rule here is a cosmetic miss rather than the feature
+ * silently not working.
+ */
+@media screen and (min-width: 783px) {
+	body.keel-menu-width-preview #adminmenu,
+	body.keel-menu-width-preview #adminmenuback,
+	body.keel-menu-width-preview #adminmenuwrap,
+	body.keel-menu-width-preview #adminmenu li.menu-top,
+	body.keel-menu-width-preview #adminmenu .wp-submenu {
+		width: var(--keel-menu-preview-width);
+	}
+
+	body.keel-menu-width-preview #adminmenuback {
+		position: fixed;
+		top: 0;
+		bottom: -120px;
+		background: var(--keel-menu-preview-bg, #1d2327);
+	}
+
+	body.keel-menu-width-preview #adminmenu li.menu-top > a.menu-top,
+	body.keel-menu-width-preview #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+	body.keel-menu-width-preview #adminmenu li.current a.menu-top {
+		width: auto;
+	}
+
+	body.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+		left: var(--keel-menu-preview-width);
+	}
+
+	body.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+		left: auto;
+	}
+
+	body.keel-menu-width-preview #wpcontent,
+	body.keel-menu-width-preview #wpfooter {
+		margin-left: var(--keel-menu-preview-width);
+	}
+
+	body.rtl.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
+		right: var(--keel-menu-preview-width);
+		left: auto;
+	}
+
+	body.rtl.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
+		right: auto;
+	}
+
+	body.rtl.keel-menu-width-preview #wpcontent,
+	body.rtl.keel-menu-width-preview #wpfooter {
+		margin-right: var(--keel-menu-preview-width);
+		margin-left: 0;
+	}
+
+	body.folded.keel-menu-width-preview #wpcontent,
+	body.folded.keel-menu-width-preview #wpfooter {
+		margin-left: 36px;
+	}
+}
