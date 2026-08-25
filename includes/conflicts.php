@@ -622,3 +622,130 @@ function keel_defaults_handle_conflicts_dismissal() {
 	wp_safe_redirect( admin_url( 'index.php' ) );
 	exit;
 }
+
+/**
+ * Hooks whose effective value Keel's own settings can predict.
+ *
+ * The overlap check names plugins. This is the other half: when a plugin
+ * overrides a setting through one of WordPress's own helpers there is nobody to
+ * name, because nothing records which plugin called `add_filter()`. Keel can
+ * still tell that its setting is not producing the value it asks for, and saying
+ * so is worth more than silence.
+ *
+ * Each entry maps a hook to the value Keel's configuration expects the filter to
+ * settle on, or null where Keel is not asking for anything in particular — a
+ * setting left at "leave unchanged" has no expectation to be disappointed.
+ *
+ * Deliberately short. A hook belongs here only when the answer is a boolean and
+ * one setting decides it; anything needing interpretation would be a guess
+ * wearing a measurement's clothes.
+ *
+ * @return array<string, bool|null> Hook => expected value, or null for no expectation.
+ */
+function keel_defaults_policy_expectations() {
+	$expectations = array(
+		// Remote publishing allowed means the endpoint should answer.
+		'xmlrpc_enabled'                        => keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ),
+		// Comments off means closed, everywhere, below the theme.
+		'comments_open'                         => keel_defaults_enabled( 'disable_comments' ) ? false : null,
+		'wp_is_application_passwords_available' => keel_defaults_enabled( 'disable_application_passwords' ) ? false : null,
+		'wp_supports_ai'                        => keel_defaults_key_supported( 'disable_ai_connectors' ) && keel_defaults_enabled( 'disable_ai_connectors' ) ? false : null,
+	);
+
+	/**
+	 * Filters the hooks whose effective value Keel can predict.
+	 *
+	 * @param array<string, bool|null> $expectations Hook => expected value.
+	 */
+	return array_filter(
+		(array) apply_filters( 'keel_policy_expectations', $expectations ),
+		static function ( $expected ) {
+			return null !== $expected;
+		}
+	);
+}
+
+/**
+ * Note what a governed filter actually settled on.
+ *
+ * Called from an observer registered at the lowest priority Keel can hold, so it
+ * runs after everything else on the hook. It reads a value WordPress produced on
+ * its own; it does not call the filter, and it invokes nothing. That distinction
+ * is the whole design — running other people's callbacks to see what they do was
+ * built, shipped and withdrawn in 0.5.1, because a check that reports collisions
+ * must not cause them.
+ *
+ * Writes only when the answer changes. A site with nothing overriding it never
+ * writes at all, and a site with a standing override writes once.
+ *
+ * @param string $hook  Hook name.
+ * @param mixed  $value The value the filter chain settled on.
+ * @return mixed The value, untouched.
+ */
+function keel_defaults_observe_policy_result( $hook, $value ) {
+	$expectations = keel_defaults_policy_expectations();
+
+	if ( ! array_key_exists( $hook, $expectations ) ) {
+		return $value;
+	}
+
+	$known   = keel_defaults_policy_divergences();
+	$diverged = (bool) $expectations[ $hook ] !== (bool) $value;
+	$recorded = isset( $known[ $hook ] );
+
+	if ( $diverged === $recorded ) {
+		return $value;
+	}
+
+	if ( $diverged ) {
+		$known[ $hook ] = true;
+	} else {
+		unset( $known[ $hook ] );
+	}
+
+	if ( empty( $known ) ) {
+		delete_transient( 'keel_policy_divergence' );
+	} else {
+		set_transient( 'keel_policy_divergence', $known, DAY_IN_SECONDS );
+	}
+
+	return $value;
+}
+
+/**
+ * Settings that were last seen not producing the value they ask for.
+ *
+ * @return array<string, bool> Hook => true.
+ */
+function keel_defaults_policy_divergences() {
+	$stored = get_transient( 'keel_policy_divergence' );
+
+	if ( ! is_array( $stored ) ) {
+		return array();
+	}
+
+	// A hook that has left the expectation map, or a setting since changed, must
+	// not keep reporting from a stale record.
+	return array_intersect_key( $stored, keel_defaults_policy_expectations() );
+}
+
+/**
+ * Register the observers.
+ *
+ * One per predictable hook, at the lowest priority available, so the value read
+ * is the one WordPress hands to whatever asked for it.
+ *
+ * @return void
+ */
+function keel_defaults_watch_policy_results() {
+	foreach ( array_keys( keel_defaults_policy_expectations() ) as $hook ) {
+		add_filter(
+			$hook,
+			static function ( $value ) use ( $hook ) {
+				return keel_defaults_observe_policy_result( $hook, $value );
+			},
+			PHP_INT_MAX,
+			1
+		);
+	}
+}

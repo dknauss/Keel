@@ -593,6 +593,17 @@ function keel_defaults_bootstrap() {
 	 * overriding it, which is true whether or not anybody asked. A switch here
 	 * would only offer to turn off the bad news.
 	 */
+	/*
+	 * Watch what the governed filters actually settle on.
+	 *
+	 * Registered everywhere rather than in the admin, because the filters worth
+	 * watching mostly fire on the front end and on xmlrpc.php — a setting that
+	 * is not taking effect is not going to demonstrate that on a settings
+	 * screen. The observers read a value WordPress produced and write only when
+	 * the answer changes, so a site with nothing overriding it never writes.
+	 */
+	keel_defaults_watch_policy_results();
+
 	add_action( 'admin_notices', 'keel_defaults_render_conflicts_notice' );
 	add_action( 'admin_init', 'keel_defaults_handle_conflicts_dismissal' );
 

@@ -285,6 +285,25 @@ function keel_defaults_site_health_conflicts() {
 		'color' => 'blue',
 	);
 	$intro    = '<p>' . esc_html__( 'WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes.', 'keel-defaults' ) . '</p>';
+
+	/*
+	 * The other half, and the one that answers "so is my setting working?".
+	 *
+	 * Where a plugin overrides a setting through one of WordPress's own helpers
+	 * there is nobody to name — nothing records which plugin called add_filter().
+	 * Keel can still see that its setting is not producing the value it asks
+	 * for, because its own callbacks run when WordPress runs the filter. This is
+	 * read from those observations; nothing is invoked to produce it.
+	 */
+	$divergences = keel_defaults_policy_divergences();
+
+	if ( ! empty( $divergences ) ) {
+		$intro .= '<p><strong>' . sprintf(
+			/* translators: %s: comma-separated list of filter names. */
+			esc_html__( 'Not taking effect: %s', 'keel-defaults' ),
+			esc_html( implode( ', ', array_keys( $divergences ) ) )
+		) . '</strong></p><p>' . esc_html__( 'These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ) . '</p>';
+	}
 	$details  = '';
 
 	if ( ! empty( $report['unconfirmed'] ) ) {
