@@ -123,6 +123,23 @@ keel_assert( 'authoritative' === $hooks['auth_cookie_expiration'], 'Session over
 keel_assert( 'unconfirmed' === $hooks['pre_wp_mail'], 'Mail callbacks are never executed diagnostically.' );
 keel_assert( 'unconfirmed' === $hooks['comments_pre_query'], 'Comment-query callbacks are never executed diagnostically.' );
 keel_assert( 'unconfirmed' === $hooks['user_has_cap'], 'Capability callbacks are never executed diagnostically.' );
+
+/*
+ * A callback that only ever removes things from its input composes.
+ *
+ * keel_defaults_remove_comment_blocks() takes the incoming list and drops the
+ * comment blocks from it, keeping everything else — and it registers at
+ * PHP_INT_MAX so it runs last. Another plugin restricting the inserter is not
+ * fighting Keel: both sets of removals survive, and Keel operates on whatever
+ * that plugin decided. Whether the incoming value is `false`, `true` or an
+ * explicit array, the callback never discards the answer it was handed.
+ *
+ * Classified authoritative it read as winner-takes-all, so Keel would report a
+ * collision and point an administrator at deactivating a plugin that is
+ * perfectly compatible with it. That is the same false accusation the
+ * unconfirmed half was removed for in 0.4.1, arriving by a different route.
+ */
+keel_assert( 'additive' === $hooks['allowed_block_types_all'], 'A subtractive block-list filter composes rather than competing.' );
 keel_assert( 'additive' === $hooks['rest_authentication_errors'], 'Compositional authentication results are omitted.' );
 $GLOBALS['keel_map_reads'] = 0;
 

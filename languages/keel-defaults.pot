@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-24T16:03:55+00:00\n"
+"POT-Creation-Date: 2026-08-25T00:19:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -111,27 +111,27 @@ msgstr ""
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
-#: includes/conflicts.php:321
+#: includes/conflicts.php:333
 msgid "Unattributed callback"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:538
+#: includes/conflicts.php:550
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:553
+#: includes/conflicts.php:565
 msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
 msgstr ""
 
-#: includes/conflicts.php:556
+#: includes/conflicts.php:568
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:560
+#: includes/conflicts.php:572
 msgid "Dismiss until this changes"
 msgstr ""
 

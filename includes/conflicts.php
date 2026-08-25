@@ -57,7 +57,19 @@ function keel_defaults_policy_hooks() {
 			'use_block_editor_for_post_type'        => 'authoritative',
 			'gutenberg_can_edit_post'               => 'authoritative',
 			'use_widgets_block_editor'              => 'authoritative',
-			'allowed_block_types_all'               => 'authoritative',
+
+			/*
+			 * Subtractive, so it composes. The callback drops the comment
+			 * blocks from whatever list it is handed and keeps the rest, and it
+			 * registers at PHP_INT_MAX so it runs last — whether another plugin
+			 * passed `false`, `true` or an explicit array, Keel operates on that
+			 * decision rather than discarding it. Two plugins restricting the
+			 * inserter both get their way.
+			 *
+			 * Reported as a collision it would have sent an administrator to
+			 * deactivate a plugin that works alongside this one.
+			 */
+			'allowed_block_types_all'               => 'additive',
 
 			// Comments and pingbacks, contested by any disable-comments plugin.
 			'comments_open'                         => 'authoritative',
