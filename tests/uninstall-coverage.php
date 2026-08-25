@@ -101,6 +101,40 @@ foreach ( $written as $key => $where ) {
 	);
 }
 
+/*
+ * --- names this plugin used to write under ---
+ *
+ * The scan above reads the *current* source, so it is blind by construction to
+ * an option the plugin wrote under an older name and no longer touches. That is
+ * not hypothetical: Keel stored its settings in `keel_defaults` before the
+ * rename to `keel_settings`, and a site that ran both versions kept a 1.4KB
+ * autoloaded row that survived deleting the plugin from the Plugins screen —
+ * the exact outcome uninstall.php's own docblock says it exists to prevent.
+ *
+ * A retired name can never be removed from this list. Nothing in the running
+ * code refers to it any more, so this list is the only remaining record that
+ * the row can exist at all.
+ */
+$retired = array(
+	'keel_defaults' => 'the settings option before the rename to keel_settings',
+);
+
+/*
+ * Matched as an actual delete_option() call, not as a substring.
+ *
+ * The loose check above is safe for the keys it covers only because each is a
+ * distinctive name; 'keel_defaults' is not. It is the prefix of every function
+ * in this plugin, so a substring test passes on the word `keel_defaults_uninstall_site`
+ * and reports coverage that does not exist — which is what it did when this
+ * assertion was first written the loose way.
+ */
+foreach ( $retired as $key => $why ) {
+	keel_uninstall_assert(
+		1 === preg_match( "/delete_option\(\s*'" . preg_quote( $key, '/' ) . "'\s*\)/", $uninstall ),
+		"Retired storage key '{$key}' ({$why}) is not removed by uninstall.php."
+	);
+}
+
 // Every key this plugin writes should carry its own prefix. One that does not
 // is not just untidy — it is a key the next person auditing "what does Keel
 // leave behind?" will not think to look for.
@@ -116,4 +150,4 @@ if ( $fail > 0 ) {
 	exit( 1 );
 }
 
-fwrite( STDOUT, 'uninstall coverage: OK (' . count( $written ) . " keys checked)\n" );
+fwrite( STDOUT, 'uninstall coverage: OK (' . count( $written ) . ' current + ' . count( $retired ) . " retired keys checked)\n" );

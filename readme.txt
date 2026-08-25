@@ -131,6 +131,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Every stylesheet and script Keel adds now goes through the WordPress asset API instead of being written straight into the page. Nothing changes on screen. It means a site can dequeue, override, or defer any of it by handle, and that caching and asset-optimizing plugins can see it — none of which was possible while the markup was printed directly.
 * The settings screen's CSS and JavaScript are now static files rather than markup rebuilt on every page load, so a browser caches them. The admin-menu-width slider carries its labels and widths as data attributes, which also makes its script work for any number of sliders rather than being re-emitted once per field.
 * The network policy screen and the per-site settings screen now share one copy of the script that refuses changes to a locked control. There were two, and they had already drifted apart.
+* Deleting the plugin now also removes the settings option from before the rename, which a site that had run both the older plugin and this one kept as an orphaned autoloaded row. Deleting from the Plugins screen left it behind, because nothing in the current code refers to that name any more.
 * Dropped the compiled Canadian English translation from the plugin package. Translations for every locale are generated and delivered by translate.wordpress.org; shipping a catalog alongside that only means two sources for the same strings.
 
 = 0.5.2 =
