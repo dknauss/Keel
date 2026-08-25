@@ -16,6 +16,12 @@
  * This does not regenerate anything. It compares what is committed against what
  * the code currently says, and fails with the command to run.
  *
+ * `--exclude=build` is not optional. `bin/build-zip.sh` assembles the plugin
+ * into `build/`, so a scan of the working tree finds every string twice and
+ * keeps the ones from the last build after they have been deleted from source.
+ * That happened: removed copy sat in the template as untranslatable entries no
+ * translator could ever see rendered.
+ *
  * Run: php tests/i18n-catalogs.php
  *
  * @package keel
@@ -120,7 +126,7 @@ $version = isset( $vm[1] ) ? $vm[1] : '';
 keel_assert( '' !== $version, 'The plugin header states a version.' );
 keel_assert(
 	false !== strpos( $pot, 'Project-Id-Version: Keel Defaults ' . $version ),
-	"keel-defaults.pot names the current version ({$version}). Run: wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults"
+	"keel-defaults.pot names the current version ({$version}). Run: wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults --exclude=build"
 );
 keel_assert(
 	false !== strpos( $pot, 'GPL-2.0-or-later' ),
@@ -138,7 +144,7 @@ $missing = array_values( array_diff( $source, $pot_ids ) );
 keel_assert(
 	array() === $missing,
 	count( $missing ) . ' translatable string(s) are not in keel.pot — regenerate it with '
-		. '`wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults`. First: "'
+		. '`wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults --exclude=build`. First: "'
 		. ( isset( $missing[0] ) ? substr( $missing[0], 0, 70 ) : '' ) . '"'
 );
 
