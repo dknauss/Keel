@@ -136,10 +136,14 @@ check "revision policy honours constant precedence"     '$lock=keel_defaults_con
 
 echo; echo "== Admin menu width =="
 setopt admin_menu_width 240
-check "width CSS hooked on admin_head"                 'echo has_action("admin_head","keel_defaults_admin_menu_width_css")?"OK":"no";'
-check "CSS output carries the width with !important"   'ob_start();keel_defaults_admin_menu_width_css();$c=ob_get_clean();echo (strpos($c,"240px !important")!==false)?"OK":"no";'
+check "width CSS registered as an admin style provider" 'echo array_key_exists("keel_defaults_admin_menu_width_css",keel_defaults_style_providers("admin"))?"OK":"no";'
+check "CSS carries the width with !important"          '$c=keel_defaults_admin_menu_width_css();echo (strpos($c,"240px !important")!==false)?"OK":"no";'
 setopt admin_menu_width default
-check "no width hook at default"                       'echo has_action("admin_head","keel_defaults_admin_menu_width_css")?"still":"OK";'
+# Asserts the CSS is empty, not that a hook is absent. The hook-absence version
+# of this check went vacuous when the provider moved off admin_head: it asked
+# whether a hook Keel no longer uses was registered, which is false at every
+# setting, so it passed without testing anything.
+check "no width CSS at default"                        'echo ""===trim(keel_defaults_admin_menu_width_css())?"OK":"still";'
 
 echo; echo "== Environment indicator =="
 setopt environment_indicator yes
@@ -149,7 +153,7 @@ check "no admin bar node when off"                     'echo has_action("admin_b
 
 echo; echo "== Post passwords =="
 setopt disable_post_passwords yes
-check "password UI hider hooked"                       'echo has_action("admin_print_footer_scripts","keel_defaults_hide_post_password_ui")?"OK":"no";'
+check "password UI hider registered as a style provider" 'echo array_key_exists("keel_defaults_hide_post_password_css",keel_defaults_style_providers("admin"))?"OK":"no";'
 setopt disable_post_passwords no
 
 echo; echo "== Strong passwords + role scoping =="

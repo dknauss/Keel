@@ -69,3 +69,9 @@ wp-config.php
 # listed in .distignore too: a local `bin/build-zip.sh` copies the working tree,
 # so an untracked directory here still lands in the zip.
 /.claude/
+
+# Playwright, for bin/screenshots.mjs. The script tells you to `npm i playwright`
+# in this directory, and nothing stopped the ~150MB that produces from being
+# committed. .distignore already keeps it out of the zip; this keeps it out of
+# the repository.
+/node_modules/
