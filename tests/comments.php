@@ -111,4 +111,28 @@ unset( $GLOBALS['keel_filters']['keel_comment_blocks'] );
 // true expands from the registry; with no registry available the value passes through.
 keel_assert( true === keel_defaults_remove_comment_blocks( true ), 'Without a block registry the value is left alone rather than emptied.' );
 
+/*
+ * --- the zero comment count keeps core's string type ---
+ *
+ * core's get_comments_number() normally returns $post->comment_count, which
+ * comes off the database as a *string*. Its own docblock says string|int, and
+ * most consumers cast — but not all of them.
+ *
+ * wp-includes/blocks/comments-title.php does:
+ *
+ *     $comments_count = get_comments_number();
+ *     if ( '0' === $comments_count ) { return; }
+ *
+ * a strict comparison. Returning int 0 there is not equal to '0', so the block
+ * did not take its early return and rendered a comments title on a post Keel
+ * had just reported as having no comments. Measured on WordPress 7.1 with a
+ * block theme, which is the default.
+ *
+ * '0' is falsy and casts to 0, so every other core consumer — the (int) casts
+ * and the truthiness checks — is unaffected.
+ */
+keel_assert( '0' === keel_defaults_return_zero(), 'The comment count is the string "0", the type core returns and compares against.' );
+keel_assert( 0 === (int) keel_defaults_return_zero(), 'It still casts to int 0 for the consumers that cast.' );
+keel_assert( ! keel_defaults_return_zero(), 'And it is still falsy, for the consumers that test truthiness.' );
+
 echo "comments tests passed.\n";

@@ -102,6 +102,22 @@ keel_assert(
 	'xmlrpc_enabled is one of them — the case that prompted this.'
 );
 
+/*
+ * comments_open and pings_open are the same question asked twice.
+ *
+ * Both are booleans, both are decided by disable_comments alone, and both are
+ * registered together in the same bootstrap block — so an expectation for one
+ * and not the other is an omission rather than a judgement. pings_open was the
+ * missing half: a plugin forcing pingbacks back open while Keel's comments
+ * default said otherwise produced no divergence record and nothing on screen.
+ */
+foreach ( array( 'comments_open', 'pings_open' ) as $comment_hook ) {
+	keel_assert(
+		array_key_exists( $comment_hook, $expectations ),
+		"{$comment_hook} has an expectation: it is a boolean that disable_comments alone decides."
+	);
+}
+
 // --- nothing overriding: nothing reported, nothing written ---
 
 $GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'yes' );

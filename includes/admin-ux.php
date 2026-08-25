@@ -671,6 +671,40 @@ function keel_defaults_login_logo_url() {
 }
 
 /**
+ * Strip a submitted Remember Me value.
+ *
+ * The half that actually disables the feature. Hiding the checkbox with CSS is
+ * only about not offering a control the site will refuse — a forged POST would
+ * still opt into a persistent session, so the value is removed server-side
+ * before wp-login.php reads it.
+ *
+ * $_REQUEST as well as $_POST: wp-login.php reads the former.
+ *
+ * Named rather than inline so it can be called in a test. As a closure inside
+ * the bootstrap it could only be asserted by searching the source for the text
+ * of the unset(), which passes whether or not the line ever runs.
+ *
+ * @return void
+ */
+function keel_defaults_strip_remember_me() {
+	unset( $_POST['rememberme'], $_REQUEST['rememberme'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+}
+
+/**
+ * The login-screen header text: this site's name.
+ *
+ * Replaces WordPress's own wording, which names wordpress.org and belongs to
+ * the logo that is being removed, unlinked or replaced. Paired with
+ * keel_defaults_login_header_url(); the two are set together and make no sense
+ * apart.
+ *
+ * @return string
+ */
+function keel_defaults_login_header_text() {
+	return get_bloginfo( 'name' );
+}
+
+/**
  * The login-screen logo replacement styles.
  *
  * Nothing is printed when the site has no usable image: a rule with an empty

@@ -431,12 +431,27 @@ function keel_defaults_return_false() {
 }
 
 /**
- * Return zero, under a name only Keel registers.
+ * A comment count of zero, as the string core would have returned.
  *
- * @return int
+ * The type matters and is not a detail. core's get_comments_number() returns
+ * `$post->comment_count`, which arrives from the database as a string, and its
+ * own docblock advertises `string|int` — so most consumers cast before using
+ * it. Not all of them: wp-includes/blocks/comments-title.php compares strictly,
+ *
+ *     if ( '0' === $comments_count ) { return; }
+ *
+ * and `'0' === 0` is false. Returning an int meant the Comments Title block
+ * skipped its early return and rendered a comments heading on a post Keel had
+ * just reported as having none — on a block theme, which is the default. The
+ * `__return_zero` this replaced had the same flaw, so it predates the wrapper.
+ *
+ * '0' is falsy and casts to 0, so the consumers that cast or test truthiness
+ * are unaffected.
+ *
+ * @return string
  */
 function keel_defaults_return_zero() {
-	return 0;
+	return '0';
 }
 
 /**
@@ -584,6 +599,31 @@ function keel_defaults_conflicts_fingerprint( $conflicts ) {
 }
 
 /**
+ * Fingerprint of everything the notice reports, both halves.
+ *
+ * Dismissing has to mean "I have seen this", and what there is to see is the
+ * attributable overlaps *and* the settings that are not taking effect. Hashing
+ * only the overlaps meant a dismissal taken while two plugins were contesting a
+ * hook also silenced a later, unrelated divergence — and a site with nothing but
+ * divergences produced an empty fingerprint, which no dismissal could ever match.
+ *
+ * Divergences go in under a key no hook can occupy, so the two cannot be
+ * confused for one another in the hash.
+ *
+ * @return string
+ */
+function keel_defaults_notice_fingerprint() {
+	$state       = keel_defaults_competing_plugins();
+	$divergences = keel_defaults_policy_divergences();
+
+	if ( ! empty( $divergences ) ) {
+		$state['keel:divergence'] = array_keys( $divergences );
+	}
+
+	return keel_defaults_conflicts_fingerprint( $state );
+}
+
+/**
  * Where the conflict notice is shown, and whether it can be dismissed there.
  *
  * The plugins screen is where somebody lands the moment they activate a
@@ -626,13 +666,15 @@ function keel_defaults_render_conflicts_notice() {
 		return;
 	}
 
-	$conflicts = keel_defaults_competing_plugins();
-	if ( empty( $conflicts ) ) {
+	$conflicts   = keel_defaults_competing_plugins();
+	$divergences = keel_defaults_policy_divergences();
+
+	if ( empty( $conflicts ) && empty( $divergences ) ) {
 		return;
 	}
 
 	$dismissible = $screens[ $id ];
-	$fingerprint = keel_defaults_conflicts_fingerprint( $conflicts );
+	$fingerprint = keel_defaults_notice_fingerprint();
 
 	if ( $dismissible && get_user_meta( get_current_user_id(), 'keel_conflicts_dismissed', true ) === $fingerprint ) {
 		return;
@@ -646,8 +688,40 @@ function keel_defaults_render_conflicts_notice() {
 	}
 
 	$health = admin_url( 'site-health.php' );
+
+	/*
+	 * A divergence outranks an overlap, so it goes first and sets the notice
+	 * colour. An overlap says two plugins are registered on the same hook, which
+	 * may be perfectly fine; a divergence says a setting configured on this site
+	 * is measurably not doing what it says. Only one of those needs acting on.
+	 */
+	$class = empty( $divergences ) ? 'notice-info' : 'notice-warning';
 	?>
-		<div class="notice notice-info">
+		<div class="notice <?php echo esc_attr( $class ); ?>">
+		<?php if ( ! empty( $divergences ) ) : ?>
+		<p>
+			<strong>
+			<?php
+			/* translators: %s: comma-separated setting/hook names. */
+			$not_taking_effect = _n(
+				'A Keel setting is not taking effect on this site: %s',
+				'Some Keel settings are not taking effect on this site: %s',
+				count( $divergences ),
+				'keel-defaults'
+			);
+
+			printf(
+				esc_html( $not_taking_effect ),
+				esc_html( implode( ', ', array_keys( $divergences ) ) )
+			);
+			?>
+			</strong>
+		</p>
+		<p>
+			<?php esc_html_e( 'These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ); ?>
+		</p>
+		<?php endif; ?>
+		<?php if ( ! empty( $plugins ) ) : ?>
 		<p>
 			<strong>
 			<?php
@@ -669,6 +743,7 @@ function keel_defaults_render_conflicts_notice() {
 		<p>
 				<?php esc_html_e( 'These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree.', 'keel-defaults' ); ?>
 		</p>
+		<?php endif; ?>
 		<p>
 			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings are contested, under Site Health', 'keel-defaults' ); ?></a>
 			<?php if ( $dismissible ) : ?>
@@ -708,7 +783,7 @@ function keel_defaults_handle_conflicts_dismissal() {
 	update_user_meta(
 		get_current_user_id(),
 		'keel_conflicts_dismissed',
-		keel_defaults_conflicts_fingerprint( keel_defaults_competing_plugins() )
+		keel_defaults_notice_fingerprint()
 	);
 
 	wp_safe_redirect( admin_url( 'index.php' ) );
@@ -738,8 +813,12 @@ function keel_defaults_policy_expectations() {
 	$expectations = array(
 		// Remote publishing allowed means the endpoint should answer.
 		'xmlrpc_enabled'                        => keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ),
-		// Comments off means closed, everywhere, below the theme.
+		// Comments off means closed, everywhere, below the theme. pings_open is
+		// the same question about the same setting — one without the other was an
+		// omission, not a distinction, and it left a plugin forcing pingbacks back
+		// open with nothing to report it.
 		'comments_open'                         => keel_defaults_enabled( 'disable_comments' ) ? false : null,
+		'pings_open'                            => keel_defaults_enabled( 'disable_comments' ) ? false : null,
 		'wp_is_application_passwords_available' => keel_defaults_enabled( 'disable_application_passwords' ) ? false : null,
 		'wp_supports_ai'                        => keel_defaults_key_supported( 'disable_ai_connectors' ) && keel_defaults_enabled( 'disable_ai_connectors' ) ? false : null,
 	);

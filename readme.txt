@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.3
+Stable tag: 0.5.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,6 +127,11 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.5.4 =
+* A setting that is not taking effect now says so where you will see it. Keel could already detect that something else on the site was overriding one of its settings, but it reported that only under Site Health — which nobody opens until something has already gone wrong. It now appears on the dashboard and the plugins screen, which is where the overlap warnings already were. This is the case you most need telling about, because a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to name it by.
+* Fixed a comments heading appearing on posts with comments switched off. Keel reported the count as the number zero where WordPress reports it as the text "0", and core's Comments Title block compares the two exactly — so it did not take its early return. Affected block themes, which is the default.
+* Pingbacks are now watched for the same override as comments. Both are decided by the same setting and were registered together, but only comments was checked.
+
 = 0.5.3 =
 * Fixed the login screen's logo link. Removing, unlinking or replacing the logo is supposed to point that link at your site's home page; it pointed at your home page with `https://wordpress.org/` appended, which goes nowhere. Affected every site with any of those three behaviours set.
 * Keel can now see another plugin that switches the same setting off in the same way it does. WordPress stores one entry per callback, so when two plugins register the identical callback at the identical priority the second replaces the first and only one remains — which meant a plugin doing exactly what Keel does could be reported as Keel's own registration, or hide Keel's. Keel now uses callbacks that are its alone, so both are always visible and the report can tell them apart.
@@ -199,6 +204,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.4 =
+Warnings about a setting being overridden by another plugin now reach the dashboard rather than only Site Health, and a comments heading no longer appears on posts with comments off.
 
 = 0.5.3 =
 Internal change to how Keel's own CSS and JavaScript reach the page; no setting changes and nothing looks different. The Canadian English catalog is no longer bundled — translations now come from translate.wordpress.org like every other locale.

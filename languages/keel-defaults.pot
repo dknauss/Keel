@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.5.3\n"
+"Project-Id-Version: Keel Defaults 0.5.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-25T05:19:43+00:00\n"
+"POT-Creation-Date: 2026-08-25T22:25:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -38,72 +38,72 @@ msgstr ""
 msgid "Dan Knauss"
 msgstr ""
 
-#: includes/admin-ux.php:242
+#: includes/admin-ux.php:214
 msgid "ID"
 msgstr ""
 
-#: includes/admin-ux.php:243
+#: includes/admin-ux.php:215
 msgid "Image"
 msgstr ""
 
-#: includes/admin-ux.php:244
+#: includes/admin-ux.php:216
 msgid "Modified"
 msgstr ""
 
-#: includes/admin-ux.php:275
-#: includes/admin-ux.php:382
+#: includes/admin-ux.php:247
+#: includes/admin-ux.php:354
 msgid "File size"
 msgstr ""
 
-#: includes/admin-ux.php:300
+#: includes/admin-ux.php:272
 msgid "Registered"
 msgstr ""
 
-#: includes/admin-ux.php:301
+#: includes/admin-ux.php:273
 msgid "Last login"
 msgstr ""
 
-#: includes/admin-ux.php:365
+#: includes/admin-ux.php:337
 msgid "Generated Image Sizes"
 msgstr ""
 
-#: includes/admin-ux.php:377
+#: includes/admin-ux.php:349
 msgid "No generated image sizes were found for this attachment."
 msgstr ""
 
-#: includes/admin-ux.php:381
+#: includes/admin-ux.php:353
 msgid "Read-only view of the generated image files and URLs."
 msgstr ""
 
-#: includes/admin-ux.php:382
+#: includes/admin-ux.php:354
 msgid "Size"
 msgstr ""
 
-#: includes/admin-ux.php:382
+#: includes/admin-ux.php:354
 msgid "Dimensions"
 msgstr ""
 
-#: includes/admin-ux.php:382
+#: includes/admin-ux.php:354
 msgid "URL"
 msgstr ""
 
-#: includes/admin-ux.php:419
+#: includes/admin-ux.php:391
 msgid "Unknown"
 msgstr ""
 
-#: includes/admin-ux.php:469
+#: includes/admin-ux.php:441
 msgid "Production"
 msgstr ""
 
-#: includes/admin-ux.php:475
+#: includes/admin-ux.php:447
 msgid "Staging"
 msgstr ""
 
-#: includes/admin-ux.php:481
+#: includes/admin-ux.php:453
 msgid "Development"
 msgstr ""
 
-#: includes/admin-ux.php:487
+#: includes/admin-ux.php:459
 msgid "Local"
 msgstr ""
 
@@ -115,23 +115,35 @@ msgstr ""
 msgid "Unattributed callback"
 msgstr ""
 
+#. translators: %s: comma-separated setting/hook names.
+#: includes/conflicts.php:706
+#, php-format
+msgid "A Keel setting is not taking effect on this site: %s"
+msgid_plural "Some Keel settings are not taking effect on this site: %s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/conflicts.php:721
+msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgstr ""
+
 #. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:595
+#: includes/conflicts.php:729
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:610
+#: includes/conflicts.php:744
 msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
 msgstr ""
 
-#: includes/conflicts.php:613
+#: includes/conflicts.php:748
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:617
+#: includes/conflicts.php:752
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -155,23 +167,23 @@ msgstr ""
 msgid "Site email may not be configured, or the selected users may not have deliverable email addresses."
 msgstr ""
 
-#: includes/email.php:147
+#: includes/email.php:146
 msgid "Outgoing email is switched off on this site."
 msgstr ""
 
 #. translators: %s: environment name, such as staging or local.
-#: includes/email.php:151
+#: includes/email.php:150
 #, php-format
 msgid "This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production."
 msgstr ""
 
 #. translators: %s: link to the Non-Production Email setting.
-#: includes/email.php:160
+#: includes/email.php:159
 #, php-format
 msgid "Turn off %s to send from here anyway."
 msgstr ""
 
-#: includes/email.php:163
+#: includes/email.php:162
 #: includes/strings.php:176
 msgid "Non-Production Email"
 msgstr ""
@@ -180,31 +192,31 @@ msgstr ""
 msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Keel Defaults."
 msgstr ""
 
-#: includes/network.php:207
+#: includes/network.php:209
 msgid "You do not have permission to set network policy."
 msgstr ""
 
-#: includes/network.php:238
+#: includes/network.php:240
 msgid "Keel Defaults — network policy"
 msgstr ""
 
-#: includes/network.php:241
+#: includes/network.php:243
 msgid "Network policy saved."
 msgstr ""
 
-#: includes/network.php:245
+#: includes/network.php:247
 msgid "Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site's own business, and their saved values are untouched — untick it later and every site returns to exactly what it had."
 msgstr ""
 
-#: includes/network.php:249
+#: includes/network.php:251
 msgid "The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there."
 msgstr ""
 
-#: includes/network.php:296
+#: includes/network.php:298
 msgid "Decide this for the whole network"
 msgstr ""
 
-#: includes/network.php:318
+#: includes/network.php:320
 msgid "Save network policy"
 msgstr ""
 
@@ -235,7 +247,7 @@ msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:21
-#: includes/settings-page.php:742
+#: includes/settings-page.php:661
 #: includes/site-health.php:292
 msgid "Keel"
 msgstr ""
@@ -244,121 +256,121 @@ msgstr ""
 msgid "Site Defaults"
 msgstr ""
 
-#: includes/settings-page.php:64
+#: includes/settings-page.php:65
 msgid "Settings"
 msgstr ""
 
-#: includes/settings-page.php:84
+#: includes/settings-page.php:85
 msgid "Overview"
 msgstr ""
 
-#: includes/settings-page.php:86
+#: includes/settings-page.php:87
 msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all."
 msgstr ""
 
-#: includes/settings-page.php:87
+#: includes/settings-page.php:88
 msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in."
 msgstr ""
 
-#: includes/settings-page.php:88
+#: includes/settings-page.php:89
 msgid "There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
 msgstr ""
 
-#: includes/settings-page.php:89
+#: includes/settings-page.php:90
 msgid "Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off."
 msgstr ""
 
-#: includes/settings-page.php:96
+#: includes/settings-page.php:97
 msgid "Passwords"
 msgstr ""
 
-#: includes/settings-page.php:99
+#: includes/settings-page.php:100
 msgid "For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess."
 msgstr ""
 
-#: includes/settings-page.php:110
+#: includes/settings-page.php:111
 msgid "WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all."
 msgstr ""
 
-#: includes/settings-page.php:114
+#: includes/settings-page.php:115
 msgid "So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here."
 msgstr ""
 
-#: includes/settings-page.php:118
+#: includes/settings-page.php:119
 msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange\" target=\"_blank\" rel=\"noopener noreferrer\">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter."
 msgstr ""
 
-#: includes/settings-page.php:129
+#: includes/settings-page.php:130
 msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly."
 msgstr ""
 
-#: includes/settings-page.php:134
+#: includes/settings-page.php:135
 msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
-#: includes/settings-page.php:145
+#: includes/settings-page.php:146
 #: includes/strings.php:273
 msgid "XML-RPC"
 msgstr ""
 
-#: includes/settings-page.php:147
+#: includes/settings-page.php:148
 msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
 msgstr ""
 
-#: includes/settings-page.php:148
+#: includes/settings-page.php:149
 msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
 msgstr ""
 
-#: includes/settings-page.php:149
+#: includes/settings-page.php:150
 msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
 msgstr ""
 
-#: includes/settings-page.php:151
+#: includes/settings-page.php:152
 msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
 msgstr ""
 
-#: includes/settings-page.php:155
+#: includes/settings-page.php:156
 msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
 msgstr ""
 
-#: includes/settings-page.php:162
+#: includes/settings-page.php:163
 msgid "Current posture"
 msgstr ""
 
 #. translators: %s: URL of the Site Health Info screen.
-#: includes/settings-page.php:166
+#: includes/settings-page.php:167
 #, php-format
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:509
+#: includes/settings-page.php:510
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:514
-#: includes/settings-page.php:522
+#: includes/settings-page.php:515
+#: includes/settings-page.php:523
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
-#: includes/settings-page.php:528
+#: includes/settings-page.php:529
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:540
+#: includes/settings-page.php:541
 msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
 msgstr ""
 
-#: includes/settings-page.php:743
+#: includes/settings-page.php:662
 msgid "Sensible defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:755
+#: includes/settings-page.php:674
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:941
+#: includes/settings-page.php:828
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 

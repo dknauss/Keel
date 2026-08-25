@@ -154,6 +154,14 @@ keel_assert( false !== strpos( $out, 'background-size:contain' ), 'The image is 
  * any of the three logo behaviours set. A core function whose first parameter is
  * not the value being filtered is never a correct callback.
  */
+
+/*
+ * The header *text* is the sibling of the link below and was never tested at
+ * all — the same code block, the same three logo behaviours, and the half that
+ * would leave "Powered by WordPress" under a replaced logo if it broke.
+ */
+keel_assert( 'Example Site' === keel_defaults_login_header_text( 'Powered by WordPress' ), 'The login header text is the site name, replacing the WordPress default.' );
+
 $linked = keel_defaults_login_header_url( 'https://wordpress.org/' );
 keel_assert( 'https://example.ca' === $linked, 'The login header links to the site home, not to a URL with wordpress.org appended: got "' . $linked . '".' );
 keel_assert( false === strpos( $linked, 'wordpress.org' ), 'The incoming wordpress.org URL is replaced rather than appended to.' );

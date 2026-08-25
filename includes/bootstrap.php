@@ -627,12 +627,7 @@ function keel_defaults_bootstrap() {
 		// Strip the submitted value server-side as well as hiding the checkbox, so
 		// a forged POST cannot opt back into a persistent session. login_init fires
 		// before wp-login.php reads $_POST['rememberme'].
-		add_action(
-			'login_init',
-			function () {
-				unset( $_POST['rememberme'], $_REQUEST['rememberme'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
-			}
-		);
+		add_action( 'login_init', 'keel_defaults_strip_remember_me' );
 
 		/*
 		 * Hide the checkbox with CSS, not script. The server-side strip above is
@@ -688,12 +683,7 @@ function keel_defaults_bootstrap() {
 	// a replacement/removed logo linking back to wp.org makes no sense.
 	if ( in_array( $login_logo, array( 'remove_logo', 'unlink_logo', 'replace_logo' ), true ) ) {
 		keel_defaults_add_policy_filter( 'login_headerurl', 'keel_defaults_login_header_url' );
-		add_filter(
-			'login_headertext',
-			function () {
-				return get_bloginfo( 'name' );
-			}
-		);
+		add_filter( 'login_headertext', 'keel_defaults_login_header_text' );
 	}
 
 	/* ----- Performance ----- */
