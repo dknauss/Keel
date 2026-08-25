@@ -229,7 +229,7 @@ function keel_defaults_bootstrap() {
 	);
 
 	if ( keel_defaults_enabled( 'disable_application_passwords' ) ) {
-		keel_defaults_add_policy_filter( 'wp_is_application_passwords_available', '__return_false' );
+		keel_defaults_add_policy_filter( 'wp_is_application_passwords_available', 'keel_defaults_return_false' );
 	}
 
 	if ( keel_defaults_enabled( 'require_strong_passwords' ) ) {
@@ -263,7 +263,7 @@ function keel_defaults_bootstrap() {
 	if ( keel_defaults_enabled( 'disable_ai_connectors' ) && keel_defaults_key_supported( 'disable_ai_connectors' ) ) {
 		// WordPress 7.0 gates AI provider connectors behind wp_supports_ai
 		// (default true). Returning false stops them registering.
-		keel_defaults_add_policy_filter( 'wp_supports_ai', '__return_false' );
+		keel_defaults_add_policy_filter( 'wp_supports_ai', 'keel_defaults_return_false' );
 
 		// Settings → Connectors is where those providers get configured.
 		add_action(
@@ -300,8 +300,8 @@ function keel_defaults_bootstrap() {
 	/* ----- Content and public surfaces ----- */
 
 	if ( keel_defaults_enabled( 'disable_comments' ) ) {
-		keel_defaults_add_policy_filter( 'comments_open', '__return_false', 20 );
-		keel_defaults_add_policy_filter( 'pings_open', '__return_false', 20 );
+		keel_defaults_add_policy_filter( 'comments_open', 'keel_defaults_return_false', 20 );
+		keel_defaults_add_policy_filter( 'pings_open', 'keel_defaults_return_false', 20 );
 		add_filter( 'comments_array', '__return_empty_array', 20 );
 
 		add_action(
@@ -345,7 +345,7 @@ function keel_defaults_bootstrap() {
 		// while get_comments_number() still answers from the post's cached
 		// comment_count, so a theme prints "1 Comment" above a thread that no
 		// longer exists.
-		keel_defaults_add_policy_filter( 'get_comments_number', '__return_zero', 20 );
+		keel_defaults_add_policy_filter( 'get_comments_number', 'keel_defaults_return_zero', 20 );
 
 		// Drop the comment feeds from the head and feed-link markup, then stop
 		// serving the feeds themselves. Removing only the links leaves
@@ -527,7 +527,7 @@ function keel_defaults_bootstrap() {
 
 	$bar = keel_defaults_get( 'frontend_admin_bar_behavior' );
 	if ( 'hide_all' === $bar ) {
-		keel_defaults_add_policy_filter( 'show_admin_bar', '__return_false' );
+		keel_defaults_add_policy_filter( 'show_admin_bar', 'keel_defaults_return_false' );
 	} elseif ( 'hide_non_admins' === $bar ) {
 		keel_defaults_add_policy_filter(
 			'show_admin_bar',
@@ -687,7 +687,7 @@ function keel_defaults_bootstrap() {
 	// at the site home instead of wordpress.org. There is no separate toggle:
 	// a replacement/removed logo linking back to wp.org makes no sense.
 	if ( in_array( $login_logo, array( 'remove_logo', 'unlink_logo', 'replace_logo' ), true ) ) {
-		keel_defaults_add_policy_filter( 'login_headerurl', 'home_url' );
+		keel_defaults_add_policy_filter( 'login_headerurl', 'keel_defaults_login_header_url' );
 		add_filter(
 			'login_headertext',
 			function () {

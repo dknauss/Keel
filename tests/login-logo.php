@@ -59,6 +59,20 @@ function esc_url_raw( $url ) {
 	return $url;
 }
 function esc_url( $url ) { return str_replace( '&', '&amp;', esc_url_raw( $url ) ); }
+
+/*
+ * Core's home_url() appends its first argument as a path. That is exactly the
+ * behaviour this test needs to reproduce: it is what turned the login link into
+ * `https://example.ca/https://wordpress.org/` when home_url was used directly as
+ * the `login_headerurl` callback.
+ */
+function home_url( $path = '', $scheme = null ) {
+	$url = 'https://example.ca';
+	if ( $path && is_string( $path ) ) {
+		$url .= '/' . ltrim( $path, '/' ); }
+	return $url;
+}
+function get_bloginfo( $show = '' ) { return 'Example Site'; }
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
@@ -129,5 +143,19 @@ $GLOBALS['keel_site_icon'] = 'https://example.ca/wordmark.png';
 $out                       = keel_logo_output();
 keel_assert( false !== strpos( $out, 'width:320px' ), 'The box is widened, so a wordmark is not squeezed into core 84px square.' );
 keel_assert( false !== strpos( $out, 'background-size:contain' ), 'The image is contained rather than cropped.' );
+
+/*
+ * --- the header link points at the site, not at a mangled URL ---
+ *
+ * Removing, unlinking or replacing the logo repoints the login header link at
+ * the site home. It was wired as `add_filter( 'login_headerurl', 'home_url' )`,
+ * which hands the filtered value to home_url() as its $path — so the link
+ * became the site URL with wordpress.org appended to it, on every install with
+ * any of the three logo behaviours set. A core function whose first parameter is
+ * not the value being filtered is never a correct callback.
+ */
+$linked = keel_defaults_login_header_url( 'https://wordpress.org/' );
+keel_assert( 'https://example.ca' === $linked, 'The login header links to the site home, not to a URL with wordpress.org appended: got "' . $linked . '".' );
+keel_assert( false === strpos( $linked, 'wordpress.org' ), 'The incoming wordpress.org URL is replaced rather than appended to.' );
 
 echo "login logo: OK\n";
