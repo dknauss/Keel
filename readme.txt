@@ -192,7 +192,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Upgrade Notice ==
 
 = 0.5.2 =
-Fixes a setting being switched off by saving a different one. On WordPress below 7.0, saving any setting rewrote the hidden AI Connectors value from on to off. If you run WordPress 6.4 to 6.9 and have saved settings, check Settings → Keel after updating: the stored value may need setting back.
+On WordPress 6.4–6.9 an earlier release could switch the stored AI Connectors value off when you saved any setting. It has no effect before WordPress 7.0, where the control appears under Settings → Keel. To correct it now: `wp option patch update keel_settings disable_ai_connectors yes`
 
 = 0.5.1 =
 Policy-overlap diagnostics no longer execute other plugins' callbacks. Re-check prior 0.5.0 conflict results; 0.5.1 reports structural overlap without claiming the configured outcomes disagree.

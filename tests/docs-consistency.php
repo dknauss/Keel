@@ -164,7 +164,14 @@ keel_assert(
 	'The newest changelog entry is the current version (' . $version . '), not ' . ( isset( $cm[1][0] ) ? $cm[1][0] : 'nothing' ) . '.'
 );
 
-$status_docs = array( 'README.md', 'ROADMAP.md', 'SECURITY.md', 'CONTRIBUTING.md', 'TODO.md' );
+/*
+ * Documents that state which release they describe, and are therefore the ones
+ * that can go stale about it. CONTRIBUTING.md and TODO.md were scanned here too
+ * while the check was a substring ban, but neither makes the claim — requiring
+ * one of them would be inventing a convention rather than guarding an existing
+ * one.
+ */
+$status_docs = array( 'README.md', 'ROADMAP.md', 'SECURITY.md' );
 
 foreach ( $status_docs as $doc ) {
 	if ( ! is_file( $root . '/' . $doc ) ) {
@@ -192,7 +199,15 @@ foreach ( $status_docs as $doc ) {
 	 * whether that line is current. Silence is a failure too: a status document
 	 * that stops saying which release it describes is how this drifts unnoticed.
 	 */
-	if ( ! preg_match( '/^.*(?:[Cc]urrent (?:release|version)).*$/m', $text, $claim ) ) {
+	$has_claim = 1 === preg_match( '/^.*(?:[Cc]urrent (?:release|version)).*$/m', $text, $claim );
+
+	keel_assert(
+		$has_claim,
+		"{$doc} no longer says which release it describes. Deleting the claim is how this "
+			. 'drifts unnoticed, so its absence fails rather than skipping the file.'
+	);
+
+	if ( ! $has_claim ) {
 		continue;
 	}
 
