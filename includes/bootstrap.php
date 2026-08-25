@@ -593,6 +593,7 @@ function keel_defaults_bootstrap() {
 	 * overriding it, which is true whether or not anybody asked. A switch here
 	 * would only offer to turn off the bad news.
 	 */
+
 	/*
 	 * Watch what the governed filters actually settle on.
 	 *
