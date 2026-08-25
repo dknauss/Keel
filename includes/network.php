@@ -181,7 +181,7 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
  * on a network only Super Admins hold it.
  */
 function keel_defaults_network_menu() {
-	add_submenu_page(
+	$hook = add_submenu_page(
 		'settings.php',
 		__( 'Keel Defaults', 'keel-defaults' ),
 		__( 'Keel Defaults', 'keel-defaults' ),
@@ -189,6 +189,8 @@ function keel_defaults_network_menu() {
 		'keel-network',
 		'keel_defaults_render_network_page'
 	);
+
+	keel_defaults_enqueue_on_screen( $hook, 'keel_defaults_enqueue_network_assets' );
 }
 
 /**
@@ -317,23 +319,6 @@ function keel_defaults_render_network_page() {
 
 			<?php submit_button( __( 'Save network policy', 'keel-defaults' ) ); ?>
 		</form>
-		<script>
-		( function () {
-			document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
-				var initialValue   = control.value;
-				var initialChecked = control.checked;
-				control.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); } );
-				control.addEventListener( 'click', function ( event ) { event.preventDefault(); } );
-				control.addEventListener( 'keydown', function ( event ) {
-					if ( 'Tab' !== event.key && ! event.altKey && ! event.ctrlKey && ! event.metaKey ) { event.preventDefault(); }
-				} );
-				control.addEventListener( 'change', function () {
-					control.checked = initialChecked;
-					control.value   = initialValue;
-				} );
-			} );
-		} )();
-		</script>
 	</div>
 	<?php
 }

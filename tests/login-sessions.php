@@ -126,10 +126,19 @@ keel_assert(
 	'The session clamp runs at priority 50, after plugins filtering at the default 10.'
 );
 
-// Remember Me is hidden with CSS. An inline <script> fails with JavaScript off
-// and is blocked by a strict script-src Content-Security-Policy — either way
-// the checkbox stays visible and looks like it works.
-keel_assert( false !== strpos( $bootstrap_src, 'keel-hide-remember-me' ), 'The Remember Me checkbox is hidden with a stylesheet.' );
+// Remember Me is hidden with CSS, registered as a login-context style provider.
+// A script would not do: it fails with JavaScript off and is blocked by a strict
+// script-src Content-Security-Policy — either way the checkbox stays visible and
+// looks like it works. Asserting on the provider context as well as the rule,
+// because CSS registered against the wrong handle never reaches wp-login.php.
+keel_assert(
+	false !== strpos( $bootstrap_src, '.login form .forgetmenot { display: none; }' ),
+	'The Remember Me checkbox is hidden with a stylesheet.'
+);
+keel_assert(
+	false !== strpos( $bootstrap_src, "keel_defaults_add_style(\n\t\t\t'login'," ),
+	'That stylesheet is registered for the login screen.'
+);
 keel_assert( false === strpos( $bootstrap_src, "getElementById('rememberme')" ), 'No inline script is used to hide it.' );
 keel_assert( false !== strpos( $bootstrap_src, "unset( \$_POST['rememberme'], \$_REQUEST['rememberme'] )" ), 'The submitted value is still stripped server-side, which is what actually disables it.' );
 

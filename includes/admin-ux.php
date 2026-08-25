@@ -81,31 +81,28 @@ function keel_defaults_force_classic_editor() {
  * post stays editable. It depends on admin DOM selectors, so re-check it after
  * major WordPress editor changes; if a selector goes stale the field simply
  * reappears — nothing breaks.
+ *
+ * @return string CSS, or '' when this is not an editor screen.
  */
-function keel_defaults_hide_post_password_ui() {
+function keel_defaults_hide_post_password_css() {
 	global $pagenow, $post;
 
 	if ( empty( $pagenow ) || ( 'post.php' !== $pagenow && 'post-new.php' !== $pagenow ) ) {
-		return;
+		return '';
 	}
 
 	if ( ! empty( $post->post_password ) ) {
-		return;
+		return '';
 	}
-	?>
-	<style id="keel-hide-post-password">
-		#visibility-radio-password,
+
+	return '#visibility-radio-password,
 		label[for="visibility-radio-password"],
 		#editor-post-password-0,
 		label[for="editor-post-password-0"],
 		#editor-post-password-0-description,
 		#editor-post-password-1,
 		label[for="editor-post-password-1"],
-		#editor-post-password-1-description {
-			display: none;
-		}
-	</style>
-	<?php
+		#editor-post-password-1-description { display: none; }';
 }
 
 /**
@@ -136,68 +133,43 @@ function keel_defaults_lowercase_filename( $filename ) {
  *    on current WordPress.
  * 2. `body:not(.folded)` — so a menu the user has manually collapsed with the
  *    core toggle still collapses; the widen only applies to the expanded menu.
+ *
+ * @return string CSS, or '' at the default width.
  */
 function keel_defaults_admin_menu_width_css() {
 	$width = (int) keel_defaults_get( 'admin_menu_width' );
 
 	if ( $width < 161 ) {
-		return;
+		return '';
 	}
 	$w = (int) $width;
-	?>
-	<style id="keel-admin-menu-width">
-		@media screen and (min-width: 783px) {
+
+	return sprintf(
+		'@media screen and (min-width: 783px) {
 			#adminmenu,
 			#adminmenuback,
 			#adminmenuwrap,
 			#adminmenu li.menu-top,
-			#adminmenu .wp-submenu {
-				width: <?php echo (int) $w; ?>px !important;
-			}
-			#adminmenuback {
-				position: fixed;
-				top: 0;
-				bottom: -120px;
-			}
+			#adminmenu .wp-submenu { width: %1$dpx !important; }
+			#adminmenuback { position: fixed; top: 0; bottom: -120px; }
 			#adminmenu li.menu-top > a.menu-top,
 			#adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
-			#adminmenu li.current a.menu-top {
-				width: auto !important;
-			}
+			#adminmenu li.current a.menu-top { width: auto !important; }
 			#wpcontent,
-			#wpfooter {
-				margin-left: <?php echo (int) $w; ?>px !important;
-			}
-			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-				left: <?php echo (int) $w; ?>px;
-			}
-			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-				left: auto;
-			}
+			#wpfooter { margin-left: %1$dpx !important; }
+			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { left: %1$dpx; }
+			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { left: auto; }
 			.rtl #wpcontent,
-			.rtl #wpfooter {
-				margin-right: <?php echo (int) $w; ?>px !important;
-				margin-left: 0 !important;
-			}
-			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-				right: <?php echo (int) $w; ?>px;
-				left: auto;
-			}
-			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-				right: auto;
-			}
+			.rtl #wpfooter { margin-right: %1$dpx !important; margin-left: 0 !important; }
+			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { right: %1$dpx; left: auto; }
+			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
 			.folded #wpcontent,
-			.folded #wpfooter {
-				margin-left: 36px !important;
-			}
+			.folded #wpfooter { margin-left: 36px !important; }
 			.rtl.folded #wpcontent,
-			.rtl.folded #wpfooter {
-				margin-right: 36px !important;
-				margin-left: 0 !important;
-			}
-		}
-	</style>
-	<?php
+			.rtl.folded #wpfooter { margin-right: 36px !important; margin-left: 0 !important; }
+		}',
+		$w
+	);
 }
 
 /**
@@ -699,37 +671,44 @@ function keel_defaults_login_logo_url() {
 }
 
 /**
- * Print the login-screen logo replacement styles.
+ * The login-screen logo replacement styles.
  *
  * Nothing is printed when the site has no usable image: a rule with an empty
  * url() is worse than no rule, because an empty URL in CSS resolves against
  * the current document and the browser re-requests the login page to use as
  * an image.
+ *
+ * @return string CSS, or '' when there is no usable image.
  */
-function keel_defaults_login_logo_styles() {
+function keel_defaults_login_logo_css() {
 	$url = keel_defaults_login_logo_url();
 	$css = keel_defaults_css_url( $url );
 
 	// Both checks: css_url() collapses a rejected scheme to '', and '0' is a
 	// falsy string that survives sanitization intact but is not a usable image.
 	if ( empty( $url ) || '' === $css ) {
-		return;
+		return '';
 	}
 
-	echo '<style id="keel-login-logo">#login h1 a, .login h1 a { background-image:url(\'' . $css . '\'); background-size:contain; background-position:center; background-repeat:no-repeat; width:320px; }</style>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- keel_defaults_css_url() escapes for this context; esc_url() would entity-encode into raw-text CSS.
+	// keel_defaults_css_url() has already escaped for this context. esc_url()
+	// is wrong here and always was: it entity-encodes, and a stylesheet is raw
+	// text where `&amp;` stays four literal characters.
+	return '#login h1 a, .login h1 a { background-image:url(\'' . $css . '\'); background-size:contain; background-position:center; background-repeat:no-repeat; width:320px; }';
 }
 
 /**
- * Print the environment-indicator inline styles.
+ * The environment-indicator styles.
+ *
+ * @return string CSS, or '' when there is no admin bar to colour.
  */
-function keel_defaults_environment_styles() {
+function keel_defaults_environment_css() {
 	if ( ! is_admin_bar_showing() ) {
-		return;
+		return '';
 	}
 
 	$environments = keel_environments();
 	if ( empty( $environments ) ) {
-		return;
+		return '';
 	}
 
 	$css  = '.keel-environment-indicator { pointer-events: none; }';
@@ -756,8 +735,11 @@ function keel_defaults_environment_styles() {
 	$css .= ' }';
 
 	// CSS is raw text: values are sanitized per-interpolation above, and
-	// wp_strip_all_tags guards against a </style> breakout.
-	printf( '<style id="keel-environment-indicator">%s</style>', wp_strip_all_tags( $css ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSS escaped per-value above.
+	// wp_strip_all_tags stays as the belt against a </style> breakout even now
+	// that WordPress owns the tag — the sanitizers above are what guarantee it,
+	// and dropping the second check because the printf moved would be trading a
+	// guarantee for an assumption.
+	return wp_strip_all_tags( $css );
 }
 
 /**
@@ -766,13 +748,16 @@ function keel_defaults_environment_styles() {
  * Scoped to hover-capable, fine-pointer devices so touch users keep the normal
  * bar; focus-within keeps it reachable by keyboard. A 4px sliver stays visible
  * as the affordance to reveal it.
+ *
+ * @return string CSS, or '' in the admin or with no admin bar.
  */
 function keel_defaults_auto_hide_admin_bar_css() {
 	if ( is_admin() || ! is_admin_bar_showing() ) {
-		return;
+		return '';
 	}
+
+	ob_start();
 	?>
-	<style id="keel-auto-hide-admin-bar">
 		@media (hover: hover) and (pointer: fine) {
 			html {
 				margin-top: 0 !important;
@@ -806,8 +791,8 @@ function keel_defaults_auto_hide_admin_bar_css() {
 				top: 0 !important;
 			}
 		}
-	</style>
 	<?php
+	return (string) ob_get_clean();
 }
 
 /**

@@ -192,18 +192,14 @@ foreach ( array( ';', '}', ':', '*' ) as $ch ) {
 
 // --- styles output ---
 $GLOBALS['keel_bar_show'] = true;
-ob_start();
-keel_defaults_environment_styles();
-$css = ob_get_clean();
+$css                      = keel_defaults_environment_css();
 keel_assert( false !== strpos( $css, 'keel-environment-indicator--production' ), 'Styles include the production rule.' );
 keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'Styles include the responsive label-clip band.' );
 keel_assert( false !== strpos( $css, 'clip-path: inset(50%)' ), 'Label is clipped (not display:none) for accessibility.' );
 
 // No admin bar → no output.
 $GLOBALS['keel_bar_show'] = false;
-ob_start();
-keel_defaults_environment_styles();
-keel_assert( '' === trim( ob_get_clean() ), 'No styles when the admin bar is hidden.' );
+keel_assert( '' === trim( keel_defaults_environment_css() ), 'No styles when the admin bar is hidden.' );
 
 // Schema.
 $schema = keel_defaults_schema();

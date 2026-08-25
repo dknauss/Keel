@@ -30,11 +30,21 @@ mkdir -p "$OUT/keel-defaults"
 # stays in sync with a single source of truth.
 rsync -a --exclude='.git' --exclude="$OUT" ./ "$OUT/keel-defaults/"
 
+# Patterns may contain wildcards — /languages/*.po has to drop every catalog,
+# not just one named file. The prefix stays quoted so a path with a space still
+# works; only the pattern itself is left unquoted, which is what lets it glob.
+# nullglob so a pattern matching nothing expands to nothing rather than to
+# itself, which would have rm chasing a literal '*'.
+shopt -s nullglob
+
 while IFS= read -r pattern; do
 	pattern="${pattern%%$'\r'}"
 	[ -z "$pattern" ] && continue
 	case "$pattern" in \#*) continue ;; esac
-	rm -rf "$OUT/keel-defaults/${pattern#/}"
+	matches=( "$OUT/keel-defaults/"${pattern#/} )
+	for match in "${matches[@]}"; do
+		rm -rf "$match"
+	done
 done < .distignore
 
 ( cd "$OUT" && zip -rq keel.zip keel-defaults )

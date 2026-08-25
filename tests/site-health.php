@@ -19,6 +19,7 @@ function esc_html( $s ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }
 function esc_attr( $s ) { return $s; }
+function sanitize_html_class( $c ) { return preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $c ); }
 function esc_attr_e( $s, $d = null ) { echo $s; }
 function esc_url( $s ) { return $s; }
 function apply_filters( $hook, $value ) { return $value; }
@@ -207,9 +208,7 @@ keel_assert(
 	"The Info section is registered under KEEL_DEFAULTS_INFO_SECTION ('" . KEEL_DEFAULTS_INFO_SECTION . "')."
 );
 
-ob_start();
-keel_defaults_site_health_info_styles();
-$info_css = ob_get_clean();
+$info_css = keel_defaults_site_health_info_css();
 
 keel_assert(
 	false !== strpos( $info_css, '#health-check-accordion-block-' . KEEL_DEFAULTS_INFO_SECTION . ' ' ),

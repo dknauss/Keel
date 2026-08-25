@@ -41,7 +41,7 @@ function keel_defaults_bootstrap() {
 		add_action( 'network_admin_menu', 'keel_defaults_network_menu' );
 		add_action( 'admin_init', 'keel_defaults_handle_network_save' );
 	}
-	add_action( 'admin_head-site-health.php', 'keel_defaults_site_health_info_styles' );
+	keel_defaults_add_style( 'admin', 'keel_defaults_site_health_info_css' );
 
 	/* ----- Updates ----- */
 
@@ -496,7 +496,7 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'disable_post_passwords' ) ) {
-		add_action( 'admin_print_footer_scripts', 'keel_defaults_hide_post_password_ui' );
+		keel_defaults_add_style( 'admin', 'keel_defaults_hide_post_password_css' );
 	}
 
 	/* ----- Editor ----- */
@@ -536,11 +536,11 @@ function keel_defaults_bootstrap() {
 			}
 		);
 	} elseif ( 'auto_hide' === $bar ) {
-		add_action( 'wp_head', 'keel_defaults_auto_hide_admin_bar_css' );
+		keel_defaults_add_style( 'front', 'keel_defaults_auto_hide_admin_bar_css' );
 	}
 
 	if ( 'default' !== keel_defaults_get( 'admin_menu_width' ) ) {
-		add_action( 'admin_head', 'keel_defaults_admin_menu_width_css' );
+		keel_defaults_add_style( 'admin', 'keel_defaults_admin_menu_width_css' );
 	}
 
 	if ( keel_defaults_enabled( 'helper_list_columns' ) ) {
@@ -554,8 +554,8 @@ function keel_defaults_bootstrap() {
 
 	if ( keel_defaults_enabled( 'environment_indicator' ) ) {
 		add_action( 'admin_bar_menu', 'keel_defaults_environment_toolbar_item', 7 );
-		add_action( 'admin_head', 'keel_defaults_environment_styles' );
-		add_action( 'wp_head', 'keel_defaults_environment_styles' );
+		keel_defaults_add_style( 'admin', 'keel_defaults_environment_css' );
+		keel_defaults_add_style( 'front', 'keel_defaults_environment_css' );
 	}
 
 	/* ----- Media ----- */
@@ -582,7 +582,7 @@ function keel_defaults_bootstrap() {
 	if ( keel_defaults_enabled( 'mail_failure_notice' ) ) {
 		add_action( 'admin_notices', 'keel_defaults_render_mail_config_notice' );
 		add_action( 'admin_notices', 'keel_defaults_render_reset_failure_notice' );
-		add_action( 'admin_head-users.php', 'keel_defaults_hide_zero_reset_notice' );
+		keel_defaults_add_style( 'admin', 'keel_defaults_hide_zero_reset_css' );
 	}
 
 	/* ----- Competing plugins ----- */
@@ -641,10 +641,10 @@ function keel_defaults_bootstrap() {
 		 * blocked outright by a strict script-src Content-Security-Policy, which
 		 * would leave the checkbox visible and apparently working.
 		 */
-		add_action(
-			'login_head',
-			function () {
-				echo '<style id="keel-hide-remember-me">.login form .forgetmenot { display: none; }</style>';
+		keel_defaults_add_style(
+			'login',
+			static function () {
+				return '.login form .forgetmenot { display: none; }';
 			}
 		);
 	}
@@ -673,14 +673,14 @@ function keel_defaults_bootstrap() {
 	$login_logo = keel_defaults_get( 'login_logo_behavior' );
 
 	if ( 'remove_logo' === $login_logo ) {
-		add_action(
-			'login_head',
-			function () {
-				echo '<style>#login h1 a, .login h1 a { display:none; }</style>';
+		keel_defaults_add_style(
+			'login',
+			static function () {
+				return '#login h1 a, .login h1 a { display:none; }';
 			}
 		);
 	} elseif ( 'replace_logo' === $login_logo ) {
-		add_action( 'login_head', 'keel_defaults_login_logo_styles' );
+		keel_defaults_add_style( 'login', 'keel_defaults_login_logo_css' );
 	}
 
 	// Removing, unlinking, or replacing the logo all repoint the header link

@@ -105,9 +105,7 @@ keel_assert( true === keel_defaults_is_zero_reset_result(), 'Zero-count reset is
 ob_start();
 keel_defaults_render_reset_failure_notice();
 keel_assert( false !== strpos( ob_get_clean(), 'No password reset links were sent' ), 'Failure notice renders.' );
-ob_start();
-keel_defaults_hide_zero_reset_notice();
-keel_assert( false !== strpos( ob_get_clean(), '#message.updated' ), 'Core success notice is hidden.' );
+keel_assert( false !== strpos( keel_defaults_hide_zero_reset_css(), '#message.updated' ), 'Core success notice is hidden.' );
 
 $_GET = array(
 	'update'      => 'resetpassword',

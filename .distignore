@@ -21,6 +21,14 @@
 /composer.json
 /composer.lock
 /phpcs.xml
+#
+# Compiled translations. The .pot stays — it is what translate.wordpress.org
+# and any downstream translator start from — but the per-locale catalogs do
+# not ship. wordpress.org generates and delivers those for every locale from
+# the strings in the code, so a bundled copy is a second source for the same
+# translation that can only drift from the one users actually receive.
+/languages/*.po
+/languages/*.mo
 /README.md
 /ROADMAP.md
 /TODO.md

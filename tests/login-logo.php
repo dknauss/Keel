@@ -76,9 +76,7 @@ function keel_assert( $cond, $msg ) {
  * @return string
  */
 function keel_logo_output() {
-	ob_start();
-	keel_defaults_login_logo_styles();
-	return (string) ob_get_clean();
+	return (string) keel_defaults_login_logo_css();
 }
 
 // --- which image wins ---

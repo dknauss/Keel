@@ -25,6 +25,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * Keel writes in three places, and each needs different handling:
  *
  * - `keel_settings` — one autoloaded option holding every default's value.
+ * - `keel_defaults` — what that option was called before the rename. Nothing
+ *   in the running code writes it any more, which is exactly why it has to be
+ *   named here: a site that ran both the old plugin and this one keeps the old
+ *   row, and no scan of the current source can find a key the current source
+ *   never mentions.
  * - `keel_settings_data_version` — the per-site migration version.
  * - `keel_last_login` — user meta, written on each login by the Last login
  *   column. On multisite the user table is shared across the network, so this
@@ -47,6 +52,29 @@ function keel_defaults_uninstall_site() {
 	delete_option( 'keel_settings' );
 	delete_option( 'keel_settings_data_version' );
 	delete_transient( 'keel_policy_divergence' );
+
+	/*
+	 * The pre-rename settings option.
+	 *
+	 * Deleted only when it still looks like Keel's — an array of scalars keyed
+	 * by names this plugin uses. `keel_defaults` is a plainer name than the rest
+	 * of these and belongs to a plugin slug that no longer exists, so the one
+	 * thing an uninstaller must not do is delete somebody else's row that
+	 * happens to share it. Checking the shape costs nothing and makes the
+	 * deletion defensible; deleting by name alone would not be.
+	 */
+	$keel_legacy = get_option( 'keel_defaults' );
+
+	if ( is_array( $keel_legacy ) ) {
+		$keel_known = array_intersect(
+			array_keys( $keel_legacy ),
+			array( 'disable_comments', 'disable_rest', 'core_update_policy', 'login_logo_behavior', 'admin_menu_width' )
+		);
+
+		if ( ! empty( $keel_known ) ) {
+			delete_option( 'keel_defaults' );
+		}
+	}
 
 	// Transients are options with a known prefix, and the timeout row is a
 	// second option that outlives the value if only the value is deleted.

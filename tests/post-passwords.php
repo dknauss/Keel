@@ -28,9 +28,7 @@ function keel_assert( $cond, $msg ) {
 }
 
 function keel_capture_password_ui() {
-	ob_start();
-	keel_defaults_hide_post_password_ui();
-	return ob_get_clean();
+	return keel_defaults_hide_post_password_css();
 }
 
 // Schema: opt-in, in the Content group.

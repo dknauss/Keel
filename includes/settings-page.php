@@ -27,6 +27,7 @@ add_action(
 
 		if ( $hook ) {
 			add_action( 'load-' . $hook, 'keel_defaults_add_help_tab' );
+			keel_defaults_enqueue_on_screen( $hook, 'keel_defaults_enqueue_settings_assets' );
 		}
 	}
 );
@@ -550,18 +551,16 @@ function keel_defaults_config_lock( $key ) {
  *
  * Extracted from the settings template, where it was 105 of that function's 338
  * lines and the sole reason the file reached thirteen levels of indentation. The
- * other field types run ten to twenty lines each; this one carries a whole
+ * other field types run ten to twenty lines each; this one carried a whole
  * feature — the slider, the preview stylesheet it toggles, and the script that
  * drives them — and inlining all of it put CSS at a depth where the surrounding
  * PHP was no longer legible.
  *
- * The markup is unchanged apart from leading whitespace: raw HTML inside a
- * template emits its own indentation literally, so de-indenting the source
- * de-indents the output. Every tag, attribute and text node is identical — the
- * affected whitespace sits between tags and inside <style> and <script>, where
- * it carries no meaning. Verified by diffing the rendered screen before and
- * after, in two option states, and confirming the only changes were leading
- * tabs; tests/settings-render.php holds the structural assertions from here on.
+ * The stylesheet and the script have since moved out of PHP altogether, into
+ * assets/css/settings.css and assets/js/settings.js. What is left here is the
+ * markup, and the three data- attributes that carry this field's labels and
+ * pixel widths to the script — which is why the script is now static and works
+ * for any number of range fields instead of being re-emitted once per field.
  *
  * @param string $key         Schema key, used to build element ids.
  * @param string $name        Input name attribute.
@@ -604,6 +603,9 @@ function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $lab
 			list="<?php echo esc_attr( $rid ); ?>-stops"
 			aria-label="<?php echo esc_attr( $label ); ?>"
 			aria-valuetext="<?php echo esc_attr( $rlabels[ $rcur ] ); ?>"
+			data-keel-range="<?php echo esc_attr( $rid ); ?>-output"
+			data-keel-range-labels="<?php echo esc_attr( wp_json_encode( $rlabels ) ); ?>"
+			data-keel-range-widths="<?php echo esc_attr( wp_json_encode( array_values( $rpx ) ) ); ?>"
 			<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?> style="vertical-align:middle;max-width:240px;" />
 		<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
 			<?php foreach ( $rlabels as $ri => $rl ) : ?>
@@ -621,89 +623,6 @@ function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $lab
 		 */
 		?>
 		<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="off" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
-		<style id="<?php echo esc_attr( $rid ); ?>-preview">
-			@media screen and (min-width: 783px) {
-				body.keel-menu-width-preview #adminmenu,
-				body.keel-menu-width-preview #adminmenuback,
-				body.keel-menu-width-preview #adminmenuwrap,
-				body.keel-menu-width-preview #adminmenu li.menu-top,
-				body.keel-menu-width-preview #adminmenu .wp-submenu {
-					width: var(--keel-menu-preview-width);
-				}
-				body.keel-menu-width-preview #adminmenuback {
-					position: fixed;
-					top: 0;
-					bottom: -120px;
-					background: var(--keel-menu-preview-bg, #1d2327);
-				}
-				body.keel-menu-width-preview #adminmenu li.menu-top > a.menu-top,
-				body.keel-menu-width-preview #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
-				body.keel-menu-width-preview #adminmenu li.current a.menu-top {
-					width: auto;
-				}
-				body.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-					left: var(--keel-menu-preview-width);
-				}
-				body.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-					left: auto;
-				}
-				body.keel-menu-width-preview #wpcontent,
-				body.keel-menu-width-preview #wpfooter {
-					margin-left: var(--keel-menu-preview-width);
-				}
-				body.rtl.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
-					right: var(--keel-menu-preview-width);
-					left: auto;
-				}
-				body.rtl.keel-menu-width-preview #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap {
-					right: auto;
-				}
-				body.rtl.keel-menu-width-preview #wpcontent,
-				body.rtl.keel-menu-width-preview #wpfooter {
-					margin-right: var(--keel-menu-preview-width);
-					margin-left: 0;
-				}
-				body.folded.keel-menu-width-preview #wpcontent,
-				body.folded.keel-menu-width-preview #wpfooter {
-					margin-left: 36px;
-				}
-			}
-		</style>
-		<script>
-		( function () {
-			var input  = document.getElementById( '<?php echo esc_js( $rid ); ?>-range' );
-			var output = document.getElementById( '<?php echo esc_js( $rid ); ?>-output' );
-			var labels = <?php echo wp_json_encode( $rlabels, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
-			var widths = <?php echo wp_json_encode( array_values( $rpx ), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON escaped for inline <script>. ?>;
-			if ( ! input || ! output || ! document.body ) { return; }
-			function pos() { return parseInt( input.value, 10 ) || 0; }
-			// Cheap: runs live while dragging — only the readout text changes.
-			function updateLabel() {
-				var text = labels[ pos() ] || labels[0];
-				output.textContent = text;
-				// The value a screen reader announces has to move with the word,
-				// or the slider goes on saying whatever it was rendered at.
-				input.setAttribute( 'aria-valuetext', text );
-			}
-			// Expensive: reflows the whole admin layout and reads a computed
-			// style, so it runs only when the drag settles (release/keyboard),
-			// not on every 'input' tick — otherwise the slider is janky.
-			function applyPreview() {
-				document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[0] ) + 'px' );
-				var am = document.getElementById( 'adminmenu' );
-				if ( am ) { document.body.style.setProperty( '--keel-menu-preview-bg', window.getComputedStyle( am ).backgroundColor ); }
-				document.body.classList.add( 'keel-menu-width-preview' );
-			}
-			input.addEventListener( 'input', updateLabel );
-			input.addEventListener( 'change', applyPreview );
-			input.addEventListener( 'pointerup', applyPreview );
-			input.addEventListener( 'keyup', function ( event ) {
-				if ( [ 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown' ].indexOf( event.key ) !== -1 ) {
-					applyPreview();
-				}
-			} );
-		} )();
-		</script>
 	</fieldset>
 	<?php
 }
@@ -753,38 +672,6 @@ function keel_defaults_render_settings_page() {
 		?>
 		<hr class="wp-header-end">
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
-
-		<style>
-
-			/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
-			/*
-			 * Landing on a setting should show you which one.
-			 *
-			 * The anchor is an empty span so it can sit inside a cell that
-			 * already owns its id, which means the highlight has to reach the row
-			 * from the inside. It is decoration: without :has() the link still
-			 * scrolls to the right place, which is the part that matters.
-			 */
-			.keel-anchor {
-				display: block;
-				position: relative;
-				top: -46px;
-			}
-			tr:has( > td > .keel-anchor:target ),
-			.keel-dep-item:has( > .keel-anchor:target ) {
-				box-shadow: inset 4px 0 0 #2271b1;
-				background: #f0f6fc;
-			}
-			.form-table .keel-dep-item {
-				margin-bottom: 14px;
-			}
-			.form-table .keel-dep-item:last-child {
-				margin-bottom: 0;
-			}
-			.form-table .keel-dep-item .description {
-				margin-top: 2px;
-			}
-		</style>
 
 		<form method="post" action="options.php">
 			<?php settings_fields( 'keel_settings_group' ); ?>
@@ -972,78 +859,6 @@ function keel_defaults_render_settings_page() {
 			<?php submit_button(); ?>
 		</form>
 
-		<script>
-		( function () {
-			// Show/hide rows whose setting is moot given a controlling setting's value.
-			function controllerValue( name ) {
-				var els = document.querySelectorAll( '[name="keel_settings[' + name + ']"]' );
-				if ( ! els.length ) { return null; }
-				var el = els[0];
-				if ( 'checkbox' === el.type ) { return el.checked ? el.value : 'no'; }
-				if ( 'radio' === el.type ) {
-					var picked = document.querySelector( '[name="keel_settings[' + name + ']"]:checked' );
-					return picked ? picked.value : '';
-				}
-				return el.value;
-			}
-			/*
-			 * A locked control is aria-disabled rather than disabled, so it stays
-			 * focusable and can announce why it cannot be changed. That also makes
-			 * it operable, so refuse the change here. The server refuses it too —
-			 * keel_defaults_sanitize_site() keeps the stored value for any locked
-			 * key — so this is the courtesy, not the enforcement.
-			 */
-			document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
-				var initialValue   = control.value;
-				var initialChecked = control.checked;
-				control.addEventListener( 'mousedown', function ( event ) { event.preventDefault(); } );
-				control.addEventListener( 'click', function ( event ) { event.preventDefault(); } );
-				control.addEventListener( 'keydown', function ( event ) {
-					if ( 'Tab' !== event.key && ! event.altKey && ! event.ctrlKey && ! event.metaKey ) { event.preventDefault(); }
-				} );
-				control.addEventListener( 'change', function () {
-					if ( 'checkbox' === control.type ) {
-						control.checked = initialChecked;
-					} else {
-						control.value = initialValue;
-					}
-				} );
-			} );
-
-			document.querySelectorAll( 'tr[data-keel-dep-field]' ).forEach( function ( row ) {
-				var field = row.getAttribute( 'data-keel-dep-field' );
-				var hide  = row.getAttribute( 'data-keel-dep-hide' );
-				var ctrls = document.querySelectorAll( '[name="keel_settings[' + field + ']"]' );
-				if ( ! ctrls.length ) { return; }
-
-				/*
-				 * Tell assistive technology which control governs this row, and
-				 * whether the row is showing. Without aria-controls the only link
-				 * between the two is a data attribute this script reads, which no
-				 * screen reader can see — so a row appearing had no announced
-				 * relationship to the choice that produced it.
-				 */
-				ctrls.forEach( function ( c ) {
-					var owned = ( c.getAttribute( 'aria-controls' ) || '' ).split( ' ' ).filter( Boolean );
-					if ( row.id && -1 === owned.indexOf( row.id ) ) {
-						owned.push( row.id );
-						c.setAttribute( 'aria-controls', owned.join( ' ' ) );
-					}
-				} );
-
-				function sync() {
-					var hidden = controllerValue( field ) === hide;
-					row.style.display = hidden ? 'none' : '';
-					ctrls.forEach( function ( c ) {
-						c.setAttribute( 'aria-expanded', hidden ? 'false' : 'true' );
-					} );
-				}
-
-				ctrls.forEach( function ( c ) { c.addEventListener( 'change', sync ); } );
-				sync();
-			} );
-		} )();
-		</script>
 	</div>
 	<?php
 }
