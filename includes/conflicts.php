@@ -709,9 +709,20 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 		return $value;
 	}
 
-	$known = keel_defaults_policy_divergences();
+	/*
+	 * The raw record, not the filtered view.
+	 *
+	 * keel_defaults_policy_divergences() normalises every live entry to true
+	 * before returning it, which is right for a caller asking "what is
+	 * diverging" and wrong for one about to write the record back: a hook
+	 * expected to be false was rewritten as true, and the next read discarded it
+	 * for disagreeing with its own expectation. Recording one divergence erased
+	 * another.
+	 */
+	$known = get_transient( 'keel_policy_divergence' );
+	$known = is_array( $known ) && isset( $known['hooks'] ) && is_array( $known['hooks'] ) ? $known['hooks'] : array();
 
-	if ( isset( $known[ $hook ] ) ) {
+	if ( array_key_exists( $hook, $known ) ) {
 		return $value;
 	}
 
@@ -723,7 +734,14 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 	// hour, about a setting that is now being honoured.
 	$known[ $hook ] = (bool) $expectations[ $hook ];
 
-	set_transient( 'keel_policy_divergence', $known, HOUR_IN_SECONDS );
+	set_transient(
+		'keel_policy_divergence',
+		array(
+			'plugins' => keel_defaults_active_plugin_fingerprint(),
+			'hooks'   => $known,
+		),
+		HOUR_IN_SECONDS
+	);
 
 	return $value;
 }
@@ -736,9 +754,29 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 function keel_defaults_policy_divergences() {
 	$stored = get_transient( 'keel_policy_divergence' );
 
-	if ( ! is_array( $stored ) ) {
+	if ( ! is_array( $stored ) || empty( $stored['hooks'] ) || ! is_array( $stored['hooks'] ) ) {
 		return array();
 	}
+
+	/*
+	 * A record does not outlive the plugin set that produced it.
+	 *
+	 * Deactivating network-wide clears the transient on the site the request ran
+	 * on and nowhere else, so every other subsite went on reporting until the
+	 * TTL. The activation hooks stay, because they clear promptly — but
+	 * correctness cannot depend on which site happened to serve the request, and
+	 * iterating a network to delete a diagnostic would cost more than the
+	 * diagnostic is worth.
+	 *
+	 * So the record carries a fingerprint of what was active when it was made,
+	 * and is discarded when that no longer matches. Free on the healthy path,
+	 * which never reads this at all.
+	 */
+	if ( ! isset( $stored['plugins'] ) || keel_defaults_active_plugin_fingerprint() !== $stored['plugins'] ) {
+		return array();
+	}
+
+	$stored = $stored['hooks'];
 
 	/*
 	 * A hook that has left the expectation map, or a setting since changed, must
@@ -757,6 +795,29 @@ function keel_defaults_policy_divergences() {
 	}
 
 	return $live;
+}
+
+/**
+ * A cheap stand-in for "the plugins that were active".
+ *
+ * Sorted so activation order cannot pass for a change, and hashed so the record
+ * stays small. Network-active plugins are included: on multisite they are
+ * exactly the ones whose deactivation happens somewhere other than the site
+ * holding the record.
+ *
+ * @return string
+ */
+function keel_defaults_active_plugin_fingerprint() {
+	$active = (array) get_option( 'active_plugins', array() );
+
+	if ( is_multisite() && function_exists( 'get_site_option' ) ) {
+		$active = array_merge( $active, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
+	}
+
+	$active = array_map( 'strval', $active );
+	sort( $active );
+
+	return md5( implode( '|', $active ) );
 }
 
 /**

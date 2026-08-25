@@ -212,6 +212,63 @@ keel_assert(
 	'A record made under the opposite setting is discarded on read.'
 );
 
+/*
+ * --- a record survives another one being written ---
+ *
+ * The stored value is the expectation, not a flag, so a hook expected to be
+ * false is recorded as false. The write path was reading through
+ * keel_defaults_policy_divergences(), which normalises every live entry to true
+ * before returning it — so writing a second divergence rewrote the first one's
+ * expectation to true, and the next read discarded it for disagreeing with
+ * itself. Recording one thing erased another.
+ */
+$GLOBALS['keel_transients']               = array();
+$GLOBALS['keel_options']['keel_settings'] = array(
+	'disable_comments'               => 'yes',   // expects comments_open false
+	'xmlrpc_allow_remote_publishing' => 'yes',   // expects xmlrpc_enabled true
+);
+
+keel_defaults_observe_policy_result( 'comments_open', true );
+keel_assert(
+	array_key_exists( 'comments_open', keel_defaults_policy_divergences() ),
+	'A hook expected to be false is recorded when it comes back true.'
+);
+
+keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );
+
+$both = keel_defaults_policy_divergences();
+
+keel_assert(
+	array_key_exists( 'xmlrpc_enabled', $both ),
+	'The second divergence is recorded.'
+);
+keel_assert(
+	array_key_exists( 'comments_open', $both ),
+	'And recording it does not erase the first.'
+);
+
+/*
+ * --- a record does not outlive the plugin set that produced it ---
+ *
+ * Deactivating network-wide clears the transient on the site the request ran
+ * on, and nowhere else; every other subsite kept reporting until the TTL. The
+ * event hooks stay for promptness, but correctness cannot depend on the right
+ * site having handled the request, so the record carries a fingerprint of the
+ * plugins active when it was made and is discarded when that no longer matches.
+ */
+$GLOBALS['keel_options']['active_plugins'] = array( 'rival/rival.php' );
+$GLOBALS['keel_transients']                = array();
+
+keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );
+keel_assert( array() !== keel_defaults_policy_divergences(), 'Recorded against the current plugin set.' );
+
+$GLOBALS['keel_options']['active_plugins'] = array();
+
+keel_assert(
+	array() === keel_defaults_policy_divergences(),
+	'A record made under a different set of active plugins is not reported.'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, sprintf( "policy divergence: %d assertion%s failed\n", $fail, 1 === $fail ? '' : 's' ) );
 	exit( 1 );
