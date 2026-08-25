@@ -397,18 +397,32 @@ function keel_defaults_render_network_control( $key, $name, $value, $field, $s, 
 		 *
 		 * Nothing caught it because nothing had rendered this page in a test.
 		 */
-		$chosen  = (array) $value;
-		$choices = isset( $field['choices'] )
-			? (array) $field['choices']
-			: array_keys( keel_defaults_exemptable_roles() );
+		$chosen = (array) $value;
 
-		foreach ( $choices as $choice ) {
+		/*
+		 * slug => label, both ways in. A schema-provided list is bare slugs
+		 * labelled from strings.php; the roles arrive already paired with their
+		 * translated names, which `translate_user_role()` has localised. Taking
+		 * only the keys threw those away and printed `subscriber` at a Super
+		 * Admin — correct data, and not what the site screen shows beside it.
+		 */
+		if ( isset( $field['choices'] ) ) {
+			$choices = array();
+
+			foreach ( (array) $field['choices'] as $slug ) {
+				$choices[ $slug ] = isset( $s['choices'][ $slug ] ) ? $s['choices'][ $slug ] : $slug;
+			}
+		} else {
+			$choices = keel_defaults_exemptable_roles();
+		}
+
+		foreach ( $choices as $choice => $label ) {
 			printf(
 				'<label style="margin-inline-end:12px;"><input type="checkbox" name="%s[]" value="%s" %s /> %s</label>',
 				esc_attr( $name ),
 				esc_attr( $choice ),
 				checked( in_array( (string) $choice, array_map( 'strval', $chosen ), true ), true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-				esc_html( isset( $s['choices'][ $choice ] ) ? $s['choices'][ $choice ] : $choice )
+				esc_html( $label )
 			);
 		}
 		return;

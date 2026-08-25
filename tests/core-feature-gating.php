@@ -365,6 +365,22 @@ $network_html = (string) ob_get_clean();
 
 keel_assert( '' !== trim( $network_html ), 'The network screen renders under multisite.' );
 
+/*
+ * The roles arrive from keel_defaults_exemptable_roles() already paired with
+ * their translated names. An earlier repair to this renderer took only the
+ * keys, so a Super Admin saw `subscriber` where the site screen next door shows
+ * "Subscriber" — correct data, wrongly presented, and invisible to a test that
+ * only asked whether the page rendered.
+ */
+keel_assert(
+	false !== strpos( $network_html, 'Subscriber' ),
+	'The network screen labels roles with their names, not their slugs.'
+);
+keel_assert(
+	false !== strpos( $network_html, 'value="subscriber"' ),
+	'And still submits the slug as the value.'
+);
+
 if ( $has_ai ) {
 	keel_assert(
 		false !== strpos( $network_html, 'disable_ai_connectors' ),
