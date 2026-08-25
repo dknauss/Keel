@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-25T01:40:37+00:00\n"
+"POT-Creation-Date: 2026-08-25T04:07:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -107,31 +107,31 @@ msgstr ""
 msgid "Local"
 msgstr ""
 
-#: includes/bootstrap.php:276
+#: includes/bootstrap.php:285
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
-#: includes/conflicts.php:333
+#: includes/conflicts.php:346
 msgid "Unattributed callback"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:550
+#: includes/conflicts.php:563
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:565
+#: includes/conflicts.php:578
 msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
 msgstr ""
 
-#: includes/conflicts.php:568
+#: includes/conflicts.php:581
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:572
+#: includes/conflicts.php:585
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -421,29 +421,39 @@ msgstr ""
 msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
 msgstr ""
 
-#: includes/site-health.php:291
+#. translators: %s: comma-separated list of filter names.
+#: includes/site-health.php:303
+#, php-format
+msgid "Not taking effect: %s"
+msgstr ""
+
+#: includes/site-health.php:305
+msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgstr ""
+
+#: includes/site-health.php:310
 msgid "Unconfirmed overlaps"
 msgstr ""
 
-#: includes/site-health.php:291
+#: includes/site-health.php:310
 msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
 msgstr ""
 
-#: includes/site-health.php:297
+#: includes/site-health.php:316
 msgid "No attributable policy overlap was found"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:314
+#: includes/site-health.php:333
 #, php-format
 msgid "Also registered on these policy hooks: %s"
 msgstr ""
 
-#: includes/site-health.php:316
+#: includes/site-health.php:335
 msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
 msgstr ""
 
-#: includes/site-health.php:320
+#: includes/site-health.php:339
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 

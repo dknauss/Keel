@@ -29,6 +29,17 @@ function wp_json_encode( $v, $f = 0 ) {
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	return json_encode( $v, $f );
 }
+// Divergence observations live in a transient; this harness does not exercise
+// them, it only has to let the code that reads them run.
+function get_transient( $k ) {
+	return isset( $GLOBALS['keel_transients'][ $k ] ) ? $GLOBALS['keel_transients'][ $k ] : false; }
+function set_transient( $k, $v, $t = 0 ) {
+	$GLOBALS['keel_transients'][ $k ] = $v;
+	return true; }
+function delete_transient( $k ) {
+	unset( $GLOBALS['keel_transients'][ $k ] );
+	return true; }
+
 function wp_normalize_path( $path ) { return str_replace( '\\', '/', (string) $path ); }
 function trailingslashit( $path ) { return rtrim( (string) $path, '/\\' ) . '/'; }
 function is_multisite() { return false; }
