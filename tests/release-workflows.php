@@ -137,6 +137,111 @@ keel_assert(
 	'The hosted blueprint is not a second copy of the stable one.'
 );
 
+/*
+ * --- the Playground contract ---
+ *
+ * A blueprint that installs the wrong folder, fetches a filename the build no
+ * longer emits, or lands on a menu slug that has moved does not fail loudly. It
+ * opens a WordPress with the plugin missing or a blank settings screen, which
+ * looks like the plugin being broken rather than the demo being stale. The
+ * directory's Live Preview is the first thing most people see.
+ *
+ * Every value below is derived from the thing it has to agree with — the menu
+ * slug from the source that registers it, the folder and archive names from the
+ * script that writes them — so this cannot drift into agreeing with a stale copy
+ * of itself. All of it was hand-checked once during the rename, which is exactly
+ * the kind of verification that stops being true the next time somebody edits.
+ */
+$settings_src = file_get_contents( $root . '/includes/settings-page.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+$build_src    = file_get_contents( $root . '/bin/build-zip.sh' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+// Anchored on the render callback: the slug is the argument before it, and
+// counting commas would have picked up the capability instead — it did.
+preg_match( '/add_options_page\(.*?\'([a-z0-9_-]+)\',\s*\'(keel_defaults_render_settings_page)\'/s', $settings_src, $slug_m );
+$menu_slug = isset( $slug_m[1] ) ? $slug_m[1] : '';
+
+preg_match( '/mkdir -p "\$OUT\/([a-z0-9-]+)"/', $build_src, $dir_m );
+$built_folder = isset( $dir_m[1] ) ? $dir_m[1] : '';
+
+preg_match( '/zip -rq ([a-z0-9-]+\.zip)/', $build_src, $zip_m );
+$built_zip = isset( $zip_m[1] ) ? $zip_m[1] : '';
+
+keel_assert( '' !== $menu_slug, 'The settings page registers a menu slug (' . $menu_slug . ').' );
+keel_assert( '' !== $built_folder, 'build-zip.sh names the folder it assembles (' . $built_folder . ').' );
+keel_assert( '' !== $built_zip, 'build-zip.sh names the archive it writes (' . $built_zip . ').' );
+
+$blueprints = array(
+	'.wordpress-org/blueprints/blueprint.json' => 'directory',
+	'playground/blueprint-stable.json'         => 'github',
+	'playground/blueprint-hosted.json'         => 'github',
+);
+
+foreach ( $blueprints as $file => $kind ) {
+	$raw  = file_get_contents( $root . '/' . $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	$json = json_decode( $raw, true );
+
+	keel_assert( is_array( $json ), "{$file} is valid JSON." );
+
+	if ( ! is_array( $json ) ) {
+		continue;
+	}
+
+	$landing = isset( $json['landingPage'] ) ? $json['landingPage'] : '';
+
+	/*
+	 * Whole slug. `page=keel` is a substring of `page=keel-defaults`, so a
+	 * strpos() here passes on a landing page pointing at a screen that does not
+	 * exist — which is precisely the rename that made this test worth writing.
+	 * The first draft of this assertion had that bug.
+	 */
+	keel_assert(
+		1 === preg_match( '/[?&]page=' . preg_quote( $menu_slug, '/' ) . '(?:&|$)/', $landing ),
+		"{$file} lands on the slug the settings page actually registers ({$menu_slug}); it opens \"{$landing}\"."
+	);
+
+	$installs = array();
+
+	foreach ( isset( $json['steps'] ) ? $json['steps'] : array() as $step ) {
+		if ( isset( $step['step'] ) && 'installPlugin' === $step['step'] ) {
+			$installs[] = $step;
+		}
+	}
+
+	if ( 'directory' === $kind ) {
+		/*
+		 * wordpress.org mounts the plugin it is serving. A self-install here
+		 * would fetch a build nobody reviewed, and the directory restricts
+		 * blueprint resources to wordpress.org anyway, so it would more likely
+		 * just fail.
+		 */
+		keel_assert(
+			array() === $installs,
+			"{$file} does not install the plugin; the directory supplies it."
+		);
+
+		continue;
+	}
+
+	keel_assert( 1 === count( $installs ), "{$file} installs the plugin exactly once." );
+
+	if ( 1 !== count( $installs ) ) {
+		continue;
+	}
+
+	$target = isset( $installs[0]['options']['targetFolderName'] ) ? $installs[0]['options']['targetFolderName'] : '';
+	$url    = isset( $installs[0]['pluginData']['url'] ) ? $installs[0]['pluginData']['url'] : '';
+
+	keel_assert(
+		$target === $built_folder,
+		"{$file} installs into \"{$target}\"; build-zip.sh assembles \"{$built_folder}\". A mismatch installs a plugin WordPress will not find."
+	);
+
+	keel_assert(
+		false !== strpos( $url, '/' . $built_zip ),
+		"{$file} fetches an archive named for \"{$built_zip}\"; it asks for \"{$url}\"."
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "release workflows: {$fail} failed\n" );
 	exit( 1 );
