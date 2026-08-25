@@ -44,8 +44,10 @@ if ( $has_ai ) {
 	}
 }
 
-$GLOBALS['keel_filters'] = array();
-$GLOBALS['keel_options'] = array();
+$GLOBALS['keel_filters']         = array();
+$GLOBALS['keel_options']         = array();
+$GLOBALS['keel_network_options'] = array();
+$GLOBALS['keel_is_multisite']    = false;
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -71,7 +73,22 @@ function apply_filters( $hook, $value ) {
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function is_multisite() {
-	return false; }
+	return ! empty( $GLOBALS['keel_is_multisite'] ); }
+// Multisite doubles. Absent until now because the harness never took that path,
+// which is why the network branches were unreachable rather than merely untested.
+function get_site_option( $k, $d = false ) {
+	return array_key_exists( $k, $GLOBALS['keel_network_options'] ) ? $GLOBALS['keel_network_options'][ $k ] : $d; }
+function update_site_option( $k, $v ) {
+	$GLOBALS['keel_network_options'][ $k ] = $v;
+	return true; }
+function network_admin_url( $path = '' ) {
+	return 'https://example.test/wp-admin/network/' . ltrim( (string) $path, '/' ); }
+function wp_nonce_field( ...$args ) {
+	echo '<input type="hidden" name="_wpnonce" value="test" />'; }
+function add_query_arg( $key, $value, $url ) {
+	return $url . ( false === strpos( $url, '?' ) ? '?' : '&' ) . rawurlencode( $key ) . '=' . rawurlencode( $value ); }
+function is_super_admin( $user_id = null ) {
+	return true; }
 function current_user_can( $cap ) {
 	return true; }
 function settings_fields( $g ) {}
@@ -250,6 +267,136 @@ keel_assert(
 );
 
 // --- run the other half, once ---
+
+/*
+ * --- a hidden setting survives the save that hides it ---
+ *
+ * The sanitiser walks the whole schema and reads an absent checkbox as "off",
+ * which is right for a box the user unticked and wrong for one that was never
+ * drawn. Gating the *display* on core support therefore turned every save on
+ * WordPress 6.4–6.9 into a silent rewrite of `disable_ai_connectors` from `yes`
+ * to `no` — and the release notes for that change promised the stored value was
+ * left alone, so the site would have found connectors switched on when it
+ * eventually reached 7.0.
+ *
+ * Locked keys already had this protection. Unsupported ones are the same
+ * problem: the form cannot speak for a control it did not render.
+ */
+$GLOBALS['keel_options'][ KEEL_DEFAULTS_OPTION ] = array( 'disable_ai_connectors' => 'yes' );
+
+// A save of some other setting, exactly as the form posts it: the hidden key is
+// simply not there.
+$saved = keel_defaults_sanitize_site( array( 'disable_comments' => 'yes' ) );
+
+if ( $has_ai ) {
+	keel_assert(
+		'no' === $saved['disable_ai_connectors'],
+		'[supported] An unticked box that was actually rendered still means off.'
+	);
+} else {
+	/*
+	 * Assert the value comes back, not merely that it was not flipped. An
+	 * earlier version of this accepted the key being absent from the result,
+	 * which would have stayed green while the sanitiser threw the site's
+	 * preference away — the same silent rewrite in a different direction.
+	 */
+	keel_assert(
+		array_key_exists( 'disable_ai_connectors', $saved ) && 'yes' === $saved['disable_ai_connectors'],
+		'[unsupported] A setting the screen never drew comes back with the value it had.'
+	);
+
+	// And an explicit `no` is preserved too, so this pins preservation rather
+	// than agreeing with the schema default by coincidence.
+	$GLOBALS['keel_options'][ KEEL_DEFAULTS_OPTION ] = array( 'disable_ai_connectors' => 'no' );
+	$saved_off                                       = keel_defaults_sanitize_site( array( 'disable_comments' => 'yes' ) );
+
+	keel_assert(
+		array_key_exists( 'disable_ai_connectors', $saved_off ) && 'no' === $saved_off['disable_ai_connectors'],
+		'[unsupported] Including a stored "no", which the schema default would have masked.'
+	);
+
+	// Read it back the way WordPress would: through what the save returned.
+	$GLOBALS['keel_options'][ KEEL_DEFAULTS_OPTION ] = $saved_off;
+
+	keel_assert(
+		'no' === keel_defaults_get( 'disable_ai_connectors' ),
+		'[unsupported] And that is what the site reads afterwards.'
+	);
+}
+
+/*
+ * --- and the network screen does not offer what the site screen hides ---
+ *
+ * Both branches this needs are behind is_multisite(), which the harness pinned
+ * to false — so the first version of this section reached neither. It asserted
+ * that an unsupported key was absent from a policy array that was empty for
+ * unrelated reasons, and passed without exercising anything.
+ */
+$GLOBALS['keel_is_multisite'] = true;
+
+// A network that already carries a policy for the unsupported key: saving the
+// screen must not read the form's silence as "stop managing this".
+$GLOBALS['keel_network_options'] = array( KEEL_DEFAULTS_NETWORK_OPTION => array( 'disable_ai_connectors' => 'yes' ) );
+
+$network_saved = keel_defaults_sanitize_network(
+	array( 'disable_comments' => 'yes' ),
+	array( 'disable_comments' => '1' )
+);
+
+if ( $has_ai ) {
+	keel_assert(
+		! array_key_exists( 'disable_ai_connectors', $network_saved ),
+		'[supported] An unticked network policy is genuinely unmanaged.'
+	);
+} else {
+	keel_assert(
+		array_key_exists( 'disable_ai_connectors', $network_saved )
+			&& 'yes' === $network_saved['disable_ai_connectors'],
+		'[unsupported] An existing network policy survives a save that could not show it.'
+	);
+}
+
+// And the screen itself does not offer the control.
+$GLOBALS['keel_network_options'] = array();
+
+ob_start();
+keel_defaults_render_network_page();
+$network_html = (string) ob_get_clean();
+
+keel_assert( '' !== trim( $network_html ), 'The network screen renders under multisite.' );
+
+/*
+ * The roles arrive from keel_defaults_exemptable_roles() already paired with
+ * their translated names. An earlier repair to this renderer took only the
+ * keys, so a Super Admin saw `subscriber` where the site screen next door shows
+ * "Subscriber" — correct data, wrongly presented, and invisible to a test that
+ * only asked whether the page rendered.
+ */
+keel_assert(
+	false !== strpos( $network_html, 'Subscriber' ),
+	'The network screen labels roles with their names, not their slugs.'
+);
+keel_assert(
+	false !== strpos( $network_html, 'value="subscriber"' ),
+	'And still submits the slug as the value.'
+);
+
+if ( $has_ai ) {
+	keel_assert(
+		false !== strpos( $network_html, 'disable_ai_connectors' ),
+		'[supported] The network screen offers AI Connectors as a policy.'
+	);
+} else {
+	keel_assert(
+		false === strpos( $network_html, 'disable_ai_connectors' ),
+		'[unsupported] The network screen does not offer a policy for a feature core lacks.'
+	);
+}
+
+$GLOBALS['keel_is_multisite']    = false;
+$GLOBALS['keel_network_options'] = array();
+
+$GLOBALS['keel_options'] = array();
 
 if ( ! $has_ai ) {
 	$cmd = 'KEEL_TEST_HAS_AI=1 ' . escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ );

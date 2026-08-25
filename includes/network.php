@@ -138,6 +138,19 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
 	$out   = array();
 
 	foreach ( array_keys( $schema ) as $key ) {
+		/*
+		 * The form does not render unsupported settings, so a posted absence
+		 * says nothing about them. Carry any existing policy through untouched
+		 * rather than reading the silence as "unmanage this".
+		 */
+		if ( ! keel_defaults_key_supported( $key ) ) {
+			if ( array_key_exists( $key, $stored ) ) {
+				$out[ $key ] = $stored[ $key ];
+			}
+
+			continue;
+		}
+
 		// wp-config.php is above network policy. Preserve an existing policy
 		// underneath the lock, or keep an unmanaged key absent, exactly as the
 		// site sanitizer preserves a site's dormant preference.
@@ -246,6 +259,17 @@ function keel_defaults_render_network_page() {
 					<?php
 					foreach ( $schema as $key => $field ) :
 						if ( $field['group'] !== $group_key ) {
+							continue;
+						}
+
+						/*
+						 * Same gate as the site screen. Offering "decide this for
+						 * the whole network" for a feature this WordPress does not
+						 * have lets a Super Admin set a policy that cannot take
+						 * effect, and contradicts the site screen next door, which
+						 * does not show the setting at all.
+						 */
+						if ( ! keel_defaults_key_supported( $key ) ) {
 							continue;
 						}
 
@@ -364,14 +388,41 @@ function keel_defaults_render_network_control( $key, $name, $value, $field, $s, 
 	}
 
 	if ( 'multiselect' === $type ) {
+		/*
+		 * The schema carries no `choices` for the one multiselect there is: the
+		 * roles are discovered at runtime, because which roles exist is a
+		 * property of the site rather than of this plugin. The site screen has
+		 * always asked keel_defaults_exemptable_roles() for them; this screen
+		 * read a key that has never existed and emitted a warning per option.
+		 *
+		 * Nothing caught it because nothing had rendered this page in a test.
+		 */
 		$chosen = (array) $value;
-		foreach ( (array) $field['choices'] as $choice ) {
+
+		/*
+		 * slug => label, both ways in. A schema-provided list is bare slugs
+		 * labelled from strings.php; the roles arrive already paired with their
+		 * translated names, which `translate_user_role()` has localised. Taking
+		 * only the keys threw those away and printed `subscriber` at a Super
+		 * Admin — correct data, and not what the site screen shows beside it.
+		 */
+		if ( isset( $field['choices'] ) ) {
+			$choices = array();
+
+			foreach ( (array) $field['choices'] as $slug ) {
+				$choices[ $slug ] = isset( $s['choices'][ $slug ] ) ? $s['choices'][ $slug ] : $slug;
+			}
+		} else {
+			$choices = keel_defaults_exemptable_roles();
+		}
+
+		foreach ( $choices as $choice => $label ) {
 			printf(
 				'<label style="margin-inline-end:12px;"><input type="checkbox" name="%s[]" value="%s" %s /> %s</label>',
 				esc_attr( $name ),
 				esc_attr( $choice ),
 				checked( in_array( (string) $choice, array_map( 'strval', $chosen ), true ), true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-				esc_html( isset( $s['choices'][ $choice ] ) ? $s['choices'][ $choice ] : $choice )
+				esc_html( $label )
 			);
 		}
 		return;
