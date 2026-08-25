@@ -164,7 +164,14 @@ keel_assert(
 	'The newest changelog entry is the current version (' . $version . '), not ' . ( isset( $cm[1][0] ) ? $cm[1][0] : 'nothing' ) . '.'
 );
 
-$status_docs = array( 'README.md', 'ROADMAP.md', 'SECURITY.md', 'CONTRIBUTING.md', 'TODO.md' );
+/*
+ * Documents that state which release they describe, and are therefore the ones
+ * that can go stale about it. CONTRIBUTING.md and TODO.md were scanned here too
+ * while the check was a substring ban, but neither makes the claim — requiring
+ * one of them would be inventing a convention rather than guarding an existing
+ * one.
+ */
+$status_docs = array( 'README.md', 'ROADMAP.md', 'SECURITY.md' );
 
 foreach ( $status_docs as $doc ) {
 	if ( ! is_file( $root . '/' . $doc ) ) {
@@ -173,10 +180,57 @@ foreach ( $status_docs as $doc ) {
 
 	$text = file_get_contents( $root . '/' . $doc ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
+	/*
+	 * Check the status *claim*, not every mention of a number.
+	 *
+	 * This used to ban any released version anywhere in the file, which works
+	 * only while these documents carry no history. They do now: the roadmap
+	 * records which release changed what, and CONTRIBUTING logs which release
+	 * took a hold exception and why. Those entries name an older version
+	 * forever, and correctly.
+	 *
+	 * The blunt version also broke on every release rather than on drift — a
+	 * mention became a failure the moment the version it named stopped being
+	 * current, so the fix was always to reword true history until the guard
+	 * stopped objecting. The folder-rename note in SECURITY.md lost its version
+	 * number that way.
+	 *
+	 * So it reads the one line in each document that makes the claim, and asks
+	 * whether that line is current. Silence is a failure too: a status document
+	 * that stops saying which release it describes is how this drifts unnoticed.
+	 */
+	$has_claim = 1 === preg_match( '/^.*(?:[Cc]urrent (?:release|version)).*$/m', $text, $claim );
+
+	keel_assert(
+		$has_claim,
+		"{$doc} no longer says which release it describes. Deleting the claim is how this "
+			. 'drifts unnoticed, so its absence fails rather than skipping the file.'
+	);
+
+	if ( ! $has_claim ) {
+		continue;
+	}
+
+	/*
+	 * Whole version, not substring. `0.5.2` occurs inside `0.5.20`, so a plain
+	 * strpos() would read a claim of 0.5.20 as satisfying 0.5.2 — and, on the
+	 * other side, would find the superseded 0.5.1 inside a perfectly current
+	 * 0.5.10. The lookahead rejects a match followed by another digit or a
+	 * further dotted component.
+	 */
+	$whole = static function ( $haystack, $needle ) {
+		return 1 === preg_match( '/' . preg_quote( $needle, '/' ) . '(?![0-9]|\.[0-9])/', $haystack );
+	};
+
+	keel_assert(
+		$whole( $claim[0], $version ),
+		"{$doc} claims a release that is not {$version}: \"" . trim( $claim[0] ) . '"'
+	);
+
 	foreach ( $released as $old ) {
 		keel_assert(
-			false === strpos( $text, $old ),
-			"{$doc} still refers to {$old}; the current version is {$version}."
+			! $whole( $claim[0], $old ),
+			"{$doc} still claims {$old} as current; the current version is {$version}."
 		);
 	}
 }

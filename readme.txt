@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.1
+Stable tag: 0.5.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,6 +127,13 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.5.2 =
+* Fixed a setting being switched off by saving a different one. On WordPress 6.4 to 6.9 the AI Connectors control is not shown, because those versions have no AI connectors to turn off — but saving any other setting still read the missing checkbox as "off" and rewrote the stored value from on to off. Silently, and against a note in 0.4.0 saying the stored value was left alone. A site that had chosen to block connectors would have reached WordPress 7.0 with them enabled.
+* A setting the screen does not show is no longer changed by saving the screen. This is the same protection settings locked by `wp-config.php` already had, for the same reason: the form has no business speaking for a control it did not draw.
+* Network Admin no longer offers a network-wide policy for a feature the running WordPress does not have, and an existing policy for one survives a save rather than being read as switched off.
+* The Network Admin role list shows role names again rather than their internal slugs, and no longer emits a PHP notice for each one.
+* A plugin that only removes entries from the block inserter is no longer reported as competing with Keel. Two plugins restricting which blocks are available both get their way, so reporting a collision there suggested deactivating a plugin that works alongside this one.
+
 = 0.5.1 =
 * Removed effect probes from policy-overlap detection. Diagnostics no longer execute another plugin's callbacks with synthetic or real user/post context, so reporting an overlap cannot send mail, write data, terminate the request, mutate hooks, or trigger other callback side effects.
 * Restored structural detection on authoritative hooks: Keel must be registered on the hook and the other callback must be attributable to an active plugin. The report confirms shared ownership only, tells administrators to compare settings, and does not recommend deactivation from presence alone.
@@ -183,6 +190,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.2 =
+On WordPress 6.4–6.9 an earlier release could switch the stored AI Connectors value off when you saved any setting. It has no effect before WordPress 7.0, where the control appears under Settings → Keel. To correct it now: `wp option patch update keel_settings disable_ai_connectors yes`
 
 = 0.5.1 =
 Policy-overlap diagnostics no longer execute other plugins' callbacks. Re-check prior 0.5.0 conflict results; 0.5.1 reports structural overlap without claiming the configured outcomes disagree.

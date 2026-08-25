@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.5.1`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
+**Current version: `0.5.2`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
@@ -22,6 +22,13 @@ Nothing is queued, and that is the accurate state rather than an omission.
 **Releases are on hold** while the wordpress.org submission is in review — merge
 to `main`, do not tag. See [CONTRIBUTING.md](CONTRIBUTING.md) for why and for what
 overrides it.
+
+**Exception used for 0.5.2:** saving any setting on WordPress 6.4–6.9 silently
+rewrote the stored AI Connectors value from on to off, because the control is
+hidden on those versions and the sanitiser read its absence as an unticked box.
+A default the site chose being reversed without saying so is the urgent-defect
+exception in CONTRIBUTING; the corrected package is reuploaded and the version
+change disclosed to the review team. The general hold remains after it.
 
 **Exception used for 0.5.1:** the submitted build executed third-party callbacks
 inside automatic policy-overlap diagnostics. Removing that behavior is the
