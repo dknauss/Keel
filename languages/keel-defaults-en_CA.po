@@ -1,7 +1,7 @@
 # Canadian English for Keel Defaults.
 #
 # en_US is the source locale, so this catalog exists only to swap American
-# spellings for Canadian ones. Two strings need it out of 242; everything else
+# spellings for Canadian ones. Two strings need it out of 244; everything else
 # is identical and is deliberately not repeated here, because a duplicated string
 # is one that can drift from its source without anything noticing.
 #
