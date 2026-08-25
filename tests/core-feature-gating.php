@@ -251,6 +251,69 @@ keel_assert(
 
 // --- run the other half, once ---
 
+/*
+ * --- a hidden setting survives the save that hides it ---
+ *
+ * The sanitiser walks the whole schema and reads an absent checkbox as "off",
+ * which is right for a box the user unticked and wrong for one that was never
+ * drawn. Gating the *display* on core support therefore turned every save on
+ * WordPress 6.4–6.9 into a silent rewrite of `disable_ai_connectors` from `yes`
+ * to `no` — and the release notes for that change promised the stored value was
+ * left alone, so the site would have found connectors switched on when it
+ * eventually reached 7.0.
+ *
+ * Locked keys already had this protection. Unsupported ones are the same
+ * problem: the form cannot speak for a control it did not render.
+ */
+$GLOBALS['keel_options'][ KEEL_DEFAULTS_OPTION ] = array( 'disable_ai_connectors' => 'yes' );
+
+// A save of some other setting, exactly as the form posts it: the hidden key is
+// simply not there.
+$saved = keel_defaults_sanitize_site( array( 'disable_comments' => 'yes' ) );
+
+if ( $has_ai ) {
+	keel_assert(
+		'no' === $saved['disable_ai_connectors'],
+		'[supported] An unticked box that was actually rendered still means off.'
+	);
+} else {
+	keel_assert(
+		! array_key_exists( 'disable_ai_connectors', $saved ) || 'yes' === $saved['disable_ai_connectors'],
+		'[unsupported] A setting the screen never drew is not rewritten by saving another one.'
+	);
+
+	keel_assert(
+		'yes' === keel_defaults_get( 'disable_ai_connectors' ),
+		'[unsupported] And it still reads as its stored value afterwards.'
+	);
+}
+
+/*
+ * --- and the network screen does not offer what the site screen hides ---
+ *
+ * A Super Admin could set "decide this for the whole network" for a feature the
+ * running WordPress does not have, on the screen next to the one that does not
+ * show the setting at all. The policy could not take effect until a core
+ * upgrade, and nothing said so.
+ */
+if ( function_exists( 'keel_defaults_render_network_page' ) ) {
+	$GLOBALS['keel_network_options'] = array();
+
+	$network_saved = keel_defaults_sanitize_network(
+		array( 'disable_comments' => 'yes' ),
+		array( 'disable_comments' => '1' )
+	);
+
+	if ( ! $has_ai ) {
+		keel_assert(
+			! array_key_exists( 'disable_ai_connectors', $network_saved ),
+			'[unsupported] An unsupported setting cannot become network policy.'
+		);
+	}
+}
+
+$GLOBALS['keel_options'] = array();
+
 if ( ! $has_ai ) {
 	$cmd = 'KEEL_TEST_HAS_AI=1 ' . escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( __FILE__ );
 	exec( $cmd, $out, $code ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions, WordPress.PHP.NoSilencedErrors -- re-running this same test file in a second process is the only way to have the core function both absent and present.

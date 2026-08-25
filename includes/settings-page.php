@@ -218,14 +218,28 @@ function keel_defaults_sanitize_site( $input ) {
 	foreach ( array_keys( keel_defaults_schema() ) as $key ) {
 		$locked = ( null !== keel_defaults_config_lock( $key ) ) || ( null !== keel_defaults_network_lock( $key ) );
 
-		if ( ! $locked ) {
+		/*
+		 * A setting the screen never drew is in the same position as a locked
+		 * one: the form has no business speaking for it.
+		 *
+		 * keel_defaults_sanitize() walks the whole schema and reads an absent
+		 * checkbox as "off", which is correct for a box somebody unticked and
+		 * wrong for one that was never rendered. Gating AI Connectors on core
+		 * support therefore made every save on WordPress 6.4–6.9 rewrite the
+		 * stored value from `yes` to `no` — silently, and against a release note
+		 * promising it was left alone. The site would then have reached 7.0 with
+		 * connectors switched on.
+		 */
+		$unsupported = ! keel_defaults_key_supported( $key );
+
+		if ( ! $locked && ! $unsupported ) {
 			continue;
 		}
 
 		// Keep what was already stored rather than dropping the key: the site's
-		// own preference is what it returns to when the lock is lifted, and
-		// discarding it here would silently rewrite a choice the site made
-		// before somebody else took the setting over.
+		// own preference is what it returns to when the lock is lifted or core
+		// catches up, and discarding it here would silently rewrite a choice the
+		// site made before somebody else took the setting over.
 		if ( array_key_exists( $key, $existing ) ) {
 			$clean[ $key ] = $existing[ $key ];
 		} else {

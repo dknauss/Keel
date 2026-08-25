@@ -138,6 +138,19 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
 	$out   = array();
 
 	foreach ( array_keys( $schema ) as $key ) {
+		/*
+		 * The form does not render unsupported settings, so a posted absence
+		 * says nothing about them. Carry any existing policy through untouched
+		 * rather than reading the silence as "unmanage this".
+		 */
+		if ( ! keel_defaults_key_supported( $key ) ) {
+			if ( array_key_exists( $key, $stored ) ) {
+				$out[ $key ] = $stored[ $key ];
+			}
+
+			continue;
+		}
+
 		// wp-config.php is above network policy. Preserve an existing policy
 		// underneath the lock, or keep an unmanaged key absent, exactly as the
 		// site sanitizer preserves a site's dormant preference.
@@ -246,6 +259,17 @@ function keel_defaults_render_network_page() {
 					<?php
 					foreach ( $schema as $key => $field ) :
 						if ( $field['group'] !== $group_key ) {
+							continue;
+						}
+
+						/*
+						 * Same gate as the site screen. Offering "decide this for
+						 * the whole network" for a feature this WordPress does not
+						 * have lets a Super Admin set a policy that cannot take
+						 * effect, and contradicts the site screen next door, which
+						 * does not show the setting at all.
+						 */
+						if ( ! keel_defaults_key_supported( $key ) ) {
 							continue;
 						}
 
