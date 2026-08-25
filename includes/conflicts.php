@@ -715,7 +715,13 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 		return $value;
 	}
 
-	$known[ $hook ] = true;
+	// The expectation is stored beside the hook, not just the fact of a
+	// divergence. A setting changed afterwards then invalidates the record on
+	// the way out, at no cost — see keel_defaults_policy_divergences(). The TTL
+	// cannot catch that case at all: flipping the setting to match what the other
+	// plugin was doing would otherwise leave "not taking effect" standing for an
+	// hour, about a setting that is now being honoured.
+	$known[ $hook ] = (bool) $expectations[ $hook ];
 
 	set_transient( 'keel_policy_divergence', $known, HOUR_IN_SECONDS );
 
@@ -740,7 +746,37 @@ function keel_defaults_policy_divergences() {
 	 * — see keel_defaults_observe_policy_result() — so a divergence that stops
 	 * happening stops being reported without anybody clearing it.
 	 */
-	return array_intersect_key( $stored, keel_defaults_policy_expectations() );
+	$expectations = keel_defaults_policy_expectations();
+	$live         = array();
+
+	foreach ( array_intersect_key( $stored, $expectations ) as $hook => $expected ) {
+		// Recorded under the expectation that still applies, or not at all.
+		if ( (bool) $expected === (bool) $expectations[ $hook ] ) {
+			$live[ $hook ] = true;
+		}
+	}
+
+	return $live;
+}
+
+/**
+ * Drop every recorded divergence.
+ *
+ * Called when the plugin set changes and when Keel's own settings are saved —
+ * the only moments a divergence can start or stop. Clearing there keeps the
+ * record no staler than the last thing that could have changed it, and costs
+ * nothing on an ordinary request, which is the property the observer was
+ * restructured to get.
+ *
+ * Deliberately a forget rather than a re-check: re-checking would mean asking
+ * what the filters produce, and the only honest way to know that is to wait for
+ * WordPress to run them. The next front-end request re-records anything still
+ * true.
+ *
+ * @return void
+ */
+function keel_defaults_forget_policy_divergences() {
+	delete_transient( 'keel_policy_divergence' );
 }
 
 /**

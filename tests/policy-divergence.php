@@ -171,6 +171,47 @@ keel_assert(
 	'A value Keel itself asked for is not a divergence.'
 );
 
+/*
+ * --- a record outlives its cause for as short a time as possible ---
+ *
+ * The TTL is a backstop, not the mechanism. A divergence can only start or stop
+ * when something changes, and every one of those moments is an event: a plugin
+ * is activated or deactivated, or the setting itself is saved. Clearing there
+ * costs nothing on an ordinary request, which is the property the healthy path
+ * was just restructured to get.
+ */
+$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'yes' );
+$GLOBALS['keel_transients']               = array();
+
+keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );
+keel_assert( array() !== keel_defaults_policy_divergences(), 'A divergence is recorded to begin with.' );
+
+keel_defaults_forget_policy_divergences();
+
+keel_assert(
+	array() === keel_defaults_policy_divergences(),
+	'Changing the plugin set drops the record rather than waiting for it to expire.'
+);
+
+/*
+ * --- and a record made under a different expectation is not trusted ---
+ *
+ * Free, because it needs no extra read: the expectation is stored beside the
+ * hook, so a setting since changed invalidates the record on the way out. This
+ * is the case the TTL cannot catch at all — flipping the setting to match what
+ * the other plugin was doing would otherwise leave "not taking effect" standing
+ * for an hour, about a setting that is now being honoured.
+ */
+keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );
+keel_assert( array() !== keel_defaults_policy_divergences(), 'Recorded again, under "allow".' );
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'no' );
+
+keel_assert(
+	array() === keel_defaults_policy_divergences(),
+	'A record made under the opposite setting is discarded on read.'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, sprintf( "policy divergence: %d assertion%s failed\n", $fail, 1 === $fail ? '' : 's' ) );
 	exit( 1 );

@@ -605,6 +605,19 @@ function keel_defaults_bootstrap() {
 	 */
 	keel_defaults_watch_policy_results();
 
+	/*
+	 * Forget what was observed when the thing that could have caused it changes.
+	 *
+	 * A divergence only starts or stops when the plugin set changes or the
+	 * setting is saved. Clearing on those events keeps the record no staler than
+	 * the last thing that could have altered it, and they fire rarely enough
+	 * that an ordinary request pays nothing — which is the whole point of the
+	 * observer not reading storage on the healthy path.
+	 */
+	add_action( 'activated_plugin', 'keel_defaults_forget_policy_divergences' );
+	add_action( 'deactivated_plugin', 'keel_defaults_forget_policy_divergences' );
+	add_action( 'update_option_' . KEEL_DEFAULTS_OPTION, 'keel_defaults_forget_policy_divergences' );
+
 	add_action( 'admin_notices', 'keel_defaults_render_conflicts_notice' );
 	add_action( 'admin_init', 'keel_defaults_handle_conflicts_dismissal' );
 
