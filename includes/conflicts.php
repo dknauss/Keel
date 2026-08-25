@@ -395,6 +395,66 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 	return $cached;
 }
 
+/*
+ * ---------------------------------------------------------------------
+ * Policy callbacks Keel owns
+ * ---------------------------------------------------------------------
+ *
+ * These mirror `__return_false` and friends, and exist for one reason: identity.
+ *
+ * WordPress keys a hook's callbacks by callable identity, so two plugins calling
+ * `add_filter( 'comments_open', '__return_false', 20 )` produce ONE entry — the
+ * second registration overwrites the first under the same key. The overlap
+ * report then excludes that entry as Keel's own, and the other plugin does not
+ * appear as unattributable; it does not appear at all.
+ *
+ * That was measured, not theorised: on an install with three comment-disabling
+ * plugins active, simply-disable-comments registers precisely that callable at
+ * precisely that priority and was reported nowhere. disable-gutenberg was hidden
+ * the same way on `use_block_editor_for_post`.
+ *
+ * A callable only Keel registers cannot collapse into anyone else's, so a rival
+ * always keeps an entry of its own for the report to find. Swapping one of these
+ * back to the core helper it mirrors re-opens the blind spot silently, which is
+ * what tests/policy-callback-identity.php is there to prevent.
+ *
+ * Behaviour is identical to the core helpers. Only the identity differs.
+ */
+
+/**
+ * Return false, under a name only Keel registers.
+ *
+ * @return false
+ */
+function keel_defaults_return_false() {
+	return false;
+}
+
+/**
+ * Return zero, under a name only Keel registers.
+ *
+ * @return int
+ */
+function keel_defaults_return_zero() {
+	return 0;
+}
+
+/**
+ * The site home, for the login screen's header link.
+ *
+ * Replaces `add_filter( 'login_headerurl', 'home_url' )`, which was wrong twice
+ * over. Beyond the identity problem above, home_url() takes a *path* as its
+ * first argument, and a filter hands its callback the value being filtered — so
+ * the incoming `https://wordpress.org/` was appended to the site URL and the
+ * logo linked to `https://example.com/https://wordpress.org/`. Every install
+ * with the logo removed, unlinked or replaced had a broken link.
+ *
+ * @return string
+ */
+function keel_defaults_login_header_url() {
+	return home_url();
+}
+
 /**
  * Register one of Keel's own callbacks on a contested hook, and remember it.
  *

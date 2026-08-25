@@ -128,6 +128,8 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = 0.5.3 =
+* Fixed the login screen's logo link. Removing, unlinking or replacing the logo is supposed to point that link at your site's home page; it pointed at your home page with `https://wordpress.org/` appended, which goes nowhere. Affected every site with any of those three behaviours set.
+* Keel can now see another plugin that switches the same setting off in the same way it does. WordPress stores one entry per callback, so when two plugins register the identical callback at the identical priority the second replaces the first and only one remains — which meant a plugin doing exactly what Keel does could be reported as Keel's own registration, or hide Keel's. Keel now uses callbacks that are its alone, so both are always visible and the report can tell them apart.
 * Every stylesheet and script Keel adds now goes through the WordPress asset API instead of being written straight into the page. Nothing changes on screen. It means a site can dequeue, override, or defer any of it by handle, and that caching and asset-optimizing plugins can see it — none of which was possible while the markup was printed directly.
 * The settings screen's CSS and JavaScript are now static files rather than markup rebuilt on every page load, so a browser caches them. The admin-menu-width slider carries its labels and widths as data attributes, which also makes its script work for any number of sliders rather than being re-emitted once per field.
 * The network policy screen and the per-site settings screen now share one copy of the script that refuses changes to a locked control. There were two, and they had already drifted apart.
