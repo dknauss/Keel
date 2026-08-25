@@ -271,6 +271,23 @@ foreach ( array_merge( array( $root . '/keel.php', $root . '/uninstall.php' ), g
 	}
 }
 
+/*
+ * --- the header carries the permanent slug ---
+ *
+ * `--slug` is documented in every regeneration message above and in the .po
+ * headers, and nothing asserted it, so dropping it shipped a support URL
+ * pointing at a plugin directory entry that does not exist. This is the second
+ * documented flag to go missing from that command; `--exclude=build` was the
+ * first. A flag that only lives in prose gets left off.
+ */
+$expected_bugs_to = 'https://wordpress.org/support/plugin/keel-defaults';
+
+keel_assert(
+	false !== strpos( $pot, 'Report-Msgid-Bugs-To: ' . $expected_bugs_to ),
+	'keel-defaults.pot reports bugs to the permanent slug. Regenerate with the documented command, '
+		. '--slug included: wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults --exclude=build'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "i18n catalogs: {$fail} failed\n" );
 	exit( 1 );
