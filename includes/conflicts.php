@@ -232,6 +232,21 @@ function keel_defaults_competing_plugins( $refresh = false ) {
 }
 
 /**
+ * The directory Keel itself lives in.
+ *
+ * Derived from this file rather than from KEEL_DEFAULTS_FILE. The constant is
+ * defined by the bootstrap and not by anything that loads this file on its own,
+ * and a guard that quietly does nothing when a constant is missing is worse than
+ * no guard: it reads as protection. This file is inside the plugin by
+ * construction, in every context that can call the function at all.
+ *
+ * @return string Directory name.
+ */
+function keel_defaults_own_plugin_dir() {
+	return basename( dirname( dirname( wp_normalize_path( __FILE__ ) ) ) );
+}
+
+/**
  * Stable identity for a callable within one request.
  *
  * @param mixed $callback Callback.
@@ -322,6 +337,23 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 				}
 
 				$plugin = keel_defaults_callback_plugin_dir( $registered['function'] );
+
+				/*
+				 * A plugin is never its own rival.
+				 *
+				 * Self-exclusion was by signature — priority, callable identity,
+				 * argument count — against what Keel recorded when it registered.
+				 * Anything Keel adds with a bare add_filter() is absent from that
+				 * record and resolves, correctly, to the keel-defaults directory,
+				 * so Keel reported itself as a plugin competing with Keel. The
+				 * divergence observers did exactly this, on every hook they watch.
+				 * Matching on the directory holds regardless of how a callback
+				 * came to be registered, which the signature match cannot.
+				 */
+				if ( '' !== $plugin && keel_defaults_own_plugin_dir() === $plugin ) {
+					continue;
+				}
+
 				if ( '' !== $plugin ) {
 					$rivals[ $plugin ] = true;
 				} else {
@@ -719,8 +751,25 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 	 * for disagreeing with its own expectation. Recording one divergence erased
 	 * another.
 	 */
-	$known = get_transient( 'keel_policy_divergence' );
-	$known = is_array( $known ) && isset( $known['hooks'] ) && is_array( $known['hooks'] ) ? $known['hooks'] : array();
+	$stored = get_transient( 'keel_policy_divergence' );
+	$known  = array();
+
+	/*
+	 * The fingerprint has to be checked here too, not only on the way out.
+	 *
+	 * keel_defaults_policy_divergences() discards a record made under a
+	 * different set of active plugins. Checking only there left the two halves
+	 * disagreeing: the reader ignored the stale record while the writer, seeing
+	 * the hook already present in it, declined to replace it. A divergence that
+	 * was still happening on every request went unreported until the hour ran
+	 * out. The activation hooks hide that on the site which served the change; a
+	 * network-wide activation leaves every other subsite in exactly this state,
+	 * which is the case the fingerprint exists for.
+	 */
+	if ( is_array( $stored ) && isset( $stored['hooks'], $stored['plugins'] ) && is_array( $stored['hooks'] )
+		&& keel_defaults_active_plugin_fingerprint() === $stored['plugins'] ) {
+		$known = $stored['hooks'];
+	}
 
 	if ( array_key_exists( $hook, $known ) ) {
 		return $value;

@@ -320,6 +320,28 @@ function keel_defaults_site_health_conflicts() {
 	}
 
 	if ( empty( $overlaps ) ) {
+		/*
+		 * Nothing to name is not the same as nothing wrong.
+		 *
+		 * The status was decided by the attributable overlaps alone, so a site
+		 * where the only finding was a setting not taking effect got "good" and
+		 * "No attributable policy overlap was found" printed above a paragraph
+		 * saying something else was deciding that setting. A green badge over
+		 * those words is the one combination guaranteed not to be read — and
+		 * the untraceable override is exactly the case with no overlap to
+		 * report, so the two conditions coincide rather than being rare
+		 * together.
+		 */
+		if ( ! empty( $divergences ) ) {
+			return array(
+				'label'       => __( 'A setting is not taking effect', 'keel-defaults' ),
+				'status'      => 'recommended',
+				'badge'       => $badge,
+				'description' => $intro . $details,
+				'test'        => 'keel_defaults_conflicts',
+			);
+		}
+
 		return array(
 			'label'       => __( 'No attributable policy overlap was found', 'keel-defaults' ),
 			'status'      => 'good',

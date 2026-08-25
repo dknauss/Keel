@@ -72,6 +72,7 @@ function apply_filters( $hook, $value ) {
 
 require dirname( __DIR__ ) . '/includes/schema.php';
 require dirname( __DIR__ ) . '/includes/conflicts.php';
+require dirname( __DIR__ ) . '/includes/site-health.php';
 
 $GLOBALS['keel_transient_writes'] = 0;
 $GLOBALS['keel_transient_reads']  = 0;
@@ -267,6 +268,101 @@ $GLOBALS['keel_options']['active_plugins'] = array();
 keel_assert(
 	array() === keel_defaults_policy_divergences(),
 	'A record made under a different set of active plugins is not reported.'
+);
+
+/*
+ * --- and the still-diverging case is re-recorded, not left mute ---
+ *
+ * The reader discards a record whose fingerprint no longer matches. The writer
+ * was checking the same record for the hook and returning early when it found
+ * it, without checking that fingerprint — so once the plugin set changed, the
+ * reader ignored the record and the writer declined to replace it. A divergence
+ * that was still happening on every request went unreported until the hour ran
+ * out. The event hooks hide this on the site that served the activation; a
+ * network-wide change leaves every other subsite in exactly this state.
+ */
+$GLOBALS['keel_options']['active_plugins'] = array( 'rival/rival.php', 'another/another.php' );
+
+keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );
+
+keel_assert(
+	array_key_exists( 'xmlrpc_enabled', keel_defaults_policy_divergences() ),
+	'A divergence still happening under a new plugin set is recorded again rather than waiting out the TTL.'
+);
+
+/*
+ * --- Keel never names itself ---
+ *
+ * The overlap check told Keel's callbacks from everyone else's by matching
+ * priority, callable identity and argument count against what Keel recorded
+ * when it registered. The divergence observers go on with a bare add_filter(),
+ * so they were in $wp_filter and not in that record — and reflection resolved
+ * them, correctly, to Keel's own directory. Keel reported itself as a plugin
+ * competing with Keel, on every hook it watches. Seen on a real install:
+ * "Also registered on these policy hooks: keel-defaults".
+ *
+ * The signature match cannot cover this, because it only knows about callbacks
+ * that went through keel_defaults_add_policy_filter(). The directory is true
+ * however the callback came to be registered.
+ */
+keel_assert(
+	'' !== keel_defaults_own_plugin_dir(),
+	'Keel can name its own directory, which is what the self-exclusion rests on.'
+);
+
+keel_defaults_watch_policy_results();
+
+$watched = array_keys( keel_defaults_policy_expectations() );
+
+keel_assert(
+	! empty( $watched ),
+	'There is at least one watched hook to check.'
+);
+
+foreach ( $watched as $hook ) {
+	$observers = isset( $GLOBALS['wp_filter'][ $hook ][ PHP_INT_MAX ] )
+		? $GLOBALS['wp_filter'][ $hook ][ PHP_INT_MAX ]
+		: array();
+
+	keel_assert(
+		! empty( $observers ),
+		"An observer is registered on {$hook}, which is what got misattributed."
+	);
+}
+
+/*
+ * --- a setting that is not taking effect is not a clean bill of health ---
+ *
+ * The Site Health status was decided by the attributable overlaps alone. With
+ * none of those, the check returned "good" and the label "No attributable
+ * policy overlap was found" — while the body of the same report said a setting
+ * was not taking effect. A green badge over the words "not taking effect" is
+ * the one combination guaranteed not to be read.
+ *
+ * This was hidden for as long as Keel was naming itself as a competing plugin,
+ * because that kept the overlap list non-empty and the status orange for the
+ * wrong reason. Removing the false positive is what exposed it.
+ */
+$GLOBALS['keel_transients']                = array();
+$GLOBALS['keel_options']['active_plugins'] = array( 'rival/rival.php' );
+
+keel_defaults_observe_policy_result( 'xmlrpc_enabled', false );
+
+keel_assert(
+	! empty( keel_defaults_policy_divergences() ),
+	'The divergence is recorded, so the status can be judged against it.'
+);
+
+$health = keel_defaults_site_health_conflicts();
+
+keel_assert(
+	'good' !== $health['status'],
+	'A setting that is not taking effect is not reported as good, even with nothing attributable to name.'
+);
+
+keel_assert(
+	false === strpos( $health['label'], 'No attributable policy overlap was found' ),
+	'And the label does not say nothing was found while the body says a setting is being overridden.'
 );
 
 if ( $fail > 0 ) {

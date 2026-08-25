@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-25T05:14:00+00:00\n"
+"POT-Creation-Date: 2026-08-25T05:19:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -111,27 +111,27 @@ msgstr ""
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
-#: includes/conflicts.php:346
+#: includes/conflicts.php:378
 msgid "Unattributed callback"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:563
+#: includes/conflicts.php:595
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:578
+#: includes/conflicts.php:610
 msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
 msgstr ""
 
-#: includes/conflicts.php:581
+#: includes/conflicts.php:613
 msgid "See which settings are contested, under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:585
+#: includes/conflicts.php:617
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -455,21 +455,25 @@ msgstr ""
 msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
 msgstr ""
 
-#: includes/site-health.php:324
+#: includes/site-health.php:337
+msgid "A setting is not taking effect"
+msgstr ""
+
+#: includes/site-health.php:346
 msgid "No attributable policy overlap was found"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:341
+#: includes/site-health.php:363
 #, php-format
 msgid "Also registered on these policy hooks: %s"
 msgstr ""
 
-#: includes/site-health.php:343
+#: includes/site-health.php:365
 msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
 msgstr ""
 
-#: includes/site-health.php:347
+#: includes/site-health.php:369
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
