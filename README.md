@@ -51,6 +51,7 @@ Three things change visibly on the first page load — comments, trackbacks and 
 
 **Core Updates** 
 
+— Minor/Maintenance Releases (auto-updates on minor releases, which simply reinforces the core default.)
 - Translations (auto-updates translation files)
 
 **Email**
