@@ -47,3 +47,25 @@ jobs:
       # version tags, so the asset only moved at release time and the Playground
       # demo showed the last tagged build rather than main. ci.yml republishes it
       # on every push to main now. Two publishers would race, so there is one.
+
+  # Deploy to WordPress.org by CALLING the deploy workflow, not by publishing a
+  # Release and hoping a `release: published` event starts it. It does not: the
+  # step above authenticates as the default GITHUB_TOKEN, and GitHub does not
+  # start workflow runs from GITHUB_TOKEN-generated events. See the trigger
+  # comment in wp-deploy.yml for how that failed silently for six releases in a
+  # sibling repo.
+  #
+  # `needs: release` is a safety property, not just ordering: a failed lint, a
+  # failed build, or a failed Release publish all stop the deploy, so
+  # wordpress.org is never reached by a tag that did not pass the gate above.
+  #
+  # Pre-release tags (-dev/-alpha/-beta/-rc) reach this job and are REFUSED by
+  # wp-deploy.yml's ref check — wordpress.org has no pre-release concept, so
+  # publishing one would make it the stable version for every user.
+  deploy:
+    name: Deploy to WordPress.org
+    needs: release
+    uses: ./.github/workflows/wp-deploy.yml
+    with:
+      tag: ${{ github.ref_name }}
+    secrets: inherit
