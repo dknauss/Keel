@@ -53,6 +53,20 @@ Deactivating stops every default at once; stored settings are kept so reactivati
 
 == Frequently Asked Questions ==
 
+= What changes when I activate it? =
+
+Sixteen of the thirty-nine defaults are on out of the box, and nine more settings that are not simple switches apply a starting value. Nothing is written to your content and nothing is deleted; every one of them is a switch on **Settings → Keel** you can turn off, and turning it off puts WordPress back exactly as it shipped.
+
+Most of it is quiet. Users stop being listed to anonymous REST requests, new passwords have to be long and must not appear in a known breach, raw HTML and JavaScript are limited to Administrators, baseline security headers are sent, AI provider connectors are switched off, translations keep auto-updating, uploads get lowercase filenames, attachment screens show which image sizes were generated, and the site warns you if its own email looks misconfigured.
+
+Three are visible straight away and are the ones to know about. **Comments, trackbacks and pingbacks are switched off** everywhere, including for existing posts — nothing is deleted, and turning the setting off brings every comment back. **Author archives stop resolving**, so `/author/name/` no longer returns a page. And **`X-Frame-Options: SAMEORIGIN` is sent**, which stops other sites displaying yours in an iframe; if something is meant to embed this site, set **Frame options** to "Leave unchanged".
+
+Two more change things you may not see immediately: attachment pages redirect to the parent post, and self-pingbacks and the emoji detection script are gone.
+
+The starting values are conservative. Core takes maintenance and security releases automatically but not major versions, ten post revisions are kept, logins last two days or fourteen with "Remember me", and subscribers are exempt from the password rules. The admin menu width, the front-end admin bar and the login logo are all left as WordPress has them until you choose otherwise.
+
+One default is on but does nothing on a live site: **outgoing email is blocked on any environment that is not production**, so a database copied to staging or a laptop cannot email real people. On production it never acts.
+
 = Will this break my site? =
 
 The defaults that are on out of the box are low-risk, with one exception worth naming: `X-Frame-Options: SAMEORIGIN` is sent by default, and it stops other sites embedding yours in an iframe. Set **Frame options** to "Leave unchanged" if the site is meant to be embedded, because a blocked frame fails silently as a blank box.
