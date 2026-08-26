@@ -63,7 +63,7 @@ Three are visible straight away and are the ones to know about. **Comments, trac
 
 Two more change things you may not see immediately: attachment pages redirect to the parent post, and self-pingbacks and the emoji detection script are gone.
 
-The starting values are conservative. Core takes maintenance and security releases automatically but not major versions, ten post revisions are kept, logins last two days or fourteen with "Remember me", and subscribers are exempt from the password rules. The admin menu width, the front-end admin bar and the login logo are all left as WordPress has them until you choose otherwise.
+The starting values are conservative. Core auto-updates are set to **minor** — maintenance and security releases install themselves, major versions do not — ten post revisions are kept, logins last two days or fourteen with "Remember me", and subscribers are exempt from the password rules. The admin menu width, the front-end admin bar and the login logo are all left as WordPress has them until you choose otherwise.
 
 One default is on but does nothing on a live site: **outgoing email is blocked on any environment that is not production**, so a database copied to staging or a laptop cannot email real people. On production it never acts.
 
