@@ -242,6 +242,144 @@ foreach ( $blueprints as $file => $kind ) {
 	);
 }
 
+/*
+ * --- the wordpress.org deploy is wired to something that fires ---
+ *
+ * Nothing in this suite knew wp-deploy.yml existed, and the deploy is the one
+ * step whose result cannot be taken back: a version pushed to the directory is
+ * the version every site updates to, and an SVN tag is permanent.
+ *
+ * The failure this guards against is the one written into the workflow's own
+ * header comment. `release: types: [published]` looks like the obvious trigger
+ * and never fires, because release.yml publishes with the default GITHUB_TOKEN
+ * and GitHub does not start runs from that token's events. In the sibling repo
+ * it was carried for six releases, fired zero times, and every other signal —
+ * tag, Release, green CI — said the release had shipped.
+ */
+$deploy_path = $root . '/.github/workflows/wp-deploy.yml';
+keel_assert( is_file( $deploy_path ), 'wp-deploy.yml exists.' );
+
+$deploy_src = is_file( $deploy_path ) ? file_get_contents( $deploy_path ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+keel_assert(
+	1 === preg_match( '#uses:\s*\./\.github/workflows/wp-deploy\.yml#', $release_src ),
+	'release.yml calls the deploy workflow directly, rather than relying on a release event to start it.'
+);
+keel_assert(
+	1 === preg_match( '/^\s*needs:\s*release\s*$/m', $release_src ),
+	'The deploy job needs the release job, so a failed lint, build or publish stops it before wordpress.org.'
+);
+keel_assert(
+	0 === preg_match( '/^\s*release:\s*$/m', $deploy_src ),
+	'wp-deploy.yml has no release: trigger — the one that looks obvious and never fires.'
+);
+
+/*
+ * The human gate. GitHub auto-creates a missing environment with no protection
+ * rules, so a typo here does not error — the job simply stops asking for
+ * approval and deploys. The environment's existence cannot be asserted from
+ * inside the repository; that it is requested at all can.
+ */
+keel_assert(
+	1 === preg_match( '/^\s*environment:\s*wordpress-org\s*$/m', $deploy_src ),
+	'The deploy job runs in the wordpress-org environment, which is where the approval gate hangs.'
+);
+
+// One builder, so what is uploaded to the directory is what the release and the
+// demo were built from.
+keel_assert(
+	false !== strpos( $deploy_src, 'bin/build-zip.sh' ),
+	'wp-deploy.yml builds with bin/build-zip.sh rather than a third copy of the build.'
+);
+
+/*
+ * Working material that must not be published. Everything left in
+ * .wordpress-org is uploaded verbatim to the plugin's public assets directory,
+ * so these two excludes are the only thing keeping the blueprint sources and
+ * the brand working files off a public URL.
+ */
+foreach ( array( 'blueprints/', 'brand/' ) as $private ) {
+	keel_assert(
+		false !== strpos( $deploy_src, "--exclude '{$private}'" ),
+		"The asset staging excludes {$private}, which is source material, not a directory-page asset."
+	);
+}
+
+/*
+ * --- the slug and the built folder are the same name ---
+ *
+ * Both are derived, not restated. SLUG decides where on wordpress.org this
+ * lands and BUILD_DIR decides what is uploaded; the folder name inside the
+ * package is what WordPress identifies the plugin by on a real install. A
+ * disagreement between them deploys the wrong tree, or the right tree under a
+ * slug nobody is watching.
+ */
+preg_match( '/^\s*SLUG:\s*([a-z0-9-]+)\s*$/m', $deploy_src, $slug_dm );
+preg_match( '/^\s*BUILD_DIR:\s*(\S+)\s*$/m', $deploy_src, $bd_m );
+
+$deploy_slug = isset( $slug_dm[1] ) ? $slug_dm[1] : '';
+$deploy_dir  = isset( $bd_m[1] ) ? $bd_m[1] : '';
+
+keel_assert( '' !== $deploy_slug, 'wp-deploy.yml names the wordpress.org slug (' . $deploy_slug . ').' );
+keel_assert(
+	$deploy_slug === $built_folder,
+	"The wordpress.org slug \"{$deploy_slug}\" is the folder build-zip.sh assembles (\"{$built_folder}\"); a site installs the plugin under the slug, so these are one name."
+);
+keel_assert(
+	'build/' . $built_folder === $deploy_dir,
+	"wp-deploy.yml uploads \"{$deploy_dir}\"; the build writes \"build/{$built_folder}\"."
+);
+
+/*
+ * --- the tag check refuses everything but a stable release ---
+ *
+ * Run, not read. The pattern is lifted out of the workflow and executed by the
+ * same shell that will execute it there, because the property that matters is
+ * what it accepts. wordpress.org has no pre-release concept: a `-rc1` tag
+ * reaching the directory would become the stable version every user updates to,
+ * and release.yml deliberately creates those tags.
+ */
+preg_match( '/if \[\[ ! "\$REF" =~ (\S+) \]\]/', $deploy_src, $re_m );
+$ref_pattern = isset( $re_m[1] ) ? $re_m[1] : '';
+
+keel_assert( '' !== $ref_pattern, 'wp-deploy.yml checks the ref against a pattern before deploying.' );
+
+if ( '' !== $ref_pattern ) {
+	$cases = array(
+		'v0.6.0'      => true,
+		'v10.20.30'   => true,
+		'v0.6.0-rc1'  => false,
+		'v0.6.0-beta' => false,
+		'v0.6.0-dev'  => false,
+		'v0.6'        => false,
+		'main'        => false,
+		'latest'      => false,
+	);
+
+	foreach ( $cases as $ref => $should_accept ) {
+		$script = 'REF=' . escapeshellarg( $ref ) . '; if [[ ! "$REF" =~ ' . $ref_pattern . ' ]]; then exit 1; fi';
+		$out    = array();
+		$code   = 0;
+		exec( 'bash -c ' . escapeshellarg( $script ) . ' 2>/dev/null', $out, $code ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- the question is what bash accepts, so bash answers it.
+
+		$accepted = ( 0 === $code );
+
+		keel_assert(
+			$accepted === $should_accept,
+			$should_accept
+				? "The deploy accepts the stable tag {$ref}."
+				: "The deploy refuses {$ref}; wordpress.org would publish it as the version every site updates to."
+		);
+	}
+}
+
+// The tag is not trusted to describe itself: the version in the plugin header
+// and the Stable tag in readme.txt are checked against it before the upload.
+keel_assert(
+	false !== strpos( $deploy_src, 'Stable tag:' ) && false !== strpos( $deploy_src, 'Version:' ),
+	'wp-deploy.yml verifies the tag against the plugin header and readme.txt Stable tag before uploading.'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "release workflows: {$fail} failed\n" );
 	exit( 1 );

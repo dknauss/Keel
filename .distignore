@@ -22,6 +22,12 @@
 /composer.lock
 /phpcs.xml
 #
+# The build's own output directory. bin/build-zip.sh excludes the directory it
+# is writing to, but only that one: build into `dist` while a `build/` from an
+# earlier run is still sitting there and the old package ships inside the new
+# one. This is the entry that covers the leftover.
+/build
+#
 # Compiled translations. The .pot stays — it is what translate.wordpress.org
 # and any downstream translator start from — but the per-locale catalogs do
 # not ship. wordpress.org generates and delivers those for every locale from
