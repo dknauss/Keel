@@ -43,6 +43,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_hibp_unavailable` — the last breach-screening failure, if screening
  *   has failed in the last hour. Kind and timestamp only; never the password
  *   and never the hash prefix.
+ * - `keel_hibp_cache_generation` — the per-installation namespace that keeps
+ *   cache entries left in an external object cache unreachable after reinstall.
  * - `keel_hibp_*` — breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
@@ -128,6 +130,7 @@ function keel_defaults_uninstall_site() {
 	 */
 	delete_transient( 'keel_hibp_unavailable' );
 	delete_option( 'keel_hibp_last_success' );
+	delete_option( 'keel_hibp_cache_generation' );
 
 	/*
 	 * The breach cache also lives in the object cache, which the SQL below
@@ -140,8 +143,8 @@ function keel_defaults_uninstall_site() {
 	 * outlives the plugin by up to twelve hours.
 	 *
 	 * wp_cache_flush_group() is the enumerable mechanism where the drop-in
-	 * supports it. Where it does not, the entries are unreachable rather than
-	 * removed — nothing left will look them up — and they expire on their own.
+	 * supports it. Where it does not, deleting the generation option above makes
+	 * the old keys unreachable after reinstall, and they expire on their own.
 	 */
 	if ( function_exists( 'wp_cache_supports' ) && wp_cache_supports( 'flush_group' ) ) {
 		wp_cache_flush_group( 'keel_hibp' );

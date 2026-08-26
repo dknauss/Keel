@@ -269,7 +269,13 @@ keel_readme_assert(
 
 // The catalogs are named for the domain too, and a rename that misses them is
 // the same silent failure one directory further down.
-foreach ( glob( dirname( __DIR__ ) . '/languages/*.{po,mo,pot}', GLOB_BRACE ) as $catalog ) {
+$catalogs = array_merge(
+	(array) glob( dirname( __DIR__ ) . '/languages/*.po' ),
+	(array) glob( dirname( __DIR__ ) . '/languages/*.mo' ),
+	(array) glob( dirname( __DIR__ ) . '/languages/*.pot' )
+);
+
+foreach ( $catalogs as $catalog ) {
 	$base = basename( $catalog );
 	keel_readme_assert(
 		0 === strpos( $base, $text_domain . '-' ) || $base === $text_domain . '.pot',

@@ -16,6 +16,7 @@
 
 $GLOBALS['keel_filters'] = array();
 $GLOBALS['keel_options'] = array();
+$GLOBALS['keel_uuid']    = 0;
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -40,6 +41,14 @@ function wp_cache_set( $key, $value, $group = '', $expire = 0 ) {
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
+function add_option( $key, $value, $deprecated = '', $autoload = true ) {
+	unset( $deprecated, $autoload );
+	if ( array_key_exists( $key, $GLOBALS['keel_options'] ) ) {
+		return false;
+	}
+	$GLOBALS['keel_options'][ $key ] = $value;
+	return true;
+}
 function update_option( $key, $value, $autoload = null ) {
 	unset( $autoload );
 	$GLOBALS['keel_options'][ $key ] = $value;
@@ -48,6 +57,10 @@ function update_option( $key, $value, $autoload = null ) {
 function delete_option( $key ) {
 	unset( $GLOBALS['keel_options'][ $key ] );
 	return true;
+}
+function wp_generate_uuid4() {
+	++$GLOBALS['keel_uuid'];
+	return sprintf( '00000000-0000-4000-8000-%012d', $GLOBALS['keel_uuid'] );
 }
 
 /*
@@ -219,6 +232,11 @@ function keel_hibp_anything_cached() {
 
 $live_suffix = strtoupper( substr( sha1( 'correct-horse-battery-staple-9271' ), 5 ) );
 
+// A stable, per-installation generation namespaces both cache layers.
+$generation = keel_hibp_cache_generation();
+keel_assert( '' !== $generation, 'The HIBP cache generation is created on first use.' );
+keel_assert( keel_hibp_cache_generation() === $generation, 'The HIBP cache generation is stable within an installation.' );
+
 // The reported case: a 200 whose body is empty.
 keel_hibp_reset( 200, '' );
 keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An empty 200 reports *unknown*, not "not breached".' );
@@ -270,6 +288,15 @@ keel_assert( keel_hibp_anything_cached(), 'A whole, well-formed body IS cached â
 $before = $GLOBALS['keel_http_calls'];
 keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
 keel_assert( $GLOBALS['keel_http_calls'] === $before, 'A second lookup for the same prefix is served from cache.' );
+
+// Simulate uninstall and reinstall while an external cache keeps the old
+// entries. A new generation must miss those entries and make a live request.
+$old_generation = keel_hibp_cache_generation();
+delete_option( 'keel_hibp_cache_generation' );
+$before = $GLOBALS['keel_http_calls'];
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_assert( keel_hibp_cache_generation() !== $old_generation, 'Reinstall creates a different HIBP cache generation.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before + 1, 'A reinstall cannot read entries left under the old cache generation.' );
 
 /*
  * TLS verification is what makes the hostile-upstream case require a real

@@ -984,6 +984,35 @@ function keel_hibp_last_failure() {
 }
 
 /**
+ * Return the cache generation for this installation.
+ *
+ * Persistent object-cache entries cannot always be enumerated or deleted on
+ * uninstall. Giving every installation its own generation makes any entries
+ * left by an older installation unreachable after the plugin is reinstalled.
+ * add_option() resolves two first requests racing to create it: the winner's
+ * value is read back and used by both.
+ *
+ * @return string Opaque per-installation cache generation.
+ */
+function keel_hibp_cache_generation() {
+	$generation = get_option( 'keel_hibp_cache_generation' );
+
+	if ( is_string( $generation ) && '' !== $generation ) {
+		return $generation;
+	}
+
+	$candidate = str_replace( '-', '', wp_generate_uuid4() );
+
+	if ( add_option( 'keel_hibp_cache_generation', $candidate, '', false ) ) {
+		return $candidate;
+	}
+
+	$generation = get_option( 'keel_hibp_cache_generation' );
+
+	return is_string( $generation ) && '' !== $generation ? $generation : $candidate;
+}
+
+/**
  * Ask Have I Been Pwned whether this password appears in a known breach.
  *
  * Three values, not two. `false` used to mean both "this password is not in the
@@ -1004,7 +1033,7 @@ function keel_hibp_lookup( $password ) {
 	$suffix = substr( $hash, 5 );
 	$limit  = keel_hibp_response_limit();
 
-	$cache_key = 'keel_hibp_' . $prefix;
+	$cache_key = 'keel_hibp_' . keel_hibp_cache_generation() . '_' . $prefix;
 
 	/*
 	 * Object cache first, transient second. A password change validates the same
