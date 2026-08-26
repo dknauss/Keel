@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.5.8`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
+**Current version: `0.5.9`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,

@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The current release is `0.5.8`. Keel's wordpress.org submission is under review;
+The current release is `0.5.9`. Keel's wordpress.org submission is under review;
 until it is approved, install it from a GitHub release or the rolling `latest`
 build.
 
