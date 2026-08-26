@@ -130,13 +130,13 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers.', 'keel-defaults' ),
+					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate — the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers.', 'keel-defaults' ),
 					array()
 				) . '</p>' .
 				'<p>' . wp_kses(
 					sprintf(
 						/* translators: %s: URL of the Site Health status screen. */
-						__( 'It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href="%s">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. The record clears itself once a lookup succeeds.', 'keel-defaults' ),
+						__( 'It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href="%s">Site Health</a>, which says what went wrong — unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. The record clears itself once a lookup succeeds.', 'keel-defaults' ),
 						esc_url( admin_url( 'site-health.php' ) )
 					),
 					array( 'a' => array( 'href' => array() ) )
@@ -176,15 +176,21 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Environments', 'keel-defaults' ),
 			'content' =>
 				'<p>' . wp_kses(
-					__( 'Two defaults behave differently depending on whether this install is production. Both read <code>wp_get_environment_type()</code>, which WordPress derives from the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable and which defaults to <code>production</code> when nothing sets it. Keel also recognises common local hostnames, so a laptop install is usually identified without configuration.', 'keel-defaults' ),
+					__( 'Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
-				'<p>' . esc_html__( 'Outgoing email stops at the edge of production. A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived.', 'keel-defaults' ) . '</p>' .
+				'<p>' . wp_kses(
+					__( '<strong>Outgoing email stops at the edge of production.</strong> A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived.', 'keel-defaults' ),
+					array( 'strong' => array() )
+				) . '</p>' .
 				'<p>' . wp_kses(
 					__( 'WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of <code>wp_mail()</code> then behaves the way it will in production, instead of taking an error path that only ever runs on staging.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
-				'<p>' . esc_html__( 'The environment indicator is the other half: a colour-coded label in the admin bar naming the current environment. It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent tabs. Below 960px the label collapses to just its icon to save room, but stays readable to screen readers.', 'keel-defaults' ) . '</p>' .
+				'<p>' . wp_kses(
+					__( '<strong>The environment indicator is the colour-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers.', 'keel-defaults' ),
+					array( 'strong' => array() )
+				) . '</p>' .
 				'<p>' . wp_kses(
 					__( 'If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting <code>WP_ENVIRONMENT_TYPE</code> explicitly in <code>wp-config.php</code> is worth doing on every install regardless, because core, plugins and themes all read it.', 'keel-defaults' ),
 					array( 'code' => array() )
