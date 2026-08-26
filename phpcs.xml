@@ -20,6 +20,17 @@
 	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_fwrite">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
+	<!--
+		tests/build-package.php stages a scratch copy of the repository on disk to
+		run bin/build-zip.sh against. WP_Filesystem is not available to a CLI test
+		with no WordPress loaded, and the files being written are not a site's.
+	-->
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_mkdir">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents">
+		<exclude-pattern>tests/*</exclude-pattern>
+	</rule>
 	<rule ref="Squiz.Commenting.FunctionComment">
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
