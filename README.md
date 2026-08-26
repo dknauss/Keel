@@ -135,6 +135,11 @@ rate-limited, truncated or intercepted password lookup is recorded and reported 
 Health, so a site whose HIBP screening broke a month ago can find out. Only the kind of
 failure and when it happened are stored, never the password or its hash prefix.
 
+The colour-coded environment indicator in the admin bar is the same idea earlier in the
+chain: knowing which site you are on before you act on it. It is one of the opt-in
+defaults rather than part of the baseline, and worth turning on anywhere production and
+staging are open in adjacent tabs.
+
 ## Email stops at the edge of production
 
 A database carelessly copied down from production without scrubbing user data can bring real customer addresses *and*
