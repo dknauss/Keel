@@ -115,7 +115,7 @@ function keel_defaults_add_help_tab() {
 					array()
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here.', 'keel-defaults' ),
+					__( 'Keel enforces password strength on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the strength meter is good at.', 'keel-defaults' ),
 					array()
 				) . '</p>' .
 				'<p>' . wp_kses(

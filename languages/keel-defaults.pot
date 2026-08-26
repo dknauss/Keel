@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-26T02:01:42+00:00\n"
+"POT-Creation-Date: 2026-08-26T02:04:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -302,7 +302,7 @@ msgid "WordPress already shows a strength meter as you type, and Keel leaves it 
 msgstr ""
 
 #: includes/settings-page.php:118
-msgid "So Keel enforces on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the meter is good at. They cover different things, which is why both are here."
+msgid "Keel enforces password strength on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the strength meter is good at."
 msgstr ""
 
 #: includes/settings-page.php:122
