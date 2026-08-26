@@ -86,7 +86,10 @@ function keel_defaults_add_help_tab() {
 			'content' =>
 				'<p>' . esc_html__( 'Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all.', 'keel-defaults' ) . '</p>' .
 				'<p>' . esc_html__( 'The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in.', 'keel-defaults' ) . '</p>' .
-				'<p>' . esc_html__( 'There is one exception: Keel sends an X-Frame-Options header of SAMEORIGIN, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel-defaults' ) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel-defaults' ),
+					array( 'code' => array() )
+				) . '</p>' .
 				'<p>' . esc_html__( 'Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off.', 'keel-defaults' ) . '</p>',
 		)
 	);
@@ -177,9 +180,15 @@ function keel_defaults_add_help_tab() {
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . esc_html__( 'Outgoing email stops at the edge of production. A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived.', 'keel-defaults' ) . '</p>' .
-				'<p>' . esc_html__( 'WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of wp_mail() then behaves the way it will in production, instead of taking an error path that only ever runs on staging.', 'keel-defaults' ) . '</p>' .
+				'<p>' . wp_kses(
+					__( 'WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of <code>wp_mail()</code> then behaves the way it will in production, instead of taking an error path that only ever runs on staging.', 'keel-defaults' ),
+					array( 'code' => array() )
+				) . '</p>' .
 				'<p>' . esc_html__( 'The environment indicator is the other half: a colour-coded label in the admin bar naming the current environment. It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent tabs. Below 960px the label collapses to just its icon to save room, but stays readable to screen readers.', 'keel-defaults' ) . '</p>' .
-				'<p>' . esc_html__( 'If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting WP_ENVIRONMENT_TYPE explicitly in wp-config.php is worth doing on every install regardless, because core, plugins and themes all read it.', 'keel-defaults' ) . '</p>',
+				'<p>' . wp_kses(
+					__( 'If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting <code>WP_ENVIRONMENT_TYPE</code> explicitly in <code>wp-config.php</code> is worth doing on every install regardless, because core, plugins and themes all read it.', 'keel-defaults' ),
+					array( 'code' => array() )
+				) . '</p>',
 		)
 	);
 
