@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.7
+Stable tag: 0.5.8
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,7 +127,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
-Versions before 0.5.7 were not published to the directory. The entries below are the development history that led to the first release.
+Versions before 0.5.8 were not published to the directory. The entries below are the development history that led to the first release.
+
+= 0.5.8 =
+* Header names, constants and file names in the Help menu are shown as code again rather than as running text. Three paragraphs across two tabs had lost the formatting the rest of the help uses.
 
 = 0.5.7 =
 * Breach-screening reports are now based on evidence rather than the absence of it. A successful lookup clears an earlier failure, which it did not before — so a site that recovered kept being told it had a problem, against the notice's own promise. Site Health also distinguishes "the last lookup completed" from "nothing has ever run here", and notices when the lookup has been switched off with the filter rather than only the constant.
@@ -220,6 +223,9 @@ Versions before 0.5.7 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.8 =
+Formatting fix in the Help menu. No behaviour changes.
 
 = 0.5.7 =
 Fixes breach-screening status being reported from missing evidence, dependent XML-RPC controls not updating without a reload, and locked sliders accepting edits. Recommended if you use any of those.

@@ -14,7 +14,7 @@
 # Recompile this catalog with:  wp i18n make-mo languages/
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.5.7\n"
+"Project-Id-Version: Keel Defaults 0.5.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Language: en_CA\n"
 "MIME-Version: 1.0\n"
