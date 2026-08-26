@@ -9,7 +9,7 @@ Stable tag: 0.5.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-More than 30 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
+39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
 
 == Description ==
 

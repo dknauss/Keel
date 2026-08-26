@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
- * Description:       More than 30 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
+ * Description:       39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
  * Version:           0.5.6
  * Requires at least: 6.4
  * Requires PHP:      7.4

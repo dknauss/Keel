@@ -181,25 +181,31 @@ if ( 1 === $matched ) {
 	keel_count_assert( (int) $m[3] === $non_toggle, sprintf( 'SECURITY.md says %d non-toggle settings; the schema has %d.', (int) $m[3], $non_toggle ) );
 }
 
-// --- the "more than N" floor -------------------------------------------
+// --- the exact count in the description --------------------------------
 
 /*
- * The plugin header and the readme short description both round down rather
- * than name the exact count, which is the right call for copy that would
- * otherwise need editing on every merge. It still has to stay true, and it is
- * the one claim that fails *upward*: removing defaults is what would break it.
+ * The plugin header and the readme short description name the exact number of
+ * defaults. They used to round down — "More than 30" — which never needed
+ * editing and could only be broken by *removing* defaults. Naming the real
+ * figure is the more useful claim and the more fragile one: it now goes stale
+ * the first time anybody adds a default, in the two strings a reader sees
+ * before they see anything else, and in the copy wordpress.org shows in search
+ * results. So it is asserted rather than trusted.
+ *
+ * If this fails, the schema is right and the sentence is out of date. Update
+ * both files to the number in the message.
  */
 foreach ( array( 'readme.txt', 'keel.php' ) as $name ) {
 	$text = (string) file_get_contents( $root . '/' . $name ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
-	if ( ! preg_match( '/More than (\d+) sane/', $text, $m ) ) {
-		keel_count_assert( false, sprintf( '%s still carries its "More than N sane ... defaults" description.', $name ) );
+	if ( ! preg_match( '/(\d+) sane WordPress defaults/', $text, $m ) ) {
+		keel_count_assert( false, sprintf( '%s still carries its "N sane WordPress defaults" description.', $name ) );
 		continue;
 	}
 
 	keel_count_assert(
-		$total > (int) $m[1],
-		sprintf( '%s says "More than %d", and the schema has %d.', $name, (int) $m[1], $total )
+		$total === (int) $m[1],
+		sprintf( '%s says %d sane WordPress defaults; the schema has %d.', $name, (int) $m[1], $total )
 	);
 }
 
