@@ -2,28 +2,29 @@
 
 ![Keel banner](.wordpress-org/banner-1544x500.png)
 
-[![CI](https://github.com/dknauss/keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/keel?include_prereleases)](https://github.com/dknauss/keel/tags) [![Docs](https://img.shields.io/badge/docs-available-0a7ea4.svg)](docs/)
+[![CI](https://github.com/dknauss/Keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/Keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/Keel?include_prereleases)](https://github.com/dknauss/Keel/tags) [![Docs](https://img.shields.io/badge/docs-available-0a7ea4.svg)](docs/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
 [![Tested up to WP 7.1](https://img.shields.io/badge/tested%20up%20to-WP%207.1-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg?logo=php&logoColor=white)](https://www.php.net/)
-[![▶ Playground (latest release)](https://img.shields.io/badge/▶_Playground-Latest_release-3858e9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-stable.json) [![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)
+[![▶ Playground (latest release)](https://img.shields.io/badge/▶_Playground-Latest_release-3858e9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json) [![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-hosted.json)
 
 **The missing settings and defaults every new WordPress site needs.**
 
-Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Keel**. Nothing is hidden. Everything is explained. 
+Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Keel**. Nothing is hidden. Everything is explained.
 
 > **Current release: `0.5.9`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins controlling the same settings are in. Verified
-> against WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
+> across WordPress 6.4 through 7.2-alpha on PHP 7.4 and 8.3, single-site and multisite,
+> and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
 > milestones and [TODO.md](TODO.md) for what's in flight.
 
 ## Set and forget — What Keel establishes as a baseline
 
-Activating Keel switches on sixteen of its thirty-nine defaults and applies a starting value to nine more, without writing to your content or deleting anything — every one is a switch on Settings → Keel, and turning it off puts WordPress back exactly as it shipped. 
+Activating Keel switches on sixteen of its thirty-nine defaults and applies a starting value to nine more, without writing to your content or deleting anything — every one is a switch on Settings → Keel, and turning it off puts WordPress back exactly as it shipped.
 
-Most of the immediate changes are quiet: users stop being listed for anonymous REST requests, new passwords must be long and never present in a known data breach, raw HTML is limited to Administrators, security headers go out, AI connectors are off, uploads get lowercase filenames, and the site starts warning you if its email sending capability looks broken. 
+Most of the immediate changes are quiet: users stop being listed for anonymous REST requests, new passwords must be long and never present in a known data breach, raw HTML is limited to Administrators, security headers go out, AI connectors are off, uploads get lowercase filenames, and the site starts warning you if its email sending capability looks broken.
 
 Three things change visibly on the first page load — comments, trackbacks and pingbacks are off everywhere including existing posts (nothing deleted, all reversible), author archives stop resolving, and `X-Frame-Options: SAMEORIGIN` stops other sites embedding yours — with two quieter ones behind them: attachment pages redirect to their parent post, and self-pingbacks and the emoji script are gone. The starting values are conservative: core takes security releases but not major versions, ten revisions are kept, logins last two days or fourteen with "Remember me", subscribers are exempt from the password rules, and the admin menu, front-end admin bar and login logo are left exactly as WordPress has them. One default is on but inert on a live site — outgoing email is blocked on any environment that isn't production, so a database copied to staging can't email real customers.
 
@@ -35,7 +36,7 @@ Three things change visibly on the first page load — comments, trackbacks and 
 - Security Headers — sends baseline security headers
 - AI Connectors — disables AI provider connectors
 
-**Content and public surfaces** 
+**Content and public surfaces**
 
 - Comments — disables comments, trackbacks and pingbacks
 - Pingbacks On New Posts — closes pingbacks/trackbacks on new posts
@@ -44,15 +45,18 @@ Three things change visibly on the first page load — comments, trackbacks and 
 - Attachment Pages — redirects them to the parent post
 - Emoji Script — drops the emoji detection script
 
-**Media Library** 
+**Media Library**
 
 - Upload Filenames (lowercases new uploads)
 - Image Sizes (shows generated sizes on attachments)
 
-**Core Updates** 
+**Core Updates**
 
-— Minor/Maintenance Releases (auto-updates on minor releases, which simply reinforces the core default.)
 - Translations (auto-updates translation files)
+
+Core auto-updates are one of the nine starting values rather than a switch: they are set
+to **minor**, so maintenance and security releases install themselves and major versions
+do not. That reinforces what WordPress already does by default rather than changing it.
 
 **Email**
 
@@ -69,7 +73,9 @@ Three things change visibly on the first page load — comments, trackbacks and 
 
 **The Passwords help tab.** Length and breach screening in place of composition
 rules, with what the breach check actually sends spelled out — five characters of
-a hash, never the password — and what it costs when the API is unreachable.
+a hash, never the password — and what happens when the API cannot be reached, which
+Keel reports rather than passing over in silence. Two more tabs cover environments
+and overlapping plugins.
 
 <img src=".wordpress-org/screenshot-3.png" alt="Site Health → Info showing every Keel default and its current state, grouped by category" width="900">
 
@@ -141,7 +147,7 @@ why a password reset never arrived.
 "A local site cannot send mail anyway" is not a safeguard: measured on a stock
 local install, the only thing stopping delivery is often an invalid default `From`
 address, which a copied production `siteurl` removes. Commonly used SMTP
-plugins, which a production copy carries along, may connects to
+plugins, which a production copy carries along, may connect to
 the real email provider and use it before you realize what is happening.
 
 Keel short-circuits `wp_mail()` with `true`, not `false`, so a staging site does not
@@ -183,9 +189,9 @@ A [WordPress Playground](https://playground.wordpress.net/) blueprint spins up a
 throwaway site with Keel installed, so you can see all 39 defaults and their
 states without a host or a local WordPress.
 
-**[▶ Try the latest release](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-stable.json)** — byte-identical to what you would download, and it follows each new stable release.
+**[▶ Try the latest release](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — byte-identical to what you would download, and it follows each new stable release.
 
-**[▶ Try the rolling build](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)** — the `latest` pre-release, for previewing changes before they are cut.
+**[▶ Try the rolling build](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-hosted.json)** — the `latest` pre-release, for previewing changes before they are cut.
 
 Both open **Settings → Keel** and create a published post, so the content
 defaults — comments, pingbacks, author archives, attachment redirects — have
