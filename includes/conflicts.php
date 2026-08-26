@@ -119,6 +119,24 @@ function keel_defaults_policy_hooks() {
 }
 
 /**
+ * Marker for a callback no plugin can be attributed to.
+ *
+ * A token, not a sentence. This used to be the translated string "Unattributed
+ * callback", pushed into the same array that otherwise holds plugin directory
+ * names — so Site Health rendered "comments_open — callbacks from Unattributed
+ * callback", which reads as the name of a plugin, and several such rows read as
+ * several plugins. Reported as exactly that: the notice named one plugin while
+ * Site Health appeared to name five others.
+ *
+ * Keeping the marker out of the display layer is what fixes it. The list stays a
+ * list of plugin names, this says "and something here has no name", and the
+ * wording is decided once, where the rendering is.
+ *
+ * Prefixed so it cannot collide with a real plugin directory.
+ */
+const KEEL_DEFAULTS_UNATTRIBUTED = '__keel_unattributed__';
+
+/**
  * Resolve a registered callback to the plugin directory it lives in.
  *
  * Reflection is what makes this general: it answers "which file is this code
@@ -375,7 +393,7 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 		}
 
 		if ( $unattributed ) {
-			$report['unconfirmed'][ $hook ][] = __( 'Unattributed callback', 'keel-defaults' );
+			$report['unconfirmed'][ $hook ][] = KEEL_DEFAULTS_UNATTRIBUTED;
 		}
 
 		foreach ( array_keys( $rivals ) as $plugin ) {
@@ -599,6 +617,27 @@ function keel_defaults_conflicts_fingerprint( $conflicts ) {
 }
 
 /**
+ * Hooks carrying a callback that could not be traced to a plugin.
+ *
+ * Separated from the plugin names so a caller can say how many hooks are
+ * affected without having to know what the marker looks like.
+ *
+ * @return string[] Hook names.
+ */
+function keel_defaults_unattributed_hooks() {
+	$report = keel_defaults_policy_overlap_report();
+	$hooks  = array();
+
+	foreach ( $report['unconfirmed'] as $hook => $names ) {
+		if ( in_array( KEEL_DEFAULTS_UNATTRIBUTED, $names, true ) ) {
+			$hooks[] = $hook;
+		}
+	}
+
+	return $hooks;
+}
+
+/**
  * Fingerprint of everything the notice reports, both halves.
  *
  * Dismissing has to mean "I have seen this", and what there is to see is the
@@ -618,6 +657,12 @@ function keel_defaults_notice_fingerprint() {
 
 	if ( ! empty( $divergences ) ) {
 		$state['keel:divergence'] = array_keys( $divergences );
+	}
+
+	$unnamed = keel_defaults_unattributed_hooks();
+
+	if ( ! empty( $unnamed ) ) {
+		$state['keel:unattributed'] = $unnamed;
 	}
 
 	return keel_defaults_conflicts_fingerprint( $state );
@@ -668,8 +713,9 @@ function keel_defaults_render_conflicts_notice() {
 
 	$conflicts   = keel_defaults_competing_plugins();
 	$divergences = keel_defaults_policy_divergences();
+	$unnamed     = keel_defaults_unattributed_hooks();
 
-	if ( empty( $conflicts ) && empty( $divergences ) ) {
+	if ( empty( $conflicts ) && empty( $divergences ) && empty( $unnamed ) ) {
 		return;
 	}
 
@@ -742,6 +788,22 @@ function keel_defaults_render_conflicts_notice() {
 		</p>
 		<p>
 				<?php esc_html_e( 'These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree.', 'keel-defaults' ); ?>
+		</p>
+		<?php endif; ?>
+		<?php if ( ! empty( $unnamed ) ) : ?>
+		<p>
+			<?php
+			/* translators: %d: number of hooks. */
+			$untraceable = _n(
+				'%d more setting is shared with a callback that cannot be traced to any plugin, so there is no name to give you.',
+				'%d more settings are shared with callbacks that cannot be traced to any plugin, so there are no names to give you.',
+				count( $unnamed ),
+				'keel-defaults'
+			);
+
+			printf( esc_html( $untraceable ), count( $unnamed ) );
+			?>
+			<?php esc_html_e( 'A plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it. Site Health lists which settings.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<p>
