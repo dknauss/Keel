@@ -30,10 +30,14 @@ on:
         required: true
         type: string
     secrets:
+      SVN_USERNAME:
+        required: false
+      SVN_PASSWORD:
+        required: false
       WP_ORG_SVN_USERNAME:
-        required: true
+        required: false
       WP_ORG_SVN_PASSWORD:
-        required: true
+        required: false
 
 permissions:
   contents: read
@@ -123,11 +127,29 @@ jobs:
           echo "== staged assets =="
           ls -1 build/wporg-assets
 
+      - name: Normalize SVN credentials
+        id: svn-creds
+        env:
+          RAW_SVN_USERNAME: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_USERNAME || secrets.WP_ORG_SVN_USERNAME }}
+          RAW_SVN_PASSWORD: ${{ secrets.SVN_PASSWORD != '' && secrets.SVN_PASSWORD || secrets.WP_ORG_SVN_PASSWORD }}
+        run: |
+          SVN_USERNAME="$(printf '%s' "$RAW_SVN_USERNAME" | tr -d '\r\n')"
+          SVN_PASSWORD="$(printf '%s' "$RAW_SVN_PASSWORD" | tr -d '\r\n')"
+
+          test -n "$SVN_USERNAME"
+          test -n "$SVN_PASSWORD"
+
+          echo "::add-mask::$SVN_USERNAME"
+          echo "::add-mask::$SVN_PASSWORD"
+
+          printf 'svn_username=%s\n' "$SVN_USERNAME" >> "$GITHUB_OUTPUT"
+          printf 'svn_password=%s\n' "$SVN_PASSWORD" >> "$GITHUB_OUTPUT"
+
       - name: WordPress.org plugin deploy
         uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # v2.3.0 (stable)
         env:
-          SVN_USERNAME: ${{ secrets.WP_ORG_SVN_USERNAME }}
-          SVN_PASSWORD: ${{ secrets.WP_ORG_SVN_PASSWORD }}
+          SVN_USERNAME: ${{ steps.svn-creds.outputs.svn_username }}
+          SVN_PASSWORD: ${{ steps.svn-creds.outputs.svn_password }}
           SLUG: keel-defaults
           VERSION: ${{ steps.meta.outputs.version }}
           BUILD_DIR: build/keel-defaults

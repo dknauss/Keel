@@ -285,6 +285,31 @@ keel_assert(
 	'The deploy job runs in the wordpress-org environment, which is where the approval gate hangs.'
 );
 
+/*
+ * The 10up action wants SVN_USERNAME / SVN_PASSWORD. This workflow also accepts
+ * the repo's older WP_ORG_* secret names so the reusable call keeps working,
+ * but it normalizes both through one step before the action runs. That serves
+ * two purposes: standard-named secrets work directly, and a pasted trailing
+ * newline in a GitHub secret does not become an invisible auth failure during
+ * svn commit.
+ */
+keel_assert(
+	false !== strpos( $deploy_src, 'id: svn-creds' ),
+	'wp-deploy.yml normalizes the SVN credentials before invoking the deploy action.'
+);
+keel_assert(
+	false !== strpos( $deploy_src, "secrets.SVN_USERNAME != '' && secrets.SVN_USERNAME || secrets.WP_ORG_SVN_USERNAME" ),
+	'wp-deploy.yml prefers the action-standard SVN_USERNAME secret and falls back to the older WP_ORG_SVN_USERNAME name.'
+);
+keel_assert(
+	false !== strpos( $deploy_src, "secrets.SVN_PASSWORD != '' && secrets.SVN_PASSWORD || secrets.WP_ORG_SVN_PASSWORD" ),
+	'wp-deploy.yml prefers the action-standard SVN_PASSWORD secret and falls back to the older WP_ORG_SVN_PASSWORD name.'
+);
+keel_assert(
+	2 === substr_count( $deploy_src, "tr -d '\\r\\n'" ),
+	'wp-deploy.yml strips CR/LF from both SVN credentials before passing them to svn.'
+);
+
 // One builder, so what is uploaded to the directory is what the release and the
 // demo were built from.
 keel_assert(
