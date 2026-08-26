@@ -873,6 +873,38 @@ core behaviour or hide ordinary admin UI for a preference.
       plugin's most useful surfaces. Sites that want a curated dashboard are
       better served by an admin-customisation plugin.
 
+- [~] **Disabling the blog — not taken** (decided 2026-08-25). Deregistering `post`,
+      and with it `category` and `post_tag`, so a site that does not publish posts
+      stops carrying the machinery for them. Prior art: Disable Blog, which is one
+      of the plugins in the teardown below.
+
+      **The teardown is the argument against it.** Disable Blog is measured there
+      taking collateral with it: the block editor stops working for the type it
+      removed, and oEmbed answers 404. Absorbing an approach this repository has
+      already documented as having those costs would need a better answer than
+      intending to do it more carefully.
+
+      It also fails the shape every other default holds to. A default here is one
+      toggle over one filter, and turning it off puts WordPress back as it was.
+      Deregistering a post type is structural rather than filtered: posts are not
+      deleted but become unqueryable and unreachable, admin menus go, and anything
+      holding a post ID has a broken reference. Switching it back restores the type
+      and not necessarily the templates, menus and integrations that adapted while
+      it was gone. It would be the first default here that is not cleanly
+      reversible. Taxonomies are worse — `category` and `post_tag` reach into
+      permalinks, feeds and the REST index, and unregistering them surfaces as a
+      404 weeks later.
+
+      **The safe half is already here, and the rest belongs elsewhere.** A site that
+      does not publish posts is served by the defaults Keel already ships: author
+      archives off, feeds closed, comments off, attachment pages redirected — every
+      one a filter, every one reversible. Beyond that the useful version is *hiding*
+      rather than deregistering, which is admin-surface work and belongs to a
+      plugin that owns the admin surface. [Maestro](https://github.com/dknauss/admin-menu-maestro)
+      does that per role, and is explicit that hiding declutters without locking
+      access — the right split, because a defaults plugin should not be the thing
+      that makes content unreachable.
+
 Explicitly **not** taken from the survey, recorded so the decision is not made
 twice: change-login-URL (obscurity, and WPS Hide Login owns it), maintenance mode,
 captcha, media replacement, view-as-role, limit login attempts. The first five are
