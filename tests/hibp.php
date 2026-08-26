@@ -40,6 +40,15 @@ function wp_cache_set( $key, $value, $group = '', $expire = 0 ) {
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
+function update_option( $key, $value, $autoload = null ) {
+	unset( $autoload );
+	$GLOBALS['keel_options'][ $key ] = $value;
+	return true;
+}
+function delete_option( $key ) {
+	unset( $GLOBALS['keel_options'][ $key ] );
+	return true;
+}
 
 /*
  * --- transport and cache stubs, so keel_hibp_lookup() can be run end to end ---
@@ -321,5 +330,43 @@ keel_assert( 'http_429' === keel_hibp_last_failure()['kind'], 'A rate limit is r
 // And screening still fails open throughout: a third-party outage never locks
 // anybody out of their own account.
 keel_assert( false === keel_password_is_pwned( 'correct-horse-battery-staple-9271' ), 'An unknown verdict still reads as not-breached to the password policy.' );
+
+/*
+ * --- a success clears the outage record, and is itself recorded ---
+ *
+ * Both halves of the review finding. The Site Health copy promised the notice
+ * clears once a lookup succeeds and nothing ever cleared it; and "no failure
+ * recorded" was being reported as "screening is working", which it is not —
+ * a site where no lookup has ever run has no record either way.
+ */
+$GLOBALS['keel_transients']   = array();
+$GLOBALS['keel_object_cache'] = array();
+$GLOBALS['keel_options']      = array();
+
+keel_assert( null === keel_hibp_last_success(), 'A site where no lookup has ever completed records no success.' );
+
+// Fail, then succeed.
+keel_hibp_reset( 0, '' );
+$GLOBALS['keel_http_reply'] = new WP_Error( 'http_request_failed', 'down' );
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_assert( null !== keel_hibp_last_failure(), 'Precondition: the outage is recorded.' );
+
+$GLOBALS['keel_transients']   = array( 'keel_hibp_unavailable' => $GLOBALS['keel_transients']['keel_hibp_unavailable'] );
+$GLOBALS['keel_object_cache'] = array();
+keel_hibp_reset( 200, $live_suffix . ':3' );
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+
+keel_assert( null === keel_hibp_last_failure(), 'A live successful response clears the outage record, as the copy promises.' );
+keel_assert( null !== keel_hibp_last_success(), 'And records that screening completed.' );
+
+// A cache hit proves nothing about the service now, so it must not clear.
+$GLOBALS['keel_transients']['keel_hibp_unavailable'] = array(
+	'kind'  => 'unreachable',
+	'first' => time(),
+	'seen'  => time(),
+	'count' => 1,
+);
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_assert( null !== keel_hibp_last_failure(), 'A cached lookup does not clear the record: it is not evidence the service recovered.' );
 
 echo "hibp: OK\n";

@@ -61,7 +61,9 @@ function keel_defaults_policy_hooks() {
 			/*
 			 * Subtractive, so it composes. The callback drops the comment
 			 * blocks from whatever list it is handed and keeps the rest, and it
-			 * registers at PHP_INT_MAX so it runs last — whether another plugin
+			 * registers at PHP_INT_MAX so it runs after everything registered at a
+			 * lower priority, and after anything at PHP_INT_MAX that registered
+			 * before it — whether another plugin
 			 * passed `false`, `true` or an explicit array, Keel operates on that
 			 * decision rather than discarding it. Two plugins restricting the
 			 * inserter both get their way.
@@ -901,9 +903,12 @@ function keel_defaults_policy_expectations() {
 /**
  * Note what a governed filter actually settled on.
  *
- * Called from an observer registered at the lowest priority Keel can hold, so it
- * runs after everything else on the hook. It reads a value WordPress produced on
- * its own; it does not call the filter, and it invokes nothing. That distinction
+ * Called from an observer registered at PHP_INT_MAX, so it runs after everything
+ * at a lower priority — but not necessarily after a callback that registered at
+ * PHP_INT_MAX first; see keel_defaults_watch_policy_results() for why that is a
+ * limit of the filter model rather than something to fix here. It reads a value
+ * WordPress produced on its own; it does not call the filter, and it invokes
+ * nothing. That distinction
  * is the whole design — running other people's callbacks to see what they do was
  * built, shipped and withdrawn in 0.5.1, because a check that reports collisions
  * must not cause them.
@@ -1093,8 +1098,23 @@ function keel_defaults_forget_policy_divergences() {
 /**
  * Register the observers.
  *
- * One per predictable hook, at the lowest priority available, so the value read
- * is the one WordPress hands to whatever asked for it.
+ * One per predictable hook, at PHP_INT_MAX, so the value read is the one
+ * WordPress hands to whatever asked for it in all but one case.
+ *
+ * That case is worth naming rather than glossing: PHP_INT_MAX is the last
+ * priority, not a position after everyone. WordPress preserves registration
+ * order within a priority, so a plugin that also registers at PHP_INT_MAX and
+ * loads after Keel runs *after* this observer, and what gets recorded is the
+ * value before that plugin changed it. The failure is a divergence going
+ * unreported — the observer sees Keel's own value and finds nothing wrong —
+ * rather than a false one, so the diagnostic under-reports instead of accusing
+ * anybody wrongly, which is the right way round for it to be wrong.
+ *
+ * Registering later does not fix it. Whenever Keel registers, a plugin can
+ * register after that at the same priority; there is no position in WordPress's
+ * filter model that is guaranteed last. This is a limit of the mechanism, and
+ * the reason the divergence report says a setting "was last seen" producing a
+ * different value rather than claiming to know the final one.
  *
  * @return void
  */

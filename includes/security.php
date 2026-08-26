@@ -934,6 +934,41 @@ function keel_hibp_unavailable( $kind ) {
 }
 
 /**
+ * Note that a lookup completed, so Site Health can say so from evidence.
+ *
+ * "No failure recorded" is not the same as "screening works": a site where no
+ * password has ever been set, or whose hour-long failure record simply expired
+ * without anything retrying, has no record either way. Storing the success
+ * separately is what lets the difference be reported honestly.
+ *
+ * Throttled to once an hour. The value is a timestamp, so rewriting it on every
+ * lookup would be a write per password check to move a number that nothing
+ * reads at that resolution.
+ *
+ * @return void
+ */
+function keel_hibp_note_success() {
+	$last = get_option( 'keel_hibp_last_success' );
+
+	if ( is_numeric( $last ) && ( time() - (int) $last ) < HOUR_IN_SECONDS ) {
+		return;
+	}
+
+	update_option( 'keel_hibp_last_success', time(), false );
+}
+
+/**
+ * When breach screening last completed, if it ever has.
+ *
+ * @return int|null Unix timestamp, or null if no lookup has ever succeeded here.
+ */
+function keel_hibp_last_success() {
+	$last = get_option( 'keel_hibp_last_success' );
+
+	return is_numeric( $last ) ? (int) $last : null;
+}
+
+/**
  * The last recorded breach-screening failure, if it is still current.
  *
  * @return array|null Record with kind, first, seen and count, or null.
@@ -1025,6 +1060,20 @@ function keel_hibp_lookup( $password ) {
 	if ( ! $cached ) {
 		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
 		wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
+
+		/*
+		 * A live response proves screening is working again, so the outage record
+		 * goes. Only on the uncached path: a cache hit proves nothing about the
+		 * service's current state, and clearing there would put a write on the
+		 * common path to answer a question it had not asked.
+		 *
+		 * Read before delete, so an already-clean site does not write at all.
+		 */
+		if ( null !== keel_hibp_last_failure() ) {
+			delete_transient( 'keel_hibp_unavailable' );
+		}
+
+		keel_hibp_note_success();
 	}
 
 	return keel_hibp_range_contains( $body, $suffix );

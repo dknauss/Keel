@@ -314,13 +314,13 @@ function keel_defaults_conflict_list( $conflicts ) {
  */
 function keel_defaults_site_health_breach_screening() {
 	$result = array(
-		'label'       => __( 'Password breach screening is working', 'keel-defaults' ),
+		'label'       => __( 'No breach-screening failures recorded', 'keel-defaults' ),
 		'status'      => 'good',
 		'badge'       => array(
 			'label' => __( 'Keel', 'keel-defaults' ),
 			'color' => 'blue',
 		),
-		'description' => '<p>' . esc_html__( 'New passwords are screened against the Have I Been Pwned corpus, and the last check completed.', 'keel-defaults' ) . '</p>',
+		'description' => '<p>' . esc_html__( 'New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure.', 'keel-defaults' ) . '</p>',
 		'test'        => 'keel_defaults_breach_screening',
 	);
 
@@ -337,10 +337,21 @@ function keel_defaults_site_health_breach_screening() {
 		return $result;
 	}
 
-	if ( defined( 'KEEL_DISABLE_HIBP' ) && KEEL_DISABLE_HIBP ) {
-		$result['label']       = __( 'Password breach screening is disabled by a constant', 'keel-defaults' );
+	/*
+	 * The filter as well as the constant. Reporting only the constant meant a
+	 * site using the documented `keel_disable_hibp` filter was told screening
+	 * was fine when nothing was being screened at all.
+	 *
+	 * Passed an empty password because there is none to screen here; a filter
+	 * deciding per-password cannot be answered by a status check, and one
+	 * switching the feature off wholesale — which is what this is looking for —
+	 * does not care.
+	 */
+	if ( ( defined( 'KEEL_DISABLE_HIBP' ) && KEEL_DISABLE_HIBP )
+		|| (bool) apply_filters( 'keel_disable_hibp', false, '' ) ) {
+		$result['label']       = __( 'Password breach screening is switched off in code', 'keel-defaults' );
 		$result['description'] = '<p>' . wp_kses(
-			__( 'Length and the other password rules still apply, but <code>KEEL_DISABLE_HIBP</code> in <code>wp-config.php</code> stops the breach lookup. This is deliberate configuration, not a fault.', 'keel-defaults' ),
+			__( 'Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault.', 'keel-defaults' ),
 			array( 'code' => array() )
 		) . '</p>';
 
@@ -350,6 +361,27 @@ function keel_defaults_site_health_breach_screening() {
 	$failure = keel_hibp_last_failure();
 
 	if ( null === $failure ) {
+		/*
+		 * Absence of a failure is not evidence of success. The failure record
+		 * lasts an hour, so a site that stopped retrying after an outage looks
+		 * identical to one that never had one — and a site where no password has
+		 * ever been set has no record of any kind. Say which of those it is.
+		 */
+		$success = keel_hibp_last_success();
+
+		if ( null !== $success ) {
+			$result['label']       = __( 'Password breach screening is working', 'keel-defaults' );
+			$result['description'] = '<p>' . sprintf(
+				/* translators: %s: human-readable time difference, e.g. "2 hours". */
+				esc_html__( 'New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago.', 'keel-defaults' ),
+				esc_html( human_time_diff( $success ) )
+			) . '</p>';
+
+			return $result;
+		}
+
+		$result['description'] = '<p>' . esc_html__( 'New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password.', 'keel-defaults' ) . '</p>';
+
 		return $result;
 	}
 

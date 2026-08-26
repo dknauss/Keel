@@ -88,7 +88,16 @@
 		return el.value;
 	}
 
-	document.querySelectorAll( 'tr[data-keel-dep-field]' ).forEach( function ( row ) {
+	/*
+	 * Any element carrying the attribute, not just table rows.
+	 *
+	 * Dependent settings render two ways: a plain setting is a <tr>, and a
+	 * setting inside a group — the three XML-RPC method controls — is a <div>
+	 * sharing one row with its siblings. Selecting only 'tr' meant the grouped
+	 * ones never showed or hid until a reload, and never got the aria-controls
+	 * and aria-expanded wiring at all, which is the half a screen reader needs.
+	 */
+	document.querySelectorAll( '[data-keel-dep-field]' ).forEach( function ( row ) {
 		var field = row.getAttribute( 'data-keel-dep-field' );
 		var hide  = row.getAttribute( 'data-keel-dep-hide' );
 		var ctrls = document.querySelectorAll( '[name="keel_settings[' + field + ']"]' );

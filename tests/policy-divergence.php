@@ -381,6 +381,60 @@ keel_assert(
 	'And the label does not say nothing was found while the body says a setting is being overridden.'
 );
 
+/*
+ * --- the observer is last by priority, not last absolutely ---
+ *
+ * PHP_INT_MAX is the final priority, not a position after everybody. WordPress
+ * runs callbacks sharing a priority in registration order, so a plugin that also
+ * registers at PHP_INT_MAX and loads after Keel runs after the observer, and the
+ * value recorded is the one from before that plugin changed it.
+ *
+ * Modelled here rather than asserted against a real WP_Hook, because the harness
+ * has no WordPress: what matters is that the *documented* behaviour matches the
+ * mechanism, and that the failure mode is under-reporting rather than a false
+ * accusation. If this ever becomes fixable, this is the case that should start
+ * failing.
+ */
+$keel_order = array();
+$keel_chain = array(
+	// Keel's observer, registered first at PHP_INT_MAX.
+	'keel-observer' => static function ( $value ) use ( &$keel_order ) {
+		$keel_order[] = 'observed:' . ( $value ? 'true' : 'false' );
+		return $value;
+	},
+	// A plugin registering at the same priority, afterwards.
+	'late-rival'    => static function () use ( &$keel_order ) {
+		$keel_order[] = 'rival-overrode';
+		return false;
+	},
+);
+
+$keel_value = true;
+foreach ( $keel_chain as $keel_cb ) {
+	$keel_value = $keel_cb( $keel_value );
+}
+
+keel_assert(
+	array( 'observed:true', 'rival-overrode' ) === $keel_order,
+	'A same-priority callback registered later runs after the observer: ' . implode( ' -> ', $keel_order )
+);
+keel_assert(
+	'observed:true' === $keel_order[0] && false === $keel_value,
+	'So the observer recorded the pre-override value while the filter settled on the other one.'
+);
+
+/*
+ * The consequence, stated so it is not mistaken for a worse bug than it is: the
+ * observer sees Keel's own value, finds no disagreement, and records nothing.
+ * The diagnostic misses a real divergence; it never invents one. Under-reporting
+ * is the right way round for a check that tells administrators another plugin
+ * may be at fault.
+ */
+keel_assert(
+	'observed:true' === $keel_order[0],
+	'The recorded observation is the value before the override, which is why this under-reports rather than misreports.'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, sprintf( "policy divergence: %d assertion%s failed\n", $fail, 1 === $fail ? '' : 's' ) );
 	exit( 1 );

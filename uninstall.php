@@ -68,13 +68,55 @@ function keel_defaults_uninstall_site() {
 	 */
 	$keel_legacy = get_option( 'keel_defaults' );
 
-	if ( is_array( $keel_legacy ) ) {
+	if ( is_array( $keel_legacy ) && ! empty( $keel_legacy ) ) {
+		/*
+		 * The check has to identify Keel's data, not merely brush against it.
+		 *
+		 * The first version of this deleted any array containing *one* of five
+		 * fairly ordinary keys, while its comment claimed to verify "an array of
+		 * scalars". An unrelated `keel_defaults` option that happened to carry a
+		 * `disable_comments` key would have been destroyed wholesale — an
+		 * uninstaller doing exactly the thing it was written to avoid.
+		 *
+		 * Three conditions now, all of them: every value is a scalar, as a
+		 * settings array of this shape always was; every key looks like a schema
+		 * key rather than arbitrary data; and several of Keel's own keys are
+		 * present, not one. Anything short of that is left alone, because the
+		 * cost of leaving a stale row behind is a row, and the cost of guessing
+		 * wrong is somebody else's data.
+		 */
+		$keel_scalar = true;
+		$keel_shaped = true;
+
+		foreach ( $keel_legacy as $keel_key => $keel_value ) {
+			if ( ! is_scalar( $keel_value ) ) {
+				$keel_scalar = false;
+				break;
+			}
+
+			if ( ! is_string( $keel_key ) || ! preg_match( '/^[a-z][a-z0-9_]*$/', $keel_key ) ) {
+				$keel_shaped = false;
+				break;
+			}
+		}
+
 		$keel_known = array_intersect(
 			array_keys( $keel_legacy ),
-			array( 'disable_comments', 'disable_rest', 'core_update_policy', 'login_logo_behavior', 'admin_menu_width' )
+			array(
+				'disable_comments',
+				'disable_rest',
+				'core_update_policy',
+				'login_logo_behavior',
+				'admin_menu_width',
+				'restrict_rest_user_discovery',
+				'block_xmlrpc_endpoint',
+				'require_strong_passwords',
+				'frontend_admin_bar_behavior',
+				'session_regular_days',
+			)
 		);
 
-		if ( ! empty( $keel_known ) ) {
+		if ( $keel_scalar && $keel_shaped && count( $keel_known ) >= 5 ) {
 			delete_option( 'keel_defaults' );
 		}
 	}
@@ -85,6 +127,25 @@ function keel_defaults_uninstall_site() {
 	 * would otherwise keep the row after the plugin that wrote it was gone.
 	 */
 	delete_transient( 'keel_hibp_unavailable' );
+	delete_option( 'keel_hibp_last_success' );
+
+	/*
+	 * The breach cache also lives in the object cache, which the SQL below
+	 * cannot reach.
+	 *
+	 * Two ways it survives otherwise. Ranges are written to the `keel_hibp`
+	 * object-cache group as well as to a transient; and on a site with a
+	 * persistent external cache, `set_transient()` never creates a database row
+	 * at all, so the LIKE query matches nothing and every cached hash prefix
+	 * outlives the plugin by up to twelve hours.
+	 *
+	 * wp_cache_flush_group() is the enumerable mechanism where the drop-in
+	 * supports it. Where it does not, the entries are unreachable rather than
+	 * removed — nothing left will look them up — and they expire on their own.
+	 */
+	if ( function_exists( 'wp_cache_supports' ) && wp_cache_supports( 'flush_group' ) ) {
+		wp_cache_flush_group( 'keel_hibp' );
+	}
 
 	// Transients are options with a known prefix, and the timeout row is a
 	// second option that outlives the value if only the value is deleted.

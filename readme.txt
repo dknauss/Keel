@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.6
+Stable tag: 0.5.7
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,6 +127,15 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+Versions before 0.5.7 were not published to the directory. The entries below are the development history that led to the first release.
+
+= 0.5.7 =
+* Breach-screening reports are now based on evidence rather than the absence of it. A successful lookup clears an earlier failure, which it did not before — so a site that recovered kept being told it had a problem, against the notice's own promise. Site Health also distinguishes "the last lookup completed" from "nothing has ever run here", and notices when the lookup has been switched off with the filter rather than only the constant.
+* Grouped settings that depend on another setting now show and hide as you change it. The three XML-RPC method controls were the only settings rendered inside a group, and the script that reveals dependent settings only looked at ungrouped ones — so those three stayed as they were until the page reloaded, and never announced the relationship to a screen reader.
+* Network-locked sliders and role checkboxes now behave as locked. They said they were locked and then accepted edits anyway. The server always refused the value; now the screen agrees with it.
+* Deleting the plugin clears breach-cache data held in a persistent object cache. On a site with an external cache the cached hash prefixes were not database rows at all, so they outlived the plugin by up to twelve hours.
+* Tightened the check that removes the settings option from before the rename. It deleted any stored array carrying one of five fairly ordinary keys, which could have taken an unrelated option with it.
+
 = 0.5.6 =
 * Breach screening now says when it is not working. If the Have I Been Pwned lookup cannot be completed — the service is unreachable, rate-limiting, or something else answered in its place — Site Health reports it instead of the check being skipped in silence. Passwords are still never blocked by an outage, and the rest of the password policy is unaffected; the difference is that a site whose screening stopped working weeks ago can now find out.
 * Added help for environments and for overlapping plugins. The Help menu on the settings screen explains why email stops on staging, what the environment indicator is for, and what the two kinds of overlap report actually mean — including why some overlaps name a plugin and some cannot.
@@ -211,6 +220,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.7 =
+Fixes breach-screening status being reported from missing evidence, dependent XML-RPC controls not updating without a reload, and locked sliders accepting edits. Recommended if you use any of those.
 
 = 0.5.6 =
 Breach-screening outages are now reported under Site Health rather than passing unnoticed. No change to what is or is not allowed as a password.

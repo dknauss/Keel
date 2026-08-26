@@ -614,9 +614,10 @@ function keel_defaults_config_lock( $key ) {
  * @param array  $s           Display strings for this field.
  * @param string $label       Field label.
  * @param string $describedby Space-separated ids for aria-describedby.
+ * @param bool   $locked      Whether wp-config.php or network policy has settled this.
  * @return void
  */
-function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby ) {
+function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby, $locked = false ) {
 	$rvalues = array_map( 'strval', array_values( $field['values'] ) );
 	$rlabels = array_values( isset( $s['labels'] ) ? $s['labels'] : array() );
 	$rcur    = array_search( (string) $value, $rvalues, true );
@@ -648,6 +649,17 @@ function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $lab
 			list="<?php echo esc_attr( $rid ); ?>-stops"
 			aria-label="<?php echo esc_attr( $label ); ?>"
 			aria-valuetext="<?php echo esc_attr( $rlabels[ $rcur ] ); ?>"
+			<?php
+			/*
+			 * A locked slider has to say so to the script as well as to a reader.
+			 * Selects, numbers and toggles already emitted this; the slider and
+			 * the role checkboxes did not, so a network-locked control announced
+			 * itself as locked and then previewed and accepted edits anyway. The
+			 * server refuses the value either way — this is the screen agreeing
+			 * with what the server will do.
+			 */
+			echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
+			?>
 			data-keel-range="<?php echo esc_attr( $rid ); ?>-output"
 			data-keel-range-labels="<?php echo esc_attr( wp_json_encode( $rlabels ) ); ?>"
 			data-keel-range-widths="<?php echo esc_attr( wp_json_encode( array_values( $rpx ) ) ); ?>"
@@ -848,7 +860,7 @@ function keel_defaults_render_settings_page() {
 										<?php endforeach; ?>
 									</select>
 								<?php elseif ( 'range' === $field['type'] ) : ?>
-									<?php keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby ); ?>
+									<?php keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby, $locked ); ?>
 								<?php elseif ( 'number' === $field['type'] ) : ?>
 									<?php if ( $locked ) : ?>
 										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
@@ -874,7 +886,7 @@ function keel_defaults_render_settings_page() {
 										<?php else : ?>
 											<?php foreach ( $ms_options as $role_slug => $role_name ) : ?>
 												<label style="display:block;margin-bottom:6px;">
-													<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $role_slug ); ?>" <?php checked( in_array( (string) $role_slug, $ms_current, true ) ); ?> />
+													<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $role_slug ); ?>" <?php checked( in_array( (string) $role_slug, $ms_current, true ) ); ?><?php echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal. ?> />
 													<?php echo esc_html( $role_name ); ?>
 												</label>
 											<?php endforeach; ?>
