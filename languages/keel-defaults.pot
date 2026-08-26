@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.5.5\n"
+"Project-Id-Version: Keel Defaults 0.5.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-26T00:28:56+00:00\n"
+"POT-Creation-Date: 2026-08-26T01:06:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -19,7 +19,7 @@ msgstr ""
 #: includes/network.php:186
 #: includes/network.php:187
 #: includes/site-health.php:21
-#: includes/site-health.php:180
+#: includes/site-health.php:184
 msgid "Keel Defaults"
 msgstr ""
 
@@ -255,8 +255,9 @@ msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:21
-#: includes/settings-page.php:661
-#: includes/site-health.php:314
+#: includes/settings-page.php:706
+#: includes/site-health.php:320
+#: includes/site-health.php:411
 msgid "Keel"
 msgstr ""
 
@@ -309,76 +310,136 @@ msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#Search
 msgstr ""
 
 #: includes/settings-page.php:130
-msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly."
+msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers."
 msgstr ""
 
-#: includes/settings-page.php:135
+#. translators: %s: URL of the Site Health status screen.
+#: includes/settings-page.php:136
+#, php-format
+msgid "It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href=\"%s\">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without anybody choosing to stop it. The record clears itself once a lookup succeeds."
+msgstr ""
+
+#: includes/settings-page.php:143
 msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
-#: includes/settings-page.php:146
+#: includes/settings-page.php:154
 #: includes/strings.php:273
 msgid "XML-RPC"
 msgstr ""
 
-#: includes/settings-page.php:148
+#: includes/settings-page.php:156
 msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
 msgstr ""
 
-#: includes/settings-page.php:149
+#: includes/settings-page.php:157
 msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
 msgstr ""
 
-#: includes/settings-page.php:150
+#: includes/settings-page.php:158
 msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
 msgstr ""
 
-#: includes/settings-page.php:152
+#: includes/settings-page.php:160
 msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
 msgstr ""
 
-#: includes/settings-page.php:156
+#: includes/settings-page.php:164
 msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
 msgstr ""
 
-#: includes/settings-page.php:163
+#: includes/settings-page.php:173
+msgid "Environments"
+msgstr ""
+
+#: includes/settings-page.php:176
+msgid "Two defaults behave differently depending on whether this install is production. Both read <code>wp_get_environment_type()</code>, which WordPress derives from the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable and which defaults to <code>production</code> when nothing sets it. Keel also recognises common local hostnames, so a laptop install is usually identified without configuration."
+msgstr ""
+
+#: includes/settings-page.php:179
+msgid "Outgoing email stops at the edge of production. A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived."
+msgstr ""
+
+#: includes/settings-page.php:180
+msgid "WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of wp_mail() then behaves the way it will in production, instead of taking an error path that only ever runs on staging."
+msgstr ""
+
+#: includes/settings-page.php:181
+msgid "The environment indicator is the other half: a colour-coded label in the admin bar naming the current environment. It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent tabs. Below 960px the label collapses to just its icon to save room, but stays readable to screen readers."
+msgstr ""
+
+#: includes/settings-page.php:182
+msgid "If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting WP_ENVIRONMENT_TYPE explicitly in wp-config.php is worth doing on every install regardless, because core, plugins and themes all read it."
+msgstr ""
+
+#: includes/settings-page.php:189
+msgid "Overlapping plugins"
+msgstr ""
+
+#: includes/settings-page.php:191
+msgid "Many of these defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one answer survives — there is no error, nothing is logged, and the plugin that lost goes on showing the setting it thinks it applied. That is the failure this reporting exists for, and it is the reason a site can have two plugins configured to disable comments and still have comments."
+msgstr ""
+
+#: includes/settings-page.php:192
+msgid "Keel reports it two ways, and they answer different questions. The first names plugins: another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either. Compare their settings and decide which one you want to own that behaviour."
+msgstr ""
+
+#: includes/settings-page.php:193
+msgid "The second says a setting is not taking effect: Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
+msgstr ""
+
+#: includes/settings-page.php:194
+msgid "Sometimes there is no plugin to name. A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look."
+msgstr ""
+
+#. translators: %s: URL of the Site Health status screen.
+#: includes/settings-page.php:198
+#, php-format
+msgid "The full report, hook by hook, is under <a href=\"%s\">Site Health</a>. The dashboard and plugins screens carry a short version, and the dashboard one can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing means &#8220;I have seen these&#8221; rather than &#8220;never mention this again&#8221;."
+msgstr ""
+
+#: includes/settings-page.php:203
+msgid "Nothing here runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn: a check that reports collisions must not cause them."
+msgstr ""
+
+#: includes/settings-page.php:208
 msgid "Current posture"
 msgstr ""
 
 #. translators: %s: URL of the Site Health Info screen.
-#: includes/settings-page.php:167
+#: includes/settings-page.php:212
 #, php-format
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:510
+#: includes/settings-page.php:555
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:515
-#: includes/settings-page.php:523
+#: includes/settings-page.php:560
+#: includes/settings-page.php:568
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
-#: includes/settings-page.php:529
+#: includes/settings-page.php:574
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:541
+#: includes/settings-page.php:586
 msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
 msgstr ""
 
-#: includes/settings-page.php:662
+#: includes/settings-page.php:707
 msgid "Sensible defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:674
+#: includes/settings-page.php:719
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:828
+#: includes/settings-page.php:873
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
@@ -386,124 +447,199 @@ msgstr ""
 msgid "Overlapping defaults plugins"
 msgstr ""
 
-#: includes/site-health.php:43
-msgid "On"
-msgstr ""
-
-#: includes/site-health.php:43
-msgid "Off"
+#: includes/site-health.php:29
+msgid "Password breach screening"
 msgstr ""
 
 #: includes/site-health.php:47
+msgid "On"
+msgstr ""
+
+#: includes/site-health.php:47
+msgid "Off"
+msgstr ""
+
+#: includes/site-health.php:51
 msgid "Unchanged"
 msgstr ""
 
-#: includes/site-health.php:53
+#: includes/site-health.php:57
 msgid "None"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:183
+#: includes/site-health.php:187
 #, php-format
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
 msgstr ""
 
-#: includes/site-health.php:184
-#: includes/site-health.php:208
+#: includes/site-health.php:188
+#: includes/site-health.php:212
 msgid "Settings → Keel"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:207
+#: includes/site-health.php:211
 #, php-format
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning."
 msgstr ""
 
-#: includes/site-health.php:225
+#: includes/site-health.php:229
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:228
+#: includes/site-health.php:232
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:230
+#: includes/site-health.php:234
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:235
+#: includes/site-health.php:239
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:236
+#: includes/site-health.php:240
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:239
+#: includes/site-health.php:243
 msgid "Security"
 msgstr ""
 
-#: includes/site-health.php:246
+#: includes/site-health.php:250
 msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:278
+#: includes/site-health.php:282
 #, php-format
 msgid "callbacks from %s, and one that cannot be traced to a plugin"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:284
+#: includes/site-health.php:288
 #, php-format
 msgid "callbacks from %s"
 msgstr ""
 
-#: includes/site-health.php:288
+#: includes/site-health.php:292
 msgid "a callback that cannot be traced to a plugin"
 msgstr ""
 
 #: includes/site-health.php:317
+msgid "Password breach screening is working"
+msgstr ""
+
+#: includes/site-health.php:323
+msgid "New passwords are screened against the Have I Been Pwned corpus, and the last check completed."
+msgstr ""
+
+#: includes/site-health.php:330
+msgid "Password breach screening is switched off"
+msgstr ""
+
+#. translators: %s: link to the Password Strength setting.
+#: includes/site-health.php:333
+#, php-format
+msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
+msgstr ""
+
+#: includes/site-health.php:334
+#: includes/strings.php:58
+msgid "Password Strength"
+msgstr ""
+
+#: includes/site-health.php:341
+msgid "Password breach screening is disabled by a constant"
+msgstr ""
+
+#: includes/site-health.php:343
+msgid "Length and the other password rules still apply, but <code>KEEL_DISABLE_HIBP</code> in <code>wp-config.php</code> stops the breach lookup. This is deliberate configuration, not a fault."
+msgstr ""
+
+#: includes/site-health.php:357
+msgid "the service could not be reached"
+msgstr ""
+
+#: includes/site-health.php:358
+msgid "the reply was cut short before it could be read"
+msgstr ""
+
+#: includes/site-health.php:359
+msgid "the reply was not the list of hashes it should have been, which usually means something answered on the service's behalf — a captive portal, or a filtering proxy"
+msgstr ""
+
+#. translators: %s: HTTP status code.
+#: includes/site-health.php:369
+#, php-format
+msgid "the service answered with HTTP %s"
+msgstr ""
+
+#: includes/site-health.php:373
+msgid "the lookup did not complete"
+msgstr ""
+
+#: includes/site-health.php:377
+msgid "Passwords are not being screened against known breaches"
+msgstr ""
+
+#. translators: %s: short reason the lookup failed.
+#: includes/site-health.php:381
+#, php-format
+msgid "The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check."
+msgstr ""
+
+#: includes/site-health.php:385
+msgid "This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person's own name and email — is unaffected and still applies."
+msgstr ""
+
+#: includes/site-health.php:387
+msgid "If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds."
+msgstr ""
+
+#: includes/site-health.php:414
 msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
 msgstr ""
 
 #. translators: %s: comma-separated list of filter names.
-#: includes/site-health.php:333
+#: includes/site-health.php:430
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:335
+#: includes/site-health.php:432
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:340
+#: includes/site-health.php:437
 msgid "Unconfirmed overlaps"
 msgstr ""
 
-#: includes/site-health.php:340
+#: includes/site-health.php:437
 msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
 msgstr ""
 
-#: includes/site-health.php:359
+#: includes/site-health.php:456
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:368
+#: includes/site-health.php:465
 msgid "No attributable policy overlap was found"
 msgstr ""
 
 #. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:385
+#: includes/site-health.php:482
 #, php-format
 msgid "Also registered on these policy hooks: %s"
 msgstr ""
 
-#: includes/site-health.php:387
+#: includes/site-health.php:484
 msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
 msgstr ""
 
-#: includes/site-health.php:391
+#: includes/site-health.php:488
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
@@ -589,10 +725,6 @@ msgstr ""
 
 #: includes/strings.php:55
 msgid "Off by default — application passwords are hashed, revocable, per-application credentials for REST and XML-RPC, and usually the safest way to grant API access. They carry the owning account's full access and skip interactive 2FA, so prohibit them only when policy requires every login to pass 2FA or SSO, or when no integration needs API access at all."
-msgstr ""
-
-#: includes/strings.php:58
-msgid "Password Strength"
 msgstr ""
 
 #: includes/strings.php:59

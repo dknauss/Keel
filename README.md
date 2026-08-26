@@ -16,7 +16,7 @@ and performance defaults onto any WordPress install — each one a switch under
 **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
 exactly what the plugin does to your site, in one place, and turn any piece off.
 
-> **Current release: `0.5.5`.** Keel now has 39 defaults; the Site Health
+> **Current release: `0.5.6`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins controlling the same settings are in. Verified
 > against WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
@@ -71,6 +71,35 @@ trade instead, is in
 Keel keeps oEmbed reachable when the REST gate is closed — alone among the four
 plugins measured that close REST outright — so other sites can still embed your posts
 instead of silently degrading them to bare links.
+
+## It tells you when it is not working
+
+A setting that silently stops applying is worse than one that was never there, because
+the screen still says it is on. Three things in Keel exist to close that gap, and all
+three report rather than block.
+
+**Another plugin on the same filter.** Many defaults are applied through filters that
+return a single value, so when two plugins register on one, only one answer survives —
+no error, nothing logged, and the loser goes on displaying the setting it thinks it
+applied. Keel names the other plugin where it can be identified, on the plugins screen
+and in Site Health. That confirms an overlap, not a disagreement, and it is not a
+reason to deactivate anything.
+
+**A setting that is measurably not taking effect.** The stronger half: Keel watches
+what the filter chain actually settles on and compares it with what it asked for. This
+catches the case the first half cannot — a plugin that switches something off using
+one of WordPress's own helper functions leaves nothing behind to identify it, so there
+is no name to give you, but the disagreement is still measurable.
+
+**Breach screening that has stopped reaching the API.** Password screening fails open
+by design; refusing a password because someone else's service is down would lock
+people out of their own accounts. It no longer fails *quietly* — an unreachable,
+rate-limited, truncated or intercepted lookup is recorded and reported under Site
+Health, so a site whose screening broke a month ago can find out. Only the kind of
+failure and when it happened are stored, never the password or its hash prefix.
+
+The colour-coded environment indicator in the admin bar is the same idea earlier in
+the chain: knowing which site you are on before you act on it.
 
 ## Email stops at the edge of production
 

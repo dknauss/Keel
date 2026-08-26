@@ -4,7 +4,9 @@
  *
  * Covers the parts that decide whether a range response can be trusted at all:
  * the transport-boundary check, the well-formedness check, and the padded-row
- * rule. A response that fails any of them must read as "not breached" (fail
+ * rule. A response that fails any of them must read as *unknown* rather than
+ * "not breached" — the two used to be the same value, which made an outage
+ * indistinguishable from a clean corpus. Screening still fails open (fail
  * open) rather than being parsed or cached.
  *
  * Run: php tests/hibp.php
@@ -78,6 +80,7 @@ function is_wp_error( $t ) {
 require_once __DIR__ . '/stubs/wp-error.php';
 
 defined( 'HOUR_IN_SECONDS' ) || define( 'HOUR_IN_SECONDS', 3600 );
+defined( 'MINUTE_IN_SECONDS' ) || define( 'MINUTE_IN_SECONDS', 60 );
 
 define( 'ABSPATH', __DIR__ . '/' );
 
@@ -189,25 +192,38 @@ function keel_hibp_reset( $code, $body ) {
  * @return bool
  */
 function keel_hibp_anything_cached() {
-	return ! empty( $GLOBALS['keel_transients'] ) || ! empty( $GLOBALS['keel_object_cache'] );
+	/*
+	 * Range entries only. The failure record is a transient too, and it is
+	 * *supposed* to be written when a lookup fails — counting it here would make
+	 * "nothing was cached" false for exactly the responses this is checking, and
+	 * the assertion would be measuring the diagnostic instead of the cache.
+	 */
+	$range = array_filter(
+		array_keys( (array) $GLOBALS['keel_transients'] ),
+		static function ( $key ) {
+			return 'keel_hibp_unavailable' !== $key;
+		}
+	);
+
+	return ! empty( $range ) || ! empty( $GLOBALS['keel_object_cache'] );
 }
 
 $live_suffix = strtoupper( substr( sha1( 'correct-horse-battery-staple-9271' ), 5 ) );
 
 // The reported case: a 200 whose body is empty.
 keel_hibp_reset( 200, '' );
-keel_assert( false === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An empty 200 reports "not breached" — the deliberate fail-open.' );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An empty 200 reports *unknown*, not "not breached".' );
 keel_assert( ! keel_hibp_anything_cached(), 'An empty 200 is never cached, so one bad reply cannot hold a prefix open.' );
 
 // Same question for a body that is not a range list at all.
 keel_hibp_reset( 200, '<html>captive portal</html>' );
-keel_assert( false === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A malformed 200 fails open.' );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A malformed 200 reports unknown.' );
 keel_assert( ! keel_hibp_anything_cached(), 'A malformed 200 is never cached.' );
 
 // And for a transport failure.
 keel_hibp_reset( 0, '' );
 $GLOBALS['keel_http_reply'] = new WP_Error( 'http_request_failed', 'down' );
-keel_assert( false === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An unreachable API fails open.' );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An unreachable API reports unknown.' );
 keel_assert( ! keel_hibp_anything_cached(), 'An unreachable API is never cached.' );
 
 /*
@@ -231,7 +247,7 @@ keel_assert( strlen( $at_cap ) >= $limit, 'The fixture really does reach the tra
 keel_assert( keel_hibp_body_is_valid( trim( $at_cap ) ), 'The fixture is otherwise well formed, so only the length check can reject it.' );
 
 keel_hibp_reset( 200, $at_cap );
-keel_assert( false === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A body at the truncation boundary fails open.' );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A body at the truncation boundary reports unknown.' );
 keel_assert( ! keel_hibp_anything_cached(), 'A body at the truncation boundary is never cached.' );
 unset( $GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] );
 
@@ -261,5 +277,49 @@ keel_assert(
 	isset( $GLOBALS['keel_http_lastargs']['headers']['Add-Padding'] ),
 	'The lookup asks for padding, so response size cannot reveal how many real matches a prefix had.'
 );
+
+/*
+ * --- an outage is recorded, and a working site records nothing ---
+ *
+ * The point of the third value. Screening still fails open, so the assertions
+ * above stand; these are about whether anybody could ever find out that it did.
+ */
+$GLOBALS['keel_transients']   = array();
+$GLOBALS['keel_object_cache'] = array();
+
+keel_assert( null === keel_hibp_last_failure(), 'A site that has not failed has nothing recorded.' );
+
+keel_hibp_reset( 0, '' );
+$GLOBALS['keel_http_reply'] = new WP_Error( 'http_request_failed', 'down' );
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+
+$record = keel_hibp_last_failure();
+keel_assert( is_array( $record ), 'An unreachable API leaves a record.' );
+keel_assert( 'unreachable' === $record['kind'], 'The record says what kind of failure it was: ' . $record['kind'] );
+keel_assert( 1 === $record['count'], 'One failure counts once.' );
+
+/*
+ * The record must carry nothing derived from the password. The hash prefix is
+ * k-anonymous by design, but a log of which prefixes a site has looked up is
+ * still a record of its passwords' shape, and no diagnostic needs it.
+ */
+$serialised = json_encode( $record ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Test harness; wp_json_encode() is not stubbed here.
+$prefix     = strtoupper( substr( sha1( 'correct-horse-battery-staple-9271' ), 0, 5 ) );
+keel_assert( false === strpos( $serialised, 'correct-horse' ), 'The record does not contain the password.' );
+keel_assert( false === strpos( $serialised, $prefix ), 'Nor the hash prefix that was looked up.' );
+
+// A different failure replaces the record rather than accumulating a second one.
+keel_hibp_reset( 200, '<html>captive portal</html>' );
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_assert( 'malformed' === keel_hibp_last_failure()['kind'], 'A different failure kind replaces the record.' );
+
+// A non-200 records its status, so a rate limit is distinguishable from an outage.
+keel_hibp_reset( 429, '' );
+keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_assert( 'http_429' === keel_hibp_last_failure()['kind'], 'A rate limit is recorded as its own status rather than as "unreachable".' );
+
+// And screening still fails open throughout: a third-party outage never locks
+// anybody out of their own account.
+keel_assert( false === keel_password_is_pwned( 'correct-horse-battery-staple-9271' ), 'An unknown verdict still reads as not-breached to the password policy.' );
 
 echo "hibp: OK\n";

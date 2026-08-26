@@ -880,6 +880,89 @@ function keel_hibp_range_contains( $body, $suffix ) {
  * @param string $password Plain-text password to screen.
  * @return bool True when the password appears in a known breach.
  */
+/**
+ * Note that breach screening could not be completed, and report it as unknown.
+ *
+ * Returns null so the caller can tell "not in the corpus" from "the corpus was
+ * not consulted". Recording is a side effect of an answer that was going to be
+ * given anyway, so a working site never reaches this and never writes.
+ *
+ * What is stored is the kind of failure and when it last happened — never the
+ * password, and never the hash prefix. The prefix is k-anonymous by design, but
+ * a record of which prefixes a site has looked up is still a record of its
+ * passwords' shape, and no diagnostic needs it.
+ *
+ * Bounded by its own TTL rather than by anything clearing it: a site that stops
+ * failing stops being reported an hour later, without a cron job or a reader.
+ *
+ * @param string $kind Short machine tag: unreachable, http_429, truncated, malformed.
+ * @return null
+ */
+function keel_hibp_unavailable( $kind ) {
+	$stored = get_transient( 'keel_hibp_unavailable' );
+	$now    = time();
+
+	if ( is_array( $stored ) && isset( $stored['kind'] ) && $stored['kind'] === $kind ) {
+		/*
+		 * Same failure as last time. Re-arm the TTL so a standing outage keeps
+		 * being reported, but do not rewrite on every attempt — a password screen
+		 * under load would otherwise write once per keystroke-triggered check.
+		 */
+		if ( isset( $stored['seen'] ) && ( $now - (int) $stored['seen'] ) < 5 * MINUTE_IN_SECONDS ) {
+			return null;
+		}
+
+		$stored['seen']  = $now;
+		$stored['count'] = isset( $stored['count'] ) ? (int) $stored['count'] + 1 : 2;
+		set_transient( 'keel_hibp_unavailable', $stored, HOUR_IN_SECONDS );
+
+		return null;
+	}
+
+	set_transient(
+		'keel_hibp_unavailable',
+		array(
+			'kind'  => (string) $kind,
+			'first' => $now,
+			'seen'  => $now,
+			'count' => 1,
+		),
+		HOUR_IN_SECONDS
+	);
+
+	return null;
+}
+
+/**
+ * The last recorded breach-screening failure, if it is still current.
+ *
+ * @return array|null Record with kind, first, seen and count, or null.
+ */
+function keel_hibp_last_failure() {
+	$stored = get_transient( 'keel_hibp_unavailable' );
+
+	if ( ! is_array( $stored ) || empty( $stored['kind'] ) ) {
+		return null;
+	}
+
+	return $stored;
+}
+
+/**
+ * Ask Have I Been Pwned whether this password appears in a known breach.
+ *
+ * Three values, not two. `false` used to mean both "this password is not in the
+ * corpus" and "the corpus could not be consulted", which are opposite facts
+ * wearing the same answer — a site whose screening had been failing for a week
+ * looked exactly like one where every password happened to be clean.
+ *
+ * `null` is the third: could not determine. It still does not block a password
+ * change (see keel_password_is_pwned()) but it is recorded and reported, which
+ * is the whole point of separating it.
+ *
+ * @param string $password The password to screen.
+ * @return bool|null True if breached, false if verified clean, null if unknown.
+ */
 function keel_hibp_lookup( $password ) {
 	$hash   = strtoupper( sha1( $password ) );
 	$prefix = substr( $hash, 0, 5 );
@@ -917,22 +1000,26 @@ function keel_hibp_lookup( $password ) {
 			)
 		);
 
-		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return false;
+		if ( is_wp_error( $response ) ) {
+			return keel_hibp_unavailable( 'unreachable' );
+		}
+
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			return keel_hibp_unavailable( 'http_' . (int) wp_remote_retrieve_response_code( $response ) );
 		}
 
 		$body = (string) wp_remote_retrieve_body( $response );
 
 		// Boundary check before trimming (see keel_hibp_body_is_complete()).
 		if ( ! keel_hibp_body_is_complete( $body, $limit ) ) {
-			return false;
+			return keel_hibp_unavailable( 'truncated' );
 		}
 	}
 
 	$body = trim( (string) $body );
 
 	if ( '' === $body || ! keel_hibp_body_is_valid( $body ) ) {
-		return false;
+		return keel_hibp_unavailable( 'malformed' );
 	}
 
 	if ( ! $cached ) {
@@ -969,6 +1056,20 @@ function keel_password_is_pwned( $password ) {
 
 	if ( ! $disabled ) {
 		$pwned = keel_hibp_lookup( $password );
+
+		/*
+		 * Unknown is not the same as clean, and it still does not block.
+		 *
+		 * Refusing a password because a third-party API is down would lock people
+		 * out of their own accounts during somebody else's outage, so screening
+		 * fails open exactly as before. What changed is that it no longer fails
+		 * *silently*: keel_hibp_lookup() has already recorded the failure, and
+		 * Site Health reports it. The rest of the policy — length, the blocklist,
+		 * the personal-context rules — is untouched by this and still applies.
+		 */
+		if ( null === $pwned ) {
+			$pwned = false;
+		}
 	}
 
 	/**

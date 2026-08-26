@@ -127,8 +127,16 @@ function keel_defaults_add_help_tab() {
 					)
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers. The tradeoff: anything that stops this site reaching the HIBP API turns breach screening off quietly.', 'keel-defaults' ),
+					__( 'An outage or a malformed response lets the password through rather than blocking it. That is deliberate &#8212; the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers.', 'keel-defaults' ),
 					array()
+				) . '</p>' .
+				'<p>' . wp_kses(
+					sprintf(
+						/* translators: %s: URL of the Site Health status screen. */
+						__( 'It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href="%s">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without anybody choosing to stop it. The record clears itself once a lookup succeeds.', 'keel-defaults' ),
+						esc_url( admin_url( 'site-health.php' ) )
+					),
+					array( 'a' => array( 'href' => array() ) )
 				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
@@ -156,6 +164,43 @@ function keel_defaults_add_help_tab() {
 					__( 'The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>',
+		)
+	);
+
+	$screen->add_help_tab(
+		array(
+			'id'      => 'keel-environments',
+			'title'   => __( 'Environments', 'keel-defaults' ),
+			'content' =>
+				'<p>' . wp_kses(
+					__( 'Two defaults behave differently depending on whether this install is production. Both read <code>wp_get_environment_type()</code>, which WordPress derives from the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable and which defaults to <code>production</code> when nothing sets it. Keel also recognises common local hostnames, so a laptop install is usually identified without configuration.', 'keel-defaults' ),
+					array( 'code' => array() )
+				) . '</p>' .
+				'<p>' . esc_html__( 'Outgoing email stops at the edge of production. A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of wp_mail() then behaves the way it will in production, instead of taking an error path that only ever runs on staging.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'The environment indicator is the other half: a colour-coded label in the admin bar naming the current environment. It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent tabs. Below 960px the label collapses to just its icon to save room, but stays readable to screen readers.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting WP_ENVIRONMENT_TYPE explicitly in wp-config.php is worth doing on every install regardless, because core, plugins and themes all read it.', 'keel-defaults' ) . '</p>',
+		)
+	);
+
+	$screen->add_help_tab(
+		array(
+			'id'      => 'keel-overlaps',
+			'title'   => __( 'Overlapping plugins', 'keel-defaults' ),
+			'content' =>
+				'<p>' . esc_html__( 'Many of these defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one answer survives — there is no error, nothing is logged, and the plugin that lost goes on showing the setting it thinks it applied. That is the failure this reporting exists for, and it is the reason a site can have two plugins configured to disable comments and still have comments.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'Keel reports it two ways, and they answer different questions. The first names plugins: another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either. Compare their settings and decide which one you want to own that behaviour.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'The second says a setting is not taking effect: Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'Sometimes there is no plugin to name. A plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look.', 'keel-defaults' ) . '</p>' .
+				'<p>' . wp_kses(
+					sprintf(
+						/* translators: %s: URL of the Site Health status screen. */
+						__( 'The full report, hook by hook, is under <a href="%s">Site Health</a>. The dashboard and plugins screens carry a short version, and the dashboard one can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing means &#8220;I have seen these&#8221; rather than &#8220;never mention this again&#8221;.', 'keel-defaults' ),
+						esc_url( admin_url( 'site-health.php' ) )
+					),
+					array( 'a' => array( 'href' => array() ) )
+				) . '</p>' .
+				'<p>' . esc_html__( 'Nothing here runs another plugin\'s code to find out what it does. An earlier version did, and it was withdrawn: a check that reports collisions must not cause them.', 'keel-defaults' ) . '</p>',
 		)
 	);
 

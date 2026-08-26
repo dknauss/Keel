@@ -40,6 +40,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_policy_divergence` — which governed settings were last seen not
  *   producing the value they ask for. An observation about this site, and
  *   meaningless once the plugin making it is gone.
+ * - `keel_hibp_unavailable` — the last breach-screening failure, if screening
+ *   has failed in the last hour. Kind and timestamp only; never the password
+ *   and never the hash prefix.
  * - `keel_hibp_*` — breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
@@ -75,6 +78,13 @@ function keel_defaults_uninstall_site() {
 			delete_option( 'keel_defaults' );
 		}
 	}
+
+	/*
+	 * The breach-screening outage record. Written only when a lookup fails, so
+	 * most sites never have one — but a site that had an outage in the last hour
+	 * would otherwise keep the row after the plugin that wrote it was gone.
+	 */
+	delete_transient( 'keel_hibp_unavailable' );
 
 	// Transients are options with a known prefix, and the timeout row is a
 	// second option that outlives the value if only the value is deleted.

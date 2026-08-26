@@ -17,13 +17,17 @@ function keel_defaults_site_health_tests( $tests ) {
 	if ( ! is_array( $tests ) ) {
 		return $tests;
 	}
-	$tests['direct']['keel_defaults_posture']   = array(
+	$tests['direct']['keel_defaults_posture']          = array(
 		'label' => __( 'Keel Defaults', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_posture',
 	);
-	$tests['direct']['keel_defaults_conflicts'] = array(
+	$tests['direct']['keel_defaults_conflicts']        = array(
 		'label' => __( 'Overlapping defaults plugins', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_conflicts',
+	);
+	$tests['direct']['keel_defaults_breach_screening'] = array(
+		'label' => __( 'Password breach screening', 'keel-defaults' ),
+		'test'  => 'keel_defaults_site_health_breach_screening',
 	);
 	return $tests;
 }
@@ -292,6 +296,99 @@ function keel_defaults_conflict_list( $conflicts ) {
 	}
 
 	return $out;
+}
+
+/**
+ * Report whether breach screening is actually reaching Have I Been Pwned.
+ *
+ * The one thing this feature could not previously tell anybody. Screening fails
+ * open by design — refusing a password because somebody else's API is down
+ * would lock people out of their own accounts — but until now it also failed
+ * silently, and a site whose lookups had been erroring for a week looked
+ * identical to one where every password happened to be clean.
+ *
+ * Read-only, like the rest of Keel's Site Health surface, and green on a site
+ * with nothing to report.
+ *
+ * @return array
+ */
+function keel_defaults_site_health_breach_screening() {
+	$result = array(
+		'label'       => __( 'Password breach screening is working', 'keel-defaults' ),
+		'status'      => 'good',
+		'badge'       => array(
+			'label' => __( 'Keel', 'keel-defaults' ),
+			'color' => 'blue',
+		),
+		'description' => '<p>' . esc_html__( 'New passwords are screened against the Have I Been Pwned corpus, and the last check completed.', 'keel-defaults' ) . '</p>',
+		'test'        => 'keel_defaults_breach_screening',
+	);
+
+	// Nothing to say when the feature is off. A site that has switched breach
+	// screening off has not got a problem, it has made a choice.
+	if ( ! keel_defaults_enabled( 'require_strong_passwords' ) ) {
+		$result['label']       = __( 'Password breach screening is switched off', 'keel-defaults' );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: %s: link to the Password Strength setting. */
+			esc_html__( 'Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it.', 'keel-defaults' ),
+			keel_defaults_setting_link( 'require_strong_passwords', __( 'Password Strength', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p>';
+
+		return $result;
+	}
+
+	if ( defined( 'KEEL_DISABLE_HIBP' ) && KEEL_DISABLE_HIBP ) {
+		$result['label']       = __( 'Password breach screening is disabled by a constant', 'keel-defaults' );
+		$result['description'] = '<p>' . wp_kses(
+			__( 'Length and the other password rules still apply, but <code>KEEL_DISABLE_HIBP</code> in <code>wp-config.php</code> stops the breach lookup. This is deliberate configuration, not a fault.', 'keel-defaults' ),
+			array( 'code' => array() )
+		) . '</p>';
+
+		return $result;
+	}
+
+	$failure = keel_hibp_last_failure();
+
+	if ( null === $failure ) {
+		return $result;
+	}
+
+	$kinds = array(
+		'unreachable' => __( 'the service could not be reached', 'keel-defaults' ),
+		'truncated'   => __( 'the reply was cut short before it could be read', 'keel-defaults' ),
+		'malformed'   => __( 'the reply was not the list of hashes it should have been, which usually means something answered on the service\'s behalf — a captive portal, or a filtering proxy', 'keel-defaults' ),
+	);
+
+	$kind = isset( $failure['kind'] ) ? (string) $failure['kind'] : '';
+
+	if ( isset( $kinds[ $kind ] ) ) {
+		$reason = $kinds[ $kind ];
+	} elseif ( 0 === strpos( $kind, 'http_' ) ) {
+		$reason = sprintf(
+			/* translators: %s: HTTP status code. */
+			__( 'the service answered with HTTP %s', 'keel-defaults' ),
+			esc_html( substr( $kind, 5 ) )
+		);
+	} else {
+		$reason = __( 'the lookup did not complete', 'keel-defaults' );
+	}
+
+	$result['status'] = 'recommended';
+	$result['label']  = __( 'Passwords are not being screened against known breaches', 'keel-defaults' );
+
+	$description = '<p>' . sprintf(
+		/* translators: %s: short reason the lookup failed. */
+		esc_html__( 'The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check.', 'keel-defaults' ),
+		esc_html( $reason )
+	) . '</p>';
+
+	$description .= '<p>' . esc_html__( 'This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person\'s own name and email — is unaffected and still applies.', 'keel-defaults' ) . '</p>';
+
+	$description .= '<p>' . esc_html__( 'If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds.', 'keel-defaults' ) . '</p>';
+
+	$result['description'] = $description;
+
+	return $result;
 }
 
 /**

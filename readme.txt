@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.5
+Stable tag: 0.5.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,7 +27,7 @@ All 39 defaults are declared in a single schema array that drives both the setti
 
 == External services ==
 
-When the **Require strong passwords** default is enabled, Keel screens new passwords against the **Have I Been Pwned** Pwned Passwords range API (`https://api.pwnedpasswords.com`) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with `define( 'KEEL_DISABLE_HIBP', true );` in `wp-config.php`, with the `keel_disable_hibp` filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy.
+When the **Require strong passwords** default is enabled, Keel screens new passwords against the **Have I Been Pwned** Pwned Passwords range API (`https://api.pwnedpasswords.com`) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with `define( 'KEEL_DISABLE_HIBP', true );` in `wp-config.php`, with the `keel_disable_hibp` filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health, so a site whose screening has stopped working can tell. Only the kind of failure and when it happened are stored — never the password, and never the hash prefix. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy.
 
 == Recommended wp-config.php hardening ==
 
@@ -127,6 +127,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.5.6 =
+* Breach screening now says when it is not working. If the Have I Been Pwned lookup cannot be completed — the service is unreachable, rate-limiting, or something else answered in its place — Site Health reports it instead of the check being skipped in silence. Passwords are still never blocked by an outage, and the rest of the password policy is unaffected; the difference is that a site whose screening stopped working weeks ago can now find out.
+* Added help for environments and for overlapping plugins. The Help menu on the settings screen explains why email stops on staging, what the environment indicator is for, and what the two kinds of overlap report actually mean — including why some overlaps name a plugin and some cannot.
+
 = 0.5.5 =
 * Fixed a confusing conflict report. Where a callback could not be traced back to a plugin, Site Health said "callbacks from Unattributed callback" — which reads as the name of a plugin, and several such lines read as several plugins, none of them the one the notice had actually named. It now says a callback could not be traced to a plugin, and the notice accounts for those settings too, so the two screens agree.
 
@@ -207,6 +211,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.6 =
+Breach-screening outages are now reported under Site Health rather than passing unnoticed. No change to what is or is not allowed as a password.
 
 = 0.5.5 =
 Conflict reports no longer print an internal marker where a plugin name would go, and the dashboard notice now agrees with Site Health about how many settings are affected.
