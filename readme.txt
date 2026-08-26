@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.4
+Stable tag: 0.5.5
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,8 +127,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
-= 0.5.4 =
+= 0.5.5 =
 * Fixed a confusing conflict report. Where a callback could not be traced back to a plugin, Site Health said "callbacks from Unattributed callback" — which reads as the name of a plugin, and several such lines read as several plugins, none of them the one the notice had actually named. It now says a callback could not be traced to a plugin, and the notice accounts for those settings too, so the two screens agree.
+
+= 0.5.4 =
 * A setting that is not taking effect now says so where you will see it. Keel could already detect that something else on the site was overriding one of its settings, but it reported that only under Site Health — which nobody opens until something has already gone wrong. It now appears on the dashboard and the plugins screen, which is where the overlap warnings already were. This is the case you most need telling about, because a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to name it by.
 * Fixed a comments heading appearing on posts with comments switched off. Keel reported the count as the number zero where WordPress reports it as the text "0", and core's Comments Title block compares the two exactly — so it did not take its early return. Affected block themes, which is the default.
 * Pingbacks are now watched for the same override as comments. Both are decided by the same setting and were registered together, but only comments was checked.
@@ -205,6 +207,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.5 =
+Conflict reports no longer print an internal marker where a plugin name would go, and the dashboard notice now agrees with Site Health about how many settings are affected.
 
 = 0.5.4 =
 Warnings about a setting being overridden by another plugin now reach the dashboard rather than only Site Health, and a comments heading no longer appears on posts with comments off.
