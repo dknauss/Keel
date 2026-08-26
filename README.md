@@ -9,12 +9,9 @@
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg?logo=php&logoColor=white)](https://www.php.net/)
 [![▶ Playground (latest release)](https://img.shields.io/badge/▶_Playground-Latest_release-3858e9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-stable.json) [![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/keel/main/playground/blueprint-hosted.json)
 
-**Sane, individually-toggleable defaults for every new WordPress site.**
+**The missing settings and defaults every new WordPress site needs.**
 
-Keel flips a menu of sensible security, update, privacy, content, media, email, UX,
-and performance defaults onto any WordPress install — each one a switch under
-**Settings → Keel**. Nothing is hidden and nothing is all-or-nothing: you can see
-exactly what the plugin does to your site, in one place, and turn any piece off.
+Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Keel**. Nothing is hidden. Everything is explained. 
 
 > **Current release: `0.5.8`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
@@ -22,12 +19,50 @@ exactly what the plugin does to your site, in one place, and turn any piece off.
 > against WordPress 7.1 and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
 > milestones and [TODO.md](TODO.md) for what's in flight.
 
-## What it looks like
+## Set and forget — What Keel establishes as a baseline
+
+Activating Keel switches on sixteen of its thirty-nine defaults and applies a starting value to nine more, without writing to your content or deleting anything — every one is a switch on Settings → Keel, and turning it off puts WordPress back exactly as it shipped. 
+
+Most of the immediate changes are quiet: users stop being listed for anonymous REST requests, new passwords must be long and never present in a known data breach, raw HTML is limited to Administrators, security headers go out, AI connectors are off, uploads get lowercase filenames, and the site starts warning you if its email sending capability looks broken. 
+
+Three things change visibly on the first page load — comments, trackbacks and pingbacks are off everywhere including existing posts (nothing deleted, all reversible), author archives stop resolving, and `X-Frame-Options: SAMEORIGIN` stops other sites embedding yours — with two quieter ones behind them: attachment pages redirect to their parent post, and self-pingbacks and the emoji script are gone. The starting values are conservative: core takes security releases but not major versions, ten revisions are kept, logins last two days or fourteen with "Remember me", subscribers are exempt from the password rules, and the admin menu, front-end admin bar and login logo are left exactly as WordPress has them. One default is on but inert on a live site — outgoing email is blocked on any environment that isn't production, so a database copied to staging can't email real customers.
+
+**Security and attack surface**
+
+- REST User Discovery — hides users from anonymous REST requests
+- Password Strength — requires strong passwords (length + breach screening; subscribers exempt by default)
+- Unfiltered HTML — limits raw HTML and JavaScript to Administrators
+- Security Headers — sends baseline security headers
+- AI Connectors — disables AI provider connectors
+
+**Content and public surfaces** 
+
+- Comments — disables comments, trackbacks and pingbacks
+- Pingbacks On New Posts — closes pingbacks/trackbacks on new posts
+- Self-Pingbacks — disables self-pingbacks
+- Author Archives — disables public author archives
+- Attachment Pages — redirects them to the parent post
+- Emoji Script — drops the emoji detection script
+
+**Media Library** 
+
+- Upload Filenames (lowercases new uploads)
+- Image Sizes (shows generated sizes on attachments)
+
+**Core Updates** 
+
+- Translations (auto-updates translation files)
+
+**Email**
+
+- Email Deliverability (warns when site email looks broken)
+- Non-Production Email (stops outgoing mail unless the site is production)
+
+## What Keel looks like
 
 <img src=".wordpress-org/screenshot-1.png" alt="Settings → Keel: each default is one switch with the reason it exists written beside it" width="900">
 
-**Settings → Keel.** Every default is one switch with the reason it exists written
-beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+**Settings → Keel.** Every default is a single switch with a solid explanation next to it. Learn more in the dropdown help menu, site health, and repo docs.
 
 <img src=".wordpress-org/screenshot-2.png" alt="The Passwords help tab, explaining length and breach screening in place of composition rules" width="900">
 
@@ -42,14 +77,11 @@ screen, grouped by category and copyable as a block, so you can answer "what is
 this plugin doing to my site?" without opening the settings and reading
 checkboxes.
 
-## What makes it different
+## What makes Keel different
 
-Most "disable it" plugins close the front door and leave a side one open. Measured
-against nine of the most-installed ones on wordpress.org — every result a live HTTP or
-PHP probe against a real install, not a readme claim.
+Most "disable it" plugins close the front door and leave the back door open. That was surprising but the result of examining nine of the most-installed "disable things" plugins on wordpress.org. That study is documented here in [docs/competitive-teardown-matrix.md](docs/competitive-teardown-matrix.md) — every result a live HTTP or PHP probe against a real install.
 
-Comments were switched off in each plugin's own settings, then the database was asked
-directly for approved comments with `get_comments()`:
+Comments were switched off in each plugin's own settings, then the database was asked directly for approved comments with `get_comments()`:
 
 - **Disable Comments** (1M+ installs) — the comment is still returned
 - **Admin and Site Enhancements** (200k+) — still returned
@@ -72,58 +104,53 @@ Keel keeps oEmbed reachable when the REST gate is closed — alone among the fou
 plugins measured that close REST outright — so other sites can still embed your posts
 instead of silently degrading them to bare links.
 
-## It tells you when it is not working
+## Keel tells you when it is not working
 
-A setting that silently stops applying is worse than one that was never there, because
-the screen still says it is on. Three things in Keel exist to close that gap, and all
-three report rather than block.
+A setting that silently stops working is worse than one that was never there, because it's misleading you. This happens when plugins and other code come into conflict with each other, like two people trying to operate the same switch. Keel is unique for detecting conflicts and advising you about them.
 
 **Another plugin on the same filter.** Many defaults are applied through filters that
 return a single value, so when two plugins register on one, only one answer survives —
-no error, nothing logged, and the loser goes on displaying the setting it thinks it
-applied. Keel names the other plugin where it can be identified, on the plugins screen
-and in Site Health. That confirms an overlap, not a disagreement, and it is not a
-reason to deactivate anything.
+no error, nothing logged — but the losing plugin goes on displaying the setting you think it
+has applied. Keel names the other plugin where it can be identified, on the plugins screen
+and in Site Health. That confirms an overlap, not necessarily a conflict, and it is not a
+reason to deactivate anything out of hand.
 
-**A setting that is measurably not taking effect.** The stronger half: Keel watches
+**A setting that is measurably not taking effect.** Keel watches
 what the filter chain actually settles on and compares it with what it asked for. This
-catches the case the first half cannot — a plugin that switches something off using
+catches disagreements and the cases that can't be detected through a common registration — a plugin that switches something off using
 one of WordPress's own helper functions leaves nothing behind to identify it, so there
 is no name to give you, but the disagreement is still measurable.
 
-**Breach screening that has stopped reaching the API.** Password screening fails open
-by design; refusing a password because someone else's service is down would lock
-people out of their own accounts. It no longer fails *quietly* — an unreachable,
-rate-limited, truncated or intercepted lookup is recorded and reported under Site
-Health, so a site whose screening broke a month ago can find out. Only the kind of
+**Breached password screening that has stopped reaching the API.** Password screening fails open
+by design; refusing a password because the Have I Been Pwned service is down would lock
+people out of their own accounts, so Keel proceeds but warns you what is happening. An unreachable,
+rate-limited, truncated or intercepted password lookup is recorded and reported under Site
+Health, so a site whose HIBP screening broke a month ago can find out. Only the kind of
 failure and when it happened are stored, never the password or its hash prefix.
-
-The colour-coded environment indicator in the admin bar is the same idea earlier in
-the chain: knowing which site you are on before you act on it.
 
 ## Email stops at the edge of production
 
-A database copied down from production brings real customer addresses *and*
+A database carelessly copied down from production without scrubbing user data can bring real customer addresses *and*
 whatever mail service production was using. A cron run, a bulk action or a
-migration routine then emails real people from a staging site or a laptop. Keel
+migration routine could email real people from a staging site or a laptop. Keel
 suppresses outgoing mail on any environment that is not production, on by
-default, and says so in an admin notice rather than leaving somebody wondering
+default, and it says so in an admin notice rather than leaving you wondering
 why a password reset never arrived.
 
 "A local site cannot send mail anyway" is not a safeguard: measured on a stock
-local install, the only thing stopping delivery was an invalid default `From`
-address, which a copied production `siteurl` removes by definition — and an SMTP
-plugin, which a production copy also carries, skips that question and connects to
-the real provider.
+local install, the only thing stopping delivery is often an invalid default `From`
+address, which a copied production `siteurl` removes. Commonly used SMTP
+plugins, which a production copy carries along, may connects to
+the real email provider and use it before you realize what is happening.
 
-It short-circuits `wp_mail()` with `true`, not `false`, so a staging site does not
+Keel short-circuits `wp_mail()` with `true`, not `false`, so a staging site does not
 start exercising failure paths that production never takes. Turn it off under
 **Settings → Keel**, or per-site with `KEEL_ALLOW_NONPRODUCTION_MAIL` or the
 `keel_suppress_nonproduction_mail` filter. `keel_outgoing_mail_suppressed` fires
 in place of the send, so a mail catcher can still record the message.
 
 The second email default is a warning, not a change: Keel flags a production site
-whose `From` address looks undeliverable, and catches the bulk password reset that
+whose `From` address looks undeliverable, and it catches the bulk password reset that
 reports success after sending zero emails.
 
 ## How it's built
@@ -136,7 +163,7 @@ same key; no new settings-page code. Several defaults share a bootstrap block wh
 they belong together — the XML-RPC family is one — so that is the shape rather than
 a rule. A default is an opinionated filter behind a toggle.
 
-Two things it does that a settings screen usually does not:
+Two things Keel does that most settings screens usually don't do:
 
 - **Site Health reports the posture**, read-only — every default and its current
   state, so the site's actual configuration is legible without clicking through
