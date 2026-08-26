@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-26T02:04:29+00:00\n"
+"POT-Creation-Date: 2026-08-26T02:07:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -316,7 +316,7 @@ msgstr ""
 #. translators: %s: URL of the Site Health status screen.
 #: includes/settings-page.php:139
 #, php-format
-msgid "It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href=\"%s\">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without anybody choosing to stop it. The record clears itself once a lookup succeeds."
+msgid "It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href=\"%s\">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. The record clears itself once a lookup succeeds."
 msgstr ""
 
 #: includes/settings-page.php:146

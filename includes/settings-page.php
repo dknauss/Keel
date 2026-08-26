@@ -136,7 +136,7 @@ function keel_defaults_add_help_tab() {
 				'<p>' . wp_kses(
 					sprintf(
 						/* translators: %s: URL of the Site Health status screen. */
-						__( 'It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href="%s">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without anybody choosing to stop it. The record clears itself once a lookup succeeds.', 'keel-defaults' ),
+						__( 'It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href="%s">Site Health</a>, which says what went wrong &#8212; unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. The record clears itself once a lookup succeeds.', 'keel-defaults' ),
 						esc_url( admin_url( 'site-health.php' ) )
 					),
 					array( 'a' => array( 'href' => array() ) )
