@@ -262,11 +262,33 @@ function keel_defaults_conflict_list( $conflicts ) {
 	$out = '';
 
 	foreach ( $conflicts as $hook => $hook_plugins ) {
-		$out .= '<li><code>' . esc_html( $hook ) . '</code> — ' . sprintf(
-			/* translators: %s: comma-separated plugin directory names. */
-			esc_html__( 'callbacks from %s', 'keel-defaults' ),
-			esc_html( implode( ', ', $hook_plugins ) )
-		) . '</li>';
+		/*
+		 * The untraceable marker is not a plugin name and must not be printed as
+		 * one. Rendering the raw list produced "comments_open — callbacks from
+		 * Unattributed callback", which reads as a plugin called "Unattributed
+		 * callback" — and a handful of those rows reads as a handful of plugins,
+		 * none of them the one the notice actually named.
+		 */
+		$unnamed = in_array( KEEL_DEFAULTS_UNATTRIBUTED, $hook_plugins, true );
+		$named   = array_values( array_diff( $hook_plugins, array( KEEL_DEFAULTS_UNATTRIBUTED ) ) );
+
+		if ( $named && $unnamed ) {
+			$text = sprintf(
+				/* translators: %s: comma-separated plugin directory names. */
+				esc_html__( 'callbacks from %s, and one that cannot be traced to a plugin', 'keel-defaults' ),
+				esc_html( implode( ', ', $named ) )
+			);
+		} elseif ( $named ) {
+			$text = sprintf(
+				/* translators: %s: comma-separated plugin directory names. */
+				esc_html__( 'callbacks from %s', 'keel-defaults' ),
+				esc_html( implode( ', ', $named ) )
+			);
+		} else {
+			$text = esc_html__( 'a callback that cannot be traced to a plugin', 'keel-defaults' );
+		}
+
+		$out .= '<li><code>' . esc_html( $hook ) . '</code> — ' . $text . '</li>';
 	}
 
 	return $out;

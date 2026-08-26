@@ -128,6 +128,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = 0.5.4 =
+* Fixed a confusing conflict report. Where a callback could not be traced back to a plugin, Site Health said "callbacks from Unattributed callback" — which reads as the name of a plugin, and several such lines read as several plugins, none of them the one the notice had actually named. It now says a callback could not be traced to a plugin, and the notice accounts for those settings too, so the two screens agree.
 * A setting that is not taking effect now says so where you will see it. Keel could already detect that something else on the site was overriding one of its settings, but it reported that only under Site Health — which nobody opens until something has already gone wrong. It now appears on the dashboard and the plugins screen, which is where the overlap warnings already were. This is the case you most need telling about, because a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to name it by.
 * Fixed a comments heading appearing on posts with comments switched off. Keel reported the count as the number zero where WordPress reports it as the text "0", and core's Comments Title block compares the two exactly — so it did not take its early return. Affected block themes, which is the default.
 * Pingbacks are now watched for the same override as comments. Both are decided by the same setting and were registered together, but only comments was checked.
