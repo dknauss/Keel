@@ -203,19 +203,32 @@ function keel_defaults_add_help_tab() {
 			'id'      => 'keel-overlaps',
 			'title'   => __( 'Overlapping plugins', 'keel-defaults' ),
 			'content' =>
-				'<p>' . esc_html__( 'Many of these defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one answer survives — there is no error, nothing is logged, and the plugin that lost goes on showing the setting it thinks it applied. That is the failure this reporting exists for, and it is the reason a site can have two plugins configured to disable comments and still have comments.', 'keel-defaults' ) . '</p>' .
-				'<p>' . esc_html__( 'Keel reports it two ways, and they answer different questions. The first names plugins: another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either. Compare their settings and decide which one you want to own that behaviour.', 'keel-defaults' ) . '</p>' .
-				'<p>' . esc_html__( 'The second says a setting is not taking effect: Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred.', 'keel-defaults' ) . '</p>' .
-				'<p>' . esc_html__( 'Sometimes there is no plugin to name. A plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'Many of Keel\'s defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one plugin\'s activity prevails. There is no error, nothing is logged, and the plugin that was quietly overruled goes on showing the setting you think it applied. That is why WordPress can have two plugins configured to disable comments and still have comments.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'Keel reports collisions with other plugins in two ways, and they answer different questions.', 'keel-defaults' ) . '</p>' .
+				'<p>' . wp_kses(
+					__( '<strong>The first method names plugins:</strong> another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either one. Compare their settings and decide which plugin should own the disabling function.', 'keel-defaults' ),
+					array( 'strong' => array() )
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( '<strong>The second method says a setting is not taking effect:</strong> Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred.', 'keel-defaults' ),
+					array( 'strong' => array() )
+				) . '</p>' .
+				'<p>' . wp_kses(
+					__( '<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery.', 'keel-defaults' ),
+					array( 'strong' => array() )
+				) . '</p>' .
 				'<p>' . wp_kses(
 					sprintf(
-						/* translators: %s: URL of the Site Health status screen. */
-						__( 'The full report, hook by hook, is under <a href="%s">Site Health</a>. The dashboard and plugins screens carry a short version, and the dashboard one can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing means &#8220;I have seen these&#8221; rather than &#8220;never mention this again&#8221;.', 'keel-defaults' ),
-						esc_url( admin_url( 'site-health.php' ) )
+						/* translators: %s: linked name of the Site Health screen. */
+						__( '<strong>The full collision report, hook by hook, is under %s.</strong> The dashboard and plugins screens carry a short version, and the dashboard notification can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing it means “I have seen this” rather than “never mention this again.”', 'keel-defaults' ),
+						'<a href="' . esc_url( admin_url( 'site-health.php' ) ) . '">' . esc_html__( 'Site Health', 'keel-defaults' ) . '</a>'
 					),
-					array( 'a' => array( 'href' => array() ) )
+					array(
+						'strong' => array(),
+						'a'      => array( 'href' => array() ),
+					)
 				) . '</p>' .
-				'<p>' . esc_html__( 'Nothing here runs another plugin\'s code to find out what it does. An earlier version did, and it was withdrawn: a check that reports collisions must not cause them.', 'keel-defaults' ) . '</p>',
+				'<p>' . esc_html__( 'Nothing in Keel runs another plugin\'s code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them.', 'keel-defaults' ) . '</p>',
 		)
 	);
 

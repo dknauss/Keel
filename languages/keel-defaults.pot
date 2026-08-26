@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-26T02:15:42+00:00\n"
+"POT-Creation-Date: 2026-08-26T02:26:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -255,7 +255,7 @@ msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:21
-#: includes/settings-page.php:733
+#: includes/settings-page.php:746
 #: includes/site-health.php:320
 #: includes/site-health.php:443
 msgid "Keel"
@@ -377,69 +377,77 @@ msgid "Overlapping plugins"
 msgstr ""
 
 #: includes/settings-page.php:206
-msgid "Many of these defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one answer survives — there is no error, nothing is logged, and the plugin that lost goes on showing the setting it thinks it applied. That is the failure this reporting exists for, and it is the reason a site can have two plugins configured to disable comments and still have comments."
+msgid "Many of Keel's defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one plugin's activity prevails. There is no error, nothing is logged, and the plugin that was quietly overruled goes on showing the setting you think it applied. That is why WordPress can have two plugins configured to disable comments and still have comments."
 msgstr ""
 
 #: includes/settings-page.php:207
-msgid "Keel reports it two ways, and they answer different questions. The first names plugins: another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either. Compare their settings and decide which one you want to own that behaviour."
-msgstr ""
-
-#: includes/settings-page.php:208
-msgid "The second says a setting is not taking effect: Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
+msgid "Keel reports collisions with other plugins in two ways, and they answer different questions."
 msgstr ""
 
 #: includes/settings-page.php:209
-msgid "Sometimes there is no plugin to name. A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look."
+msgid "<strong>The first method names plugins:</strong> another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either one. Compare their settings and decide which plugin should own the disabling function."
 msgstr ""
 
-#. translators: %s: URL of the Site Health status screen.
 #: includes/settings-page.php:213
-#, php-format
-msgid "The full report, hook by hook, is under <a href=\"%s\">Site Health</a>. The dashboard and plugins screens carry a short version, and the dashboard one can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing means &#8220;I have seen these&#8221; rather than &#8220;never mention this again&#8221;."
+msgid "<strong>The second method says a setting is not taking effect:</strong> Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
 msgstr ""
 
-#: includes/settings-page.php:218
-msgid "Nothing here runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn: a check that reports collisions must not cause them."
+#: includes/settings-page.php:217
+msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
 msgstr ""
 
+#. translators: %s: linked name of the Site Health screen.
 #: includes/settings-page.php:223
+#, php-format
+msgid "<strong>The full collision report, hook by hook, is under %s.</strong> The dashboard and plugins screens carry a short version, and the dashboard notification can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing it means “I have seen this” rather than “never mention this again.”"
+msgstr ""
+
+#: includes/settings-page.php:224
+msgid "Site Health"
+msgstr ""
+
+#: includes/settings-page.php:231
+msgid "Nothing in Keel runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them."
+msgstr ""
+
+#: includes/settings-page.php:236
 msgid "Current posture"
 msgstr ""
 
 #. translators: %s: URL of the Site Health Info screen.
-#: includes/settings-page.php:227
+#: includes/settings-page.php:240
 #, php-format
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:570
+#: includes/settings-page.php:583
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:575
-#: includes/settings-page.php:583
+#: includes/settings-page.php:588
+#: includes/settings-page.php:596
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
-#: includes/settings-page.php:589
+#: includes/settings-page.php:602
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:601
+#: includes/settings-page.php:614
 msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
 msgstr ""
 
-#: includes/settings-page.php:734
+#: includes/settings-page.php:747
 msgid "Sensible defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:746
+#: includes/settings-page.php:759
 msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
-#: includes/settings-page.php:900
+#: includes/settings-page.php:913
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
