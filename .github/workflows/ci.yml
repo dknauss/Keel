@@ -44,6 +44,20 @@ jobs:
       - name: Coding standards
         run: composer lint
 
+      # Separate step, not folded into `composer lint`, for the reason given at
+      # the top of this file: this one answers "does it still run on the floor we
+      # advertise", and a style failure and a floor failure should not share a
+      # tick.
+      #
+      # It runs here rather than in the `compat` matrix below because it is static
+      # analysis with an explicit testVersion — it reads the same answer on any
+      # interpreter, so running it seven times would cost six extra minutes to
+      # learn nothing. What it catches is what the matrix cannot: `php -l` on 7.4
+      # accepts a PHP 8 only function call, and the suite only executes part of
+      # the plugin.
+      - name: PHP compatibility floor
+        run: composer lint:compat
+
       # Enumerated, not listed: a hand-maintained list of test files silently
       # stops running the one somebody adds next. That is not hypothetical —
       # tests/readme-spec.php sat outside `composer test` from the moment it

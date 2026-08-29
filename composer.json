@@ -8,11 +8,15 @@
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "wp-coding-standards/wpcs": "^3.2"
+        "wp-coding-standards/wpcs": "^3.2",
+        "phpcompatibility/phpcompatibility-wp": "^3.0@alpha",
+        "phpcompatibility/php-compatibility": "^10.0@alpha",
+        "phpcompatibility/phpcompatibility-paragonie": "^2.0@alpha"
     },
     "scripts": {
         "lint": "phpcs --standard=phpcs.xml",
         "lint:fix": "phpcbf --standard=phpcs.xml",
+        "lint:compat": "phpcs --standard=phpcompat.xml",
         "test": "for f in tests/*.php; do php \"$f\" || exit 1; done",
         "test:integration": "bash tests/integration/verify-behaviors.sh",
         "verify:screenshots": "bash bin/verify-screenshots.sh"

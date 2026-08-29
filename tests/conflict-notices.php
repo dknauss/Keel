@@ -53,7 +53,7 @@ function apply_filters( $hook, $value, ...$args ) {
 	}
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value; }
 // This fixture mirrors WordPress's core helper exactly.
-// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore
+// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore, PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore
 function __return_false() { return false; }
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }

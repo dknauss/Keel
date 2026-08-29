@@ -21,6 +21,7 @@
 /composer.json
 /composer.lock
 /phpcs.xml
+/phpcompat.xml
 #
 # The build's own output directory. bin/build-zip.sh excludes the directory it
 # is writing to, but only that one: build into `dist` while a `build/` from an
