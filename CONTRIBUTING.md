@@ -48,6 +48,13 @@ Note that it is pinned to a prerelease. The newest stable PHPCompatibility is
 only call in silence — a gate that cannot fail. `phpcompat.xml` carries the long
 version of that reasoning.
 
+`composer lint:syntax` parses every PHP file on whatever PHP is on your PATH. It
+is not in the list above because on one modern interpreter it tells you little
+that `composer test` has not already; its job is in CI, where the same script
+runs once per version in the matrix and is the only thing standing between a
+parse error and the PHP the plugin claims to support. Run it locally if you want
+to check a file parses without running anything.
+
 There is also an integration script that exercises the teardown behaviour against
 a real site, which CI does not run because it needs one:
 
