@@ -2,6 +2,13 @@
 <ruleset name="Keel">
 	<description>WordPress Coding Standards.</description>
 	<file>keel.php</file>
+	<!--
+		uninstall.php ships and WordPress loads it on delete, so it is runtime
+		code like anything in includes/. It was missing from this list rather
+		than deliberately exempt: it happens to be clean, which is why nothing
+		ever noticed. phpcompat.xml has always listed it.
+	-->
+	<file>uninstall.php</file>
 	<file>includes</file>
 	<file>tests</file>
 	<exclude-pattern>vendor/*</exclude-pattern>

@@ -33,10 +33,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Syntax check every PHP file
-        run: |
-          set -e
-          find . -name '*.php' -not -path './vendor/*' -print0 \
-            | xargs -0 -n1 php -l > /dev/null
+        run: bash bin/lint-syntax.sh
 
       - name: Install dev dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
@@ -98,12 +95,11 @@ jobs:
       # each test is a standalone file that stubs the WordPress functions it
       # needs. Installing dev tooling here would test whether phpcs supports PHP
       # 7.4, which is not the question, and would fail for reasons that have
-      # nothing to do with the plugin.
+      # nothing to do with the plugin. bin/lint-syntax.sh is bash and php and
+      # nothing else, so sharing it with the `test` job above does not put a
+      # dependency back.
       - name: Syntax check on this version
-        run: |
-          set -e
-          find . -name '*.php' -not -path './vendor/*' -print0 \
-            | xargs -0 -n1 php -l > /dev/null
+        run: bash bin/lint-syntax.sh
 
       # The same enumeration `composer test` uses, inlined so this job needs no
       # composer at all.

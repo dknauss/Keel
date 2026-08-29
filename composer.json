@@ -15,6 +15,7 @@
     },
     "scripts": {
         "lint": "phpcs --standard=phpcs.xml",
+        "lint:syntax": "bash bin/lint-syntax.sh",
         "lint:fix": "phpcbf --standard=phpcs.xml",
         "lint:compat": "phpcs --standard=phpcompat.xml",
         "test": "for f in tests/*.php; do php \"$f\" || exit 1; done",
