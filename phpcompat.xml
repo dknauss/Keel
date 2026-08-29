@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<ruleset name="Keel PHP compatibility">
+	<description>Enforces the PHP version floor the plugin claims.</description>
+
+	<!--
+		Separate from phpcs.xml on purpose, for the same reason ci.yml keeps
+		`test` and `compat` apart: a coding-standards failure and a "this will
+		fatal on the floor we advertise" failure are different problems, and a
+		green tick that means two different things means neither. Run this with
+		`composer lint:compat`.
+	-->
+
+	<!--
+		Everything that ships and has to run on the floor. keel.php and includes
+		are the plugin; uninstall.php is loaded by WordPress on delete and is
+		runtime code like any other, though phpcs.xml does not currently list it.
+		tests/ are CLI scripts the compat job executes on 7.4, so they are held to
+		the same floor as the code they exercise.
+	-->
+	<file>keel.php</file>
+	<file>uninstall.php</file>
+	<file>includes</file>
+	<file>tests</file>
+
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>build/*</exclude-pattern>
+
+	<arg name="extensions" value="php" />
+	<arg name="parallel" value="8" />
+
+	<!--
+		Open-ended range, not a single version. `7.4-` asks "does this run on
+		everything from the floor upward", so the same pass that catches a PHP 8
+		call on 7.4 also catches a construct PHP 8.2 deprecated. The lower bound
+		is the one keel.php, composer.json and readme.txt all claim; changing the
+		floor means changing it here too.
+	-->
+	<config name="testVersion" value="7.4-" />
+
+	<!--
+		PHPCompatibilityWP rather than plain PHPCompatibility. WordPress core
+		polyfills a number of newer PHP functions in wp-includes/compat.php —
+		str_contains, str_starts_with, str_ends_with and array_is_list among them
+		— so on WordPress 6.4, the floor this plugin requires, they are safe on
+		PHP 7.4. The raw ruleset would report every one of those as an error and
+		the noise would be the whole result. PHPCompatibilityWP knows which
+		functions core backfills and stays quiet about them.
+
+		Pinned to the 10.x / 3.x alpha line on purpose, and this is the part worth
+		reading before anyone "fixes" it back to a stable tag. The newest stable
+		PHPCompatibility is 9.3.5, released in December 2019 — more than a year
+		before PHP 8.0 shipped. It carries no PHP 8 data at all, so against this
+		plugin's 7.4 to 8.5 range it reports a clean bill of health on code that
+		fatals: verified by putting get_debug_type() in a shipped function and
+		watching 9.3.5 pass it without a word. A gate that cannot fail is worse
+		than no gate, because it also reads as green. The alpha does catch it, and
+		catches PHP 8.2 deprecations in the same pass. Revisit when 10.0.0 tags
+		stable; until then the alpha is the only version that answers the question
+		this file exists to ask.
+	-->
+	<rule ref="PHPCompatibilityWP" />
+</ruleset>
