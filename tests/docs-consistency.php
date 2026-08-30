@@ -53,6 +53,22 @@ function keel_checklist_title( $line ) {
 }
 
 /**
+ * Whole version, not substring.
+ *
+ * `0.5.2` occurs inside `0.5.20`, so a plain strpos() would read a claim of
+ * 0.5.20 as satisfying 0.5.2 — and, on the other side, would find the
+ * superseded 0.5.1 inside a perfectly current 0.5.10. The lookahead rejects a
+ * match followed by another digit or a further dotted component.
+ *
+ * @param string $haystack Text to search.
+ * @param string $needle   Version to look for.
+ * @return bool
+ */
+function keel_whole_version( $haystack, $needle ) {
+	return 1 === preg_match( '/' . preg_quote( $needle, '/' ) . '(?![0-9]|\.[0-9])/', $haystack );
+}
+
+/**
  * Map checklist titles to their done state.
  *
  * @param string $markdown File contents.
@@ -228,34 +244,31 @@ foreach ( $status_docs as $doc ) {
 		continue;
 	}
 
-	/*
-	 * Whole version, not substring. `0.5.2` occurs inside `0.5.20`, so a plain
-	 * strpos() would read a claim of 0.5.20 as satisfying 0.5.2 — and, on the
-	 * other side, would find the superseded 0.5.1 inside a perfectly current
-	 * 0.5.10. The lookahead rejects a match followed by another digit or a
-	 * further dotted component.
-	 */
-	$whole = static function ( $haystack, $needle ) {
-		return 1 === preg_match( '/' . preg_quote( $needle, '/' ) . '(?![0-9]|\.[0-9])/', $haystack );
-	};
-
 	keel_assert(
-		$whole( $claim[0], $version ),
+		keel_whole_version( $claim[0], $version ),
 		"{$doc} claims a release that is not {$version}: \"" . trim( $claim[0] ) . '"'
 	);
 
 	foreach ( $released as $old ) {
 		keel_assert(
-			! $whole( $claim[0], $old ),
+			! keel_whole_version( $claim[0], $old ),
 			"{$doc} still claims {$old} as current; the current version is {$version}."
 		);
 	}
 }
 
-// readme.txt above the changelog, same rule.
+/*
+ * readme.txt above the changelog, same rule — and it has to be the same rule.
+ *
+ * This loop said "same rule" and then used a plain strpos(), which is exactly
+ * the mistake keel_whole_version()'s docblock warns about. 0.5.10 is the first
+ * version where that bites: `Stable tag: 0.5.10` contains the string `0.5.1`, a
+ * real superseded release, so the release that would have exposed the bug is
+ * the release it blocked.
+ */
 foreach ( $released as $old ) {
 	keel_assert(
-		false === strpos( substr( $readme, 0, $changelog_at ), $old ),
+		! keel_whole_version( substr( $readme, 0, $changelog_at ), $old ),
 		"readme.txt refers to {$old} outside the changelog; the current version is {$version}."
 	);
 }

@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.5.9`**, published on wordpress.org as `keel-defaults` since
+**Current version: `0.5.10`**, published on wordpress.org as `keel-defaults` since
 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1. GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
@@ -88,15 +88,15 @@ distinguishes the two cases. The human gate holds either way: the `wordpress-org
 environment really does carry `required_reviewers`, which the warning in
 `wp-deploy.yml` says to check and which is easy to assume rather than confirm.
 
-### The hold is the maintainer's to lift
+### The hold is lifted
 
-CONTRIBUTING § "Releases are on hold" still reads as written, and it is deliberately
-left that way here. It makes lifting a decision for the maintainer *once the plugin
-is listed* — listing has now happened, so the precondition is met and the decision is
-available, but a roadmap is not the place to take it on the maintainer's behalf. The
-hold paragraphs below are history rather than active policy for the same reason they
-were kept before: the exceptions they document are what the review team was told, and
-a hold that vanishes from the file it was written in reads as though it never applied.
+The maintainer lifted it releasing 0.5.10. Listing on 2026-08-26 met the condition
+CONTRIBUTING named, and that section now describes how to cut a release rather than
+why not to.
+
+The hold paragraphs below stay where they are, as record rather than policy. The
+exceptions they document are what the review team was told at the time, and a hold
+that vanishes from the file it was written in reads as though it never applied.
 
 **Exceptions used for 0.5.3 and 0.5.4.** 0.5.3 is the answer to the review itself:
 the Plugins team pended the submission and asked for a corrected package, so a new
