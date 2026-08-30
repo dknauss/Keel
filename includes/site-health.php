@@ -185,7 +185,7 @@ function keel_defaults_debug_information( $info ) {
 		'description' => sprintf(
 			/* translators: %s: link to the Keel settings screen. */
 			__( 'Every default Keel manages and its current state on this site. Read-only — change them under %s.', 'keel-defaults' ),
-			keel_defaults_setting_link( '', __( 'Settings → Keel', 'keel-defaults' ) )
+			keel_defaults_setting_link( '', __( 'Settings → Site Defaults', 'keel-defaults' ) )
 		),
 		'fields'      => $fields,
 	);
@@ -209,7 +209,7 @@ function keel_defaults_site_health_posture() {
 	$description = '<p>' . sprintf(
 		/* translators: %s: link to the Keel settings screen. */
 		esc_html__( 'Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning.', 'keel-defaults' ),
-		keel_defaults_setting_link( '', __( 'Settings → Keel', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		keel_defaults_setting_link( '', __( 'Settings → Site Defaults', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
 	) . '</p>';
 
 	foreach ( $groups as $group_key => $group_label ) {

@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 
 /*
  * =====================================================================
- * SETTINGS SCREEN — Settings → Keel
+ * SETTINGS SCREEN — Settings → Site Defaults
  * =====================================================================
  */
 
@@ -451,7 +451,7 @@ function keel_defaults_render_warning( $warning ) {
  * The screen a setting lives on, anchored to the setting itself.
  *
  * A notice that names a setting should hand over the place rather than the
- * directions. "Turn off Non-Production Email under Settings → Keel" is a correct
+ * directions. "Turn off Non-Production Email under Settings → Site Defaults" is a correct
  * sentence and a small chore: find the screen, then find the row among
  * thirty-nine of them.
  *

@@ -486,7 +486,7 @@ msgstr ""
 
 #: includes/site-health.php:188
 #: includes/site-health.php:212
-msgid "Settings → Keel"
+msgid "Settings → Site Defaults"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
