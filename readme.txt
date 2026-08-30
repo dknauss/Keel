@@ -21,7 +21,7 @@ Keel adds a menu of sensible defaults to any WordPress install, each one a switc
 
 **Outgoing email stops at the edge of production.** An unsanitized database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production by default. It does nothing on production, and Keel says so in an admin notice so no admin is left wondering why a password reset never arrived.
 
-**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Keel Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
+**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Site Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
 
 == External services ==
 
@@ -41,7 +41,7 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 1. Copy the plugin folder into `wp-content/plugins/`, or upload the built zip through **Plugins → Add New → Upload Plugin**.
 2. Activate it. The documented defaults are seeded on activation; nothing is applied before that.
-3. Visit **Settings → Site Defaults** and turn off anything you do not want.
+3. Visit **Settings → Keel** and turn off anything you do not want.
 
 Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — are off out of the box and opt-in.
 
