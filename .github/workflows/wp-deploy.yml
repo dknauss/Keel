@@ -163,6 +163,59 @@ jobs:
           echo "::warning::The SVN username is not among the contributors wordpress.org lists for ${SLUG} (${LISTED}). That is the usual cause of svn E215004: the GitHub login and the wordpress.org login are easy to swap, and for this plugin they differ. If the account is a committer without being a listed contributor, ignore this."
 
 
+      # Whether the deploy will actually deploy anything.
+      #
+      # The action bails the moment it finds tags/$VERSION already in SVN — one
+      # line, exit 0, before the rsync into trunk, before `svn add`, before the
+      # tag copy. That is correct behaviour and the right protection against
+      # republishing a shipped version. What it is not is visible: the job goes
+      # green having exercised the checkout and nothing after it, which reads
+      # exactly like a full run.
+      #
+      # That is not hypothetical. The first dry run of this workflow, against
+      # 0.5.9, was read as proof the pipeline worked end to end. It had stopped
+      # at the first step and proved almost nothing.
+      #
+      # So the short-circuit is announced before it happens. A dry run of a
+      # published version is not a rehearsal and must not be reported as one.
+      - name: Will this deploy anything?
+        id: published
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          SLUG: keel-defaults
+        run: |
+          set -uo pipefail
+
+          # -f so an HTTP error is an empty body rather than a 404 page, which
+          # would otherwise read as "this version is not published yet" and send
+          # the run off believing the opposite of what is true.
+          LISTING="$( curl -sSf --globoff -m 20 "https://plugins.svn.wordpress.org/${SLUG}/tags/" )" || LISTING=""
+
+          if [ -z "$LISTING" ]; then
+            echo "::warning::Could not read the SVN tag list, so whether ${VERSION} is already published is unknown. Everything below runs as normal; just do not read a green run as proof the deploy path was exercised."
+            echo "state=unknown" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if printf '%s' "$LISTING" | grep -qE "href=\"${VERSION//./\\.}/\""; then
+            echo "state=published" >> "$GITHUB_OUTPUT"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "::warning::${VERSION} is already in SVN, so this rehearsal proves very little. The deploy action stops as soon as it sees tags/${VERSION}: it will check out the .org repository and exit before the copy into trunk, the svn add, and the tag copy. To rehearse those, dry-run a version that has not shipped."
+              {
+                echo "### Dry run of an already-published version"
+                echo
+                echo "\`${VERSION}\` is already in SVN. The deploy action exits at the checkout, so **the copy into trunk, \`svn add\`, the tag copy and the commit were not exercised.** A green run here is not evidence the deploy path works."
+              } >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::warning::${VERSION} is already in SVN. The deploy action will exit without committing, so this run will change nothing on wordpress.org. That makes re-running a failed deploy safe, but if you expected this to publish something, the version number is wrong."
+            fi
+            exit 0
+          fi
+
+          echo "state=new" >> "$GITHUB_OUTPUT"
+          echo "${VERSION} is not yet in SVN; the deploy path will run in full."
+
       - name: Checkout ${{ steps.meta.outputs.ref }}
         uses: actions/checkout@v4
         with:
