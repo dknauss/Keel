@@ -185,7 +185,7 @@ function keel_defaults_debug_information( $info ) {
 		'description' => sprintf(
 			/* translators: %s: link to the Keel settings screen. */
 			__( 'Every default Keel manages and its current state on this site. Read-only — change them under %s.', 'keel-defaults' ),
-			keel_defaults_setting_link( '', __( 'Settings → Site Defaults', 'keel-defaults' ) )
+			keel_defaults_setting_link( '', __( 'Settings → Keel', 'keel-defaults' ) )
 		),
 		'fields'      => $fields,
 	);
