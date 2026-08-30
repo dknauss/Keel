@@ -98,7 +98,17 @@ keel_assert(
 );
 
 /*
- * Documents whose menu paths are instructions to the reader.
+ * Everything that can send a reader to a menu.
+ *
+ * The plugin's own strings belong here as much as the readme does, and this was
+ * not obvious until the check was widened: two Site Health links were labelled
+ * `Settings → Keel` in shipped, translated UI, five releases after the menu was
+ * renamed. A guard that reads only the documentation would have gone on passing
+ * while the software itself gave the wrong directions.
+ *
+ * PHP is scanned as raw source rather than by extracting __() calls, so a stale
+ * path in a code comment is caught too. A comment that misdirects the next
+ * person reading it is cheaper to fix than to find twice.
  *
  * readme.txt is cut at the changelog. Entries below it describe releases as they
  * were, and the site menu genuinely did read `Keel` until 42a4ab6 — rewriting
@@ -107,7 +117,15 @@ keel_assert(
  * ROADMAP.md is left out entirely for the same reason at a larger scale: it is a
  * record of decisions and names things as they stood when each was taken.
  */
-$docs = array( 'readme.txt', 'README.md' );
+$docs = array_merge(
+	array( 'readme.txt', 'README.md', 'keel.php' ),
+	array_map(
+		static function ( $path ) use ( $root ) {
+			return ltrim( str_replace( $root, '', $path ), '/' );
+		},
+		(array) glob( $root . '/includes/*.php' )
+	)
+);
 
 /**
  * A path names a Keel screen when its destination could only be one of ours.
@@ -204,13 +222,18 @@ foreach ( $docs as $doc ) {
 
 keel_assert(
 	$checked > 0,
-	'No documented Keel menu path was found in ' . implode( ' or ', $docs ) . '. Either the docs stopped telling people where to click, or this pattern stopped matching — both are failures.'
+	sprintf(
+		'No Keel menu path found in any of the %d files scanned. Either nothing tells people where to click any more, or the pattern stopped matching — both are failures, and both look like a clean run.',
+		count( $docs )
+	)
 );
 
 printf(
-	"menu labels: OK (%d documented path%s; site: %s; network: %s)\n",
+	"menu labels: OK (%d path%s across %d file%s; site: %s; network: %s)\n",
 	$checked,
 	1 === $checked ? '' : 's',
+	count( $docs ),
+	1 === count( $docs ) ? '' : 's',
 	implode( ', ', $site_labels ),
 	implode( ', ', $network_labels )
 );

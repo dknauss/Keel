@@ -21,7 +21,7 @@ Keel adds a menu of sensible defaults to any WordPress install, each one a switc
 
 **Outgoing email stops at the edge of production.** An unsanitized database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production by default. It does nothing on production, and Keel says so in an admin notice so no admin is left wondering why a password reset never arrived.
 
-**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Keel Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
+**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Network Policy. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
 
 == External services ==
 
@@ -95,7 +95,7 @@ Yes. Every default reads its value through the plugin's own option, and the beha
 
 The setting is stored per site; the effect is not. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is being set on — and once set, it is that person's password everywhere. Exempting a role on one subsite decides what happens when a password is changed *there*; it does not exempt those accounts from another site's policy. In practice the strictest site on the network sets the floor for anyone who changes their password on it.
 
-Keel can now govern it as well as document it. Under **Network Admin → Settings → Keel Defaults**, a Super Admin can decide any setting for the whole network; sites see it as locked and cannot change it. Tick the password rules there and the network has one policy instead of a floor set by whichever site is strictest.
+Keel can now govern it as well as document it. Under **Network Admin → Settings → Network Policy**, a Super Admin can decide any setting for the whole network; sites see it as locked and cannot change it. Tick the password rules there and the network has one policy instead of a floor set by whichever site is strictest.
 
 Nothing is written into your sites. A network value is applied when a setting is read, so a site's own saved settings are untouched — untick a setting later and every site returns to exactly the value it had. Settings left unticked stay each site's own business.
 

@@ -16,11 +16,14 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: keel.php
-#: includes/network.php:186
-#: includes/network.php:187
 #: includes/site-health.php:21
 #: includes/site-health.php:184
 msgid "Keel Defaults"
+msgstr ""
+
+#: includes/network.php:186
+#: includes/network.php:187
+msgid "Network Policy"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -197,7 +200,7 @@ msgid "Non-Production Email"
 msgstr ""
 
 #: includes/network.php:99
-msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Keel Defaults."
+msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Network Policy."
 msgstr ""
 
 #: includes/network.php:209
@@ -205,7 +208,7 @@ msgid "You do not have permission to set network policy."
 msgstr ""
 
 #: includes/network.php:240
-msgid "Keel Defaults — network policy"
+msgid "Keel — network policy"
 msgstr ""
 
 #: includes/network.php:243
@@ -320,7 +323,7 @@ msgid "It does not fail quietly, though. A lookup that cannot be completed is re
 msgstr ""
 
 #: includes/settings-page.php:146
-msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
+msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
 #: includes/settings-page.php:157
@@ -483,7 +486,7 @@ msgstr ""
 
 #: includes/site-health.php:188
 #: includes/site-health.php:212
-msgid "Settings → Keel"
+msgid "Settings → Site Defaults"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.

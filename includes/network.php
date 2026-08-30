@@ -96,7 +96,7 @@ function keel_defaults_network_lock( $key ) {
 		return null;
 	}
 
-	return __( 'Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Keel Defaults.', 'keel-defaults' );
+	return __( 'Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Network Policy.', 'keel-defaults' );
 }
 
 /**
@@ -183,8 +183,8 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
 function keel_defaults_network_menu() {
 	$hook = add_submenu_page(
 		'settings.php',
-		__( 'Keel Defaults', 'keel-defaults' ),
-		__( 'Keel Defaults', 'keel-defaults' ),
+		__( 'Network Policy', 'keel-defaults' ),
+		__( 'Network Policy', 'keel-defaults' ),
 		'manage_network_options',
 		'keel-network',
 		'keel_defaults_render_network_page'
@@ -237,7 +237,7 @@ function keel_defaults_render_network_page() {
 	$sections = keel_defaults_section_labels();
 	?>
 	<div class="wrap">
-		<h1><?php esc_html_e( 'Keel Defaults — network policy', 'keel-defaults' ); ?></h1>
+		<h1><?php esc_html_e( 'Keel — network policy', 'keel-defaults' ); ?></h1>
 
 		<?php if ( isset( $_GET['keel-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only notice flag. ?>
 			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Network policy saved.', 'keel-defaults' ); ?></p></div>

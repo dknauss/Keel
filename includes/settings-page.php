@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 
 /*
  * =====================================================================
- * SETTINGS SCREEN — Settings → Keel
+ * SETTINGS SCREEN — Settings → Site Defaults
  * =====================================================================
  */
 
@@ -143,7 +143,7 @@ function keel_defaults_add_help_tab() {
 				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
-						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Keel Defaults, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there.', 'keel-defaults' ),
+						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there.', 'keel-defaults' ),
 						array()
 					) . '</p>'
 					: ''
@@ -451,7 +451,7 @@ function keel_defaults_render_warning( $warning ) {
  * The screen a setting lives on, anchored to the setting itself.
  *
  * A notice that names a setting should hand over the place rather than the
- * directions. "Turn off Non-Production Email under Settings → Keel" is a correct
+ * directions. "Turn off Non-Production Email under Settings → Site Defaults" is a correct
  * sentence and a small chore: find the screen, then find the row among
  * thirty-nine of them.
  *
