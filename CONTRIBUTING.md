@@ -171,27 +171,44 @@ every screenshot file is captioned in `readme.txt` and shown in `README.md`.
 - If the change rests on a decision shared with the sibling plugins, restate the
   reasoning here rather than citing a document this repository does not contain.
 
-## Releases are on hold
+## Releases
 
-**Do not tag a release while the wordpress.org submission is in review.** Merge
-to `main` as normal; do not bump the version, do not push a `v*` tag, and do not
-publish.
+**The hold is lifted.** Keel was listed on wordpress.org on 2026-08-26, which is
+the condition the hold named, and the maintainer lifted it releasing 0.5.10.
+Releases are ordinary work again.
 
-The reason is disclosure, not risk. A plugin in the review queue is reviewed as
-the version that was submitted, and every release made in the meantime is one the
-maintainer has to go and tell the reviewer about — twice already in a single day,
-each time for something found after the submission rather than before it. Holding
-is cheaper than the note, and a queue that is about to clear makes the note
-pointless anyway.
+Cutting one, in order, because the order is what keeps a tag from pointing at a
+commit that does not build:
 
-Work that would otherwise be a release accumulates on `main` and ships as one
-version when the queue clears. Something genuinely urgent — a security fix, or a
-defect bad enough that shipping late is worse than the disclosure — overrides
-this, and then the disclosure is part of the job rather than an accident.
+1. Bump the version in every file that states it — `keel.php`, `readme.txt`
+   (`Stable tag` **and** a new changelog entry **and** an Upgrade Notice entry),
+   `README.md`, `ROADMAP.md`, `SECURITY.md`. `tests/docs-consistency.php` fails
+   if any of them disagree, and it is easier to let it tell you than to
+   remember the list.
+2. Open it as a pull request and let CI go green.
+3. Merge, and only then push the `v*` tag.
 
-Lifting this is a decision for the maintainer once the plugin is listed. Until
-then, if you are an agent session and the work you just finished feels like it
-wants a version bump, it does not.
+Tag last. `release.yml` fires on the tag and runs the checks itself, so tagging
+first means a failure discovered when the tag already exists and a GitHub
+Release may already have been published.
+
+Pre-release tags (`-dev`, `-alpha`, `-beta`, `-rc`) are GitHub-only: `wp-deploy.yml`
+refuses them, because wordpress.org has no pre-release concept and pushing one
+would make it the stable version every user updates to.
+
+### What the hold was, kept because the record matters
+
+Releases were held while the wordpress.org submission sat in review. The reason
+was disclosure, not risk: a plugin in the queue is reviewed as the version that
+was submitted, and every release in the meantime is one the maintainer has to go
+and tell the reviewer about — twice in a single day, each time for something
+found after submission rather than before it.
+
+Four releases were made under it anyway, and the exceptions are recorded in
+[ROADMAP.md](ROADMAP.md) rather than quietly dropped: 0.5.1 and 0.5.2 for
+defects that silently reversed a setting the site had chosen, 0.5.3 because the
+review team asked for a corrected package, and 0.5.4 — the weak one, recorded as
+such — for a real but not urgent defect.
 
 ## Security
 

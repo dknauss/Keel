@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.9
+Stable tag: 0.5.10
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -141,6 +141,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
+= 0.5.10 =
+* The network settings screen is now **Network Policy** rather than "Keel Defaults". It decides settings for every site on a network and locks them, which is the opposite of what the per-site screen does, and the old name did not say so. The screen, its address and its behaviour are otherwise unchanged.
+* Two links in Site Health pointed at "Settings → Keel", a menu that has not existed since that screen was renamed to Site Defaults. They now name the screen you will actually find. The same correction has been made to the multisite password help text and to this readme.
+
 = 0.5.9 =
 * Breach-cache entries can no longer be reached again after the plugin is removed and reinstalled. On a site with Redis or Memcached, WordPress keeps transients in the object cache rather than the database, where the uninstaller's queries cannot follow them. Each installation now has its own cache namespace, so anything left behind belongs to an installation that no longer exists.
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
@@ -239,6 +243,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.5.10 =
+Renames the network screen to Network Policy and corrects links that named a menu which no longer exists. No setting changes and no behaviour changes.
 
 = 0.5.9 =
 Removing the plugin now fully clears breach-cache data on sites using Redis or Memcached. Help text rewritten; no setting changes.

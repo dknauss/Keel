@@ -2,9 +2,9 @@
 
 ## Supported versions
 
-The current release is `0.5.9`. Keel's wordpress.org submission is under review;
-until it is approved, install it from a GitHub release or the rolling `latest`
-build.
+The current release is `0.5.10`, published on wordpress.org as `keel-defaults`.
+Install it from the plugin directory; GitHub releases and the rolling `latest`
+build remain available for anyone who prefers them.
 
 Note that the plugin folder changed from `keel` to `keel-defaults`, and WordPress
 identifies a plugin by its folder. A site installed from a GitHub release made
