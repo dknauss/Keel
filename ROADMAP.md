@@ -150,7 +150,7 @@ The item below is kept because it is the last thing that moved and the section r
 oddly empty without it.
 
 - [x] **Multisite governance** — done 2026-08-09 (keel#89). Network Admin →
-      Settings → Keel Defaults lets a Super Admin decide any of the 38 settings for
+      Settings → Network Policy lets a Super Admin decide any of the 38 settings for
       the whole network; sites see those as locked and cannot change them.
 
       **Enforced at read, not pushed into subsites.** Writing values into every
