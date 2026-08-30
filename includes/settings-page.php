@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 
 /*
  * =====================================================================
- * SETTINGS SCREEN — Settings → Keel
+ * SETTINGS SCREEN — Settings → Site Defaults
  * =====================================================================
  */
 
