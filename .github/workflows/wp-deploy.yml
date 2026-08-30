@@ -23,6 +23,11 @@ on:
         description: "Release tag to deploy (e.g. v0.6.0). Leave blank to use the ref this was dispatched from."
         required: false
         default: ""
+      dry_run:
+        description: "Rehearse everything except the commit. Does NOT test the SVN credential — only a commit does."
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       tag:
@@ -91,6 +96,73 @@ jobs:
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
           echo "version=${REF#v}" >> "$GITHUB_OUTPUT"
 
+      # Credentials are resolved before the checkout and the build. Both deploys
+      # this workflow has ever attempted spent a minute assembling a package and
+      # then died on the credential; failing in six seconds says the same thing.
+      - name: Normalize SVN credentials
+        id: svn-creds
+        env:
+          RAW_SVN_USERNAME: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_USERNAME || secrets.WP_ORG_SVN_USERNAME }}
+          RAW_SVN_PASSWORD: ${{ secrets.SVN_PASSWORD != '' && secrets.SVN_PASSWORD || secrets.WP_ORG_SVN_PASSWORD }}
+        run: |
+          SVN_USERNAME="$(printf '%s' "$RAW_SVN_USERNAME" | tr -d '\r\n')"
+          SVN_PASSWORD="$(printf '%s' "$RAW_SVN_PASSWORD" | tr -d '\r\n')"
+
+          test -n "$SVN_USERNAME"
+          test -n "$SVN_PASSWORD"
+
+          echo "::add-mask::$SVN_USERNAME"
+          echo "::add-mask::$SVN_PASSWORD"
+
+          printf 'svn_username=%s\n' "$SVN_USERNAME" >> "$GITHUB_OUTPUT"
+          printf 'svn_password=%s\n' "$SVN_PASSWORD" >> "$GITHUB_OUTPUT"
+
+      # What this can and cannot tell you, stated plainly because the gap is the
+      # whole point: wordpress.org serves SVN reads anonymously, so no command
+      # short of a commit makes the server check a password. Nothing here proves
+      # the credential works. What it does check is the mistake that actually
+      # produces svn E215004 in practice — the wrong identity in the username.
+      #
+      # The directory publishes who is listed on the plugin, so the username can
+      # be compared against it for nothing. Listed contributors are not exactly
+      # the set of SVN committers, which is why a mismatch warns rather than
+      # fails: blocking a real release on an inexact signal is worse than the
+      # thing it prevents. An email address is not an inexact signal — the
+      # wordpress.org login is never an email — so that one fails.
+      - name: Preflight the SVN identity
+        env:
+          SVN_USERNAME: ${{ steps.svn-creds.outputs.svn_username }}
+          SLUG: keel-defaults
+        run: |
+          set -uo pipefail
+
+          case "$SVN_USERNAME" in
+            *@*)
+              echo "::error::The SVN username is an email address. wordpress.org SVN wants the account login — the name in profiles.wordpress.org/<login>/ — never the address it was registered with."
+              exit 1
+              ;;
+          esac
+
+          LISTED="$(
+            curl -sS --globoff -m 20 "https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=${SLUG}" \
+              | python3 -c 'import json,sys; print(" ".join(json.load(sys.stdin).get("contributors", {})))'
+          )" || LISTED=""
+
+          if [ -z "$LISTED" ]; then
+            echo "::warning::Could not read the contributor list from the plugin directory, so the username went unchecked. Not a reason to stop a deploy."
+            exit 0
+          fi
+
+          for name in $LISTED; do
+            if [ "$name" = "$SVN_USERNAME" ]; then
+              echo "SVN username matches a contributor listed on the plugin."
+              exit 0
+            fi
+          done
+
+          echo "::warning::The SVN username is not among the contributors wordpress.org lists for ${SLUG} (${LISTED}). That is the usual cause of svn E215004: the GitHub login and the wordpress.org login are easy to swap, and for this plugin they differ. If the account is a committer without being a listed contributor, ignore this."
+
+
       - name: Checkout ${{ steps.meta.outputs.ref }}
         uses: actions/checkout@v4
         with:
@@ -127,24 +199,6 @@ jobs:
           echo "== staged assets =="
           ls -1 build/wporg-assets
 
-      - name: Normalize SVN credentials
-        id: svn-creds
-        env:
-          RAW_SVN_USERNAME: ${{ secrets.SVN_USERNAME != '' && secrets.SVN_USERNAME || secrets.WP_ORG_SVN_USERNAME }}
-          RAW_SVN_PASSWORD: ${{ secrets.SVN_PASSWORD != '' && secrets.SVN_PASSWORD || secrets.WP_ORG_SVN_PASSWORD }}
-        run: |
-          SVN_USERNAME="$(printf '%s' "$RAW_SVN_USERNAME" | tr -d '\r\n')"
-          SVN_PASSWORD="$(printf '%s' "$RAW_SVN_PASSWORD" | tr -d '\r\n')"
-
-          test -n "$SVN_USERNAME"
-          test -n "$SVN_PASSWORD"
-
-          echo "::add-mask::$SVN_USERNAME"
-          echo "::add-mask::$SVN_PASSWORD"
-
-          printf 'svn_username=%s\n' "$SVN_USERNAME" >> "$GITHUB_OUTPUT"
-          printf 'svn_password=%s\n' "$SVN_PASSWORD" >> "$GITHUB_OUTPUT"
-
       - name: WordPress.org plugin deploy
         uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # v2.3.0 (stable)
         env:
@@ -154,3 +208,21 @@ jobs:
           VERSION: ${{ steps.meta.outputs.version }}
           BUILD_DIR: build/keel-defaults
           ASSETS_DIR: build/wporg-assets
+        with:
+          # Unset on a workflow_call, so a real release is never a rehearsal.
+          dry-run: ${{ inputs.dry_run || false }}
+
+      # A failure here is not a failed release — it is half a released one, and
+      # the difference is invisible from GitHub. release.yml has already tagged,
+      # built and published; only wordpress.org is missing, so every signal a
+      # maintainer would check says the version shipped. Say the quiet part.
+      - name: Explain a deploy failure
+        if: failure()
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          echo "::error::wordpress.org was NOT updated. The GitHub Release for ${VERSION} exists and the directory is still on the previous version, so the two now disagree. Re-run this workflow once the cause is fixed; it is idempotent for a version whose tag is not yet in SVN."
+          echo "If the failure was 'svn: E215004: Authentication failed', check these before changing anything else:"
+          echo "  1. WP_ORG_SVN_USERNAME is the wordpress.org LOGIN — the name in profiles.wordpress.org/<login>/ — not the email and not the GitHub username. The preflight step above warns when it does not match a listed contributor."
+          echo "  2. WP_ORG_SVN_PASSWORD is that account's wordpress.org password. It is not an application password and not a GitHub token."
+          echo "  3. The account has to be a committer on this plugin, which is separate from being listed as a contributor."
