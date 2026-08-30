@@ -21,7 +21,7 @@ Keel adds a menu of sensible defaults to any WordPress install, each one a switc
 
 **Outgoing email stops at the edge of production.** An unsanitized database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production by default. It does nothing on production, and Keel says so in an admin notice so no admin is left wondering why a password reset never arrived.
 
-**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Site Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
+**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Keel Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
 
 == External services ==
 
