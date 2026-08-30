@@ -11,7 +11,7 @@
 
 **The missing settings and defaults every new WordPress site needs.**
 
-Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Keel**. Nothing is hidden. Everything is explained.
+Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Site Defaults**. Nothing is hidden. Everything is explained.
 
 > **Current release: `0.5.9`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
@@ -22,7 +22,7 @@ Keel adds a modest menu of sensible security, update, privacy, content, media, e
 
 ## Set and forget — What Keel establishes as a baseline
 
-Activating Keel switches on sixteen of its thirty-nine defaults and applies a starting value to nine more, without writing to your content or deleting anything — every one is a switch on Settings → Keel, and turning it off puts WordPress back exactly as it shipped.
+Activating Keel switches on sixteen of its thirty-nine defaults and applies a starting value to nine more, without writing to your content or deleting anything — every one is a switch on Settings → Site Defaults, and turning it off puts WordPress back exactly as it shipped.
 
 Most of the immediate changes are quiet: users stop being listed for anonymous REST requests, new passwords must be long and never present in a known data breach, raw HTML is limited to Administrators, security headers go out, AI connectors are off, uploads get lowercase filenames, and the site starts warning you if its email sending capability looks broken.
 
@@ -65,9 +65,9 @@ do not. That reinforces what WordPress already does by default rather than chang
 
 ## What Keel looks like
 
-<img src=".wordpress-org/screenshot-1.png" alt="Settings → Keel: each default is one switch with the reason it exists written beside it" width="900">
+<img src=".wordpress-org/screenshot-1.png" alt="Settings → Site Defaults: each default is one switch with the reason it exists written beside it" width="900">
 
-**Settings → Keel.** Every default is a single switch with a solid explanation next to it. Learn more in the dropdown help menu, site health, and repo docs.
+**Settings → Site Defaults.** Every default is a single switch with a solid explanation next to it. Learn more in the dropdown help menu, site health, and repo docs.
 
 <img src=".wordpress-org/screenshot-2.png" alt="The Passwords help tab, explaining length and breach screening in place of composition rules" width="900">
 
@@ -154,7 +154,7 @@ the real email provider and use it before you realize what is happening.
 
 Keel short-circuits `wp_mail()` with `true`, not `false`, so a staging site does not
 start exercising failure paths that production never takes. Turn it off under
-**Settings → Keel**, or per-site with `KEEL_ALLOW_NONPRODUCTION_MAIL` or the
+**Settings → Site Defaults**, or per-site with `KEEL_ALLOW_NONPRODUCTION_MAIL` or the
 `keel_suppress_nonproduction_mail` filter. `keel_outgoing_mail_suppressed` fires
 in place of the send, so a mail catcher can still record the message.
 
@@ -195,7 +195,7 @@ states without a host or a local WordPress.
 
 **[▶ Try the rolling build](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-hosted.json)** — the `latest` pre-release, for previewing changes before they are cut.
 
-Both open **Settings → Keel** and create a published post, so the content
+Both open **Settings → Site Defaults** and create a published post, so the content
 defaults — comments, pingbacks, author archives, attachment redirects — have
 something to act on. An empty site makes half the toggles look inert.
 
@@ -207,7 +207,7 @@ actually serving before reading anything into it —
 ## Install
 
 Copy the plugin folder into `wp-content/plugins/` and activate, or install the built
-zip. On activation the documented defaults are seeded; then visit **Settings → Keel**.
+zip. On activation the documented defaults are seeded; then visit **Settings → Site Defaults**.
 
 ## Licence and credits
 

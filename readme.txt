@@ -21,7 +21,7 @@ Keel adds a menu of sensible defaults to any WordPress install, each one a switc
 
 **Outgoing email stops at the edge of production.** An unsanitized database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production by default. It does nothing on production, and Keel says so in an admin notice so no admin is left wondering why a password reset never arrived.
 
-**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Site Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
+**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Keel Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
 
 == External services ==
 
@@ -41,7 +41,7 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 1. Copy the plugin folder into `wp-content/plugins/`, or upload the built zip through **Plugins → Add New → Upload Plugin**.
 2. Activate it. The documented defaults are seeded on activation; nothing is applied before that.
-3. Visit **Settings → Keel** and turn off anything you do not want.
+3. Visit **Settings → Site Defaults** and turn off anything you do not want.
 
 Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — are off out of the box and opt-in.
 
@@ -53,7 +53,7 @@ Deactivating stops every default at once; stored settings are kept so reactivati
 
 = What changes when I activate Keel? =
 
-Sixteen of the thirty-nine defaults are on out of the box, and nine more settings that are not simple switches apply a starting value. Nothing is written to your content and nothing is deleted; every one of them is a switch on **Settings → Keel** you can turn off, and turning it off puts WordPress back exactly as it shipped.
+Sixteen of the thirty-nine defaults are on out of the box, and nine more settings that are not simple switches apply a starting value. Nothing is written to your content and nothing is deleted; every one of them is a switch on **Settings → Site Defaults** you can turn off, and turning it off puts WordPress back exactly as it shipped.
 
 Most of it is quiet. Users stop being listed to anonymous REST requests, new passwords have to be long and must not appear in a known breach, raw HTML and JavaScript are limited to Administrators, baseline security headers are sent, AI provider connectors are switched off, translations keep auto-updating, uploads get lowercase filenames, attachment screens show which image sizes were generated, and the site warns you if its own email looks misconfigured.
 
@@ -79,7 +79,7 @@ One thing, and only when the strong-password default is on: the first five chara
 
 Because Keel switched it off, deliberately, and there is an admin notice on the site saying so. The **Non-Production Email** default suppresses outgoing mail on any environment that is not production, so a database copied down from production cannot email real customers from a staging site or a laptop.
 
-It does nothing on production, so it cannot be left on by mistake. To send from a non-production site anyway, turn the default off under **Settings → Keel**, define `KEEL_ALLOW_NONPRODUCTION_MAIL` in `wp-config.php`, or use the `keel_suppress_nonproduction_mail` filter. A mail catcher can still record what would have been sent by hooking `keel_outgoing_mail_suppressed`.
+It does nothing on production, so it cannot be left on by mistake. To send from a non-production site anyway, turn the default off under **Settings → Site Defaults**, define `KEEL_ALLOW_NONPRODUCTION_MAIL` in `wp-config.php`, or use the `keel_suppress_nonproduction_mail` filter. A mail catcher can still record what would have been sent by hooking `keel_outgoing_mail_suppressed`.
 
 The environment is read the same way the admin-bar environment indicator reads it: `WP_ENVIRONMENT_TYPE`, whether set as a constant or an environment variable, and a host-name fallback for local development tools when neither is set.
 
@@ -105,7 +105,7 @@ You can, but you probably should not, and Keel will tell you when it matters.
 
 Some settings are applied through WordPress filters that transform a value in priority order — session length is the clearest example. Another callback on the same filter does not prove a conflict: two plugins may reach the same outcome or govern different parts of a structured result.
 
-Keel reports a structural overlap only when it is registered on an authoritative policy hook and a callback attributable to another active plugin is registered there too. It never executes the other plugin's callback to diagnose the overlap. The notice appears on the Plugins screen, on **Settings → Keel**, and on the dashboard, where it can be dismissed until the overlap changes. The full details are explained under **Tools → Site Health**.
+Keel reports a structural overlap only when it is registered on an authoritative policy hook and a callback attributable to another active plugin is registered there too. It never executes the other plugin's callback to diagnose the overlap. The notice appears on the Plugins screen, on **Settings → Site Defaults**, and on the dashboard, where it can be dismissed until the overlap changes. The full details are explained under **Tools → Site Health**.
 
 That evidence confirms shared ownership of a hook, not that the plugins' configured outcomes disagree. Keel asks you to compare their settings and never recommends deactivation from callback presence alone. Mail, authentication, comment-query, capability, and unattributable overlaps stay unconfirmed and informational.
 
