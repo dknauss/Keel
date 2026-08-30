@@ -3,8 +3,8 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.5.9`.** Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
-GPL-2.0-or-later.
+**Current version: `0.5.9`**, published on wordpress.org as `keel-defaults` since
+2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1. GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
 > outside this repository — so it is invisible to anyone who clones Keel, and it has
@@ -17,29 +17,86 @@ GPL-2.0-or-later.
 
 ## Next up
 
-Three defaults are accepted and unbuilt: excluding password-protected posts from
-site search, a toggle that leaves typographic punctuation as typed, and hiding
-broken-shortcode residue from readers while reporting it in Site Health. All three
-are decided in the v0.4 section below, with the evidence, the edge cases and what
-each costs, measured. With the plugin approved they are buildable rather than
-blocked. Nothing else is queued.
+**Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package; first
+published 2026-08-26. `https://wordpress.org/plugins/keel-defaults` serves the
+directory page, `https://plugins.svn.wordpress.org/keel-defaults` has a populated
+`trunk/` and `tags/0.5.9`, and the plugin API reports `0.5.9`, requires 6.4, tested
+to 7.1, requires PHP 7.4. Nobody has installed it yet, which is the expected reading
+four days in.
 
-**The plugin was approved on 2026-08-25**, on the 0.5.3 package. SVN is
-`https://plugins.svn.wordpress.org/keel-defaults`; the public page at
-`https://wordpress.org/plugins/keel-defaults` stays blank until the first commit.
+That closes the question this section used to open with. It asked whether the first
+SVN push should be 0.5.3, the approved package, or 0.5.4, the tag — worth deciding
+deliberately rather than by whichever was checked out. Events decided it: five more
+versions landed before the first push and what went up was 0.5.9.
 
-**The release hold is therefore liftable.** CONTRIBUTING makes lifting it a decision
-for the maintainer once the plugin is listed, and listing is what just happened — so
-the hold and its exceptions below are now history rather than active policy, kept for
-the record. The paragraphs are left in place because the exceptions they document are
-what the review team was told, and a hold that vanishes from the file it was written
-in reads as though it never applied.
+Three defaults are accepted and unbuilt, and they are the whole queue. All three are
+decided in the v0.4 section below, with the evidence, the edge cases and what each
+costs, measured.
 
-**One thing to settle before the first SVN commit:** 0.5.3 is the approved package,
-0.5.4 is the tag. They differ by two real defect fixes and no new setting, so the
-first push should almost certainly be 0.5.4 — but "approved version" and "version
-shipped to users" being different numbers is worth deciding deliberately rather than
-by whichever is checked out.
+**Build order — search exclusion first.** Keeping password-protected posts out of
+site search is the next thing to build. It is the only one of the three that closes
+a disclosure rather than adding a convenience: measured on WordPress 7.1, a
+Subscriber account searching the site gets back the title *and* the excerpt of every
+protected post, because core's `AND post_password = ''` guard in
+`WP_Query::parse_search()` only applies when the visitor is logged out. Anonymous
+visitors are already safe; registered ones are not — which makes the sites it
+affects the membership sites, shops and communities, exactly the ones with
+non-editor accounts to worry about. The other two are quality-of-life and can follow
+in any order:
+
+1. **Keep password-protected posts out of site search.** One filter on the search
+   query, and the work is in the carve-outs rather than the filter — an author, an
+   editor, or a member of a plugin-granted role must still find a post they can
+   legitimately read, or the fix reads as broken search instead of as privacy.
+   Composes with `disable_post_passwords`, which stops the supply of new protected
+   posts and does nothing about the ones already leaking.
+2. **Leave typographic punctuation as typed.** A toggle against `wptexturize`.
+3. **Hide broken-shortcode residue from readers, and report it in Site Health.**
+   Accepted only as a pair — stripping alone destroys the evidence that a plugin is
+   missing.
+
+### The release path has never run end to end
+
+Worth knowing before the next tag, because every signal around it reads green.
+
+0.5.9 reached wordpress.org **by hand**. The automated deploy has two runs, both on
+2026-08-26, and both failed:
+
+    ➤ Committing files...
+    svn: E215004: Authentication failed and interactive prompting is disabled
+    svn: E215004: No more credentials or we tried too many times.
+
+Everything ahead of that step worked — the version check against `keel.php` and
+`Stable tag`, the build, the asset staging, `svn add` of every file. Only the commit
+failed, and only on the credential.
+
+Two things follow that are easy to miss:
+
+- `WP_ORG_SVN_PASSWORD` was last set at 07:06 on 2026-08-26, fourteen minutes after
+  the final failed run and the same minute the directory records the plugin
+  appearing. So the credential in the repository today is almost certainly the
+  corrected one, and it has not been exercised once. The pipeline's state is
+  unknown rather than known-broken, which is the more expensive of the two.
+- `release.yml` did not call `wp-deploy.yml` at `v0.5.9` — that wiring landed
+  afterwards, in the run of work that ends at `#122`. The release-to-deploy path
+  has therefore never executed either. The next tag would exercise an untested
+  credential through untested wiring, at the moment that is hardest to debug.
+
+The cheap answer is one `workflow_dispatch` of `wp-deploy.yml` against `v0.5.9`.
+Authentication is attempted before any tag collision matters, so whatever comes back
+distinguishes the two cases. The human gate holds either way: the `wordpress-org`
+environment really does carry `required_reviewers`, which the warning in
+`wp-deploy.yml` says to check and which is easy to assume rather than confirm.
+
+### The hold is the maintainer's to lift
+
+CONTRIBUTING § "Releases are on hold" still reads as written, and it is deliberately
+left that way here. It makes lifting a decision for the maintainer *once the plugin
+is listed* — listing has now happened, so the precondition is met and the decision is
+available, but a roadmap is not the place to take it on the maintainer's behalf. The
+hold paragraphs below are history rather than active policy for the same reason they
+were kept before: the exceptions they document are what the review team was told, and
+a hold that vanishes from the file it was written in reads as though it never applied.
 
 **Exceptions used for 0.5.3 and 0.5.4.** 0.5.3 is the answer to the review itself:
 the Plugins team pended the submission and asked for a corrected package, so a new
@@ -75,9 +132,9 @@ plugin is clean under Plugin Check and it has been through a first review pass.
 **The review came back pended** (2026-08-25), on four points: every `<style>` and
 `<script>` written straight into the page rather than enqueued, a prohibited
 comparative claim in the description, bundled translation catalogs, and an automated
-flag against guideline 11 that needed no change. All four are answered in 0.5.3 and
-the reply is with the Plugins team. The queue is not clear, so the hold above still
-stands.
+flag against guideline 11 that needed no change. All four were answered in 0.5.3, and
+approval followed the same day. Read this paragraph as the record of what the review
+asked for, not as a description of where the submission stands — it cleared.
 The v0.5 group below has been decided rather than deferred — two of its four were
 taken and are done, two were declined with the reasons recorded, which is what
 "selected scope" means in that heading.
