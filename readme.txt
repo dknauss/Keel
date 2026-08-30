@@ -41,7 +41,7 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 1. Copy the plugin folder into `wp-content/plugins/`, or upload the built zip through **Plugins → Add New → Upload Plugin**.
 2. Activate it. The documented defaults are seeded on activation; nothing is applied before that.
-3. Visit **Settings → Keel** and turn off anything you do not want.
+3. Visit **Settings → Site Defaults** and turn off anything you do not want.
 
 Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — are off out of the box and opt-in.
 
