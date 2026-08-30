@@ -13,17 +13,15 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-Keel flips a menu of sensible defaults onto any WordPress install, each one a switch under **Settings → Keel**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any piece off.
+Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off. All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. 
 
-All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. A default is an opinionated filter behind a control.
-
-**Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed answering.
+**Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed from answering requests.
 
 **Site Health shows you the whole posture**, read-only: every default and its current state on one screen, so you can see what the site is actually doing without clicking through tabs. It also reports when another plugin is controlling the same settings, which otherwise fails silently.
 
-**Outgoing email stops at the edge of production.** A database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production — on by default, does nothing on production, and says so in an admin notice so nobody is left wondering why a password reset never arrived.
+**Outgoing email stops at the edge of production.** An unsanitized database copied down from production carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. Keel suppresses outgoing mail on any environment that is not production by default. It does nothing on production, and Keel says so in an admin notice so no admin is left wondering why a password reset never arrived.
 
-**It works the same on a network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot move some sites and not others. A Super Admin can decide any setting for the whole network under Network Admin → Settings → Keel Defaults; sites see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
+**Keel works the same on a Multisite network.** Activated across multisite, Keel seeds every existing site and every site created afterwards, so a later change to a default cannot apply to some sites and not others. A Super Admin can see and change any setting for the whole network under Network Admin → Settings → Site Defaults. Sub-sites on the network see those settings as locked, with their own saved values untouched underneath, so lifting a policy returns each site to exactly what it had.
 
 == External services ==
 
@@ -33,7 +31,7 @@ When the **Require strong passwords** default is enabled, Keel screens new passw
 
 A few defences live best in `wp-config.php`, outside any plugin: they apply before plugins load and cannot be switched off from the dashboard. These are optional and independent of Keel — add the ones that fit your site.
 
-`define( 'DISALLOW_FILE_EDIT', true );` — removes the built-in plugin and theme code editors, so a compromised admin account cannot edit PHP from the dashboard.
+`define( 'DISALLOW_FILE_EDIT', true );` — removes the built-in plugin and theme code editors, so a compromised admin account or foolhardy admin cannot edit PHP from the dashboard.
 
 `define( 'WP_POST_REVISIONS', 10 );` — caps stored post revisions so the database does not grow without bound. Keel's **Post Revision Retention** control can govern the same policy after plugins load; a numeric or false constant remains the higher-level operator choice and locks that control.
 
@@ -47,13 +45,13 @@ A few defences live best in `wp-config.php`, outside any plugin: they apply befo
 
 Every default is a switch, and the switches are the whole interface. Defaults that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — are off out of the box and opt-in.
 
-There is one exception: Keel sends an `X-Frame-Options` header of `SAMEORIGIN`, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set **Frame options** to "Leave unchanged" under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.
+There is one exception: Keel sends an `X-Frame-Options` header of `SAMEORIGIN`, so other sites cannot embed yours in an iframe. If something else is meant to display your site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set **Frame options** to "Leave unchanged" under Security and Attack Surface. A blocked frame usually fails silently, as a blank box, but Keel's rule is to call everything out.
 
 Deactivating stops every default at once; stored settings are kept so reactivating restores the same configuration. Uninstalling removes them.
 
 == Frequently Asked Questions ==
 
-= What changes when I activate it? =
+= What changes when I activate Keel? =
 
 Sixteen of the thirty-nine defaults are on out of the box, and nine more settings that are not simple switches apply a starting value. Nothing is written to your content and nothing is deleted; every one of them is a switch on **Settings → Keel** you can turn off, and turning it off puts WordPress back exactly as it shipped.
 
@@ -67,13 +65,13 @@ The starting values are conservative. Core auto-updates are set to **minor** —
 
 One default is on but does nothing on a live site: **outgoing email is blocked on any environment that is not production**, so a database copied to staging or a laptop cannot email real people. On production it never acts.
 
-= Will this break my site? =
+= Will Keel break my site? =
 
 The defaults that are on out of the box are low-risk, with one exception worth naming: `X-Frame-Options: SAMEORIGIN` is sent by default, and it stops other sites embedding yours in an iframe. Set **Frame options** to "Leave unchanged" if the site is meant to be embedded, because a blocked frame fails silently as a blank box.
 
 Everything else that can break something is off and opt-in, and each says on the settings screen what it will cost you — for example that blocking the XML-RPC endpoint also stops apps and services that publish through it. Requiring authentication for REST is the one place Keel spends a little of that strictness back: `oembed/1.0` stays reachable, so other sites can still embed your posts when every other route is closed.
 
-= Does it send anything off my site? =
+= Does Keel send anything off my site? =
 
 One thing, and only when the strong-password default is on: the first five characters of a password's SHA-1 hash, to check it against known breaches. Never the password, never the full hash, no personal data. See **External services** above for the full description and how to switch it off.
 
@@ -85,7 +83,7 @@ It does nothing on production, so it cannot be left on by mistake. To send from 
 
 The environment is read the same way the admin-bar environment indicator reads it: `WP_ENVIRONMENT_TYPE`, whether set as a constant or an environment variable, and a host-name fallback for local development tools when neither is set.
 
-= Does it delete anything? =
+= Does Keel delete anything? =
 
 No. Disabling comments hides them and closes the forms; nothing is removed from the database, and turning the default off brings every comment back. The same holds for the other content defaults.
 
@@ -107,7 +105,7 @@ You can, but you probably should not, and Keel will tell you when it matters.
 
 Some settings are applied through WordPress filters that transform a value in priority order — session length is the clearest example. Another callback on the same filter does not prove a conflict: two plugins may reach the same outcome or govern different parts of a structured result.
 
-Keel reports a structural overlap only when it is registered on an authoritative policy hook and a callback attributable to another active plugin is registered there too. It never executes the other plugin's callback to diagnose the overlap. The notice appears on the Plugins screen, on **Settings → Keel**, and on the dashboard, where it can be dismissed until the overlap changes. The full detail is under **Tools → Site Health**.
+Keel reports a structural overlap only when it is registered on an authoritative policy hook and a callback attributable to another active plugin is registered there too. It never executes the other plugin's callback to diagnose the overlap. The notice appears on the Plugins screen, on **Settings → Keel**, and on the dashboard, where it can be dismissed until the overlap changes. The full details are explained under **Tools → Site Health**.
 
 That evidence confirms shared ownership of a hook, not that the plugins' configured outcomes disagree. Keel asks you to compare their settings and never recommends deactivation from callback presence alone. Mail, authentication, comment-query, capability, and unattributable overlaps stay unconfirmed and informational.
 
@@ -121,21 +119,21 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Screenshots ==
 
-1. Settings → Keel. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+1. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
 2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
 
 == Credits ==
 
-Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
+Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
 
-Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel, additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later).
+Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel (@dknauss), additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later).
 
-Pixel Managed Platform is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
+The Pixel version is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
 
 == Support This Plugin ==
 
-Keel is free and stays free. If it saves you an afternoon of hardening a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through [GitHub Sponsors](https://github.com/sponsors/dknauss).
+Keel is free and will stay free. If it saves you an afternoon of hardening a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through [GitHub Sponsors](https://github.com/sponsors/dknauss).
 
 Bug reports and feature requests are welcome on the issue tracker: [https://github.com/dknauss/keel/issues](https://github.com/dknauss/keel/issues). If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how.
 
