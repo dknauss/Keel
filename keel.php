@@ -71,7 +71,7 @@ define( 'KEEL_DEFAULTS_FILE', __FILE__ );
  * both and fails when they disagree — an asset version that lags the plugin is a
  * stylesheet a browser goes on serving from cache after it changed.
  */
-const KEEL_DEFAULTS_VERSION = '0.5.9';
+const KEEL_DEFAULTS_VERSION = '0.5.10';
 
 // Load the plugin's modules.
 require_once __DIR__ . '/includes/schema.php';

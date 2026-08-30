@@ -180,11 +180,14 @@ Releases are ordinary work again.
 Cutting one, in order, because the order is what keeps a tag from pointing at a
 commit that does not build:
 
-1. Bump the version in every file that states it — `keel.php`, `readme.txt`
-   (`Stable tag` **and** a new changelog entry **and** an Upgrade Notice entry),
-   `README.md`, `ROADMAP.md`, `SECURITY.md`. `tests/docs-consistency.php` fails
-   if any of them disagree, and it is easier to let it tell you than to
-   remember the list.
+1. Bump the version in every place that states it — `keel.php` **twice**, the
+   `Version:` header and the `KEEL_DEFAULTS_VERSION` constant below it; then
+   `readme.txt` (`Stable tag` **and** a new changelog entry **and** an Upgrade
+   Notice entry), `README.md`, `ROADMAP.md`, `SECURITY.md`. The constant is the
+   cache-buster on every enqueued asset, which is why it is checked separately
+   and why missing it ships stale CSS to everyone who updates. Do not work from
+   this list — `tests/docs-consistency.php` knows it better than prose does, and
+   this paragraph was itself written a version short.
 2. Open it as a pull request and let CI go green.
 3. Merge, and only then push the `v*` tag.
 
