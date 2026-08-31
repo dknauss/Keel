@@ -63,12 +63,18 @@ $GLOBALS['keel_test'] = array(
 	'options'    => array(),
 );
 
-/** @return string */
+/**
+ * Stub: the version under test.
+ *
+ * @return string
+ */
 function wp_get_wp_version() {
 	return $GLOBALS['keel_test']['version'];
 }
 
 /**
+ * Stub: read from the in-memory transient store.
+ *
  * @param string $k Key.
  * @return mixed
  */
@@ -77,6 +83,8 @@ function get_site_transient( $k ) {
 }
 
 /**
+ * Stub: write to the in-memory transient store.
+ *
  * @param string $k Key.
  * @param mixed  $v Value.
  * @param int    $t TTL.
@@ -88,6 +96,8 @@ function set_site_transient( $k, $v, $t = 0 ) {
 }
 
 /**
+ * Stub: read from the in-memory option store.
+ *
  * @param string $k Option.
  * @param mixed  $d Default.
  * @return mixed
@@ -97,6 +107,8 @@ function get_site_option( $k, $d = false ) {
 }
 
 /**
+ * Stub: whether file modifications are permitted.
+ *
  * @param string $c Context.
  * @return bool
  */
@@ -105,6 +117,8 @@ function wp_is_file_mod_allowed( $c ) {
 }
 
 /**
+ * Stub: return the value unfiltered.
+ *
  * @param string $h Hook.
  * @param mixed  $v Value.
  * @return mixed
@@ -114,18 +128,24 @@ function apply_filters( $h, $v ) {
 }
 
 /**
+ * Stub: registration is not exercised here.
+ *
  * @param string $h Hook.
  * @param mixed  ...$a Args.
  */
 function add_filter( $h, ...$a ) {}
 
 /**
+ * Stub: registration is not exercised here.
+ *
  * @param string $h Hook.
  * @param mixed  ...$a Args.
  */
 function add_action( $h, ...$a ) {}
 
 /**
+ * Stub: pass the string through untranslated.
+ *
  * @param string $s Text.
  * @param string $d Domain.
  * @return string
@@ -135,6 +155,8 @@ function __( $s, $d = '' ) {
 }
 
 /**
+ * Stub: pass the string through untranslated.
+ *
  * @param string $s Text.
  * @param string $d Domain.
  * @return string
@@ -144,6 +166,8 @@ function esc_html__( $s, $d = '' ) {
 }
 
 /**
+ * Stub: pass the string through unescaped.
+ *
  * @param string $s Text.
  * @return string
  */
@@ -152,6 +176,8 @@ function esc_html( $s ) {
 }
 
 /**
+ * Stub: pass the URL through unescaped.
+ *
  * @param string $s URL.
  * @return string
  */
@@ -160,6 +186,8 @@ function esc_url( $s ) {
 }
 
 /**
+ * Stub: a predictable admin URL.
+ *
  * @param string $s Path.
  * @return string
  */
@@ -168,6 +196,8 @@ function admin_url( $s = '' ) {
 }
 
 /**
+ * Stub: a predictable home URL.
+ *
  * @param string $s Path.
  * @return string
  */
@@ -175,7 +205,12 @@ function home_url( $s = '' ) {
 	return 'https://example.test' . $s;
 }
 
-/** @return bool */
+/**
+ * Stub: no capabilities, so action markup stays out of these cases.
+ *
+ * @param string $c Capability.
+ * @return bool
+ */
 function current_user_can( $c ) {
 	return false;   // Actions are asserted separately; keep markup out of these cases.
 }
@@ -248,22 +283,22 @@ $GLOBALS['keel_test']['file_mod_blocked'] = false;
 // --- 4. the Site Health verdict people actually see -------------------------
 
 $GLOBALS['keel_test']['version'] = '6.8.8';
-$r = keel_defaults_backport_test();
+$r                               = keel_defaults_backport_test();
 keel_assert( 'recommended' === $r['status'], 'patched-but-behind is recommended: not a fault, not settled either' );
 keel_assert( 'critical' !== $r['status'], 'patched-but-behind is never critical — it is not vulnerable' );
 keel_assert( false !== strpos( $r['description'], '7.1' ), 'the behind-but-patched result names the current release, so the gap is legible' );
 
 $GLOBALS['keel_test']['version'] = '7.1';
-$r = keel_defaults_backport_test();
+$r                               = keel_defaults_backport_test();
 keel_assert( 'good' === $r['status'], 'only the current release is good' );
 
 $GLOBALS['keel_test']['version'] = '6.8.7';
-$r = keel_defaults_backport_test();
+$r                               = keel_defaults_backport_test();
 keel_assert( 'critical' === $r['status'], 'insecure is critical' );
 keel_assert( false !== strpos( $r['description'], '6.8.8' ), 'the critical result names the patch to move to' );
 
 $GLOBALS['keel_test']['version'] = '4.6.2';
-$r = keel_defaults_backport_test();
+$r                               = keel_defaults_backport_test();
 keel_assert( 'critical' === $r['status'], 'insecure with no patch is still critical' );
 keel_assert(
 	false === strpos( $r['description'], 'without changing major version' ),
@@ -271,7 +306,7 @@ keel_assert(
 );
 
 $GLOBALS['keel_test']['version'] = '6.8.7-alpha-12345-src';
-$r = keel_defaults_backport_test();
+$r                               = keel_defaults_backport_test();
 keel_assert( 'critical' !== $r['status'], 'a development build is never reported as vulnerable' );
 
 if ( $fail > 0 ) {

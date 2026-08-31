@@ -20,7 +20,7 @@ const KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT = 'keel_stable_check';
 // One day. Written as a literal rather than DAY_IN_SECONDS because this file
 // is loaded by the test suite without WordPress, where that constant does not
 // exist and a file-scope reference to it is a fatal at require time.
-const KEEL_DEFAULTS_STABLE_CHECK_TTL       = 86400;
+const KEEL_DEFAULTS_STABLE_CHECK_TTL = 86400;
 
 /**
  * Fetch the version status map, cached for a day.
@@ -77,7 +77,9 @@ function keel_defaults_version_status() {
 	$version = wp_get_wp_version();
 
 	// Development builds carry a suffix and are never listed.
-	if ( str_contains( $version, '-' ) ) {
+	// strpos rather than str_contains: Keel supports PHP 7.4, where that
+	// function does not exist.
+	if ( false !== strpos( $version, '-' ) ) {
 		return 'unknown';
 	}
 
@@ -400,7 +402,7 @@ function keel_defaults_backport_notice() {
 	// version. Same behaviour — dismissing on 6.8.7 does not hide it on 6.8.9 —
 	// but it leaves a single row to remove on uninstall instead of an unbounded
 	// set that only a LIKE query could find.
-	if ( $version === get_user_meta( get_current_user_id(), 'keel_backport_dismissed', true ) ) {
+	if ( get_user_meta( get_current_user_id(), 'keel_backport_dismissed', true ) === $version ) {
 		return;
 	}
 
