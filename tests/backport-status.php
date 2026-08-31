@@ -265,6 +265,26 @@ class WP_Automatic_Updater {
 	}
 }
 
+/**
+ * Stub of core's upgrader skin. Without this the credential probe is skipped
+ * entirely, which is exactly the arrangement that let a real site report the
+ * updater operable without the probe ever running.
+ */
+class Automatic_Upgrader_Skin {
+	/**
+	 * Whether filesystem credentials are available.
+	 *
+	 * @param bool   $error   Unused.
+	 * @param string $context Path.
+	 * @param bool   $relaxed Whether relaxed file ownership is permitted.
+	 * @return bool
+	 */
+	public function request_filesystem_credentials( $error = false, $context = '', $relaxed = false ) {
+		$GLOBALS['keel_test']['relaxed_seen'] = $relaxed;
+		return empty( $GLOBALS['keel_test']['no_fs_credentials'] );
+	}
+}
+
 require dirname( __DIR__ ) . '/includes/backports.php';
 
 /**
@@ -458,6 +478,36 @@ keel_assert( true === $state['policy'], 'a minor Keel policy resolves minor upda
 $GLOBALS['keel_test']['keel_filter'] = false;
 $state                               = keel_defaults_minor_update_state();
 keel_assert( 'option' === $state['owner'], 'without Keel\'s filter, the stored option owns it again' );
+
+
+// --- 10. the credential probe actually runs, and is not more permissive ----
+// Two failures pinned. Loading only WP_Automatic_Updater used to skip the probe
+// silently. And passing relaxed ownership unconditionally is more permissive
+// than core, which allows it only when the offer reports no new files.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']           = '6.8.7';
+$GLOBALS['keel_test']['options']           = array();
+$GLOBALS['keel_test']['keel_filter']       = false;
+$GLOBALS['keel_test']['relaxed_seen']      = null;
+$GLOBALS['keel_test']['no_fs_credentials'] = true;
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'missing filesystem credentials make the updater inoperable' );
+keel_assert( null !== $GLOBALS['keel_test']['relaxed_seen'], 'the credential probe actually ran' );
+keel_assert( false === $GLOBALS['keel_test']['relaxed_seen'], 'relaxed ownership is not assumed when no offer says so' );
+
+$GLOBALS['keel_test']['no_fs_credentials'] = false;
+$state                                     = keel_defaults_minor_update_state();
+keel_assert( true === $state['operable'], 'with credentials available the updater is operable again' );
+
+// --- 11. blockers are not duplicated ---------------------------------------
+$GLOBALS['keel_test']['file_mod_blocked'] = true;
+$GLOBALS['keel_test']['updater_disabled'] = true;
+$state                                    = keel_defaults_minor_update_state();
+keel_assert( 1 === count( $state['blockers'] ), 'a blocked file mod is reported once, not twice' );
+$GLOBALS['keel_test']['file_mod_blocked'] = false;
+$GLOBALS['keel_test']['updater_disabled'] = false;
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

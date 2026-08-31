@@ -186,6 +186,38 @@ function keel_defaults_latest_version() {
 }
 
 /**
+ * Whether relaxed file ownership applies, decided the way core decides it.
+ *
+ * WP_Automatic_Updater::should_update() sets this from the offer being
+ * considered — true only when a core offer explicitly reports no new files —
+ * and defaults to false. Assuming true is more permissive than core and would
+ * call an update possible that core will refuse.
+ *
+ * @return bool
+ */
+function keel_defaults_relaxed_ownership_allowed() {
+	$tip = keel_defaults_branch_tip();
+
+	if ( '' === $tip ) {
+		return false;
+	}
+
+	$updates = get_site_transient( 'update_core' );
+
+	if ( ! is_object( $updates ) || empty( $updates->updates ) ) {
+		return false;
+	}
+
+	foreach ( (array) $updates->updates as $offer ) {
+		if ( isset( $offer->current ) && $tip === $offer->current ) {
+			return isset( $offer->new_files ) && ! $offer->new_files;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Who is deciding whether same-branch updates install, and what they decided.
  *
  * Two questions, not one, because a single boolean promises more than it can
@@ -212,24 +244,37 @@ function keel_defaults_minor_update_state() {
 	// constant through the automatic_updater_disabled filter, so a filter can
 	// re-enable an updater the constant switched off. Checking the two
 	// separately produces a verdict core does not share.
+	// Load the bundle if *either* class is missing. Checking only for
+	// WP_Automatic_Updater lets another plugin autoload that one class and
+	// silently skip the credential probe below, which then reports the updater
+	// operable without ever testing it.
 	$upgrader_file = ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-	if ( ! class_exists( 'WP_Automatic_Updater' ) && is_readable( $upgrader_file ) ) {
+	if ( ( ! class_exists( 'WP_Automatic_Updater' ) || ! class_exists( 'Automatic_Upgrader_Skin' ) )
+		&& is_readable( $upgrader_file )
+	) {
 		require_once $upgrader_file;
 	}
 
 	$updater = class_exists( 'WP_Automatic_Updater' ) ? new WP_Automatic_Updater() : null;
 
-	if ( $updater && $updater->is_disabled() ) {
+	// is_disabled() already folds in wp_is_file_mod_allowed(), so the specific
+	// reason is reported above and this only fires for some *other* cause.
+	if ( $updater && $updater->is_disabled() && empty( $blockers ) ) {
 		$blockers[] = __( 'the automatic updater is switched off', 'keel-defaults' );
 	}
 
 	// Core refuses an update it cannot get filesystem credentials for, before
 	// any policy decision is reached. A site needing FTP details fails here.
+	//
+	// Relaxed file ownership mirrors core rather than being assumed: core allows
+	// it only when the offer itself reports no new files. Passing true
+	// unconditionally would call an update operable that core would refuse the
+	// moment a security release added a file.
 	if ( class_exists( 'Automatic_Upgrader_Skin' ) ) {
 		$skin = new Automatic_Upgrader_Skin();
 
-		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, true ) ) {
+		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
 			$blockers[] = __( 'WordPress cannot get the filesystem access it needs', 'keel-defaults' );
 		}
 	}
@@ -291,25 +336,43 @@ function keel_defaults_minor_updates_enabled() {
 }
 
 /**
- * Register the Site Health test.
+ * Register the Site Health test, asynchronously.
  *
- * The fetch is cached for a day, so the common case costs nothing. A cold cache
- * still pays the request, which is why the timeout is short and a failure caches
- * a sentinel — core's own WordPress.org test is async precisely to keep this off
- * the render path, and this one is direct only because its result is needed to
- * decide the status at all.
+ * Async for the same reason core's WordPress.org communication test is: a direct
+ * test runs during the page render, so a cold cache would pause Site Health for
+ * the length of the request. Async, the page paints and the result arrives.
+ *
+ * The test name matters more than it looks. Core's JS builds the action as
+ * `'health-check-' + test.replace( '_', '-' )`, replacing only the first
+ * underscore — so `keel_backport` gives `health-check-keel-backport`, and a name
+ * with two underscores would produce an action nothing is listening on.
  *
  * @param array $tests Registered tests.
  * @return array
  */
 function keel_defaults_register_backport_test( $tests ) {
-	$tests['direct']['keel_defaults_backport'] = array(
-		'label' => __( 'Security patch status', 'keel-defaults' ),
-		'test'  => 'keel_defaults_backport_test',
+	$tests['async']['keel_backport'] = array(
+		'label'             => __( 'Security patch status', 'keel-defaults' ),
+		'test'              => 'keel_backport',
+		'async_direct_test' => 'keel_defaults_backport_test',
 	);
 
 	return $tests;
 }
+
+/**
+ * Answer the async Site Health request.
+ */
+function keel_defaults_backport_ajax() {
+	check_ajax_referer( 'health-check-site-status', 'nonce' );
+
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
+		wp_send_json_error( array(), 403 );
+	}
+
+	wp_send_json_success( keel_defaults_backport_test() );
+}
+add_action( 'wp_ajax_health-check-keel-backport', 'keel_defaults_backport_ajax' );
 add_filter( 'site_status_tests', 'keel_defaults_register_backport_test' );
 
 /**
@@ -336,7 +399,7 @@ function keel_defaults_backport_test() {
 		),
 		'description' => '',
 		'actions'     => '',
-		'test'        => 'keel_defaults_backport',
+		'test'        => 'keel_backport',
 	);
 
 	if ( 'unknown' === $status ) {
