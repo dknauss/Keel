@@ -168,6 +168,7 @@ if ( is_multisite() ) {
 	 * it would outlive the plugin as an orphan.
 	 */
 	delete_site_option( 'keel_network_settings' );
+	delete_site_transient( 'keel_stable_check' );
 
 	/*
 	 * Options are per site, so every site needs clearing — including ones this
@@ -204,8 +205,10 @@ if ( is_multisite() ) {
 	// site on the network.
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
+	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
 } else {
 	keel_defaults_uninstall_site();
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
+	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
 }
