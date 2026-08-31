@@ -287,6 +287,14 @@ $r                               = keel_defaults_backport_test();
 keel_assert( 'recommended' === $r['status'], 'patched-but-behind is recommended: not a fault, not settled either' );
 keel_assert( 'critical' !== $r['status'], 'patched-but-behind is never critical — it is not vulnerable' );
 keel_assert( false !== strpos( $r['description'], '7.1' ), 'the behind-but-patched result names the current release, so the gap is legible' );
+keel_assert(
+	false === strpos( $r['description'], 'not vulnerable' ),
+	'the behind-but-patched result never claims the site is not vulnerable — stable-check only reports whether a version is flagged'
+);
+keel_assert(
+	false !== strpos( $r['description'], 'not a support guarantee' ),
+	'the behind-but-patched result says outright that this is not a support guarantee'
+);
 
 $GLOBALS['keel_test']['version'] = '7.1';
 $r                               = keel_defaults_backport_test();

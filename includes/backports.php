@@ -7,6 +7,11 @@
  * vulnerabilities while every admin screen looks perfectly calm. The answer
  * lives at api.wordpress.org/core/stable-check/1.0/, which core does not query.
  *
+ * What that endpoint asserts is narrow and worth stating exactly: whether
+ * WordPress.org presently classifies a given core version as insecure. It is not
+ * a statement that a version is supported — only the latest release is — nor that
+ * a site is secure, which depends on plugins, themes, PHP and configuration too.
+ *
  * This file surfaces that answer, and — only on an explicit click — offers to
  * act on it.
  *
@@ -206,7 +211,7 @@ function keel_defaults_backport_test() {
 	$auto    = keel_defaults_minor_updates_enabled();
 
 	$result = array(
-		'label'       => __( 'This site is running a patched version of WordPress', 'keel-defaults' ),
+		'label'       => __( 'This version is not currently flagged as insecure', 'keel-defaults' ),
 		'status'      => 'good',
 		'badge'       => array(
 			'label' => __( 'Security', 'keel-defaults' ),
@@ -245,7 +250,7 @@ function keel_defaults_backport_test() {
 
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress.org classifies %1$s as insecure. The fix for this release line is %2$s, which carries every known security fix without changing major version.', 'keel-defaults' ),
+			esc_html__( 'WordPress.org classifies %1$s as insecure. The applicable release on this line is %2$s, which is not currently flagged, and moving to it does not change major version.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
 			'<code>' . esc_html( $tip ) . '</code>'
 		) . '</p>';
@@ -270,11 +275,11 @@ function keel_defaults_backport_test() {
 		$result['label']       = __( 'This site is patched, but on an older release line', 'keel-defaults' );
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: latest version. */
-			esc_html__( '%1$s carries every known security fix for its release line, so this site is not vulnerable. The current release is %2$s.', 'keel-defaults' ),
+			esc_html__( '%1$s is not currently flagged as insecure by WordPress.org. The current release is %2$s.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
 			'<code>' . esc_html( keel_defaults_latest_version() ) . '</code>'
 		) . '</p>';
-		$result['description'] .= '<p>' . esc_html__( 'Staying here is a reasonable choice, and Keel will not nag about it. It is worth knowing what it commits you to: release lines are eventually retired, and when this one is, the next vulnerability will have no patch on this line at all. The longer the wait, the larger the eventual move.', 'keel-defaults' ) . '</p>';
+		$result['description'] .= '<p>' . esc_html__( 'That is not a support guarantee. Only the latest release is actively supported; fixes for older lines are backported as a courtesy, where necessary and feasible, and ship as they become ready. Staying here is a reasonable choice and Keel will not nag about it, but the line will eventually be retired, and this check only covers core — not plugins, themes, PHP or anything undisclosed.', 'keel-defaults' ) . '</p>';
 
 		return $result;
 	}
