@@ -8,10 +8,15 @@ name: Regenerate the translation template
 #
 # So the runner does it. Dispatch this, download the artifact, commit it.
 #
-# It deliberately does not commit for you. The regenerated file reorders entries
-# and rewrites every source reference, so the diff is enormous and mostly
-# meaningless; that is worth a human glance before it lands, and a bot pushing it
-# straight to a branch invites nobody ever looking.
+# It deliberately does not commit for you. Someone should read what comes back:
+# the interesting part is whether any msgid appeared or disappeared, and that is
+# a judgement about the plugin's strings rather than about the file. A bot
+# pushing the result straight to a branch guarantees nobody makes it.
+#
+# The diff is not necessarily large. The first run of this, against a .pot that
+# had been hand-edited twice, came back six lines — one entry in a different
+# position and the timestamp — with the msgid sets identical. Which is the good
+# outcome, and only knowable by running it.
 on:
   workflow_dispatch:
   push:
