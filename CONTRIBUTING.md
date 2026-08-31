@@ -98,6 +98,52 @@ edits above: `README.md`, `readme.txt`, `TODO.md`, `ROADMAP.md` and
 the defaults ship. The test names every file and line that needs moving, so run
 `composer test` and follow the failures rather than hunting for them.
 
+## Never recompute what the system already answers
+
+If core or Keel already computes a value, call the thing that computes it. Do
+not reimplement the logic, and do not copy the condition that guards it.
+
+This is not a style preference either, but no test catches it and no linter can:
+reimplemented logic is perfectly valid code that merely disagrees with its
+source. It is found by review, or by the bug report months later.
+
+It is the single defect that recurred most while building `includes/backports.php`,
+in four distinct places:
+
+- **`is_disabled()` was rebuilt from its parts.** Core does
+  `$disabled = defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED;`
+  and *then* passes that through the `automatic_updater_disabled` filter, so a
+  filter can re-enable an updater the constant switched off. Checking the
+  constant and the filter separately produced a verdict core did not share.
+- **A precondition was omitted because it was not obvious.**
+  `WP_Automatic_Updater::should_update()` refuses when
+  `request_filesystem_credentials()` fails, before any policy decision is
+  reached. Rebuilding "can this update run" by listing the checks we remembered
+  missed the one we did not.
+- **Keel's own policy comparison was copied.**
+  `in_array( $policy, array( 'minor', 'all' ), true )` was duplicated out of
+  `keel_defaults_allow_minor_core_updates()`. Adding a policy value would leave
+  the copy quietly wrong.
+- **The condition registering a filter was copied.** `bootstrap.php` decides
+  when Keel's policy filters are hooked; duplicating that condition elsewhere
+  means changing one and not the other.
+
+The last two were introduced *by the fix for the first two*, which is the useful
+part of the story. The pull is strongest exactly when you are already deep in
+someone else's logic and it feels quicker to restate a line than to call it.
+
+In practice:
+
+- Ask core: `is_disabled()`, `is_vcs_checkout()`, `wp_is_file_mod_allowed()`,
+  `request_filesystem_credentials()`.
+- Ask Keel: call the filter callback, or `keel_defaults_get()`.
+- To find out whether a filter is in play, use `has_filter()` rather than
+  re-deriving the condition that registered it.
+- Where a value must be interpreted rather than fetched — mapping a status
+  string to a verdict, say — allowlist the values you understand and treat
+  everything else as unknown. Falling through to a benign default is how an
+  unrecognised value becomes a reassuring answer.
+
 ## Writing tests
 
 The bar here is higher than "it passes", and it is the one thing worth reading
