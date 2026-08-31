@@ -58,7 +58,8 @@ function keel_defaults_stable_check() {
 	$response = wp_remote_get(
 		KEEL_DEFAULTS_STABLE_CHECK_URL,
 		array(
-			'timeout'    => 10,
+			// Short: this can run on a cold cache during a Site Health render.
+			'timeout'    => 5,
 			'user-agent' => 'Keel; ' . home_url( '/' ),
 		)
 	);
@@ -207,12 +208,30 @@ function keel_defaults_minor_update_state() {
 		$blockers[] = __( 'file modifications are not permitted', 'keel-defaults' );
 	}
 
-	if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
-		$blockers[] = __( 'the automatic updater is switched off by constant', 'keel-defaults' );
+	// Ask core, rather than re-deriving its answer. is_disabled() passes the
+	// constant through the automatic_updater_disabled filter, so a filter can
+	// re-enable an updater the constant switched off. Checking the two
+	// separately produces a verdict core does not share.
+	$upgrader_file = ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+	if ( ! class_exists( 'WP_Automatic_Updater' ) && is_readable( $upgrader_file ) ) {
+		require_once $upgrader_file;
 	}
 
-	if ( apply_filters( 'automatic_updater_disabled', false ) ) {
-		$blockers[] = __( 'a plugin has switched the automatic updater off', 'keel-defaults' );
+	$updater = class_exists( 'WP_Automatic_Updater' ) ? new WP_Automatic_Updater() : null;
+
+	if ( $updater && $updater->is_disabled() ) {
+		$blockers[] = __( 'the automatic updater is switched off', 'keel-defaults' );
+	}
+
+	// Core refuses an update it cannot get filesystem credentials for, before
+	// any policy decision is reached. A site needing FTP details fails here.
+	if ( class_exists( 'Automatic_Upgrader_Skin' ) ) {
+		$skin = new Automatic_Upgrader_Skin();
+
+		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, true ) ) {
+			$blockers[] = __( 'WordPress cannot get the filesystem access it needs', 'keel-defaults' );
+		}
 	}
 
 	$failed = get_site_option( 'auto_core_update_failed' );
@@ -221,12 +240,8 @@ function keel_defaults_minor_update_state() {
 		$blockers[] = __( 'a previous core update failed critically', 'keel-defaults' );
 	}
 
-	if ( function_exists( 'wp_is_file_mod_allowed' ) && class_exists( 'WP_Automatic_Updater' ) ) {
-		$updater = new WP_Automatic_Updater();
-
-		if ( $updater->is_vcs_checkout( ABSPATH ) ) {
-			$blockers[] = __( 'the site is under version control', 'keel-defaults' );
-		}
+	if ( $updater && $updater->is_vcs_checkout( ABSPATH ) ) {
+		$blockers[] = __( 'the site is under version control', 'keel-defaults' );
 	}
 
 	// Who owns the minor decision. Order matters: the first owner found wins,
@@ -277,8 +292,11 @@ function keel_defaults_minor_updates_enabled() {
 /**
  * Register the Site Health test.
  *
- * Direct rather than async: the network call is cached for a day, and core sets
- * the precedent with its own dotorg-communication test.
+ * The fetch is cached for a day, so the common case costs nothing. A cold cache
+ * still pays the request, which is why the timeout is short and a failure caches
+ * a sentinel — core's own WordPress.org test is async precisely to keep this off
+ * the render path, and this one is direct only because its result is needed to
+ * decide the status at all.
  *
  * @param array $tests Registered tests.
  * @return array
@@ -329,7 +347,7 @@ function keel_defaults_backport_test() {
 		if ( false !== strpos( $version, '-' ) ) {
 			$reason = esc_html__( 'This is a development build, which WordPress.org does not classify.', 'keel-defaults' );
 		} elseif ( empty( keel_defaults_stable_check() ) ) {
-			$reason = esc_html__( 'Keel could not reach WordPress.org, or the response was not usable. Worth noting on its own: a site that cannot reach the API over HTTPS receives no automatic updates at all.', 'keel-defaults' );
+			$reason = esc_html__( 'Keel could not reach WordPress.org, or the response was not usable. That may be a passing outage rather than anything about this site.', 'keel-defaults' );
 		} else {
 			$reason = esc_html__( 'WordPress.org does not list this exact version.', 'keel-defaults' );
 		}
@@ -557,8 +575,8 @@ function keel_defaults_backport_notice() {
 		return;
 	}
 
-	$tip  = keel_defaults_branch_tip();
-	$auto = keel_defaults_minor_updates_enabled();
+	$tip   = keel_defaults_branch_tip();
+	$state = keel_defaults_minor_update_state();
 
 	if ( '' === $tip ) {
 		$body = sprintf(
@@ -566,17 +584,25 @@ function keel_defaults_backport_notice() {
 			esc_html__( 'WordPress %s has known vulnerabilities, and no patched release exists on this release line. Moving to a maintained version is the only remedy.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
-	} elseif ( $auto ) {
+	} elseif ( $state['policy'] && $state['operable'] ) {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
 			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch for this release line is %2$s, and automatic updates should install it shortly.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
+	} elseif ( ! $state['operable'] ) {
+		$body = sprintf(
+			/* translators: 1: current version, 2: patched version, 3: reasons. */
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but automatic updates cannot run here: %3$s.', 'keel-defaults' ),
+			'<strong>' . esc_html( $version ) . '</strong>',
+			'<strong>' . esc_html( $tip ) . '</strong>',
+			esc_html( implode( '; ', $state['blockers'] ) )
+		);
 	} else {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but automatic updates are switched off on this site, so it will not arrive on its own.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but minor updates are switched off on this site, so it will not arrive on its own.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
@@ -596,6 +622,10 @@ add_action( 'admin_notices', 'keel_defaults_backport_notice' );
  * Record a per-user, per-version dismissal.
  */
 function keel_defaults_dismiss_backport_notice() {
+	if ( ! current_user_can( 'update_core' ) ) {
+		wp_die( '', '', 403 );
+	}
+
 	check_ajax_referer( 'keel_defaults_dismiss_backport', 'nonce' );
 
 	$version = isset( $_POST['version'] ) ? sanitize_text_field( wp_unslash( $_POST['version'] ) ) : '';

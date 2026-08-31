@@ -215,6 +215,32 @@ function current_user_can( $c ) {
 	return false;   // Actions are asserted separately; keep markup out of these cases.
 }
 
+/**
+ * Stub of core's automatic updater, so the effective-state logic is exercised
+ * rather than skipped. Keel asks core for these answers instead of re-deriving
+ * them; the test has to supply them for the same reason.
+ */
+class WP_Automatic_Updater {
+	/**
+	 * Whether the updater is switched off.
+	 *
+	 * @return bool
+	 */
+	public function is_disabled() {
+		return ! empty( $GLOBALS['keel_test']['updater_disabled'] );
+	}
+
+	/**
+	 * Whether the given path is a version control checkout.
+	 *
+	 * @param string $context Path.
+	 * @return bool
+	 */
+	public function is_vcs_checkout( $context ) {
+		return ! empty( $GLOBALS['keel_test']['vcs'] );
+	}
+}
+
 require dirname( __DIR__ ) . '/includes/backports.php';
 
 /**
@@ -362,6 +388,29 @@ keel_assert(
 	false !== strpos( $r['description'], 'does not list this exact version' ),
 	'an unlisted version says so, rather than blaming connectivity'
 );
+
+
+// --- 8. blockers come from core's own answers ------------------------------
+// Pinned because the tempting shortcut — re-deriving is_disabled() from the
+// constant and the filter separately — produces a verdict core does not share.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['options'] = array();
+
+$GLOBALS['keel_test']['updater_disabled'] = true;
+$state                                    = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'a disabled updater makes the state inoperable' );
+keel_assert( true === $state['policy'], 'a disabled updater does not change what the policy says' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+
+$GLOBALS['keel_test']['vcs'] = true;
+$state                       = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'version control makes the state inoperable' );
+$GLOBALS['keel_test']['vcs'] = false;
+
+$state = keel_defaults_minor_update_state();
+keel_assert( true === $state['operable'], 'with nothing blocking, the updater is operable' );
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
