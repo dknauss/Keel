@@ -317,6 +317,52 @@ $GLOBALS['keel_test']['version'] = '6.8.7-alpha-12345-src';
 $r                               = keel_defaults_backport_test();
 keel_assert( 'critical' !== $r['status'], 'a development build is never reported as vulnerable' );
 
+// --- 5. ownership: who decides, and does a button make sense ---------------
+// The failure this pins: writing auto_update_core_minor when something
+// downstream overrides it reports success for a change with no effect.
+
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['options'] = array( 'auto_update_core_minor' => 'disabled' );
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['policy'], 'a disabled option resolves the policy to off' );
+keel_assert( 'option' === $state['owner'], 'with nothing else in play, the stored option owns the decision' );
+keel_assert( true === $state['operable'], 'no blockers means the updater is operable' );
+
+$GLOBALS['keel_test']['file_mod_blocked'] = true;
+$state                                    = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'blocked file modifications make the updater inoperable' );
+keel_assert( ! empty( $state['blockers'] ), 'an inoperable updater names at least one blocker' );
+$GLOBALS['keel_test']['file_mod_blocked'] = false;
+
+// --- 6. an unrecognised API status must not read as good --------------------
+keel_test_prime(
+	array(
+		'6.8.7' => 'something-new',
+		'7.1'   => 'latest',
+	)
+);
+$GLOBALS['keel_test']['version'] = '6.8.7';
+keel_assert( 'unknown' === keel_defaults_version_status(), 'an unrecognised status is unknown, never passed through' );
+$r = keel_defaults_backport_test();
+keel_assert( 'good' !== $r['status'], 'an unrecognised status never reports good' );
+
+// --- 7. unknown states are distinguished -----------------------------------
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7-alpha-1-src';
+$r                               = keel_defaults_backport_test();
+keel_assert(
+	false !== strpos( $r['description'], 'development build' ),
+	'a development build says so, rather than blaming connectivity'
+);
+
+$GLOBALS['keel_test']['version'] = '9.9.9';
+$r                               = keel_defaults_backport_test();
+keel_assert(
+	false !== strpos( $r['description'], 'does not list this exact version' ),
+	'an unlisted version says so, rather than blaming connectivity'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
 	exit( 1 );
