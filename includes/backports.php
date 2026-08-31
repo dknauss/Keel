@@ -377,7 +377,7 @@ function keel_defaults_backport_test() {
 				. esc_html__( 'Security backports travel on the same channel as ordinary maintenance releases; there is no separate security channel to leave open.', 'keel-defaults' ) . '</p>';
 		}
 
-		$result['actions'] = keel_defaults_backport_actions( $tip, $auto );
+		$result['actions'] = keel_defaults_backport_actions( $tip );
 
 		return $result;
 	}
@@ -422,11 +422,10 @@ function keel_defaults_backport_test() {
  * Neither happens without a click. Keel's job is to make the decision visible,
  * not to make it.
  *
- * @param string $tip  Target version.
- * @param bool   $auto Whether minor auto-updates are already enabled.
+ * @param string $tip Target version.
  * @return string Markup.
  */
-function keel_defaults_backport_actions( $tip, $auto ) {
+function keel_defaults_backport_actions( $tip ) {
 	if ( ! current_user_can( 'update_core' ) ) {
 		return '';
 	}
