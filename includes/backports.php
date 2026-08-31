@@ -249,13 +249,14 @@ function keel_defaults_minor_update_state() {
 	$owner   = 'option';
 	$enabled = 'enabled' === get_site_option( 'auto_update_core_minor', 'enabled' );
 
-	if ( function_exists( 'keel_defaults_get' ) ) {
-		$policy = keel_defaults_get( 'core_update_policy' );
-
-		if ( 'inherit' !== $policy && ! defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-			$owner   = 'keel';
-			$enabled = in_array( $policy, array( 'minor', 'all' ), true );
-		}
+	// Ask whether Keel's own filter is actually registered, rather than
+	// re-deriving the condition bootstrap.php uses to register it, and let that
+	// filter compute its own answer. Copying either the condition or the policy
+	// comparison here would drift the moment one of them changed — which is the
+	// same mistake as rebuilding core's is_disabled() by hand.
+	if ( has_filter( 'allow_minor_auto_core_updates', 'keel_defaults_allow_minor_core_updates' ) ) {
+		$owner   = 'keel';
+		$enabled = keel_defaults_allow_minor_core_updates( $enabled );
 	}
 
 	if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {

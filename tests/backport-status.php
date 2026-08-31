@@ -136,6 +136,30 @@ function apply_filters( $h, $v ) {
 function add_filter( $h, ...$a ) {}
 
 /**
+ * Stub: whether a named callback is hooked. Keel asks this to find out whether
+ * its own policy filter is in play, rather than re-deriving the condition
+ * bootstrap.php uses to register it.
+ *
+ * @param string $h Hook.
+ * @param mixed  $cb Callback.
+ * @return bool
+ */
+function has_filter( $h, $cb = false ) {
+	return ! empty( $GLOBALS['keel_test']['keel_filter'] );
+}
+
+/**
+ * Stub: Keel's own minor-update policy callback.
+ *
+ * @param bool $enabled Incoming value.
+ * @return bool
+ */
+function keel_defaults_allow_minor_core_updates( $enabled ) {
+	$policy = isset( $GLOBALS['keel_test']['policy'] ) ? $GLOBALS['keel_test']['policy'] : 'inherit';
+	return 'inherit' === $policy ? $enabled : in_array( $policy, array( 'minor', 'all' ), true );
+}
+
+/**
  * Stub: registration is not exercised here.
  *
  * @param string $h Hook.
@@ -411,6 +435,29 @@ $GLOBALS['keel_test']['vcs'] = false;
 
 $state = keel_defaults_minor_update_state();
 keel_assert( true === $state['operable'], 'with nothing blocking, the updater is operable' );
+
+
+// --- 9. Keel's own policy owns the decision when its filter is registered ---
+// The failure this pins: copying bootstrap.php's registration condition, or
+// Keel's policy comparison, into this file. Either copy drifts silently.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']     = '6.8.7';
+$GLOBALS['keel_test']['options']     = array();
+$GLOBALS['keel_test']['keel_filter'] = true;
+$GLOBALS['keel_test']['policy']      = 'manual';
+
+$state = keel_defaults_minor_update_state();
+keel_assert( 'keel' === $state['owner'], 'Keel owns the decision when its filter is registered' );
+keel_assert( false === $state['policy'], 'a manual Keel policy resolves minor updates to off' );
+
+$GLOBALS['keel_test']['policy'] = 'minor';
+$state                          = keel_defaults_minor_update_state();
+keel_assert( true === $state['policy'], 'a minor Keel policy resolves minor updates to on' );
+
+$GLOBALS['keel_test']['keel_filter'] = false;
+$state                               = keel_defaults_minor_update_state();
+keel_assert( 'option' === $state['owner'], 'without Keel\'s filter, the stored option owns it again' );
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
