@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-26T04:09:13+00:00\n"
+"POT-Creation-Date: 2026-08-31T00:27:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -19,11 +19,6 @@ msgstr ""
 #: includes/site-health.php:21
 #: includes/site-health.php:184
 msgid "Keel Defaults"
-msgstr ""
-
-#: includes/network.php:186
-#: includes/network.php:187
-msgid "Network Policy"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -201,6 +196,11 @@ msgstr ""
 
 #: includes/network.php:99
 msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Network Policy."
+msgstr ""
+
+#: includes/network.php:186
+#: includes/network.php:187
+msgid "Network Policy"
 msgstr ""
 
 #: includes/network.php:209

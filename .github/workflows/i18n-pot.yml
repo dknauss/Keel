@@ -1,0 +1,85 @@
+name: Regenerate the translation template
+
+# tests/i18n-catalogs.php fails with an instruction: run `wp i18n make-pot`. That
+# is only useful advice to someone who can run it. WP-CLI is a PHP script, so a
+# machine without PHP cannot follow it — and the .pot then gets hand-edited,
+# which is how its header sat a version behind through a release and how two
+# separate edits in 0.5.10 had to be made by hand and verified after the fact.
+#
+# So the runner does it. Dispatch this, download the artifact, commit it.
+#
+# It deliberately does not commit for you. Someone should read what comes back:
+# the interesting part is whether any msgid appeared or disappeared, and that is
+# a judgement about the plugin's strings rather than about the file. A bot
+# pushing the result straight to a branch guarantees nobody makes it.
+#
+# The diff is not necessarily large. The first run of this, against a .pot that
+# had been hand-edited twice, came back six lines — one entry in a different
+# position and the timestamp — with the msgid sets identical. Which is the good
+# outcome, and only knowable by running it.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'i18n/**'
+
+permissions:
+  contents: read
+
+jobs:
+  make-pot:
+    name: make-pot
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          # make-pot reads source as text and needs mbstring for anything
+          # non-ASCII, which this plugin's strings are full of — em dashes,
+          # curly quotes, the arrows in the menu paths.
+          extensions: mbstring
+          coverage: none
+
+      - name: Install WP-CLI
+        run: |
+          set -euo pipefail
+          curl -sSLo /usr/local/bin/wp \
+            https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x /usr/local/bin/wp
+          wp --info --allow-root
+
+      # --exclude=build is not optional and the reason is written up at the top
+      # of tests/i18n-catalogs.php: bin/build-zip.sh stages the plugin into
+      # build/, so a scan of the working tree finds every string twice and keeps
+      # the ones from the last build after they are deleted from source.
+      - name: Regenerate
+        run: |
+          set -euo pipefail
+          wp i18n make-pot . languages/keel-defaults.pot \
+            --slug=keel-defaults --exclude=build --allow-root
+
+      - name: What changed
+        run: |
+          set -euo pipefail
+          echo "== msgid count =="
+          grep -c '^msgid ' languages/keel-defaults.pot
+          echo "== header =="
+          sed -n '1,20p' languages/keel-defaults.pot
+          echo "== diff against what is committed =="
+          git --no-pager diff --stat -- languages/keel-defaults.pot
+          {
+            echo '### Regenerated `keel-defaults.pot`'
+            echo
+            echo '```'
+            git --no-pager diff --stat -- languages/keel-defaults.pot
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: keel-defaults-pot
+          path: languages/keel-defaults.pot
+          if-no-files-found: error
