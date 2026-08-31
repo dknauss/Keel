@@ -20,17 +20,22 @@ task-level checklist is [TODO.md](TODO.md).
 **Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package; first
 published 2026-08-26. `https://wordpress.org/plugins/keel-defaults` serves the
 directory page, `https://plugins.svn.wordpress.org/keel-defaults` has a populated
-`trunk/` and `tags/0.5.9`, and the plugin API reports `0.5.9`, requires 6.4, tested
-to 7.1, requires PHP 7.4. Nobody has installed it yet, which is the expected reading
-four days in.
+`trunk/` and tags for `0.5.9` and `0.5.10`, and the plugin API reports `0.5.10`,
+requires 6.4, tested to 7.1, requires PHP 7.4. Nobody has installed it yet, which is
+the expected reading this early.
 
 That closes the question this section used to open with. It asked whether the first
 SVN push should be 0.5.3, the approved package, or 0.5.4, the tag — worth deciding
 deliberately rather than by whichever was checked out. Events decided it: five more
 versions landed before the first push and what went up was 0.5.9.
 
-Three defaults are accepted and unbuilt, and they are the whole queue. All three are
-decided in the v0.4 section below, with the evidence, the edge cases and what each
+One item is in flight: **security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)),
+a Site Health test reporting whether the installed core version is currently flagged
+insecure — a question core never asks, and one no admin screen answers. It reports and
+routes; it does not install.
+
+Three defaults are accepted and unbuilt, and with #134 they are the queue. All three
+are decided in the v0.4 section below, with the evidence, the edge cases and what each
 costs, measured.
 
 **Build order — search exclusion first.** Keeping password-protected posts out of
@@ -55,38 +60,24 @@ in any order:
    Accepted only as a pair — stripping alone destroys the evidence that a plugin is
    missing.
 
-### The release path has never run end to end
+### The release path has run end to end
 
-Worth knowing before the next tag, because every signal around it reads green.
+Settled 2026-08-30 by `v0.5.10`, and worth keeping as record because the section it
+replaces argued the opposite from evidence that was correct at the time.
 
-0.5.9 reached wordpress.org **by hand**. The automated deploy has two runs, both on
-2026-08-26, and both failed:
+The tag fired `release.yml`, which called `wp-deploy.yml`, which authenticated and
+committed. WordPress.org serves 0.5.10 and SVN carries tags for both 0.5.9 and
+0.5.10. The credential that failed twice on 2026-08-26 was corrected fourteen minutes
+after the last failure, and this run is the first to exercise it — so the pipeline's
+state has moved from unknown to known-good on the two links that had never run: the
+credential, and the `release.yml` to `wp-deploy.yml` wiring added after `v0.5.9`.
 
-    ➤ Committing files...
-    svn: E215004: Authentication failed and interactive prompting is disabled
-    svn: E215004: No more credentials or we tried too many times.
+0.5.9 still reached the directory by hand. That is history now rather than a pending
+risk, and the manual `workflow_dispatch` this section used to recommend is no longer
+needed.
 
-Everything ahead of that step worked — the version check against `keel.php` and
-`Stable tag`, the build, the asset staging, `svn add` of every file. Only the commit
-failed, and only on the credential.
-
-Two things follow that are easy to miss:
-
-- `WP_ORG_SVN_PASSWORD` was last set at 07:06 on 2026-08-26, fourteen minutes after
-  the final failed run and the same minute the directory records the plugin
-  appearing. So the credential in the repository today is almost certainly the
-  corrected one, and it has not been exercised once. The pipeline's state is
-  unknown rather than known-broken, which is the more expensive of the two.
-- `release.yml` did not call `wp-deploy.yml` at `v0.5.9` — that wiring landed
-  afterwards, in the run of work that ends at `#122`. The release-to-deploy path
-  has therefore never executed either. The next tag would exercise an untested
-  credential through untested wiring, at the moment that is hardest to debug.
-
-The cheap answer is one `workflow_dispatch` of `wp-deploy.yml` against `v0.5.9`.
-Authentication is attempted before any tag collision matters, so whatever comes back
-distinguishes the two cases. The human gate holds either way: the `wordpress-org`
-environment really does carry `required_reviewers`, which the warning in
-`wp-deploy.yml` says to check and which is easy to assume rather than confirm.
+The human gate is unchanged: the `wordpress-org` environment carries
+`required_reviewers`, and a tag does not deploy without someone approving it.
 
 ### The hold is lifted
 
