@@ -364,7 +364,11 @@ function keel_defaults_register_backport_test( $tests ) {
  * Answer the async Site Health request.
  */
 function keel_defaults_backport_ajax() {
-	check_ajax_referer( 'health-check-site-status', 'nonce' );
+	// One argument, deliberately. Site Health's JS posts the nonce as _wpnonce,
+	// and check_ajax_referer() only falls back to _wpnonce when no field name is
+	// given — naming a field looks for that field and nothing else, so passing
+	// 'nonce' here failed every browser-triggered request before the test ran.
+	check_ajax_referer( 'health-check-site-status' );
 
 	if ( ! current_user_can( 'view_site_health_checks' ) ) {
 		wp_send_json_error( array(), 403 );
