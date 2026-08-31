@@ -12,6 +12,24 @@ into ROADMAP.md or here.
 
 This release expands the schema to 39 defaults.
 
+- [ ] **Security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)) — in review.
+      A Site Health test over `api.wordpress.org/core/stable-check/1.0/`, which core
+      never queries, so nothing in wp-admin distinguishes "an update is available"
+      from "this version has known vulnerabilities". Reports three states — current,
+      not currently flagged, known vulnerable — and where a patch exists names the
+      release on the site's own line rather than the newest one.
+
+      Deliberately does not install anything. The single remediation re-enables minor
+      auto-updates, and only when the stored option is genuinely what decides; where
+      Keel's own `core_update_policy`, a constant, or a third-party filter owns the
+      decision it says so instead of writing a value that would be overridden.
+
+      Stepping through intermediate releases one line at a time is a separate,
+      undecided piece of work. The API already offers the whole ladder — a 5.9 site
+      is offered twelve intermediate versions — but `find_core_auto_update()` always
+      takes the highest permitted offer, so honouring a chosen rung means Keel
+      running the core upgrader itself.
+
 - [x] **Author-feed status** ([#101](https://github.com/dknauss/Keel/issues/101)) — done 2026-08-23. The feed was already caught by the
       archive's broad 301 because WordPress sets both query flags. It now returns
       an explicit 404 while the HTML archive keeps its existing 301. No new setting.
