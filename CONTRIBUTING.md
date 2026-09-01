@@ -163,7 +163,7 @@ the code under test.
 
 ## Screenshots
 
-`.wordpress-org/screenshot-1..3.png` are the wordpress.org listing images *and*
+`.wordpress-org/screenshot-1..4.png` are the wordpress.org listing images *and*
 the ones `README.md` shows, so they go stale the moment the settings screen or
 the Site Health surface changes — and a stale screenshot is invisible from inside
 the repository. They drifted once already: twenty-one commits touched those
@@ -176,7 +176,7 @@ composer verify:screenshots
 That names every commit touching the admin screens since the screenshots were last
 *reviewed* — `.wordpress-org/.screenshots-reviewed` records that commit. Reviewed
 rather than changed, because a UI change does not always alter the picture: an
-ARIA-only fix, or a new screen these three do not show, leaves the images
+ARIA-only fix, or a new screen these four do not show, leaves the images
 byte-identical, and comparing against the images' own commit made the check
 impossible to satisfy in exactly that case. If the pictures are unchanged,
 confirm you looked and record it with `git rev-parse HEAD > .wordpress-org/.screenshots-reviewed`. It is not part of `composer test` on purpose: it reads git history,

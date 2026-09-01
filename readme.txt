@@ -1,7 +1,7 @@
 === Keel Defaults ===
 Contributors: dpknauss
 Donate link: https://github.com/sponsors/dknauss
-Tags: security, defaults, hardening, privacy, performance
+Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -9,11 +9,13 @@ Stable tag: 0.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
+39 sane WordPress defaults, plus Site Health alerts and deliberate same-line installs for known-vulnerable core releases.
 
 == Description ==
 
-Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off. All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. 
+Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off.
+
+**New in 0.6.0: see and install the security patch for your own WordPress release line.** Keel tells you when WordPress.org flags the installed core version as insecure, names the patched release on the same line instead of pushing you toward a major upgrade, shows the releases WordPress is offering and marks the one core would select. An authorized administrator can deliberately install the same-line patch through WordPress's own upgrader with rollback enabled. The target is checked again on the server; no setting changes, and nothing installs unless you click the button.
 
 **Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed from answering requests.
 
@@ -27,7 +29,7 @@ Keel adds a menu of sensible defaults to any WordPress install, each one a switc
 
 When the **Require strong passwords** default is enabled, Keel screens new passwords against the **Have I Been Pwned** Pwned Passwords range API (`https://api.pwnedpasswords.com`) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with `define( 'KEEL_DISABLE_HIBP', true );` in `wp-config.php`, with the `keel_disable_hibp` filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health, so a site whose screening has stopped working can tell. Only the kind of failure and when it happened are stored — never the password, and never the hash prefix. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy.
 
-Keel also asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (`https://api.wordpress.org/core/stable-check/1.0/`). This is WordPress.org's own service, on the same host core already contacts for updates and translations, and it is the only place the answer is published — core itself never queries it. The request carries no site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way core's own update requests identify the site. The response is a list of every WordPress release and its status; Keel keeps it for a day. If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not add a network wait to every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine. WordPress.org's privacy policy is at https://wordpress.org/about/privacy/.
+Keel also asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (`https://api.wordpress.org/core/stable-check/1.0/`). This is WordPress.org's own service, on the same host core already contacts for updates and translations; core itself never queries it. The request carries no site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way core's own update requests identify the site. The response maps the WordPress releases it lists to their current status; Keel keeps it for a day. If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not add a network wait to every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine. WordPress.org's privacy policy is at https://wordpress.org/about/privacy/.
 
 == Recommended wp-config.php hardening ==
 
@@ -69,7 +71,7 @@ One default is on but does nothing on a live site: **outgoing email is blocked o
 
 = Keel says my WordPress version has known vulnerabilities. Why does the Updates screen not offer the fix? =
 
-Because that screen cannot see it. WordPress.org offers your site several releases at once, and marks the same-line security patch as an automatic-update offer. `get_core_updates()`, which builds the Updates screen, skips every automatic-update offer — so the screen lists only the newest release. On a 6.9.5 site the patch is 6.9.7 and the screen offers 7.1, which is a major update, not a patch.
+In that case, WordPress.org has offered the same-line security patch only as an automatic-update offer. `get_core_updates()`, which builds the Updates screen, skips every automatic-update offer. On a 6.9.5 site the patch is 6.9.7 and the screen offers 7.1, which is a major update, not a patch. A same-line patch can also be the current manual release, so Keel asks core what the screen is actually showing rather than assuming it is absent.
 
 Keel names the patch for your release line and tells you what that screen is actually offering, so you can see the difference. If minor auto-updates are switched on and nothing is blocking the updater, the patch installs itself on a scheduled check. If something is blocking it, Keel names the specific constant, filter or condition responsible, because each one needs a different fix.
 
@@ -129,10 +131,10 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Screenshots ==
 
-1. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+1. Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, and which release fixes it on your own line — here 6.9.5 is told the fix is 6.9.7, not the 7.1 the Updates screen would install instead. The ladder shows every release WordPress.org is offering, marks the one core would take, and offers to install the same-line patch.
 2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
-4. Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, and which release fixes it on your own line — here 6.9.5 is told the fix is 6.9.7, not the 7.1 the Updates screen would install instead. The ladder shows every release WordPress.org is offering and marks the one WordPress would take.
+4. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
 
 == Credits ==
 
@@ -156,7 +158,7 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries.
 * Where a patched release exists on your own release line, Keel names that release rather than the newest one. A 6.9.5 site is told about 6.9.7, not 7.1 — only the third number changes, so nothing is deprecated.
 * New: the ladder of releases WordPress.org is currently offering this site, and which one WordPress would actually install. It takes the highest release your settings permit rather than the nearest, so a site accepting major updates skips the patch and jumps to the newest release.
-* Fixed: the panel offered "Install this now from the Updates screen" for a patch that screen will not offer. `get_core_updates()` omits every automatic-update offer, and a same-line security patch is only ever an automatic-update offer, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known.
+* Fixed: the panel offered "Install this now from the Updates screen" when the patch appeared only as an automatic-update offer. `get_core_updates()` omits those offers, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known.
 * Blockers name their own cause — the constant and the file it usually lives in, or the filter a plugin is using — instead of describing the situation in the abstract. Each one needs a different fix, and they now carry stable codes rather than being told apart by their translated text.
 * New: install the patch from the Site Health panel, using WordPress's own upgrader with rollback enabled. The target is recomputed on the server and can only ever be the patched tip of your own release line, so it cannot cross a release line or move a site backwards. It refuses when files are not writable, when the site is a version-control checkout, or when the release's PHP or MySQL requirements are not met — that last check runs before anything is downloaded, because core otherwise reads those requirements out of the new version's own files and only finds out after unpacking it.
 * Being blocked from automatic updates does not block a deliberate install. A disabled updater, a filter, or an earlier failed update are all reasons a patch will not arrive by itself, and installing it deliberately is the remedy for each.

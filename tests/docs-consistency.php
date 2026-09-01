@@ -129,6 +129,46 @@ foreach ( $shared as $title => $todo_done ) {
 }
 
 /*
+ * The roadmap's accepted queue must also exist in the working checklist.
+ *
+ * TODO.md once contained only completed history while ROADMAP.md named three
+ * accepted, unbuilt features. The two files technically agreed on every title
+ * they shared because none of the live titles were shared at all. That made the
+ * consistency check green while the document described as "what's in flight"
+ * carried no work in flight.
+ */
+$roadmap_text = (string) file_get_contents( $root . '/ROADMAP.md' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a repo file in a CLI test, not a remote request.
+$todo_text    = (string) file_get_contents( $root . '/TODO.md' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a repo file in a CLI test, not a remote request.
+
+preg_match( '/^## Now\b.*?(?=^## Later\b)/ms', $roadmap_text, $roadmap_active_match );
+preg_match( '/^## Now\b.*?(?=^## Completed\b)/ms', $todo_text, $todo_active_match );
+
+$roadmap_active = keel_checklist_state( isset( $roadmap_active_match[0] ) ? $roadmap_active_match[0] : '' );
+$todo_active    = keel_checklist_state( isset( $todo_active_match[0] ) ? $todo_active_match[0] : '' );
+
+$roadmap_open = array_filter(
+	$roadmap_active,
+	static function ( $done ) {
+		return ! $done;
+	}
+);
+$todo_open    = array_filter(
+	$todo_active,
+	static function ( $done ) {
+		return ! $done;
+	}
+);
+
+keel_assert( ! empty( $roadmap_open ), 'ROADMAP.md names at least one accepted open item.' );
+keel_assert( ! empty( $todo_open ), 'TODO.md contains active work rather than completed history only.' );
+
+$missing_from_todo = array_diff_key( $roadmap_open, $todo_open );
+keel_assert(
+	empty( $missing_from_todo ),
+	'TODO.md carries every accepted open roadmap item; missing: ' . implode( ', ', array_keys( $missing_from_todo ) )
+);
+
+/*
  * --- no document still describes a release that has shipped past ---
  *
  * The version drifted in four places at once and nothing noticed, because the

@@ -8,9 +8,59 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## v0.5 selected scope
+## Now — 0.6.0 release
 
-This release expands the schema to 39 defaults.
+- [ ] **Release 0.6.0**
+  - Merge the final documentation and regression-test work.
+  - Require the ordinary CI suite on the exact merge commit.
+  - Tag that exact commit `v0.6.0`; do not add feature work to the candidate.
+- [ ] **Validate the published 0.6.0 artifacts**
+  - Confirm the GitHub ZIP contains the tagged runtime tree.
+  - Approve and verify the WordPress.org deployment, SVN tag and directory version.
+  - Inspect the public upgrade notice, four screenshots and both Playground links.
+- [ ] **Observe the first post-release matrix**
+  - Review the next scheduled live rollback/forward run.
+  - Triage early field reports before opening the next release cycle.
+
+## Next — 0.7.0 privacy and content integrity
+
+- [ ] **Keep password-protected posts out of site search**
+  - Hide protected titles and excerpts from logged-in users who cannot read the post.
+  - Preserve results for authors, editors and capabilities granted by other plugins.
+  - Cover logged-out, Subscriber, author/editor and custom-capability cases.
+- [ ] **Hide broken-shortcode residue and report it in Site Health**
+  - Hide orphaned shortcode markup from public output without deleting stored content.
+  - Report enough evidence in Site Health for an administrator to identify the gap.
+  - Do not ship the hiding half without the reporting half.
+- [ ] **Leave typographic punctuation as typed**
+  - Decide and document the exact `wptexturize` surfaces before naming the toggle.
+  - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
+
+## Then — 0.8.0 performance observability
+
+- [ ] **Attribute oversized autoloaded options**
+  - Add size and probable-owner detail to core's aggregate autoload diagnosis.
+  - Never expose values, auto-delete rows or state inferred ownership as fact.
+  - Make collection asynchronous, cached, bounded and multisite-aware.
+- [ ] **Attribute cron pressure and update-delivery delays**
+  - Report overdue and unusually frequent hooks, schedules and probable owners.
+  - Add offer freshness, next scheduled core check and recent update failures.
+  - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
+
+## Then — 0.9.0 update operations and support
+
+- [ ] **Show the core-update delivery timeline**
+  - Combine selected release, branch tip, offer freshness, next check and recent result.
+  - Reuse core's decisions and stable blocker codes; never promise an execution time.
+- [ ] **Export a sanitized Keel posture report**
+  - Include effective settings, conflicts, update operability and diagnostic evidence.
+  - Exclude secrets, option values, user data and unnecessary site identifiers.
+
+## Completed in v0.6.0
+
+This release keeps the schema at 39 defaults and adds the security-patch status
+and deliberate same-line installer. The completed record stays here for provenance;
+active work belongs in **Now** or **Next**, above.
 
 - [x] **Security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)) — done 2026-08-31, over four PRs.
       #134 the Site Health test, #135 asking core instead of re-deriving, #136 the
@@ -21,10 +71,10 @@ This release expands the schema to 39 defaults.
       not currently flagged, known vulnerable — and where a patch exists names the
       release on the site's own line rather than the newest one.
 
-      Deliberately does not install anything. The single remediation re-enables minor
-      auto-updates, and only when the stored option is genuinely what decides; where
-      Keel's own `core_update_policy`, a constant, or a third-party filter owns the
-      decision it says so instead of writing a value that would be overridden.
+      This reporting-and-routing phase deliberately did not install anything. Its
+      remediation re-enabled minor auto-updates only when the stored option genuinely
+      decided. The deliberate same-line installer was then added separately in #141,
+      below, after structured blocker codes made that boundary testable.
 
       Stepping through intermediate releases one line at a time is a separate,
       undecided piece of work. The API already offers the whole ladder — a 5.9 site
@@ -61,6 +111,24 @@ This release expands the schema to 39 defaults.
 
 ## Content / docs
 
+- [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
+      The current line is *Sensible defaults for steady sites.*, and `branding/README.md`
+      records that the waterline in the mark is drawn as the "even keel" cue behind it.
+      *Balanced defaults* says the same thing in two words and lands the keel metaphor
+      without explaining it, which is what a banner has room for.
+
+      Scope, because a tagline change is not only a tagline:
+      - `.wordpress-org/banner-1544x500.png` and `banner-772x250.png` — the listing
+        banners, where the line actually appears.
+      - `branding/README.md` — states the tagline and the reason the waterline echoes it.
+      - `branding/keel-logo-horizontal.svg`, `keel-logo-stacked.svg`, `keel-mark.svg` —
+        review the marks at banner and 128px icon sizes while the banners are open.
+      - Check whether the wordmark still reads at the 772×250 banner size; the outlined
+        Avenir Next was set for the larger one.
+
+      Not release-blocking, and deliberately not in 0.6.0: the listing assets are served
+      from SVN `assets/` and can be updated without a plugin release.
+
 - [x] **Reference doc coverage** — done 2026-08-04. Every schema key then present received an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
       three more (`remove_version`, `security_headers`, `frame_options`) were described
@@ -84,7 +152,7 @@ This release expands the schema to 39 defaults.
 
 - [x] `limit_unfiltered_html_to_admins` — first port; `user_has_cap` filter, default on,
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
-- [~] reserved usernames — ported, then **removed** (`500c561`). The 73-name list is
+- [x] **Reserved usernames removed** (`500c561`). The 73-name list is
       too opinionated for a general-purpose defaults plugin: it includes names an
       ordinary site legitimately uses (`manager`, `marketing`, `sales`, `office`,
       `client`), and a plugin that silently refuses to create a user called

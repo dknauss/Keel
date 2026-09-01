@@ -356,6 +356,24 @@ keel_install_assert( 'forbidden' === keel_install_error_code( keel_defaults_vali
 keel_install_assert( true === keel_defaults_validate_backport_request( 'POST', true, true, true ), 'a network administrator can proceed' );
 keel_install_assert( keel_defaults_backport_nonce_action( '6.8.8' ) !== keel_defaults_backport_nonce_action( '6.8.9' ), 'the nonce action is bound to the target version' );
 
+// The form and the handler must agree on authorization. In particular, an
+// update_core capability alone is not enough on multisite: showing a working
+// network-wide core-update button to a site administrator would promise an
+// action the handler correctly refuses.
+$GLOBALS['keel_install']['multisite']                     = false;
+$GLOBALS['keel_install']['can']['update_core']            = true;
+$GLOBALS['keel_install']['can']['manage_network_options'] = false;
+keel_install_assert( true === keel_defaults_can_install_backport(), 'single-site install requires update_core only' );
+$GLOBALS['keel_install']['multisite'] = true;
+keel_install_assert( false === keel_defaults_can_install_backport(), 'multisite install also requires network management' );
+keel_install_assert(
+	'' === keel_defaults_backport_install_button( '6.8.8', 'none', array( 'blockers' => array() ) ),
+	'the install form is hidden from a multisite user who cannot govern the network'
+);
+$GLOBALS['keel_install']['can']['manage_network_options'] = true;
+keel_install_assert( true === keel_defaults_can_install_backport(), 'a multisite network administrator can install' );
+$GLOBALS['keel_install']['multisite'] = false;
+
 unset( $GLOBALS['keel_install']['transients']['update_core'] );
 keel_install_assert( 'invalid_offer' === keel_install_error_code( keel_defaults_prepare_backport_install( '6.8.8' ) ), 'a missing offer is refused' );
 keel_install_prime_offer( (object) array( 'current' => '6.8.8' ) );
@@ -395,6 +413,18 @@ keel_install_prime_offer( keel_install_offer( array( 'mysql_version' => '99.0' )
 keel_install_assert( 'mysql_not_compatible' === keel_install_error_code( keel_defaults_prepare_backport_install( '6.8.8' ) ), 'MySQL incompatibility is refused before upgrade' );
 keel_install_prime_offer( keel_install_offer( array( 'required_php_extensions' => array( 'keel_extension_that_does_not_exist' ) ) ) );
 keel_install_assert( 'php_extensions_not_compatible' === keel_install_error_code( keel_defaults_prepare_backport_install( '6.8.8' ) ), 'an offered missing PHP extension is refused before upgrade' );
+keel_install_prime_offer( keel_install_offer( array( 'php_extensions' => array( 'keel_extension_that_does_not_exist' ) ) ) );
+keel_install_assert( 'php_extensions_not_compatible' === keel_install_error_code( keel_defaults_prepare_backport_install( '6.8.8' ) ), 'the alternate offered PHP-extension field is also enforced' );
+
+foreach ( array( 'php_version', 'mysql_version' ) as $requirement ) {
+	$incomplete_offer = keel_install_offer();
+	unset( $incomplete_offer->$requirement );
+	keel_install_prime_offer( $incomplete_offer );
+	keel_install_assert(
+		'invalid_offer' === keel_install_error_code( keel_defaults_prepare_backport_install( '6.8.8' ) ),
+		"an offer without {$requirement} is refused before upgrade"
+	);
+}
 
 // Duplicate versions prefer the site locale, then its automatic offer.
 $GLOBALS['keel_install']['locale'] = 'fr_FR';
@@ -435,6 +465,20 @@ keel_install_assert( null === keel_defaults_take_backport_result( 7 ), 'the acti
 keel_install_assert( 'other_user' === keel_defaults_take_backport_result( 8 )['code'], 'another user retains their own result' );
 $result_key = keel_defaults_backport_result_key( 7 );
 keel_install_assert( KEEL_DEFAULTS_BACKPORT_RESULT_TTL === $GLOBALS['keel_install']['ttl'][ $result_key ], 'result storage is short-lived' );
+
+// Treat transient contents as untrusted cache data. A malformed result must be
+// discarded and consumed, otherwise every Site Health render would revisit it.
+$bad_result_key = keel_defaults_backport_result_key( 9 );
+$GLOBALS['keel_install']['transients'][ $bad_result_key ] = array(
+	'code'     => 'bad',
+	'messages' => array( 'valid', array( 'not a string' ) ),
+	'type'     => 'success',
+);
+keel_install_assert( null === keel_defaults_take_backport_result( 9 ), 'a malformed redirect result is not rendered' );
+keel_install_assert( false === get_transient( $bad_result_key ), 'a malformed redirect result is still consumed' );
+
+keel_defaults_store_backport_result( 10, 'bad_type', array( 'Failure' ), 'warning' );
+keel_install_assert( 'error' === keel_defaults_take_backport_result( 10 )['type'], 'unknown notice types are normalized to error' );
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

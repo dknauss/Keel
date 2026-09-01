@@ -3,8 +3,9 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.6.0`**, published on wordpress.org as `keel-defaults` since
-2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1. GPL-2.0-or-later.
+**Current version: `0.6.0`**. Keel was first published on wordpress.org as
+`keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
+GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
 > outside this repository — so it is invisible to anyone who clones Keel, and it has
@@ -15,39 +16,111 @@ task-level checklist is [TODO.md](TODO.md).
 
 ---
 
-## Next up
+## Now — release and observe 0.6.0
 
-**Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package; first
-published 2026-08-26. `https://wordpress.org/plugins/keel-defaults` serves the
-directory page, `https://plugins.svn.wordpress.org/keel-defaults` has a populated
-`trunk/` and tags for `0.5.9` and `0.5.10`, and the plugin API reports `0.5.10`,
-requires 6.4, tested to 7.1, requires PHP 7.4. Nobody has installed it yet, which is
-the expected reading this early.
+- [ ] **Release 0.6.0** — merge the final documentation and regression coverage,
+      require CI on the exact merge commit, then tag that commit. No additional
+      feature work belongs in the release candidate.
+- [ ] **Validate the published 0.6.0 artifacts** — confirm the GitHub release ZIP,
+      WordPress.org SVN tag and directory version all contain the tagged tree; then
+      check the public screenshots, upgrade notice and both Playground links.
+- [ ] **Observe the first post-release matrix** — review the next scheduled live
+      rollback/forward run and early field reports before starting another release.
+
+## Next — 0.7.0 privacy and content integrity
+
+Build in this order. The first closes a measured disclosure. The shortcode work
+comes next because it pairs a reader-facing correction with evidence in Site Health;
+the typography control is useful but strategically smaller.
+
+- [ ] **Keep password-protected posts out of site search** — a logged-in Subscriber
+   can currently receive the title and excerpt of protected posts in search because
+   core's `post_password = ''` search guard applies only to logged-out visitors.
+   Preserve access for authors, editors and plugin-granted roles that may legitimately
+   read the post. This composes with `disable_post_passwords`, which prevents new
+   protected posts but does not address existing ones.
+- [ ] **Hide broken-shortcode residue and report it in Site Health** — ship these as
+   a pair: readers should not see raw shortcode debris, while administrators retain
+   evidence that a plugin or shortcode handler is missing.
+- [ ] **Leave typographic punctuation as typed** — add a focused toggle around
+   `wptexturize`, with editor, feed and front-end coverage so the label does not
+   promise more surfaces than the implementation controls.
+
+## Then — 0.8.0 performance observability
+
+WordPress already reports page-cache, persistent-object-cache, opcode-cache,
+scheduled-event and aggregate autoload problems. Keel should not restate those
+tests. It should supply the attribution and next action that the aggregate result
+cannot: what is responsible, how confident that attribution is, and what an
+administrator can safely inspect next.
+
+- [ ] **Attribute oversized autoloaded options** — report the largest autoloaded
+   option rows, their sizes and a probable plugin or theme owner where the name gives
+   defensible evidence. Never expose option values, present an inferred owner as
+   certain, delete an option, or claim that size alone proves waste.
+- [ ] **Attribute cron pressure and update-delivery delays** — identify overdue and
+   unusually frequent hooks, their schedules and probable owners, then connect the
+   core-update subset to offer-cache age, the next scheduled check and the last known
+   failure. Do not treat `DISABLE_WP_CRON` as failure when an external scheduler may
+   be intentional, or promise when an update will run.
+
+These checks establish a reusable diagnostic shape: stable result code, severity,
+observed evidence, probable owner, confidence and suggested action. They are
+report-only first, asynchronous and cached, bounded on large databases,
+multisite-aware, and tested with persistent caches, external cron and localized
+installs. Site Health must not become the performance problem it is diagnosing.
+
+## Then — 0.9.0 update operations and support
+
+- [ ] **Show the core-update delivery timeline** — bring the selected release,
+   branch-tip status, offer freshness, next scheduled check and recent success or
+   failure into one evidence-based view. Reuse core's answers and Keel's stable
+   blocker codes; do not infer a guaranteed schedule from policy alone.
+- [ ] **Export a sanitized Keel posture report** — make settings, effective state,
+   conflicts, update operability and diagnostic evidence easy to share for support.
+   Exclude secrets, option values, user data and unnecessary site identifiers.
+
+## Later
+
+Explore database-growth reporting (revision volume, expired transients and unusually
+large rows), media-storage amplification and richer multisite/network diagnostics
+only after the 0.8 framework proves that the measurements can be cheap and honest.
+Start each as report-only; cleanup is a separate, explicitly authorized feature.
+
+Do not pursue brittle performance folklore as defaults: disabling jQuery or REST,
+combining assets indiscriminately, or presenting tiny request removals as measured
+site-speed gains. The milestone sections below retain measured proposals, rejected
+ideas and larger directions that are not accepted into the queue. Promote another
+item into the active sequence only when its behaviour, tradeoffs and acceptance
+tests are decided.
+
+## 0.6.0 completion record
+
+**Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package and
+first published 2026-08-26. Before this 0.6.0 work, the directory and plugin API
+served 0.5.10, requiring WordPress 6.4 and PHP 7.4 and tested to 7.1.
 
 That closes the question this section used to open with. It asked whether the first
 SVN push should be 0.5.3, the approved package, or 0.5.4, the tag — worth deciding
 deliberately rather than by whichever was checked out. Events decided it: five more
 versions landed before the first push and what went up was 0.5.9.
 
-**Security patch status shipped**, over four pull requests rather than the one this
-section expected. [#134](https://github.com/dknauss/Keel/pull/134) added the Site
+**Security patch status and the deliberate same-line installer shipped in 0.6.0**,
+over a series of pull requests rather than the one this section expected.
+[#134](https://github.com/dknauss/Keel/pull/134) added the Site
 Health test reporting whether the installed core version is currently flagged
 insecure — a question core never asks and no admin screen answers.
 [#135](https://github.com/dknauss/Keel/pull/135) replaced Keel's own reconstruction
 of the updater's state with core's answers to the same questions.
 [#136](https://github.com/dknauss/Keel/pull/136) added the ladder of releases
 WordPress.org is actually offering, and which one core would take.
-[#137](https://github.com/dknauss/Keel/pull/137) is open: it stops the panel linking
-to the Updates screen for a patch that screen will not offer, because
-`get_core_updates()` drops every `autoupdate` response and the same-line patch is
-only ever an `autoupdate` offer. Following that button installed the newest release
-instead — found on a real 6.9.5 site, not in review.
-
-It reports and routes; it does not install. Installing the same-line patch is
-[#138](https://github.com/dknauss/Keel/issues/138), scoped to one release rather than
-the whole ladder. Its prerequisite is now in place: `minor_update_state()` returns
-stable blocker codes alongside translated text, so the install can distinguish a
-filesystem refusal from an automatic-update policy warning without matching text.
+[#137](https://github.com/dknauss/Keel/pull/137) made the route depend on what the
+Updates screen actually shows instead of assuming it can deliver the patch.
+[#139](https://github.com/dknauss/Keel/pull/139) gave updater blockers stable codes,
+and [#141](https://github.com/dknauss/Keel/pull/141) added the deliberate installer
+specified in [#138](https://github.com/dknauss/Keel/issues/138). The later release
+passes added the live rollback/forward matrix, compatibility fixes, screenshots and
+copy corrections that made the feature releasable.
 
 What #137 cost is worth recording, because it was not the code. The fix itself was
 small; the review found seven further defects, six of them the same shape — a
@@ -58,32 +131,6 @@ establish that the updater could write. Each was reachable only by rendering the
 whole panel, which is why each one shipped. The panel's state is now resolved once,
 in `keel_defaults_selection_state()` and `keel_defaults_backport_route()`, so the
 combinations can be stated in a test rather than staged through a render.
-
-Three defaults are accepted and unbuilt, and they are the queue. All three are
-decided in the v0.4 section below, with the evidence, the edge cases and what each
-costs, measured.
-
-**Build order — search exclusion first.** Keeping password-protected posts out of
-site search is the next thing to build. It is the only one of the three that closes
-a disclosure rather than adding a convenience: measured on WordPress 7.1, a
-Subscriber account searching the site gets back the title *and* the excerpt of every
-protected post, because core's `AND post_password = ''` guard in
-`WP_Query::parse_search()` only applies when the visitor is logged out. Anonymous
-visitors are already safe; registered ones are not — which makes the sites it
-affects the membership sites, shops and communities, exactly the ones with
-non-editor accounts to worry about. The other two are quality-of-life and can follow
-in any order:
-
-1. **Keep password-protected posts out of site search.** One filter on the search
-   query, and the work is in the carve-outs rather than the filter — an author, an
-   editor, or a member of a plugin-granted role must still find a post they can
-   legitimately read, or the fix reads as broken search instead of as privacy.
-   Composes with `disable_post_passwords`, which stops the supply of new protected
-   posts and does nothing about the ones already leaking.
-2. **Leave typographic punctuation as typed.** A toggle against `wptexturize`.
-3. **Hide broken-shortcode residue from readers, and report it in Site Health.**
-   Accepted only as a pair — stripping alone destroys the evidence that a plugin is
-   missing.
 
 ### The release path has run end to end
 
@@ -142,8 +189,9 @@ urgent-defect exception described in CONTRIBUTING; reuploading the corrected
 package and disclosing the version change to the review team are part of this
 release. The general hold remains in place afterwards.
 
-The submission milestone is closed: the initial v0.5 release is out, `Stable tag` matches, the
-plugin is clean under Plugin Check and it has been through a first review pass.
+The submission milestone is closed: the initial v0.5 release is out, `Stable tag`
+matches, Plugin Check passes with its findings reviewed, and the plugin has been
+through a first review pass.
 
 **The review came back pended** (2026-08-25), on four points: every `<style>` and
 `<script>` written straight into the page rather than enqueued, a prohibited
