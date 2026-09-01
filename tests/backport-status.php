@@ -138,7 +138,19 @@ function apply_filters( $h, $v ) {
  * @param string $h Hook.
  * @param mixed  ...$a Args.
  */
-function add_filter( $h, ...$a ) {}
+function add_filter( $h, ...$a ) {
+	$GLOBALS['keel_test']['filters_added'][] = $h;
+}
+
+/**
+ * Stub: record filter removal, so the suppression can be shown to be undone.
+ *
+ * @param string $h Hook.
+ * @param mixed  ...$a Args.
+ */
+function remove_filter( $h, ...$a ) {
+	$GLOBALS['keel_test']['filters_removed'][] = $h;
+}
 
 /**
  * Stub: whether a named callback is hooked. Keel asks this to find out whether
@@ -593,6 +605,27 @@ keel_assert( 1 === count( keel_defaults_update_ladder() ), 'one line behind give
 keel_assert( '' === keel_defaults_ladder_markup(), 'a single rung renders nothing — there is no choice to show' );
 
 $GLOBALS['keel_test']['offers'] = array();
+
+
+// --- 13. asking which rung wins must not email anybody ---------------------
+// find_core_auto_update() runs every offer through should_update(), which
+// emails the administrator on rejection. A reporting call that notifies people
+// is not reporting, so the notification is suppressed and then restored.
+
+$GLOBALS['keel_test']['filters_added']   = array();
+$GLOBALS['keel_test']['filters_removed'] = array();
+$GLOBALS['keel_test']['selected']        = '7.1';
+
+keel_defaults_ladder_selection();
+
+keel_assert(
+	in_array( 'send_core_update_notification_email', $GLOBALS['keel_test']['filters_added'], true ),
+	'the update notification is suppressed before asking which rung wins'
+);
+keel_assert(
+	in_array( 'send_core_update_notification_email', $GLOBALS['keel_test']['filters_removed'], true ),
+	'the suppression is removed again afterwards, not left in place'
+);
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

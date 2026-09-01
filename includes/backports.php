@@ -766,6 +766,9 @@ add_action( 'admin_enqueue_scripts', 'keel_defaults_backport_notice_script' );
  * Reports only. Choosing a rung would mean running the core upgrader against a
  * specific offer, which is a separate decision and deliberately not taken here.
  *
+ * The delta flag means a partial package is offered, not that core will use
+ * it — core falls back to the full package when the partial does not apply.
+ *
  * @return array<int,array{version:string,same_line:bool,delta:bool}> Ascending.
  */
 function keel_defaults_update_ladder() {
@@ -805,8 +808,9 @@ function keel_defaults_update_ladder() {
 /**
  * Which rung WordPress will actually take, asked rather than recomputed.
  *
- * find_core_auto_update() applies every gate — the offer flag, the channel
- * decision, the filters, the PHP and MySQL floors — and returns the winner.
+ * Core's own find_core_auto_update() applies every gate — the offer flag, the
+ * channel decision, the filters, the PHP and MySQL floors — and returns the
+ * winner.
  * Reimplementing that selection here would be the mistake CONTRIBUTING.md
  * describes, and it would drift the first time core changed the order.
  *
@@ -823,7 +827,19 @@ function keel_defaults_ladder_selection() {
 		return '';
 	}
 
-	$selected = find_core_auto_update();
+	// find_core_auto_update() is not read-only. It runs every offer through
+	// WP_Automatic_Updater::should_update(), which emails the administrator
+	// whenever an offer is rejected for policy, filesystem access or version
+	// control — so asking which rung wins could send one message per rejected
+	// rung, on every Site Health load. Suppress that for the duration of the
+	// question, and restore it whatever happens.
+	add_filter( 'send_core_update_notification_email', '__return_false', PHP_INT_MAX );
+
+	try {
+		$selected = find_core_auto_update();
+	} finally {
+		remove_filter( 'send_core_update_notification_email', '__return_false', PHP_INT_MAX );
+	}
 
 	return ( $selected && isset( $selected->current ) ) ? $selected->current : '';
 }
@@ -849,7 +865,7 @@ function keel_defaults_ladder_markup() {
 			: __( 'new release line', 'keel-defaults' );
 
 		if ( $rung['delta'] ) {
-			$kind .= __( ' — ships as a delta package', 'keel-defaults' );
+			$kind .= __( ' — a delta package is available', 'keel-defaults' );
 		}
 
 		$rows .= sprintf(
