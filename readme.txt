@@ -15,8 +15,6 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off. All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. 
 
-**Sane WordPress defaults that explain themselves in Site Health** — covering security, privacy, UX, performance, and core updates, including same-line security patches.
-
 **New in 0.6.0: see and install the security patch for your own WordPress release line.** Keel tells you when WordPress.org flags the installed core version as insecure, names the patched release on the same line instead of pushing you toward a major upgrade, shows the releases WordPress is offering and marks the one core would select. An authorized administrator can deliberately install the same-line patch through WordPress's own upgrader with rollback enabled. The target is checked again on the server; no setting changes, and nothing installs unless you click the button.
 
 **Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed from answering requests.
