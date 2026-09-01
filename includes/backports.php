@@ -217,8 +217,17 @@ function keel_defaults_version_line( $version ) {
  * Asked of core rather than inferred, so this stays true if that filtering
  * changes.
  *
+ * A fourth answer is 'unknown'. get_core_updates() returns false — not an
+ * empty array — when the update_core transient holds no updates list, which is
+ * what a site that has not checked yet looks like. Reading that as 'none'
+ * converts missing data into a categorical claim that the screen will not offer
+ * the patch, and the copy for 'none' then says the screen would install the
+ * newest release instead: on a site whose same-line patch IS the newest
+ * release, that names the version it is denying. Opening update-core.php
+ * refreshes the data and may well offer it.
+ *
  * @param string $version Version to look for.
- * @return string 'visible', 'hidden', or 'none'.
+ * @return string 'visible', 'hidden', 'none', or 'unknown'.
  */
 function keel_defaults_updates_screen_offer_state( $version ) {
 	$update_file = ABSPATH . 'wp-admin/includes/update.php';
@@ -228,7 +237,7 @@ function keel_defaults_updates_screen_offer_state( $version ) {
 	}
 
 	if ( ! function_exists( 'get_core_updates' ) ) {
-		return 'none';
+		return 'unknown';
 	}
 
 	$offers = get_core_updates(
@@ -238,7 +247,11 @@ function keel_defaults_updates_screen_offer_state( $version ) {
 		)
 	);
 
-	foreach ( (array) $offers as $offer ) {
+	if ( ! is_array( $offers ) ) {
+		return 'unknown';
+	}
+
+	foreach ( $offers as $offer ) {
 		if ( ! isset( $offer->current ) || $version !== $offer->current ) {
 			continue;
 		}
@@ -705,6 +718,17 @@ function keel_defaults_backport_actions( $tip ) {
 				esc_html__( 'Someone dismissed %1$s on this site, so the Updates screen keeps it out of the way until you select %2$s.', 'keel-defaults' ),
 				'<code>' . esc_html( $tip ) . '</code>',
 				'<strong>' . esc_html__( 'Show hidden updates', 'keel-defaults' ) . '</strong>'
+			)
+		);
+	} elseif ( 'unknown' === $screen ) {
+		$out .= sprintf(
+			'<p><a class="button" href="%s">%s</a></p><p class="description">%s</p>',
+			esc_url( admin_url( 'update-core.php' ) ),
+			esc_html__( 'Check the Updates screen', 'keel-defaults' ),
+			sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'This site has not checked WordPress.org for core updates yet, so Keel cannot say whether the Updates screen is offering %s. Opening that screen checks, and answers it.', 'keel-defaults' ),
+				'<code>' . esc_html( $tip ) . '</code>'
 			)
 		);
 	} else {

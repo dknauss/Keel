@@ -335,6 +335,13 @@ function keel_test_offers() {
  * @return object|false
  */
 function get_core_updates( $options = array() ) {
+	// Core returns false, not an empty array, when the update_core transient
+	// holds no updates list — a site that has not checked yet, or whose
+	// transient was cleared. That is "not known", not "not offered".
+	if ( ! empty( $GLOBALS['keel_test']['core_updates_uncached'] ) ) {
+		return false;
+	}
+
 	// Mirrors core: offers flagged autoupdate are skipped, so only the manual
 	// upgrade offer appears — which is why a same-line patch is not reachable
 	// from that screen.
@@ -867,6 +874,43 @@ keel_assert(
 
 $GLOBALS['keel_test']['offers'] = array();
 $GLOBALS['keel_test']['can']    = false;
+
+
+// --- 19. missing update data is not proof of a missing offer -------------
+// get_core_updates() returns false when the update_core transient has no
+// updates list. Reading that as "the Updates screen will not offer this" turns
+// an absence of data into a categorical claim — and the copy for that case goes
+// on to say the screen would install the newest release instead, which on a
+// site whose same-line patch IS the newest release names the version it is
+// denying. Visiting update-core.php refreshes the data and may well offer it.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']               = '6.8.7';
+$GLOBALS['keel_test']['can']                   = true;
+$GLOBALS['keel_test']['core_updates_uncached'] = true;
+
+keel_assert(
+	'unknown' === keel_defaults_updates_screen_offer_state( '6.8.8' ),
+	'no cached update data reports unknown, not none'
+);
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'will not offer' ),
+	'an unknown state does not claim the Updates screen will not offer the patch'
+);
+keel_assert(
+	false === strpos( $actions, 'instead' ),
+	'an unknown state does not claim the screen would install something else instead'
+);
+keel_assert(
+	false !== strpos( $actions, 'has not checked' ),
+	'an unknown state says the data is missing, which is the thing actually known'
+);
+
+$GLOBALS['keel_test']['core_updates_uncached'] = false;
+$GLOBALS['keel_test']['can']                   = false;
 
 
 // --- 16. the constant-owner action does not send anyone to that screen ----
