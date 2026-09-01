@@ -389,6 +389,26 @@ add_filter( 'site_status_tests', 'keel_defaults_register_backport_test' );
  * @return array Site Health result.
  */
 function keel_defaults_backport_test() {
+	$result = keel_defaults_backport_verdict();
+
+	// Appended here rather than on site_status_test_result, because that filter
+	// only fires through perform_test() — the async AJAX path answers directly
+	// and would silently omit it.
+	$ladder = keel_defaults_ladder_markup();
+
+	if ( '' !== $ladder ) {
+		$result['description'] .= $ladder;
+	}
+
+	return $result;
+}
+
+/**
+ * The verdict itself, without the ladder.
+ *
+ * @return array Site Health result.
+ */
+function keel_defaults_backport_verdict() {
 	$status  = keel_defaults_version_status();
 	$version = wp_get_wp_version();
 	$tip     = keel_defaults_branch_tip();
@@ -495,6 +515,8 @@ function keel_defaults_backport_test() {
 
 	return $result;
 }
+
+
 
 /**
  * Offer a way to act, preferring the mechanism core already has.
@@ -728,3 +750,138 @@ function keel_defaults_backport_notice_script() {
 	wp_add_inline_script( 'common', $script );
 }
 add_action( 'admin_enqueue_scripts', 'keel_defaults_backport_notice_script' );
+
+/**
+ * Every release WordPress.org is currently offering this site, in order.
+ *
+ * Core collapses this into one button. The API does not: a site several release
+ * lines behind is offered the patched tip of every line between it and current,
+ * each flagged for automatic installation. A 6.8.7 site is offered 6.8.8, 6.9.7,
+ * 7.0.4 and 7.1; a 5.9 site is offered twelve.
+ *
+ * That list is worth seeing, because the one WordPress will actually take is the
+ * highest it is permitted to — not the nearest — so the step most people assume
+ * they are getting is usually the one that gets skipped.
+ *
+ * Reports only. Choosing a rung would mean running the core upgrader against a
+ * specific offer, which is a separate decision and deliberately not taken here.
+ *
+ * The delta flag means a partial package is offered, not that core will use
+ * it — core falls back to the full package when the partial does not apply.
+ *
+ * @return array<int,array{version:string,same_line:bool,delta:bool}> Ascending.
+ */
+function keel_defaults_update_ladder() {
+	$updates = get_site_transient( 'update_core' );
+
+	if ( ! is_object( $updates ) || empty( $updates->updates ) ) {
+		return array();
+	}
+
+	$current = wp_get_wp_version();
+	$line    = implode( '.', array_slice( preg_split( '/[.-]/', $current ), 0, 2 ) );
+	$rungs   = array();
+
+	foreach ( (array) $updates->updates as $offer ) {
+		if ( ! isset( $offer->response, $offer->current ) || 'autoupdate' !== $offer->response ) {
+			continue;
+		}
+
+		if ( version_compare( $offer->current, $current, '<=' ) ) {
+			continue;
+		}
+
+		$offer_line = implode( '.', array_slice( preg_split( '/[.-]/', $offer->current ), 0, 2 ) );
+
+		$rungs[ $offer->current ] = array(
+			'version'   => $offer->current,
+			'same_line' => ( $offer_line === $line ),
+			'delta'     => ! empty( $offer->packages->partial ),
+		);
+	}
+
+	uksort( $rungs, 'version_compare' );
+
+	return array_values( $rungs );
+}
+
+/**
+ * Which rung WordPress will actually take, asked rather than recomputed.
+ *
+ * Core's own find_core_auto_update() applies every gate — the offer flag, the
+ * channel decision, the filters, the PHP and MySQL floors — and returns the
+ * winner.
+ * Reimplementing that selection here would be the mistake CONTRIBUTING.md
+ * describes, and it would drift the first time core changed the order.
+ *
+ * @return string Version, or '' if nothing would be installed.
+ */
+function keel_defaults_ladder_selection() {
+	$update_file = ABSPATH . 'wp-admin/includes/update.php';
+
+	if ( ! function_exists( 'find_core_auto_update' ) && is_readable( $update_file ) ) {
+		require_once $update_file;
+	}
+
+	if ( ! function_exists( 'find_core_auto_update' ) ) {
+		return '';
+	}
+
+	// find_core_auto_update() is not read-only. It runs every offer through
+	// WP_Automatic_Updater::should_update(), which emails the administrator
+	// whenever an offer is rejected for policy, filesystem access or version
+	// control — so asking which rung wins could send one message per rejected
+	// rung, on every Site Health load. Suppress that for the duration of the
+	// question, and restore it whatever happens.
+	add_filter( 'send_core_update_notification_email', '__return_false', PHP_INT_MAX );
+
+	try {
+		$selected = find_core_auto_update();
+	} finally {
+		remove_filter( 'send_core_update_notification_email', '__return_false', PHP_INT_MAX );
+	}
+
+	return ( $selected && isset( $selected->current ) ) ? $selected->current : '';
+}
+
+/**
+ * Render the ladder, marking the rung WordPress will take.
+ *
+ * @return string Markup, or '' when there is nothing to show.
+ */
+function keel_defaults_ladder_markup() {
+	$rungs = keel_defaults_update_ladder();
+
+	if ( count( $rungs ) < 2 ) {
+		return '';
+	}
+
+	$selected = keel_defaults_ladder_selection();
+	$rows     = '';
+
+	foreach ( $rungs as $rung ) {
+		$kind = $rung['same_line']
+			? __( 'security and maintenance, same release line', 'keel-defaults' )
+			: __( 'new release line', 'keel-defaults' );
+
+		if ( $rung['delta'] ) {
+			$kind .= __( ' — a delta package is available', 'keel-defaults' );
+		}
+
+		$rows .= sprintf(
+			'<li><code>%1$s</code> — %2$s%3$s</li>',
+			esc_html( $rung['version'] ),
+			esc_html( $kind ),
+			( $selected === $rung['version'] )
+				? ' <strong>' . esc_html__( '← WordPress would install this one', 'keel-defaults' ) . '</strong>'
+				: ''
+		);
+	}
+
+	$note = '' === $selected
+		? esc_html__( 'Nothing would be installed automatically with the current settings.', 'keel-defaults' )
+		: esc_html__( 'WordPress takes the highest release it is permitted to, not the nearest — so the intermediate steps are skipped rather than applied in turn.', 'keel-defaults' );
+
+	return '<p>' . esc_html__( 'WordPress.org is currently offering this site more than one release:', 'keel-defaults' )
+		. '</p><ul>' . $rows . '</ul><p class="description">' . $note . '</p>';
+}
