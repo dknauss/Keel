@@ -76,11 +76,62 @@ installs. Site Health must not become the performance problem it is diagnosing.
    branch-tip status, offer freshness, next scheduled check and recent success or
    failure into one evidence-based view. Reuse core's answers and Keel's stable
    blocker codes; do not infer a guaranteed schedule from policy alone.
+- [ ] **Toggle plugin and theme auto-updates** — three states, `enabled`, `disabled`
+   and `unset`, applied through the `auto_update_plugin` and `auto_update_theme`
+   filters. `unset` is the default and must stay it: the per-item checkboxes on the
+   Plugins screen are a deliberate choice, and a defaults plugin silently overriding
+   them would be the failure this project exists to avoid.
+
+   **Not "minor updates only", and the reason is structural.** That split is real for
+   core because core defines and enforces its own versioning —
+   `Core_Upgrader::should_update_to_version()` implements the channels, and it is
+   called for `'core'` only. Plugins and themes reach the same decision through
+   `! empty( $item->autoupdate )` and the `auto_update_{$type}s` opt-in array. There
+   is no channel because wordpress.org neither requires nor verifies semantic
+   versioning: a plugin may ship `1.9 → 2.0` for a typo and `3.4.1 → 3.4.2` for a
+   break. A "security and maintenance only" label is honest on core and a guess on
+   plugins, and it would fail selectively — auto-installing precisely the breaking
+   releases whose authors do not use semver.
+
+   Report instead of guessing: how many items have auto-updates on, whether the
+   option or a filter is deciding, and **which items a filter is overriding**, which
+   nothing surfaces today. If risk-tiering is wanted later, the honest inputs are a
+   moved `requires`/`requires_php` or the author's own `upgrade_notice`, not the
+   version number.
 - [ ] **Export a sanitized Keel posture report** — make settings, effective state,
    conflicts, update operability and diagnostic evidence easy to share for support.
    Exclude secrets, option values, user data and unnecessary site identifiers.
 
+   Prior art: [VerCheck API](https://wordpress.org/plugins/vercheck-api/) and
+   [Updawa](https://wordpress.org/plugins/updawa/) both serve this inventory over
+   bearer-token REST rather than as an export — the genre is settled, and neither has
+   found an audience yet (20 and 0 installs). Worth reading for payload shape, and
+   worth departing from twice. It reports that an update exists;
+   Keel can report that a version is *known vulnerable*, which is the distinction
+   0.6.0 was built on. And a complete list of installed plugins and versions is
+   reconnaissance material — it sits against Keel's own `remove_version` default and
+   its anonymous-REST gate, so any such surface must be authenticated, opt-in, and
+   argued for rather than assumed useful.
+
 ## Later
+
+- [ ] **Report what this site already sends to WordPress.org** — undecided, and the
+  most Keel-shaped idea to come out of the 0.6.0 work. Duane Storey's
+  [deep look at the WordPress API](https://duanestorey.com/posts/down-the-rabbit-hole-a-deep-look-at-the-wordpress-api)
+  documents what `core/version-check`, `plugins/update-check` and `themes/update-check`
+  actually transmit: the site URL and WordPress version in the user-agent, `wp_install`
+  and `wp_blog` headers, PHP and MySQL versions, enabled extensions, multisite status,
+  user counts, and metadata for every installed plugin and theme whether active or not.
+
+  None of it is disclosed in wp-admin, and there is no opt-out — while wordpress.org's
+  own plugin guidelines require exactly that disclosure from plugins. Keel discloses
+  its single stable-check call in detail in readme.txt; core's far larger transmission
+  is invisible. Surfacing an invisible default is the whole premise of this plugin, and
+  this is the largest one nobody has surfaced.
+
+  Report-only, and probably nothing more: these requests are how updates arrive at all,
+  so a switch would be a foot-gun of the kind 0.6.0 exists to warn about. Decide the
+  scope before promoting it.
 
 Explore database-growth reporting (revision volume, expired transients and unusually
 large rows), media-storage amplification and richer multisite/network diagnostics
