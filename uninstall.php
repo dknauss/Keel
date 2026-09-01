@@ -168,7 +168,6 @@ if ( is_multisite() ) {
 	 * it would outlive the plugin as an orphan.
 	 */
 	delete_site_option( 'keel_network_settings' );
-	delete_site_transient( 'keel_stable_check' );
 
 	/*
 	 * Options are per site, so every site needs clearing — including ones this
@@ -212,3 +211,11 @@ if ( is_multisite() ) {
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
 }
+
+/*
+ * Site transients, on both paths. These are stored as options on single site and
+ * in sitemeta on multisite, so a delete inside the multisite branch alone leaves
+ * every single-site install carrying them.
+ */
+delete_site_transient( 'keel_stable_check' );
+delete_site_transient( 'keel_stable_check_failed' );

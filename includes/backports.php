@@ -58,7 +58,8 @@ function keel_defaults_stable_check() {
 	$response = wp_remote_get(
 		KEEL_DEFAULTS_STABLE_CHECK_URL,
 		array(
-			'timeout'    => 10,
+			// Short: this can run on a cold cache during a Site Health render.
+			'timeout'    => 5,
 			'user-agent' => 'Keel; ' . home_url( '/' ),
 		)
 	);
@@ -185,6 +186,38 @@ function keel_defaults_latest_version() {
 }
 
 /**
+ * Whether relaxed file ownership applies, decided the way core decides it.
+ *
+ * WP_Automatic_Updater::should_update() sets this from the offer being
+ * considered — true only when a core offer explicitly reports no new files —
+ * and defaults to false. Assuming true is more permissive than core and would
+ * call an update possible that core will refuse.
+ *
+ * @return bool
+ */
+function keel_defaults_relaxed_ownership_allowed() {
+	$tip = keel_defaults_branch_tip();
+
+	if ( '' === $tip ) {
+		return false;
+	}
+
+	$updates = get_site_transient( 'update_core' );
+
+	if ( ! is_object( $updates ) || empty( $updates->updates ) ) {
+		return false;
+	}
+
+	foreach ( (array) $updates->updates as $offer ) {
+		if ( isset( $offer->current ) && $tip === $offer->current ) {
+			return isset( $offer->new_files ) && ! $offer->new_files;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Who is deciding whether same-branch updates install, and what they decided.
  *
  * Two questions, not one, because a single boolean promises more than it can
@@ -207,12 +240,43 @@ function keel_defaults_minor_update_state() {
 		$blockers[] = __( 'file modifications are not permitted', 'keel-defaults' );
 	}
 
-	if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
-		$blockers[] = __( 'the automatic updater is switched off by constant', 'keel-defaults' );
+	// Ask core, rather than re-deriving its answer. is_disabled() passes the
+	// constant through the automatic_updater_disabled filter, so a filter can
+	// re-enable an updater the constant switched off. Checking the two
+	// separately produces a verdict core does not share.
+	// Load the bundle if *either* class is missing. Checking only for
+	// WP_Automatic_Updater lets another plugin autoload that one class and
+	// silently skip the credential probe below, which then reports the updater
+	// operable without ever testing it.
+	$upgrader_file = ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+	if ( ( ! class_exists( 'WP_Automatic_Updater' ) || ! class_exists( 'Automatic_Upgrader_Skin' ) )
+		&& is_readable( $upgrader_file )
+	) {
+		require_once $upgrader_file;
 	}
 
-	if ( apply_filters( 'automatic_updater_disabled', false ) ) {
-		$blockers[] = __( 'a plugin has switched the automatic updater off', 'keel-defaults' );
+	$updater = class_exists( 'WP_Automatic_Updater' ) ? new WP_Automatic_Updater() : null;
+
+	// is_disabled() already folds in wp_is_file_mod_allowed(), so the specific
+	// reason is reported above and this only fires for some *other* cause.
+	if ( $updater && $updater->is_disabled() && empty( $blockers ) ) {
+		$blockers[] = __( 'the automatic updater is switched off', 'keel-defaults' );
+	}
+
+	// Core refuses an update it cannot get filesystem credentials for, before
+	// any policy decision is reached. A site needing FTP details fails here.
+	//
+	// Relaxed file ownership mirrors core rather than being assumed: core allows
+	// it only when the offer itself reports no new files. Passing true
+	// unconditionally would call an update operable that core would refuse the
+	// moment a security release added a file.
+	if ( class_exists( 'Automatic_Upgrader_Skin' ) ) {
+		$skin = new Automatic_Upgrader_Skin();
+
+		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
+			$blockers[] = __( 'WordPress cannot get the filesystem access it needs', 'keel-defaults' );
+		}
 	}
 
 	$failed = get_site_option( 'auto_core_update_failed' );
@@ -221,12 +285,8 @@ function keel_defaults_minor_update_state() {
 		$blockers[] = __( 'a previous core update failed critically', 'keel-defaults' );
 	}
 
-	if ( function_exists( 'wp_is_file_mod_allowed' ) && class_exists( 'WP_Automatic_Updater' ) ) {
-		$updater = new WP_Automatic_Updater();
-
-		if ( $updater->is_vcs_checkout( ABSPATH ) ) {
-			$blockers[] = __( 'the site is under version control', 'keel-defaults' );
-		}
+	if ( $updater && $updater->is_vcs_checkout( ABSPATH ) ) {
+		$blockers[] = __( 'the site is under version control', 'keel-defaults' );
 	}
 
 	// Who owns the minor decision. Order matters: the first owner found wins,
@@ -234,13 +294,14 @@ function keel_defaults_minor_update_state() {
 	$owner   = 'option';
 	$enabled = 'enabled' === get_site_option( 'auto_update_core_minor', 'enabled' );
 
-	if ( function_exists( 'keel_defaults_get' ) ) {
-		$policy = keel_defaults_get( 'core_update_policy' );
-
-		if ( 'inherit' !== $policy && ! defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-			$owner   = 'keel';
-			$enabled = in_array( $policy, array( 'minor', 'all' ), true );
-		}
+	// Ask whether Keel's own filter is actually registered, rather than
+	// re-deriving the condition bootstrap.php uses to register it, and let that
+	// filter compute its own answer. Copying either the condition or the policy
+	// comparison here would drift the moment one of them changed — which is the
+	// same mistake as rebuilding core's is_disabled() by hand.
+	if ( has_filter( 'allow_minor_auto_core_updates', 'keel_defaults_allow_minor_core_updates' ) ) {
+		$owner   = 'keel';
+		$enabled = keel_defaults_allow_minor_core_updates( $enabled );
 	}
 
 	if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
@@ -275,22 +336,47 @@ function keel_defaults_minor_updates_enabled() {
 }
 
 /**
- * Register the Site Health test.
+ * Register the Site Health test, asynchronously.
  *
- * Direct rather than async: the network call is cached for a day, and core sets
- * the precedent with its own dotorg-communication test.
+ * Async for the same reason core's WordPress.org communication test is: a direct
+ * test runs during the page render, so a cold cache would pause Site Health for
+ * the length of the request. Async, the page paints and the result arrives.
+ *
+ * The test name matters more than it looks. Core's JS builds the action as
+ * `'health-check-' + test.replace( '_', '-' )`, replacing only the first
+ * underscore — so `keel_backport` gives `health-check-keel-backport`, and a name
+ * with two underscores would produce an action nothing is listening on.
  *
  * @param array $tests Registered tests.
  * @return array
  */
 function keel_defaults_register_backport_test( $tests ) {
-	$tests['direct']['keel_defaults_backport'] = array(
-		'label' => __( 'Security patch status', 'keel-defaults' ),
-		'test'  => 'keel_defaults_backport_test',
+	$tests['async']['keel_backport'] = array(
+		'label'             => __( 'Security patch status', 'keel-defaults' ),
+		'test'              => 'keel_backport',
+		'async_direct_test' => 'keel_defaults_backport_test',
 	);
 
 	return $tests;
 }
+
+/**
+ * Answer the async Site Health request.
+ */
+function keel_defaults_backport_ajax() {
+	// One argument, deliberately. Site Health's JS posts the nonce as _wpnonce,
+	// and check_ajax_referer() only falls back to _wpnonce when no field name is
+	// given — naming a field looks for that field and nothing else, so passing
+	// 'nonce' here failed every browser-triggered request before the test ran.
+	check_ajax_referer( 'health-check-site-status' );
+
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
+		wp_send_json_error( array(), 403 );
+	}
+
+	wp_send_json_success( keel_defaults_backport_test() );
+}
+add_action( 'wp_ajax_health-check-keel-backport', 'keel_defaults_backport_ajax' );
 add_filter( 'site_status_tests', 'keel_defaults_register_backport_test' );
 
 /**
@@ -317,7 +403,7 @@ function keel_defaults_backport_test() {
 		),
 		'description' => '',
 		'actions'     => '',
-		'test'        => 'keel_defaults_backport',
+		'test'        => 'keel_backport',
 	);
 
 	if ( 'unknown' === $status ) {
@@ -329,7 +415,7 @@ function keel_defaults_backport_test() {
 		if ( false !== strpos( $version, '-' ) ) {
 			$reason = esc_html__( 'This is a development build, which WordPress.org does not classify.', 'keel-defaults' );
 		} elseif ( empty( keel_defaults_stable_check() ) ) {
-			$reason = esc_html__( 'Keel could not reach WordPress.org, or the response was not usable. Worth noting on its own: a site that cannot reach the API over HTTPS receives no automatic updates at all.', 'keel-defaults' );
+			$reason = esc_html__( 'Keel could not reach WordPress.org, or the response was not usable. That may be a passing outage rather than anything about this site.', 'keel-defaults' );
 		} else {
 			$reason = esc_html__( 'WordPress.org does not list this exact version.', 'keel-defaults' );
 		}
@@ -557,8 +643,8 @@ function keel_defaults_backport_notice() {
 		return;
 	}
 
-	$tip  = keel_defaults_branch_tip();
-	$auto = keel_defaults_minor_updates_enabled();
+	$tip   = keel_defaults_branch_tip();
+	$state = keel_defaults_minor_update_state();
 
 	if ( '' === $tip ) {
 		$body = sprintf(
@@ -566,17 +652,25 @@ function keel_defaults_backport_notice() {
 			esc_html__( 'WordPress %s has known vulnerabilities, and no patched release exists on this release line. Moving to a maintained version is the only remedy.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
-	} elseif ( $auto ) {
+	} elseif ( $state['policy'] && $state['operable'] ) {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
 			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch for this release line is %2$s, and automatic updates should install it shortly.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
+	} elseif ( ! $state['operable'] ) {
+		$body = sprintf(
+			/* translators: 1: current version, 2: patched version, 3: reasons. */
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but automatic updates cannot run here: %3$s.', 'keel-defaults' ),
+			'<strong>' . esc_html( $version ) . '</strong>',
+			'<strong>' . esc_html( $tip ) . '</strong>',
+			esc_html( implode( '; ', $state['blockers'] ) )
+		);
 	} else {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but automatic updates are switched off on this site, so it will not arrive on its own.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but minor updates are switched off on this site, so it will not arrive on its own.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
@@ -596,6 +690,10 @@ add_action( 'admin_notices', 'keel_defaults_backport_notice' );
  * Record a per-user, per-version dismissal.
  */
 function keel_defaults_dismiss_backport_notice() {
+	if ( ! current_user_can( 'update_core' ) ) {
+		wp_die( '', '', 403 );
+	}
+
 	check_ajax_referer( 'keel_defaults_dismiss_backport', 'nonce' );
 
 	$version = isset( $_POST['version'] ) ? sanitize_text_field( wp_unslash( $_POST['version'] ) ) : '';

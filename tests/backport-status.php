@@ -136,6 +136,30 @@ function apply_filters( $h, $v ) {
 function add_filter( $h, ...$a ) {}
 
 /**
+ * Stub: whether a named callback is hooked. Keel asks this to find out whether
+ * its own policy filter is in play, rather than re-deriving the condition
+ * bootstrap.php uses to register it.
+ *
+ * @param string $h Hook.
+ * @param mixed  $cb Callback.
+ * @return bool
+ */
+function has_filter( $h, $cb = false ) {
+	return ! empty( $GLOBALS['keel_test']['keel_filter'] );
+}
+
+/**
+ * Stub: Keel's own minor-update policy callback.
+ *
+ * @param bool $enabled Incoming value.
+ * @return bool
+ */
+function keel_defaults_allow_minor_core_updates( $enabled ) {
+	$policy = isset( $GLOBALS['keel_test']['policy'] ) ? $GLOBALS['keel_test']['policy'] : 'inherit';
+	return 'inherit' === $policy ? $enabled : in_array( $policy, array( 'minor', 'all' ), true );
+}
+
+/**
  * Stub: registration is not exercised here.
  *
  * @param string $h Hook.
@@ -213,6 +237,52 @@ function home_url( $s = '' ) {
  */
 function current_user_can( $c ) {
 	return false;   // Actions are asserted separately; keep markup out of these cases.
+}
+
+/**
+ * Stub of core's automatic updater, so the effective-state logic is exercised
+ * rather than skipped. Keel asks core for these answers instead of re-deriving
+ * them; the test has to supply them for the same reason.
+ */
+class WP_Automatic_Updater {
+	/**
+	 * Whether the updater is switched off.
+	 *
+	 * @return bool
+	 */
+	public function is_disabled() {
+		return ! empty( $GLOBALS['keel_test']['updater_disabled'] );
+	}
+
+	/**
+	 * Whether the given path is a version control checkout.
+	 *
+	 * @param string $context Path.
+	 * @return bool
+	 */
+	public function is_vcs_checkout( $context ) {
+		return ! empty( $GLOBALS['keel_test']['vcs'] );
+	}
+}
+
+/**
+ * Stub of core's upgrader skin. Without this the credential probe is skipped
+ * entirely, which is exactly the arrangement that let a real site report the
+ * updater operable without the probe ever running.
+ */
+class Automatic_Upgrader_Skin {
+	/**
+	 * Whether filesystem credentials are available.
+	 *
+	 * @param bool   $error   Unused.
+	 * @param string $context Path.
+	 * @param bool   $relaxed Whether relaxed file ownership is permitted.
+	 * @return bool
+	 */
+	public function request_filesystem_credentials( $error = false, $context = '', $relaxed = false ) {
+		$GLOBALS['keel_test']['relaxed_seen'] = $relaxed;
+		return empty( $GLOBALS['keel_test']['no_fs_credentials'] );
+	}
 }
 
 require dirname( __DIR__ ) . '/includes/backports.php';
@@ -362,6 +432,82 @@ keel_assert(
 	false !== strpos( $r['description'], 'does not list this exact version' ),
 	'an unlisted version says so, rather than blaming connectivity'
 );
+
+
+// --- 8. blockers come from core's own answers ------------------------------
+// Pinned because the tempting shortcut — re-deriving is_disabled() from the
+// constant and the filter separately — produces a verdict core does not share.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['options'] = array();
+
+$GLOBALS['keel_test']['updater_disabled'] = true;
+$state                                    = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'a disabled updater makes the state inoperable' );
+keel_assert( true === $state['policy'], 'a disabled updater does not change what the policy says' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+
+$GLOBALS['keel_test']['vcs'] = true;
+$state                       = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'version control makes the state inoperable' );
+$GLOBALS['keel_test']['vcs'] = false;
+
+$state = keel_defaults_minor_update_state();
+keel_assert( true === $state['operable'], 'with nothing blocking, the updater is operable' );
+
+
+// --- 9. Keel's own policy owns the decision when its filter is registered ---
+// The failure this pins: copying bootstrap.php's registration condition, or
+// Keel's policy comparison, into this file. Either copy drifts silently.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']     = '6.8.7';
+$GLOBALS['keel_test']['options']     = array();
+$GLOBALS['keel_test']['keel_filter'] = true;
+$GLOBALS['keel_test']['policy']      = 'manual';
+
+$state = keel_defaults_minor_update_state();
+keel_assert( 'keel' === $state['owner'], 'Keel owns the decision when its filter is registered' );
+keel_assert( false === $state['policy'], 'a manual Keel policy resolves minor updates to off' );
+
+$GLOBALS['keel_test']['policy'] = 'minor';
+$state                          = keel_defaults_minor_update_state();
+keel_assert( true === $state['policy'], 'a minor Keel policy resolves minor updates to on' );
+
+$GLOBALS['keel_test']['keel_filter'] = false;
+$state                               = keel_defaults_minor_update_state();
+keel_assert( 'option' === $state['owner'], 'without Keel\'s filter, the stored option owns it again' );
+
+
+// --- 10. the credential probe actually runs, and is not more permissive ----
+// Two failures pinned. Loading only WP_Automatic_Updater used to skip the probe
+// silently. And passing relaxed ownership unconditionally is more permissive
+// than core, which allows it only when the offer reports no new files.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']           = '6.8.7';
+$GLOBALS['keel_test']['options']           = array();
+$GLOBALS['keel_test']['keel_filter']       = false;
+$GLOBALS['keel_test']['relaxed_seen']      = null;
+$GLOBALS['keel_test']['no_fs_credentials'] = true;
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'missing filesystem credentials make the updater inoperable' );
+keel_assert( null !== $GLOBALS['keel_test']['relaxed_seen'], 'the credential probe actually ran' );
+keel_assert( false === $GLOBALS['keel_test']['relaxed_seen'], 'relaxed ownership is not assumed when no offer says so' );
+
+$GLOBALS['keel_test']['no_fs_credentials'] = false;
+$state                                     = keel_defaults_minor_update_state();
+keel_assert( true === $state['operable'], 'with credentials available the updater is operable again' );
+
+// --- 11. blockers are not duplicated ---------------------------------------
+$GLOBALS['keel_test']['file_mod_blocked'] = true;
+$GLOBALS['keel_test']['updater_disabled'] = true;
+$state                                    = keel_defaults_minor_update_state();
+keel_assert( 1 === count( $state['blockers'] ), 'a blocked file mod is reported once, not twice' );
+$GLOBALS['keel_test']['file_mod_blocked'] = false;
+$GLOBALS['keel_test']['updater_disabled'] = false;
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
