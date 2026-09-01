@@ -36,6 +36,14 @@ into ROADMAP.md or here.
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
 
+- [ ] **Trim the security-review credit to a permanent line**
+  - The 0.6.0 credit recaps the whole review because the review was current. Once the
+    release is no longer new, shorten it to a standing acknowledgement.
+  - Keep Austin Ginder and Anchor Hosting named in both `readme.txt` and `README.md`;
+    drop the finding-by-finding detail, which the commit history and changelog hold.
+  - One or two sentences with no version number, so it does not need revisiting at
+    each release.
+
 ## Then — 0.8.0 performance observability
 
 - [ ] **Attribute oversized autoloaded options**
