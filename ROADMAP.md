@@ -145,15 +145,46 @@ installs. Site Health must not become the performance problem it is diagnosing.
      comments: `WP_Comment_Query`, `get_comment()`, the REST collection, the REST
      single item, feeds, admin. This is what would have caught the REST route, and
      it is a test rather than runtime code.
-  3. **Outcome probes in Site Health.** Keel already reports when a filter's
-     settled value diverges from what it asked for. That mechanism cannot see these
-     because there is no value to compare — the filter never ran. Extend it from
-     *values* to *routes*: ask `get_comment()` for a known id and check what comes
-     back. Higher cost, real runtime weight, and the only one of the three that
-     protects a site rather than the codebase.
+  3. ~~**Outcome probes in Site Health.**~~ **Rejected 2026-09-01**, and replaced
+     by 3a below. Three reasons, in order of how fatal they are:
 
-  Do 1 and 2 first. Decide 3 separately: a plugin that runs probes against itself on
-  every admin load has to justify the expense, and report-only remains the rule.
+     - **A probe cannot observe the finding that motivated it.**
+       `keel_defaults_hide_rest_comment()` returns early unless
+       `wp_is_rest_request()` (`includes/content.php`). An admin-load probe is not
+       a REST request, so the guard deliberately does not run. Observing it would
+       mean either faking `wp_is_rest_request()` — lying about the request type
+       inside a live page load, where other plugins read the same function — or a
+       loopback HTTP request, which tests the network as much as the plugin and
+       fails for reasons that have nothing to do with Keel.
+     - **A probe needs a subject it cannot have.** "Ask `get_comment()` for a known
+       id" requires a known id. A fixture comment writes to the database and hides
+       a row the administrator did not make, breaking *report-only* and *nothing
+       hidden* at once. A real comment may not exist — and a site with comments
+       disabled and none stored is exactly the site whose answer matters.
+     - **The cost was the smallest objection.** It was the one first raised, but a
+       probe that cannot run in the right context and has nothing valid to ask
+       about would not be worth building at any price.
+
+  3a. **Registration audit.** What static tests genuinely cannot see is runtime
+     interference: another plugin unhooking a Keel callback, or registering ahead
+     of one, on a site whose plugin set no test knows about. That needs no probe.
+     `has_filter( $hook, $callback )` returns the registered priority or `false`,
+     so comparing the live hook array against what Keel registered is pure
+     introspection — no network, no database, no fixture, and nothing executed.
+
+     It reports the same two failures the review found, from the running site
+     rather than the source: a registration that is missing, and one whose
+     priority no longer beats the core callback it must precede. Where
+     `tests/hook-precedence.php` reads the repository, this reads the install.
+
+     It also fits the mechanism already here rather than adding one.
+     `keel_defaults_policy_divergences()` is passive — it observes hooks that
+     were going to fire anyway, which is why it costs nothing. An audit that reads
+     an array Keel has already built keeps that property; a probe that makes work
+     in order to watch itself does not.
+
+  Do 1 and 2 first — both done. Report-only remains the rule, and 3a stays inside
+  it: reading the hook array changes nothing and asks nobody.
 
 - [ ] **Rate-limit the breach lookup** — undecided. a5e38bb moved the free
   rejections ahead of the network call, which narrows the amplification the review
