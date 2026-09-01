@@ -76,6 +76,15 @@ Core auto-updates are one of the nine starting values rather than a switch: they
 
 ## What Keel looks like
 
+<img src=".wordpress-org/screenshot-4.png" alt="Site Health reporting WordPress 6.9.5 as having known vulnerabilities, naming 6.9.7 as the fix for the 6.9 line, listing the three releases WordPress.org is offering, and offering to install the patch" width="900">
+
+**Site Health → Status.** The check that has no equivalent anywhere in wp-admin:
+whether the running version has publicly known vulnerabilities, and which release
+fixes it on your own line. Here a 6.9.5 site is told the fix is 6.9.7 — not 7.1,
+which is what the Updates screen would install if you followed it. The ladder shows
+every release WordPress.org is offering and marks the one WordPress would take, and
+the button installs the patch through WordPress's own upgrader.
+
 <img src=".wordpress-org/screenshot-1.png" alt="Settings → Site Defaults: each default is one switch with the reason it exists written beside it" width="900">
 
 **Settings → Site Defaults.** Every default is a single switch with a solid explanation next to it. Learn more in the dropdown help menu, site health, and repo docs.

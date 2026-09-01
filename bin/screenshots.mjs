@@ -10,6 +10,11 @@
  *
  *   node bin/screenshots.mjs --url http://localhost:8881 --wp @keel
  *
+ * screenshot-4 photographs the patch-status panel, which only has anything in
+ * it on a site whose core version WordPress.org classifies as insecure. Point
+ * --url at a deliberately old install, or that capture throws rather than
+ * writing a picture of an empty check.
+ *
  * Requires Playwright (`npm i playwright`) and a WordPress install with the
  * current code and a WP-CLI alias that reaches it. It mints its own admin
  * session, so nothing has to be logged in first, and it never writes the cookie
@@ -80,6 +85,11 @@ if ( 2 !== cookies.length ) {
 }
 
 const browser = await chromium.launch();
+// 900 tall is the listing's frame, not the page's. Every clip below therefore
+// passes fullPage: true — without it Playwright bounds a clip to the viewport,
+// so a panel sitting below the fold is silently truncated to whatever happens
+// to be on screen. That is how screenshot-3 came out 125px tall: the Site
+// Health Info panel is 1202px at y=834, and the clip was cut off at 900.
 const ctx = await browser.newContext( { viewport: { width: 1280, height: 900 } } );
 await ctx.addCookies( cookies );
 const page = await ctx.newPage();
@@ -95,6 +105,18 @@ const tidy = () =>
 		`,
 	} );
 
+
+// boundingBox() is viewport-relative; a fullPage clip is document-relative.
+// Mixing them shifts every frame by however far the page happened to be
+// scrolled — clicking an accordion scrolls it into view, so the shift is never
+// zero and never constant. This returns document coordinates, which is what
+// the clips below are expressed in.
+const docBox = async ( selector ) =>
+	page.locator( selector ).evaluate( ( el ) => {
+		const r = el.getBoundingClientRect();
+		return { x: r.x + window.scrollX, y: r.y + window.scrollY, width: r.width, height: r.height };
+	} );
+
 const settings = `${ base }/wp-admin/options-general.php?page=keel`;
 
 // A capture of the login page would look like a plugin that renders nothing.
@@ -104,27 +126,98 @@ if ( ! ( await page.locator( '.keel-page-header' ).count() ) ) {
 }
 
 await tidy();
-await page.screenshot( { path: `${ out }/screenshot-1.png`, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
+await page.screenshot( { path: `${ out }/screenshot-1.png`, fullPage: true, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
 
 await page.goto( settings, { waitUntil: 'networkidle' } );
 await page.click( '#contextual-help-link' );
 await page.click( 'a[href="#tab-panel-keel-passwords"]' );
 await page.waitForTimeout( 400 );
-const help = await page.locator( '#contextual-help-wrap' ).boundingBox();
+const help = await docBox( '#contextual-help-wrap' );
 await page.screenshot( {
 	path: `${ out }/screenshot-2.png`,
+	fullPage: true,
 	clip: { x: help.x, y: help.y, width: help.width, height: Math.min( help.height, 900 ) },
 } );
 
 await page.goto( `${ base }/wp-admin/site-health.php?tab=debug`, { waitUntil: 'networkidle' } );
 await tidy();
-await page.click( '#health-check-accordion-trigger-keel, #health-check-section-keel' );
-await page.waitForTimeout( 400 );
-const panel = await page.locator( '#health-check-accordion-block-keel' ).boundingBox();
+
+// The Info tab is server-rendered and gives its accordion no trigger id — the
+// button is identified by what it controls. This used to click
+// '#health-check-accordion-trigger-keel', which matches nothing in current
+// core, so the whole run died here before reaching anything else.
+const infoTrigger = 'button[aria-controls="health-check-accordion-block-keel"]';
+await page.waitForSelector( infoTrigger, { timeout: 15000 } );
+await page.click( infoTrigger );
+
+// Measure once the panel is open. Clicking and sleeping measured it while it
+// was still collapsed, so the clip came out 125px tall and the listing image
+// showed a heading and one sentence instead of the table it exists to show.
+await page.waitForSelector( '#health-check-accordion-block-keel', { state: 'visible', timeout: 15000 } );
+await page.waitForTimeout( 250 );
+const infoHeading = await docBox( infoTrigger );
+const panel = await docBox( '#health-check-accordion-block-keel' );
+
+// From the heading, not a fixed offset above the panel: the Info tab stacks a
+// dozen collapsed sections above this one, and a 60px margin framed the bottom
+// of "Filesystem Permissions" as though it were part of Keel's.
 await page.screenshot( {
 	path: `${ out }/screenshot-3.png`,
-	clip: { x: 0, y: Math.max( 0, panel.y - 60 ), width: 1280, height: Math.min( panel.height + 80, 1000 ) },
+	fullPage: true,
+	clip: {
+		x: 0,
+		y: Math.max( 0, infoHeading.y - 4 ),
+		width: 1280,
+		height: Math.min( infoHeading.height + panel.height + 40, 1200 ),
+	},
+} );
+
+// Site Health → Status, with the patch-status result open.
+//
+// This one needs a site whose core version WordPress.org classifies as
+// insecure, or there is nothing to photograph: on a current version the check
+// is a one-line "not currently flagged" and the panel this picture exists to
+// show — the patched release on the site's own line, the ladder of offers, the
+// install button — never renders. Point --url at a deliberately old install.
+//
+// The Status tab runs its checks over AJAX after load, so the result does not
+// exist in the initial HTML. Waiting on the selector rather than a timeout is
+// the difference between a reliable capture and one that intermittently
+// photographs an empty list.
+await page.goto( `${ base }/wp-admin/site-health.php`, { waitUntil: 'networkidle' } );
+await tidy();
+
+const backport = '#health-check-accordion-block-keel_backport';
+const backportTrigger = 'button[aria-controls="health-check-accordion-block-keel_backport"]';
+
+// Wait on the trigger, not the panel: the panel carries hidden="hidden" until
+// it is expanded, so waiting for it to be visible waits forever.
+await page.waitForSelector( backportTrigger, { timeout: 30000 } );
+await page.click( backportTrigger );
+await page.waitForSelector( backport, { state: 'visible', timeout: 15000 } );
+await page.waitForTimeout( 250 );
+
+const heading = await docBox( backportTrigger );
+const body = await docBox( backport );
+
+if ( ! body || body.height < 100 ) {
+	throw new Error(
+		'The patch-status panel rendered empty. Point --url at a site whose core version WordPress.org flags as insecure.'
+	);
+}
+
+await page.screenshot( {
+	path: `${ out }/screenshot-4.png`,
+	fullPage: true,
+	clip: {
+		x: 0,
+		// Flush to the heading: a margin above it catches the last line of the
+		// preceding check, which reads as part of this one.
+		y: Math.max( 0, heading.y - 4 ),
+		width: 1280,
+		height: Math.min( heading.height + body.height + 16, 1200 ),
+	},
 } );
 
 await browser.close();
-console.log( `Wrote screenshot-1..3.png to ${ out }` );
+console.log( `Wrote screenshot-1..4.png to ${ out }` );
