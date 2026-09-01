@@ -436,6 +436,44 @@ function keel_defaults_validate_password( $password, $user = null ) {
 	 * any other. Skipping the check for exempt roles meant the one rule that costs
 	 * the user nothing was the one they did not get.
 	 */
+
+	/*
+	 * Two rejections that cost nothing come before the network call.
+	 *
+	 * The review flagged that breach screening runs ahead of every cheap check,
+	 * so anyone who can reach a password field can drive an outbound request and
+	 * a cache entry per submission, with the prefix of their choosing.
+	 *
+	 * The obvious remedy — put the role gate first — is not taken, deliberately.
+	 * The comment above says why breach screening is universal, and moving the
+	 * gate ahead of it would exempt low-privilege accounts from the one rule that
+	 * costs them nothing. Trading a security property for a rate-limiting problem
+	 * is the wrong trade.
+	 *
+	 * What is safe to move ahead of it is anything that can never be a valid
+	 * password whatever the role: nothing at all, and something longer than
+	 * bcrypt will even read. Neither needs WordPress.org's opinion, and both
+	 * short-circuit the cheapest way to abuse this.
+	 *
+	 * That narrows the amplification without closing it. The real answer is a
+	 * rate limit, which is a decision rather than a patch — see ROADMAP.
+	 */
+	if ( '' === (string) $password ) {
+		return new WP_Error(
+			'keel_password_empty',
+			__( '<strong>Error:</strong> Enter a password.', 'keel-defaults' )
+		);
+	}
+
+	// Core caps what it will hash; anything past that is refused before it can
+	// become a lookup. 4096 is WordPress's own PHP_PASSWORD_MAX limit.
+	if ( strlen( (string) $password ) > 4096 ) {
+		return new WP_Error(
+			'keel_password_too_long',
+			__( '<strong>Error:</strong> That password is too long.', 'keel-defaults' )
+		);
+	}
+
 	if ( keel_password_is_pwned( $password ) ) {
 		return new WP_Error(
 			'keel_password_pwned',
