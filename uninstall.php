@@ -48,6 +48,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_hibp_*` — breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
+ * - `keel_backport_install_result_*` — one short-lived core-update result per
+ *   acting user, consumed after the redirect back to Site Health.
  *
  * @return void
  */
@@ -154,9 +156,11 @@ function keel_defaults_uninstall_site() {
 	// second option that outlives the value if only the value is deleted.
 	$wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->prepare(
-			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+			"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s OR option_name LIKE %s",
 			$wpdb->esc_like( '_transient_keel_hibp_' ) . '%',
-			$wpdb->esc_like( '_transient_timeout_keel_hibp_' ) . '%'
+			$wpdb->esc_like( '_transient_timeout_keel_hibp_' ) . '%',
+			$wpdb->esc_like( '_transient_keel_backport_install_result_' ) . '%',
+			$wpdb->esc_like( '_transient_timeout_keel_backport_install_result_' ) . '%'
 		)
 	);
 }

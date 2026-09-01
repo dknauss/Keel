@@ -131,6 +131,32 @@ function set_site_transient( $k, $v, $t = 0 ) {
 }
 
 /**
+ * Stub: delete from the in-memory transient store.
+ *
+ * @param string $k Key.
+ * @return bool
+ */
+function delete_site_transient( $k ) {
+	unset( $GLOBALS['keel_test']['transients'][ $k ] );
+	return true;
+}
+
+/** Stub: regular transients share the in-memory store. */
+function get_transient( $k ) {
+	return get_site_transient( $k );
+}
+
+/** Stub: regular transients share the in-memory store. */
+function set_transient( $k, $v, $t = 0 ) {
+	return set_site_transient( $k, $v, $t );
+}
+
+/** Stub: regular transients share the in-memory store. */
+function delete_transient( $k ) {
+	return delete_site_transient( $k );
+}
+
+/**
  * Stub: read from the in-memory option store.
  *
  * @param string $k Option.
@@ -259,6 +285,82 @@ function esc_html( $s ) {
 function esc_url( $s ) {
 	return $s;
 }
+
+/** Stub: attribute escaping is not under test here. */
+function esc_attr( $s ) {
+	return $s;
+}
+
+/** Stub: retain safe test markup. */
+function wp_kses_post( $s ) {
+	return $s;
+}
+
+/** Stub: predictable locale. */
+function get_locale() {
+	return 'en_US';
+}
+
+/** Stub: this harness exercises a single site. */
+function is_multisite() {
+	return false;
+}
+
+/** Stub: predictable acting user. */
+function get_current_user_id() {
+	return 1;
+}
+
+/** Stub: deterministic nonce token. */
+function wp_create_nonce( $action ) {
+	return 'nonce-' . $action;
+}
+
+/**
+ * Minimal error type used by install helpers loaded with this module.
+ */
+class WP_Error {
+	/**
+	 * Error code.
+	 *
+	 * @var string
+	 */
+	private $code;
+
+	/**
+	 * Error messages.
+	 *
+	 * @var string[]
+	 */
+	private $messages;
+
+	public function __construct( $code = '', $message = '' ) {
+		$this->code     = $code;
+		$this->messages = '' === $message ? array() : array( $message );
+	}
+
+	public function get_error_code() {
+		return $this->code;
+	}
+
+	public function get_error_messages() {
+		return $this->messages;
+	}
+}
+
+/** Stub: identify the local error double. */
+function is_wp_error( $value ) {
+	return $value instanceof WP_Error;
+}
+
+/** Stub database version used by compatibility helpers. */
+$GLOBALS['wpdb'] = new class() {
+	public $is_mysql = true;
+
+	public function db_version() {
+		return '8.0';
+	}
+};
 
 /**
  * Stub: a predictable admin URL.

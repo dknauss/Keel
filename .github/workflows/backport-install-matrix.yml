@@ -1,0 +1,115 @@
+name: Live core backport matrix
+
+# The version-check and stable-check APIs are live inputs, so this is not an
+# ordinary pull-request gate. Run it for a release candidate, and weekly to find
+# drift in old-branch offers while there is still time to react.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '37 8 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    name: ${{ matrix.source }} to ${{ matrix.target }} (PHP ${{ matrix.php }}, ${{ matrix.locale }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - source: '6.4.9'
+            target: '6.4.10'
+            forward: '7.1'
+            php: '7.4'
+            locale: en_US
+            multisite: false
+          - source: '6.8.7'
+            target: '6.8.8'
+            forward: '7.1'
+            php: '8.2'
+            locale: fr_FR
+            multisite: false
+          - source: '6.9.6'
+            target: '6.9.7'
+            forward: '7.1'
+            php: '8.2'
+            locale: en_US
+            multisite: true
+          - source: '7.0.3'
+            target: '7.0.4'
+            forward: '7.1'
+            php: '8.2'
+            locale: en_US
+            multisite: false
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli
+          coverage: none
+          tools: wp-cli
+
+      - name: Build disposable source install
+        env:
+          SOURCE: ${{ matrix.source }}
+          LOCALE: ${{ matrix.locale }}
+          MULTISITE: ${{ matrix.multisite }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/keel-wp
+          wp core download --path=/tmp/keel-wp --version="$SOURCE" --locale="$LOCALE" --force --allow-root
+          wp config create --path=/tmp/keel-wp --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1 --allow-root
+          wp config set AUTOMATIC_UPDATER_DISABLED true --raw --path=/tmp/keel-wp --allow-root
+          wp config set WP_AUTO_UPDATE_CORE false --raw --path=/tmp/keel-wp --allow-root
+          if [[ "$MULTISITE" == "true" ]]; then
+            wp core multisite-install --path=/tmp/keel-wp --url=http://127.0.0.1:8899 --title=Keel --admin_user=admin --admin_password=password --admin_email=admin@example.test --skip-email --allow-root
+          else
+            wp core install --path=/tmp/keel-wp --url=http://127.0.0.1:8899 --title=Keel --admin_user=admin --admin_password=password --admin_email=admin@example.test --skip-email --allow-root
+          fi
+          ln -s "$GITHUB_WORKSPACE" /tmp/keel-wp/wp-content/plugins/keel
+          wp plugin activate keel --path=/tmp/keel-wp --allow-root
+
+      - name: Start WordPress
+        run: |
+          PHP_CLI_SERVER_WORKERS=4 wp server --path=/tmp/keel-wp --host=127.0.0.1 --port=8899 --allow-root >/tmp/keel-wp-server.log 2>&1 &
+          echo $! >/tmp/keel-wp-server.pid
+          for attempt in {1..30}; do
+            curl --fail --silent http://127.0.0.1:8899/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/keel-wp-server.log
+          exit 1
+
+      - name: Roll backward and forward through the real installer
+        env:
+          KEEL_SITE: /tmp/keel-wp
+          KEEL_URL: http://127.0.0.1:8899
+          KEEL_SOURCE: ${{ matrix.source }}
+          KEEL_TARGET: ${{ matrix.target }}
+          KEEL_FORWARD: ${{ matrix.forward }}
+          KEEL_LOCALE: ${{ matrix.locale }}
+          KEEL_MULTISITE: ${{ matrix.multisite }}
+        run: bash tests/integration/backport-install-matrix.sh
+
+      - name: Server log on failure
+        if: failure()
+        run: cat /tmp/keel-wp-server.log || true
