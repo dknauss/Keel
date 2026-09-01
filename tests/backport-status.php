@@ -237,6 +237,17 @@ function admin_url( $s = '' ) {
 }
 
 /**
+ * Stub: a nonce URL that is a URL, which is all the assertions need.
+ *
+ * @param string $url    URL.
+ * @param string $action Action.
+ * @return string
+ */
+function wp_nonce_url( $url, $action = -1 ) {
+	return $url . '&_wpnonce=test';
+}
+
+/**
  * Stub: a predictable home URL.
  *
  * @param string $s Path.
@@ -759,7 +770,7 @@ $GLOBALS['keel_test']['offers'] = array();
 
 keel_test_prime( $map );
 $GLOBALS['keel_test']['version']          = '6.8.7';
-$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => '0' );
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'disabled' );
 $GLOBALS['keel_test']['updater_disabled'] = true;
 $GLOBALS['keel_test']['can']              = true;
 $GLOBALS['keel_test']['selected']         = '';
@@ -802,6 +813,60 @@ keel_assert(
 $GLOBALS['keel_test']['updater_disabled'] = false;
 $GLOBALS['keel_test']['offers']           = array();
 $GLOBALS['keel_test']['can']              = false;
+
+
+// --- 18. do not tell a working site to resume what it never stopped -------
+// The same failure as 16, one block further on. When the policy permits minor
+// updates and the updater is operable, the verdict says the patch should
+// install on a scheduled check — and this block then said reaching it means
+// "letting automatic updates resume". They have not stopped. That is the
+// ordinary window between a release being offered and cron getting to it, and
+// it is the state a correctly configured site is in.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( true === $state['policy'], 'the fixture permits minor updates' );
+keel_assert( true === $state['operable'], 'the fixture has an operable updater' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'letting automatic updates resume' ),
+	'a site whose automatic updates are running is not told to resume them'
+);
+keel_assert(
+	false !== strpos( $actions, 'scheduled check' ),
+	'it is told the scheduled check will install it, which is what the verdict above says'
+);
+
+// The same sentence still has to be there for a site that HAS switched them
+// off, which is the case the wording was written for.
+$GLOBALS['keel_test']['options'] = array( 'auto_update_core_minor' => 'disabled' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'letting automatic updates resume' ),
+	'a site with minor updates switched off is still told resuming them is a route'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+$GLOBALS['keel_test']['can']    = false;
 
 
 // --- 16. the constant-owner action does not send anyone to that screen ----

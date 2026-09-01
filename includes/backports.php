@@ -708,11 +708,28 @@ function keel_defaults_backport_actions( $tip ) {
 			)
 		);
 	} else {
+		// The route depends on the state the verdict above just reported. A
+		// site whose automatic updates are permitted and working has not
+		// stopped them, and telling it to "let automatic updates resume" is
+		// both wrong and alarming: this is the ordinary window between a
+		// release being offered and cron reaching it.
+		if ( $state['policy'] && $state['operable'] ) {
+			/* translators: %1$s: target version. */
+			$route = esc_html__( 'Reaching %1$s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' );
+		} else {
+			/* translators: %1$s: target version. */
+			$route = esc_html__( 'Reaching %1$s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' );
+		}
+
 		$out .= '<p class="description">' . sprintf(
 			/* translators: 1: target version, 2: the newest release. */
-			esc_html__( 'The Updates screen will not offer %1$s. It lists only the newest release, so following it would install %2$s instead — several release lines rather than a patch. Reaching %1$s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' ),
+			esc_html__( 'The Updates screen will not offer %1$s. It lists only the newest release, so following it would install %2$s instead — several release lines rather than a patch.', 'keel-defaults' ),
 			'<code>' . esc_html( $tip ) . '</code>',
 			'<code>' . esc_html( keel_defaults_latest_version() ) . '</code>'
+		) . ' ' . sprintf(
+			/* translators: %1$s: target version. */
+			$route,
+			'<code>' . esc_html( $tip ) . '</code>'
 		) . '</p>';
 	}
 
