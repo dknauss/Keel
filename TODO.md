@@ -52,9 +52,23 @@ into ROADMAP.md or here.
 - [ ] **Show the core-update delivery timeline**
   - Combine selected release, branch tip, offer freshness, next check and recent result.
   - Reuse core's decisions and stable blocker codes; never promise an execution time.
+- [ ] **Toggle plugin and theme auto-updates**
+  - Three states — `enabled`, `disabled`, `unset` — through the `auto_update_plugin`
+    and `auto_update_theme` filters. `unset` stays the default: the per-item
+    checkboxes on the Plugins screen are a deliberate choice to leave alone.
+  - No "minor updates only". That channel is core-only —
+    `Core_Upgrader::should_update_to_version()` runs for `'core'` and nothing else —
+    because wordpress.org neither requires nor verifies semantic versioning. The label
+    would promise a property the data cannot support, and would fail selectively on
+    exactly the authors who do not use semver.
+  - Report instead: how many items have auto-updates on, whether the option or a
+    filter decides, and which items a filter is overriding.
 - [ ] **Export a sanitized Keel posture report**
   - Include effective settings, conflicts, update operability and diagnostic evidence.
   - Exclude secrets, option values, user data and unnecessary site identifiers.
+  - Read VerCheck API and Updawa for payload shape; depart from both by reporting
+    known-vulnerable, and treat a full plugin inventory as reconnaissance material —
+    authenticated and opt-in, or not at all.
 
 ## Completed in v0.6.0
 
