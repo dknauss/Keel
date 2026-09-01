@@ -144,6 +144,54 @@ In practice:
   everything else as unknown. Falling through to a benign default is how an
   unrecognised value becomes a reassuring answer.
 
+## Registering is not the same as taking effect
+
+A hook that is registered, on the right filter, with a correct callback, can still
+never run. Three ways Keel has managed it, all found by an outside reviewer rather
+than by the suite:
+
+**Losing a priority tie.** Core registers `redirect_canonical` on `template_redirect`
+at the default 10, in `default-filters.php`, during load — before any plugin file is
+read. Registering at the same priority loses on registration order, every time. Two
+of Keel's redirects shipped that way and simply did not happen: `/?author=N` kept
+disclosing the author nicename while `/author/slug/` redirected correctly. If a
+callback must precede a core one, say so with a number and say why in a comment.
+`tests/redirect-priority.php` enforces it for `template_redirect`.
+
+**Filtering a path the request does not take.** `comments_pre_query` covers
+`WP_Comment_Query`, which is every listing path — and not
+`/wp/v2/comments/123`, which reads the row through `WP_Comment::get_instance()`
+without building a query. The filter was correct and irrelevant. Before claiming a
+thing is off, enumerate the routes that can expose it and check each one; a filter on
+the common path is not coverage.
+
+**Running before the check that would have stopped you.** `WP_REST_Server` calls
+`sanitize_params()` and only afterwards consults the route's `permission_callback`.
+Anything done in a sanitize callback is therefore done for unauthorized callers too.
+Keel resolved an arbitrary user id there and ran the password policy against that
+account, handing the result back in the error message. Sanitize callbacks may
+validate their input; they may not act on identity.
+
+The common shape: **the unit suite cannot see any of these**, because its
+`add_action()` is a no-op stub — registrations are not observable and only callbacks
+get tested. Where correctness lives in *how* something is registered rather than what
+it does, the guard has to read the source or exercise a real request.
+
+## Do not undo a documented decision to satisfy a finding
+
+A review will sometimes recommend the obvious remedy for a real problem, and the
+obvious remedy will sometimes be the thing a comment in the file already argues
+against. The 0.6.0 review found that breach screening runs ahead of cheaper checks
+and suggested putting the role gate first. The gate is deliberately last: breach
+screening is universal so that low-privilege accounts, exempt from the length rule,
+still get the one rule that costs them nothing.
+
+Taking the suggestion would have traded a security property for a rate-limiting
+problem. What shipped instead moves only the rejections that can never be valid for
+any role, and the roadmap records that the real answer is a rate limit and that its
+key is undecided. Narrow the problem honestly and say what is left rather than close
+the ticket.
+
 ## Writing tests
 
 The bar here is higher than "it passes", and it is the one thing worth reading

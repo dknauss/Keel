@@ -115,6 +115,52 @@ installs. Site Health must not become the performance problem it is diagnosing.
 
 ## Later
 
+- [ ] **Close the monitoring gap the 0.6.0 review found** — the important one, and
+  not the one the review named. It recommended adding `user_has_cap` and
+  `auth_cookie_expiration` to the expectations mapping; both were already in both
+  maps, so that was not the cause. The cause is categorical.
+
+  Keel's conflict detection answers one question: *is another plugin contesting this
+  setting?* Every finding it could not see was a different question — *is this
+  setting actually taking effect?*
+
+  | Finding | Why detection was blind to it |
+  | --- | --- |
+  | REST single-item comment route | Nothing contested anything. Keel's filter was simply not on that code path. A **coverage gap**, not a conflict. |
+  | `/?author=N` disclosure | Core won a priority tie. Keel's registration looked correct and lost. A **precedence loss**, not a conflict. |
+  | Attachment redirect | Same precedence loss. |
+  | Sanitize-before-authorization | Core's own dispatch order. Not a conflict in any sense. |
+
+  Three things would close it, in increasing cost:
+
+  1. **Registration invariants, checked in tests.** `tests/redirect-priority.php`
+     is the first: every `template_redirect` registration must declare a priority
+     below core's `redirect_canonical`. Generalise to any hook where Keel must
+     precede a known core callback. Cheap, static, and it would have caught two of
+     the four.
+  2. **Route-coverage checklists.** For each policy that claims something is off,
+     enumerate the paths that can expose it and assert each is covered — for
+     comments: `WP_Comment_Query`, `get_comment()`, the REST collection, the REST
+     single item, feeds, admin. This is what would have caught the REST route, and
+     it is a test rather than runtime code.
+  3. **Outcome probes in Site Health.** Keel already reports when a filter's
+     settled value diverges from what it asked for. That mechanism cannot see these
+     because there is no value to compare — the filter never ran. Extend it from
+     *values* to *routes*: ask `get_comment()` for a known id and check what comes
+     back. Higher cost, real runtime weight, and the only one of the three that
+     protects a site rather than the codebase.
+
+  Do 1 and 2 first. Decide 3 separately: a plugin that runs probes against itself on
+  every admin load has to justify the expense, and report-only remains the rule.
+
+- [ ] **Rate-limit the breach lookup** — undecided. a5e38bb moved the free
+  rejections ahead of the network call, which narrows the amplification the review
+  found without closing it: an attacker sending plausible passwords still gets one
+  outbound request and one cache entry each. Closing it means a rate limit keyed to
+  something, and every candidate key has a cost — per user punishes shared accounts,
+  per IP punishes NAT, global punishes everyone during an attack. Decide the key
+  before writing the code.
+
 - [ ] **Report what this site already sends to WordPress.org** — undecided, and the
   most Keel-shaped idea to come out of the 0.6.0 work. Duane Storey's
   [deep look at the WordPress API](https://duanestorey.com/posts/down-the-rabbit-hole-a-deep-look-at-the-wordpress-api)
