@@ -362,13 +362,16 @@ function keel_defaults_offer_for_version( $version ) {
  * copy must not claim otherwise. See Core_Upgrader::should_update_to_version()
  * and WP_Automatic_Updater::should_update().
  *
- * @return array{policy:bool,owner:string,operable:bool,blockers:string[]}
+ * @return array{policy:bool,owner:string,operable:bool,blockers:array<int,array{code:string,text:string}>}
  */
 function keel_defaults_minor_update_state() {
 	$blockers = array();
 
 	if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) ) {
-		$blockers[] = __( 'file changes are blocked, normally by the DISALLOW_FILE_MODS constant in wp-config.php', 'keel-defaults' );
+		$blockers[] = array(
+			'code' => 'file_mods',
+			'text' => __( 'file changes are blocked, normally by the DISALLOW_FILE_MODS constant in wp-config.php', 'keel-defaults' ),
+		);
 	}
 
 	// Ask core, rather than re-deriving its answer. is_disabled() passes the
@@ -397,11 +400,20 @@ function keel_defaults_minor_update_state() {
 		// "switched off" with no location is the least useful true statement
 		// this check could make.
 		if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
-			$blockers[] = __( 'automatic updates are switched off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php', 'keel-defaults' );
+			$blockers[] = array(
+				'code' => 'automatic_disabled_constant',
+				'text' => __( 'automatic updates are switched off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php', 'keel-defaults' ),
+			);
 		} elseif ( apply_filters( 'automatic_updater_disabled', false ) ) {
-			$blockers[] = __( 'a plugin or theme on this site switches automatic updates off, using the automatic_updater_disabled filter', 'keel-defaults' );
+			$blockers[] = array(
+				'code' => 'automatic_disabled_filter',
+				'text' => __( 'a plugin or theme on this site switches automatic updates off, using the automatic_updater_disabled filter', 'keel-defaults' ),
+			);
 		} else {
-			$blockers[] = __( 'automatic updates are switched off, though not by a constant or filter Keel can name', 'keel-defaults' );
+			$blockers[] = array(
+				'code' => 'automatic_disabled_unknown',
+				'text' => __( 'automatic updates are switched off, though not by a constant or filter Keel can name', 'keel-defaults' ),
+			);
 		}
 	}
 
@@ -416,18 +428,27 @@ function keel_defaults_minor_update_state() {
 		$skin = new Automatic_Upgrader_Skin();
 
 		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
-			$blockers[] = __( 'WordPress cannot write to its own files without credentials it would have to stop and ask for', 'keel-defaults' );
+			$blockers[] = array(
+				'code' => 'credentials',
+				'text' => __( 'WordPress cannot write to its own files without credentials it would have to stop and ask for', 'keel-defaults' ),
+			);
 		}
 	}
 
 	$failed = get_site_option( 'auto_core_update_failed' );
 
 	if ( is_array( $failed ) && ! empty( $failed['critical'] ) ) {
-		$blockers[] = __( 'an earlier core update failed badly enough that WordPress will not retry on its own', 'keel-defaults' );
+		$blockers[] = array(
+			'code' => 'previous_failure',
+			'text' => __( 'an earlier core update failed badly enough that WordPress will not retry on its own', 'keel-defaults' ),
+		);
 	}
 
 	if ( $updater && $updater->is_vcs_checkout( ABSPATH ) ) {
-		$blockers[] = __( 'the site is under version control, so WordPress will not overwrite its own files', 'keel-defaults' );
+		$blockers[] = array(
+			'code' => 'vcs',
+			'text' => __( 'the site is under version control, so WordPress will not overwrite its own files', 'keel-defaults' ),
+		);
 	}
 
 	// Who owns the minor decision. Order matters: the first owner found wins,
@@ -463,6 +484,30 @@ function keel_defaults_minor_update_state() {
 		'operable' => empty( $blockers ),
 		'blockers' => $blockers,
 	);
+}
+
+/**
+ * Extract translated blocker text for display.
+ *
+ * Blocker codes are stable control data. Keeping this projection in one place
+ * prevents callers from reaching into the structure differently, while also
+ * making it impossible to recover control flow by matching translated text.
+ *
+ * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * @return string[] Translated blocker descriptions.
+ */
+function keel_defaults_blocker_texts( array $blockers ) {
+	return array_column( $blockers, 'text' );
+}
+
+/**
+ * Extract stable blocker codes for control flow.
+ *
+ * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * @return string[] Stable blocker codes.
+ */
+function keel_defaults_blocker_codes( array $blockers ) {
+	return array_column( $blockers, 'code' );
 }
 
 /**
@@ -618,8 +663,8 @@ function keel_defaults_backport_verdict() {
 		if ( $state['policy'] && $state['operable'] ) {
 			$result['description'] .= '<p>' . esc_html__( 'The configured policy permits minor updates and the updater looks operable, so this should install on a scheduled check. That is not a guarantee: WP-Cron has to run, and the release has to be offered for automatic installation.', 'keel-defaults' ) . '</p>';
 		} elseif ( $state['policy'] && ! $state['operable'] ) {
-			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but the updater cannot currently act.', 'keel-defaults' ) . '</strong> '
-				. esc_html( implode( '; ', $state['blockers'] ) ) . '.</p>';
+			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but this patch cannot currently install automatically.', 'keel-defaults' ) . '</strong> '
+				. esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) ) . '.</p>';
 		} else {
 			// This is the one place in the panel that states the cause in
 			// full. The ladder and the actions below name the kind of problem
@@ -637,7 +682,7 @@ function keel_defaults_backport_verdict() {
 					: sprintf(
 						/* translators: %s: reasons the updater cannot run. */
 						esc_html__( 'Two things are stopping it: minor updates are switched off, and %s.', 'keel-defaults' ),
-						esc_html( implode( '; ', $state['blockers'] ) )
+						esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) )
 					)
 				) . '</p><p>'
 				. esc_html__( 'WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other.', 'keel-defaults' ) . '</p>';
@@ -706,7 +751,7 @@ function keel_defaults_backport_actions( $tip ) {
 		// The blockers are listed in the verdict this is appended to, so
 		// this says what to do about them rather than naming them again.
 		$out .= '<p class="description">'
-			. esc_html__( 'Start with what is blocking the updater, above. Until the updater can run at all, no change to the update policy will make any difference.', 'keel-defaults' )
+			. esc_html__( 'Start with what is blocking this patch, above. Until it passes those checks, no change to the update policy will make any difference.', 'keel-defaults' )
 			. '</p>';
 	} elseif ( ! $state['policy'] ) {
 		// Only offer the button when the option is genuinely what decides it.
@@ -866,11 +911,11 @@ function keel_defaults_ladder_rung_mark( $selection, $selected, $version ) {
  *
  * So the order is stated once and both ask for it:
  *
- * - `blocked`   the updater cannot act. Outranks any selection, because a
- *               selection does not establish that a filesystem write can
- *               complete — core evaluates relaxed file ownership per offer,
- *               Keel evaluates it once from the branch tip, and the two can
- *               disagree.
+ * - `blocked`   a global blocker prevents the updater from acting, or core
+ *               selected nothing and the branch-tip credential probe failed.
+ *               A selection outranks `credentials` alone because core already
+ *               ran that probe for the exact selected offer; it does not
+ *               outrank file-mod, VCS, disablement or failure blockers.
  * - `unknown`   the selector could not be asked. Not an answer, and not the
  *               same as an answer of "nothing".
  * - `none`      core would install nothing. Why is not knowable from here.
@@ -881,7 +926,19 @@ function keel_defaults_ladder_rung_mark( $selection, $selected, $version ) {
  * @return string One of blocked, unknown, none, scheduled.
  */
 function keel_defaults_selection_state( array $state, $selected ) {
-	if ( empty( $state['operable'] ) ) {
+	$blocked = empty( $state['operable'] );
+
+	// The credential probe in minor_update_state() is for the branch tip. Core's
+	// selector probes every offer with that offer's own new_files flag, so a
+	// selected version is stronger evidence for that version than the tip probe
+	// is. Disregard that one contextual blocker only. The remaining codes are
+	// global and still outrank an inconsistent selection.
+	if ( $blocked && is_string( $selected ) && '' !== $selected ) {
+		$codes   = keel_defaults_blocker_codes( $state['blockers'] );
+		$blocked = empty( $codes ) || ! empty( array_diff( $codes, array( 'credentials' ) ) );
+	}
+
+	if ( $blocked ) {
 		return 'blocked';
 	}
 
@@ -1072,10 +1129,10 @@ function keel_defaults_backport_notice() {
 	} elseif ( ! $state['operable'] ) {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version, 3: reasons. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but automatic updates cannot run here: %3$s.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but it cannot currently install automatically: %3$s.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>',
-			esc_html( implode( '; ', $state['blockers'] ) )
+			esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) )
 		);
 	} else {
 		$body = sprintf(

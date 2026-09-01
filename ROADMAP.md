@@ -45,10 +45,9 @@ instead — found on a real 6.9.5 site, not in review.
 
 It reports and routes; it does not install. Installing the same-line patch is
 [#138](https://github.com/dknauss/Keel/issues/138), scoped to one release rather than
-the whole ladder, and gated behind a prerequisite: `minor_update_state()` returns
-blockers as translated strings, so nothing can tell a filesystem blocker from a
-policy one without matching text. That distinction decides whether a manual install
-should be refused, so the codes land first.
+the whole ladder. Its prerequisite is now in place: `minor_update_state()` returns
+stable blocker codes alongside translated text, so the install can distinguish a
+filesystem refusal from an automatic-update policy warning without matching text.
 
 What #137 cost is worth recording, because it was not the code. The fix itself was
 small; the review found seven further defects, six of them the same shape — a
