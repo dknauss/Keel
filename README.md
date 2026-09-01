@@ -16,8 +16,10 @@ Keel adds a modest menu of sensible security, update, privacy, content, media, e
 > **Current release: `0.6.0`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins controlling the same settings are in. New in
-> 0.6.0: Keel reports whether the running version of WordPress has publicly
-> known vulnerabilities, and names the patched release on its own line. CI covers
+> 0.6.0: Keel reports whether the running WordPress version has publicly known
+> vulnerabilities, names the patched release on its own line, shows what core would
+> select, and lets an authorized administrator install the same-line patch through
+> WordPress's upgrader with rollback enabled. Nothing installs without a click. CI covers
 > PHP 7.4 through 8.5; live WordPress checks include 6.4 and 7.2-alpha on single-site
 > and multisite, while the installer matrix runs from 6.4 through the current 7.1.
 > See [ROADMAP.md](ROADMAP.md) for the
@@ -77,7 +79,7 @@ Core auto-updates are one of the nine starting values rather than a switch: they
 
 ## What Keel looks like
 
-<img src=".wordpress-org/screenshot-4.png" alt="Site Health reporting WordPress 6.9.5 as having known vulnerabilities, naming 6.9.7 as the fix for the 6.9 line, listing the three releases WordPress.org is offering, and offering to install the patch" width="900">
+<img src=".wordpress-org/screenshot-1.png" alt="Site Health reporting WordPress 6.9.5 as having known vulnerabilities, naming 6.9.7 as the fix for the 6.9 line, listing the three releases WordPress.org is offering, and offering to install the patch" width="900">
 
 **Site Health → Status.** The check that has no equivalent anywhere in wp-admin:
 whether the running version has publicly known vulnerabilities, and which release
@@ -86,7 +88,7 @@ which is what the Updates screen would install if you followed it. The ladder sh
 every release WordPress.org is offering and marks the one WordPress would take, and
 the button installs the patch through WordPress's own upgrader.
 
-<img src=".wordpress-org/screenshot-1.png" alt="Settings → Site Defaults: each default is one switch with the reason it exists written beside it" width="900">
+<img src=".wordpress-org/screenshot-4.png" alt="Settings → Site Defaults: each default is one switch with the reason it exists written beside it" width="900">
 
 **Settings → Site Defaults.** Every default is a single switch with a solid explanation next to it. Learn more in the dropdown help menu, site health, and repo docs.
 
@@ -124,7 +126,7 @@ The same pattern runs through the rest of Keel's settings: closing the REST API 
 
 Keel keeps oEmbed reachable when the REST gate is closed — alone among the four plugins measured that close REST outright — so other sites can still embed your posts instead of silently degrading them to bare links.
 
-## Whether your version is still getting security fixes
+## Known-vulnerable core versions and same-line patches
 
 WordPress tells you an update is available. It does not tell you that the version you
 are running has publicly known vulnerabilities, and those are different questions with

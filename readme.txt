@@ -1,7 +1,7 @@
 === Keel Defaults ===
 Contributors: dpknauss
 Donate link: https://github.com/sponsors/dknauss
-Tags: security, defaults, hardening, privacy, performance
+Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -9,11 +9,13 @@ Stable tag: 0.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance.
+39 sane WordPress defaults, plus Site Health alerts and deliberate same-line installs for known-vulnerable core releases.
 
 == Description ==
 
 Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off. All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. 
+
+**New in 0.6.0: see and install the security patch for your own WordPress release line.** Keel tells you when WordPress.org flags the installed core version as insecure, names the patched release on the same line instead of pushing you toward a major upgrade, shows the releases WordPress is offering and marks the one core would select. An authorized administrator can deliberately install the same-line patch through WordPress's own upgrader with rollback enabled. The target is checked again on the server; no setting changes, and nothing installs unless you click the button.
 
 **Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed from answering requests.
 
@@ -129,10 +131,10 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Screenshots ==
 
-1. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+1. Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, and which release fixes it on your own line — here 6.9.5 is told the fix is 6.9.7, not the 7.1 the Updates screen would install instead. The ladder shows every release WordPress.org is offering, marks the one core would take, and offers to install the same-line patch.
 2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
-4. Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, and which release fixes it on your own line — here 6.9.5 is told the fix is 6.9.7, not the 7.1 the Updates screen would install instead. The ladder shows every release WordPress.org is offering and marks the one WordPress would take.
+4. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
 
 == Credits ==
 

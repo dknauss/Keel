@@ -148,6 +148,10 @@ foreach ( $lines as $i => $line ) {
 }
 keel_readme_assert( '' !== $short, 'readme.txt has a short description.' );
 keel_readme_assert( strlen( $short ) <= 150, 'The short description is 150 characters or fewer (found ' . strlen( $short ) . ').' );
+keel_readme_assert(
+	false !== stripos( $short, 'vulnerab' ) && false !== stripos( $short, 'install' ),
+	'The short description advertises the vulnerable-core report and deliberate installer.'
+);
 
 // --- sections a reader looks for ---
 foreach ( array( 'Description', 'Installation', 'Frequently Asked Questions', 'Changelog', 'Upgrade Notice', 'Support This Plugin' ) as $section ) {
