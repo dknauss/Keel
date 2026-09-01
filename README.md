@@ -112,6 +112,50 @@ The same pattern runs through the rest of Keel's settings: closing the REST API 
 
 Keel keeps oEmbed reachable when the REST gate is closed — alone among the four plugins measured that close REST outright — so other sites can still embed your posts instead of silently degrading them to bare links.
 
+## Whether your version is still getting security fixes
+
+WordPress tells you an update is available. It does not tell you that the version you
+are running has publicly known vulnerabilities, and those are different questions with
+different urgency. WordPress.org publishes the answer at
+`api.wordpress.org/core/stable-check/1.0/`, which classifies every release ever shipped
+as `latest`, `outdated` or `insecure` — and core never queries it. Nothing in wp-admin
+is derived from it.
+
+Keel asks, once a day, and reports one of three things under **Tools → Site Health**:
+this is the current release; this release is not currently flagged; this release has
+known vulnerabilities.
+
+Where a patch exists, Keel names the release **on your own line**. A site on 6.9.5 is
+told about 6.9.7 — the third number changes, nothing is deprecated — rather than 7.1,
+which is a different proposition entirely. That distinction is the point. Older release
+lines keep receiving backported security fixes, so staying on one is a legitimate
+choice, and Keel does not nag about it; but the line will eventually stop being
+patched, and when it does this check turns critical with no patch left to offer.
+
+**The Updates screen will not offer you that patch.** `get_core_updates()` skips every
+offer whose response is `autoupdate`, and a same-line security patch is only ever an
+`autoupdate` offer, so update-core.php lists the newest release and nothing else.
+Following it installs 7.1. Keel does not send you there for a patch that screen cannot
+deliver — it asks core what that screen is actually offering, and says whether the
+release is listed, hidden behind *Show hidden updates*, absent, or not yet known.
+
+Keel also shows the whole ladder: every release WordPress.org is currently offering
+this site, and which one core would take. Core takes the **highest** release your
+settings permit, not the nearest, so a site with major updates enabled skips the patch
+and jumps to the newest release. Seeing the rungs and the winner together is the only
+way that behaviour is visible.
+
+When nothing will arrive on its own, Keel names the specific cause rather than
+reporting that something is wrong: the `DISALLOW_FILE_MODS` constant and the file it
+usually lives in, the `AUTOMATIC_UPDATER_DISABLED` constant, a plugin using the
+`automatic_updater_disabled` filter, a version-control checkout, an earlier update that
+failed badly enough that core will not retry. Each of those needs a different fix.
+
+**It reports and routes; it does not install.** The one remediation it offers switches
+minor auto-updates back on, and only where the stored option is genuinely what decides
+— where a constant, a filter, or Keel's own policy owns the decision, it says so
+instead of writing a value that something downstream would override.
+
 ## Keel tells you when it is not working
 
 A setting that silently stops working is worse than one that was never there, because it's misleading you. This happens when plugins and other code come into conflict with each other, like two people trying to operate the same switch. Keel is unique for detecting conflicts and advising you about them.
