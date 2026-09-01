@@ -801,6 +801,18 @@ function keel_defaults_backport_actions( $tip ) {
 				'<code>' . esc_html( $selected ) . '</code>',
 				$code
 			);
+		} elseif ( $state['policy'] && $state['operable'] ) {
+			// Core selected nothing, but this site's automation is running. The
+			// cached offers simply do not contain the patch yet: stable-check
+			// and update_core refresh independently, so one can know about a
+			// release while the other still predates it. Telling this site to
+			// "resume" updates it never stopped is the error an empty selector
+			// invites, and it is not the same situation as the branch below.
+			$route = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'WordPress has not been offered %s yet — its cached list of core updates predates it — so nothing is scheduled to install it. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
+				$code
+			);
 		} else {
 			$route = sprintf(
 				/* translators: %s: target version. */

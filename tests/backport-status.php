@@ -1041,6 +1041,64 @@ keel_assert(
 $GLOBALS['keel_test']['can'] = false;
 
 
+// --- 23. an empty selection is not proof that updates are switched off ---
+// find_core_auto_update() returns nothing for two unrelated reasons: the policy
+// declines everything, or the policy is fine and the cached update_core offers
+// simply do not contain the patch yet. stable-check and update_core refresh
+// independently, so a site can know about 6.8.8 from one cache while the other
+// still predates it. Reading the empty selector as "switched off" tells a site
+// whose automation is running to resume it — the same error as test 18, one
+// level further down, reintroduced by the fix for it.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['selected']         = '';
+
+// A stale offers list: it predates the patch, so nothing permitted is in it.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( true === $state['policy'], 'the fixture permits minor updates' );
+keel_assert( true === $state['operable'], 'the fixture has an operable updater' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'letting automatic updates resume' ),
+	'a site with automation running is not told to resume it because the cache is stale'
+);
+keel_assert(
+	false === strpos( $actions, 'waiting for the scheduled check to install it' ),
+	'nor is a scheduled installation promised, because core has selected nothing'
+);
+keel_assert(
+	false !== strpos( $actions, 'has not been offered' ),
+	'it says what is actually true: WordPress has not been offered the patch yet'
+);
+
+// The same empty selection, on a site that HAS switched updates off, still
+// gets the sentence about resuming them.
+$GLOBALS['keel_test']['options'] = array( 'auto_update_core_minor' => 'disabled' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'letting automatic updates resume' ),
+	'a site that really has switched updates off is still told resuming them is a route'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+$GLOBALS['keel_test']['can']    = false;
+
+
 // --- 16. the constant-owner action does not send anyone to that screen ----
 // WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
 // last. The branch it covers used to end "or install the patch once from the
