@@ -5,7 +5,7 @@ Tags: security, defaults, hardening, privacy, performance
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.5.10
+Stable tag: 0.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,8 @@ Keel adds a menu of sensible defaults to any WordPress install, each one a switc
 == External services ==
 
 When the **Require strong passwords** default is enabled, Keel screens new passwords against the **Have I Been Pwned** Pwned Passwords range API (`https://api.pwnedpasswords.com`) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with `define( 'KEEL_DISABLE_HIBP', true );` in `wp-config.php`, with the `keel_disable_hibp` filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health, so a site whose screening has stopped working can tell. Only the kind of failure and when it happened are stored — never the password, and never the hash prefix. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy.
+
+Keel also asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (`https://api.wordpress.org/core/stable-check/1.0/`). This is WordPress.org's own service, on the same host core already contacts for updates and translations, and it is the only place the answer is published — core itself never queries it. The request carries no site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way core's own update requests identify the site. The response is a list of every WordPress release and its status; Keel keeps it for a day. If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not add a network wait to every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine. WordPress.org's privacy policy is at https://wordpress.org/about/privacy/.
 
 == Recommended wp-config.php hardening ==
 
@@ -64,6 +66,14 @@ Two more change things you may not see immediately: attachment pages redirect to
 The starting values are conservative. Core auto-updates are set to **minor** — maintenance and security releases install themselves, major versions do not — ten post revisions are kept, logins last two days or fourteen with "Remember me", and subscribers are exempt from the password rules. The admin menu width, the front-end admin bar and the login logo are all left as WordPress has them until you choose otherwise.
 
 One default is on but does nothing on a live site: **outgoing email is blocked on any environment that is not production**, so a database copied to staging or a laptop cannot email real people. On production it never acts.
+
+= Keel says my WordPress version has known vulnerabilities. Why does the Updates screen not offer the fix? =
+
+Because that screen cannot see it. WordPress.org offers your site several releases at once, and marks the same-line security patch as an automatic-update offer. `get_core_updates()`, which builds the Updates screen, skips every automatic-update offer — so the screen lists only the newest release. On a 6.9.5 site the patch is 6.9.7 and the screen offers 7.1, which is a major update, not a patch.
+
+Keel names the patch for your release line and tells you what that screen is actually offering, so you can see the difference. If minor auto-updates are switched on and nothing is blocking the updater, the patch installs itself on a scheduled check. If something is blocking it, Keel names the specific constant, filter or condition responsible, because each one needs a different fix.
+
+Keel can install it for you, from the same panel. The target is recomputed on the server and can only ever be the patched release on your own line, so it cannot cross a release line or move you backwards. It checks the release's PHP and MySQL requirements first, refuses if the filesystem is not writable, and then hands the offer to WordPress's own upgrader with rollback enabled — the same machinery core uses for its own automatic updates.
 
 = Will Keel break my site? =
 
@@ -140,6 +150,16 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
+
+= 0.6.0 =
+* New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries.
+* Where a patched release exists on your own release line, Keel names that release rather than the newest one. A 6.9.5 site is told about 6.9.7, not 7.1 — only the third number changes, so nothing is deprecated.
+* New: the ladder of releases WordPress.org is currently offering this site, and which one WordPress would actually install. It takes the highest release your settings permit rather than the nearest, so a site accepting major updates skips the patch and jumps to the newest release.
+* Fixed: the panel offered "Install this now from the Updates screen" for a patch that screen will not offer. `get_core_updates()` omits every automatic-update offer, and a same-line security patch is only ever an automatic-update offer, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known.
+* Blockers name their own cause — the constant and the file it usually lives in, or the filter a plugin is using — instead of describing the situation in the abstract. Each one needs a different fix, and they now carry stable codes rather than being told apart by their translated text.
+* New: install the patch from the Site Health panel, using WordPress's own upgrader with rollback enabled. The target is recomputed on the server and can only ever be the patched tip of your own release line, so it cannot cross a release line or move a site backwards. It refuses when files are not writable, when the site is a version-control checkout, or when the release's PHP or MySQL requirements are not met — that last check runs before anything is downloaded, because core otherwise reads those requirements out of the new version's own files and only finds out after unpacking it.
+* Being blocked from automatic updates does not block a deliberate install. A disabled updater, a filter, or an earlier failed update are all reasons a patch will not arrive by itself, and installing it deliberately is the remedy for each.
+* The other remediation switches minor auto-updates back on, and only where the stored option is genuinely what decides.
 
 = 0.5.10 =
 * The network settings screen is now **Network Policy** rather than "Keel Defaults". It decides settings for every site on a network and locks them, which is the opposite of what the per-site screen does, and the old name did not say so. The screen, its address and its behaviour are otherwise unchanged.
@@ -243,6 +263,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.0 =
+Adds a Site Health check for whether your WordPress version has publicly known vulnerabilities, names the patched release on your own line rather than the newest one, and can install it for you using WordPress's own upgrader. Contacts WordPress.org's stable-check API once a day. No setting changes; nothing installs without you asking.
 
 = 0.5.10 =
 Renames the network screen to Network Policy and corrects links that named a menu which no longer exists. No setting changes and no behaviour changes.
