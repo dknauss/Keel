@@ -138,7 +138,7 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Credits ==
 
-Austin Ginder of [Anchor Hosting](https://anchor.host) reviewed Keel 0.6.0 for security and reported six issues — none critical, and none a hole the plugin opens. Two of them were documented protections that were not taking effect at all: a pair of redirects that lost a silent race against core, and a REST route where disabled comments still answered. Keel is better for the review, and it now ships a test that checks a registration actually wins its hook rather than merely existing. Thank you, Austin.
+[Austin Ginder](https://github.com/austinginder) of Anchor Hosting ([anchor.host](https://anchor.host) · [@anchorhost](https://github.com/anchorhost)) reviewed Keel 0.6.0 for security and reported six issues — none critical, and none a hole the plugin opens. Two of them were documented protections that were not taking effect at all: a pair of redirects that lost a silent race against core, and a REST route where disabled comments still answered. Keel is better for the review, and it now ships a test that checks a registration actually wins its hook rather than merely existing. Thank you, Austin.
 
 Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
 
