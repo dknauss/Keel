@@ -826,6 +826,77 @@ function keel_defaults_backport_actions( $tip ) {
 }
 
 /**
+ * The marker beside a rung, if any.
+ *
+ * A selection on a site whose updater cannot act is still a fact about what
+ * core would pick — it is just not a fact about what will happen. Saying
+ * "would install" there contradicts the verdict in the same panel, so the
+ * blocked case describes the choice without promising the outcome.
+ *
+ * @param string       $selection Result of keel_defaults_selection_state().
+ * @param string|false $selected  Version core selected.
+ * @param string       $version   Version of the rung being rendered.
+ * @return string Escaped markup, or ''.
+ */
+function keel_defaults_ladder_rung_mark( $selection, $selected, $version ) {
+	if ( ! is_string( $selected ) || $selected !== $version ) {
+		return '';
+	}
+
+	if ( 'blocked' === $selection ) {
+		return ' <strong>' . esc_html__( '← core would otherwise choose this one', 'keel-defaults' ) . '</strong>';
+	}
+
+	if ( 'scheduled' !== $selection ) {
+		return '';
+	}
+
+	return ' <strong>' . esc_html__( '← WordPress would install this one', 'keel-defaults' ) . '</strong>';
+}
+
+/**
+ * What core's selection actually means, in one place.
+ *
+ * Both the ladder and the route describe the same fact and each worked out its
+ * own precedence for it. The route arrived at this order over four separate
+ * review findings; the ladder, computing independently, got two of them wrong —
+ * it labelled a rung as one WordPress "would install" on a site whose updater
+ * could not act, and it blamed the site's update settings for an empty
+ * selection that a compatibility floor on every offer produces just as well.
+ *
+ * So the order is stated once and both ask for it:
+ *
+ * - `blocked`   the updater cannot act. Outranks any selection, because a
+ *               selection does not establish that a filesystem write can
+ *               complete — core evaluates relaxed file ownership per offer,
+ *               Keel evaluates it once from the branch tip, and the two can
+ *               disagree.
+ * - `unknown`   the selector could not be asked. Not an answer, and not the
+ *               same as an answer of "nothing".
+ * - `none`      core would install nothing. Why is not knowable from here.
+ * - `scheduled` core would install the version returned.
+ *
+ * @param array        $state    Result of keel_defaults_minor_update_state().
+ * @param string|false $selected Result of keel_defaults_ladder_selection().
+ * @return string One of blocked, unknown, none, scheduled.
+ */
+function keel_defaults_selection_state( array $state, $selected ) {
+	if ( empty( $state['operable'] ) ) {
+		return 'blocked';
+	}
+
+	if ( false === $selected ) {
+		return 'unknown';
+	}
+
+	if ( '' === $selected ) {
+		return 'none';
+	}
+
+	return 'scheduled';
+}
+
+/**
  * The sentence describing how this release can actually be reached.
  *
  * A pure function of four inputs, deliberately. Every one of this branch's
@@ -854,7 +925,9 @@ function keel_defaults_backport_actions( $tip ) {
 function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cached ) {
 	$code = '<code>' . esc_html( $tip ) . '</code>';
 
-	if ( ! $state['operable'] ) {
+	$selection = keel_defaults_selection_state( $state, $selected );
+
+	if ( 'blocked' === $selection ) {
 		return sprintf(
 			/* translators: %s: target version. */
 			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Reaching %s means installing it deliberately from the command line.', 'keel-defaults' ),
@@ -862,7 +935,7 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 		);
 	}
 
-	if ( false === $selected ) {
+	if ( 'unknown' === $selection ) {
 		return sprintf(
 			/* translators: %s: target version. */
 			esc_html__( 'Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line.', 'keel-defaults' ),
@@ -1174,8 +1247,10 @@ function keel_defaults_ladder_markup() {
 		return '';
 	}
 
-	$selected = keel_defaults_ladder_selection();
-	$rows     = '';
+	$selected  = keel_defaults_ladder_selection();
+	$state     = keel_defaults_minor_update_state();
+	$selection = keel_defaults_selection_state( $state, $selected );
+	$rows      = '';
 
 	foreach ( $rungs as $rung ) {
 		$kind = $rung['same_line']
@@ -1190,28 +1265,28 @@ function keel_defaults_ladder_markup() {
 			'<li><code>%1$s</code> — %2$s%3$s</li>',
 			esc_html( $rung['version'] ),
 			esc_html( $kind ),
-			( $selected === $rung['version'] )
-				? ' <strong>' . esc_html__( '← WordPress would install this one', 'keel-defaults' ) . '</strong>'
-				: ''
+			keel_defaults_ladder_rung_mark( $selection, $selected, $rung['version'] )
 		);
 	}
 
-	$state = keel_defaults_minor_update_state();
-
-	if ( false === $selected ) {
+	if ( 'blocked' === $selection ) {
+		// Deliberately does not repeat the blocker list. It is stated in full
+		// above, and this list is appended directly beneath it.
+		$note = esc_html__( 'None of these will install on their own, because the updater cannot act here. Any of them can still be installed deliberately.', 'keel-defaults' );
+	} elseif ( 'unknown' === $selection ) {
 		$note = esc_html__( 'Keel could not determine which of these WordPress would install.', 'keel-defaults' );
-	} elseif ( '' !== $selected ) {
+	} elseif ( 'scheduled' === $selection ) {
 		$note = sprintf(
 			/* translators: %s: version WordPress would install. */
 			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),
 			'<code>' . esc_html( $selected ) . '</code>'
 		);
-	} elseif ( ! $state['operable'] ) {
-		// Deliberately does not repeat the blocker list. It is stated in full
-		// above, and this list is appended directly beneath it.
-		$note = esc_html__( 'None of these will install on their own, because the updater cannot run here. Any of them can still be installed deliberately.', 'keel-defaults' );
 	} else {
-		$note = esc_html__( 'None of these will install on their own, because this site\'s update settings decline all of them. Any of them can still be installed deliberately.', 'keel-defaults' );
+		// Not "this site's update settings decline all of them". A compatibility
+		// floor on every offer — a PHP or MySQL requirement none of them meets —
+		// produces exactly this empty selection, and changing settings would not
+		// help. The reason is not knowable from here, so it is not named.
+		$note = esc_html__( 'None of these will install on their own. Something is declining every one of them, which may be this site\'s update settings or a requirement the offers do not meet. Any of them can still be installed deliberately.', 'keel-defaults' );
 	}
 
 	// Always at least two rungs: the markup returns early below that, so no

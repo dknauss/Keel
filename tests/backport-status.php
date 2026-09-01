@@ -1277,6 +1277,125 @@ $r = keel_defaults_backport_route( '6.8.8', $nopol, '', true );
 keel_assert( false !== strpos( $r, 'letting automatic updates resume' ), 'a declining policy is the only case told to resume' );
 
 
+// --- 27. the ladder obeys the same precedence as the route ---------------
+// The route learned this order over four findings; the ladder computed its own
+// and got two of them wrong. It checked the selection before operability, so an
+// inoperable site had a rung labelled "WordPress would install this one" in the
+// same panel that said the updater cannot act. And its last branch blamed the
+// site's update settings for an empty selection, when a compatibility floor on
+// every offer produces the same empty selection and changing settings cannot
+// help. The order now lives in one function that both callers ask.
+
+keel_assert(
+	'blocked' === keel_defaults_selection_state(
+		array(
+			'operable' => false,
+			'policy'   => true,
+		),
+		'6.8.8'
+	),
+	'an inoperable updater outranks a selection'
+);
+keel_assert(
+	'unknown' === keel_defaults_selection_state(
+		array(
+			'operable' => true,
+			'policy'   => true,
+		),
+		false
+	),
+	'a selector that could not be asked is its own state'
+);
+keel_assert(
+	'none' === keel_defaults_selection_state(
+		array(
+			'operable' => true,
+			'policy'   => true,
+		),
+		''
+	),
+	'nothing selected is its own state'
+);
+keel_assert(
+	'scheduled' === keel_defaults_selection_state(
+		array(
+			'operable' => true,
+			'policy'   => true,
+		),
+		'7.1'
+	),
+	'a selection on an operable site is scheduled'
+);
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+// The live API returns both an upgrade offer and autoupdate offers for the same
+// release; only the autoupdate ones become rungs, so the ladder needs two.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+// Inoperable, with core having selected a rung anyway.
+$GLOBALS['keel_test']['no_fs_credentials'] = true;
+$GLOBALS['keel_test']['selected']          = '7.1';
+
+$ladder = keel_defaults_ladder_markup();
+
+keel_assert(
+	false === strpos( $ladder, 'would install this one' ),
+	'no rung is labelled as one WordPress would install while the updater cannot act'
+);
+keel_assert(
+	false === strpos( $ladder, 'WordPress would install <code>7.1</code>' ),
+	'nor does the note promise that installation'
+);
+keel_assert(
+	false !== strpos( $ladder, 'otherwise choose' ),
+	'the selection is described as what core would otherwise choose'
+);
+
+// Operable, nothing selected: the reason is not knowable, so it is not named.
+$GLOBALS['keel_test']['no_fs_credentials'] = false;
+$GLOBALS['keel_test']['selected']          = '';
+
+$ladder = keel_defaults_ladder_markup();
+
+keel_assert(
+	false === strpos( $ladder, 'update settings decline' ),
+	'an empty selection is not blamed on the update settings, which may not be the cause'
+);
+keel_assert(
+	false !== strpos( $ladder, 'installed deliberately' ),
+	'the deliberate route survives'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+
+
 // --- 16. the constant-owner action does not send anyone to that screen ----
 // WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
 // last. The branch it covers used to end "or install the patch once from the
