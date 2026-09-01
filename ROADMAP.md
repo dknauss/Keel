@@ -133,11 +133,13 @@ installs. Site Health must not become the performance problem it is diagnosing.
 
   Three things would close it, in increasing cost:
 
-  1. **Registration invariants, checked in tests.** `tests/redirect-priority.php`
-     is the first: every `template_redirect` registration must declare a priority
-     below core's `redirect_canonical`. Generalise to any hook where Keel must
-     precede a known core callback. Cheap, static, and it would have caught two of
-     the four.
+  1. **Registration invariants, checked in tests.** Done:
+     `tests/hook-precedence.php` holds a map of hooks where Keel must run before
+     or after a known core callback, and fails any registration that does not
+     declare a priority on the correct side. `tests/route-coverage.php` does the
+     same for filter coverage, keyed on whole registrations so a hook name that is
+     a substring of another cannot pass vacuously. Cheap, static, and between them
+     they would have caught three of the four.
   2. **Route-coverage checklists.** For each policy that claims something is off,
      enumerate the paths that can expose it and assert each is covered — for
      comments: `WP_Comment_Query`, `get_comment()`, the REST collection, the REST

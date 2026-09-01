@@ -156,7 +156,7 @@ read. Registering at the same priority loses on registration order, every time. 
 of Keel's redirects shipped that way and simply did not happen: `/?author=N` kept
 disclosing the author nicename while `/author/slug/` redirected correctly. If a
 callback must precede a core one, say so with a number and say why in a comment.
-`tests/redirect-priority.php` enforces it for `template_redirect`.
+`tests/hook-precedence.php` enforces it, per hook and in the required direction.
 
 **Filtering a path the request does not take.** `comments_pre_query` covers
 `WP_Comment_Query`, which is every listing path — and not
