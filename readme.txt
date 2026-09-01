@@ -13,7 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 
-Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off. All 39 defaults are declared in a single schema array that drives both the settings screen and the code that wires them to WordPress. 
+Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off.
 
 **New in 0.6.0: see and install the security patch for your own WordPress release line.** Keel tells you when WordPress.org flags the installed core version as insecure, names the patched release on the same line instead of pushing you toward a major upgrade, shows the releases WordPress is offering and marks the one core would select. An authorized administrator can deliberately install the same-line patch through WordPress's own upgrader with rollback enabled. The target is checked again on the server; no setting changes, and nothing installs unless you click the button.
 
