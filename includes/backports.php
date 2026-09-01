@@ -99,6 +99,39 @@ function keel_defaults_stable_check() {
 }
 
 /**
+ * The running WordPress version, on every version Keel supports.
+ *
+ * Core added wp_get_wp_version() in 6.7. Keel declares `Requires at least:
+ * 6.4`, so
+ * calling it unguarded is a fatal error on 6.4, 6.5 and 6.6 — not a degraded
+ * check but a white screen, on three versions inside the supported range. The
+ * live backport matrix caught it on its first run; nothing in the unit suite
+ * could, because the test doubles define the function.
+ *
+ * The fallback reads version.php the way core's own implementation does, and
+ * deliberately not get_bloginfo( 'version' ): that passes through the
+ * `bloginfo` filters, and hiding the version is a thing plugins do — Keel has
+ * its own `remove_version` default. A filtered value is the wrong input for a
+ * check about which release is actually running.
+ *
+ * @return string
+ */
+function keel_defaults_wp_version() {
+	if ( function_exists( 'wp_get_wp_version' ) ) {
+		return wp_get_wp_version();
+	}
+
+	static $fallback = null;
+
+	if ( null === $fallback ) {
+		require ABSPATH . WPINC . '/version.php';
+		$fallback = isset( $wp_version ) ? $wp_version : '';
+	}
+
+	return $fallback;
+}
+
+/**
  * Status of the version this site is running.
  *
  * @return string 'latest', 'outdated', 'insecure', or 'unknown'.
@@ -110,7 +143,7 @@ function keel_defaults_version_status() {
 		return 'unknown';
 	}
 
-	$version = wp_get_wp_version();
+	$version = keel_defaults_wp_version();
 
 	// Development builds carry a suffix and are never listed.
 	// strpos rather than str_contains: Keel supports PHP 7.4, where that
@@ -145,7 +178,7 @@ function keel_defaults_branch_tip() {
 		return '';
 	}
 
-	$version = wp_get_wp_version();
+	$version = keel_defaults_wp_version();
 	$parts   = explode( '.', $version );
 
 	if ( count( $parts ) < 2 ) {
@@ -585,7 +618,7 @@ function keel_defaults_backport_test() {
  */
 function keel_defaults_backport_verdict() {
 	$status  = keel_defaults_version_status();
-	$version = wp_get_wp_version();
+	$version = keel_defaults_wp_version();
 	$tip     = keel_defaults_branch_tip();
 
 	$result = array(
@@ -1094,7 +1127,7 @@ function keel_defaults_backport_notice() {
 		return;
 	}
 
-	$version = wp_get_wp_version();
+	$version = keel_defaults_wp_version();
 
 	// One key holding the version it was dismissed at, rather than one key per
 	// version. Same behaviour — dismissing on 6.8.7 does not hide it on 6.8.9 —
@@ -1219,7 +1252,7 @@ function keel_defaults_update_ladder() {
 		return array();
 	}
 
-	$current = wp_get_wp_version();
+	$current = keel_defaults_wp_version();
 	$line    = implode( '.', array_slice( preg_split( '/[.-]/', $current ), 0, 2 ) );
 	$rungs   = array();
 
