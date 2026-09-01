@@ -155,6 +155,20 @@ if ( '/' !== $uri && file_exists( $f ) && ! is_dir( $f ) ) { require $f; return 
 require __DIR__ . '/index.php';
 ```
 
+## Same-line installer rollback/forward matrix
+
+`.github/workflows/backport-install-matrix.yml` is a live-API matrix for the
+security-patch installer. It starts from four vulnerable releases, submits the
+real authenticated `admin-post.php` form, verifies the patched version and core
+checksums, proves the signed request cannot be replayed, rolls back with WP-CLI,
+installs through Keel again, and finally moves forward to the current release.
+One row is localized and one is multisite.
+
+It is manually dispatchable for a release candidate and runs weekly. It is
+deliberately not PR CI because WordPress.org's two APIs and historical packages
+are external, changing dependencies; a failure there needs diagnosis rather
+than blocking an unrelated patch by default.
+
 ---
 
 ## Things that will waste an hour if you do not know them

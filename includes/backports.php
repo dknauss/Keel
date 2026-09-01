@@ -329,23 +329,7 @@ function keel_defaults_relaxed_ownership_allowed() {
  * @return object|null The offer, or null when it is not cached.
  */
 function keel_defaults_offer_for_version( $version ) {
-	if ( '' === $version ) {
-		return null;
-	}
-
-	$updates = get_site_transient( 'update_core' );
-
-	if ( ! is_object( $updates ) || empty( $updates->updates ) ) {
-		return null;
-	}
-
-	foreach ( (array) $updates->updates as $offer ) {
-		if ( isset( $offer->current ) && $version === $offer->current ) {
-			return $offer;
-		}
-	}
-
-	return null;
+	return keel_defaults_install_offer_for_version( $version );
 }
 
 /**
@@ -576,6 +560,11 @@ add_filter( 'site_status_tests', 'keel_defaults_register_backport_test' );
  */
 function keel_defaults_backport_test() {
 	$result = keel_defaults_backport_verdict();
+	$notice = keel_defaults_backport_result_markup();
+
+	if ( '' !== $notice ) {
+		$result['actions'] = $notice . $result['actions'];
+	}
 
 	// Appended here rather than on site_status_test_result, because that filter
 	// only fires through perform_test() — the async AJAX path answers directly
@@ -745,9 +734,11 @@ function keel_defaults_backport_actions( $tip ) {
 
 	$out = '';
 
-	$state = keel_defaults_minor_update_state();
+	$state              = keel_defaults_minor_update_state();
+	$codes              = keel_defaults_blocker_codes( $state['blockers'] );
+	$filesystem_blocked = ! empty( array_intersect( $codes, array( 'file_mods', 'credentials', 'vcs' ) ) );
 
-	if ( ! $state['operable'] ) {
+	if ( $filesystem_blocked ) {
 		// The blockers are listed in the verdict this is appended to, so
 		// this says what to do about them rather than naming them again.
 		$out .= '<p class="description">'
@@ -790,8 +781,9 @@ function keel_defaults_backport_actions( $tip ) {
 		}
 	}
 
-	$offer  = keel_defaults_updates_screen_offer( $tip );
-	$screen = $offer['state'];
+	$offer   = keel_defaults_updates_screen_offer( $tip );
+	$screen  = $offer['state'];
+	$install = keel_defaults_backport_install_button( $tip, $screen, $state );
 
 	if ( 'visible' === $screen ) {
 		$out .= sprintf(
@@ -866,6 +858,8 @@ function keel_defaults_backport_actions( $tip ) {
 
 		$out .= '<p class="description">' . $lead . ' ' . $route . '</p>';
 	}
+
+	$out .= $install;
 
 	return $out;
 }
@@ -1195,6 +1189,8 @@ function keel_defaults_backport_notice_script() {
 	wp_add_inline_script( 'common', $script );
 }
 add_action( 'admin_enqueue_scripts', 'keel_defaults_backport_notice_script' );
+
+require_once __DIR__ . '/backport-install.php';
 
 /**
  * Every release WordPress.org is currently offering this site, in order.
