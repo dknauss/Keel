@@ -784,9 +784,29 @@ function keel_defaults_rest_password_context( $request ) {
 	}
 
 	if ( $user_id ) {
-		$existing = get_userdata( $user_id );
-		if ( $existing ) {
-			return $existing;
+		/*
+		 * Only resolve a user the caller may actually edit.
+		 *
+		 * Sanitize callbacks run BEFORE authorization. WP_REST_Server calls
+		 * sanitize_params() and only afterwards consults the route's
+		 * permission_callback, so by the time core decides a subscriber cannot
+		 * touch /wp/v2/users/123, this function has already been handed 123.
+		 *
+		 * Resolving it regardless would run the password policy against another
+		 * account's login, email and nicename, and hand the answer back in the
+		 * validation error — an oracle for whether a guessed string appears in
+		 * someone else's user record. Anyone who can reach the route could ask.
+		 *
+		 * Falling through instead uses only the fields the request itself
+		 * supplied, which is the caller's own input and discloses nothing.
+		 */
+		$is_self = get_current_user_id() === $user_id;
+
+		if ( $is_self || current_user_can( 'edit_user', $user_id ) ) {
+			$existing = get_userdata( $user_id );
+			if ( $existing ) {
+				return $existing;
+			}
 		}
 	}
 

@@ -116,6 +116,49 @@ function keel_defaults_empty_comment_queries( $comment_data, $query ) {
 }
 
 /**
+ * Hide disallowed comment types from the REST single-item route.
+ *
+ * The comments_pre_query filter covers WP_Comment_Query, every listing path —
+ * but not this one. WP_REST_Comments_Controller::get_comment() calls core's
+ * get_comment(), which goes through WP_Comment::get_instance() straight to the
+ * row. No query object is built, so the filter that empties comment queries is
+ * never consulted, and /wp/v2/comments/123 returned a comment on a site whose
+ * comments are switched off.
+ *
+ * That mattered more than the usual missed hook: "disabling something means it
+ * is actually disabled" is the claim this plugin leads with, and this was a
+ * documented route where it was not true.
+ *
+ * Scoped to REST rather than filtering get_comment() globally. The admin,
+ * wp_notify_postauthor(), and every other caller still get real comments; only
+ * the public API is answered according to the policy. Type-aware for the same
+ * reason the query filter is: a site may disable comments while still accepting
+ * pingbacks, and those must keep working.
+ *
+ * @param WP_Comment|null $comment The comment, or null.
+ * @return WP_Comment|null
+ */
+function keel_defaults_hide_rest_comment( $comment ) {
+	if ( ! is_object( $comment ) || ! isset( $comment->comment_type ) ) {
+		return $comment;
+	}
+
+	if ( ! function_exists( 'wp_is_rest_request' ) || ! wp_is_rest_request() ) {
+		return $comment;
+	}
+
+	$type = '' === (string) $comment->comment_type ? 'comment' : (string) $comment->comment_type;
+
+	if ( in_array( $type, keel_defaults_allowed_comment_types(), true ) ) {
+		return $comment;
+	}
+
+	// The controller turns an empty comment into its own 404, which is the
+	// honest answer: on this site that route has nothing to return.
+	return null;
+}
+
+/**
  * Comment blocks removed from the inserter while comments are disabled.
  *
  * @return string[]
