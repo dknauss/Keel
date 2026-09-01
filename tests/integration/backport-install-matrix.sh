@@ -60,8 +60,19 @@ assert_result_code() {
 	local result code
 	result="$("${KEEL_WP[@]}" transient get keel_backport_install_result_1 --format=json)"
 	code="$(jq -r '.code' <<<"$result")"
-	[[ "$code" == "$expected" ]] || fail "expected result $expected, got $code"
+	[[ "$code" == "$expected" ]] || fail "expected result $expected, got $code -- $result"
 	"${KEEL_WP[@]}" transient delete keel_backport_install_result_1 >/dev/null
+}
+
+# What the installer said, whether or not it worked. Ordering matters here: the
+# version assertion fires first on a failed install and reports only that the
+# version did not change, discarding the one value that says why. The first run
+# of this matrix failed on fr_FR with exactly that — "expected 6.8.8, got
+# 6.8.7", and nothing about the cause.
+report_result() {
+	local result
+	result="$("${KEEL_WP[@]}" transient get keel_backport_install_result_1 --format=json 2>/dev/null || echo '{}')"
+	echo "backport matrix: installer result -- $result"
 }
 
 assert_healthy() {
@@ -75,6 +86,7 @@ refresh_offers
 first_auth="$(auth_json)"
 [[ "$(jq -r '.target' <<<"$first_auth")" == "$KEEL_TARGET" ]] || fail "Keel did not derive target $KEEL_TARGET"
 post_install "$first_auth" "$KEEL_TARGET"
+report_result
 assert_version "$KEEL_TARGET"
 assert_result_code updated
 assert_healthy
@@ -89,6 +101,7 @@ refresh_offers
 
 second_auth="$(auth_json)"
 post_install "$second_auth" "$KEEL_TARGET"
+report_result
 assert_version "$KEEL_TARGET"
 assert_result_code updated
 assert_healthy
