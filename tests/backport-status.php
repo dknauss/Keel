@@ -317,6 +317,27 @@ function keel_test_offers() {
  *
  * @return object|false
  */
+function get_core_updates( $options = array() ) {
+	// Mirrors core: offers flagged autoupdate are skipped, so only the manual
+	// upgrade offer appears — which is why a same-line patch is not reachable
+	// from that screen.
+	$out = array();
+
+	foreach ( keel_test_offers() as $o ) {
+		if ( isset( $o->response ) && 'autoupdate' === $o->response ) {
+			continue;
+		}
+		$out[] = $o;
+	}
+
+	return $out;
+}
+
+/**
+ * Stub: core's own selector.
+ *
+ * @return object|false
+ */
 function find_core_auto_update() {
 	$v = isset( $GLOBALS['keel_test']['selected'] ) ? $GLOBALS['keel_test']['selected'] : '';
 	return '' === $v ? false : (object) array( 'current' => $v );
@@ -626,6 +647,32 @@ keel_assert(
 	in_array( 'send_core_update_notification_email', $GLOBALS['keel_test']['filters_removed'], true ),
 	'the suppression is removed again afterwards, not left in place'
 );
+
+
+// --- 14. never send people to a screen that cannot deliver ----------------
+// Found on a real 6.9.5 site: the panel offered "Install 6.9.7 from the Updates
+// screen", but get_core_updates() skips autoupdate offers, so that screen lists
+// only 7.1. Following the button would have installed three release lines
+// instead of a patch.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['offers']  = array(
+	(object) array( 'response' => 'upgrade',    'current' => '7.1' ),
+	(object) array( 'response' => 'autoupdate', 'current' => '7.1' ),
+	(object) array( 'response' => 'autoupdate', 'current' => '6.8.8' ),
+);
+
+keel_assert(
+	false === keel_defaults_updates_screen_offers( '6.8.8' ),
+	'a same-line patch is not reachable from the Updates screen'
+);
+keel_assert(
+	true === keel_defaults_updates_screen_offers( '7.1' ),
+	'the newest release is reachable from the Updates screen'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

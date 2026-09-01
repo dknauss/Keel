@@ -186,6 +186,40 @@ function keel_defaults_latest_version() {
 }
 
 /**
+ * Whether the Updates screen actually offers this release.
+ *
+ * It usually does not. get_core_updates() skips every offer whose response is
+ * `autoupdate`, so update-core.php lists only the manual upgrade — the newest
+ * release. A same-line patch is therefore invisible there, and linking to that
+ * screen for it sends people somewhere that will install something else.
+ *
+ * Asked of core rather than inferred, so this stays true if that filtering
+ * changes.
+ *
+ * @param string $version Version to look for.
+ * @return bool
+ */
+function keel_defaults_updates_screen_offers( $version ) {
+	$update_file = ABSPATH . 'wp-admin/includes/update.php';
+
+	if ( ! function_exists( 'get_core_updates' ) && is_readable( $update_file ) ) {
+		require_once $update_file;
+	}
+
+	if ( ! function_exists( 'get_core_updates' ) ) {
+		return false;
+	}
+
+	foreach ( (array) get_core_updates() as $offer ) {
+		if ( isset( $offer->current ) && $version === $offer->current ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Whether relaxed file ownership applies, decided the way core decides it.
  *
  * WP_Automatic_Updater::should_update() sets this from the offer being
@@ -479,7 +513,15 @@ function keel_defaults_backport_verdict() {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but the updater cannot currently act.', 'keel-defaults' ) . '</strong> '
 				. esc_html( implode( '; ', $state['blockers'] ) ) . '.</p>';
 		} else {
-			$result['description'] .= '<p><strong>' . esc_html__( 'Minor updates are switched off on this site, so this patch will not arrive on its own.', 'keel-defaults' ) . '</strong> '
+			$result['description'] .= '<p><strong>' . esc_html__( 'This patch will not arrive on its own.', 'keel-defaults' ) . '</strong> '
+				. ( $state['operable']
+					? esc_html__( 'Minor updates are switched off on this site.', 'keel-defaults' )
+					: sprintf(
+						/* translators: %s: reasons the updater cannot run. */
+						esc_html__( 'Minor updates are switched off, and the updater could not run in any case: %s. Both would need resolving.', 'keel-defaults' ),
+						esc_html( implode( '; ', $state['blockers'] ) )
+					)
+				) . ' '
 				. esc_html__( 'Security backports travel on the same channel as ordinary maintenance releases; there is no separate security channel to leave open.', 'keel-defaults' ) . '</p>';
 		}
 
@@ -543,11 +585,9 @@ function keel_defaults_backport_actions( $tip ) {
 	$state = keel_defaults_minor_update_state();
 
 	if ( ! $state['operable'] ) {
-		$out .= '<p class="description">' . sprintf(
-			/* translators: %s: comma-separated list of reasons. */
-			esc_html__( 'Automatic updates cannot run on this site at the moment: %s. Changing the update policy will not help until that is resolved.', 'keel-defaults' ),
-			esc_html( implode( '; ', $state['blockers'] ) )
-		) . '</p>';
+		$out .= '<p class="description">'
+			. esc_html__( 'Until the updater can run, no change to the update policy will make this install by itself.', 'keel-defaults' )
+			. '</p>';
 	} elseif ( ! $state['policy'] ) {
 		// Only offer the button when the option is genuinely what decides it.
 		// Otherwise it would write a value that something downstream overrides,
@@ -585,15 +625,24 @@ function keel_defaults_backport_actions( $tip ) {
 		}
 	}
 
-	$out .= sprintf(
-		'<p><a class="button" href="%s">%s</a></p>',
-		esc_url( admin_url( 'update-core.php' ) ),
-		sprintf(
-			/* translators: %s: target version. */
-			esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
-			esc_html( $tip )
-		)
-	);
+	if ( keel_defaults_updates_screen_offers( $tip ) ) {
+		$out .= sprintf(
+			'<p><a class="button" href="%s">%s</a></p>',
+			esc_url( admin_url( 'update-core.php' ) ),
+			sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
+				esc_html( $tip )
+			)
+		);
+	} else {
+		$out .= '<p class="description">' . sprintf(
+			/* translators: 1: target version, 2: the newest release. */
+			esc_html__( 'The Updates screen will not offer %1$s. It lists only the newest release, so following it would install %2$s instead — several release lines rather than a patch. Reaching %1$s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' ),
+			'<code>' . esc_html( $tip ) . '</code>',
+			'<code>' . esc_html( keel_defaults_latest_version() ) . '</code>'
+		) . '</p>';
+	}
 
 	return $out;
 }
