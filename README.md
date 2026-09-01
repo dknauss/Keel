@@ -2,10 +2,10 @@
 
 ![Keel banner](.wordpress-org/banner-1544x500.png)
 
-[![CI](https://github.com/dknauss/Keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/Keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/Keel?include_prereleases)](https://github.com/dknauss/Keel/tags) [![Docs](https://img.shields.io/badge/docs-available-0a7ea4.svg)](docs/)
+[![WordPress.org](https://img.shields.io/wordpress/plugin/v/keel-defaults?label=WordPress.org&logo=wordpress&logoColor=white&color=21759b)](https://wordpress.org/plugins/keel-defaults/) [![CI](https://github.com/dknauss/Keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/Keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/Keel?include_prereleases)](https://github.com/dknauss/Keel/tags) [![Docs](https://img.shields.io/badge/docs-available-0a7ea4.svg)](docs/)
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
-[![Tested up to WP 7.1](https://img.shields.io/badge/tested%20up%20to-WP%207.1-21759b.svg?logo=wordpress&logoColor=white)](https://wordpress.org/)
+[![Tested up to](https://img.shields.io/wordpress/plugin/tested/keel-defaults?label=tested%20up%20to&logo=wordpress&logoColor=white&color=21759b)](https://wordpress.org/plugins/keel-defaults/)
 [![PHP 7.4+](https://img.shields.io/badge/PHP-7.4%2B-777bb4.svg?logo=php&logoColor=white)](https://www.php.net/)
 [![▶ Playground (latest release)](https://img.shields.io/badge/▶_Playground-Latest_release-3858e9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json) [![▶ Playground (main)](https://img.shields.io/badge/▶_Playground-main_branch-6e40c9.svg?logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-hosted.json)
 
