@@ -196,20 +196,31 @@ function keel_defaults_version_line( $version ) {
 }
 
 /**
- * Whether the Updates screen actually offers this release.
+ * How the Updates screen treats this release: not offered, listed, or hidden.
  *
- * It usually does not. get_core_updates() skips every offer whose response is
+ * Usually the first. get_core_updates() skips every offer whose response is
  * `autoupdate`, so update-core.php lists only the manual upgrade — the newest
  * release. A same-line patch is therefore invisible there, and linking to that
  * screen for it sends people somewhere that will install something else.
+ *
+ * Dismissal is a second, separate way an offer goes missing, and asking about
+ * it is opt-in: core defaults to `dismissed => false`. Taking that default
+ * conflates "the screen will not offer this" with "someone hid this", which
+ * are opposite situations — the first needs another route entirely, the second
+ * needs one click on "Show hidden updates". Worse, the absent-case copy says
+ * the screen would install the newest release instead, and when the hidden
+ * offer IS the newest release that sentence names the version it is hiding.
+ *
+ * So both are requested and the answer distinguishes them. Core stamps
+ * ->dismissed on what it returns, which is what separates the two.
  *
  * Asked of core rather than inferred, so this stays true if that filtering
  * changes.
  *
  * @param string $version Version to look for.
- * @return bool
+ * @return string 'visible', 'hidden', or 'none'.
  */
-function keel_defaults_updates_screen_offers( $version ) {
+function keel_defaults_updates_screen_offer_state( $version ) {
 	$update_file = ABSPATH . 'wp-admin/includes/update.php';
 
 	if ( ! function_exists( 'get_core_updates' ) && is_readable( $update_file ) ) {
@@ -217,16 +228,25 @@ function keel_defaults_updates_screen_offers( $version ) {
 	}
 
 	if ( ! function_exists( 'get_core_updates' ) ) {
-		return false;
+		return 'none';
 	}
 
-	foreach ( (array) get_core_updates() as $offer ) {
-		if ( isset( $offer->current ) && $version === $offer->current ) {
-			return true;
+	$offers = get_core_updates(
+		array(
+			'available' => true,
+			'dismissed' => true,
+		)
+	);
+
+	foreach ( (array) $offers as $offer ) {
+		if ( ! isset( $offer->current ) || $version !== $offer->current ) {
+			continue;
 		}
+
+		return ( isset( $offer->dismissed ) && $offer->dismissed ) ? 'hidden' : 'visible';
 	}
 
-	return false;
+	return 'none';
 }
 
 /**
@@ -329,7 +349,7 @@ function keel_defaults_minor_update_state() {
 		$skin = new Automatic_Upgrader_Skin();
 
 		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
-			$blockers[] = __( 'WordPress cannot write to its own files without FTP credentials', 'keel-defaults' );
+			$blockers[] = __( 'WordPress cannot write to its own files without credentials it would have to stop and ask for', 'keel-defaults' );
 		}
 	}
 
@@ -520,7 +540,7 @@ function keel_defaults_backport_verdict() {
 
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The fix for the %3$s version line is %4$s. That is a same-line update — only the third number changes, so no features change and nothing is deprecated.', 'keel-defaults' ),
+			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The fix for the %3$s version line is %4$s. That is a same-line update — only the third number changes, so it is a maintenance release rather than a feature one.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
 			'<strong>' . esc_html__( 'insecure', 'keel-defaults' ) . '</strong>',
 			'<code>' . esc_html( keel_defaults_version_line( $version ) ) . '</code>',
@@ -643,7 +663,7 @@ function keel_defaults_backport_actions( $tip ) {
 		} elseif ( 'constant' === $state['owner'] ) {
 			$out .= '<p class="description">' . sprintf(
 				/* translators: %s: constant name. */
-				esc_html__( 'The %s constant is deciding this, and Keel will not override it. Change it in wp-config.php, or install the patch once from the Updates screen.', 'keel-defaults' ),
+				esc_html__( 'The %s constant is deciding this, and Keel will not override it. Change it in wp-config.php.', 'keel-defaults' ),
 				'<code>WP_AUTO_UPDATE_CORE</code>'
 			) . '</p>';
 		} else {
@@ -653,7 +673,9 @@ function keel_defaults_backport_actions( $tip ) {
 		}
 	}
 
-	if ( keel_defaults_updates_screen_offers( $tip ) ) {
+	$screen = keel_defaults_updates_screen_offer_state( $tip );
+
+	if ( 'visible' === $screen ) {
 		$out .= sprintf(
 			'<p><a class="button" href="%s">%s</a></p>',
 			esc_url( admin_url( 'update-core.php' ) ),
@@ -661,6 +683,22 @@ function keel_defaults_backport_actions( $tip ) {
 				/* translators: %s: target version. */
 				esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
 				esc_html( $tip )
+			)
+		);
+	} elseif ( 'hidden' === $screen ) {
+		$out .= sprintf(
+			'<p><a class="button" href="%s">%s</a></p><p class="description">%s</p>',
+			esc_url( admin_url( 'update-core.php' ) ),
+			sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
+				esc_html( $tip )
+			),
+			sprintf(
+				/* translators: 1: target version, 2: the "Show hidden updates" link on the Updates screen. */
+				esc_html__( 'Someone dismissed %1$s on this site, so the Updates screen keeps it out of the way until you select %2$s.', 'keel-defaults' ),
+				'<code>' . esc_html( $tip ) . '</code>',
+				'<strong>' . esc_html__( 'Show hidden updates', 'keel-defaults' ) . '</strong>'
 			)
 		);
 	} else {

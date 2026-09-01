@@ -247,13 +247,19 @@ function home_url( $s = '' ) {
 }
 
 /**
- * Stub: no capabilities, so action markup stays out of these cases.
+ * Stub: no capabilities by default, so action markup stays out of the cases
+ * that are about state rather than about what gets rendered.
+ *
+ * Switchable, because a hard false makes any assertion about action markup pass
+ * without testing anything: keel_defaults_backport_actions() returns an empty
+ * string, and "the output does not contain X" is true of "". A test for copy
+ * that should no longer appear is exactly the test that failure mode hides.
  *
  * @param string $c Capability.
  * @return bool
  */
 function current_user_can( $c ) {
-	return false;   // Actions are asserted separately; keep markup out of these cases.
+	return ! empty( $GLOBALS['keel_test']['can'] );
 }
 
 /**
@@ -321,13 +327,39 @@ function get_core_updates( $options = array() ) {
 	// Mirrors core: offers flagged autoupdate are skipped, so only the manual
 	// upgrade offer appears — which is why a same-line patch is not reachable
 	// from that screen.
-	$out = array();
+	//
+	// It also mirrors core's dismissal handling, because that is a second way
+	// an offer goes missing and it is opt-in. Core defaults to
+	// available => true, dismissed => false, and stamps ->dismissed on what it
+	// returns; a caller taking the defaults cannot see a hidden offer at all,
+	// and cannot tell the two cases apart if it does ask for them.
+	$options = array_merge(
+		array(
+			'available' => true,
+			'dismissed' => false,
+		),
+		$options
+	);
+
+	$dismissed = isset( $GLOBALS['keel_test']['dismissed'] ) ? $GLOBALS['keel_test']['dismissed'] : array();
+	$out       = array();
 
 	foreach ( keel_test_offers() as $o ) {
 		if ( isset( $o->response ) && 'autoupdate' === $o->response ) {
 			continue;
 		}
-		$out[] = $o;
+
+		$is_dismissed = in_array( $o->current, $dismissed, true );
+
+		if ( $is_dismissed ) {
+			if ( $options['dismissed'] ) {
+				$o->dismissed = true;
+				$out[]        = $o;
+			}
+		} elseif ( $options['available'] ) {
+			$o->dismissed = false;
+			$out[]        = $o;
+		}
 	}
 
 	return $out;
@@ -673,12 +705,91 @@ $GLOBALS['keel_test']['offers']  = array(
 );
 
 keel_assert(
-	false === keel_defaults_updates_screen_offers( '6.8.8' ),
+	'none' === keel_defaults_updates_screen_offer_state( '6.8.8' ),
 	'a same-line patch is not reachable from the Updates screen'
 );
 keel_assert(
-	true === keel_defaults_updates_screen_offers( '7.1' ),
+	'visible' === keel_defaults_updates_screen_offer_state( '7.1' ),
 	'the newest release is reachable from the Updates screen'
+);
+
+
+// --- 13. a dismissed offer is hidden, not absent -------------------------
+// get_core_updates() takes dismissed => false by default, so an offer someone
+// dismissed comes back missing rather than flagged. Reading that as "the
+// Updates screen will not offer this" is wrong twice over: the screen still
+// lists it under "Show hidden updates", and the copy for the absent case goes
+// on to say the screen would install something else instead — which, when the
+// dismissed offer IS the newest release, names the very version being hidden.
+
+$GLOBALS['keel_test']['offers']    = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+);
+$GLOBALS['keel_test']['dismissed'] = array( '7.1' );
+
+keel_assert(
+	'hidden' === keel_defaults_updates_screen_offer_state( '7.1' ),
+	'a dismissed offer is reported as hidden rather than absent'
+);
+
+$GLOBALS['keel_test']['dismissed'] = array();
+
+keel_assert(
+	'visible' === keel_defaults_updates_screen_offer_state( '7.1' ),
+	'the same offer is visible once it is no longer dismissed'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+
+
+// --- 14. the constant-owner action does not send anyone to that screen ----
+// WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
+// last. The branch it covers used to end "or install the patch once from the
+// Updates screen" — the exact advice the rest of this file exists to withdraw,
+// left behind on the one path that never went through the shared check.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['offers']  = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+define( 'WP_AUTO_UPDATE_CORE', false );
+
+$state = keel_defaults_minor_update_state();
+keel_assert( 'constant' === $state['owner'], 'the constant owns the decision once defined' );
+keel_assert( false === $state['policy'], 'WP_AUTO_UPDATE_CORE=false resolves minor updates to off' );
+
+$GLOBALS['keel_test']['can'] = true;
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	'' !== $actions,
+	'the action markup is actually rendered, so the assertions below test something'
+);
+
+keel_assert(
+	false === strpos( $actions, 'install the patch once from the Updates screen' ),
+	'the constant-owner action does not recommend the Updates screen'
+);
+keel_assert(
+	false !== strpos( $actions, 'WP_AUTO_UPDATE_CORE' ),
+	'the constant-owner action still names the constant to change'
+);
+keel_assert(
+	false !== strpos( $actions, 'will not offer' ),
+	'the constant-owner action falls through to the shared availability result'
 );
 
 $GLOBALS['keel_test']['offers'] = array();
