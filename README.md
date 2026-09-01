@@ -298,3 +298,12 @@ with further defaults adapted from the Pixel Managed Platform plugin — itself 
 fork of [10up Experience](https://github.com/10up/10up-experience) (GPL-2.0-or-later), from which several of those defaults ultimately descend. 10up
 retains its copyright and marks; Keel is not affiliated with or endorsed by 10up. Full
 attribution is in the Credits section of `readme.txt`.
+
+### Thanks
+
+Austin Ginder of [Anchor Hosting](https://anchor.host) reviewed 0.6.0 for security and
+reported six issues — none critical, and none a hole Keel opens. Two were documented
+protections that were not taking effect: two redirects that lost a silent race against
+core's own `template_redirect` registration, and a REST route where disabled comments
+still answered. Both are fixed, and `tests/hook-precedence.php` exists so that class of
+failure cannot come back unnoticed. Thank you, Austin.

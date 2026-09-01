@@ -367,6 +367,11 @@ function keel_defaults_bootstrap() {
 		// comment on a site that says comments are off.
 		keel_defaults_add_policy_filter( 'comments_pre_query', 'keel_defaults_empty_comment_queries', 10, 2 );
 
+		// comments_pre_query only sees WP_Comment_Query. The REST single-item
+		// route reads the row directly through get_comment(), so it needs its own
+		// guard or /wp/v2/comments/123 answers on a site with comments off.
+		keel_defaults_add_policy_filter( 'get_comment', 'keel_defaults_hide_rest_comment', 10, 1 );
+
 		// Take the comment blocks out of the inserter, so the editor stops
 		// offering blocks that can only render nothing.
 		keel_defaults_add_policy_filter( 'allowed_block_types_all', 'keel_defaults_remove_comment_blocks', PHP_INT_MAX );
@@ -404,7 +409,12 @@ function keel_defaults_bootstrap() {
 
 	if ( keel_defaults_enabled( 'disable_author_archives' ) ) {
 		add_action( 'template_redirect', 'keel_defaults_block_author_feeds', 9 );
-		add_action( 'template_redirect', 'keel_defaults_redirect_author_archive' );
+		// Priority 9, like the feed block above it. Core registers
+		// redirect_canonical on template_redirect at the default 10 during
+		// load, before any plugin, so an equal priority loses the tie on
+		// registration order and core answers /?author=N first — which is
+		// the one form of the URL that discloses the author nicename.
+		add_action( 'template_redirect', 'keel_defaults_redirect_author_archive', 9 );
 
 		/*
 		 * Feeds publish author names too, and the redirect above never touches
@@ -469,7 +479,10 @@ function keel_defaults_bootstrap() {
 
 				wp_safe_redirect( $target, 301 );
 				exit;
-			}
+			},
+			// Before core's redirect_canonical, which is registered on this hook
+			// at the default 10 during load and would otherwise answer first.
+			9
 		);
 	}
 

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T06:08:35+00:00\n"
+"POT-Creation-Date: 2026-09-01T16:53:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -629,25 +629,33 @@ msgstr ""
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:442
+#: includes/security.php:463
+msgid "<strong>Error:</strong> Enter a password."
+msgstr ""
+
+#: includes/security.php:472
+msgid "<strong>Error:</strong> That password is too long."
+msgstr ""
+
+#: includes/security.php:479
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:475
+#: includes/security.php:512
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:496
+#: includes/security.php:533
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:515
+#: includes/security.php:552
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:691
+#: includes/security.php:728
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
