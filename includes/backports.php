@@ -226,10 +226,18 @@ function keel_defaults_version_line( $version ) {
  * release, that names the version it is denying. Opening update-core.php
  * refreshes the data and may well offer it.
  *
+ * The visible manual offer is returned alongside the state, because the copy
+ * for 'none' says which release the screen would install instead — and that
+ * cannot be answered from stable-check. stable-check's idea of the latest
+ * release and the update_core transient refresh independently, so a valid but
+ * older cache offers a different version than stable-check names. Only the
+ * transient knows what that screen is showing right now.
+ *
  * @param string $version Version to look for.
- * @return string 'visible', 'hidden', 'none', or 'unknown'.
+ * @return array{state: string, manual: string} State, and the version the
+ *               screen is offering ('' when it is offering none).
  */
-function keel_defaults_updates_screen_offer_state( $version ) {
+function keel_defaults_updates_screen_offer( $version ) {
 	$update_file = ABSPATH . 'wp-admin/includes/update.php';
 
 	if ( ! function_exists( 'get_core_updates' ) && is_readable( $update_file ) ) {
@@ -237,7 +245,10 @@ function keel_defaults_updates_screen_offer_state( $version ) {
 	}
 
 	if ( ! function_exists( 'get_core_updates' ) ) {
-		return 'unknown';
+		return array(
+			'state'  => 'unknown',
+			'manual' => '',
+		);
 	}
 
 	$offers = get_core_updates(
@@ -248,18 +259,35 @@ function keel_defaults_updates_screen_offer_state( $version ) {
 	);
 
 	if ( ! is_array( $offers ) ) {
-		return 'unknown';
+		return array(
+			'state'  => 'unknown',
+			'manual' => '',
+		);
 	}
 
+	$state  = 'none';
+	$manual = '';
+
 	foreach ( $offers as $offer ) {
-		if ( ! isset( $offer->current ) || $version !== $offer->current ) {
+		if ( ! isset( $offer->current ) ) {
 			continue;
 		}
 
-		return ( isset( $offer->dismissed ) && $offer->dismissed ) ? 'hidden' : 'visible';
+		$dismissed = isset( $offer->dismissed ) && $offer->dismissed;
+
+		if ( '' === $manual && ! $dismissed ) {
+			$manual = $offer->current;
+		}
+
+		if ( $version === $offer->current ) {
+			$state = $dismissed ? 'hidden' : 'visible';
+		}
 	}
 
-	return 'none';
+	return array(
+		'state'  => $state,
+		'manual' => $manual,
+	);
 }
 
 /**
@@ -499,7 +527,6 @@ function keel_defaults_backport_verdict() {
 	$status  = keel_defaults_version_status();
 	$version = wp_get_wp_version();
 	$tip     = keel_defaults_branch_tip();
-	$auto    = keel_defaults_minor_updates_enabled();
 
 	$result = array(
 		'label'       => __( 'This version is not currently flagged as insecure', 'keel-defaults' ),
@@ -692,7 +719,8 @@ function keel_defaults_backport_actions( $tip ) {
 		}
 	}
 
-	$screen = keel_defaults_updates_screen_offer_state( $tip );
+	$offer  = keel_defaults_updates_screen_offer( $tip );
+	$screen = $offer['state'];
 
 	if ( 'visible' === $screen ) {
 		$out .= sprintf(
@@ -732,29 +760,56 @@ function keel_defaults_backport_actions( $tip ) {
 			)
 		);
 	} else {
-		// The route depends on the state the verdict above just reported. A
-		// site whose automatic updates are permitted and working has not
-		// stopped them, and telling it to "let automatic updates resume" is
-		// both wrong and alarming: this is the ordinary window between a
-		// release being offered and cron reaching it.
-		if ( $state['policy'] && $state['operable'] ) {
-			/* translators: %1$s: target version. */
-			$route = esc_html__( 'Reaching %1$s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' );
+		$code = '<code>' . esc_html( $tip ) . '</code>';
+
+		// What the screen is offering instead comes from the screen, not from
+		// stable-check. The two caches refresh independently, so naming
+		// stable-check's latest release can name a version this screen is not
+		// showing. When it is offering nothing, no substitute is claimed.
+		if ( '' !== $offer['manual'] && $offer['manual'] !== $tip ) {
+			$lead = sprintf(
+				/* translators: 1: target version, 2: the version the Updates screen is offering. */
+				esc_html__( 'The Updates screen will not offer %1$s. It is offering %2$s instead.', 'keel-defaults' ),
+				$code,
+				'<code>' . esc_html( $offer['manual'] ) . '</code>'
+			);
 		} else {
-			/* translators: %1$s: target version. */
-			$route = esc_html__( 'Reaching %1$s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' );
+			$lead = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'The Updates screen is not offering %s.', 'keel-defaults' ),
+				$code
+			);
 		}
 
-		$out .= '<p class="description">' . sprintf(
-			/* translators: 1: target version, 2: the newest release. */
-			esc_html__( 'The Updates screen will not offer %1$s. It lists only the newest release, so following it would install %2$s instead — several release lines rather than a patch.', 'keel-defaults' ),
-			'<code>' . esc_html( $tip ) . '</code>',
-			'<code>' . esc_html( keel_defaults_latest_version() ) . '</code>'
-		) . ' ' . sprintf(
-			/* translators: %1$s: target version. */
-			$route,
-			'<code>' . esc_html( $tip ) . '</code>'
-		) . '</p>';
+		// Which release cron would install is core's answer, not one to derive
+		// from policy. policy && operable says updates can run; it does not say
+		// what they would pick. On a site that also permits majors, core takes
+		// the highest rung — so this promised the patch while the ladder
+		// directly above marked a different release as the winner.
+		$selected = keel_defaults_ladder_selection();
+
+		if ( $selected === $tip ) {
+			$route = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' ),
+				$code
+			);
+		} elseif ( '' !== $selected ) {
+			$route = sprintf(
+				/* translators: 1: the version the scheduled check would install, 2: target version. */
+				esc_html__( 'The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line.', 'keel-defaults' ),
+				'<code>' . esc_html( $selected ) . '</code>',
+				$code
+			);
+		} else {
+			$route = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' ),
+				$code
+			);
+		}
+
+		$out .= '<p class="description">' . $lead . ' ' . $route . '</p>';
 	}
 
 	return $out;
