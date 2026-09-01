@@ -266,7 +266,7 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 == Upgrade Notice ==
 
 = 0.6.0 =
-Adds a Site Health check for whether your WordPress version has publicly known vulnerabilities, names the patched release on your own line rather than the newest one, and can install it for you using WordPress's own upgrader. Contacts WordPress.org's stable-check API once a day. No setting changes; nothing installs without you asking.
+Reports whether your WordPress version has publicly known vulnerabilities, names the patched release on your own line rather than the newest, and can install it using WordPress's own upgrader. Asks WordPress.org once a day. No setting changes; nothing installs unless you ask.
 
 = 0.5.10 =
 Renames the network screen to Network Policy and corrects links that named a menu which no longer exists. No setting changes and no behaviour changes.
