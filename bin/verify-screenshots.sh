@@ -18,7 +18,11 @@ set -u
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 
 SHOT=".wordpress-org/screenshot-1.png"
-UI="includes/settings-page.php includes/site-health.php includes/strings.php includes/admin-ux.php"
+# Every file that can change one of the three pictures. backports.php and
+# backport-install.php render the patch-status panel and its install button,
+# which is the largest admin surface added since this list was written — and
+# the guard was blind to all of it.
+UI="includes/settings-page.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php"
 
 if [ ! -f "$SHOT" ]; then
 	echo "verify-screenshots: $SHOT is missing." >&2
@@ -47,6 +51,11 @@ STAMP=".wordpress-org/.screenshots-reviewed"
 #
 # Recording a reviewed-at commit says what is actually being asserted: somebody
 # looked since the screens changed.
+#
+# Record it from main, after the merge. This repository squash-merges, so a SHA
+# taken on a feature branch never exists once that branch lands — which is how
+# the stamp came to name a commit git could not resolve, and why the fallback
+# below has to be a real fallback rather than a pass.
 if [ -f "$STAMP" ]; then
 	CAPTURED="$( tr -d '[:space:]' < "$STAMP" )"
 else

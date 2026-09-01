@@ -12,7 +12,9 @@ into ROADMAP.md or here.
 
 This release expands the schema to 39 defaults.
 
-- [ ] **Security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)) — in review.
+- [x] **Security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)) — done 2026-08-31, over four PRs.
+      #134 the Site Health test, #135 asking core instead of re-deriving, #136 the
+      offer ladder, #137 removing the link to a screen that cannot deliver the patch.
       A Site Health test over `api.wordpress.org/core/stable-check/1.0/`, which core
       never queries, so nothing in wp-admin distinguishes "an update is available"
       from "this version has known vulnerabilities". Reports three states — current,
@@ -38,7 +40,7 @@ This release expands the schema to 39 defaults.
       The codes also let core's per-offer credential result outrank Keel's separate
       branch-tip probe without letting it override genuinely global blockers.
 
-- [ ] **Install the same-line patch** ([#138](https://github.com/dknauss/Keel/issues/138)) — planned.
+- [x] **Install the same-line patch** ([#138](https://github.com/dknauss/Keel/issues/138)) — done 2026-09-01 in #141.
       The install half of the above, scoped to one release rather than the ladder:
       a button that hands the site's own branch tip to `Core_Upgrader::upgrade()`.
       Cheap because the upgrader has no auto-update policy gate — those live in
