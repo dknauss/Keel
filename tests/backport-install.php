@@ -293,6 +293,20 @@ keel_install_prime_offer(
 	keel_install_offer(
 		array(
 			'packages' => (object) array(
+				'partial'     => array(),
+				'new_bundled' => false,
+				'no_content'  => false,
+				'full'        => 'https://downloads.example/full.zip',
+				'rollback'    => false,
+			),
+		)
+	)
+);
+keel_install_assert( 'invalid_offer' === keel_install_error_code( keel_defaults_prepare_backport_install( '6.8.8' ) ), 'a malformed package field is refused' );
+keel_install_prime_offer(
+	keel_install_offer(
+		array(
+			'packages' => (object) array(
 				'partial'     => false,
 				'new_bundled' => false,
 				'no_content'  => false,

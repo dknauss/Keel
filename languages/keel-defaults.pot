@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T04:41:29+00:00\n"
+"POT-Creation-Date: 2026-09-01T04:53:56+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -105,68 +105,72 @@ msgstr ""
 msgid "Local"
 msgstr ""
 
-#: includes/backport-install.php:45
+#: includes/backport-install.php:44
 msgid "This action requires a POST request."
 msgstr ""
 
-#: includes/backport-install.php:49
+#: includes/backport-install.php:48
 msgid "You are not allowed to update WordPress on this site."
 msgstr ""
 
-#: includes/backport-install.php:112
+#: includes/backport-install.php:116
 msgid "WordPress did not provide a usable automatic-update offer for this patch."
 msgstr ""
 
-#: includes/backport-install.php:125
-msgid "WordPress did not provide a download package for this patch."
-msgstr ""
-
-#: includes/backport-install.php:131
+#: includes/backport-install.php:124
 msgid "The cached update offer is incomplete. Check for updates again, then retry."
 msgstr ""
 
-#: includes/backport-install.php:157
+#: includes/backport-install.php:128
+msgid "The cached update offer contains an invalid package. Check for updates again, then retry."
+msgstr ""
+
+#: includes/backport-install.php:135
+msgid "WordPress did not provide a download package for this patch."
+msgstr ""
+
+#: includes/backport-install.php:162
 msgid "The cached update offer does not include its system requirements."
 msgstr ""
 
 #. translators: 1: target WordPress version, 2: required PHP version, 3: installed PHP version.
-#: includes/backport-install.php:165
+#: includes/backport-install.php:170
 #, php-format
 msgid "WordPress %1$s requires PHP %2$s or newer. This site is running PHP %3$s."
 msgstr ""
 
 #. translators: 1: target WordPress version, 2: required database version, 3: installed database version.
-#: includes/backport-install.php:181
+#: includes/backport-install.php:186
 #, php-format
 msgid "WordPress %1$s requires MySQL %2$s or newer. This site is running %3$s."
 msgstr ""
 
 #. translators: 1: target WordPress version, 2: comma-separated PHP extension names.
-#: includes/backport-install.php:208
+#: includes/backport-install.php:213
 #, php-format
 msgid "WordPress %1$s requires these missing PHP extensions: %2$s."
 msgstr ""
 
-#: includes/backport-install.php:228
+#: includes/backport-install.php:233
 msgid "That patch is no longer the current target for this release line. Refresh Site Health and try again."
 msgstr ""
 
 #. translators: %s: target WordPress version.
-#: includes/backport-install.php:377
+#: includes/backport-install.php:395
 #, php-format
 msgid "Install WordPress %s now"
 msgstr ""
 
-#: includes/backport-install.php:383
+#: includes/backport-install.php:401
 msgid "A previous core update failed critically. This deliberate attempt may repair that state, but back up the site first."
 msgstr ""
 
-#: includes/backport-install.php:407
+#: includes/backport-install.php:425
 msgid "WordPress could not access the filesystem."
 msgstr ""
 
 #. translators: %s: installed WordPress version.
-#: includes/backport-install.php:416
+#: includes/backport-install.php:434
 #, php-format
 msgid "WordPress %s was installed successfully."
 msgstr ""

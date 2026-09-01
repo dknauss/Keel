@@ -104,9 +104,14 @@ function keel_defaults_install_offer_for_version( $version ) {
  */
 function keel_defaults_validate_install_offer( $offer ) {
 	if ( ! is_object( $offer )
-		|| ! isset( $offer->current, $offer->response, $offer->packages, $offer->partial_version, $offer->new_bundled )
+		|| ! isset( $offer->current, $offer->response, $offer->locale, $offer->packages, $offer->partial_version, $offer->new_bundled )
+		|| ! is_string( $offer->current )
+		|| ! is_string( $offer->locale )
+		|| '' === $offer->locale
 		|| 'autoupdate' !== $offer->response
 		|| ! is_object( $offer->packages )
+		|| ( false !== $offer->partial_version && ! is_string( $offer->partial_version ) )
+		|| ! is_string( $offer->new_bundled )
 	) {
 		return new WP_Error( 'invalid_offer', __( 'WordPress did not provide a usable automatic-update offer for this patch.', 'keel-defaults' ) );
 	}
@@ -117,6 +122,10 @@ function keel_defaults_validate_install_offer( $offer ) {
 	foreach ( $package_fields as $field ) {
 		if ( ! property_exists( $offer->packages, $field ) ) {
 			return new WP_Error( 'invalid_offer', __( 'The cached update offer is incomplete. Check for updates again, then retry.', 'keel-defaults' ) );
+		}
+
+		if ( false !== $offer->packages->$field && ( ! is_string( $offer->packages->$field ) || '' === $offer->packages->$field ) ) {
+			return new WP_Error( 'invalid_offer', __( 'The cached update offer contains an invalid package. Check for updates again, then retry.', 'keel-defaults' ) );
 		}
 	}
 
@@ -147,6 +156,8 @@ function keel_defaults_check_install_compatibility( $offer ) {
 	if ( ! isset( $offer->php_version, $offer->mysql_version )
 		|| ! is_string( $offer->php_version )
 		|| ! is_string( $offer->mysql_version )
+		|| '' === $offer->php_version
+		|| '' === $offer->mysql_version
 	) {
 		return new WP_Error( 'invalid_offer', __( 'The cached update offer does not include its system requirements.', 'keel-defaults' ) );
 	}
@@ -323,6 +334,15 @@ function keel_defaults_take_backport_result( $user_id ) {
 	}
 
 	delete_transient( $key );
+
+	if ( ! isset( $result['code'], $result['messages'], $result['type'] )
+		|| ! is_string( $result['code'] )
+		|| ! is_array( $result['messages'] )
+		|| ! in_array( $result['type'], array( 'success', 'error' ), true )
+		|| count( $result['messages'] ) !== count( array_filter( $result['messages'], 'is_string' ) )
+	) {
+		return null;
+	}
 
 	return $result;
 }
