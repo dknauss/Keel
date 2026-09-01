@@ -1099,6 +1099,75 @@ $GLOBALS['keel_test']['offers'] = array();
 $GLOBALS['keel_test']['can']    = false;
 
 
+// --- 24. an absent offer and a declined offer are different things -------
+// Test 23 stopped reading an empty selection as "updates are switched off".
+// It then read it as "the cached offers predate the patch" — which is one
+// reason among several. find_core_auto_update() also returns nothing when the
+// offer IS cached and something downstream declines it: the auto_update_core
+// filter, an unmet PHP or MySQL requirement on that offer, disable_autoupdate,
+// a recorded non-critical failure for that version, or the selector failing to
+// load. Naming the cache in those cases diagnoses the wrong thing.
+//
+// So the raw offer decides which sentence applies, and neither sentence
+// guesses which downstream gate did the declining.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['selected']         = '';
+
+// The patch IS in the offers, and core still selected nothing.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'has not been offered' ),
+	'a cached offer is not described as one the site has never been offered'
+);
+keel_assert(
+	false === strpos( $actions, 'predates it' ),
+	'nor is the cache blamed when the cache plainly contains the release'
+);
+keel_assert(
+	false === strpos( $actions, 'letting automatic updates resume' ),
+	'and automation that is running is still not told to resume'
+);
+keel_assert(
+	false !== strpos( $actions, 'not currently scheduling' ),
+	'it says core is not scheduling it, which is the whole of what is known'
+);
+
+// With the offer absent, the cache explanation is the right one again.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+);
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'has not been offered' ),
+	'an absent offer is still explained as one the site has not been offered yet'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+$GLOBALS['keel_test']['can']    = false;
+
+
 // --- 16. the constant-owner action does not send anyone to that screen ----
 // WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
 // last. The branch it covers used to end "or install the patch once from the

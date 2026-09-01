@@ -301,25 +301,51 @@ function keel_defaults_updates_screen_offer( $version ) {
  * @return bool
  */
 function keel_defaults_relaxed_ownership_allowed() {
-	$tip = keel_defaults_branch_tip();
+	$offer = keel_defaults_offer_for_version( keel_defaults_branch_tip() );
 
-	if ( '' === $tip ) {
+	if ( null === $offer ) {
 		return false;
+	}
+
+	return isset( $offer->new_files ) && ! $offer->new_files;
+}
+
+/**
+ * The raw offer for a version, as WordPress.org sent it.
+ *
+ * The update_core transient, not get_core_updates(): this is the list before
+ * core drops every `autoupdate` response, which is the only place a same-line
+ * patch appears at all.
+ *
+ * Asked so that "core selected nothing" can be told apart from "core has not
+ * been given anything to select". find_core_auto_update() returns nothing for
+ * both, and for several reasons in between — the auto_update_core filter, an
+ * unmet PHP or MySQL requirement on the offer, disable_autoupdate, a recorded
+ * failure for that version. Only the presence of the offer separates a cache
+ * that predates the release from a release something downstream declined, and
+ * neither answer is worth guessing at from the selector alone.
+ *
+ * @param string $version Version to look for.
+ * @return object|null The offer, or null when it is not cached.
+ */
+function keel_defaults_offer_for_version( $version ) {
+	if ( '' === $version ) {
+		return null;
 	}
 
 	$updates = get_site_transient( 'update_core' );
 
 	if ( ! is_object( $updates ) || empty( $updates->updates ) ) {
-		return false;
+		return null;
 	}
 
 	foreach ( (array) $updates->updates as $offer ) {
-		if ( isset( $offer->current ) && $tip === $offer->current ) {
-			return isset( $offer->new_files ) && ! $offer->new_files;
+		if ( isset( $offer->current ) && $version === $offer->current ) {
+			return $offer;
 		}
 	}
 
-	return false;
+	return null;
 }
 
 /**
@@ -801,16 +827,26 @@ function keel_defaults_backport_actions( $tip ) {
 				'<code>' . esc_html( $selected ) . '</code>',
 				$code
 			);
-		} elseif ( $state['policy'] && $state['operable'] ) {
-			// Core selected nothing, but this site's automation is running. The
-			// cached offers simply do not contain the patch yet: stable-check
-			// and update_core refresh independently, so one can know about a
-			// release while the other still predates it. Telling this site to
-			// "resume" updates it never stopped is the error an empty selector
-			// invites, and it is not the same situation as the branch below.
+		} elseif ( $state['policy'] && $state['operable'] && null === keel_defaults_offer_for_version( $tip ) ) {
+			// Core selected nothing and has nothing to select: this release is
+			// not in the cached offers. stable-check and update_core refresh
+			// independently, so one can know about a release while the other
+			// still predates it.
 			$route = sprintf(
 				/* translators: %s: target version. */
 				esc_html__( 'WordPress has not been offered %s yet — its cached list of core updates predates it — so nothing is scheduled to install it. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
+				$code
+			);
+		} elseif ( $state['policy'] && $state['operable'] ) {
+			// The offer is cached and core still selected nothing, so something
+			// past the broad policy declined this release: the auto_update_core
+			// filter, an unmet PHP or MySQL requirement on the offer,
+			// disable_autoupdate, a recorded failure for this version. Which one
+			// is not knowable from here, and the sentence does not pretend
+			// otherwise — it reports the outcome and stops.
+			$route = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line.', 'keel-defaults' ),
 				$code
 			);
 		} else {
