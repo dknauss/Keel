@@ -555,16 +555,22 @@ function keel_defaults_backport_verdict() {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but the updater cannot currently act.', 'keel-defaults' ) . '</strong> '
 				. esc_html( implode( '; ', $state['blockers'] ) ) . '.</p>';
 		} else {
+			// This is the one place in the panel that states the cause in
+			// full. The ladder and the actions below name the kind of problem
+			// instead of repeating the sentence: all three are concatenated
+			// into a single Site Health panel, and each was written to stand
+			// alone, so a real 6.9.5 site saw the same constant named three
+			// times and "this will not arrive on its own" said five ways.
 			$result['description'] .= '<p><strong>' . sprintf(
 				/* translators: %s: patched version. */
-				esc_html__( '%s will not install by itself. Someone has to install it.', 'keel-defaults' ),
-				esc_html( $tip )
+				esc_html__( '%s will not install by itself.', 'keel-defaults' ),
+				'<code>' . esc_html( $tip ) . '</code>'
 			) . '</strong> '
 				. ( $state['operable']
 					? esc_html__( 'Minor updates are switched off on this site, so WordPress will not fetch it.', 'keel-defaults' )
 					: sprintf(
 						/* translators: %s: reasons the updater cannot run. */
-						esc_html__( 'Two things are stopping it: minor updates are switched off, and %s. Both would need fixing before WordPress could install it unattended.', 'keel-defaults' ),
+						esc_html__( 'Two things are stopping it: minor updates are switched off, and %s.', 'keel-defaults' ),
 						esc_html( implode( '; ', $state['blockers'] ) )
 					)
 				) . '</p><p>'
@@ -631,11 +637,11 @@ function keel_defaults_backport_actions( $tip ) {
 	$state = keel_defaults_minor_update_state();
 
 	if ( ! $state['operable'] ) {
-		$out .= '<p class="description">' . sprintf(
-			/* translators: %s: reasons the updater cannot run. */
-			esc_html__( 'To let WordPress install this unattended, start here: %s. Until that is resolved, no change to the update policy will make any difference.', 'keel-defaults' ),
-			esc_html( implode( '; ', $state['blockers'] ) )
-		) . '</p>';
+		// The blockers are listed in the verdict this is appended to, so
+		// this says what to do about them rather than naming them again.
+		$out .= '<p class="description">'
+			. esc_html__( 'Start with what is blocking the updater, above. Until the updater can run at all, no change to the update policy will make any difference.', 'keel-defaults' )
+			. '</p>';
 	} elseif ( ! $state['policy'] ) {
 		// Only offer the button when the option is genuinely what decides it.
 		// Otherwise it would write a value that something downstream overrides,
@@ -1002,11 +1008,9 @@ function keel_defaults_ladder_markup() {
 			'<code>' . esc_html( $selected ) . '</code>'
 		);
 	} elseif ( ! $state['operable'] ) {
-		$note = sprintf(
-			/* translators: %s: reasons the updater cannot run. */
-			esc_html__( 'None of these will install on their own, because %s. Any of them can still be installed deliberately.', 'keel-defaults' ),
-			esc_html( implode( '; ', $state['blockers'] ) )
-		);
+		// Deliberately does not repeat the blocker list. It is stated in full
+		// above, and this list is appended directly beneath it.
+		$note = esc_html__( 'None of these will install on their own, because the updater cannot run here. Any of them can still be installed deliberately.', 'keel-defaults' );
 	} else {
 		$note = esc_html__( 'None of these will install on their own, because this site\'s update settings decline all of them. Any of them can still be installed deliberately.', 'keel-defaults' );
 	}

@@ -714,7 +714,7 @@ keel_assert(
 );
 
 
-// --- 13. a dismissed offer is hidden, not absent -------------------------
+// --- 15. a dismissed offer is hidden, not absent -------------------------
 // get_core_updates() takes dismissed => false by default, so an offer someone
 // dismissed comes back missing rather than flagged. Reading that as "the
 // Updates screen will not offer this" is wrong twice over: the screen still
@@ -745,7 +745,66 @@ keel_assert(
 $GLOBALS['keel_test']['offers'] = array();
 
 
-// --- 14. the constant-owner action does not send anyone to that screen ----
+// --- 17. one panel says the blocker once -----------------------------------
+// Found by reading the real Site Health output on a 6.9.5 site. Three separate
+// blocks each named the same cause in full — "automatic updates are switched
+// off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php"
+// appeared three times in one panel, and "this will not install by itself" was
+// said five ways. Each block was written to stand alone, which is right when it
+// is shown alone and wrong when they are concatenated.
+//
+// The panel is verdict, then ladder, then actions. Only the verdict states the
+// cause in full now; the other two refer to the kind of problem without
+// restating it, so each still reads on its own.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => '0' );
+$GLOBALS['keel_test']['updater_disabled'] = true;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['selected']         = '';
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'the fixture actually produces a blocked updater' );
+
+$result = keel_defaults_backport_test();
+$panel  = $result['description'] . keel_defaults_backport_actions( '6.8.8' );
+
+$blocker = 'automatic updates are switched off';
+
+keel_assert(
+	1 === substr_count( $panel, $blocker ),
+	sprintf( 'the panel names the blocking cause once, not %d times', substr_count( $panel, $blocker ) )
+);
+keel_assert(
+	1 === substr_count( $panel, 'will not install by itself' ),
+	'the panel says a patch will not arrive on its own once'
+);
+keel_assert(
+	false === strpos( $panel, 'Someone has to install it.' ),
+	'the consequence is not restated as its own sentence'
+);
+keel_assert(
+	false !== strpos( $panel, '<code>6.8.8</code> will not install by itself' ),
+	'the version in that sentence carries code markup like every other version in the panel'
+);
+
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['offers']           = array();
+$GLOBALS['keel_test']['can']              = false;
+
+
+// --- 16. the constant-owner action does not send anyone to that screen ----
 // WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
 // last. The branch it covers used to end "or install the patch once from the
 // Updates screen" — the exact advice the rest of this file exists to withdraw,

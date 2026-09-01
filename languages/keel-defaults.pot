@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T01:05:49+00:00\n"
+"POT-Creation-Date: 2026-09-01T01:09:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -197,166 +197,162 @@ msgid "The policy permits minor updates, but the updater cannot currently act."
 msgstr ""
 
 #. translators: %s: patched version.
-#: includes/backports.php:560
+#: includes/backports.php:566
 #, php-format
-msgid "%s will not install by itself. Someone has to install it."
+msgid "%s will not install by itself."
 msgstr ""
 
-#: includes/backports.php:564
+#: includes/backports.php:570
 msgid "Minor updates are switched off on this site, so WordPress will not fetch it."
 msgstr ""
 
 #. translators: %s: reasons the updater cannot run.
-#: includes/backports.php:567
+#: includes/backports.php:573
 #, php-format
-msgid "Two things are stopping it: minor updates are switched off, and %s. Both would need fixing before WordPress could install it unattended."
+msgid "Two things are stopping it: minor updates are switched off, and %s."
 msgstr ""
 
-#: includes/backports.php:571
+#: includes/backports.php:577
 msgid "WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other."
 msgstr ""
 
-#: includes/backports.php:586
+#: includes/backports.php:592
 msgid "This core version is not currently flagged as insecure"
 msgstr ""
 
 #. translators: 1: current version, 2: latest version.
-#: includes/backports.php:589
+#: includes/backports.php:595
 #, php-format
 msgid "%1$s is not currently flagged as insecure by WordPress.org. The current release is %2$s."
 msgstr ""
 
-#: includes/backports.php:593
+#: includes/backports.php:599
 msgid "That is not a support guarantee. Only the latest release is actively supported; fixes for older lines are backported as a courtesy, where necessary and feasible, and ship as they become ready. Staying here is a reasonable choice and Keel will not nag about it, but the line will eventually be retired, and this check only covers core — not plugins, themes, PHP or anything undisclosed."
 msgstr ""
 
 #. translators: %s: WordPress version.
-#: includes/backports.php:600
+#: includes/backports.php:606
 #, php-format
 msgid "%s is the current release."
 msgstr ""
 
-#. translators: %s: reasons the updater cannot run.
-#: includes/backports.php:636
-#, php-format
-msgid "To let WordPress install this unattended, start here: %s. Until that is resolved, no change to the update policy will make any difference."
+#: includes/backports.php:643
+msgid "Start with what is blocking the updater, above. Until the updater can run at all, no change to the update policy will make any difference."
 msgstr ""
 
-#: includes/backports.php:652
+#: includes/backports.php:658
 msgid "Turn automatic security updates back on"
 msgstr ""
 
-#: includes/backports.php:653
+#: includes/backports.php:659
 msgid "Recommended. This patch, and every future one on this release line, will install without being asked for."
 msgstr ""
 
-#: includes/backports.php:659
+#: includes/backports.php:665
 msgid "Change the core update policy in Keel"
 msgstr ""
 
-#: includes/backports.php:661
+#: includes/backports.php:667
 msgid "Keel is deciding this, not the stored WordPress option. Setting the option directly would have no effect."
 msgstr ""
 
 #. translators: %s: constant name.
-#: includes/backports.php:666
+#: includes/backports.php:672
 #, php-format
 msgid "The %s constant is deciding this, and Keel will not override it. Change it in wp-config.php."
 msgstr ""
 
-#: includes/backports.php:671
+#: includes/backports.php:677
 msgid "Another plugin is filtering this decision, so neither the stored option nor Keel governs it. Whatever registered that filter has to change."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:684
-#: includes/backports.php:694
+#: includes/backports.php:690
+#: includes/backports.php:700
 #, php-format
 msgid "Install %s now from the Updates screen"
 msgstr ""
 
 #. translators: 1: target version, 2: the "Show hidden updates" link on the Updates screen.
-#: includes/backports.php:699
+#: includes/backports.php:705
 #, php-format
 msgid "Someone dismissed %1$s on this site, so the Updates screen keeps it out of the way until you select %2$s."
 msgstr ""
 
-#: includes/backports.php:701
+#: includes/backports.php:707
 msgid "Show hidden updates"
 msgstr ""
 
 #. translators: 1: target version, 2: the newest release.
-#: includes/backports.php:707
+#: includes/backports.php:713
 #, php-format
 msgid "The Updates screen will not offer %1$s. It lists only the newest release, so following it would install %2$s instead — several release lines rather than a patch. Reaching %1$s means either letting automatic updates resume, or installing it deliberately from the command line."
 msgstr ""
 
-#: includes/backports.php:725
+#: includes/backports.php:731
 msgid "You are not allowed to change update settings on this site."
 msgstr ""
 
 #. translators: %s: WordPress version.
-#: includes/backports.php:789
+#: includes/backports.php:795
 #, php-format
 msgid "WordPress %s has known vulnerabilities, and no patched release exists on this release line. Moving to a maintained version is the only remedy."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backports.php:795
+#: includes/backports.php:801
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The patch for this release line is %2$s, and automatic updates should install it shortly."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version, 3: reasons.
-#: includes/backports.php:802
+#: includes/backports.php:808
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The patch is %2$s, but automatic updates cannot run here: %3$s."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backports.php:810
+#: includes/backports.php:816
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The patch is %2$s, but minor updates are switched off on this site, so it will not arrive on its own."
 msgstr ""
 
-#: includes/backports.php:821
+#: includes/backports.php:827
 msgid "See what is preventing it — Site Health"
 msgstr ""
 
-#: includes/backports.php:979
+#: includes/backports.php:985
 msgid "security and maintenance, same release line"
 msgstr ""
 
-#: includes/backports.php:980
+#: includes/backports.php:986
 msgid "new release line"
 msgstr ""
 
-#: includes/backports.php:983
+#: includes/backports.php:989
 msgid " — a delta package is available"
 msgstr ""
 
-#: includes/backports.php:991
+#: includes/backports.php:997
 msgid "← WordPress would install this one"
 msgstr ""
 
 #. translators: %s: version WordPress would install.
-#: includes/backports.php:1001
+#: includes/backports.php:1007
 #, php-format
 msgid "WordPress would install %s and skip the rest. It does not step through them one line at a time."
 msgstr ""
 
-#. translators: %s: reasons the updater cannot run.
-#: includes/backports.php:1007
-#, php-format
-msgid "None of these will install on their own, because %s. Any of them can still be installed deliberately."
+#: includes/backports.php:1013
+msgid "None of these will install on their own, because the updater cannot run here. Any of them can still be installed deliberately."
 msgstr ""
 
-#: includes/backports.php:1011
+#: includes/backports.php:1015
 msgid "None of these will install on their own, because this site's update settings decline all of them. Any of them can still be installed deliberately."
 msgstr ""
 
 #. translators: %d: number of releases offered.
-#: includes/backports.php:1019
+#: includes/backports.php:1023
 #, php-format
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
