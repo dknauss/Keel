@@ -132,6 +132,7 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 1. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
 2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
+4. Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, and which release fixes it on your own line — here 6.9.5 is told the fix is 6.9.7, not the 7.1 the Updates screen would install instead. The ladder shows every release WordPress.org is offering and marks the one WordPress would take.
 
 == Credits ==
 

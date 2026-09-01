@@ -889,6 +889,21 @@ function keel_defaults_backport_actions( $tip ) {
 			null !== keel_defaults_offer_for_version( $tip )
 		);
 
+		// Every branch of the route ends by naming the command line, which was
+		// the only deliberate route when those sentences were written. There is
+		// a button now, directly beneath this paragraph, and a sentence telling
+		// someone to open a terminal while one sits under it reads as though
+		// Keel does not know its own feature. Said once, here, rather than
+		// rewriting all seven branches — the existing sentences are still true,
+		// they are just no longer the whole list.
+		if ( '' !== $install ) {
+			$route .= ' ' . sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Or install %s now, below.', 'keel-defaults' ),
+				$code
+			);
+		}
+
 		$out .= '<p class="description">' . $lead . ' ' . $route . '</p>';
 	}
 
