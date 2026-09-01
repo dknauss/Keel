@@ -52,6 +52,36 @@ function keel_assert( $cond, $msg ) {
 	}
 }
 
+/**
+ * Assert one expected blocker independently, including its public shape.
+ *
+ * @param array  $state State returned by keel_defaults_minor_update_state().
+ * @param string $code  Expected stable code.
+ * @param string $msg   Assertion description.
+ */
+function keel_assert_blocker( array $state, $code, $msg ) {
+	$match = null;
+
+	foreach ( $state['blockers'] as $blocker ) {
+		if ( isset( $blocker['code'] ) && $code === $blocker['code'] ) {
+			$match = $blocker;
+			break;
+		}
+	}
+
+	keel_assert( null !== $match, $msg );
+
+	if ( null === $match ) {
+		return;
+	}
+
+	keel_assert(
+		2 === count( $match ) && array_key_exists( 'code', $match ) && array_key_exists( 'text', $match ),
+		$code . ' exposes exactly code and text'
+	);
+	keel_assert( is_string( $match['text'] ) && '' !== $match['text'], $code . ' carries non-empty display text' );
+}
+
 // --- Test doubles -----------------------------------------------------------
 // Only what backports.php actually reaches for. The network is never touched:
 // keel_defaults_stable_check() is short-circuited by a primed transient, which
@@ -129,6 +159,10 @@ function wp_is_file_mod_allowed( $c ) {
  * @return mixed
  */
 function apply_filters( $h, $v ) {
+	if ( 'automatic_updater_disabled' === $h && ! empty( $GLOBALS['keel_test']['automatic_disabled_filter'] ) ) {
+		return true;
+	}
+
 	return $v;
 }
 
@@ -518,6 +552,7 @@ $GLOBALS['keel_test']['file_mod_blocked'] = true;
 $state                                    = keel_defaults_minor_update_state();
 keel_assert( false === $state['operable'], 'blocked file modifications make the updater inoperable' );
 keel_assert( ! empty( $state['blockers'] ), 'an inoperable updater names at least one blocker' );
+keel_assert_blocker( $state, 'file_mods', 'blocked file modifications have the stable file_mods code' );
 $GLOBALS['keel_test']['file_mod_blocked'] = false;
 
 // --- 6. an unrecognised API status must not read as good --------------------
@@ -561,12 +596,37 @@ $GLOBALS['keel_test']['updater_disabled'] = true;
 $state                                    = keel_defaults_minor_update_state();
 keel_assert( false === $state['operable'], 'a disabled updater makes the state inoperable' );
 keel_assert( true === $state['policy'], 'a disabled updater does not change what the policy says' );
-$GLOBALS['keel_test']['updater_disabled'] = false;
+keel_assert_blocker(
+	$state,
+	'automatic_disabled_unknown',
+	'a disabled updater with no visible source has the stable automatic_disabled_unknown code'
+);
+
+$GLOBALS['keel_test']['automatic_disabled_filter'] = true;
+$state = keel_defaults_minor_update_state();
+keel_assert_blocker(
+	$state,
+	'automatic_disabled_filter',
+	'a disabled updater attributed to the filter has the stable automatic_disabled_filter code'
+);
+$GLOBALS['keel_test']['automatic_disabled_filter'] = false;
+$GLOBALS['keel_test']['updater_disabled']          = false;
 
 $GLOBALS['keel_test']['vcs'] = true;
 $state                       = keel_defaults_minor_update_state();
 keel_assert( false === $state['operable'], 'version control makes the state inoperable' );
+keel_assert_blocker( $state, 'vcs', 'a checkout has the stable vcs code' );
 $GLOBALS['keel_test']['vcs'] = false;
+
+$GLOBALS['keel_test']['options']['auto_core_update_failed'] = array( 'critical' => true );
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'a critical previous failure makes automatic updates inoperable' );
+keel_assert_blocker(
+	$state,
+	'previous_failure',
+	'a critical previous failure has the stable previous_failure code'
+);
+unset( $GLOBALS['keel_test']['options']['auto_core_update_failed'] );
 
 $state = keel_defaults_minor_update_state();
 keel_assert( true === $state['operable'], 'with nothing blocking, the updater is operable' );
@@ -611,6 +671,11 @@ $state = keel_defaults_minor_update_state();
 keel_assert( false === $state['operable'], 'missing filesystem credentials make the updater inoperable' );
 keel_assert( null !== $GLOBALS['keel_test']['relaxed_seen'], 'the credential probe actually ran' );
 keel_assert( false === $GLOBALS['keel_test']['relaxed_seen'], 'relaxed ownership is not assumed when no offer says so' );
+keel_assert_blocker( $state, 'credentials', 'missing credentials have the stable credentials code' );
+keel_assert(
+	array( $state['blockers'][0]['text'] ) === keel_defaults_blocker_texts( $state['blockers'] ),
+	'the display helper projects text without callers matching or discarding blocker codes'
+);
 
 $GLOBALS['keel_test']['no_fs_credentials'] = false;
 $state                                     = keel_defaults_minor_update_state();
@@ -1169,24 +1234,17 @@ $GLOBALS['keel_test']['can']    = false;
 
 
 // --- 25. no scheduled promise while the updater cannot act ---------------
-// Every route that promises an installation was decided from the selection
-// alone, and a selection does not prove the updater can complete a filesystem
-// write. The two answers are computed differently: core evaluates relaxed file
-// ownership per offer, from that offer's new_files, while
-// keel_defaults_relaxed_ownership_allowed() evaluates it once from the branch
-// tip and probes credentials with that single value. A tip that adds new files
-// alongside a higher offer that does not is enough to separate them — core
-// selects the higher offer, Keel finds the updater inoperable, and the panel
-// then said the updater cannot act and promised a scheduled install in
-// consecutive sentences.
+// Every route that promises an installation was once decided from the selection
+// alone. A selected offer may outrank an offer-specific credential result, but
+// it cannot override a global blocker such as file modifications being disabled.
 
 keel_test_prime( $map );
-$GLOBALS['keel_test']['version']           = '6.8.7';
-$GLOBALS['keel_test']['options']           = array( 'auto_update_core_minor' => 'enabled' );
-$GLOBALS['keel_test']['updater_disabled']  = false;
-$GLOBALS['keel_test']['can']               = true;
-$GLOBALS['keel_test']['no_fs_credentials'] = true;
-$GLOBALS['keel_test']['offers']            = array(
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['file_mod_blocked'] = true;
+$GLOBALS['keel_test']['offers']           = array(
 	(object) array(
 		'response' => 'upgrade',
 		'current'  => '7.1',
@@ -1224,9 +1282,9 @@ keel_assert(
 	'it says the updater cannot act, which is what the verdict above already found'
 );
 
-$GLOBALS['keel_test']['no_fs_credentials'] = false;
-$GLOBALS['keel_test']['offers']            = array();
-$GLOBALS['keel_test']['can']               = false;
+$GLOBALS['keel_test']['file_mod_blocked'] = false;
+$GLOBALS['keel_test']['offers']           = array();
+$GLOBALS['keel_test']['can']              = false;
 
 
 // --- 26. the route, every branch, as a pure function ---------------------
@@ -1244,6 +1302,17 @@ $op    = array(
 );
 $inop  = array_merge( $op, array( 'operable' => false ) );
 $nopol = array_merge( $op, array( 'policy' => false ) );
+$creds = array_merge(
+	$inop,
+	array(
+		'blockers' => array(
+			array(
+				'code' => 'credentials',
+				'text' => 'credentials required for the branch tip',
+			),
+		),
+	)
+);
 
 // Absence of an offer does not establish why it is absent.
 $r = keel_defaults_backport_route( '6.8.8', $op, '', false );
@@ -1262,6 +1331,14 @@ foreach ( array( '6.8.8', '7.1', '', false ) as $sel ) {
 	keel_assert( false !== strpos( $r, 'cannot act' ), 'an inoperable updater decides the route whatever was selected' );
 	keel_assert( false === strpos( $r, 'scheduled check' ), 'and promises no schedule' );
 }
+
+// Credentials are the one contextual blocker. Core probes them per offer, so
+// its selected offer outranks Keel's separate branch-tip probe.
+$r = keel_defaults_backport_route( '6.8.8', $creds, '7.1', true );
+keel_assert( false !== strpos( $r, 'will install' ), 'core-selected offer outranks the branch-tip credential result' );
+
+$r = keel_defaults_backport_route( '6.8.8', $creds, '', true );
+keel_assert( false !== strpos( $r, 'cannot act' ), 'credentials still block when core selected no offer' );
 
 // The remaining branches.
 $r = keel_defaults_backport_route( '6.8.8', $op, '6.8.8', true );
@@ -1291,10 +1368,20 @@ keel_assert(
 		array(
 			'operable' => false,
 			'policy'   => true,
+			'blockers' => array(
+				array(
+					'code' => 'file_mods',
+					'text' => 'file changes blocked',
+				),
+			),
 		),
 		'6.8.8'
 	),
-	'an inoperable updater outranks a selection'
+	'a global blocker outranks a selection'
+);
+keel_assert(
+	'scheduled' === keel_defaults_selection_state( $creds, '7.1' ),
+	'a selected offer outranks the credential result from a different offer'
 );
 keel_assert(
 	'unknown' === keel_defaults_selection_state(
@@ -1350,8 +1437,9 @@ $GLOBALS['keel_test']['offers'] = array(
 		'current'  => '7.1',
 	),
 	(object) array(
-		'response' => 'autoupdate',
-		'current'  => '7.1',
+		'response'  => 'autoupdate',
+		'current'   => '7.1',
+		'new_files' => false,
 	),
 	(object) array(
 		'response' => 'autoupdate',
@@ -1359,23 +1447,35 @@ $GLOBALS['keel_test']['offers'] = array(
 	),
 );
 
-// Inoperable, with core having selected a rung anyway.
+// The branch tip needs strict ownership, while the higher offer permits relaxed
+// ownership and core selected it. Before blocker codes, Keel treated the tip's
+// credential result as global and contradicted core's per-offer answer.
 $GLOBALS['keel_test']['no_fs_credentials'] = true;
 $GLOBALS['keel_test']['selected']          = '7.1';
 
 $ladder = keel_defaults_ladder_markup();
 
 keel_assert(
-	false === strpos( $ladder, 'would install this one' ),
-	'no rung is labelled as one WordPress would install while the updater cannot act'
+	false !== strpos( $ladder, 'would install this one' ),
+	'the selected rung keeps core\'s per-offer credential answer'
 );
 keel_assert(
-	false === strpos( $ladder, 'WordPress would install <code>7.1</code>' ),
-	'nor does the note promise that installation'
+	false !== strpos( $ladder, 'WordPress would install <code>7.1</code>' ),
+	'the ladder reports the selected offer instead of applying the tip blocker globally'
 );
 keel_assert(
-	false !== strpos( $ladder, 'otherwise choose' ),
-	'the selection is described as what core would otherwise choose'
+	false === strpos( $ladder, 'otherwise choose' ),
+	'the selected offer is not downgraded to a hypothetical choice'
+);
+
+$panel = keel_defaults_backport_test();
+keel_assert(
+	false !== strpos( $panel['description'], 'this patch cannot currently install automatically' ),
+	'the verdict scopes the branch-tip credential result to the patch'
+);
+keel_assert(
+	false !== strpos( $panel['description'], 'WordPress would install <code>7.1</code>' ),
+	'the same panel can truthfully report that a different offer passed core\'s check'
 );
 
 // Operable, nothing selected: the reason is not knowable, so it is not named.
@@ -1444,6 +1544,22 @@ keel_assert(
 );
 
 $GLOBALS['keel_test']['offers'] = array();
+
+// --- 28. every blocker is structured, including the constant source -------
+// This constant cannot be undefined again, so its source-specific case runs
+// last. The other six codes are exercised above where their conditions are
+// independently reversible.
+
+define( 'AUTOMATIC_UPDATER_DISABLED', true );
+$GLOBALS['keel_test']['updater_disabled'] = true;
+
+$state = keel_defaults_minor_update_state();
+
+keel_assert_blocker(
+	$state,
+	'automatic_disabled_constant',
+	'a disabled updater attributed to the constant has the stable automatic_disabled_constant code'
+);
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
