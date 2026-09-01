@@ -109,6 +109,10 @@ keel_count_assert(
 $claim_patterns = array(
 	'/\b(\d+)\s+independent\s+defaults\b/',
 	'/\b(\d+)\s+defaults\b/',
+	// readme.txt's short description states the count as "39 sane WordPress
+	// defaults", which the adjacent-word pattern above cannot see. The claim is
+	// in the file; only its phrasing moved.
+	'/\b(\d+)\s+sane\s+WordPress\s+defaults\b/',
 	'/\b(\d+)\s+schema\s+keys\b/',
 	'/\bfrozen at\s+(\d+)\b/',
 );
