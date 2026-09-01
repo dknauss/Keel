@@ -27,10 +27,11 @@ GPL-2.0-or-later.
 - [ ] **Observe the first post-release matrix** — review the next scheduled live
       rollback/forward run and early field reports before starting another release.
 
-## Next — accepted feature queue
+## Next — 0.7.0 privacy and content integrity
 
-Build in this order. The first closes a measured disclosure; the other two are
-quality-of-life work and may swap places if implementation evidence warrants it.
+Build in this order. The first closes a measured disclosure. The shortcode work
+comes next because it pairs a reader-facing correction with evidence in Site Health;
+the typography control is useful but strategically smaller.
 
 - [ ] **Keep password-protected posts out of site search** — a logged-in Subscriber
    can currently receive the title and excerpt of protected posts in search because
@@ -38,18 +39,60 @@ quality-of-life work and may swap places if implementation evidence warrants it.
    Preserve access for authors, editors and plugin-granted roles that may legitimately
    read the post. This composes with `disable_post_passwords`, which prevents new
    protected posts but does not address existing ones.
-- [ ] **Leave typographic punctuation as typed** — add a focused toggle around
-   `wptexturize`, with editor, feed and front-end coverage so the label does not
-   promise more surfaces than the implementation controls.
 - [ ] **Hide broken-shortcode residue and report it in Site Health** — ship these as
    a pair: readers should not see raw shortcode debris, while administrators retain
    evidence that a plugin or shortcode handler is missing.
+- [ ] **Leave typographic punctuation as typed** — add a focused toggle around
+   `wptexturize`, with editor, feed and front-end coverage so the label does not
+   promise more surfaces than the implementation controls.
+
+## Then — 0.8.0 performance observability
+
+WordPress already reports page-cache, persistent-object-cache, opcode-cache,
+scheduled-event and aggregate autoload problems. Keel should not restate those
+tests. It should supply the attribution and next action that the aggregate result
+cannot: what is responsible, how confident that attribution is, and what an
+administrator can safely inspect next.
+
+- [ ] **Attribute oversized autoloaded options** — report the largest autoloaded
+   option rows, their sizes and a probable plugin or theme owner where the name gives
+   defensible evidence. Never expose option values, present an inferred owner as
+   certain, delete an option, or claim that size alone proves waste.
+- [ ] **Attribute cron pressure and update-delivery delays** — identify overdue and
+   unusually frequent hooks, their schedules and probable owners, then connect the
+   core-update subset to offer-cache age, the next scheduled check and the last known
+   failure. Do not treat `DISABLE_WP_CRON` as failure when an external scheduler may
+   be intentional, or promise when an update will run.
+
+These checks establish a reusable diagnostic shape: stable result code, severity,
+observed evidence, probable owner, confidence and suggested action. They are
+report-only first, asynchronous and cached, bounded on large databases,
+multisite-aware, and tested with persistent caches, external cron and localized
+installs. Site Health must not become the performance problem it is diagnosing.
+
+## Then — 0.9.0 update operations and support
+
+- [ ] **Show the core-update delivery timeline** — bring the selected release,
+   branch-tip status, offer freshness, next scheduled check and recent success or
+   failure into one evidence-based view. Reuse core's answers and Keel's stable
+   blocker codes; do not infer a guaranteed schedule from policy alone.
+- [ ] **Export a sanitized Keel posture report** — make settings, effective state,
+   conflicts, update operability and diagnostic evidence easy to share for support.
+   Exclude secrets, option values, user data and unnecessary site identifiers.
 
 ## Later
 
-The milestone sections below retain measured proposals, rejected ideas and larger
-directions that are not accepted into the queue. Promote an item into **Next** only
-when its behaviour, tradeoffs and acceptance tests are decided.
+Explore database-growth reporting (revision volume, expired transients and unusually
+large rows), media-storage amplification and richer multisite/network diagnostics
+only after the 0.8 framework proves that the measurements can be cheap and honest.
+Start each as report-only; cleanup is a separate, explicitly authorized feature.
+
+Do not pursue brittle performance folklore as defaults: disabling jQuery or REST,
+combining assets indiscriminately, or presenting tiny request removals as measured
+site-speed gains. The milestone sections below retain measured proposals, rejected
+ideas and larger directions that are not accepted into the queue. Promote another
+item into the active sequence only when its behaviour, tradeoffs and acceptance
+tests are decided.
 
 ## 0.6.0 completion record
 

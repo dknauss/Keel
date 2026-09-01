@@ -22,19 +22,39 @@ into ROADMAP.md or here.
   - Review the next scheduled live rollback/forward run.
   - Triage early field reports before opening the next release cycle.
 
-## Next — accepted feature queue
+## Next — 0.7.0 privacy and content integrity
 
 - [ ] **Keep password-protected posts out of site search**
   - Hide protected titles and excerpts from logged-in users who cannot read the post.
   - Preserve results for authors, editors and capabilities granted by other plugins.
   - Cover logged-out, Subscriber, author/editor and custom-capability cases.
-- [ ] **Leave typographic punctuation as typed**
-  - Decide and document the exact `wptexturize` surfaces before naming the toggle.
-  - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
 - [ ] **Hide broken-shortcode residue and report it in Site Health**
   - Hide orphaned shortcode markup from public output without deleting stored content.
   - Report enough evidence in Site Health for an administrator to identify the gap.
   - Do not ship the hiding half without the reporting half.
+- [ ] **Leave typographic punctuation as typed**
+  - Decide and document the exact `wptexturize` surfaces before naming the toggle.
+  - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
+
+## Then — 0.8.0 performance observability
+
+- [ ] **Attribute oversized autoloaded options**
+  - Add size and probable-owner detail to core's aggregate autoload diagnosis.
+  - Never expose values, auto-delete rows or state inferred ownership as fact.
+  - Make collection asynchronous, cached, bounded and multisite-aware.
+- [ ] **Attribute cron pressure and update-delivery delays**
+  - Report overdue and unusually frequent hooks, schedules and probable owners.
+  - Add offer freshness, next scheduled core check and recent update failures.
+  - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
+
+## Then — 0.9.0 update operations and support
+
+- [ ] **Show the core-update delivery timeline**
+  - Combine selected release, branch tip, offer freshness, next check and recent result.
+  - Reuse core's decisions and stable blocker codes; never promise an execution time.
+- [ ] **Export a sanitized Keel posture report**
+  - Include effective settings, conflicts, update operability and diagnostic evidence.
+  - Exclude secrets, option values, user data and unnecessary site identifiers.
 
 ## Completed in v0.6.0
 

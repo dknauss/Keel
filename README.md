@@ -11,7 +11,13 @@
 
 **The missing settings and defaults every new WordPress site needs.**
 
-Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Site Defaults**. Nothing is hidden. Everything is explained with helpful dropdown info panels and in Site Health feedback.
+Sane WordPress defaults that explain themselves in Site Health—covering security,
+privacy, UX, performance, and core updates, including same-line security patches.
+
+Keel adds a modest menu of sensible security, update, privacy, content, media, email,
+UX, and performance defaults to WordPress — each one a switch under **Settings → Site
+Defaults**. Nothing is hidden. Everything is explained with helpful dropdown info
+panels and in Site Health feedback.
 
 > **Current release: `0.6.0`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
