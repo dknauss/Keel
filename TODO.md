@@ -111,6 +111,24 @@ active work belongs in **Now** or **Next**, above.
 
 ## Content / docs
 
+- [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
+      The current line is *Sensible defaults for steady sites.*, and `branding/README.md`
+      records that the waterline in the mark is drawn as the "even keel" cue behind it.
+      *Balanced defaults* says the same thing in two words and lands the keel metaphor
+      without explaining it, which is what a banner has room for.
+
+      Scope, because a tagline change is not only a tagline:
+      - `.wordpress-org/banner-1544x500.png` and `banner-772x250.png` — the listing
+        banners, where the line actually appears.
+      - `branding/README.md` — states the tagline and the reason the waterline echoes it.
+      - `branding/keel-logo-horizontal.svg`, `keel-logo-stacked.svg`, `keel-mark.svg` —
+        review the marks at banner and 128px icon sizes while the banners are open.
+      - Check whether the wordmark still reads at the 772×250 banner size; the outlined
+        Avenir Next was set for the larger one.
+
+      Not release-blocking, and deliberately not in 0.6.0: the listing assets are served
+      from SVN `assets/` and can be updated without a plugin release.
+
 - [x] **Reference doc coverage** — done 2026-08-04. Every schema key then present received an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
       three more (`remove_version`, `security_headers`, `frame_options`) were described
