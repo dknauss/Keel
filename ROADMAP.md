@@ -29,13 +29,39 @@ SVN push should be 0.5.3, the approved package, or 0.5.4, the tag — worth deci
 deliberately rather than by whichever was checked out. Events decided it: five more
 versions landed before the first push and what went up was 0.5.9.
 
-One item is in flight: **security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)),
-a Site Health test reporting whether the installed core version is currently flagged
-insecure — a question core never asks, and one no admin screen answers. It reports and
-routes; it does not install.
+**Security patch status shipped**, over four pull requests rather than the one this
+section expected. [#134](https://github.com/dknauss/Keel/pull/134) added the Site
+Health test reporting whether the installed core version is currently flagged
+insecure — a question core never asks and no admin screen answers.
+[#135](https://github.com/dknauss/Keel/pull/135) replaced Keel's own reconstruction
+of the updater's state with core's answers to the same questions.
+[#136](https://github.com/dknauss/Keel/pull/136) added the ladder of releases
+WordPress.org is actually offering, and which one core would take.
+[#137](https://github.com/dknauss/Keel/pull/137) is open: it stops the panel linking
+to the Updates screen for a patch that screen will not offer, because
+`get_core_updates()` drops every `autoupdate` response and the same-line patch is
+only ever an `autoupdate` offer. Following that button installed the newest release
+instead — found on a real 6.9.5 site, not in review.
 
-Three defaults are accepted and unbuilt, and with #134 they are the queue. All three
-are decided in the v0.4 section below, with the evidence, the edge cases and what each
+It reports and routes; it does not install. Installing the same-line patch is
+[#138](https://github.com/dknauss/Keel/issues/138), scoped to one release rather than
+the whole ladder, and gated behind a prerequisite: `minor_update_state()` returns
+blockers as translated strings, so nothing can tell a filesystem blocker from a
+policy one without matching text. That distinction decides whether a manual install
+should be refused, so the codes land first.
+
+What #137 cost is worth recording, because it was not the code. The fix itself was
+small; the review found seven further defects, six of them the same shape — a
+sentence asserting a cause the data underneath it could not establish. Policy did not
+establish what cron would install. An empty selection did not establish that updates
+were off, then did not establish that a cache was stale. A selection did not
+establish that the updater could write. Each was reachable only by rendering the
+whole panel, which is why each one shipped. The panel's state is now resolved once,
+in `keel_defaults_selection_state()` and `keel_defaults_backport_route()`, so the
+combinations can be stated in a test rather than staged through a render.
+
+Three defaults are accepted and unbuilt, and they are the queue. All three are
+decided in the v0.4 section below, with the evidence, the edge cases and what each
 costs, measured.
 
 **Build order — search exclusion first.** Keeping password-protected posts out of

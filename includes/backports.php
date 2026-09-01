@@ -1202,7 +1202,15 @@ function keel_defaults_update_ladder() {
  * Reimplementing that selection here would be the mistake CONTRIBUTING.md
  * describes, and it would drift the first time core changed the order.
  *
- * @return string Version, or '' if nothing would be installed.
+ * Three answers, not two. '' means core would install nothing; false means the
+ * selector could not be asked, because wp-admin/includes/update.php was not
+ * readable. Collapsing those was a review finding of its own: it made every
+ * caller report that something had declined the release when in fact nothing
+ * had been asked. keel_defaults_selection_state() is what turns this into the
+ * state both callers act on.
+ *
+ * @return string|false Version, '' when nothing would be installed, or false
+ *                      when the selector could not be asked.
  */
 function keel_defaults_ladder_selection() {
 	$update_file = ABSPATH . 'wp-admin/includes/update.php';

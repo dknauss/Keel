@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T02:51:21+00:00\n"
+"POT-Creation-Date: 2026-09-01T02:55:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -387,38 +387,38 @@ msgstr ""
 msgid "See what is preventing it — Site Health"
 msgstr ""
 
-#: includes/backports.php:1257
+#: includes/backports.php:1265
 msgid "security and maintenance, same release line"
 msgstr ""
 
-#: includes/backports.php:1258
+#: includes/backports.php:1266
 msgid "new release line"
 msgstr ""
 
-#: includes/backports.php:1261
+#: includes/backports.php:1269
 msgid " — a delta package is available"
 msgstr ""
 
-#: includes/backports.php:1275
+#: includes/backports.php:1283
 msgid "None of these will install on their own, because the updater cannot act here. Any of them can still be installed deliberately."
 msgstr ""
 
-#: includes/backports.php:1277
+#: includes/backports.php:1285
 msgid "Keel could not determine which of these WordPress would install."
 msgstr ""
 
 #. translators: %s: version WordPress would install.
-#: includes/backports.php:1281
+#: includes/backports.php:1289
 #, php-format
 msgid "WordPress would install %s and skip the rest. It does not step through them one line at a time."
 msgstr ""
 
-#: includes/backports.php:1289
+#: includes/backports.php:1297
 msgid "None of these will install on their own. Something is declining every one of them, which may be this site's update settings or a requirement the offers do not meet. Any of them can still be installed deliberately."
 msgstr ""
 
 #. translators: %d: number of releases offered.
-#: includes/backports.php:1297
+#: includes/backports.php:1305
 #, php-format
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
