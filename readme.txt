@@ -138,6 +138,8 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Credits ==
 
+Austin Ginder of [Anchor Hosting](https://anchor.host) reviewed Keel 0.6.0 for security and reported six issues — none critical, and none a hole the plugin opens. Two of them were documented protections that were not taking effect at all: a pair of redirects that lost a silent race against core, and a REST route where disabled comments still answered. Keel is better for the review, and it now ships a test that checks a registration actually wins its hook rather than merely existing. Thank you, Austin.
+
 Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
 
 Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel (@dknauss), additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later).
