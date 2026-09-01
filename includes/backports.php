@@ -186,6 +186,111 @@ function keel_defaults_latest_version() {
 }
 
 /**
+ * The x.y line a version belongs to, for naming it in prose.
+ *
+ * @param string $version Full version.
+ * @return string
+ */
+function keel_defaults_version_line( $version ) {
+	return implode( '.', array_slice( preg_split( '/[.-]/', $version ), 0, 2 ) );
+}
+
+/**
+ * How the Updates screen treats this release: not offered, listed, or hidden.
+ *
+ * Usually the first. get_core_updates() skips every offer whose response is
+ * `autoupdate`, so update-core.php lists only the manual upgrade — the newest
+ * release. A same-line patch is therefore invisible there, and linking to that
+ * screen for it sends people somewhere that will install something else.
+ *
+ * Dismissal is a second, separate way an offer goes missing, and asking about
+ * it is opt-in: core defaults to `dismissed => false`. Taking that default
+ * conflates "the screen will not offer this" with "someone hid this", which
+ * are opposite situations — the first needs another route entirely, the second
+ * needs one click on "Show hidden updates". Worse, the absent-case copy says
+ * the screen would install the newest release instead, and when the hidden
+ * offer IS the newest release that sentence names the version it is hiding.
+ *
+ * So both are requested and the answer distinguishes them. Core stamps
+ * ->dismissed on what it returns, which is what separates the two.
+ *
+ * Asked of core rather than inferred, so this stays true if that filtering
+ * changes.
+ *
+ * A fourth answer is 'unknown'. get_core_updates() returns false — not an
+ * empty array — when the update_core transient holds no updates list, which is
+ * what a site that has not checked yet looks like. Reading that as 'none'
+ * converts missing data into a categorical claim that the screen will not offer
+ * the patch, and the copy for 'none' then says the screen would install the
+ * newest release instead: on a site whose same-line patch IS the newest
+ * release, that names the version it is denying. Opening update-core.php
+ * refreshes the data and may well offer it.
+ *
+ * The visible manual offer is returned alongside the state, because the copy
+ * for 'none' says which release the screen would install instead — and that
+ * cannot be answered from stable-check. stable-check's idea of the latest
+ * release and the update_core transient refresh independently, so a valid but
+ * older cache offers a different version than stable-check names. Only the
+ * transient knows what that screen is showing right now.
+ *
+ * @param string $version Version to look for.
+ * @return array{state: string, manual: string} State, and the version the
+ *               screen is offering ('' when it is offering none).
+ */
+function keel_defaults_updates_screen_offer( $version ) {
+	$update_file = ABSPATH . 'wp-admin/includes/update.php';
+
+	if ( ! function_exists( 'get_core_updates' ) && is_readable( $update_file ) ) {
+		require_once $update_file;
+	}
+
+	if ( ! function_exists( 'get_core_updates' ) ) {
+		return array(
+			'state'  => 'unknown',
+			'manual' => '',
+		);
+	}
+
+	$offers = get_core_updates(
+		array(
+			'available' => true,
+			'dismissed' => true,
+		)
+	);
+
+	if ( ! is_array( $offers ) ) {
+		return array(
+			'state'  => 'unknown',
+			'manual' => '',
+		);
+	}
+
+	$state  = 'none';
+	$manual = '';
+
+	foreach ( $offers as $offer ) {
+		if ( ! isset( $offer->current ) ) {
+			continue;
+		}
+
+		$dismissed = isset( $offer->dismissed ) && $offer->dismissed;
+
+		if ( '' === $manual && ! $dismissed ) {
+			$manual = $offer->current;
+		}
+
+		if ( $version === $offer->current ) {
+			$state = $dismissed ? 'hidden' : 'visible';
+		}
+	}
+
+	return array(
+		'state'  => $state,
+		'manual' => $manual,
+	);
+}
+
+/**
  * Whether relaxed file ownership applies, decided the way core decides it.
  *
  * WP_Automatic_Updater::should_update() sets this from the offer being
@@ -196,25 +301,51 @@ function keel_defaults_latest_version() {
  * @return bool
  */
 function keel_defaults_relaxed_ownership_allowed() {
-	$tip = keel_defaults_branch_tip();
+	$offer = keel_defaults_offer_for_version( keel_defaults_branch_tip() );
 
-	if ( '' === $tip ) {
+	if ( null === $offer ) {
 		return false;
+	}
+
+	return isset( $offer->new_files ) && ! $offer->new_files;
+}
+
+/**
+ * The raw offer for a version, as WordPress.org sent it.
+ *
+ * The update_core transient, not get_core_updates(): this is the list before
+ * core drops every `autoupdate` response, which is the only place a same-line
+ * patch appears at all.
+ *
+ * Asked so that "core selected nothing" can be told apart from "core has not
+ * been given anything to select". find_core_auto_update() returns nothing for
+ * both, and for several reasons in between — the auto_update_core filter, an
+ * unmet PHP or MySQL requirement on the offer, disable_autoupdate, a recorded
+ * failure for that version. Only the presence of the offer separates a cache
+ * that predates the release from a release something downstream declined, and
+ * neither answer is worth guessing at from the selector alone.
+ *
+ * @param string $version Version to look for.
+ * @return object|null The offer, or null when it is not cached.
+ */
+function keel_defaults_offer_for_version( $version ) {
+	if ( '' === $version ) {
+		return null;
 	}
 
 	$updates = get_site_transient( 'update_core' );
 
 	if ( ! is_object( $updates ) || empty( $updates->updates ) ) {
-		return false;
+		return null;
 	}
 
 	foreach ( (array) $updates->updates as $offer ) {
-		if ( isset( $offer->current ) && $tip === $offer->current ) {
-			return isset( $offer->new_files ) && ! $offer->new_files;
+		if ( isset( $offer->current ) && $version === $offer->current ) {
+			return $offer;
 		}
 	}
 
-	return false;
+	return null;
 }
 
 /**
@@ -237,7 +368,7 @@ function keel_defaults_minor_update_state() {
 	$blockers = array();
 
 	if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) ) {
-		$blockers[] = __( 'file modifications are not permitted', 'keel-defaults' );
+		$blockers[] = __( 'file changes are blocked, normally by the DISALLOW_FILE_MODS constant in wp-config.php', 'keel-defaults' );
 	}
 
 	// Ask core, rather than re-deriving its answer. is_disabled() passes the
@@ -261,7 +392,17 @@ function keel_defaults_minor_update_state() {
 	// is_disabled() already folds in wp_is_file_mod_allowed(), so the specific
 	// reason is reported above and this only fires for some *other* cause.
 	if ( $updater && $updater->is_disabled() && empty( $blockers ) ) {
-		$blockers[] = __( 'the automatic updater is switched off', 'keel-defaults' );
+		// is_disabled() decides whether it is off. Which input caused it is a
+		// separate question, asked only so the message can say where to look —
+		// "switched off" with no location is the least useful true statement
+		// this check could make.
+		if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
+			$blockers[] = __( 'automatic updates are switched off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php', 'keel-defaults' );
+		} elseif ( apply_filters( 'automatic_updater_disabled', false ) ) {
+			$blockers[] = __( 'a plugin or theme on this site switches automatic updates off, using the automatic_updater_disabled filter', 'keel-defaults' );
+		} else {
+			$blockers[] = __( 'automatic updates are switched off, though not by a constant or filter Keel can name', 'keel-defaults' );
+		}
 	}
 
 	// Core refuses an update it cannot get filesystem credentials for, before
@@ -275,18 +416,18 @@ function keel_defaults_minor_update_state() {
 		$skin = new Automatic_Upgrader_Skin();
 
 		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
-			$blockers[] = __( 'WordPress cannot get the filesystem access it needs', 'keel-defaults' );
+			$blockers[] = __( 'WordPress cannot write to its own files without credentials it would have to stop and ask for', 'keel-defaults' );
 		}
 	}
 
 	$failed = get_site_option( 'auto_core_update_failed' );
 
 	if ( is_array( $failed ) && ! empty( $failed['critical'] ) ) {
-		$blockers[] = __( 'a previous core update failed critically', 'keel-defaults' );
+		$blockers[] = __( 'an earlier core update failed badly enough that WordPress will not retry on its own', 'keel-defaults' );
 	}
 
 	if ( $updater && $updater->is_vcs_checkout( ABSPATH ) ) {
-		$blockers[] = __( 'the site is under version control', 'keel-defaults' );
+		$blockers[] = __( 'the site is under version control, so WordPress will not overwrite its own files', 'keel-defaults' );
 	}
 
 	// Who owns the minor decision. Order matters: the first owner found wins,
@@ -412,7 +553,6 @@ function keel_defaults_backport_verdict() {
 	$status  = keel_defaults_version_status();
 	$version = wp_get_wp_version();
 	$tip     = keel_defaults_branch_tip();
-	$auto    = keel_defaults_minor_updates_enabled();
 
 	$result = array(
 		'label'       => __( 'This version is not currently flagged as insecure', 'keel-defaults' ),
@@ -466,8 +606,10 @@ function keel_defaults_backport_verdict() {
 
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress.org classifies %1$s as insecure. The applicable release on this line is %2$s, which is not currently flagged, and moving to it does not change major version.', 'keel-defaults' ),
+			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The fix for the %3$s version line is %4$s. That is a same-line update — only the third number changes, so it is a maintenance release rather than a feature one.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
+			'<strong>' . esc_html__( 'insecure', 'keel-defaults' ) . '</strong>',
+			'<code>' . esc_html( keel_defaults_version_line( $version ) ) . '</code>',
 			'<code>' . esc_html( $tip ) . '</code>'
 		) . '</p>';
 
@@ -479,8 +621,26 @@ function keel_defaults_backport_verdict() {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but the updater cannot currently act.', 'keel-defaults' ) . '</strong> '
 				. esc_html( implode( '; ', $state['blockers'] ) ) . '.</p>';
 		} else {
-			$result['description'] .= '<p><strong>' . esc_html__( 'Minor updates are switched off on this site, so this patch will not arrive on its own.', 'keel-defaults' ) . '</strong> '
-				. esc_html__( 'Security backports travel on the same channel as ordinary maintenance releases; there is no separate security channel to leave open.', 'keel-defaults' ) . '</p>';
+			// This is the one place in the panel that states the cause in
+			// full. The ladder and the actions below name the kind of problem
+			// instead of repeating the sentence: all three are concatenated
+			// into a single Site Health panel, and each was written to stand
+			// alone, so a real 6.9.5 site saw the same constant named three
+			// times and "this will not arrive on its own" said five ways.
+			$result['description'] .= '<p><strong>' . sprintf(
+				/* translators: %s: patched version. */
+				esc_html__( '%s will not install by itself.', 'keel-defaults' ),
+				'<code>' . esc_html( $tip ) . '</code>'
+			) . '</strong> '
+				. ( $state['operable']
+					? esc_html__( 'Minor updates are switched off on this site, so WordPress will not fetch it.', 'keel-defaults' )
+					: sprintf(
+						/* translators: %s: reasons the updater cannot run. */
+						esc_html__( 'Two things are stopping it: minor updates are switched off, and %s.', 'keel-defaults' ),
+						esc_html( implode( '; ', $state['blockers'] ) )
+					)
+				) . '</p><p>'
+				. esc_html__( 'WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other.', 'keel-defaults' ) . '</p>';
 		}
 
 		$result['actions'] = keel_defaults_backport_actions( $tip );
@@ -543,11 +703,11 @@ function keel_defaults_backport_actions( $tip ) {
 	$state = keel_defaults_minor_update_state();
 
 	if ( ! $state['operable'] ) {
-		$out .= '<p class="description">' . sprintf(
-			/* translators: %s: comma-separated list of reasons. */
-			esc_html__( 'Automatic updates cannot run on this site at the moment: %s. Changing the update policy will not help until that is resolved.', 'keel-defaults' ),
-			esc_html( implode( '; ', $state['blockers'] ) )
-		) . '</p>';
+		// The blockers are listed in the verdict this is appended to, so
+		// this says what to do about them rather than naming them again.
+		$out .= '<p class="description">'
+			. esc_html__( 'Start with what is blocking the updater, above. Until the updater can run at all, no change to the update policy will make any difference.', 'keel-defaults' )
+			. '</p>';
 	} elseif ( ! $state['policy'] ) {
 		// Only offer the button when the option is genuinely what decides it.
 		// Otherwise it would write a value that something downstream overrides,
@@ -575,7 +735,7 @@ function keel_defaults_backport_actions( $tip ) {
 		} elseif ( 'constant' === $state['owner'] ) {
 			$out .= '<p class="description">' . sprintf(
 				/* translators: %s: constant name. */
-				esc_html__( 'The %s constant is deciding this, and Keel will not override it. Change it in wp-config.php, or install the patch once from the Updates screen.', 'keel-defaults' ),
+				esc_html__( 'The %s constant is deciding this, and Keel will not override it. Change it in wp-config.php.', 'keel-defaults' ),
 				'<code>WP_AUTO_UPDATE_CORE</code>'
 			) . '</p>';
 		} else {
@@ -585,17 +745,245 @@ function keel_defaults_backport_actions( $tip ) {
 		}
 	}
 
-	$out .= sprintf(
-		'<p><a class="button" href="%s">%s</a></p>',
-		esc_url( admin_url( 'update-core.php' ) ),
-		sprintf(
-			/* translators: %s: target version. */
-			esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
-			esc_html( $tip )
-		)
-	);
+	$offer  = keel_defaults_updates_screen_offer( $tip );
+	$screen = $offer['state'];
+
+	if ( 'visible' === $screen ) {
+		$out .= sprintf(
+			'<p><a class="button" href="%s">%s</a></p>',
+			esc_url( admin_url( 'update-core.php' ) ),
+			sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
+				esc_html( $tip )
+			)
+		);
+	} elseif ( 'hidden' === $screen ) {
+		$out .= sprintf(
+			'<p><a class="button" href="%s">%s</a></p><p class="description">%s</p>',
+			esc_url( admin_url( 'update-core.php' ) ),
+			sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Install %s now from the Updates screen', 'keel-defaults' ),
+				esc_html( $tip )
+			),
+			sprintf(
+				/* translators: 1: target version, 2: the "Show hidden updates" link on the Updates screen. */
+				esc_html__( 'Someone dismissed %1$s on this site, so the Updates screen keeps it out of the way until you select %2$s.', 'keel-defaults' ),
+				'<code>' . esc_html( $tip ) . '</code>',
+				'<strong>' . esc_html__( 'Show hidden updates', 'keel-defaults' ) . '</strong>'
+			)
+		);
+	} elseif ( 'unknown' === $screen ) {
+		$out .= sprintf(
+			'<p><a class="button" href="%s">%s</a></p><p class="description">%s</p>',
+			esc_url( admin_url( 'update-core.php' ) ),
+			esc_html__( 'Check the Updates screen', 'keel-defaults' ),
+			sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'This site has not checked WordPress.org for core updates yet, so Keel cannot say whether the Updates screen is offering %s. Opening that screen checks, and answers it.', 'keel-defaults' ),
+				'<code>' . esc_html( $tip ) . '</code>'
+			)
+		);
+	} else {
+		$code = '<code>' . esc_html( $tip ) . '</code>';
+
+		// What the screen is offering instead comes from the screen, not from
+		// stable-check. The two caches refresh independently, so naming
+		// stable-check's latest release can name a version this screen is not
+		// showing. When it is offering nothing, no substitute is claimed.
+		if ( '' !== $offer['manual'] && $offer['manual'] !== $tip ) {
+			$lead = sprintf(
+				/* translators: 1: target version, 2: the version the Updates screen is offering. */
+				esc_html__( 'The Updates screen will not offer %1$s. It is offering %2$s instead.', 'keel-defaults' ),
+				$code,
+				'<code>' . esc_html( $offer['manual'] ) . '</code>'
+			);
+		} else {
+			$lead = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'The Updates screen is not offering %s.', 'keel-defaults' ),
+				$code
+			);
+		}
+
+		// Which release cron would install is core's answer, not one to derive
+		// from policy. policy && operable says updates can run; it does not say
+		// what they would pick. On a site that also permits majors, core takes
+		// the highest rung — so this promised the patch while the ladder
+		// directly above marked a different release as the winner.
+		$route = keel_defaults_backport_route(
+			$tip,
+			$state,
+			keel_defaults_ladder_selection(),
+			null !== keel_defaults_offer_for_version( $tip )
+		);
+
+		$out .= '<p class="description">' . $lead . ' ' . $route . '</p>';
+	}
 
 	return $out;
+}
+
+/**
+ * The marker beside a rung, if any.
+ *
+ * A selection on a site whose updater cannot act is still a fact about what
+ * core would pick — it is just not a fact about what will happen. Saying
+ * "would install" there contradicts the verdict in the same panel, so the
+ * blocked case describes the choice without promising the outcome.
+ *
+ * @param string       $selection Result of keel_defaults_selection_state().
+ * @param string|false $selected  Version core selected.
+ * @param string       $version   Version of the rung being rendered.
+ * @return string Escaped markup, or ''.
+ */
+function keel_defaults_ladder_rung_mark( $selection, $selected, $version ) {
+	if ( ! is_string( $selected ) || $selected !== $version ) {
+		return '';
+	}
+
+	if ( 'blocked' === $selection ) {
+		return ' <strong>' . esc_html__( '← core would otherwise choose this one', 'keel-defaults' ) . '</strong>';
+	}
+
+	if ( 'scheduled' !== $selection ) {
+		return '';
+	}
+
+	return ' <strong>' . esc_html__( '← WordPress would install this one', 'keel-defaults' ) . '</strong>';
+}
+
+/**
+ * What core's selection actually means, in one place.
+ *
+ * Both the ladder and the route describe the same fact and each worked out its
+ * own precedence for it. The route arrived at this order over four separate
+ * review findings; the ladder, computing independently, got two of them wrong —
+ * it labelled a rung as one WordPress "would install" on a site whose updater
+ * could not act, and it blamed the site's update settings for an empty
+ * selection that a compatibility floor on every offer produces just as well.
+ *
+ * So the order is stated once and both ask for it:
+ *
+ * - `blocked`   the updater cannot act. Outranks any selection, because a
+ *               selection does not establish that a filesystem write can
+ *               complete — core evaluates relaxed file ownership per offer,
+ *               Keel evaluates it once from the branch tip, and the two can
+ *               disagree.
+ * - `unknown`   the selector could not be asked. Not an answer, and not the
+ *               same as an answer of "nothing".
+ * - `none`      core would install nothing. Why is not knowable from here.
+ * - `scheduled` core would install the version returned.
+ *
+ * @param array        $state    Result of keel_defaults_minor_update_state().
+ * @param string|false $selected Result of keel_defaults_ladder_selection().
+ * @return string One of blocked, unknown, none, scheduled.
+ */
+function keel_defaults_selection_state( array $state, $selected ) {
+	if ( empty( $state['operable'] ) ) {
+		return 'blocked';
+	}
+
+	if ( false === $selected ) {
+		return 'unknown';
+	}
+
+	if ( '' === $selected ) {
+		return 'none';
+	}
+
+	return 'scheduled';
+}
+
+/**
+ * The sentence describing how this release can actually be reached.
+ *
+ * A pure function of four inputs, deliberately. Every one of this branch's
+ * review findings was a sentence asserting something the data under it could
+ * not establish — that policy implied what cron would install, that an empty
+ * selection meant updates were off, then that it meant a stale cache, then that
+ * a selection implied the updater could write. Each was reachable only through
+ * a full panel render, which is why each shipped.
+ *
+ * Taking the four inputs as arguments makes every combination directly
+ * testable, including the ones the surrounding stubs cannot produce: a selector
+ * that could not be asked at all is a `false` here, where the live function
+ * reaches it only by wp-admin/includes/update.php being unreadable.
+ *
+ * The order matters and is not arbitrary. Operability gates every promise,
+ * because a selection does not establish that the updater can complete a
+ * filesystem write. Then an unasked selector, because that is not an answer.
+ * Only then the selection itself, and only then policy.
+ *
+ * @param string       $tip          Target version.
+ * @param array        $state        Result of keel_defaults_minor_update_state().
+ * @param string|false $selected     Result of keel_defaults_ladder_selection().
+ * @param bool         $offer_cached Whether the raw offer for $tip is cached.
+ * @return string Escaped sentence.
+ */
+function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cached ) {
+	$code = '<code>' . esc_html( $tip ) . '</code>';
+
+	$selection = keel_defaults_selection_state( $state, $selected );
+
+	if ( 'blocked' === $selection ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Reaching %s means installing it deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( 'unknown' === $selection ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( $selected === $tip ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( '' !== $selected ) {
+		return sprintf(
+			/* translators: 1: the version the scheduled check would install, 2: target version. */
+			esc_html__( 'The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line.', 'keel-defaults' ),
+			'<code>' . esc_html( $selected ) . '</code>',
+			$code
+		);
+	}
+
+	if ( $state['policy'] && ! $offer_cached ) {
+		// Absence establishes only that the release is not in the transient. It
+		// does not establish why — a freshly refreshed response can omit it too
+		// — so the cause is not named.
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'WordPress is not scheduling %s: it is not in this site\'s cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( $state['policy'] ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	return sprintf(
+		/* translators: %s: target version. */
+		esc_html__( 'Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' ),
+		$code
+	);
 }
 
 /**
@@ -814,7 +1202,15 @@ function keel_defaults_update_ladder() {
  * Reimplementing that selection here would be the mistake CONTRIBUTING.md
  * describes, and it would drift the first time core changed the order.
  *
- * @return string Version, or '' if nothing would be installed.
+ * Three answers, not two. '' means core would install nothing; false means the
+ * selector could not be asked, because wp-admin/includes/update.php was not
+ * readable. Collapsing those was a review finding of its own: it made every
+ * caller report that something had declined the release when in fact nothing
+ * had been asked. keel_defaults_selection_state() is what turns this into the
+ * state both callers act on.
+ *
+ * @return string|false Version, '' when nothing would be installed, or false
+ *                      when the selector could not be asked.
  */
 function keel_defaults_ladder_selection() {
 	$update_file = ABSPATH . 'wp-admin/includes/update.php';
@@ -824,7 +1220,10 @@ function keel_defaults_ladder_selection() {
 	}
 
 	if ( ! function_exists( 'find_core_auto_update' ) ) {
-		return '';
+		// Not the same answer as "core selected nothing". Collapsing the two
+		// makes every caller report that something declined the release, when
+		// in fact nothing was ever asked.
+		return false;
 	}
 
 	// find_core_auto_update() is not read-only. It runs every offer through
@@ -856,8 +1255,10 @@ function keel_defaults_ladder_markup() {
 		return '';
 	}
 
-	$selected = keel_defaults_ladder_selection();
-	$rows     = '';
+	$selected  = keel_defaults_ladder_selection();
+	$state     = keel_defaults_minor_update_state();
+	$selection = keel_defaults_selection_state( $state, $selected );
+	$rows      = '';
 
 	foreach ( $rungs as $rung ) {
 		$kind = $rung['same_line']
@@ -872,16 +1273,38 @@ function keel_defaults_ladder_markup() {
 			'<li><code>%1$s</code> — %2$s%3$s</li>',
 			esc_html( $rung['version'] ),
 			esc_html( $kind ),
-			( $selected === $rung['version'] )
-				? ' <strong>' . esc_html__( '← WordPress would install this one', 'keel-defaults' ) . '</strong>'
-				: ''
+			keel_defaults_ladder_rung_mark( $selection, $selected, $rung['version'] )
 		);
 	}
 
-	$note = '' === $selected
-		? esc_html__( 'Nothing would be installed automatically with the current settings.', 'keel-defaults' )
-		: esc_html__( 'WordPress takes the highest release it is permitted to, not the nearest — so the intermediate steps are skipped rather than applied in turn.', 'keel-defaults' );
+	if ( 'blocked' === $selection ) {
+		// Deliberately does not repeat the blocker list. It is stated in full
+		// above, and this list is appended directly beneath it.
+		$note = esc_html__( 'None of these will install on their own, because the updater cannot act here. Any of them can still be installed deliberately.', 'keel-defaults' );
+	} elseif ( 'unknown' === $selection ) {
+		$note = esc_html__( 'Keel could not determine which of these WordPress would install.', 'keel-defaults' );
+	} elseif ( 'scheduled' === $selection ) {
+		$note = sprintf(
+			/* translators: %s: version WordPress would install. */
+			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),
+			'<code>' . esc_html( $selected ) . '</code>'
+		);
+	} else {
+		// Not "this site's update settings decline all of them". A compatibility
+		// floor on every offer — a PHP or MySQL requirement none of them meets —
+		// produces exactly this empty selection, and changing settings would not
+		// help. The reason is not knowable from here, so it is not named.
+		$note = esc_html__( 'None of these will install on their own. Something is declining every one of them, which may be this site\'s update settings or a requirement the offers do not meet. Any of them can still be installed deliberately.', 'keel-defaults' );
+	}
 
-	return '<p>' . esc_html__( 'WordPress.org is currently offering this site more than one release:', 'keel-defaults' )
+	// Always at least two rungs: the markup returns early below that, so no
+	// plural handling is needed.
+	return '<p>' . esc_html(
+		sprintf(
+			/* translators: %d: number of releases offered. */
+			__( 'WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:', 'keel-defaults' ),
+			count( $rungs )
+		)
+	)
 		. '</p><ul>' . $rows . '</ul><p class="description">' . $note . '</p>';
 }

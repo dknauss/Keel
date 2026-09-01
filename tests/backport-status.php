@@ -237,6 +237,17 @@ function admin_url( $s = '' ) {
 }
 
 /**
+ * Stub: a nonce URL that is a URL, which is all the assertions need.
+ *
+ * @param string $url    URL.
+ * @param string $action Action.
+ * @return string
+ */
+function wp_nonce_url( $url, $action = -1 ) {
+	return $url . '&_wpnonce=test';
+}
+
+/**
  * Stub: a predictable home URL.
  *
  * @param string $s Path.
@@ -247,13 +258,19 @@ function home_url( $s = '' ) {
 }
 
 /**
- * Stub: no capabilities, so action markup stays out of these cases.
+ * Stub: no capabilities by default, so action markup stays out of the cases
+ * that are about state rather than about what gets rendered.
+ *
+ * Switchable, because a hard false makes any assertion about action markup pass
+ * without testing anything: keel_defaults_backport_actions() returns an empty
+ * string, and "the output does not contain X" is true of "". A test for copy
+ * that should no longer appear is exactly the test that failure mode hides.
  *
  * @param string $c Capability.
  * @return bool
  */
 function current_user_can( $c ) {
-	return false;   // Actions are asserted separately; keep markup out of these cases.
+	return ! empty( $GLOBALS['keel_test']['can'] );
 }
 
 /**
@@ -298,6 +315,13 @@ class Automatic_Upgrader_Skin {
 	 */
 	public function request_filesystem_credentials( $error = false, $context = '', $relaxed = false ) {
 		$GLOBALS['keel_test']['relaxed_seen'] = $relaxed;
+
+		// Counted, because this probe is the expensive part of the state and
+		// the verdict used to run a whole extra one whose result it discarded.
+		$GLOBALS['keel_test']['fs_probes'] = isset( $GLOBALS['keel_test']['fs_probes'] )
+			? $GLOBALS['keel_test']['fs_probes'] + 1
+			: 1;
+
 		return empty( $GLOBALS['keel_test']['no_fs_credentials'] );
 	}
 }
@@ -314,6 +338,60 @@ function keel_test_offers() {
 
 /**
  * Stub: core's own selector, so the ladder marks a rung without recomputing it.
+ *
+ * @return object|false
+ */
+function get_core_updates( $options = array() ) {
+	// Core returns false, not an empty array, when the update_core transient
+	// holds no updates list — a site that has not checked yet, or whose
+	// transient was cleared. That is "not known", not "not offered".
+	if ( ! empty( $GLOBALS['keel_test']['core_updates_uncached'] ) ) {
+		return false;
+	}
+
+	// Mirrors core: offers flagged autoupdate are skipped, so only the manual
+	// upgrade offer appears — which is why a same-line patch is not reachable
+	// from that screen.
+	//
+	// It also mirrors core's dismissal handling, because that is a second way
+	// an offer goes missing and it is opt-in. Core defaults to
+	// available => true, dismissed => false, and stamps ->dismissed on what it
+	// returns; a caller taking the defaults cannot see a hidden offer at all,
+	// and cannot tell the two cases apart if it does ask for them.
+	$options = array_merge(
+		array(
+			'available' => true,
+			'dismissed' => false,
+		),
+		$options
+	);
+
+	$dismissed = isset( $GLOBALS['keel_test']['dismissed'] ) ? $GLOBALS['keel_test']['dismissed'] : array();
+	$out       = array();
+
+	foreach ( keel_test_offers() as $o ) {
+		if ( isset( $o->response ) && 'autoupdate' === $o->response ) {
+			continue;
+		}
+
+		$is_dismissed = in_array( $o->current, $dismissed, true );
+
+		if ( $is_dismissed ) {
+			if ( $options['dismissed'] ) {
+				$o->dismissed = true;
+				$out[]        = $o;
+			}
+		} elseif ( $options['available'] ) {
+			$o->dismissed = false;
+			$out[]        = $o;
+		}
+	}
+
+	return $out;
+}
+
+/**
+ * Stub: core's own selector.
  *
  * @return object|false
  */
@@ -626,6 +704,746 @@ keel_assert(
 	in_array( 'send_core_update_notification_email', $GLOBALS['keel_test']['filters_removed'], true ),
 	'the suppression is removed again afterwards, not left in place'
 );
+
+
+// --- 14. never send people to a screen that cannot deliver ----------------
+// Found on a real 6.9.5 site: the panel offered "Install 6.9.7 from the Updates
+// screen", but get_core_updates() skips autoupdate offers, so that screen lists
+// only 7.1. Following the button would have installed three release lines
+// instead of a patch.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['offers']  = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+keel_assert(
+	'none' === keel_defaults_updates_screen_offer( '6.8.8' )['state'],
+	'a same-line patch is not reachable from the Updates screen'
+);
+keel_assert(
+	'visible' === keel_defaults_updates_screen_offer( '7.1' )['state'],
+	'the newest release is reachable from the Updates screen'
+);
+
+
+// --- 15. a dismissed offer is hidden, not absent -------------------------
+// get_core_updates() takes dismissed => false by default, so an offer someone
+// dismissed comes back missing rather than flagged. Reading that as "the
+// Updates screen will not offer this" is wrong twice over: the screen still
+// lists it under "Show hidden updates", and the copy for the absent case goes
+// on to say the screen would install something else instead — which, when the
+// dismissed offer IS the newest release, names the very version being hidden.
+
+$GLOBALS['keel_test']['offers']    = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+);
+$GLOBALS['keel_test']['dismissed'] = array( '7.1' );
+
+keel_assert(
+	'hidden' === keel_defaults_updates_screen_offer( '7.1' )['state'],
+	'a dismissed offer is reported as hidden rather than absent'
+);
+
+$GLOBALS['keel_test']['dismissed'] = array();
+
+keel_assert(
+	'visible' === keel_defaults_updates_screen_offer( '7.1' )['state'],
+	'the same offer is visible once it is no longer dismissed'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+
+
+// --- 17. one panel says the blocker once -----------------------------------
+// Found by reading the real Site Health output on a 6.9.5 site. Three separate
+// blocks each named the same cause in full — "automatic updates are switched
+// off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php"
+// appeared three times in one panel, and "this will not install by itself" was
+// said five ways. Each block was written to stand alone, which is right when it
+// is shown alone and wrong when they are concatenated.
+//
+// The panel is verdict, then ladder, then actions. Only the verdict states the
+// cause in full now; the other two refer to the kind of problem without
+// restating it, so each still reads on its own.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'disabled' );
+$GLOBALS['keel_test']['updater_disabled'] = true;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['selected']         = '';
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'the fixture actually produces a blocked updater' );
+
+$result = keel_defaults_backport_test();
+$panel  = $result['description'] . keel_defaults_backport_actions( '6.8.8' );
+
+$blocker = 'automatic updates are switched off';
+
+keel_assert(
+	1 === substr_count( $panel, $blocker ),
+	sprintf( 'the panel names the blocking cause once, not %d times', substr_count( $panel, $blocker ) )
+);
+keel_assert(
+	1 === substr_count( $panel, 'will not install by itself' ),
+	'the panel says a patch will not arrive on its own once'
+);
+keel_assert(
+	false === strpos( $panel, 'Someone has to install it.' ),
+	'the consequence is not restated as its own sentence'
+);
+keel_assert(
+	false !== strpos( $panel, '<code>6.8.8</code> will not install by itself' ),
+	'the version in that sentence carries code markup like every other version in the panel'
+);
+
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['offers']           = array();
+$GLOBALS['keel_test']['can']              = false;
+
+
+// --- 18. do not tell a working site to resume what it never stopped -------
+// The same failure as 16, one block further on. When the policy permits minor
+// updates and the updater is operable, the verdict says the patch should
+// install on a scheduled check — and this block then said reaching it means
+// "letting automatic updates resume". They have not stopped. That is the
+// ordinary window between a release being offered and cron getting to it, and
+// it is the state a correctly configured site is in.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+// Core has to have selected the patch for the scheduled check to install it.
+// This fixture originally left the selection unset and relied on policy &&
+// operable, which is the assumption test 20 exists to reject.
+$GLOBALS['keel_test']['selected'] = '6.8.8';
+
+$state = keel_defaults_minor_update_state();
+keel_assert( true === $state['policy'], 'the fixture permits minor updates' );
+keel_assert( true === $state['operable'], 'the fixture has an operable updater' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'letting automatic updates resume' ),
+	'a site whose automatic updates are running is not told to resume them'
+);
+keel_assert(
+	false !== strpos( $actions, 'scheduled check' ),
+	'it is told the scheduled check will install it, which is what the verdict above says'
+);
+
+// The same sentence still has to be there for a site that HAS switched them
+// off, which is the case the wording was written for. Core selects nothing on
+// such a site, so the stubbed selection has to go with the policy.
+$GLOBALS['keel_test']['options']  = array( 'auto_update_core_minor' => 'disabled' );
+$GLOBALS['keel_test']['selected'] = '';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'letting automatic updates resume' ),
+	'a site with minor updates switched off is still told resuming them is a route'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+$GLOBALS['keel_test']['can']    = false;
+
+
+// --- 19. missing update data is not proof of a missing offer -------------
+// get_core_updates() returns false when the update_core transient has no
+// updates list. Reading that as "the Updates screen will not offer this" turns
+// an absence of data into a categorical claim — and the copy for that case goes
+// on to say the screen would install the newest release instead, which on a
+// site whose same-line patch IS the newest release names the version it is
+// denying. Visiting update-core.php refreshes the data and may well offer it.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']               = '6.8.7';
+$GLOBALS['keel_test']['can']                   = true;
+$GLOBALS['keel_test']['core_updates_uncached'] = true;
+
+keel_assert(
+	'unknown' === keel_defaults_updates_screen_offer( '6.8.8' )['state'],
+	'no cached update data reports unknown, not none'
+);
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'will not offer' ),
+	'an unknown state does not claim the Updates screen will not offer the patch'
+);
+keel_assert(
+	false === strpos( $actions, 'instead' ),
+	'an unknown state does not claim the screen would install something else instead'
+);
+keel_assert(
+	false !== strpos( $actions, 'has not checked' ),
+	'an unknown state says the data is missing, which is the thing actually known'
+);
+
+$GLOBALS['keel_test']['core_updates_uncached'] = false;
+$GLOBALS['keel_test']['can']                   = false;
+
+
+// --- 20. the route agrees with the ladder about what cron will do --------
+// The route said "wait for the scheduled check to install <tip>" from
+// policy && operable alone, which does not identify the selected offer. On a
+// site with majors enabled too, core selects the highest rung — so the ladder
+// marked 7.1 as the winner and the sentence underneath promised 6.8.8. Ask
+// keel_defaults_ladder_selection(), which is already the component that knows.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+// Core selects a higher rung than the patch.
+$GLOBALS['keel_test']['selected'] = '7.1';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'waiting for the scheduled check to install it' ),
+	'the route does not promise cron will install the patch when core selected a different release'
+);
+keel_assert(
+	false !== strpos( $actions, 'and skip' ),
+	'the route says cron will install that release and skip the patch'
+);
+
+// Core selects the patch itself.
+$GLOBALS['keel_test']['selected'] = '6.8.8';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'waiting for the scheduled check to install it' ),
+	'the route does promise the scheduled check when core selected the patch'
+);
+
+// Core selects nothing at all.
+$GLOBALS['keel_test']['selected'] = '';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'waiting for the scheduled check' ),
+	'the route promises no scheduled installation when core would install nothing'
+);
+
+
+// --- 21. the substitute named is the one the screen actually offers ------
+// The "would install X instead" version came from stable-check's idea of the
+// latest release, while the screen's offer comes from the update_core
+// transient. Those refresh independently, so a valid but older cache offers a
+// different version than stable-check names — and Keel would name a version
+// the screen is not offering.
+
+$GLOBALS['keel_test']['selected'] = '';
+$GLOBALS['keel_test']['offers']   = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.0.4',   // what the screen actually offers
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$offer = keel_defaults_updates_screen_offer( '6.8.8' );
+
+keel_assert( 'none' === $offer['state'], 'the patch is still not reachable from the screen' );
+keel_assert( '7.0.4' === $offer['manual'], 'the helper reports the offer the screen actually shows' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, '7.0.4' ),
+	'the copy names the version the screen offers'
+);
+keel_assert(
+	false === strpos( $actions, '7.1' ),
+	'the copy does not name stable-check\'s latest release, which the screen is not offering'
+);
+
+
+// --- 22. the verdict does not run a probe it throws away -----------------
+// $auto = keel_defaults_minor_updates_enabled() was assigned and never read.
+// It runs the filesystem-credential and version-control checks in full, on
+// every verdict including good and unknown ones, and the branches below then
+// run them again.
+
+$GLOBALS['keel_test']['offers']    = array();
+$GLOBALS['keel_test']['version']   = '7.1';   // 'latest' — the cheapest verdict
+$GLOBALS['keel_test']['fs_probes'] = 0;
+
+keel_defaults_backport_verdict();
+
+keel_assert(
+	0 === $GLOBALS['keel_test']['fs_probes'],
+	sprintf( 'a settled verdict probes the filesystem 0 times, not %d', $GLOBALS['keel_test']['fs_probes'] )
+);
+
+$GLOBALS['keel_test']['can'] = false;
+
+
+// --- 23. an empty selection is not proof that updates are switched off ---
+// find_core_auto_update() returns nothing for two unrelated reasons: the policy
+// declines everything, or the policy is fine and the cached update_core offers
+// simply do not contain the patch yet. stable-check and update_core refresh
+// independently, so a site can know about 6.8.8 from one cache while the other
+// still predates it. Reading the empty selector as "switched off" tells a site
+// whose automation is running to resume it — the same error as test 18, one
+// level further down, reintroduced by the fix for it.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['selected']         = '';
+
+// A stale offers list: it predates the patch, so nothing permitted is in it.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( true === $state['policy'], 'the fixture permits minor updates' );
+keel_assert( true === $state['operable'], 'the fixture has an operable updater' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'letting automatic updates resume' ),
+	'a site with automation running is not told to resume it because the cache is stale'
+);
+keel_assert(
+	false === strpos( $actions, 'waiting for the scheduled check to install it' ),
+	'nor is a scheduled installation promised, because core has selected nothing'
+);
+keel_assert(
+	false !== strpos( $actions, 'not in this site' ),
+	'it says what is actually true: the release is not in the cached list'
+);
+
+// The same empty selection, on a site that HAS switched updates off, still
+// gets the sentence about resuming them.
+$GLOBALS['keel_test']['options'] = array( 'auto_update_core_minor' => 'disabled' );
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'letting automatic updates resume' ),
+	'a site that really has switched updates off is still told resuming them is a route'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+$GLOBALS['keel_test']['can']    = false;
+
+
+// --- 24. an absent offer and a declined offer are different things -------
+// Test 23 stopped reading an empty selection as "updates are switched off".
+// It then read it as "the cached offers predate the patch" — which is one
+// reason among several. find_core_auto_update() also returns nothing when the
+// offer IS cached and something downstream declines it: the auto_update_core
+// filter, an unmet PHP or MySQL requirement on that offer, disable_autoupdate,
+// a recorded non-critical failure for that version, or the selector failing to
+// load. Naming the cache in those cases diagnoses the wrong thing.
+//
+// So the raw offer decides which sentence applies, and neither sentence
+// guesses which downstream gate did the declining.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['can']              = true;
+$GLOBALS['keel_test']['selected']         = '';
+
+// The patch IS in the offers, and core still selected nothing.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'not in this site' ),
+	'a cached offer is not described as missing from the cache'
+);
+keel_assert(
+	false === strpos( $actions, 'predates' ),
+	'nor is the cache blamed when the cache plainly contains the release'
+);
+keel_assert(
+	false === strpos( $actions, 'letting automatic updates resume' ),
+	'and automation that is running is still not told to resume'
+);
+keel_assert(
+	false !== strpos( $actions, 'not currently scheduling' ),
+	'it says core is not scheduling it, which is the whole of what is known'
+);
+
+// With the offer absent, the cache explanation is the right one again.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+);
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $actions, 'not in this site' ),
+	'an absent offer is still explained as one the cache does not hold yet'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+$GLOBALS['keel_test']['can']    = false;
+
+
+// --- 25. no scheduled promise while the updater cannot act ---------------
+// Every route that promises an installation was decided from the selection
+// alone, and a selection does not prove the updater can complete a filesystem
+// write. The two answers are computed differently: core evaluates relaxed file
+// ownership per offer, from that offer's new_files, while
+// keel_defaults_relaxed_ownership_allowed() evaluates it once from the branch
+// tip and probes credentials with that single value. A tip that adds new files
+// alongside a higher offer that does not is enough to separate them — core
+// selects the higher offer, Keel finds the updater inoperable, and the panel
+// then said the updater cannot act and promised a scheduled install in
+// consecutive sentences.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']           = '6.8.7';
+$GLOBALS['keel_test']['options']           = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled']  = false;
+$GLOBALS['keel_test']['can']               = true;
+$GLOBALS['keel_test']['no_fs_credentials'] = true;
+$GLOBALS['keel_test']['offers']            = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'the fixture has an inoperable updater' );
+
+// Core selected something other than the patch.
+$GLOBALS['keel_test']['selected'] = '7.1';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'The scheduled check will install' ),
+	'an inoperable updater is not said to be about to install anything'
+);
+
+// Core selected the patch itself.
+$GLOBALS['keel_test']['selected'] = '6.8.8';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'waiting for the scheduled check to install it' ),
+	'nor is the patch itself promised on a schedule that cannot run'
+);
+keel_assert(
+	false !== strpos( $actions, 'cannot act' ),
+	'it says the updater cannot act, which is what the verdict above already found'
+);
+
+$GLOBALS['keel_test']['no_fs_credentials'] = false;
+$GLOBALS['keel_test']['offers']            = array();
+$GLOBALS['keel_test']['can']               = false;
+
+
+// --- 26. the route, every branch, as a pure function ---------------------
+// Six findings on this branch were sentences asserting more than their inputs
+// established, each reachable only through a full panel render. The decision is
+// now a pure function of four inputs, so the combinations can be stated rather
+// than staged — including the one no stub here can produce, a selector that was
+// never asked.
+
+$op    = array(
+	'policy'   => true,
+	'operable' => true,
+	'blockers' => array(),
+	'owner'    => 'option',
+);
+$inop  = array_merge( $op, array( 'operable' => false ) );
+$nopol = array_merge( $op, array( 'policy' => false ) );
+
+// Absence of an offer does not establish why it is absent.
+$r = keel_defaults_backport_route( '6.8.8', $op, '', false );
+keel_assert( false !== strpos( $r, 'not in this site' ), 'an absent offer is reported as absent from the cache' );
+keel_assert( false === strpos( $r, 'predates' ), 'and no cause is attributed for the absence' );
+
+// A selector that could not be asked is not a selector that chose nothing.
+$r = keel_defaults_backport_route( '6.8.8', $op, false, true );
+keel_assert( false !== strpos( $r, 'could not determine' ), 'an unasked selector is reported as undetermined' );
+keel_assert( false === strpos( $r, 'something is declining' ), 'and nothing is said to have declined the release' );
+keel_assert( false === strpos( $r, 'not in this site' ), 'nor is the cache implicated' );
+
+// Inoperable wins over every selection, including one naming the patch.
+foreach ( array( '6.8.8', '7.1', '', false ) as $sel ) {
+	$r = keel_defaults_backport_route( '6.8.8', $inop, $sel, true );
+	keel_assert( false !== strpos( $r, 'cannot act' ), 'an inoperable updater decides the route whatever was selected' );
+	keel_assert( false === strpos( $r, 'scheduled check' ), 'and promises no schedule' );
+}
+
+// The remaining branches.
+$r = keel_defaults_backport_route( '6.8.8', $op, '6.8.8', true );
+keel_assert( false !== strpos( $r, 'waiting for the scheduled check' ), 'the patch selected is a wait' );
+
+$r = keel_defaults_backport_route( '6.8.8', $op, '7.1', true );
+keel_assert( false !== strpos( $r, 'and skip' ), 'another release selected skips the patch' );
+
+$r = keel_defaults_backport_route( '6.8.8', $op, '', true );
+keel_assert( false !== strpos( $r, 'something is declining' ), 'a cached offer core declined says so, without naming the gate' );
+
+$r = keel_defaults_backport_route( '6.8.8', $nopol, '', true );
+keel_assert( false !== strpos( $r, 'letting automatic updates resume' ), 'a declining policy is the only case told to resume' );
+
+
+// --- 27. the ladder obeys the same precedence as the route ---------------
+// The route learned this order over four findings; the ladder computed its own
+// and got two of them wrong. It checked the selection before operability, so an
+// inoperable site had a rung labelled "WordPress would install this one" in the
+// same panel that said the updater cannot act. And its last branch blamed the
+// site's update settings for an empty selection, when a compatibility floor on
+// every offer produces the same empty selection and changing settings cannot
+// help. The order now lives in one function that both callers ask.
+
+keel_assert(
+	'blocked' === keel_defaults_selection_state(
+		array(
+			'operable' => false,
+			'policy'   => true,
+		),
+		'6.8.8'
+	),
+	'an inoperable updater outranks a selection'
+);
+keel_assert(
+	'unknown' === keel_defaults_selection_state(
+		array(
+			'operable' => true,
+			'policy'   => true,
+		),
+		false
+	),
+	'a selector that could not be asked is its own state'
+);
+keel_assert(
+	'none' === keel_defaults_selection_state(
+		array(
+			'operable' => true,
+			'policy'   => true,
+		),
+		''
+	),
+	'nothing selected is its own state'
+);
+keel_assert(
+	'scheduled' === keel_defaults_selection_state(
+		array(
+			'operable' => true,
+			'policy'   => true,
+		),
+		'7.1'
+	),
+	'a selection on an operable site is scheduled'
+);
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']          = '6.8.7';
+$GLOBALS['keel_test']['options']          = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled'] = false;
+$GLOBALS['keel_test']['offers']           = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+// The live API returns both an upgrade offer and autoupdate offers for the same
+// release; only the autoupdate ones become rungs, so the ladder needs two.
+$GLOBALS['keel_test']['offers'] = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+// Inoperable, with core having selected a rung anyway.
+$GLOBALS['keel_test']['no_fs_credentials'] = true;
+$GLOBALS['keel_test']['selected']          = '7.1';
+
+$ladder = keel_defaults_ladder_markup();
+
+keel_assert(
+	false === strpos( $ladder, 'would install this one' ),
+	'no rung is labelled as one WordPress would install while the updater cannot act'
+);
+keel_assert(
+	false === strpos( $ladder, 'WordPress would install <code>7.1</code>' ),
+	'nor does the note promise that installation'
+);
+keel_assert(
+	false !== strpos( $ladder, 'otherwise choose' ),
+	'the selection is described as what core would otherwise choose'
+);
+
+// Operable, nothing selected: the reason is not knowable, so it is not named.
+$GLOBALS['keel_test']['no_fs_credentials'] = false;
+$GLOBALS['keel_test']['selected']          = '';
+
+$ladder = keel_defaults_ladder_markup();
+
+keel_assert(
+	false === strpos( $ladder, 'update settings decline' ),
+	'an empty selection is not blamed on the update settings, which may not be the cause'
+);
+keel_assert(
+	false !== strpos( $ladder, 'installed deliberately' ),
+	'the deliberate route survives'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
+
+
+// --- 16. the constant-owner action does not send anyone to that screen ----
+// WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
+// last. The branch it covers used to end "or install the patch once from the
+// Updates screen" — the exact advice the rest of this file exists to withdraw,
+// left behind on the one path that never went through the shared check.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version'] = '6.8.7';
+$GLOBALS['keel_test']['offers']  = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+define( 'WP_AUTO_UPDATE_CORE', false );
+
+$state = keel_defaults_minor_update_state();
+keel_assert( 'constant' === $state['owner'], 'the constant owns the decision once defined' );
+keel_assert( false === $state['policy'], 'WP_AUTO_UPDATE_CORE=false resolves minor updates to off' );
+
+$GLOBALS['keel_test']['can'] = true;
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	'' !== $actions,
+	'the action markup is actually rendered, so the assertions below test something'
+);
+
+keel_assert(
+	false === strpos( $actions, 'install the patch once from the Updates screen' ),
+	'the constant-owner action does not recommend the Updates screen'
+);
+keel_assert(
+	false !== strpos( $actions, 'WP_AUTO_UPDATE_CORE' ),
+	'the constant-owner action still names the constant to change'
+);
+keel_assert(
+	false !== strpos( $actions, 'will not offer' ),
+	'the constant-owner action falls through to the shared availability result'
+);
+
+$GLOBALS['keel_test']['offers'] = array();
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

@@ -30,6 +30,23 @@ This release expands the schema to 39 defaults.
       takes the highest permitted offer, so honouring a chosen rung means Keel
       running the core upgrader itself.
 
+- [ ] **Structured blocker codes** ([#138](https://github.com/dknauss/Keel/issues/138), step 0) — prerequisite.
+      `keel_defaults_minor_update_state()` returns blockers as translated strings, so
+      nothing can tell a filesystem blocker from a policy one without matching text —
+      which breaks in every locale and is what CONTRIBUTING.md forbids. Each becomes
+      `array( 'code', 'text' )` with stable codes. Lands before the install, on its own.
+
+- [ ] **Install the same-line patch** ([#138](https://github.com/dknauss/Keel/issues/138)) — planned.
+      The install half of the above, scoped to one release rather than the ladder:
+      a button that hands the site's own branch tip to `Core_Upgrader::upgrade()`.
+      Cheap because the upgrader has no auto-update policy gate — those live in
+      `WP_Automatic_Updater::should_update()` — so an `autoupdate` offer passes
+      through untouched, and the offer is already in the `update_core` transient
+      Keel reads. The target is recomputed server-side and can only ever be the
+      branch tip, so it moves a site forward within its own line and cannot cross
+      one or go back. First write to the filesystem outside a settings save;
+      wants the deep review.
+
 - [x] **Author-feed status** ([#101](https://github.com/dknauss/Keel/issues/101)) — done 2026-08-23. The feed was already caught by the
       archive's broad 301 because WordPress sets both query flags. It now returns
       an explicit 404 while the HTML archive keeps its existing 301. No new setting.
