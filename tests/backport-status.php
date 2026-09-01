@@ -79,6 +79,11 @@ function wp_get_wp_version() {
  * @return mixed
  */
 function get_site_transient( $k ) {
+	if ( 'update_core' === $k ) {
+		$offers = keel_test_offers();
+		return empty( $offers ) ? false : (object) array( 'updates' => $offers );
+	}
+
 	return isset( $GLOBALS['keel_test']['transients'][ $k ] ) ? $GLOBALS['keel_test']['transients'][ $k ] : false;
 }
 
@@ -283,6 +288,26 @@ class Automatic_Upgrader_Skin {
 		$GLOBALS['keel_test']['relaxed_seen'] = $relaxed;
 		return empty( $GLOBALS['keel_test']['no_fs_credentials'] );
 	}
+}
+
+/**
+ * Stub: the cached core update offers the ladder reads.
+ *
+ * @param string $k Key.
+ * @return mixed
+ */
+function keel_test_offers() {
+	return isset( $GLOBALS['keel_test']['offers'] ) ? $GLOBALS['keel_test']['offers'] : array();
+}
+
+/**
+ * Stub: core's own selector, so the ladder marks a rung without recomputing it.
+ *
+ * @return object|false
+ */
+function find_core_auto_update() {
+	$v = isset( $GLOBALS['keel_test']['selected'] ) ? $GLOBALS['keel_test']['selected'] : '';
+	return '' === $v ? false : (object) array( 'current' => $v );
 }
 
 require dirname( __DIR__ ) . '/includes/backports.php';
@@ -508,6 +533,66 @@ $state                                    = keel_defaults_minor_update_state();
 keel_assert( 1 === count( $state['blockers'] ), 'a blocked file mod is reported once, not twice' );
 $GLOBALS['keel_test']['file_mod_blocked'] = false;
 $GLOBALS['keel_test']['updater_disabled'] = false;
+
+
+// --- 12. the ladder -------------------------------------------------------
+// The point of showing it: WordPress takes the highest permitted offer, so the
+// same-line patch a reader assumes they are getting is the one skipped.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']  = '6.8.7';
+$GLOBALS['keel_test']['selected'] = '7.1';
+$GLOBALS['keel_test']['offers']   = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.0.4',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.9.7',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+		'packages' => (object) array( 'partial' => 'https://example.test/partial.zip' ),
+	),
+);
+
+$rungs = keel_defaults_update_ladder();
+keel_assert( 4 === count( $rungs ), 'the ladder lists every autoupdate offer above the current version' );
+keel_assert( '6.8.8' === $rungs[0]['version'], 'the ladder is ordered ascending, nearest first' );
+keel_assert( '7.1' === $rungs[3]['version'], 'the ladder ends at the current release' );
+keel_assert( true === $rungs[0]['same_line'], 'a same-line patch is marked as such' );
+keel_assert( false === $rungs[1]['same_line'], 'a cross-line release is not' );
+keel_assert( true === $rungs[0]['delta'], 'a delta package is noted where the offer has one' );
+
+$markup = keel_defaults_ladder_markup();
+keel_assert( false !== strpos( $markup, '6.8.8' ), 'the markup names the nearest patch' );
+keel_assert(
+	false !== strpos( $markup, 'install this one' ),
+	'the markup marks the rung WordPress would actually take'
+);
+
+// A site one line behind has a single rung, and no ladder is worth showing.
+$GLOBALS['keel_test']['version'] = '7.0.4';
+$GLOBALS['keel_test']['offers']  = array(
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.1',
+	),
+);
+keel_assert( 1 === count( keel_defaults_update_ladder() ), 'one line behind gives one rung' );
+keel_assert( '' === keel_defaults_ladder_markup(), 'a single rung renders nothing — there is no choice to show' );
+
+$GLOBALS['keel_test']['offers'] = array();
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
