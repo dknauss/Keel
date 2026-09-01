@@ -658,9 +658,18 @@ keel_assert(
 keel_test_prime( $map );
 $GLOBALS['keel_test']['version'] = '6.8.7';
 $GLOBALS['keel_test']['offers']  = array(
-	(object) array( 'response' => 'upgrade',    'current' => '7.1' ),
-	(object) array( 'response' => 'autoupdate', 'current' => '7.1' ),
-	(object) array( 'response' => 'autoupdate', 'current' => '6.8.8' ),
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
 );
 
 keel_assert(

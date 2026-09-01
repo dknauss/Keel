@@ -186,6 +186,16 @@ function keel_defaults_latest_version() {
 }
 
 /**
+ * The x.y line a version belongs to, for naming it in prose.
+ *
+ * @param string $version Full version.
+ * @return string
+ */
+function keel_defaults_version_line( $version ) {
+	return implode( '.', array_slice( preg_split( '/[.-]/', $version ), 0, 2 ) );
+}
+
+/**
  * Whether the Updates screen actually offers this release.
  *
  * It usually does not. get_core_updates() skips every offer whose response is
@@ -271,7 +281,7 @@ function keel_defaults_minor_update_state() {
 	$blockers = array();
 
 	if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) ) {
-		$blockers[] = __( 'file modifications are not permitted', 'keel-defaults' );
+		$blockers[] = __( 'file changes are blocked, normally by the DISALLOW_FILE_MODS constant in wp-config.php', 'keel-defaults' );
 	}
 
 	// Ask core, rather than re-deriving its answer. is_disabled() passes the
@@ -295,7 +305,17 @@ function keel_defaults_minor_update_state() {
 	// is_disabled() already folds in wp_is_file_mod_allowed(), so the specific
 	// reason is reported above and this only fires for some *other* cause.
 	if ( $updater && $updater->is_disabled() && empty( $blockers ) ) {
-		$blockers[] = __( 'the automatic updater is switched off', 'keel-defaults' );
+		// is_disabled() decides whether it is off. Which input caused it is a
+		// separate question, asked only so the message can say where to look —
+		// "switched off" with no location is the least useful true statement
+		// this check could make.
+		if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
+			$blockers[] = __( 'automatic updates are switched off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php', 'keel-defaults' );
+		} elseif ( apply_filters( 'automatic_updater_disabled', false ) ) {
+			$blockers[] = __( 'a plugin or theme on this site switches automatic updates off, using the automatic_updater_disabled filter', 'keel-defaults' );
+		} else {
+			$blockers[] = __( 'automatic updates are switched off, though not by a constant or filter Keel can name', 'keel-defaults' );
+		}
 	}
 
 	// Core refuses an update it cannot get filesystem credentials for, before
@@ -309,18 +329,18 @@ function keel_defaults_minor_update_state() {
 		$skin = new Automatic_Upgrader_Skin();
 
 		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
-			$blockers[] = __( 'WordPress cannot get the filesystem access it needs', 'keel-defaults' );
+			$blockers[] = __( 'WordPress cannot write to its own files without FTP credentials', 'keel-defaults' );
 		}
 	}
 
 	$failed = get_site_option( 'auto_core_update_failed' );
 
 	if ( is_array( $failed ) && ! empty( $failed['critical'] ) ) {
-		$blockers[] = __( 'a previous core update failed critically', 'keel-defaults' );
+		$blockers[] = __( 'an earlier core update failed badly enough that WordPress will not retry on its own', 'keel-defaults' );
 	}
 
 	if ( $updater && $updater->is_vcs_checkout( ABSPATH ) ) {
-		$blockers[] = __( 'the site is under version control', 'keel-defaults' );
+		$blockers[] = __( 'the site is under version control, so WordPress will not overwrite its own files', 'keel-defaults' );
 	}
 
 	// Who owns the minor decision. Order matters: the first owner found wins,
@@ -500,8 +520,10 @@ function keel_defaults_backport_verdict() {
 
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress.org classifies %1$s as insecure. The applicable release on this line is %2$s, which is not currently flagged, and moving to it does not change major version.', 'keel-defaults' ),
+			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The fix for the %3$s version line is %4$s. That is a same-line update — only the third number changes, so no features change and nothing is deprecated.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
+			'<strong>' . esc_html__( 'insecure', 'keel-defaults' ) . '</strong>',
+			'<code>' . esc_html( keel_defaults_version_line( $version ) ) . '</code>',
 			'<code>' . esc_html( $tip ) . '</code>'
 		) . '</p>';
 
@@ -513,16 +535,20 @@ function keel_defaults_backport_verdict() {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but the updater cannot currently act.', 'keel-defaults' ) . '</strong> '
 				. esc_html( implode( '; ', $state['blockers'] ) ) . '.</p>';
 		} else {
-			$result['description'] .= '<p><strong>' . esc_html__( 'This patch will not arrive on its own.', 'keel-defaults' ) . '</strong> '
+			$result['description'] .= '<p><strong>' . sprintf(
+				/* translators: %s: patched version. */
+				esc_html__( '%s will not install by itself. Someone has to install it.', 'keel-defaults' ),
+				esc_html( $tip )
+			) . '</strong> '
 				. ( $state['operable']
-					? esc_html__( 'Minor updates are switched off on this site.', 'keel-defaults' )
+					? esc_html__( 'Minor updates are switched off on this site, so WordPress will not fetch it.', 'keel-defaults' )
 					: sprintf(
 						/* translators: %s: reasons the updater cannot run. */
-						esc_html__( 'Minor updates are switched off, and the updater could not run in any case: %s. Both would need resolving.', 'keel-defaults' ),
+						esc_html__( 'Two things are stopping it: minor updates are switched off, and %s. Both would need fixing before WordPress could install it unattended.', 'keel-defaults' ),
 						esc_html( implode( '; ', $state['blockers'] ) )
 					)
-				) . ' '
-				. esc_html__( 'Security backports travel on the same channel as ordinary maintenance releases; there is no separate security channel to leave open.', 'keel-defaults' ) . '</p>';
+				) . '</p><p>'
+				. esc_html__( 'WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other.', 'keel-defaults' ) . '</p>';
 		}
 
 		$result['actions'] = keel_defaults_backport_actions( $tip );
@@ -585,9 +611,11 @@ function keel_defaults_backport_actions( $tip ) {
 	$state = keel_defaults_minor_update_state();
 
 	if ( ! $state['operable'] ) {
-		$out .= '<p class="description">'
-			. esc_html__( 'Until the updater can run, no change to the update policy will make this install by itself.', 'keel-defaults' )
-			. '</p>';
+		$out .= '<p class="description">' . sprintf(
+			/* translators: %s: reasons the updater cannot run. */
+			esc_html__( 'To let WordPress install this unattended, start here: %s. Until that is resolved, no change to the update policy will make any difference.', 'keel-defaults' ),
+			esc_html( implode( '; ', $state['blockers'] ) )
+		) . '</p>';
 	} elseif ( ! $state['policy'] ) {
 		// Only offer the button when the option is genuinely what decides it.
 		// Otherwise it would write a value that something downstream overrides,
@@ -927,10 +955,32 @@ function keel_defaults_ladder_markup() {
 		);
 	}
 
-	$note = '' === $selected
-		? esc_html__( 'Nothing would be installed automatically with the current settings.', 'keel-defaults' )
-		: esc_html__( 'WordPress takes the highest release it is permitted to, not the nearest — so the intermediate steps are skipped rather than applied in turn.', 'keel-defaults' );
+	$state = keel_defaults_minor_update_state();
 
-	return '<p>' . esc_html__( 'WordPress.org is currently offering this site more than one release:', 'keel-defaults' )
+	if ( '' !== $selected ) {
+		$note = sprintf(
+			/* translators: %s: version WordPress would install. */
+			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),
+			'<code>' . esc_html( $selected ) . '</code>'
+		);
+	} elseif ( ! $state['operable'] ) {
+		$note = sprintf(
+			/* translators: %s: reasons the updater cannot run. */
+			esc_html__( 'None of these will install on their own, because %s. Any of them can still be installed deliberately.', 'keel-defaults' ),
+			esc_html( implode( '; ', $state['blockers'] ) )
+		);
+	} else {
+		$note = esc_html__( 'None of these will install on their own, because this site\'s update settings decline all of them. Any of them can still be installed deliberately.', 'keel-defaults' );
+	}
+
+	// Always at least two rungs: the markup returns early below that, so no
+	// plural handling is needed.
+	return '<p>' . esc_html(
+		sprintf(
+			/* translators: %d: number of releases offered. */
+			__( 'WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:', 'keel-defaults' ),
+			count( $rungs )
+		)
+	)
 		. '</p><ul>' . $rows . '</ul><p class="description">' . $note . '</p>';
 }
