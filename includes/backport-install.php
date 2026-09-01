@@ -124,7 +124,19 @@ function keel_defaults_validate_install_offer( $offer ) {
 			return new WP_Error( 'invalid_offer', __( 'The cached update offer is incomplete. Check for updates again, then retry.', 'keel-defaults' ) );
 		}
 
-		if ( false !== $offer->packages->$field && ( ! is_string( $offer->packages->$field ) || '' === $offer->packages->$field ) ) {
+		$package = $offer->packages->$field;
+
+		// An unoffered package reaches the transient as '' rather than false:
+		// wp_version_check() maps every package through esc_url(), and
+		// esc_url( false ) is ''. Localized installs are where that matters —
+		// a site sending local_package gets an offer whose only package is the
+		// localized full zip, with no_content, new_bundled, partial and
+		// rollback all false, so all four arrive here empty. Rejecting '' made
+		// this refuse the install on every non-English site.
+		//
+		// Both spellings mean the same thing, and core's own package selection
+		// tests truthiness rather than identity, so both are accepted.
+		if ( false !== $package && '' !== $package && ! is_string( $package ) ) {
 			return new WP_Error( 'invalid_offer', __( 'The cached update offer contains an invalid package. Check for updates again, then retry.', 'keel-defaults' ) );
 		}
 	}

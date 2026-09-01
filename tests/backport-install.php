@@ -223,6 +223,77 @@ function keel_install_error_code( $value ) {
 
 keel_install_prime_offer();
 
+
+// A localized site's offer, shaped the way core actually stores it.
+//
+// wp_version_check() maps every package through esc_url(), so a package the
+// API sends as false is written to the transient as ''. A site that declares
+// local_package gets a localized offer whose only package is the localized
+// full zip — no_content, new_bundled, partial and rollback are all false — so
+// all four arrive as empty strings.
+//
+// The previous fixture spelled an absent package `false`, which is the API's
+// shape and not the transient's, and the validator rejected ''. The result was
+// that the install refused on every non-English site with "the cached update
+// offer contains an invalid package", and the unit suite could not see it
+// because it was testing the wrong shape. The live matrix found it on fr_FR.
+function keel_install_localized_offer() {
+	return keel_install_offer(
+		array(
+			'locale'          => 'fr_FR',
+			'partial_version' => '',
+			'new_bundled'     => '',
+			'packages'        => (object) array(
+				'partial'     => '',
+				'new_bundled' => '',
+				'no_content'  => '',
+				'full'        => 'https://downloads.example/fr_FR/full.zip',
+				'rollback'    => '',
+			),
+		)
+	);
+}
+
+keel_install_assert(
+	true === keel_defaults_validate_install_offer( keel_install_localized_offer() ),
+	'a localized offer whose optimized packages are empty strings is valid'
+);
+
+keel_install_prime_offer( keel_install_localized_offer() );
+$localized_plan = keel_defaults_prepare_backport_install( '6.8.8' );
+
+keel_install_assert(
+	is_array( $localized_plan ),
+	'a localized site can prepare the install rather than being refused'
+);
+keel_install_assert(
+	isset( $localized_plan['offer'] ) && 'https://downloads.example/fr_FR/full.zip' === $localized_plan['offer']->packages->full,
+	'and the localized full package is the one handed to the upgrader'
+);
+
+// The genuinely malformed case still fails: a package that is neither a string
+// nor false is not something core could have written.
+keel_install_assert(
+	'invalid_offer' === keel_install_error_code(
+		keel_defaults_validate_install_offer(
+			keel_install_offer(
+				array(
+					'packages' => (object) array(
+						'partial'     => array(),
+						'new_bundled' => '',
+						'no_content'  => '',
+						'full'        => 'https://downloads.example/full.zip',
+						'rollback'    => '',
+					),
+				)
+			)
+		)
+	),
+	'a package that is neither string nor false is still refused'
+);
+
+keel_install_prime_offer();
+
 // Automatic-update policy is irrelevant to a deliberate install.
 $GLOBALS['keel_install']['automatic_disabled'] = true;
 $GLOBALS['keel_install']['blockers']           = array(
