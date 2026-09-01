@@ -11,7 +11,7 @@
 
 **The missing settings and defaults every new WordPress site needs.**
 
-Sane WordPress defaults that explain themselves in Site Health—covering security,
+Sane WordPress defaults that explain themselves in Site Health — covering security,
 privacy, UX, performance, and core updates, including same-line security patches.
 
 Keel adds a modest menu of sensible security, update, privacy, content, media, email,
