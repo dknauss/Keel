@@ -13,9 +13,11 @@
 
 Keel adds a modest menu of sensible security, update, privacy, content, media, email, UX, and performance defaults to WordPress — each one a switch under **Settings → Site Defaults**. Nothing is hidden. Everything is explained with helpful dropdown info panels and in Site Health feedback.
 
-> **Current release: `0.5.10`.** Keel now has 39 defaults; the Site Health
+> **Current release: `0.6.0`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
-> and detection of other plugins controlling the same settings are in. Verified
+> and detection of other plugins controlling the same settings are in. New in
+> 0.6.0: Keel reports whether the running version of WordPress has publicly
+> known vulnerabilities, and names the patched release on its own line. Verified
 > across WordPress 6.4 through 7.2-alpha on PHP 7.4 and 8.3, single-site and multisite,
 > and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
 > milestones and [TODO.md](TODO.md) for what's in flight.

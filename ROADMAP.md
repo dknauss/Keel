@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.5.10`**, published on wordpress.org as `keel-defaults` since
+**Current version: `0.6.0`**, published on wordpress.org as `keel-defaults` since
 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1. GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
