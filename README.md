@@ -301,7 +301,7 @@ attribution is in the Credits section of `readme.txt`.
 
 ### Thanks
 
-Austin Ginder of [Anchor Hosting](https://anchor.host) reviewed 0.6.0 for security and
+[Austin Ginder](https://github.com/austinginder) of Anchor Hosting ([anchor.host](https://anchor.host) · [@anchorhost](https://github.com/anchorhost)) reviewed 0.6.0 for security and
 reported six issues — none critical, and none a hole Keel opens. Two were documented
 protections that were not taking effect: two redirects that lost a silent race against
 core's own `template_redirect` registration, and a REST route where disabled comments
