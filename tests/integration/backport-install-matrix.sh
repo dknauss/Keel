@@ -80,8 +80,47 @@ assert_healthy() {
 	curl --fail --silent --show-error "$KEEL_URL/" >/dev/null
 }
 
+
+# Render the reporting half. This is the part the matrix never exercised: the
+# verdict, the ladder and the actions had no live coverage in any locale, and
+# WordPress.org describes the same release differently by locale — 6.8.8 carries
+# new_files=false for en_US and true for fr_FR, which changes what relaxed file
+# ownership resolves to and therefore what the panel concludes about
+# operability. Asserts what must hold everywhere; prints what may differ.
+assert_report() {
+	local report status tip vstatus ladder actions
+	report="$( "${KEEL_WP[@]}" eval-file "$KEEL_PLUGIN_ROOT/tests/integration/backport-report-probe.php" )"
+
+	echo "backport matrix: report -- $( jq -c '{locale,version,version_status,tip,status,selection,operable,policy,relaxed,blockers}' <<<"$report" )"
+
+	vstatus="$( jq -r '.version_status' <<<"$report" )"
+	tip="$( jq -r '.tip' <<<"$report" )"
+	status="$( jq -r '.status' <<<"$report" )"
+	ladder="$( jq -r '.ladder_len' <<<"$report" )"
+	actions="$( jq -r '.actions_len' <<<"$report" )"
+
+	[[ "$vstatus" == "insecure" ]] || fail "reporting: expected version_status insecure, got $vstatus"
+	[[ "$tip" == "$KEEL_TARGET" ]] || fail "reporting: expected tip $KEEL_TARGET, got $tip"
+	[[ "$status" == "critical" ]] || fail "reporting: expected a critical verdict, got $status"
+	(( ladder > 200 )) || fail "reporting: the ladder rendered $ladder bytes, which is not a ladder"
+	(( actions > 100 )) || fail "reporting: the actions rendered $actions bytes"
+
+	# The panel must name the patch for this line. Naming the newest release as
+	# the thing to reach is the original defect this check exists to prevent.
+	jq -e --arg t "$KEEL_TARGET" '.description | contains($t)' <<<"$report" >/dev/null \
+		|| fail "reporting: the verdict never names $KEEL_TARGET"
+	jq -e --arg t "$KEEL_TARGET" '.ladder | contains($t)' <<<"$report" >/dev/null \
+		|| fail "reporting: the ladder never names $KEEL_TARGET"
+
+	# An unresolved placeholder or a stringified array is how a broken sprintf
+	# reaches a reader as plausible prose.
+	jq -e '(.description + .ladder + .actions) | test("Array|%[0-9]+[$]s") | not' <<<"$report" >/dev/null \
+		|| fail "reporting: rendered output contains an unresolved placeholder"
+}
+
 assert_version "$KEEL_SOURCE"
 refresh_offers
+assert_report
 
 first_auth="$(auth_json)"
 [[ "$(jq -r '.target' <<<"$first_auth")" == "$KEEL_TARGET" ]] || fail "Keel did not derive target $KEEL_TARGET"
@@ -98,6 +137,7 @@ assert_result_code stale_target
 "${KEEL_WP[@]}" core update --version="$KEEL_SOURCE" --force --locale="$KEEL_LOCALE" >/dev/null
 assert_version "$KEEL_SOURCE"
 refresh_offers
+assert_report
 
 second_auth="$(auth_json)"
 post_install "$second_auth" "$KEEL_TARGET"

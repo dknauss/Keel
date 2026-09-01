@@ -283,6 +283,47 @@ foreach ( $catalogs as $catalog ) {
 	);
 }
 
+/*
+ * --- wordpress.org's own length limits ---
+ *
+ * The directory truncates an Upgrade Notice over 300 characters and a short
+ * description over 150. Neither is an error anywhere in this repository; both
+ * are silently cut on the listing page, so the sentence a user reads ends
+ * mid-clause and nothing local ever says so.
+ *
+ * Plugin Check found the 0.6.0 upgrade notice at 336 characters after this file
+ * had already passed it. Checking the readme's structure and not its limits is
+ * how a gate agrees with something the directory will reject.
+ */
+if ( preg_match( '/^== Upgrade Notice ==$(.*?)(?=^== |\z)/ms', $readme, $un ) ) {
+	preg_match_all( '/^= ([0-9][^=]*) =\s*\n(.+?)(?=\n\s*\n|\z)/ms', $un[1], $notices, PREG_SET_ORDER );
+
+	foreach ( $notices as $notice ) {
+		$version = trim( $notice[1] );
+		$body    = trim( preg_replace( '/\s+/', ' ', $notice[2] ) );
+
+		keel_readme_assert(
+			strlen( $body ) <= 300,
+			sprintf(
+				'the %s upgrade notice is %d characters; wordpress.org truncates over 300.',
+				$version,
+				strlen( $body )
+			)
+		);
+	}
+}
+
+if ( preg_match( '/^=== [^=]+ ===\s*\n(.*?)^==/ms', $readme, $head )
+	&& preg_match( '/\n\s*\n\s*([^\n]+?)\s*\n\s*\n/s', $head[1], $short )
+) {
+	$desc = trim( $short[1] );
+
+	keel_readme_assert(
+		strlen( $desc ) <= 150,
+		sprintf( 'the short description is %d characters; wordpress.org truncates over 150.', strlen( $desc ) )
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "readme spec: {$fail} failed\n" );
 	exit( 1 );
