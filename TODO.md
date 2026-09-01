@@ -131,17 +131,44 @@ active work belongs in **Now** or **Next**, above.
       *Balanced defaults* says the same thing in two words and lands the keel metaphor
       without explaining it, which is what a banner has room for.
 
+      **There are already three taglines in circulation, and the shipped banner is the
+      odd one out.** Resolve that first — a new line should replace one tagline, not
+      become a fourth. Current state:
+
+      | Surface | Line |
+      | --- | --- |
+      | `branding/README.md` | *Sensible defaults for steady sites.* |
+      | `includes/settings-page.php` | *Sensible defaults for steady sites.* |
+      | newlocalmedia.github.io preview | *Sensible defaults for steady sites.* |
+      | **`.wordpress-org/` banners, live on wordpress.org** | *Keeps your site upright with sensible defaults.* |
+
+      Keel's own brand documentation therefore disagrees with the asset Keel ships, and
+      the one people actually see on the plugin directory is the one nothing else says.
+
       Scope, because a tagline change is not only a tagline:
       - `.wordpress-org/banner-1544x500.png` and `banner-772x250.png` — the listing
         banners, where the line actually appears.
       - `branding/README.md` — states the tagline and the reason the waterline echoes it.
       - `branding/keel-logo-horizontal.svg`, `keel-logo-stacked.svg`, `keel-mark.svg` —
         review the marks at banner and 128px icon sizes while the banners are open.
+      - `includes/settings-page.php` — the settings-screen header carries it as a
+        **translatable string**, so a change is a new msgid and the old one is dropped
+        from every existing catalogue. Regenerate the `.pot` in the same commit.
+      - **`newlocalmedia.github.io/assets/keel-preview.png` and `.webp`** — a separate
+        composition drawn by `scripts/generate-project-previews.py`, not a crop of the
+        plugin banner. It is a different treatment entirely: dark navy rather than
+        white, mixed-case *Keel* rather than letter-spaced *KEEL*, no blue keel fin,
+        and no rule under the wordmark. Decide whether it should match the banner or
+        stay a house style for that site. Its alt text in `scripts/site-config.mjs`
+        describes the current image accurately and stops being true the moment the
+        image changes.
       - Check whether the wordmark still reads at the 772×250 banner size; the outlined
         Avenir Next was set for the larger one.
 
       Not release-blocking, and deliberately not in 0.6.0: the listing assets are served
-      from SVN `assets/` and can be updated without a plugin release.
+      from SVN `assets/` and can be updated without a plugin release. The settings-screen
+      string cannot — that one ships with the plugin, so it either waits for a release or
+      the surfaces diverge again in the meantime.
 
 - [x] **Reference doc coverage** — done 2026-08-04. Every schema key then present received an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
