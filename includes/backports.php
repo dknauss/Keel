@@ -812,69 +812,105 @@ function keel_defaults_backport_actions( $tip ) {
 		// what they would pick. On a site that also permits majors, core takes
 		// the highest rung — so this promised the patch while the ladder
 		// directly above marked a different release as the winner.
-		$selected = keel_defaults_ladder_selection();
-
-		if ( ! $state['operable'] ) {
-			// Operability gates every promise, and it is checked first because a
-			// selection does not establish it. Core evaluates relaxed file
-			// ownership per offer, from that offer's new_files;
-			// keel_defaults_relaxed_ownership_allowed() evaluates it once from
-			// the branch tip and probes with that. A tip that adds new files
-			// beside a higher offer that does not is enough to separate the two
-			// answers, and the panel then reported that the updater cannot act
-			// and promised a scheduled install in consecutive sentences.
-			$route = sprintf(
-				/* translators: %s: target version. */
-				esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Reaching %s means installing it deliberately from the command line.', 'keel-defaults' ),
-				$code
-			);
-		} elseif ( $selected === $tip ) {
-			$route = sprintf(
-				/* translators: %s: target version. */
-				esc_html__( 'Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' ),
-				$code
-			);
-		} elseif ( '' !== $selected ) {
-			$route = sprintf(
-				/* translators: 1: the version the scheduled check would install, 2: target version. */
-				esc_html__( 'The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line.', 'keel-defaults' ),
-				'<code>' . esc_html( $selected ) . '</code>',
-				$code
-			);
-		} elseif ( $state['policy'] && null === keel_defaults_offer_for_version( $tip ) ) {
-			// Core selected nothing and has nothing to select: this release is
-			// not in the cached offers. stable-check and update_core refresh
-			// independently, so one can know about a release while the other
-			// still predates it.
-			$route = sprintf(
-				/* translators: %s: target version. */
-				esc_html__( 'WordPress has not been offered %s yet — its cached list of core updates predates it — so nothing is scheduled to install it. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
-				$code
-			);
-		} elseif ( $state['policy'] ) {
-			// The offer is cached and core still selected nothing, so something
-			// past the broad policy declined this release: the auto_update_core
-			// filter, an unmet PHP or MySQL requirement on the offer,
-			// disable_autoupdate, a recorded failure for this version. Which one
-			// is not knowable from here, and the sentence does not pretend
-			// otherwise — it reports the outcome and stops.
-			$route = sprintf(
-				/* translators: %s: target version. */
-				esc_html__( 'WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line.', 'keel-defaults' ),
-				$code
-			);
-		} else {
-			$route = sprintf(
-				/* translators: %s: target version. */
-				esc_html__( 'Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' ),
-				$code
-			);
-		}
+		$route = keel_defaults_backport_route(
+			$tip,
+			$state,
+			keel_defaults_ladder_selection(),
+			null !== keel_defaults_offer_for_version( $tip )
+		);
 
 		$out .= '<p class="description">' . $lead . ' ' . $route . '</p>';
 	}
 
 	return $out;
+}
+
+/**
+ * The sentence describing how this release can actually be reached.
+ *
+ * A pure function of four inputs, deliberately. Every one of this branch's
+ * review findings was a sentence asserting something the data under it could
+ * not establish — that policy implied what cron would install, that an empty
+ * selection meant updates were off, then that it meant a stale cache, then that
+ * a selection implied the updater could write. Each was reachable only through
+ * a full panel render, which is why each shipped.
+ *
+ * Taking the four inputs as arguments makes every combination directly
+ * testable, including the ones the surrounding stubs cannot produce: a selector
+ * that could not be asked at all is a `false` here, where the live function
+ * reaches it only by wp-admin/includes/update.php being unreadable.
+ *
+ * The order matters and is not arbitrary. Operability gates every promise,
+ * because a selection does not establish that the updater can complete a
+ * filesystem write. Then an unasked selector, because that is not an answer.
+ * Only then the selection itself, and only then policy.
+ *
+ * @param string       $tip          Target version.
+ * @param array        $state        Result of keel_defaults_minor_update_state().
+ * @param string|false $selected     Result of keel_defaults_ladder_selection().
+ * @param bool         $offer_cached Whether the raw offer for $tip is cached.
+ * @return string Escaped sentence.
+ */
+function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cached ) {
+	$code = '<code>' . esc_html( $tip ) . '</code>';
+
+	if ( ! $state['operable'] ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Reaching %s means installing it deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( false === $selected ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( $selected === $tip ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( '' !== $selected ) {
+		return sprintf(
+			/* translators: 1: the version the scheduled check would install, 2: target version. */
+			esc_html__( 'The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line.', 'keel-defaults' ),
+			'<code>' . esc_html( $selected ) . '</code>',
+			$code
+		);
+	}
+
+	if ( $state['policy'] && ! $offer_cached ) {
+		// Absence establishes only that the release is not in the transient. It
+		// does not establish why — a freshly refreshed response can omit it too
+		// — so the cause is not named.
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'WordPress is not scheduling %s: it is not in this site\'s cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	if ( $state['policy'] ) {
+		return sprintf(
+			/* translators: %s: target version. */
+			esc_html__( 'WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line.', 'keel-defaults' ),
+			$code
+		);
+	}
+
+	return sprintf(
+		/* translators: %s: target version. */
+		esc_html__( 'Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line.', 'keel-defaults' ),
+		$code
+	);
 }
 
 /**
@@ -1103,7 +1139,10 @@ function keel_defaults_ladder_selection() {
 	}
 
 	if ( ! function_exists( 'find_core_auto_update' ) ) {
-		return '';
+		// Not the same answer as "core selected nothing". Collapsing the two
+		// makes every caller report that something declined the release, when
+		// in fact nothing was ever asked.
+		return false;
 	}
 
 	// find_core_auto_update() is not read-only. It runs every offer through
@@ -1159,7 +1198,9 @@ function keel_defaults_ladder_markup() {
 
 	$state = keel_defaults_minor_update_state();
 
-	if ( '' !== $selected ) {
+	if ( false === $selected ) {
+		$note = esc_html__( 'Keel could not determine which of these WordPress would install.', 'keel-defaults' );
+	} elseif ( '' !== $selected ) {
 		$note = sprintf(
 			/* translators: %s: version WordPress would install. */
 			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),

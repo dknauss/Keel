@@ -1080,8 +1080,8 @@ keel_assert(
 	'nor is a scheduled installation promised, because core has selected nothing'
 );
 keel_assert(
-	false !== strpos( $actions, 'has not been offered' ),
-	'it says what is actually true: WordPress has not been offered the patch yet'
+	false !== strpos( $actions, 'not in this site' ),
+	'it says what is actually true: the release is not in the cached list'
 );
 
 // The same empty selection, on a site that HAS switched updates off, still
@@ -1133,11 +1133,11 @@ $GLOBALS['keel_test']['offers'] = array(
 $actions = keel_defaults_backport_actions( '6.8.8' );
 
 keel_assert(
-	false === strpos( $actions, 'has not been offered' ),
-	'a cached offer is not described as one the site has never been offered'
+	false === strpos( $actions, 'not in this site' ),
+	'a cached offer is not described as missing from the cache'
 );
 keel_assert(
-	false === strpos( $actions, 'predates it' ),
+	false === strpos( $actions, 'predates' ),
 	'nor is the cache blamed when the cache plainly contains the release'
 );
 keel_assert(
@@ -1160,8 +1160,8 @@ $GLOBALS['keel_test']['offers'] = array(
 $actions = keel_defaults_backport_actions( '6.8.8' );
 
 keel_assert(
-	false !== strpos( $actions, 'has not been offered' ),
-	'an absent offer is still explained as one the site has not been offered yet'
+	false !== strpos( $actions, 'not in this site' ),
+	'an absent offer is still explained as one the cache does not hold yet'
 );
 
 $GLOBALS['keel_test']['offers'] = array();
@@ -1227,6 +1227,54 @@ keel_assert(
 $GLOBALS['keel_test']['no_fs_credentials'] = false;
 $GLOBALS['keel_test']['offers']            = array();
 $GLOBALS['keel_test']['can']               = false;
+
+
+// --- 26. the route, every branch, as a pure function ---------------------
+// Six findings on this branch were sentences asserting more than their inputs
+// established, each reachable only through a full panel render. The decision is
+// now a pure function of four inputs, so the combinations can be stated rather
+// than staged — including the one no stub here can produce, a selector that was
+// never asked.
+
+$op    = array(
+	'policy'   => true,
+	'operable' => true,
+	'blockers' => array(),
+	'owner'    => 'option',
+);
+$inop  = array_merge( $op, array( 'operable' => false ) );
+$nopol = array_merge( $op, array( 'policy' => false ) );
+
+// Absence of an offer does not establish why it is absent.
+$r = keel_defaults_backport_route( '6.8.8', $op, '', false );
+keel_assert( false !== strpos( $r, 'not in this site' ), 'an absent offer is reported as absent from the cache' );
+keel_assert( false === strpos( $r, 'predates' ), 'and no cause is attributed for the absence' );
+
+// A selector that could not be asked is not a selector that chose nothing.
+$r = keel_defaults_backport_route( '6.8.8', $op, false, true );
+keel_assert( false !== strpos( $r, 'could not determine' ), 'an unasked selector is reported as undetermined' );
+keel_assert( false === strpos( $r, 'something is declining' ), 'and nothing is said to have declined the release' );
+keel_assert( false === strpos( $r, 'not in this site' ), 'nor is the cache implicated' );
+
+// Inoperable wins over every selection, including one naming the patch.
+foreach ( array( '6.8.8', '7.1', '', false ) as $sel ) {
+	$r = keel_defaults_backport_route( '6.8.8', $inop, $sel, true );
+	keel_assert( false !== strpos( $r, 'cannot act' ), 'an inoperable updater decides the route whatever was selected' );
+	keel_assert( false === strpos( $r, 'scheduled check' ), 'and promises no schedule' );
+}
+
+// The remaining branches.
+$r = keel_defaults_backport_route( '6.8.8', $op, '6.8.8', true );
+keel_assert( false !== strpos( $r, 'waiting for the scheduled check' ), 'the patch selected is a wait' );
+
+$r = keel_defaults_backport_route( '6.8.8', $op, '7.1', true );
+keel_assert( false !== strpos( $r, 'and skip' ), 'another release selected skips the patch' );
+
+$r = keel_defaults_backport_route( '6.8.8', $op, '', true );
+keel_assert( false !== strpos( $r, 'something is declining' ), 'a cached offer core declined says so, without naming the gate' );
+
+$r = keel_defaults_backport_route( '6.8.8', $nopol, '', true );
+keel_assert( false !== strpos( $r, 'letting automatic updates resume' ), 'a declining policy is the only case told to resume' );
 
 
 // --- 16. the constant-owner action does not send anyone to that screen ----
