@@ -1168,6 +1168,67 @@ $GLOBALS['keel_test']['offers'] = array();
 $GLOBALS['keel_test']['can']    = false;
 
 
+// --- 25. no scheduled promise while the updater cannot act ---------------
+// Every route that promises an installation was decided from the selection
+// alone, and a selection does not prove the updater can complete a filesystem
+// write. The two answers are computed differently: core evaluates relaxed file
+// ownership per offer, from that offer's new_files, while
+// keel_defaults_relaxed_ownership_allowed() evaluates it once from the branch
+// tip and probes credentials with that single value. A tip that adds new files
+// alongside a higher offer that does not is enough to separate them — core
+// selects the higher offer, Keel finds the updater inoperable, and the panel
+// then said the updater cannot act and promised a scheduled install in
+// consecutive sentences.
+
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']           = '6.8.7';
+$GLOBALS['keel_test']['options']           = array( 'auto_update_core_minor' => 'enabled' );
+$GLOBALS['keel_test']['updater_disabled']  = false;
+$GLOBALS['keel_test']['can']               = true;
+$GLOBALS['keel_test']['no_fs_credentials'] = true;
+$GLOBALS['keel_test']['offers']            = array(
+	(object) array(
+		'response' => 'upgrade',
+		'current'  => '7.1',
+	),
+	(object) array(
+		'response' => 'autoupdate',
+		'current'  => '6.8.8',
+	),
+);
+
+$state = keel_defaults_minor_update_state();
+keel_assert( false === $state['operable'], 'the fixture has an inoperable updater' );
+
+// Core selected something other than the patch.
+$GLOBALS['keel_test']['selected'] = '7.1';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'The scheduled check will install' ),
+	'an inoperable updater is not said to be about to install anything'
+);
+
+// Core selected the patch itself.
+$GLOBALS['keel_test']['selected'] = '6.8.8';
+
+$actions = keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false === strpos( $actions, 'waiting for the scheduled check to install it' ),
+	'nor is the patch itself promised on a schedule that cannot run'
+);
+keel_assert(
+	false !== strpos( $actions, 'cannot act' ),
+	'it says the updater cannot act, which is what the verdict above already found'
+);
+
+$GLOBALS['keel_test']['no_fs_credentials'] = false;
+$GLOBALS['keel_test']['offers']            = array();
+$GLOBALS['keel_test']['can']               = false;
+
+
 // --- 16. the constant-owner action does not send anyone to that screen ----
 // WP_AUTO_UPDATE_CORE is a real constant and cannot be undefined, so this runs
 // last. The branch it covers used to end "or install the patch once from the

@@ -814,7 +814,21 @@ function keel_defaults_backport_actions( $tip ) {
 		// directly above marked a different release as the winner.
 		$selected = keel_defaults_ladder_selection();
 
-		if ( $selected === $tip ) {
+		if ( ! $state['operable'] ) {
+			// Operability gates every promise, and it is checked first because a
+			// selection does not establish it. Core evaluates relaxed file
+			// ownership per offer, from that offer's new_files;
+			// keel_defaults_relaxed_ownership_allowed() evaluates it once from
+			// the branch tip and probes with that. A tip that adds new files
+			// beside a higher offer that does not is enough to separate the two
+			// answers, and the panel then reported that the updater cannot act
+			// and promised a scheduled install in consecutive sentences.
+			$route = sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Reaching %s means installing it deliberately from the command line.', 'keel-defaults' ),
+				$code
+			);
+		} elseif ( $selected === $tip ) {
 			$route = sprintf(
 				/* translators: %s: target version. */
 				esc_html__( 'Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line.', 'keel-defaults' ),
@@ -827,7 +841,7 @@ function keel_defaults_backport_actions( $tip ) {
 				'<code>' . esc_html( $selected ) . '</code>',
 				$code
 			);
-		} elseif ( $state['policy'] && $state['operable'] && null === keel_defaults_offer_for_version( $tip ) ) {
+		} elseif ( $state['policy'] && null === keel_defaults_offer_for_version( $tip ) ) {
 			// Core selected nothing and has nothing to select: this release is
 			// not in the cached offers. stable-check and update_core refresh
 			// independently, so one can know about a release while the other
@@ -837,7 +851,7 @@ function keel_defaults_backport_actions( $tip ) {
 				esc_html__( 'WordPress has not been offered %s yet — its cached list of core updates predates it — so nothing is scheduled to install it. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
 				$code
 			);
-		} elseif ( $state['policy'] && $state['operable'] ) {
+		} elseif ( $state['policy'] ) {
 			// The offer is cached and core still selected nothing, so something
 			// past the broad policy declined this release: the auto_update_core
 			// filter, an unmet PHP or MySQL requirement on the offer,
