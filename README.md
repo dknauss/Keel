@@ -153,10 +153,27 @@ usually lives in, the `AUTOMATIC_UPDATER_DISABLED` constant, a plugin using the
 `automatic_updater_disabled` filter, a version-control checkout, an earlier update that
 failed badly enough that core will not retry. Each of those needs a different fix.
 
-**It reports and routes; it does not install.** The one remediation it offers switches
-minor auto-updates back on, and only where the stored option is genuinely what decides
-— where a constant, a filter, or Keel's own policy owns the decision, it says so
-instead of writing a value that something downstream would override.
+Two remediations are offered, and only when they would actually work. The first
+switches minor auto-updates back on, and only where the stored option is genuinely what
+decides — where a constant, a filter, or Keel's own policy owns the decision, Keel says
+so instead of writing a value something downstream would override.
+
+The second installs the patch. It is deliberately narrow: the target is recomputed on
+the server and can only ever be the patched tip of your own release line, so this moves
+a site forward within its line and cannot cross one or go back. It refuses when the
+filesystem blockers apply — `DISALLOW_FILE_MODS`, a version-control checkout, or
+credentials WordPress would have to stop and ask for — because core would fail on those
+anyway and a refusal that names the cause is more use than a failed upgrade. It checks
+the release's PHP, MySQL and extension requirements before starting, since core reads
+those from the new version's own files and would otherwise discover the mismatch only
+after downloading and unpacking. Then it hands the offer to WordPress's own upgrader,
+with rollback enabled, exactly as core's unattended path does.
+
+Being blocked from *automatic* updates does not block this. An
+`AUTOMATIC_UPDATER_DISABLED` constant, a filter switching the updater off, or an earlier
+update that failed badly enough that core will not retry are all reasons the patch will
+not arrive by itself — and a deliberate install is the remedy for each of them, not
+something they should prevent.
 
 ## Keel tells you when it is not working
 
