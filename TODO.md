@@ -8,9 +8,10 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## v0.5 selected scope
+## v0.6 selected scope
 
-This release expands the schema to 39 defaults.
+This release keeps the schema at 39 defaults and adds the security-patch status
+and deliberate same-line installer.
 
 - [x] **Security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)) — done 2026-08-31, over four PRs.
       #134 the Site Health test, #135 asking core instead of re-deriving, #136 the
@@ -21,10 +22,10 @@ This release expands the schema to 39 defaults.
       not currently flagged, known vulnerable — and where a patch exists names the
       release on the site's own line rather than the newest one.
 
-      Deliberately does not install anything. The single remediation re-enables minor
-      auto-updates, and only when the stored option is genuinely what decides; where
-      Keel's own `core_update_policy`, a constant, or a third-party filter owns the
-      decision it says so instead of writing a value that would be overridden.
+      This reporting-and-routing phase deliberately did not install anything. Its
+      remediation re-enabled minor auto-updates only when the stored option genuinely
+      decided. The deliberate same-line installer was then added separately in #141,
+      below, after structured blocker codes made that boundary testable.
 
       Stepping through intermediate releases one line at a time is a separate,
       undecided piece of work. The API already offers the whole ladder — a 5.9 site

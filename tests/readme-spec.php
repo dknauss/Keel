@@ -226,6 +226,13 @@ foreach ( $shots as $shot ) {
 	);
 }
 
+$contributing   = file_get_contents( dirname( __DIR__ ) . '/CONTRIBUTING.md' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+$expected_range = 'screenshot-1..' . count( $shots ) . '.png';
+keel_readme_assert(
+	false !== strpos( $contributing, $expected_range ),
+	"CONTRIBUTING.md reviews every screenshot ({$expected_range})."
+);
+
 /*
  * --- the name, the slug, and the text domain are one decision ---
  *

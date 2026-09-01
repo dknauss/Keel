@@ -3,8 +3,9 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.6.0`**, published on wordpress.org as `keel-defaults` since
-2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1. GPL-2.0-or-later.
+**Current version: `0.6.0`**. Keel was first published on wordpress.org as
+`keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
+GPL-2.0-or-later.
 
 > **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
 > outside this repository — so it is invisible to anyone who clones Keel, and it has
@@ -17,37 +18,31 @@ task-level checklist is [TODO.md](TODO.md).
 
 ## Next up
 
-**Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package; first
-published 2026-08-26. `https://wordpress.org/plugins/keel-defaults` serves the
-directory page, `https://plugins.svn.wordpress.org/keel-defaults` has a populated
-`trunk/` and tags for `0.5.9` and `0.5.10`, and the plugin API reports `0.5.10`,
-requires 6.4, tested to 7.1, requires PHP 7.4. Nobody has installed it yet, which is
-the expected reading this early.
+**Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package and
+first published 2026-08-26. Before this 0.6.0 work, the directory and plugin API
+served 0.5.10, requiring WordPress 6.4 and PHP 7.4 and tested to 7.1.
 
 That closes the question this section used to open with. It asked whether the first
 SVN push should be 0.5.3, the approved package, or 0.5.4, the tag — worth deciding
 deliberately rather than by whichever was checked out. Events decided it: five more
 versions landed before the first push and what went up was 0.5.9.
 
-**Security patch status shipped**, over four pull requests rather than the one this
-section expected. [#134](https://github.com/dknauss/Keel/pull/134) added the Site
+**Security patch status and the deliberate same-line installer shipped in 0.6.0**,
+over a series of pull requests rather than the one this section expected.
+[#134](https://github.com/dknauss/Keel/pull/134) added the Site
 Health test reporting whether the installed core version is currently flagged
 insecure — a question core never asks and no admin screen answers.
 [#135](https://github.com/dknauss/Keel/pull/135) replaced Keel's own reconstruction
 of the updater's state with core's answers to the same questions.
 [#136](https://github.com/dknauss/Keel/pull/136) added the ladder of releases
 WordPress.org is actually offering, and which one core would take.
-[#137](https://github.com/dknauss/Keel/pull/137) is open: it stops the panel linking
-to the Updates screen for a patch that screen will not offer, because
-`get_core_updates()` drops every `autoupdate` response and the same-line patch is
-only ever an `autoupdate` offer. Following that button installed the newest release
-instead — found on a real 6.9.5 site, not in review.
-
-It reports and routes; it does not install. Installing the same-line patch is
-[#138](https://github.com/dknauss/Keel/issues/138), scoped to one release rather than
-the whole ladder. Its prerequisite is now in place: `minor_update_state()` returns
-stable blocker codes alongside translated text, so the install can distinguish a
-filesystem refusal from an automatic-update policy warning without matching text.
+[#137](https://github.com/dknauss/Keel/pull/137) made the route depend on what the
+Updates screen actually shows instead of assuming it can deliver the patch.
+[#139](https://github.com/dknauss/Keel/pull/139) gave updater blockers stable codes,
+and [#141](https://github.com/dknauss/Keel/pull/141) added the deliberate installer
+specified in [#138](https://github.com/dknauss/Keel/issues/138). The later release
+passes added the live rollback/forward matrix, compatibility fixes, screenshots and
+copy corrections that made the feature releasable.
 
 What #137 cost is worth recording, because it was not the code. The fix itself was
 small; the review found seven further defects, six of them the same shape — a

@@ -17,9 +17,10 @@ Keel adds a modest menu of sensible security, update, privacy, content, media, e
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins controlling the same settings are in. New in
 > 0.6.0: Keel reports whether the running version of WordPress has publicly
-> known vulnerabilities, and names the patched release on its own line. Verified
-> across WordPress 6.4 through 7.2-alpha on PHP 7.4 and 8.3, single-site and multisite,
-> and clean under Plugin Check. See [ROADMAP.md](ROADMAP.md) for the
+> known vulnerabilities, and names the patched release on its own line. CI covers
+> PHP 7.4 through 8.5; live WordPress checks include 6.4 and 7.2-alpha on single-site
+> and multisite, while the installer matrix runs from 6.4 through the current 7.1.
+> See [ROADMAP.md](ROADMAP.md) for the
 > milestones and [TODO.md](TODO.md) for what's in flight.
 
 ## Set and forget — What Keel establishes as a baseline
@@ -128,7 +129,7 @@ Keel keeps oEmbed reachable when the REST gate is closed — alone among the fou
 WordPress tells you an update is available. It does not tell you that the version you
 are running has publicly known vulnerabilities, and those are different questions with
 different urgency. WordPress.org publishes the answer at
-`api.wordpress.org/core/stable-check/1.0/`, which classifies every release ever shipped
+`api.wordpress.org/core/stable-check/1.0/`, which classifies the releases it lists
 as `latest`, `outdated` or `insecure` — and core never queries it. Nothing in wp-admin
 is derived from it.
 
@@ -143,12 +144,13 @@ lines keep receiving backported security fixes, so staying on one is a legitimat
 choice, and Keel does not nag about it; but the line will eventually stop being
 patched, and when it does this check turns critical with no patch left to offer.
 
-**The Updates screen will not offer you that patch.** `get_core_updates()` skips every
-offer whose response is `autoupdate`, and a same-line security patch is only ever an
-`autoupdate` offer, so update-core.php lists the newest release and nothing else.
-Following it installs 7.1. Keel does not send you there for a patch that screen cannot
-deliver — it asks core what that screen is actually offering, and says whether the
-release is listed, hidden behind *Show hidden updates*, absent, or not yet known.
+**The Updates screen may not offer you that patch.** `get_core_updates()` skips every
+offer whose response is `autoupdate`. In the 6.9.5 example, 6.9.7 appears only as an
+automatic-update offer, so update-core.php lists 7.1 instead and following it installs
+the major release. A same-line patch can also be the current manual release, so Keel
+does not assume either answer: it asks core what that screen is actually offering and
+says whether the patch is listed, hidden behind *Show hidden updates*, absent, or not
+yet known.
 
 Keel also shows the whole ladder: every release WordPress.org is currently offering
 this site, and which one core would take. Core takes the **highest** release your
@@ -173,10 +175,11 @@ a site forward within its line and cannot cross one or go back. It refuses when 
 filesystem blockers apply — `DISALLOW_FILE_MODS`, a version-control checkout, or
 credentials WordPress would have to stop and ask for — because core would fail on those
 anyway and a refusal that names the cause is more use than a failed upgrade. It checks
-the release's PHP, MySQL and extension requirements before starting, since core reads
-those from the new version's own files and would otherwise discover the mismatch only
-after downloading and unpacking. Then it hands the offer to WordPress's own upgrader,
-with rollback enabled, exactly as core's unattended path does.
+the PHP and MySQL requirements in the cached offer before starting, plus extension
+requirements if an offer supplies them. Core's post-unpack check remains authoritative
+for requirements that are only present in the downloaded release. Keel then hands the
+offer to WordPress's own upgrader, with rollback enabled, exactly as core's unattended
+path does.
 
 Being blocked from *automatic* updates does not block this. An
 `AUTOMATIC_UPDATER_DISABLED` constant, a filter switching the updater off, or an earlier
@@ -271,9 +274,9 @@ Both Playground links open **Settings → Site Defaults** and create a published
 defaults — comments, pingbacks, author archives, attachment redirects — have
 something to act on. An empty site makes half the toggles look inert.
 
-`latest` is republished by `release.yml` on every version tag, not on every push
-to `main`, so the rolling demo can sit behind the branch. Check what it is
-actually serving before reading anything into it —
+`latest` is republished by CI after every successful push to `main`, so the rolling
+demo can be ahead of the stable release. Check what it is actually serving before
+reading anything into it —
 [`playground/README.md`](playground/README.md) has the one-line `curl`.
 
 ## Install
