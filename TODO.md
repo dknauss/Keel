@@ -30,6 +30,12 @@ This release expands the schema to 39 defaults.
       takes the highest permitted offer, so honouring a chosen rung means Keel
       running the core upgrader itself.
 
+- [ ] **Structured blocker codes** ([#138](https://github.com/dknauss/Keel/issues/138), step 0) — prerequisite.
+      `keel_defaults_minor_update_state()` returns blockers as translated strings, so
+      nothing can tell a filesystem blocker from a policy one without matching text —
+      which breaks in every locale and is what CONTRIBUTING.md forbids. Each becomes
+      `array( 'code', 'text' )` with stable codes. Lands before the install, on its own.
+
 - [ ] **Install the same-line patch** ([#138](https://github.com/dknauss/Keel/issues/138)) — planned.
       The install half of the above, scoped to one release rather than the ladder:
       a button that hands the site's own branch tip to `Core_Upgrader::upgrade()`.
