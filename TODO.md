@@ -8,10 +8,39 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## v0.6 selected scope
+## Now — 0.6.0 release
+
+- [ ] **Release 0.6.0**
+  - Merge the final documentation and regression-test work.
+  - Require the ordinary CI suite on the exact merge commit.
+  - Tag that exact commit `v0.6.0`; do not add feature work to the candidate.
+- [ ] **Validate the published 0.6.0 artifacts**
+  - Confirm the GitHub ZIP contains the tagged runtime tree.
+  - Approve and verify the WordPress.org deployment, SVN tag and directory version.
+  - Inspect the public upgrade notice, four screenshots and both Playground links.
+- [ ] **Observe the first post-release matrix**
+  - Review the next scheduled live rollback/forward run.
+  - Triage early field reports before opening the next release cycle.
+
+## Next — accepted feature queue
+
+- [ ] **Keep password-protected posts out of site search**
+  - Hide protected titles and excerpts from logged-in users who cannot read the post.
+  - Preserve results for authors, editors and capabilities granted by other plugins.
+  - Cover logged-out, Subscriber, author/editor and custom-capability cases.
+- [ ] **Leave typographic punctuation as typed**
+  - Decide and document the exact `wptexturize` surfaces before naming the toggle.
+  - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
+- [ ] **Hide broken-shortcode residue and report it in Site Health**
+  - Hide orphaned shortcode markup from public output without deleting stored content.
+  - Report enough evidence in Site Health for an administrator to identify the gap.
+  - Do not ship the hiding half without the reporting half.
+
+## Completed in v0.6.0
 
 This release keeps the schema at 39 defaults and adds the security-patch status
-and deliberate same-line installer.
+and deliberate same-line installer. The completed record stays here for provenance;
+active work belongs in **Now** or **Next**, above.
 
 - [x] **Security patch status** ([#134](https://github.com/dknauss/Keel/pull/134)) — done 2026-08-31, over four PRs.
       #134 the Site Health test, #135 asking core instead of re-deriving, #136 the
@@ -85,7 +114,7 @@ and deliberate same-line installer.
 
 - [x] `limit_unfiltered_html_to_admins` — first port; `user_has_cap` filter, default on,
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
-- [~] reserved usernames — ported, then **removed** (`500c561`). The 73-name list is
+- [x] **Reserved usernames removed** (`500c561`). The 73-name list is
       too opinionated for a general-purpose defaults plugin: it includes names an
       ordinary site legitimately uses (`manager`, `marketing`, `sales`, `office`,
       `client`), and a plugin that silently refuses to create a user called

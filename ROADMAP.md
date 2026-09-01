@@ -16,7 +16,42 @@ GPL-2.0-or-later.
 
 ---
 
-## Next up
+## Now — release and observe 0.6.0
+
+- [ ] **Release 0.6.0** — merge the final documentation and regression coverage,
+      require CI on the exact merge commit, then tag that commit. No additional
+      feature work belongs in the release candidate.
+- [ ] **Validate the published 0.6.0 artifacts** — confirm the GitHub release ZIP,
+      WordPress.org SVN tag and directory version all contain the tagged tree; then
+      check the public screenshots, upgrade notice and both Playground links.
+- [ ] **Observe the first post-release matrix** — review the next scheduled live
+      rollback/forward run and early field reports before starting another release.
+
+## Next — accepted feature queue
+
+Build in this order. The first closes a measured disclosure; the other two are
+quality-of-life work and may swap places if implementation evidence warrants it.
+
+- [ ] **Keep password-protected posts out of site search** — a logged-in Subscriber
+   can currently receive the title and excerpt of protected posts in search because
+   core's `post_password = ''` search guard applies only to logged-out visitors.
+   Preserve access for authors, editors and plugin-granted roles that may legitimately
+   read the post. This composes with `disable_post_passwords`, which prevents new
+   protected posts but does not address existing ones.
+- [ ] **Leave typographic punctuation as typed** — add a focused toggle around
+   `wptexturize`, with editor, feed and front-end coverage so the label does not
+   promise more surfaces than the implementation controls.
+- [ ] **Hide broken-shortcode residue and report it in Site Health** — ship these as
+   a pair: readers should not see raw shortcode debris, while administrators retain
+   evidence that a plugin or shortcode handler is missing.
+
+## Later
+
+The milestone sections below retain measured proposals, rejected ideas and larger
+directions that are not accepted into the queue. Promote an item into **Next** only
+when its behaviour, tradeoffs and acceptance tests are decided.
+
+## 0.6.0 completion record
 
 **Keel is listed and installable.** Approved 2026-08-25 on the 0.5.3 package and
 first published 2026-08-26. Before this 0.6.0 work, the directory and plugin API
@@ -53,32 +88,6 @@ establish that the updater could write. Each was reachable only by rendering the
 whole panel, which is why each one shipped. The panel's state is now resolved once,
 in `keel_defaults_selection_state()` and `keel_defaults_backport_route()`, so the
 combinations can be stated in a test rather than staged through a render.
-
-Three defaults are accepted and unbuilt, and they are the queue. All three are
-decided in the v0.4 section below, with the evidence, the edge cases and what each
-costs, measured.
-
-**Build order — search exclusion first.** Keeping password-protected posts out of
-site search is the next thing to build. It is the only one of the three that closes
-a disclosure rather than adding a convenience: measured on WordPress 7.1, a
-Subscriber account searching the site gets back the title *and* the excerpt of every
-protected post, because core's `AND post_password = ''` guard in
-`WP_Query::parse_search()` only applies when the visitor is logged out. Anonymous
-visitors are already safe; registered ones are not — which makes the sites it
-affects the membership sites, shops and communities, exactly the ones with
-non-editor accounts to worry about. The other two are quality-of-life and can follow
-in any order:
-
-1. **Keep password-protected posts out of site search.** One filter on the search
-   query, and the work is in the carve-outs rather than the filter — an author, an
-   editor, or a member of a plugin-granted role must still find a post they can
-   legitimately read, or the fix reads as broken search instead of as privacy.
-   Composes with `disable_post_passwords`, which stops the supply of new protected
-   posts and does nothing about the ones already leaking.
-2. **Leave typographic punctuation as typed.** A toggle against `wptexturize`.
-3. **Hide broken-shortcode residue from readers, and report it in Site Health.**
-   Accepted only as a pair — stripping alone destroys the evidence that a plugin is
-   missing.
 
 ### The release path has run end to end
 
@@ -137,8 +146,9 @@ urgent-defect exception described in CONTRIBUTING; reuploading the corrected
 package and disclosing the version change to the review team are part of this
 release. The general hold remains in place afterwards.
 
-The submission milestone is closed: the initial v0.5 release is out, `Stable tag` matches, the
-plugin is clean under Plugin Check and it has been through a first review pass.
+The submission milestone is closed: the initial v0.5 release is out, `Stable tag`
+matches, Plugin Check passes with its findings reviewed, and the plugin has been
+through a first review pass.
 
 **The review came back pended** (2026-08-25), on four points: every `<style>` and
 `<script>` written straight into the page rather than enqueued, a prohibited
