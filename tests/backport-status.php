@@ -1416,6 +1416,31 @@ $creds = array_merge(
 	)
 );
 
+/*
+ * The scheduled-install claim has to agree with what core actually selected.
+ *
+ * policy && operable says only that minor updates are permitted and the updater can
+ * run. If majors are permitted too, core takes the highest offer and steps over the
+ * same-line patch — so the panel could say "this should install on a scheduled check"
+ * directly above a ladder marking 7.1 as the one WordPress would install.
+ */
+$sched = keel_defaults_schedule_statement( $op, '6.8.8', '6.8.8' );
+keel_assert( false !== strpos( $sched, 'scheduled check' ), 'when core selected the patch, the panel says it is scheduled' );
+
+$sched = keel_defaults_schedule_statement( $op, '7.1', '6.8.8' );
+keel_assert( false === strpos( $sched, 'scheduled check' ), 'when core selected something else, no scheduled install is promised for the patch' );
+keel_assert( false !== strpos( $sched, '7.1' ), 'and the release core would actually take is named' );
+
+$sched = keel_defaults_schedule_statement( $op, '', '6.8.8' );
+keel_assert( false === strpos( $sched, 'scheduled check' ), 'when core selected nothing, nothing is promised' );
+
+$sched = keel_defaults_schedule_statement( $op, false, '6.8.8' );
+keel_assert( false === strpos( $sched, 'scheduled check' ), 'when the selector could not be asked, nothing is promised' );
+keel_assert( false === strpos( $sched, 'declin' ), 'and nothing is said to have declined it' );
+
+$sched = keel_defaults_schedule_statement( $inop, '6.8.8', '6.8.8' );
+keel_assert( false === strpos( $sched, 'scheduled check' ), 'an inoperable updater promises nothing whatever core selected' );
+
 // Absence of an offer does not establish why it is absent.
 $r = keel_defaults_backport_route( '6.8.8', $op, '', false );
 keel_assert( false !== strpos( $r, 'not in this site' ), 'an absent offer is reported as absent from the cache' );
