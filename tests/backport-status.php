@@ -1616,8 +1616,8 @@ keel_assert(
 	'an empty selection is not blamed on the update settings, which may not be the cause'
 );
 keel_assert(
-	false !== strpos( $ladder, 'refuse a deliberate install too' ),
-	'an empty selection warns that a deliberate install may be refused for the same reason'
+	false !== strpos( $ladder, 'Keel will refuse a deliberate install for the same reason' ),
+	'an empty selection warns that Keel would refuse a deliberate install for the same reason'
 );
 keel_assert(
 	false === strpos( $ladder, 'can still be installed deliberately' ),
@@ -1720,13 +1720,32 @@ foreach ( $panel_states as $case ) {
 
 	$promises = false !== strpos( $panel, 'can still be installed deliberately' )
 		|| false !== strpos( $panel, 'means installing it deliberately' );
-	$refuses  = false !== strpos( $panel, 'can be installed at all' )
-		|| false !== strpos( $panel, 'until that is cleared' );
+	$refuses  = false !== strpos( $panel, 'will not offer a deliberate install' );
 
 	keel_assert(
 		! ( $promises && $refuses ),
 		"the assembled panel does not both promise and refuse a deliberate install ({$selection})"
 	);
+
+	/*
+	 * And a refusal is scoped to Keel. Keel's installer refuses file_mods,
+	 * credentials and vcs, but only DISALLOW_FILE_MODS stops WP-CLI as well: a
+	 * checkout, or credentials a web request cannot get, may still be updated by a
+	 * deployment workflow — and on many sites that is how updating is meant to
+	 * happen. Saying the release cannot be installed at all claims more than this
+	 * screen can know.
+	 */
+	keel_assert(
+		false === strpos( $panel, 'can be installed at all' ),
+		"the panel does not claim a release cannot be installed at all, which is not Keel's to say ({$selection})"
+	);
+
+	if ( $refuses ) {
+		keel_assert(
+			false !== strpos( $panel, 'Keel will' ),
+			"a refusal names Keel as the thing refusing ({$selection})"
+		);
+	}
 }
 
 if ( $fail > 0 ) {

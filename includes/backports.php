@@ -685,11 +685,15 @@ function keel_defaults_ladder_note( $selection, $selected ) {
 		 * Deliberately does not repeat the blocker list. It is stated in full above,
 		 * and this list is appended directly beneath it.
 		 *
-		 * And it offers no deliberate install. The blockers that produce this state are
-		 * file_mods, credentials and vcs; Keel's own installer refuses all three and
-		 * DISALLOW_FILE_MODS stops WP-CLI too.
+		 * And it offers no deliberate install *from here*. The blockers that produce
+		 * this state are file_mods, credentials and vcs, and Keel's own installer
+		 * refuses all three — but that is a statement about Keel, not about the site.
+		 * DISALLOW_FILE_MODS does stop WP-CLI as well; a checkout or a web-request
+		 * credentials problem often does not, and a deployment workflow may be exactly
+		 * how this site is meant to be updated. Claiming the release cannot be
+		 * installed at all overstated what this screen can know.
 		 */
-		return esc_html__( 'None of these will install on their own, because the updater cannot act here. Nor can any of them be installed deliberately until that is cleared.', 'keel-defaults' );
+		return esc_html__( 'None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to.', 'keel-defaults' );
 	}
 
 	if ( 'unknown' === $selection ) {
@@ -711,7 +715,7 @@ function keel_defaults_ladder_note( $selection, $selected ) {
 	 * knowable from here, so it is not named, and no deliberate install is promised
 	 * either: a requirement none of them meets would refuse that too.
 	 */
-	return esc_html__( 'None of these will install on their own. Something is declining every one of them, which may be this site\'s update settings or a requirement the offers do not meet. A requirement none of them meets would refuse a deliberate install too.', 'keel-defaults' );
+	return esc_html__( 'None of these will install on their own. Something is declining every one of them, which may be this site\'s update settings or a requirement the offers do not meet. If it is a requirement, Keel will refuse a deliberate install for the same reason.', 'keel-defaults' );
 }
 
 /**
@@ -1142,7 +1146,7 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 		 */
 		return sprintf(
 			/* translators: %s: target version. */
-			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Clear what is blocking it, above, before %s can be installed at all.', 'keel-defaults' ),
+			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared.', 'keel-defaults' ),
 			$code
 		);
 	}
