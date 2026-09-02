@@ -16,6 +16,38 @@ GPL-2.0-or-later.
 
 ---
 
+## Next — offer the patch on the Updates screen
+
+**The gap.** Keel's panel says "Install 6.4.10 now from the Updates screen" and links
+there. In the `visible` state that works. In the `none` state — which is the common one —
+the Updates screen will not offer 6.4.10 at all, because `get_core_updates()` drops every
+`autoupdate` offer: an unconditional `continue` in `wp-admin/includes/update.php`, before
+the `dismissed` and `available` options are even read. So the panel currently names a
+screen and that screen does not deliver, which is a sharper version of the problem this
+feature exists to solve.
+
+The install button covers the `none` state, and it works. But it lives in Site Health,
+and Site Health is not where an administrator goes to update WordPress.
+
+**The fix.** `do_action( 'core_upgrade_preamble' )` fires at `wp-admin/update-core.php`
+line 1139, inside the block that lists core updates. Keel can render the same-line offer
+there, beside core's own "Update to version 7.1", and answer the omission where it
+happens rather than somewhere else.
+
+- **U1** — render the offer on `core_upgrade_preamble`, reusing the existing actions
+  markup. The Updates screen does not filter through `wp_kses_post`, so the form
+  survives; assert that against the rendered screen rather than the builder.
+- **U2** — present it as the comparison being made: 7.1 is available, 6.4.10 fixes the
+  vulnerability without the major change. Alongside core's block, not passing as part of
+  it.
+- **U3** — revisit the panel copy. "Install %s now from the Updates screen" becomes true
+  in every state once U1 lands, and the `none`-state wording that explains the screen
+  will not offer it can go.
+
+**Sequencing.** PX is doing the same work as C13-C15 in `keel-px-core-patch-port.md`,
+unreleased, so it goes first and Keel takes whatever that run teaches. Ships as 0.6.2;
+no schema change, no migration.
+
 ## Now — release and observe 0.6.0
 
 - [ ] **Release 0.6.0** — merge the final documentation and regression coverage,
