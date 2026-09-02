@@ -612,6 +612,47 @@ function keel_defaults_backport_test() {
 }
 
 /**
+ * What the panel may claim about a scheduled install.
+ *
+ * `policy && operable` establishes only that minor updates are permitted and the
+ * updater can run. It does not establish what core would take: a site that also
+ * permits majors gets the highest offer, not the nearest, so the same panel could
+ * promise the same-line patch was scheduled directly above a ladder marking 7.1 as
+ * the release WordPress would actually install.
+ *
+ * The claim is therefore made only when core's own selection is the patch.
+ *
+ * @param array        $state    Result of keel_defaults_minor_update_state().
+ * @param string|false $selected Result of keel_defaults_ladder_selection().
+ * @param string       $tip      The same-line patch.
+ * @return string Escaped sentence.
+ */
+function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
+	if ( ! $state['policy'] || ! $state['operable'] ) {
+		return '';
+	}
+
+	if ( is_string( $selected ) && '' !== $selected && $selected === $tip ) {
+		return esc_html__( 'The configured policy permits minor updates, the updater looks operable, and this is the release WordPress would install, so it should arrive on a scheduled check. That is not a guarantee: WP-Cron has to run.', 'keel-defaults' );
+	}
+
+	if ( is_string( $selected ) && '' !== $selected ) {
+		return sprintf(
+			/* translators: 1: release core would install, 2: the same-line patch. */
+			esc_html__( 'Automatic updates are running here, but WordPress would install %1$s rather than %2$s: it takes the highest release the settings permit, not the nearest. This patch will not arrive on its own.', 'keel-defaults' ),
+			'<code>' . esc_html( $selected ) . '</code>',
+			'<code>' . esc_html( $tip ) . '</code>'
+		);
+	}
+
+	if ( false === $selected ) {
+		return esc_html__( 'Automatic updates appear to be available, but Keel could not determine which release WordPress would install, so nothing here establishes that this patch is scheduled.', 'keel-defaults' );
+	}
+
+	return esc_html__( 'Automatic updates appear to be available, but WordPress is selecting no release to install, so this patch is not scheduled.', 'keel-defaults' );
+}
+
+/**
  * The verdict itself, without the ladder.
  *
  * @return array Site Health result.
@@ -683,7 +724,11 @@ function keel_defaults_backport_verdict() {
 		$state = keel_defaults_minor_update_state();
 
 		if ( $state['policy'] && $state['operable'] ) {
-			$result['description'] .= '<p>' . esc_html__( 'The configured policy permits minor updates and the updater looks operable, so this should install on a scheduled check. That is not a guarantee: WP-Cron has to run, and the release has to be offered for automatic installation.', 'keel-defaults' ) . '</p>';
+			// Not from policy alone. policy && operable says the updater can run; it
+			// does not say what core would take, and on a site that also permits
+			// majors core takes the highest offer and steps over this patch. Promising
+			// otherwise contradicted the ladder printed directly below.
+			$result['description'] .= '<p>' . keel_defaults_schedule_statement( $state, keel_defaults_ladder_selection(), $tip ) . '</p>';
 		} elseif ( $state['policy'] && ! $state['operable'] ) {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but this patch cannot currently install automatically.', 'keel-defaults' ) . '</strong> '
 				. esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) ) . '.</p>';
@@ -1027,9 +1072,15 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 	$selection = keel_defaults_selection_state( $state, $selected );
 
 	if ( 'blocked' === $selection ) {
+		/*
+		 * No deliberate-install promise here. The blockers that produce this state are
+		 * file_mods, credentials and vcs — Keel's own installer refuses all three, and
+		 * DISALLOW_FILE_MODS stops WP-CLI too. Naming a route that is also closed is
+		 * worse than naming none.
+		 */
 		return sprintf(
 			/* translators: %s: target version. */
-			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Reaching %s means installing it deliberately from the command line.', 'keel-defaults' ),
+			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Clear what is blocking it, above, before %s can be installed at all.', 'keel-defaults' ),
 			$code
 		);
 	}
@@ -1065,7 +1116,7 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 		// — so the cause is not named.
 		return sprintf(
 			/* translators: %s: target version. */
-			esc_html__( 'WordPress is not scheduling %s: it is not in this site\'s cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. It can also be installed deliberately from the command line.', 'keel-defaults' ),
+			esc_html__( 'WordPress is not scheduling %s: it is not in this site\'s cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. Installing it deliberately requires an offer for it, which this site does not currently hold.', 'keel-defaults' ),
 			$code
 		);
 	}
@@ -1162,9 +1213,15 @@ function keel_defaults_backport_notice() {
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
 	} elseif ( $state['policy'] && $state['operable'] ) {
+		/*
+		 * Deliberately no schedule promise. This renders on every admin screen, so it
+		 * cannot afford find_core_auto_update() to learn what core would take — and
+		 * without that it cannot know whether this patch is the release that would
+		 * arrive. Site Health has the answer and the room to explain it.
+		 */
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, and automatic updates should install it shortly.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);

@@ -430,11 +430,16 @@ function keel_defaults_finish_backport_install( $result, $version ) {
 			(string) $result->get_error_code(),
 			$result->get_error_messages()
 		);
-	} elseif ( false === $result ) {
+	} elseif ( false === $result || null === $result ) {
+		/*
+		 * false is core's filesystem refusal. null is not a documented return at all —
+		 * core documents a version string on success — so it establishes nothing and
+		 * must not be reported as an install.
+		 */
 		keel_defaults_store_backport_result(
 			get_current_user_id(),
 			'filesystem_unavailable',
-			array( __( 'WordPress could not access the filesystem.', 'keel-defaults' ) )
+			array( __( 'WordPress did not report the update as complete. Check the Updates screen for the version now installed before retrying.', 'keel-defaults' ) )
 		);
 	} else {
 		keel_defaults_store_backport_result(
