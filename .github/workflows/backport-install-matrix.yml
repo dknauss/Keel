@@ -13,31 +13,35 @@ permissions:
 
 jobs:
   install:
-    name: ${{ matrix.source }} to ${{ matrix.target }} (PHP ${{ matrix.php }}, ${{ matrix.locale }})
+    name: ${{ matrix.id }} — ${{ matrix.source }} to ${{ matrix.target }} (PHP ${{ matrix.php }}, ${{ matrix.locale }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - source: '6.4.9'
+          - id: '6.4-floor'
+            source: '6.4.9'
             target: '6.4.10'
             forward: '7.1'
             php: '7.4'
             locale: en_US
             multisite: false
-          - source: '6.8.7'
+          - id: '6.8-fr'
+            source: '6.8.7'
             target: '6.8.8'
             forward: '7.1'
             php: '8.2'
             locale: fr_FR
             multisite: false
-          - source: '6.9.6'
+          - id: '6.9-multisite'
+            source: '6.9.6'
             target: '6.9.7'
             forward: '7.1'
             php: '8.2'
             locale: en_US
             multisite: true
-          - source: '7.0.3'
+          - id: '7.0-line'
+            source: '7.0.3'
             target: '7.0.4'
             forward: '7.1'
             php: '8.2'
@@ -48,7 +52,8 @@ jobs:
           # with an operable updater, so no row could catch a scheduled-selection
           # contradiction. These two leave it operable: one where core would take the
           # same-line patch, one where majors are permitted and core steps over it.
-          - source: '6.9.6'
+          - id: '6.9-operable-minor'
+            source: '6.9.6'
             target: '6.9.7'
             forward: '7.1'
             php: '8.2'
@@ -56,7 +61,8 @@ jobs:
             multisite: false
             updater: operable
             majors: false
-          - source: '6.9.6'
+          - id: '6.9-operable-majors'
+            source: '6.9.6'
             target: '6.9.7'
             forward: '7.1'
             php: '8.2'
@@ -120,6 +126,19 @@ jobs:
           fi
           ln -s "$GITHUB_WORKSPACE" /tmp/keel-wp/wp-content/plugins/keel
           wp plugin activate keel --path=/tmp/keel-wp --allow-root
+
+      - name: Report the effective update policy
+        env:
+          ROW: ${{ matrix.id }}
+        run: |
+          set -euo pipefail
+          # The row is only evidence if a reader can see what it configured. Three
+          # rows share a source and target; without this they are indistinguishable
+          # in the log, and a collapsed matrix reads exactly like a passing one.
+          echo "row: $ROW"
+          echo "multisite:                $(wp config get MULTISITE --path=/tmp/keel-wp --allow-root 2>/dev/null || echo 'not set')"
+          echo "AUTOMATIC_UPDATER_DISABLED: $(wp config get AUTOMATIC_UPDATER_DISABLED --path=/tmp/keel-wp --allow-root 2>/dev/null || echo 'not set')"
+          echo "WP_AUTO_UPDATE_CORE:        $(wp config get WP_AUTO_UPDATE_CORE --path=/tmp/keel-wp --allow-root 2>/dev/null || echo 'not set')"
 
       - name: Start WordPress
         run: |
