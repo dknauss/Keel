@@ -34,6 +34,18 @@ the way its own settings screen would configure it.
   reads a stylesheet. A release that changes one has to re-run the probes rather
   than edit the label.
 
+  **0.6.1 is such a release, and its row is relabelled anyway — read the Keel
+  comment and REST cells as stale.** It fixed two behaviours this document
+  probes: `GET /wp/v2/comments/123` answered on a site with comments disabled,
+  because the filter covering every comment listing does not cover the
+  single-item route; and `/?author=N` still disclosed the author nicename while
+  attachment pages still rendered, both having lost a priority race against
+  core's own `redirect_canonical`. The label moved because the version guard in
+  `tests/docs-consistency.php` requires it and a stale label is its own defect,
+  but the probes have not been re-run. Both changes can only move Keel's cells
+  in its own favour, so nothing here overstates Keel today — it understates it.
+  Re-run before the row is cited for anything.
+
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries
   empty, which silently contaminated the first run.
@@ -68,7 +80,7 @@ Raw per-probe output is in the appendix.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.6.0 | — | live |
+| **Keel** 0.6.1 | — | live |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |

@@ -36,13 +36,14 @@ into ROADMAP.md or here.
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
 
-- [ ] **Trim the security-review credit to a permanent line**
-  - The 0.6.0 credit recaps the whole review because the review was current. Once the
-    release is no longer new, shorten it to a standing acknowledgement.
-  - Keep Austin Ginder and Anchor Hosting named in both `readme.txt` and `README.md`;
-    drop the finding-by-finding detail, which the commit history and changelog hold.
-  - One or two sentences with no version number, so it does not need revisiting at
-    each release.
+- [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
+      than queued. `tests/docs-consistency.php` bans a released version outside the
+      changelog, so the credit naming 0.6.0 failed the moment 0.6.1 was the current
+      version. That is exactly the revisiting-every-release cost the item predicted;
+      the guard just found it first. `readme.txt` now carries the short standing
+      form with no version number. `README.md` keeps the longer account, which is
+      the right split: the directory listing wants the acknowledgement, the
+      repository can afford the detail.
 
 ## Then — 0.8.0 performance observability
 

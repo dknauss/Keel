@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.6.0\n"
+"Project-Id-Version: Keel Defaults 0.6.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T16:53:42+00:00\n"
+"POT-Creation-Date: 2026-09-02T04:22:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -629,33 +629,33 @@ msgstr ""
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:463
+#: includes/security.php:464
 msgid "<strong>Error:</strong> Enter a password."
 msgstr ""
 
-#: includes/security.php:472
+#: includes/security.php:473
 msgid "<strong>Error:</strong> That password is too long."
 msgstr ""
 
-#: includes/security.php:479
+#: includes/security.php:480
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:512
+#: includes/security.php:513
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:533
+#: includes/security.php:534
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:552
+#: includes/security.php:553
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:728
+#: includes/security.php:729
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
