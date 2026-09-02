@@ -1616,8 +1616,12 @@ keel_assert(
 	'an empty selection is not blamed on the update settings, which may not be the cause'
 );
 keel_assert(
-	false !== strpos( $ladder, 'installed deliberately' ),
-	'the deliberate route survives'
+	false !== strpos( $ladder, 'refuse a deliberate install too' ),
+	'an empty selection warns that a deliberate install may be refused for the same reason'
+);
+keel_assert(
+	false === strpos( $ladder, 'can still be installed deliberately' ),
+	'and does not promise one: a requirement none of the offers meets would refuse that as well'
 );
 
 $GLOBALS['keel_test']['offers'] = array();
@@ -1687,6 +1691,43 @@ keel_assert_blocker(
 	'automatic_disabled_constant',
 	'a disabled updater attributed to the constant has the stable automatic_disabled_constant code'
 );
+
+/*
+ * Assembled-panel consistency.
+ *
+ * The route statement and the ladder note are concatenated into one rendered panel,
+ * and each was written to stand alone. The blocked route said clearing the blocker
+ * comes first while the blocked note said any rung could still be installed
+ * deliberately — both defensible read separately, contradictory read together, and
+ * together is how a reader meets them.
+ *
+ * This pairs them for every selection state and refuses the combination.
+ */
+$panel_states = array(
+	array( '6.8.8', $inop ),
+	array( '7.1', $inop ),
+	array( false, $op ),
+	array( '6.8.8', $op ),
+	array( '7.1', $op ),
+	array( '', $op ),
+);
+
+foreach ( $panel_states as $case ) {
+	list( $sel, $st ) = $case;
+
+	$selection = keel_defaults_selection_state( $st, $sel );
+	$panel     = keel_defaults_backport_route( '6.8.8', $st, $sel, true ) . ' ' . keel_defaults_ladder_note( $selection, $sel );
+
+	$promises = false !== strpos( $panel, 'can still be installed deliberately' )
+		|| false !== strpos( $panel, 'means installing it deliberately' );
+	$refuses  = false !== strpos( $panel, 'can be installed at all' )
+		|| false !== strpos( $panel, 'until that is cleared' );
+
+	keel_assert(
+		! ( $promises && $refuses ),
+		"the assembled panel does not both promise and refuse a deliberate install ({$selection})"
+	);
+}
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
