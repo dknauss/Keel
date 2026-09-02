@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.0
+Stable tag: 0.6.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Keel adds a menu of sensible defaults to any WordPress install, each one a switch under **Settings → Site Defaults**. Nothing is hidden and nothing is all-or-nothing — you can see exactly what the plugin does to your site and turn any switch on or off.
 
-**New in 0.6.0: see and install the security patch for your own WordPress release line.** Keel tells you when WordPress.org flags the installed core version as insecure, names the patched release on the same line instead of pushing you toward a major upgrade, shows the releases WordPress is offering and marks the one core would select. An authorized administrator can deliberately install the same-line patch through WordPress's own upgrader with rollback enabled. The target is checked again on the server; no setting changes, and nothing installs unless you click the button.
+**See and install the security patch for your own WordPress release line.** Keel tells you when WordPress.org flags the installed core version as insecure, names the patched release on the same line instead of pushing you toward a major upgrade, shows the releases WordPress is offering and marks the one core would select. An authorized administrator can deliberately install the same-line patch through WordPress's own upgrader with rollback enabled. The target is checked again on the server; no setting changes, and nothing installs unless you click the button.
 
 **Disabling something means it is actually disabled.** When you switch comments off, they are off below the presentation layer, not merely hidden by the theme template and the REST route — ask the database directly with `get_comments()` and there is nothing to hand back. The same care runs through the rest: closing the REST API also removes the link advertising it, and disabling comments also stops the comment feed from answering requests.
 
@@ -138,7 +138,7 @@ WordPress ships one, but it is JavaScript: it advises the person typing and cann
 
 == Credits ==
 
-[Austin Ginder](https://github.com/austinginder) of Anchor Hosting ([anchor.host](https://anchor.host) · [@anchorhost](https://github.com/anchorhost)) reviewed Keel 0.6.0 for security and reported six issues — none critical, and none a hole the plugin opens. Two of them were documented protections that were not taking effect at all: a pair of redirects that lost a silent race against core, and a REST route where disabled comments still answered. Keel is better for the review, and it now ships a test that checks a registration actually wins its hook rather than merely existing. Thank you, Austin.
+[Austin Ginder](https://github.com/austinginder) of Anchor Hosting ([anchor.host](https://anchor.host) · [@anchorhost](https://github.com/anchorhost)) reviewed Keel for security, and the plugin is better for it. Thank you, Austin.
 
 Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
 
@@ -155,6 +155,14 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
+
+= 0.6.1 =
+* Fixed: `/?author=N` still disclosed the author nicename, and attachment pages still rendered, on sites with those defaults enabled. Both redirects registered on `template_redirect` at the default priority, where core has already registered `redirect_canonical` during load — so they lost the tie on registration order every time. Both now run at priority 9.
+* Fixed: a site with comments disabled still answered `/wp/v2/comments/123`. The filter covering every comment listing does not cover the single-item REST route, which reads its row without building a query.
+* Fixed: the REST password policy resolved any user ID in the request before the route checked authorization, so the policy ran against another account's login, email and nicename and returned the answer in the validation error. It now resolves only the caller's own user, or one they may edit.
+* Fixed: an empty or over-long password reached the breach-screening network call before anything cheap rejected it.
+* Added: `tests/hook-precedence.php` and `tests/route-coverage.php`, which check that a registration wins its hook and covers its routes rather than merely existing. The first two fixes above were invisible to the previous suite.
+* Thanks to Austin Ginder of Anchor Hosting for the security review these fixes come from.
 
 = 0.6.0 =
 * New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries.
@@ -268,6 +276,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.1 =
+Security fixes. Two protections this plugin documents were not taking effect: the author and attachment redirects lost a priority race against WordPress itself, and disabled comments still answered one REST route. Also tightens the REST password policy. No setting changes.
 
 = 0.6.0 =
 Reports whether your WordPress version has publicly known vulnerabilities, names the patched release on your own line rather than the newest, and can install it using WordPress's own upgrader. Asks WordPress.org once a day. No setting changes; nothing installs unless you ask.
