@@ -340,6 +340,20 @@ function keel_defaults_relaxed_ownership_allowed() {
 		return false;
 	}
 
+	/*
+	 * isset() then a loose negation, matching core exactly: update-core.php line 868
+	 * and WP_Automatic_Updater lines 205 and 445 all read
+	 * `isset( $x->new_files ) && ! $x->new_files`.
+	 *
+	 * Loose is correct here, not lazy. wp_version_check() maps every offer field
+	 * except packages and download through esc_html(), so new_files reaches the
+	 * transient as a string: false becomes '', true becomes '1', 0 becomes '0'. All
+	 * three negate correctly. Tightening this to `false === $offer->new_files` would
+	 * refuse every offer, because after esc_html() the value is never boolean false —
+	 * the same shape that made the install refuse every non-English site.
+	 *
+	 * Checked against core 2026-09-02. Do not "fix" it.
+	 */
 	return isset( $offer->new_files ) && ! $offer->new_files;
 }
 
