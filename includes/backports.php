@@ -664,7 +664,7 @@ function keel_defaults_backport_verdict() {
 		if ( '' === $tip ) {
 			$result['description'] = '<p>' . sprintf(
 				/* translators: %s: WordPress version. */
-				esc_html__( 'WordPress.org classifies %s as insecure, and no patched release exists on this release line. No setting will produce one. The only remedy is moving to a line that is still maintained.', 'keel-defaults' ),
+				esc_html__( 'WordPress.org classifies %s as insecure, and every release on this line is flagged the same way, so there is no nearer release to move to. No setting will produce one. The only remedy is moving to a line that is still maintained.', 'keel-defaults' ),
 				'<code>' . esc_html( $version ) . '</code>'
 			) . '</p>';
 
@@ -673,7 +673,7 @@ function keel_defaults_backport_verdict() {
 
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The fix for the %3$s version line is %4$s. That is a same-line update — only the third number changes, so it is a maintenance release rather than a feature one.', 'keel-defaults' ),
+			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The nearest release without known vulnerabilities is %4$s, on your own %3$s line — only the third number changes, so it is a maintenance release rather than a feature one, and nothing is deprecated.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
 			'<strong>' . esc_html__( 'insecure', 'keel-defaults' ) . '</strong>',
 			'<code>' . esc_html( keel_defaults_version_line( $version ) ) . '</code>',
@@ -1158,20 +1158,20 @@ function keel_defaults_backport_notice() {
 	if ( '' === $tip ) {
 		$body = sprintf(
 			/* translators: %s: WordPress version. */
-			esc_html__( 'WordPress %s has known vulnerabilities, and no patched release exists on this release line. Moving to a maintained version is the only remedy.', 'keel-defaults' ),
+			esc_html__( 'WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
 	} elseif ( $state['policy'] && $state['operable'] ) {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch for this release line is %2$s, and automatic updates should install it shortly.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, and automatic updates should install it shortly.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
 	} elseif ( ! $state['operable'] ) {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version, 3: reasons. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but it cannot currently install automatically: %3$s.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but it cannot currently install automatically: %3$s.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>',
 			esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) )
@@ -1179,7 +1179,7 @@ function keel_defaults_backport_notice() {
 	} else {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The patch is %2$s, but minor updates are switched off on this site, so it will not arrive on its own.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but minor updates are switched off on this site, so it will not arrive on its own.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
@@ -1361,6 +1361,13 @@ function keel_defaults_ladder_markup() {
 	$selection = keel_defaults_selection_state( $state, $selected );
 	$rows      = '';
 
+	/*
+	 * The rung a reader is actually looking for. Marking only core's selection
+	 * answers "what will happen" and leaves "what do I want" to be worked out from
+	 * the version numbers — which is the whole confusion this panel exists to end.
+	 */
+	$target = keel_defaults_branch_tip();
+
 	foreach ( $rungs as $rung ) {
 		$kind = $rung['same_line']
 			? __( 'security and maintenance, same release line', 'keel-defaults' )
@@ -1370,11 +1377,27 @@ function keel_defaults_ladder_markup() {
 			$kind .= __( ' — a delta package is available', 'keel-defaults' );
 		}
 
+		$is_target = ( '' !== $target && $target === $rung['version'] );
+		$core_mark = keel_defaults_ladder_rung_mark( $selection, $selected, $rung['version'] );
+
+		if ( $is_target && 'scheduled' === $selection && $selected === $rung['version'] ) {
+			/*
+			 * Both marks land on one rung: the release a reader wants is also the one
+			 * core would take. That is the outcome this panel is arguing for, and two
+			 * arrows in a row would bury it — so it is said once, as one sentence.
+			 */
+			$marks = ' <strong>' . esc_html__( '← nearest release without known vulnerabilities, and the one WordPress would install', 'keel-defaults' ) . '</strong>';
+		} elseif ( $is_target ) {
+			$marks = ' <strong>' . esc_html__( '← nearest release without known vulnerabilities', 'keel-defaults' ) . '</strong>' . $core_mark;
+		} else {
+			$marks = $core_mark;
+		}
+
 		$rows .= sprintf(
 			'<li><code>%1$s</code> — %2$s%3$s</li>',
 			esc_html( $rung['version'] ),
 			esc_html( $kind ),
-			keel_defaults_ladder_rung_mark( $selection, $selected, $rung['version'] )
+			$marks
 		);
 	}
 
