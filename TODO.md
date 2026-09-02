@@ -45,6 +45,16 @@ into ROADMAP.md or here.
       the right split: the directory listing wants the acknowledgement, the
       repository can afford the detail.
 
+- [ ] **Offer the patch on the Updates screen** — 0.6.2
+  - `get_core_updates()` drops every `autoupdate` offer, so the Updates screen never
+    shows the same-line patch. The Site Health panel links there anyway and, in the
+    common `none` state, sends a reader to a screen that will not offer what the panel
+    just named.
+  - Render it on `core_upgrade_preamble` (`wp-admin/update-core.php:1139`), beside core's
+    own list, as the comparison an administrator is making rather than as a second
+    opinion.
+  - Follows PX's C13-C15, which is unreleased and can absorb the surprises first.
+
 ## Then — 0.8.0 performance observability
 
 - [ ] **Attribute oversized autoloaded options**
