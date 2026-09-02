@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-02T17:09:53+00:00\n"
+"POT-Creation-Date: 2026-09-02T17:14:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -403,6 +403,7 @@ msgstr ""
 msgid "← WordPress would install this one"
 msgstr ""
 
+#. translators: %s: target version.
 #: includes/backports.php:1083
 #, php-format
 msgid "Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Clear what is blocking it, above, before %s can be installed at all."
@@ -454,6 +455,7 @@ msgstr ""
 msgid "WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy."
 msgstr ""
 
+#. translators: 1: current version, 2: patched version.
 #: includes/backports.php:1224
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install."

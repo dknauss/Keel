@@ -1072,14 +1072,14 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 	$selection = keel_defaults_selection_state( $state, $selected );
 
 	if ( 'blocked' === $selection ) {
+		/*
+		 * No deliberate-install promise here. The blockers that produce this state are
+		 * file_mods, credentials and vcs — Keel's own installer refuses all three, and
+		 * DISALLOW_FILE_MODS stops WP-CLI too. Naming a route that is also closed is
+		 * worse than naming none.
+		 */
 		return sprintf(
 			/* translators: %s: target version. */
-			/*
-			 * No deliberate-install promise here. The blockers that produce this state
-			 * are file_mods, credentials and vcs — Keel's own installer refuses all
-			 * three, and DISALLOW_FILE_MODS stops WP-CLI too. Naming a route that is
-			 * also closed is worse than naming none.
-			 */
 			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Clear what is blocking it, above, before %s can be installed at all.', 'keel-defaults' ),
 			$code
 		);
@@ -1213,14 +1213,14 @@ function keel_defaults_backport_notice() {
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
 	} elseif ( $state['policy'] && $state['operable'] ) {
+		/*
+		 * Deliberately no schedule promise. This renders on every admin screen, so it
+		 * cannot afford find_core_auto_update() to learn what core would take — and
+		 * without that it cannot know whether this patch is the release that would
+		 * arrive. Site Health has the answer and the room to explain it.
+		 */
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			/*
-			 * Deliberately no schedule promise. This renders on every admin screen, so
-			 * it cannot afford find_core_auto_update() to learn what core would take —
-			 * and without that it cannot know whether this patch is the release that
-			 * would arrive. Site Health has the answer and the room to explain it.
-			 */
 			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
