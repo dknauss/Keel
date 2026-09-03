@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-03T12:37:09+00:00\n"
+"POT-Creation-Date: 2026-09-03T17:10:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1660,4 +1660,26 @@ msgstr ""
 
 #: includes/strings.php:272
 msgid "REST API"
+msgstr ""
+
+#. translators: %s: patched WordPress version on the site's own release line.
+#: includes/updates-screen.php:94
+#, php-format
+msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line, so only the third number changes."
+msgstr ""
+
+#. translators: 1: release WordPress would install, 2: patched release on this line.
+#: includes/updates-screen.php:107
+#, php-format
+msgid "WordPress would install %1$s and skip %2$s. It takes the highest release your settings allow rather than the nearest, so the fix for the line you are on is passed over."
+msgstr ""
+
+#. translators: 1: newest release, 2: patched release on this line.
+#: includes/updates-screen.php:114
+#, php-format
+msgid "The update offered above is %1$s. %2$s is the smaller change that closes the same hole."
+msgstr ""
+
+#: includes/updates-screen.php:137
+msgid "A security release exists for your version line"
 msgstr ""
