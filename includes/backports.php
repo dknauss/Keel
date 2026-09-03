@@ -984,24 +984,7 @@ function keel_defaults_backport_actions( $tip ) {
 	} else {
 		$code = '<code>' . esc_html( $tip ) . '</code>';
 
-		// What the screen is offering instead comes from the screen, not from
-		// stable-check. The two caches refresh independently, so naming
-		// stable-check's latest release can name a version this screen is not
-		// showing. When it is offering nothing, no substitute is claimed.
-		if ( '' !== $offer['manual'] && $offer['manual'] !== $tip ) {
-			$lead = sprintf(
-				/* translators: 1: target version, 2: the version the Updates screen is offering. */
-				esc_html__( 'The Updates screen will not offer %1$s. It is offering %2$s instead.', 'keel-defaults' ),
-				$code,
-				'<code>' . esc_html( $offer['manual'] ) . '</code>'
-			);
-		} else {
-			$lead = sprintf(
-				/* translators: %s: target version. */
-				esc_html__( 'The Updates screen is not offering %s.', 'keel-defaults' ),
-				$code
-			);
-		}
+		$lead = keel_defaults_backport_lead( $tip, $offer['manual'] );
 
 		// Which release cron would install is core's answer, not one to derive
 		// from policy. policy && operable says updates can run; it does not say
@@ -1036,6 +1019,44 @@ function keel_defaults_backport_actions( $tip ) {
 	$out .= $install;
 
 	return $out;
+}
+
+/**
+ * Why this release has not appeared, for a site the Updates screen is not offering it on.
+ *
+ * It used to say "the Updates screen will not offer 6.8.8". That was true when it was
+ * written and U1 made it false: Keel renders the offer on that screen now. What still
+ * will not list the patch is WordPress's own update list, which drops every offer
+ * flagged for automatic installation — a different claim, and the one worth making,
+ * because it explains why nobody has seen this release rather than complaining about a
+ * screen Keel has just fixed.
+ *
+ * What that list is offering instead comes from the screen, not from stable-check. The
+ * two caches refresh independently, so naming stable-check's latest release can name a
+ * version the screen is not showing. When it is offering nothing, no substitute is
+ * claimed.
+ *
+ * @param string $tip    Patched release on this line.
+ * @param string $manual Version the Updates screen is offering, or ''.
+ * @return string Escaped sentence.
+ */
+function keel_defaults_backport_lead( $tip, $manual ) {
+	$code = '<code>' . esc_html( $tip ) . '</code>';
+
+	if ( '' !== $manual && $manual !== $tip ) {
+		return sprintf(
+			/* translators: 1: version WordPress own update list is offering, 2: patched release on this line. */
+			esc_html__( 'WordPress own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen.', 'keel-defaults' ),
+			'<code>' . esc_html( $manual ) . '</code>',
+			$code
+		);
+	}
+
+	return sprintf(
+		/* translators: %s: patched release on this line. */
+		esc_html__( 'WordPress own update list does not include %s. Keel adds it to the Updates screen.', 'keel-defaults' ),
+		$code
+	);
 }
 
 /**
