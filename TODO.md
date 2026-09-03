@@ -8,19 +8,19 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## Now — 0.6.0 release
+## Now — observe 0.6.2
 
-- [ ] **Release 0.6.0**
-  - Merge the final documentation and regression-test work.
-  - Require the ordinary CI suite on the exact merge commit.
-  - Tag that exact commit `v0.6.0`; do not add feature work to the candidate.
-- [ ] **Validate the published 0.6.0 artifacts**
-  - Confirm the GitHub ZIP contains the tagged runtime tree.
-  - Approve and verify the WordPress.org deployment, SVN tag and directory version.
-  - Inspect the public upgrade notice, four screenshots and both Playground links.
-- [ ] **Observe the first post-release matrix**
-  - Review the next scheduled live rollback/forward run.
-  - Triage early field reports before opening the next release cycle.
+0.6.0, 0.6.1 and 0.6.2 are published. The release checklist ran in full for each.
+
+- [x] **Release 0.6.0, 0.6.1, 0.6.2** — tagged on commits carrying their own green CI
+      and live matrix; deployed to wordpress.org through the reviewed SVN path.
+- [x] **Validate the published artifacts** — GitHub ZIP, SVN tag, directory version,
+      screenshots, upgrade notice and Playground links, per release.
+- [ ] **Observe the field**
+  - Watch the next scheduled live matrix run.
+  - Triage early reports before opening another release cycle.
+  - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
+    already knew how it worked. First outside use is still the untested case.
 
 ## Next — 0.7.0 privacy and content integrity
 
@@ -45,7 +45,7 @@ into ROADMAP.md or here.
       the right split: the directory listing wants the acknowledgement, the
       repository can afford the detail.
 
-- [ ] **Offer the patch on the Updates screen** — 0.6.2
+- [ ] **Offer the patch on the Updates screen** — 0.6.3
   - `get_core_updates()` drops every `autoupdate` offer, so the Updates screen never
     shows the same-line patch. The Site Health panel links there anyway and, in the
     common `none` state, sends a reader to a screen that will not offer what the panel
