@@ -834,9 +834,20 @@ keel_assert( true === $rungs[0]['delta'], 'a delta package is noted where the of
 $markup = keel_defaults_ladder_markup();
 keel_assert( false !== strpos( $markup, '6.8.8' ), 'the markup names the nearest patch' );
 keel_assert(
-	false !== strpos( $markup, 'install this one' ),
+	false !== strpos( $markup, 'WordPress installs this' ),
 	'the markup marks the rung WordPress would actually take'
 );
+
+// One arrow per rung, however many labels it carries. The first version of the
+// composed marker had rung_mark() return its own arrow and the assembly add another,
+// so a rung that was both the security fix and core's choice printed
+// "← security fix · ← WordPress installs this". Nothing failed; it just looked wrong.
+foreach ( explode( '<li>', $markup ) as $rung_html ) {
+	keel_assert(
+		substr_count( $rung_html, '←' ) <= 1,
+		'a rung carries at most one arrow, however many labels apply to it'
+	);
+}
 
 // A site one line behind has a single rung, and no ladder is worth showing.
 $GLOBALS['keel_test']['version'] = '7.0.4';
@@ -1621,8 +1632,11 @@ $GLOBALS['keel_test']['selected']          = '7.1';
 
 $ladder = keel_defaults_ladder_markup();
 
+// Matches the standardised marker. The four marker strings became three composed
+// labels: "security fix" for the target rung, "WordPress installs this" when core
+// would take it, "WordPress would pick this" when core would but cannot act.
 keel_assert(
-	false !== strpos( $ladder, 'would install this one' ),
+	false !== strpos( $ladder, 'WordPress installs this' ),
 	'the selected rung keeps core\'s per-offer credential answer'
 );
 keel_assert(
