@@ -16,7 +16,7 @@ UX, and performance defaults to WordPress — each one a switch under **Settings
 Defaults**. Nothing is hidden. Everything is explained with helpful dropdown info
 panels and in Site Health feedback.
 
-> **Current release: `0.6.1`.** Keel now has 39 defaults; the Site Health
+> **Current release: `0.6.2`.** Keel now has 39 defaults; the Site Health
 > surface, multisite-aware seeding, network-wide policy
 > and detection of other plugins controlling the same settings are in. New in
 > 0.6.0: Keel reports whether the running WordPress version has publicly known

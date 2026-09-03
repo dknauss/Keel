@@ -46,6 +46,12 @@ the way its own settings screen would configure it.
   in its own favour, so nothing here overstates Keel today — it understates it.
   Re-run before the row is cited for anything.
 
+  **0.6.2 is not such a release, and the relabel is routine.** It changes the
+  patch-status panel's wording, the admin notice, and one branch of the installer's
+  return handling. Nothing it touches is probed here: every row is a server-side
+  probe of comments, REST, XML-RPC or redirects, and none of them reads the Site
+  Health copy. The 0.6.1 caveat above still stands and is not cleared by this.
+
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries
   empty, which silently contaminated the first run.
@@ -80,7 +86,7 @@ Raw per-probe output is in the appendix.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.6.1 | — | live |
+| **Keel** 0.6.2 | — | live |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
