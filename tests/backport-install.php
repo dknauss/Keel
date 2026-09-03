@@ -103,6 +103,10 @@ function get_current_user_id() {
 	return $GLOBALS['keel_install']['user'];
 }
 
+function network_admin_url( $path = '' ) {
+	return 'https://example.test/wp-admin/network/' . ltrim( (string) $path, '/' );
+}
+
 function admin_url( $path = '' ) {
 	return 'https://example.test/wp-admin/' . $path;
 }
@@ -480,9 +484,93 @@ keel_install_assert( false === get_transient( $bad_result_key ), 'a malformed re
 keel_defaults_store_backport_result( 10, 'bad_type', array( 'Failure' ), 'warning' );
 keel_install_assert( 'error' === keel_defaults_take_backport_result( 10 )['type'], 'unknown notice types are normalized to error' );
 
+/* ---------------------------------------------------------------------------
+ * Where the button sends you back to.
+ *
+ * The install form is rendered on two screens now. Returning everyone to Site Health
+ * means an administrator who pressed the button on the Updates screen completes an
+ * install and lands somewhere else to read the outcome.
+ * ------------------------------------------------------------------------ */
+
+keel_install_assert(
+	false !== strpos( keel_defaults_backport_return_url( 'updates' ), 'update-core.php' ),
+	'the updates token returns to the Updates screen'
+);
+keel_install_assert(
+	false !== strpos( keel_defaults_backport_return_url( 'site-health' ), 'site-health.php' ),
+	'the site-health token returns to Site Health'
+);
+keel_install_assert(
+	false !== strpos( keel_defaults_backport_return_url( '' ), 'site-health.php' ),
+	'a missing token falls back rather than redirecting nowhere'
+);
+
+/*
+ * The submitted value is a key into a fixed map, never a destination. Anything
+ * unrecognised falls back, so a tampered or stale form cannot choose where an
+ * authenticated administrator is sent after an install.
+ */
+foreach ( array( 'https://evil.test/', '//evil.test', 'site-health.php', '../../evil', 'UPDATES' ) as $hostile ) {
+	$url = keel_defaults_backport_return_url( $hostile );
+	keel_install_assert(
+		false !== strpos( $url, 'site-health.php' ),
+		"a return value of '{$hostile}' is not honoured as a destination"
+	);
+	keel_install_assert(
+		false === strpos( $url, 'evil.test' ),
+		"a return value of '{$hostile}' does not reach the redirect"
+	);
+}
+
+// Multisite puts both screens under network admin, and Keel already requires
+// manage_network_options to install there.
+$GLOBALS['keel_install']['multisite'] = true;
+keel_install_assert(
+	false !== strpos( keel_defaults_backport_return_url( 'updates' ), 'network/' ),
+	'on multisite the return is to the network Updates screen'
+);
+keel_install_assert(
+	false !== strpos( keel_defaults_backport_return_url( 'site-health' ), 'network/' ),
+	'on multisite the return is to the network Site Health screen'
+);
+$GLOBALS['keel_install']['multisite'] = false;
+
+// The form has to carry the token or the handler has nothing to read.
+$button = keel_defaults_backport_install_button(
+	'6.9.7',
+	'none',
+	array(
+		'policy'   => false,
+		'operable' => true,
+		'owner'    => 'option',
+		'blockers' => array(),
+	),
+	'updates'
+);
+keel_install_assert(
+	false !== strpos( $button, 'name="keel_return" value="updates"' ),
+	'a button rendered on the Updates screen says so'
+);
+
+$default_button = keel_defaults_backport_install_button(
+	'6.9.7',
+	'none',
+	array(
+		'policy'   => false,
+		'operable' => true,
+		'owner'    => 'option',
+		'blockers' => array(),
+	)
+);
+keel_install_assert(
+	false !== strpos( $default_button, 'name="keel_return" value="site-health"' ),
+	'a button with no screen named defaults to Site Health, where it has always lived'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
 	exit( 1 );
 }
 
 echo "backport-install: all assertions passed\n";
+
