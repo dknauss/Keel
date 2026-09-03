@@ -667,6 +667,58 @@ function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
 }
 
 /**
+ * The sentence printed beneath the ladder, for a given selection state.
+ *
+ * Pure, and separate from the markup, because the defect it exists to prevent lives
+ * between two sentences rather than inside either. The route statement and this note
+ * are concatenated into one rendered panel: the blocked route said clearing the
+ * blocker comes first while this said any rung could still be installed deliberately,
+ * and each was correct read alone.
+ *
+ * @param string       $selection Result of keel_defaults_selection_state().
+ * @param string|false $selected  Result of keel_defaults_ladder_selection().
+ * @return string Escaped sentence.
+ */
+function keel_defaults_ladder_note( $selection, $selected ) {
+	if ( 'blocked' === $selection ) {
+		/*
+		 * Deliberately does not repeat the blocker list. It is stated in full above,
+		 * and this list is appended directly beneath it.
+		 *
+		 * And it offers no deliberate install *from here*. The blockers that produce
+		 * this state are file_mods, credentials and vcs, and Keel's own installer
+		 * refuses all three — but that is a statement about Keel, not about the site.
+		 * DISALLOW_FILE_MODS does stop WP-CLI as well; a checkout or a web-request
+		 * credentials problem often does not, and a deployment workflow may be exactly
+		 * how this site is meant to be updated. Claiming the release cannot be
+		 * installed at all overstated what this screen can know.
+		 */
+		return esc_html__( 'None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to.', 'keel-defaults' );
+	}
+
+	if ( 'unknown' === $selection ) {
+		return esc_html__( 'Keel could not determine which of these WordPress would install.', 'keel-defaults' );
+	}
+
+	if ( 'scheduled' === $selection ) {
+		return sprintf(
+			/* translators: %s: version WordPress would install. */
+			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),
+			'<code>' . esc_html( $selected ) . '</code>'
+		);
+	}
+
+	/*
+	 * Not "this site's update settings decline all of them". A compatibility floor on
+	 * every offer — a PHP or MySQL requirement none of them meets — produces exactly
+	 * this empty selection, and changing settings would not help. The reason is not
+	 * knowable from here, so it is not named, and no deliberate install is promised
+	 * either: a requirement none of them meets would refuse that too.
+	 */
+	return esc_html__( 'None of these will install on their own. Something is declining every one of them, which may be this site\'s update settings or a requirement the offers do not meet. If it is a requirement, Keel will refuse a deliberate install for the same reason.', 'keel-defaults' );
+}
+
+/**
  * The verdict itself, without the ladder.
  *
  * @return array Site Health result.
@@ -1094,7 +1146,7 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 		 */
 		return sprintf(
 			/* translators: %s: target version. */
-			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Clear what is blocking it, above, before %s can be installed at all.', 'keel-defaults' ),
+			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared.', 'keel-defaults' ),
 			$code
 		);
 	}
@@ -1472,25 +1524,7 @@ function keel_defaults_ladder_markup() {
 		);
 	}
 
-	if ( 'blocked' === $selection ) {
-		// Deliberately does not repeat the blocker list. It is stated in full
-		// above, and this list is appended directly beneath it.
-		$note = esc_html__( 'None of these will install on their own, because the updater cannot act here. Any of them can still be installed deliberately.', 'keel-defaults' );
-	} elseif ( 'unknown' === $selection ) {
-		$note = esc_html__( 'Keel could not determine which of these WordPress would install.', 'keel-defaults' );
-	} elseif ( 'scheduled' === $selection ) {
-		$note = sprintf(
-			/* translators: %s: version WordPress would install. */
-			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),
-			'<code>' . esc_html( $selected ) . '</code>'
-		);
-	} else {
-		// Not "this site's update settings decline all of them". A compatibility
-		// floor on every offer — a PHP or MySQL requirement none of them meets —
-		// produces exactly this empty selection, and changing settings would not
-		// help. The reason is not knowable from here, so it is not named.
-		$note = esc_html__( 'None of these will install on their own. Something is declining every one of them, which may be this site\'s update settings or a requirement the offers do not meet. Any of them can still be installed deliberately.', 'keel-defaults' );
-	}
+	$note = keel_defaults_ladder_note( $selection, $selected );
 
 	// Always at least two rungs: the markup returns early below that, so no
 	// plural handling is needed.

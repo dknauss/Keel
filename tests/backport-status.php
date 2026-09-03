@@ -1616,8 +1616,12 @@ keel_assert(
 	'an empty selection is not blamed on the update settings, which may not be the cause'
 );
 keel_assert(
-	false !== strpos( $ladder, 'installed deliberately' ),
-	'the deliberate route survives'
+	false !== strpos( $ladder, 'Keel will refuse a deliberate install for the same reason' ),
+	'an empty selection warns that Keel would refuse a deliberate install for the same reason'
+);
+keel_assert(
+	false === strpos( $ladder, 'can still be installed deliberately' ),
+	'and does not promise one: a requirement none of the offers meets would refuse that as well'
 );
 
 $GLOBALS['keel_test']['offers'] = array();
@@ -1687,6 +1691,62 @@ keel_assert_blocker(
 	'automatic_disabled_constant',
 	'a disabled updater attributed to the constant has the stable automatic_disabled_constant code'
 );
+
+/*
+ * Assembled-panel consistency.
+ *
+ * The route statement and the ladder note are concatenated into one rendered panel,
+ * and each was written to stand alone. The blocked route said clearing the blocker
+ * comes first while the blocked note said any rung could still be installed
+ * deliberately — both defensible read separately, contradictory read together, and
+ * together is how a reader meets them.
+ *
+ * This pairs them for every selection state and refuses the combination.
+ */
+$panel_states = array(
+	array( '6.8.8', $inop ),
+	array( '7.1', $inop ),
+	array( false, $op ),
+	array( '6.8.8', $op ),
+	array( '7.1', $op ),
+	array( '', $op ),
+);
+
+foreach ( $panel_states as $case ) {
+	list( $sel, $st ) = $case;
+
+	$selection = keel_defaults_selection_state( $st, $sel );
+	$panel     = keel_defaults_backport_route( '6.8.8', $st, $sel, true ) . ' ' . keel_defaults_ladder_note( $selection, $sel );
+
+	$promises = false !== strpos( $panel, 'can still be installed deliberately' )
+		|| false !== strpos( $panel, 'means installing it deliberately' );
+	$refuses  = false !== strpos( $panel, 'will not offer a deliberate install' );
+
+	keel_assert(
+		! ( $promises && $refuses ),
+		"the assembled panel does not both promise and refuse a deliberate install ({$selection})"
+	);
+
+	/*
+	 * And a refusal is scoped to Keel. Keel's installer refuses file_mods,
+	 * credentials and vcs, but only DISALLOW_FILE_MODS stops WP-CLI as well: a
+	 * checkout, or credentials a web request cannot get, may still be updated by a
+	 * deployment workflow — and on many sites that is how updating is meant to
+	 * happen. Saying the release cannot be installed at all claims more than this
+	 * screen can know.
+	 */
+	keel_assert(
+		false === strpos( $panel, 'can be installed at all' ),
+		"the panel does not claim a release cannot be installed at all, which is not Keel's to say ({$selection})"
+	);
+
+	if ( $refuses ) {
+		keel_assert(
+			false !== strpos( $panel, 'Keel will' ),
+			"a refusal names Keel as the thing refusing ({$selection})"
+		);
+	}
+}
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );
