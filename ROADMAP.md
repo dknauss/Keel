@@ -45,19 +45,26 @@ happens rather than somewhere else.
   will not offer it can go.
 
 **Sequencing.** PX is doing the same work as C13-C15 in `keel-px-core-patch-port.md`,
-unreleased, so it goes first and Keel takes whatever that run teaches. Ships as 0.6.2;
+released as 1.27.0, so neither plugin is the safe one to break any more. Ships as 0.6.3;
 no schema change, no migration.
 
-## Now — release and observe 0.6.0
+## Now — observe 0.6.2 in the field
 
-- [ ] **Release 0.6.0** — merge the final documentation and regression coverage,
-      require CI on the exact merge commit, then tag that commit. No additional
-      feature work belongs in the release candidate.
-- [ ] **Validate the published 0.6.0 artifacts** — confirm the GitHub release ZIP,
-      WordPress.org SVN tag and directory version all contain the tagged tree; then
-      check the public screenshots, upgrade notice and both Playground links.
-- [ ] **Observe the first post-release matrix** — review the next scheduled live
-      rollback/forward run and early field reports before starting another release.
+0.6.0, 0.6.1 and 0.6.2 are all published. 0.6.0 introduced the vulnerability check
+and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
+security review; 0.6.2 stopped the panel promising a scheduled install that the
+ladder beneath it contradicted.
+
+- [x] **Release 0.6.0, 0.6.1 and 0.6.2** — each tagged on a commit carrying its own
+      green CI and live matrix, and deployed to wordpress.org through the reviewed
+      SVN path.
+- [x] **Validate the published artifacts** — done per release: the GitHub ZIP, the
+      SVN tag and the directory version, plus screenshots, upgrade notice and
+      Playground links.
+- [ ] **Observe the field** — 0.6.2 is hours old. Watch the scheduled live matrix and
+      early reports before opening another release. The install path has now been
+      exercised on real sites in `en_US` and `fr_FR`, but by its authors rather than
+      by anyone who did not already know how it works.
 
 ## Next — 0.7.0 privacy and content integrity
 
