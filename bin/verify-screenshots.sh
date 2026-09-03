@@ -88,6 +88,10 @@ if [ -n "$STALE" ]; then
 	echo "If the pictures are unchanged — an ARIA-only change, or a screen these three"
 	echo "do not show — confirm you looked, and record it:"
 	echo "  git rev-parse HEAD > $STAMP"
+	echo
+	echo "Run that AFTER the commit carrying the new pictures has landed. HEAD is"
+	echo "still the branch point while the change is uncommitted, so stamping early"
+	echo "records a commit older than the images and this check fails again."
 	exit 1
 fi
 
