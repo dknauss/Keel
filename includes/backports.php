@@ -435,7 +435,16 @@ function keel_defaults_minor_update_state() {
 				'code' => 'automatic_disabled_constant',
 				'text' => __( 'automatic updates are switched off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php', 'keel-defaults' ),
 			);
-		} elseif ( apply_filters( 'automatic_updater_disabled', false ) ) {
+		} elseif (
+			// Core's filter, asked core's question. PrefixAllGlobals wants a plugin
+			// prefix on any hook a plugin invokes, but a keel_ prefixed hook would ask
+			// something nothing answers: the point is to learn what the updater will
+			// conclude, which means firing the hook the updater fires.
+			//
+			// This filter is documented in wp-admin/includes/class-wp-automatic-updater.php.
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core's hook, read deliberately.
+			apply_filters( 'automatic_updater_disabled', false )
+		) {
 			$blockers[] = array(
 				'code' => 'automatic_disabled_filter',
 				'text' => __( 'a plugin or theme on this site switches automatic updates off, using the automatic_updater_disabled filter', 'keel-defaults' ),
@@ -502,7 +511,13 @@ function keel_defaults_minor_update_state() {
 		$enabled = ( false !== WP_AUTO_UPDATE_CORE );
 	}
 
-	/** This filter is documented in wp-admin/includes/class-core-upgrader.php */
+	/*
+	 * Core's hook again, for the same reason: this reports what core would decide,
+	 * and a prefixed hook would report what Keel decided instead.
+	 *
+	 * This filter is documented in wp-admin/includes/class-core-upgrader.php
+	 */
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core's hook, read deliberately.
 	$filtered = (bool) apply_filters( 'allow_minor_auto_core_updates', $enabled );
 
 	if ( $filtered !== $enabled ) {
