@@ -22,7 +22,11 @@ SHOT=".wordpress-org/screenshot-1.png"
 # backport-install.php render the patch-status panel and its install button,
 # which is the largest admin surface added since this list was written — and
 # the guard was blind to all of it.
-UI="includes/settings-page.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php"
+# Every file that renders admin UI these pictures could depict. A file missing here
+# is a screen that can change without anyone being asked whether the screenshots
+# still match — which is how they went stale before (#144, and again with
+# updates-screen.php, added in #168 and unwatched until #170).
+UI="includes/settings-page.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php includes/updates-screen.php"
 
 if [ ! -f "$SHOT" ]; then
 	echo "verify-screenshots: $SHOT is missing." >&2

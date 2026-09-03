@@ -855,7 +855,7 @@ function keel_defaults_backport_verdict() {
 			'<code>' . esc_html( $version ) . '</code>',
 			'<code>' . esc_html( keel_defaults_latest_version() ) . '</code>'
 		) . '</p>';
-		$result['description'] .= '<p>' . esc_html__( 'That is not a support guarantee. Only the latest release is actively supported; fixes for older lines are backported as a courtesy, where necessary and feasible, and ship as they become ready. Staying here is a reasonable choice and Keel will not nag about it, but the line will eventually be retired, and this check only covers core — not plugins, themes, PHP or anything undisclosed.', 'keel-defaults' ) . '</p>';
+		$result['description'] .= '<p>' . esc_html__( 'That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and this line will eventually be retired. This check covers core only — not plugins, themes or PHP.', 'keel-defaults' ) . '</p>';
 
 		return $result;
 	}
@@ -1046,7 +1046,7 @@ function keel_defaults_backport_lead( $tip, $manual ) {
 	if ( '' !== $manual && $manual !== $tip ) {
 		return sprintf(
 			/* translators: 1: version WordPress own update list is offering, 2: patched release on this line. */
-			esc_html__( 'WordPress own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen.', 'keel-defaults' ),
+			esc_html__( 'WordPress\'s own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen.', 'keel-defaults' ),
 			'<code>' . esc_html( $manual ) . '</code>',
 			$code
 		);
@@ -1054,7 +1054,7 @@ function keel_defaults_backport_lead( $tip, $manual ) {
 
 	return sprintf(
 		/* translators: %s: patched release on this line. */
-		esc_html__( 'WordPress own update list does not include %s. Keel adds it to the Updates screen.', 'keel-defaults' ),
+		esc_html__( 'WordPress\'s own update list does not include %s. Keel adds it to the Updates screen.', 'keel-defaults' ),
 		$code
 	);
 }
@@ -1077,15 +1077,21 @@ function keel_defaults_ladder_rung_mark( $selection, $selected, $version ) {
 		return '';
 	}
 
+	/*
+	 * "WordPress", never "core". They are the same actor to a site owner, and the
+	 * ladder used to name it both ways in adjacent rows.
+	 */
 	if ( 'blocked' === $selection ) {
-		return ' <strong>' . esc_html__( '← core would otherwise choose this one', 'keel-defaults' ) . '</strong>';
+		// Conditional on purpose: core would pick this, and cannot act. Saying it
+		// installs this contradicts the verdict in the same panel.
+		return esc_html__( 'WordPress would pick this', 'keel-defaults' );
 	}
 
 	if ( 'scheduled' !== $selection ) {
 		return '';
 	}
 
-	return ' <strong>' . esc_html__( '← WordPress would install this one', 'keel-defaults' ) . '</strong>';
+	return esc_html__( 'WordPress installs this', 'keel-defaults' );
 }
 
 /**
@@ -1539,18 +1545,32 @@ function keel_defaults_ladder_markup() {
 		$is_target = ( '' !== $target && $target === $rung['version'] );
 		$core_mark = keel_defaults_ladder_rung_mark( $selection, $selected, $rung['version'] );
 
-		if ( $is_target && 'scheduled' === $selection && $selected === $rung['version'] ) {
-			/*
-			 * Both marks land on one rung: the release a reader wants is also the one
-			 * core would take. That is the outcome this panel is arguing for, and two
-			 * arrows in a row would bury it — so it is said once, as one sentence.
-			 */
-			$marks = ' <strong>' . esc_html__( '← nearest release without known vulnerabilities, and the one WordPress would install', 'keel-defaults' ) . '</strong>';
-		} elseif ( $is_target ) {
-			$marks = ' <strong>' . esc_html__( '← nearest release without known vulnerabilities', 'keel-defaults' ) . '</strong>' . $core_mark;
-		} else {
-			$marks = $core_mark;
+		/*
+		 * Composed, not combined. Both marks can land on one rung — the release a
+		 * reader wants is also the one WordPress would take — and that used to be a
+		 * fourth string spelling out both facts in one sentence. Joining the two short
+		 * labels says the same thing, drops a string, and removes the branch that
+		 * existed only to hold it.
+		 *
+		 * The panel above has already established that this is the nearest release on
+		 * the site's own line, so the rung does not repeat it.
+		 */
+		$labels = array();
+
+		if ( $is_target ) {
+			$labels[] = esc_html__( 'security fix', 'keel-defaults' );
 		}
+
+		if ( '' !== $core_mark ) {
+			$labels[] = $core_mark;
+		}
+
+		// One arrow, however many labels. rung_mark() returns the label alone for
+		// exactly this reason: when it carried its own arrow, a rung that was both the
+		// fix and core's choice printed two of them.
+		$marks = empty( $labels )
+			? ''
+			: ' <strong>' . esc_html( '←' ) . ' ' . implode( ' · ', $labels ) . '</strong>';
 
 		$rows .= sprintf(
 			'<li><code>%1$s</code> — %2$s%3$s</li>',

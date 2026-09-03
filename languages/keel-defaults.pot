@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-03T17:31:32+00:00\n"
+"POT-Creation-Date: 2026-09-03T20:05:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -329,7 +329,7 @@ msgid "%1$s is not currently flagged as insecure by WordPress.org. The current r
 msgstr ""
 
 #: includes/backports.php:858
-msgid "That is not a support guarantee. Only the latest release is actively supported; fixes for older lines are backported as a courtesy, where necessary and feasible, and ship as they become ready. Staying here is a reasonable choice and Keel will not nag about it, but the line will eventually be retired, and this check only covers core — not plugins, themes, PHP or anything undisclosed."
+msgid "That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and this line will eventually be retired. This check covers core only — not plugins, themes or PHP."
 msgstr ""
 
 #. translators: %s: WordPress version.
@@ -404,119 +404,115 @@ msgstr ""
 #. translators: 1: version WordPress own update list is offering, 2: patched release on this line.
 #: includes/backports.php:1049
 #, php-format
-msgid "WordPress own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen."
+msgid "WordPress's own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen."
 msgstr ""
 
 #. translators: %s: patched release on this line.
 #: includes/backports.php:1057
 #, php-format
-msgid "WordPress own update list does not include %s. Keel adds it to the Updates screen."
+msgid "WordPress's own update list does not include %s. Keel adds it to the Updates screen."
 msgstr ""
 
-#: includes/backports.php:1081
-msgid "← core would otherwise choose this one"
+#: includes/backports.php:1087
+msgid "WordPress would pick this"
 msgstr ""
 
-#: includes/backports.php:1088
-msgid "← WordPress would install this one"
+#: includes/backports.php:1094
+msgid "WordPress installs this"
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1185
+#: includes/backports.php:1191
 #, php-format
 msgid "Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1193
+#: includes/backports.php:1199
 #, php-format
 msgid "Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1201
+#: includes/backports.php:1207
 #, php-format
 msgid "Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line."
 msgstr ""
 
 #. translators: 1: the version the scheduled check would install, 2: target version.
-#: includes/backports.php:1209
+#: includes/backports.php:1215
 #, php-format
 msgid "The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1221
+#: includes/backports.php:1227
 #, php-format
 msgid "WordPress is not scheduling %s: it is not in this site's cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. Installing it deliberately requires an offer for it, which this site does not currently hold."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1229
+#: includes/backports.php:1235
 #, php-format
 msgid "WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1236
+#: includes/backports.php:1242
 #, php-format
 msgid "Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line."
 msgstr ""
 
-#: includes/backports.php:1250
+#: includes/backports.php:1256
 msgid "You are not allowed to change update settings on this site."
 msgstr ""
 
 #. translators: %s: WordPress version.
-#: includes/backports.php:1314
+#: includes/backports.php:1320
 #, php-format
 msgid "WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backports.php:1326
+#: includes/backports.php:1332
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version, 3: reasons.
-#: includes/backports.php:1333
+#: includes/backports.php:1339
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but it cannot currently install automatically: %3$s."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backports.php:1341
+#: includes/backports.php:1347
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but minor updates are switched off on this site, so it will not arrive on its own."
 msgstr ""
 
-#: includes/backports.php:1352
+#: includes/backports.php:1358
 msgid "See what is preventing it — Site Health"
 msgstr ""
 
-#: includes/backports.php:1532
+#: includes/backports.php:1538
 msgid "security and maintenance, same release line"
 msgstr ""
 
-#: includes/backports.php:1533
+#: includes/backports.php:1539
 msgid "new release line"
 msgstr ""
 
-#: includes/backports.php:1536
+#: includes/backports.php:1542
 msgid " — a delta package is available"
 msgstr ""
 
-#: includes/backports.php:1548
-msgid "← nearest release without known vulnerabilities, and the one WordPress would install"
-msgstr ""
-
-#: includes/backports.php:1550
-msgid "← nearest release without known vulnerabilities"
+#: includes/backports.php:1561
+msgid "security fix"
 msgstr ""
 
 #. translators: %d: number of releases offered.
-#: includes/backports.php:1570
+#: includes/backports.php:1590
 #, php-format
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
