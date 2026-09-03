@@ -66,7 +66,7 @@ function keel_defaults_minor_update_state() {
 }
 // Consumed on read, exactly as the real one is, so a second render is a real second read.
 function keel_defaults_backport_result_markup() {
-	$out = $GLOBALS['keel_pending_result'];
+	$out                            = $GLOBALS['keel_pending_result'];
 	$GLOBALS['keel_pending_result'] = '';
 
 	return $out;
@@ -163,17 +163,19 @@ keel_assert(
 	'not on core_upgrade_preamble: core documents that as firing after the core, plugin and theme tables, which puts the offer at the bottom of the page away from the release it is about'
 );
 
-/* ---------------------------------------------------------------------------
+/*
+---------------------------------------------------------------------------
  * The result of an install started here is reported here.
  *
  * A successful install leaves the site no longer insecure, so the offer correctly
  * stops being made -- which is why the result cannot live inside it. Without this an
  * administrator returns to the screen they pressed the button on and is shown nothing,
  * while the result waits in a transient for their next visit to Site Health.
- * ------------------------------------------------------------------------ */
+ * ------------------------------------------------------------------------
+ */
 
 $GLOBALS['keel_pending_result'] = '<div class="notice notice-success"><p>WordPress 6.9.7 was installed successfully.</p></div>';
-$after = keel_defaults_updates_screen_content( 'latest', '', '7.1', '' );
+$after                          = keel_defaults_updates_screen_content( 'latest', '', '7.1', '' );
 
 keel_assert(
 	false !== strpos( $after, 'was installed successfully' ),

@@ -380,14 +380,49 @@ function keel_defaults_backport_result_markup() {
 }
 
 /**
+ * Where each screen's install button returns to.
+ *
+ * A fixed map, and a submitted value is only ever a key into it. Nothing a form carries
+ * reaches wp_safe_redirect() as a destination, so a tampered or stale form cannot choose
+ * where an authenticated administrator is sent after an install -- the worst an
+ * unrecognised value achieves is the default screen.
+ *
+ * Both screens live under network admin on multisite, and Keel already requires
+ * manage_network_options to install there.
+ *
+ * @return array Screen token to admin-relative path.
+ */
+function keel_defaults_backport_return_map() {
+	return array(
+		'site-health' => 'site-health.php',
+		'updates'     => 'update-core.php',
+	);
+}
+
+/**
+ * Resolve a return token to an admin URL.
+ *
+ * @param string $token Submitted return token.
+ * @return string
+ */
+function keel_defaults_backport_return_url( $token ) {
+	$map  = keel_defaults_backport_return_map();
+	$path = isset( $map[ (string) $token ] ) ? $map[ (string) $token ] : $map['site-health'];
+
+	return is_multisite() ? network_admin_url( $path ) : admin_url( $path );
+}
+
+/**
  * Build the deliberate-install form when core is not already showing it.
  *
  * @param string $version Target patch version.
  * @param string $screen  Updates-screen state.
  * @param array  $state   Minor-update state.
+ * @param string $from    Screen this is rendered on, as a return map key, so the
+ *                        result lands where the button was pressed.
  * @return string
  */
-function keel_defaults_backport_install_button( $version, $screen, array $state ) {
+function keel_defaults_backport_install_button( $version, $screen, array $state, $from = 'site-health' ) {
 	if ( 'visible' === $screen || ! keel_defaults_can_install_backport() ) {
 		return '';
 	}
@@ -401,6 +436,7 @@ function keel_defaults_backport_install_button( $version, $screen, array $state 
 		. '<input type="hidden" name="action" value="keel_defaults_install_backport">'
 		. '<input type="hidden" name="version" value="' . esc_attr( $version ) . '">'
 		. '<input type="hidden" name="_wpnonce" value="' . esc_attr( wp_create_nonce( keel_defaults_backport_nonce_action( $version ) ) ) . '">'
+		. '<input type="hidden" name="keel_return" value="' . esc_attr( isset( keel_defaults_backport_return_map()[ $from ] ) ? $from : 'site-health' ) . '">'
 		. '<button type="submit" class="button">'
 		. sprintf(
 			/* translators: %s: target WordPress version. */
@@ -417,13 +453,14 @@ function keel_defaults_backport_install_button( $version, $screen, array $state 
 }
 
 /**
- * Redirect to Site Health after storing an install result.
+ * Store an install result and return the administrator to where they clicked.
  *
  * @param string|WP_Error|false $result Core upgrader result.
  * @param string                $version Target version.
+ * @param string                $from Submitted return token; anything unrecognised falls back.
  * @return void
  */
-function keel_defaults_finish_backport_install( $result, $version ) {
+function keel_defaults_finish_backport_install( $result, $version, $from = '' ) {
 	if ( is_wp_error( $result ) ) {
 		keel_defaults_store_backport_result(
 			get_current_user_id(),
@@ -456,7 +493,7 @@ function keel_defaults_finish_backport_install( $result, $version ) {
 		);
 	}
 
-	wp_safe_redirect( admin_url( 'site-health.php' ) );
+	wp_safe_redirect( keel_defaults_backport_return_url( $from ) );
 	exit;
 }
 
@@ -485,13 +522,15 @@ function keel_defaults_handle_install_backport() {
 	$version = isset( $_POST['version'] ) ? sanitize_text_field( wp_unslash( $_POST['version'] ) ) : '';
 	check_admin_referer( keel_defaults_backport_nonce_action( $version ) );
 
+	$from = isset( $_POST['keel_return'] ) ? sanitize_key( wp_unslash( $_POST['keel_return'] ) ) : '';
+
 	$plan = keel_defaults_prepare_backport_install( $version );
 	if ( is_wp_error( $plan ) ) {
-		keel_defaults_finish_backport_install( $plan, $version );
+		keel_defaults_finish_backport_install( $plan, $version, $from );
 	}
 
 	$result = keel_defaults_run_backport_install( $plan );
 
-	keel_defaults_finish_backport_install( $result, $version );
+	keel_defaults_finish_backport_install( $result, $version, $from );
 }
 add_action( 'admin_post_keel_defaults_install_backport', 'keel_defaults_handle_install_backport' );

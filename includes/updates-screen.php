@@ -51,6 +51,28 @@ function keel_defaults_render_updates_screen() {
 }
 
 /**
+ * Everything this screen contributes: the result of the last install, then the offer.
+ *
+ * The result is rendered outside the offer rather than within it. A successful install
+ * leaves the site no longer insecure, so the offer correctly stops being made -- and an
+ * administrator returning from that install would be shown nothing at all, while the
+ * result waited in its transient for their next visit to Site Health.
+ *
+ * @param string       $status   Result of keel_defaults_version_status().
+ * @param string       $tip      Patched release on this line, or ''.
+ * @param string       $latest   Newest release WordPress.org lists.
+ * @param string|false $selected Result of keel_defaults_ladder_selection().
+ * @return string
+ */
+function keel_defaults_updates_screen_content( $status, $tip, $latest, $selected ) {
+	$result = function_exists( 'keel_defaults_backport_result_markup' )
+		? keel_defaults_backport_result_markup()
+		: '';
+
+	return $result . keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected );
+}
+
+/**
  * The offer, gated on capability.
  *
  * @param string       $status   Result of keel_defaults_version_status().
@@ -64,7 +86,7 @@ function keel_defaults_render_updates_screen_markup( $status, $tip, $latest, $se
 		return '';
 	}
 
-	return keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected );
+	return keel_defaults_updates_screen_content( $status, $tip, $latest, $selected );
 }
 
 /**
@@ -130,7 +152,7 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 
 	if ( function_exists( 'keel_defaults_backport_install_button' ) ) {
 		$offer   = keel_defaults_updates_screen_offer( $tip );
-		$actions = keel_defaults_backport_install_button( $tip, $offer['state'], keel_defaults_minor_update_state() );
+		$actions = keel_defaults_backport_install_button( $tip, $offer['state'], keel_defaults_minor_update_state(), 'updates' );
 	}
 
 	return '<div class="notice notice-warning keel-defaults-patch-offer" style="padding:12px;">'

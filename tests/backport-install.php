@@ -484,13 +484,15 @@ keel_install_assert( false === get_transient( $bad_result_key ), 'a malformed re
 keel_defaults_store_backport_result( 10, 'bad_type', array( 'Failure' ), 'warning' );
 keel_install_assert( 'error' === keel_defaults_take_backport_result( 10 )['type'], 'unknown notice types are normalized to error' );
 
-/* ---------------------------------------------------------------------------
+/*
+---------------------------------------------------------------------------
  * Where the button sends you back to.
  *
  * The install form is rendered on two screens now. Returning everyone to Site Health
  * means an administrator who pressed the button on the Updates screen completes an
  * install and lands somewhere else to read the outcome.
- * ------------------------------------------------------------------------ */
+ * ------------------------------------------------------------------------
+ */
 
 keel_install_assert(
 	false !== strpos( keel_defaults_backport_return_url( 'updates' ), 'update-core.php' ),
@@ -573,4 +575,3 @@ if ( $fail > 0 ) {
 }
 
 echo "backport-install: all assertions passed\n";
-
