@@ -16,6 +16,33 @@ GPL-2.0-or-later.
 
 ---
 
+## Next — make "Learn more" worth clicking
+
+Every Site Health check renders a **Learn more** link into
+`docs/site-health-checks.md`. The links resolve — this repository is public, unlike the
+sibling plugin's, where the same pattern returns a 404 for every client — but resolving
+is a low bar. What a reader lands on is a heading and two or three sentences, most of
+which the Site Health panel has already said in more detail.
+
+So the link currently trades a reader's click for a repetition, and a reader who does
+that twice stops clicking.
+
+- **U4** — read every anchor as a reader arriving cold from the panel. The question for
+  each is what it adds that the panel did not, and the honest answer for several will be
+  nothing, in which case the anchor should either be written or the link dropped for that
+  check. Fewer links that pay is better than complete coverage that does not.
+- **U5** — the patch-status check is the one with most to explain and the least written:
+  why WordPress.org's classification is not the same as an available update, why the
+  release line matters, what a delta package is, and why core skips the nearest release.
+  The panel says these in passing because it has to stay short; this is where they can be
+  said properly.
+- **U6** — decide whether GitHub is the right destination at all. A `docs/` file is
+  written for contributors and read as a repository; a site owner arriving from wp-admin
+  is neither. The wordpress.org listing FAQ is the other candidate and needs no hosting.
+
+Not release-blocking, and not urgent — but it is the plugin's only outbound explanation,
+and right now it is thinner than the screen it links from.
+
 ## Next — offer the patch on the Updates screen
 
 **The gap.** Keel's panel says "Install 6.4.10 now from the Updates screen" and links

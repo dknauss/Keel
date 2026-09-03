@@ -45,6 +45,20 @@ into ROADMAP.md or here.
       the right split: the directory listing wants the acknowledgement, the
       repository can afford the detail.
 
+- [ ] **Make "Learn more" worth clicking**
+  - Every Site Health check links into `docs/site-health-checks.md`. The links resolve,
+    but a reader lands on a heading and two or three sentences the panel has already
+    said in more detail — so the click buys a repetition.
+  - Read each anchor as someone arriving cold from the panel. Where it adds nothing,
+    either write it or drop the link for that check; fewer links that pay beats complete
+    coverage that does not.
+  - The patch-status anchor has the most to explain and the least written: why a
+    WordPress.org classification is not an available update, why the release line
+    matters, what a delta package is, why core skips the nearest release.
+  - Decide whether GitHub is the destination at all. `docs/` is written for contributors;
+    a site owner arriving from wp-admin is not one. The wordpress.org FAQ is the other
+    candidate and needs no hosting.
+
 - [ ] **Offer the patch on the Updates screen** — 0.6.3
   - `get_core_updates()` drops every `autoupdate` offer, so the Updates screen never
     shows the same-line patch. The Site Health panel links there anyway and, in the
