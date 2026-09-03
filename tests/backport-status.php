@@ -1441,6 +1441,45 @@ keel_assert( false === strpos( $sched, 'declin' ), 'and nothing is said to have 
 $sched = keel_defaults_schedule_statement( $inop, '6.8.8', '6.8.8' );
 keel_assert( false === strpos( $sched, 'scheduled check' ), 'an inoperable updater promises nothing whatever core selected' );
 
+/*
+ * U1 changed what is true about the Updates screen.
+ *
+ * Keel now renders the same-line offer there, so "the Updates screen will not offer
+ * 6.8.8" is no longer accurate — core's own update list will not, which is a different
+ * claim and the one worth making. A panel that complains about a screen it has just
+ * fixed reads as though the plugin does not know its own feature.
+ */
+$none_lead = keel_defaults_backport_lead( '6.8.8', '7.1' );
+keel_assert(
+	false === stripos( $none_lead, 'Updates screen will not offer' ),
+	'the panel does not say the Updates screen will not offer the patch, now that Keel puts it there'
+);
+keel_assert(
+	false !== stripos( $none_lead, 'update list' ) || false !== stripos( $none_lead, 'WordPress' ),
+	'it names what actually will not list the patch: WordPress own update list'
+);
+keel_assert(
+	false !== strpos( $none_lead, '7.1' ),
+	'and still names the release that list is offering instead'
+);
+
+$bare_lead = keel_defaults_backport_lead( '6.8.8', '' );
+keel_assert(
+	false === strpos( $bare_lead, '7.1' ),
+	'with no offer on the screen, no substitute release is claimed'
+);
+// Checking for the absent version is not enough: taking the wrong branch with an empty
+// $manual renders an empty <code></code> rather than a version, which passes that test
+// while printing "is offering  and will not include".
+keel_assert(
+	false === stripos( $bare_lead, 'is offering' ),
+	'and it does not claim the list is offering something, with or without a version in it'
+);
+keel_assert(
+	false === strpos( $bare_lead, '<code></code>' ),
+	'nor renders an empty code element where a version should be'
+);
+
 // Absence of an offer does not establish why it is absent.
 $r = keel_defaults_backport_route( '6.8.8', $op, '', false );
 keel_assert( false !== strpos( $r, 'not in this site' ), 'an absent offer is reported as absent from the cache' );
@@ -1669,8 +1708,11 @@ keel_assert(
 	false !== strpos( $actions, 'WP_AUTO_UPDATE_CORE' ),
 	'the constant-owner action still names the constant to change'
 );
+// Matches on 'update list' because that is the phrase the shared lead owns. It used
+// to match 'will not offer', which U3 changed: the Updates screen does offer the patch
+// now that Keel renders it there, and WordPress's own update list is what does not.
 keel_assert(
-	false !== strpos( $actions, 'will not offer' ),
+	false !== strpos( $actions, 'update list' ),
 	'the constant-owner action falls through to the shared availability result'
 );
 
