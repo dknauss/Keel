@@ -51,10 +51,18 @@ function keel_defaults_backport_install_button( $version, $screen, array $state 
 	return '<form method="post"><button>Install WordPress ' . esc_html( $version ) . ' now</button></form>';
 }
 function keel_defaults_updates_screen_offer( $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	return array( 'state' => 'none', 'manual' => '7.1' );
+	return array(
+		'state'  => 'none',
+		'manual' => '7.1',
+	);
 }
 function keel_defaults_minor_update_state() {
-	return array( 'policy' => true, 'operable' => true, 'owner' => 'default', 'blockers' => array() );
+	return array(
+		'policy'   => true,
+		'operable' => true,
+		'owner'    => 'default',
+		'blockers' => array(),
+	);
 }
 
 require_once __DIR__ . '/../includes/updates-screen.php';
