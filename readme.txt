@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.1
+Stable tag: 0.6.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,14 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
+= 0.6.2 =
+* Fixed: the patch-status panel could promise a scheduled install the ladder directly beneath it contradicted. "Minor updates are permitted and the updater works" does not establish what WordPress would install: a site that also accepts major updates gets the highest release on offer, not the nearest, so the panel could say a patch was scheduled above a ladder marking a different release as the one WordPress would take. The claim is now made only when core's own selection is that patch, and names the release core would take instead when it is not.
+* Fixed: the persistent admin notice repeated the same promise with no ladder beneath it to correct it. It renders on every admin screen, so it cannot afford to ask WordPress which release it would install — it now says automatic updating appears available and sends you to Site Health, which can answer.
+* Fixed: the panel offered a deliberate install in states where Keel refuses one, and then, once corrected, claimed no install was possible at all. Both were wrong. Keel refuses a blocked install; a deployment workflow or WP-CLI may still manage it, and the wording now says which of those it is speaking for.
+* Fixed: an unexpected `null` from WordPress's upgrader was reported as a successful install. Core documents a version string on success, so `null` establishes nothing.
+* Added: two live matrix rows that leave the automatic updater operable — one where WordPress would take the same-line patch, one where major updates are permitted and it steps over. Every previous row switched the updater off, so no row had ever rendered the panel in the state these fixes are about.
+* Screenshots retaken against a release WordPress.org flags, so the listing images show the current wording.
+
 = 0.6.1 =
 * Fixed: `/?author=N` still disclosed the author nicename, and attachment pages still rendered, on sites with those defaults enabled. Both redirects registered on `template_redirect` at the default priority, where core has already registered `redirect_canonical` during load — so they lost the tie on registration order every time. Both now run at priority 9.
 * Fixed: a site with comments disabled still answered `/wp/v2/comments/123`. The filter covering every comment listing does not cover the single-item REST route, which reads its row without building a query.
@@ -276,6 +284,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.2 =
+Reporting fixes. The patch-status panel could promise an automatic install that the ladder beneath it contradicted, on sites that also accept major updates. It now agrees with what WordPress would actually install. No setting changes.
 
 = 0.6.1 =
 Security fixes. Two protections this plugin documents were not taking effect: the author and attachment redirects lost a priority race against WordPress itself, and disabled comments still answered one REST route. Also tightens the REST password policy. No setting changes.
