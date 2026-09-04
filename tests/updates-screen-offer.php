@@ -53,7 +53,7 @@ function keel_defaults_backport_install_button( $version, $screen, array $state 
 function keel_defaults_updates_screen_offer( $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	return array(
 		'state'  => 'none',
-		'manual' => '7.1',
+		'manual' => $GLOBALS['keel_manual_offer'],
 	);
 }
 function keel_defaults_minor_update_state() {
@@ -73,6 +73,7 @@ function keel_defaults_backport_result_markup() {
 }
 
 $GLOBALS['keel_pending_result'] = '';
+$GLOBALS['keel_manual_offer']   = '7.1';
 
 require_once __DIR__ . '/../includes/updates-screen.php';
 
@@ -196,6 +197,42 @@ keel_assert(
 	'a failed install is reported on the screen it was started from'
 );
 $GLOBALS['keel_pending_result'] = '';
+
+/*
+---------------------------------------------------------------------------
+ * What the screen offers is read from the screen, not from the stable check.
+ *
+ * keel_defaults_latest_version() comes from the WordPress.org stable check, which
+ * refreshes independently of the update_core transient that update-core.php renders.
+ * Saying "the update offered above is 7.1" from the first source is a claim about
+ * the second, and the two can disagree.
+ * ------------------------------------------------------------------------
+ */
+
+// The screen is offering something other than the stable check's newest.
+$GLOBALS['keel_manual_offer'] = '7.0.4';
+$divergent                    = keel_defaults_updates_screen_markup( 'insecure', '6.9.7', '7.1', false );
+keel_assert(
+	false !== strpos( $divergent, '7.0.4' ),
+	'the comparison names the release the screen is actually offering'
+);
+keel_assert(
+	false === strpos( $divergent, '7.1' ),
+	'the comparison does not name a release the screen is not offering'
+);
+
+// The screen is offering nothing, so there is no "update offered above" to point at.
+$GLOBALS['keel_manual_offer'] = '';
+$silent                       = keel_defaults_updates_screen_markup( 'insecure', '6.9.7', '7.1', false );
+keel_assert(
+	false === stripos( $silent, 'offered above' ),
+	'with nothing offered above, the screen does not claim there is'
+);
+keel_assert(
+	false !== strpos( $silent, '6.9.7' ),
+	'the patch is still offered even when core lists nothing'
+);
+$GLOBALS['keel_manual_offer'] = '7.1';
 
 function wp_list_pluck_stub( $arr, $key ) {
 	return array_map(

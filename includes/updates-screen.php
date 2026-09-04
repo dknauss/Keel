@@ -109,7 +109,14 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 		return '';
 	}
 
-	$patch = '<code>' . esc_html( $tip ) . '</code>';
+	$patch   = '<code>' . esc_html( $tip ) . '</code>';
+	$offer   = function_exists( 'keel_defaults_updates_screen_offer' )
+		? keel_defaults_updates_screen_offer( $tip )
+		: array(
+			'state'  => 'unknown',
+			'manual' => '',
+		);
+	$offered = isset( $offer['manual'] ) ? (string) $offer['manual'] : '';
 
 	$lead = sprintf(
 		/* translators: %s: patched WordPress version on the site's own release line. */
@@ -130,11 +137,19 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 			'<code>' . esc_html( $selected ) . '</code>',
 			$patch
 		);
-	} elseif ( is_string( $latest ) && '' !== $latest && $latest !== $tip ) {
+	} elseif ( '' !== $offered && $offered !== $tip ) {
+		/*
+		 * $offered, not keel_defaults_latest_version(). The latter is the WordPress.org
+		 * stable check, which refreshes on its own schedule; this screen renders the
+		 * update_core transient. Sourcing a sentence about what is "offered above" from
+		 * the other cache is a claim about a screen it has not read, and the two can
+		 * disagree -- or the screen can be offering nothing at all, in which case there
+		 * is no comparison to draw and the paragraph is simply omitted.
+		 */
 		$compare = sprintf(
-			/* translators: 1: newest release, 2: patched release on this line. */
+			/* translators: 1: release the Updates screen is offering, 2: patched release on this line. */
 			esc_html__( 'The update offered above is %1$s. %2$s is the smaller change that closes the same hole.', 'keel-defaults' ),
-			'<code>' . esc_html( $latest ) . '</code>',
+			'<code>' . esc_html( $offered ) . '</code>',
 			$patch
 		);
 	}
@@ -151,7 +166,6 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 	$actions = '';
 
 	if ( function_exists( 'keel_defaults_backport_install_button' ) ) {
-		$offer   = keel_defaults_updates_screen_offer( $tip );
 		$actions = keel_defaults_backport_install_button( $tip, $offer['state'], keel_defaults_minor_update_state(), 'updates' );
 	}
 
