@@ -60,23 +60,50 @@ STAMP=".wordpress-org/.screenshots-reviewed"
 # taken on a feature branch never exists once that branch lands — which is how
 # the stamp came to name a commit git could not resolve, and why the fallback
 # below has to be a real fallback rather than a pass.
+# When the pictures themselves last changed. This is the fallback whenever the
+# stamp cannot be used, and it is the conservative answer: it asks "have the
+# screens moved since the images were last written", which is answerable from
+# whatever history this clone has.
+PICTURES="$( git log --format='%H' -1 -- '.wordpress-org/screenshot-*.png' )"
+
+CAPTURED=""
+WHY=""
+
 if [ -f "$STAMP" ]; then
 	CAPTURED="$( tr -d '[:space:]' < "$STAMP" )"
-else
-	CAPTURED="$( git log --format='%H' -1 -- "$SHOT" )"
+
+	# Two ways a stamp stops being usable, and this repository squash-merges, so
+	# both happen routinely rather than exceptionally.
+	#
+	# The commit may not be in this clone at all: the stamp records a SHA from a
+	# feature branch, the squash replaces it with a different commit, the branch is
+	# deleted. Whoever merged still has the object and everyone else does not.
+	#
+	# Or it may resolve and still be off this line of history, which makes
+	# `git log <stamp>..HEAD` a range about two unrelated branches. Refusing
+	# outright was the old behaviour, and it turned every squash-merged screenshot
+	# change into a failure that could only be cleared by hand-editing the stamp.
+	if ! git cat-file -e "${CAPTURED}^{commit}" 2>/dev/null; then
+		WHY="the stamped commit ${CAPTURED:0:8} is not in this clone (squash-merged and pruned?)"
+		CAPTURED=""
+	elif ! git merge-base --is-ancestor "$CAPTURED" HEAD 2>/dev/null; then
+		WHY="the stamped commit ${CAPTURED:0:8} is not in this branch's history (squash-merged?)"
+		CAPTURED=""
+	fi
+fi
+
+if [ -z "$CAPTURED" ]; then
+	CAPTURED="$PICTURES"
+
+	if [ -n "$WHY" ]; then
+		echo "verify-screenshots: ${WHY}."
+		echo "Falling back to when the pictures last changed, ${CAPTURED:0:8}."
+		echo
+	fi
 fi
 
 if [ -z "$CAPTURED" ]; then
 	echo "verify-screenshots: $SHOT has never been committed." >&2
-	exit 1
-fi
-
-# A stamp git cannot resolve makes the range query below return nothing, which
-# reads exactly like "no changes since" and passes. Same shape as the shallow
-# clone above: when the check cannot be performed it must say so, not agree.
-if ! git cat-file -e "${CAPTURED}^{commit}" 2>/dev/null; then
-	echo "verify-screenshots: '${CAPTURED}' is not a commit in this repository." >&2
-	echo "Fix ${STAMP}, or delete it to fall back to the screenshots' own commit." >&2
 	exit 1
 fi
 
