@@ -8,12 +8,12 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## Now — observe 0.6.2
+## Now — observe 0.6.3
 
-0.6.0, 0.6.1 and 0.6.2 are published. The release checklist ran in full for each.
+0.6.0 through 0.6.3 are published. The release checklist ran in full for each.
 
-- [x] **Release 0.6.0, 0.6.1, 0.6.2** — tagged on commits carrying their own green CI
-      and live matrix; deployed to wordpress.org through the reviewed SVN path.
+- [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
+      green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
 - [x] **Validate the published artifacts** — GitHub ZIP, SVN tag, directory version,
       screenshots, upgrade notice and Playground links, per release.
 - [ ] **Observe the field**
