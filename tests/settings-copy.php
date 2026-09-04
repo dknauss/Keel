@@ -243,6 +243,16 @@ foreach ( $GLOBALS['keel_test_screen']->tabs as $tab_id => $tab_html ) {
 
 $copy_surfaces['help sidebar'] = $GLOBALS['keel_test_screen']->sidebar;
 
+/*
+ * The same lesson as the help tabs, learned again on a different surface. The
+ * Updates-screen offer is prose in a PHP file, not a schema string or a help tab, so
+ * two retired phrases lived there through a clean run of this scan. PX's sibling guard
+ * walks every PHP file under includes/ for exactly this reason; this one now does too.
+ */
+foreach ( glob( dirname( __DIR__ ) . '/includes/*.php' ) as $include_path ) {
+	$copy_surfaces[ 'includes/' . basename( $include_path ) ] = file_get_contents( $include_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+}
+
 foreach ( array( 'readme.txt', 'README.md' ) as $doc ) {
 	$doc_path = dirname( __DIR__ ) . '/' . $doc;
 	if ( is_file( $doc_path ) ) {
@@ -252,6 +262,7 @@ foreach ( array( 'readme.txt', 'README.md' ) as $doc ) {
 
 keel_assert( count( $copy_surfaces ) > 40, 'The retired-phrase scan has surfaces to search (' . count( $copy_surfaces ) . ').' );
 keel_assert( isset( $copy_surfaces["help tab 'keel-passwords'"] ), 'The scan reaches the help tabs, not only the schema strings.' );
+keel_assert( isset( $copy_surfaces['includes/updates-screen.php'] ), 'The scan reaches prose that lives in PHP files rather than in the schema.' );
 
 /**
  * Strip lines that deliberately quote a retired phrase to explain it.

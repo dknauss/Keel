@@ -120,7 +120,7 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 
 	$lead = sprintf(
 		/* translators: %s: patched WordPress version on the site's own release line. */
-		esc_html__( 'This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line, so only the third number changes.', 'keel-defaults' ),
+		esc_html__( 'This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line.', 'keel-defaults' ),
 		$patch
 	);
 
@@ -148,7 +148,7 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 		 */
 		$compare = sprintf(
 			/* translators: 1: release the Updates screen is offering, 2: patched release on this line. */
-			esc_html__( 'The update offered above is %1$s. %2$s is the smaller change that closes the same hole.', 'keel-defaults' ),
+			esc_html__( 'The update offered above is %1$s. %2$s is the minor update that closes the known vulnerabilities.', 'keel-defaults' ),
 			'<code>' . esc_html( $offered ) . '</code>',
 			$patch
 		);

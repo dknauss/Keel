@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-03T20:05:03+00:00\n"
+"POT-Creation-Date: 2026-09-04T01:06:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -156,21 +156,21 @@ msgid "That patch is no longer the current target for this release line. Refresh
 msgstr ""
 
 #. translators: %s: target WordPress version.
-#: includes/backport-install.php:407
+#: includes/backport-install.php:443
 #, php-format
 msgid "Install WordPress %s now"
 msgstr ""
 
-#: includes/backport-install.php:413
+#: includes/backport-install.php:449
 msgid "A previous core update failed critically. This deliberate attempt may repair that state, but back up the site first."
 msgstr ""
 
-#: includes/backport-install.php:442
+#: includes/backport-install.php:479
 msgid "WordPress did not report the update as complete. Check the Updates screen for the version now installed before retrying."
 msgstr ""
 
 #. translators: %s: installed WordPress version.
-#: includes/backport-install.php:451
+#: includes/backport-install.php:488
 #, php-format
 msgid "WordPress %s was installed successfully."
 msgstr ""
@@ -287,7 +287,7 @@ msgstr ""
 #. translators: 1: current version, 2: patched version.
 #: includes/backports.php:798
 #, php-format
-msgid "WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The nearest release without known vulnerabilities is %4$s, on your own %3$s line — only the third number changes, so it is a maintenance release rather than a feature one, and nothing is deprecated."
+msgid "WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The nearest release without known vulnerabilities is %4$s, on your own %3$s line."
 msgstr ""
 
 #: includes/backports.php:800
@@ -1659,23 +1659,23 @@ msgid "REST API"
 msgstr ""
 
 #. translators: %s: patched WordPress version on the site's own release line.
-#: includes/updates-screen.php:94
+#: includes/updates-screen.php:123
 #, php-format
-msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line, so only the third number changes."
+msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line."
 msgstr ""
 
 #. translators: 1: release WordPress would install, 2: patched release on this line.
-#: includes/updates-screen.php:107
+#: includes/updates-screen.php:136
 #, php-format
 msgid "WordPress would install %1$s and skip %2$s. It takes the highest release your settings allow rather than the nearest, so the fix for the line you are on is passed over."
 msgstr ""
 
-#. translators: 1: newest release, 2: patched release on this line.
-#: includes/updates-screen.php:114
+#. translators: 1: release the Updates screen is offering, 2: patched release on this line.
+#: includes/updates-screen.php:151
 #, php-format
-msgid "The update offered above is %1$s. %2$s is the smaller change that closes the same hole."
+msgid "The update offered above is %1$s. %2$s is the minor update that closes the known vulnerabilities."
 msgstr ""
 
-#: includes/updates-screen.php:137
+#: includes/updates-screen.php:173
 msgid "A security release exists for your version line"
 msgstr ""

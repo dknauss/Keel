@@ -795,7 +795,7 @@ function keel_defaults_backport_verdict() {
 
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The nearest release without known vulnerabilities is %4$s, on your own %3$s line — only the third number changes, so it is a maintenance release rather than a feature one, and nothing is deprecated.', 'keel-defaults' ),
+			esc_html__( 'WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The nearest release without known vulnerabilities is %4$s, on your own %3$s line.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
 			'<strong>' . esc_html__( 'insecure', 'keel-defaults' ) . '</strong>',
 			'<code>' . esc_html( keel_defaults_version_line( $version ) ) . '</code>',
