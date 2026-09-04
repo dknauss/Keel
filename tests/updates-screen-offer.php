@@ -53,7 +53,7 @@ function keel_defaults_backport_install_button( $version, $screen, array $state 
 function keel_defaults_updates_screen_offer( $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	return array(
 		'state'  => 'none',
-		'manual' => '7.1',
+		'manual' => $GLOBALS['keel_manual_offer'],
 	);
 }
 function keel_defaults_minor_update_state() {
@@ -64,6 +64,16 @@ function keel_defaults_minor_update_state() {
 		'blockers' => array(),
 	);
 }
+// Consumed on read, exactly as the real one is, so a second render is a real second read.
+function keel_defaults_backport_result_markup() {
+	$out                            = $GLOBALS['keel_pending_result'];
+	$GLOBALS['keel_pending_result'] = '';
+
+	return $out;
+}
+
+$GLOBALS['keel_pending_result'] = '';
+$GLOBALS['keel_manual_offer']   = '7.1';
 
 require_once __DIR__ . '/../includes/updates-screen.php';
 
@@ -153,6 +163,76 @@ keel_assert(
 	! in_array( 'core_upgrade_preamble', $hooks, true ),
 	'not on core_upgrade_preamble: core documents that as firing after the core, plugin and theme tables, which puts the offer at the bottom of the page away from the release it is about'
 );
+
+/*
+---------------------------------------------------------------------------
+ * The result of an install started here is reported here.
+ *
+ * A successful install leaves the site no longer insecure, so the offer correctly
+ * stops being made -- which is why the result cannot live inside it. Without this an
+ * administrator returns to the screen they pressed the button on and is shown nothing,
+ * while the result waits in a transient for their next visit to Site Health.
+ * ------------------------------------------------------------------------
+ */
+
+$GLOBALS['keel_pending_result'] = '<div class="notice notice-success"><p>WordPress 6.9.7 was installed successfully.</p></div>';
+$after                          = keel_defaults_updates_screen_content( 'latest', '', '7.1', '' );
+
+keel_assert(
+	false !== strpos( $after, 'was installed successfully' ),
+	'a completed install is reported on the screen it was started from'
+);
+keel_assert(
+	'' === keel_defaults_updates_screen_markup( 'latest', '', '7.1', '' ),
+	'the offer itself is correctly gone once the site is no longer insecure'
+);
+keel_assert(
+	false === strpos( keel_defaults_updates_screen_content( 'latest', '', '7.1', '' ), 'was installed successfully' ),
+	'the result is shown once, not on every later visit to the screen'
+);
+
+$GLOBALS['keel_pending_result'] = '<div class="notice notice-error"><p>The filesystem refused the update.</p></div>';
+keel_assert(
+	false !== strpos( keel_defaults_updates_screen_content( 'insecure', '6.9.7', '7.1', '7.1' ), 'filesystem refused' ),
+	'a failed install is reported on the screen it was started from'
+);
+$GLOBALS['keel_pending_result'] = '';
+
+/*
+---------------------------------------------------------------------------
+ * What the screen offers is read from the screen, not from the stable check.
+ *
+ * keel_defaults_latest_version() comes from the WordPress.org stable check, which
+ * refreshes independently of the update_core transient that update-core.php renders.
+ * Saying "the update offered above is 7.1" from the first source is a claim about
+ * the second, and the two can disagree.
+ * ------------------------------------------------------------------------
+ */
+
+// The screen is offering something other than the stable check's newest.
+$GLOBALS['keel_manual_offer'] = '7.0.4';
+$divergent                    = keel_defaults_updates_screen_markup( 'insecure', '6.9.7', '7.1', false );
+keel_assert(
+	false !== strpos( $divergent, '7.0.4' ),
+	'the comparison names the release the screen is actually offering'
+);
+keel_assert(
+	false === strpos( $divergent, '7.1' ),
+	'the comparison does not name a release the screen is not offering'
+);
+
+// The screen is offering nothing, so there is no "update offered above" to point at.
+$GLOBALS['keel_manual_offer'] = '';
+$silent                       = keel_defaults_updates_screen_markup( 'insecure', '6.9.7', '7.1', false );
+keel_assert(
+	false === stripos( $silent, 'offered above' ),
+	'with nothing offered above, the screen does not claim there is'
+);
+keel_assert(
+	false !== strpos( $silent, '6.9.7' ),
+	'the patch is still offered even when core lists nothing'
+);
+$GLOBALS['keel_manual_offer'] = '7.1';
 
 function wp_list_pluck_stub( $arr, $key ) {
 	return array_map(

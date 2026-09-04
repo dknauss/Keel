@@ -492,7 +492,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
 	 * over forced composition rules, which push users toward predictable shapes
 	 * like Password1!.
 	 *
-	 * "Without adding entropy" is the phrasing this comment used to carry, and it
+	 * "Without adding entropy" is the phrasing this comment used to carry (keel-retired-ok), and it
 	 * concedes the argument. Demanding a symbol *does* enlarge the alphabet, so
 	 * on paper it adds entropy; what it fails to add is guessing resistance,
 	 * because people satisfy the rule the same few ways. Entropy is also the term
