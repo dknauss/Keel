@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.6.2`**. Keel was first published on wordpress.org as
+**Current version: `0.6.3`**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -48,20 +48,22 @@ happens rather than somewhere else.
 released as 1.27.0, so neither plugin is the safe one to break any more. Ships as 0.6.3;
 no schema change, no migration.
 
-## Now — observe 0.6.2 in the field
+## Now — observe 0.6.3 in the field
 
-0.6.0, 0.6.1 and 0.6.2 are all published. 0.6.0 introduced the vulnerability check
+0.6.0 through 0.6.3 are all published. 0.6.0 introduced the vulnerability check
 and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
 security review; 0.6.2 stopped the panel promising a scheduled install that the
-ladder beneath it contradicted.
+ladder beneath it contradicted; 0.6.3 put the offer on the Updates screen, which
+is the screen the whole feature exists because of — `get_core_updates()` drops
+the same-line patch, so that screen had never shown it.
 
-- [x] **Release 0.6.0, 0.6.1 and 0.6.2** — each tagged on a commit carrying its own
+- [x] **Release 0.6.0 through 0.6.3** — each tagged on a commit carrying its own
       green CI and live matrix, and deployed to wordpress.org through the reviewed
       SVN path.
 - [x] **Validate the published artifacts** — done per release: the GitHub ZIP, the
       SVN tag and the directory version, plus screenshots, upgrade notice and
       Playground links.
-- [ ] **Observe the field** — 0.6.2 is hours old. Watch the scheduled live matrix and
+- [ ] **Observe the field** — 0.6.3 is hours old. Watch the scheduled live matrix and
       early reports before opening another release. The install path has now been
       exercised on real sites in `en_US` and `fr_FR`, but by its authors rather than
       by anyone who did not already know how it works.

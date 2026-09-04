@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.2
+Stable tag: 0.6.3
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,14 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
+= 0.6.3 =
+* Added: the security release on your own version line is now offered on the Updates screen, where WordPress sends you to update. WordPress builds that screen with `get_core_updates()`, which discards every offer flagged for automatic installation — and a same-line security patch is only ever offered that way. So the screen has always listed the newest release and never mentioned the patch. Keel adds it back, directly below the automatic-update settings that decide which release the site would take.
+* Fixed: an install started from the Updates screen finished, then sent you to Site Health to find out whether it had worked. Worse, it usually said nothing when you got there: a successful install leaves the site secure, so the panel carrying the result correctly stops rendering. The result now appears on the screen the button was pressed on, once.
+* Fixed: the Updates screen offer named the newest release from the WordPress.org stable check, and called it "the update offered above". That check and the update list WordPress renders refresh on their own schedules, so the two could disagree — or the screen could be offering nothing at all. It now reads the same list the screen does, and says nothing rather than inventing an update above.
+* Fixed: the Site Health panel told you the Updates screen would not offer the patch, on sites where Keel had just added it there.
+* Changed: the ladder markers are one symbol and one label per rung rather than several, and the plainer wording drops an explanation of release numbering nobody reading two version numbers needs.
+* Screenshots retaken against the current wording.
+
 = 0.6.2 =
 * Fixed: the patch-status panel could promise a scheduled install the ladder directly beneath it contradicted. "Minor updates are permitted and the updater works" does not establish what WordPress would install: a site that also accepts major updates gets the highest release on offer, not the nearest, so the panel could say a patch was scheduled above a ladder marking a different release as the one WordPress would take. The claim is now made only when core's own selection is that patch, and names the release core would take instead when it is not.
 * Fixed: the persistent admin notice repeated the same promise with no ladder beneath it to correct it. It renders on every admin screen, so it cannot afford to ask WordPress which release it would install — it now says automatic updating appears available and sends you to Site Health, which can answer.
@@ -284,6 +292,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.3 =
+The security release on your own version line is now offered on the Updates screen, not only in Site Health — WordPress omits it there, and that is the screen people go to. Installing from it now returns you there and tells you what happened. No setting changes.
 
 = 0.6.2 =
 Reporting fixes. The patch-status panel could promise an automatic install that the ladder beneath it contradicted, on sites that also accept major updates. It now agrees with what WordPress would actually install. No setting changes.

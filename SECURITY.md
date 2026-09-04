@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The current release is `0.6.2`, published on wordpress.org as `keel-defaults`.
+The current release is `0.6.3`, published on wordpress.org as `keel-defaults`.
 Install it from the plugin directory; GitHub releases and the rolling `latest`
 build remain available for anyone who prefers them.
 
