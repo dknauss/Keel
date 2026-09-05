@@ -1,129 +1,156 @@
 #!/usr/bin/env bash
 #
-# Are the listing screenshots older than the screens they depict?
+# Do the listing screenshots still show the screens this plugin renders?
 #
 # The three PNGs in .wordpress-org/ are the wordpress.org listing images and the
 # ones README.md shows. They went stale once already: twenty-one commits touched
 # the settings screen and the Site Health surface between capture and the day
 # somebody looked, and nothing said so.
 #
-# Deliberately NOT part of `composer test`. It reads git history, and CI checks
-# out at depth 1 — the range query would find nothing and pass vacuously, which
-# is worse than not having the check. This is a local maintenance command; run it
-# before a release or after touching the admin screens.
+# What is recorded is a *review*: a person looked at the pictures, given these
+# screens, and was satisfied. That is deliberately not "when did the pictures last
+# change" — a UI change that does not move the images produces byte-identical PNGs,
+# so there is nothing to commit, and a check keyed on the pictures' own commit
+# becomes unsatisfiable in exactly the case it most needs to handle.
 #
-#   composer verify:screenshots
+# The review is recorded as a hash of the files rather than a commit id, and that
+# distinction is the whole history of this script. A SHA is a fact about history,
+# and this repository squash-merges: a SHA recorded on a branch is replaced by the
+# squash and pruned with the branch, so it survived for whoever merged and nobody
+# else. That produced a check reporting "current" to the one person guaranteed not
+# to need telling, then, once corrected, a hard failure after every screenshot
+# change that only a follow-up commit could clear. A hash of the content is not a
+# fact about history, so history cannot invalidate it — and it can be recorded on
+# the branch, in the same commit as the pictures.
+#
+# It also means a shallow clone can answer the question, so this is now safe in CI.
+#
+#   composer verify:screenshots            # check
+#   composer verify:screenshots -- --record  # record, having looked
 set -u
 
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 
+STAMP=".wordpress-org/.screenshots-reviewed"
 SHOT=".wordpress-org/screenshot-1.png"
-# Every file that can change one of the three pictures. backports.php and
-# backport-install.php render the patch-status panel and its install button,
-# which is the largest admin surface added since this list was written — and
-# the guard was blind to all of it.
+
 # Every file that renders admin UI these pictures could depict. A file missing here
 # is a screen that can change without anyone being asked whether the screenshots
 # still match — which is how they went stale before (#144, and again with
 # updates-screen.php, added in #168 and unwatched until #170).
 UI="includes/settings-page.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php includes/updates-screen.php"
 
+RECORD=0
+
+for arg in "$@"; do
+	case "$arg" in
+		--record) RECORD=1 ;;
+		*) echo "verify-screenshots: unknown argument '$arg'." >&2; exit 2 ;;
+	esac
+done
+
 if [ ! -f "$SHOT" ]; then
 	echo "verify-screenshots: $SHOT is missing." >&2
 	exit 1
 fi
 
-if ! git rev-parse --git-dir >/dev/null 2>&1; then
-	echo "verify-screenshots: not a git checkout, cannot compare." >&2
+# macOS ships shasum, most Linux images ship sha256sum, and CI is Linux.
+if command -v shasum >/dev/null 2>&1; then
+	sha() { shasum -a 256 | cut -d' ' -f1; }
+elif command -v sha256sum >/dev/null 2>&1; then
+	sha() { sha256sum | cut -d' ' -f1; }
+else
+	echo "verify-screenshots: no sha256 tool (shasum or sha256sum) available." >&2
 	exit 1
 fi
 
-# A shallow clone cannot answer this, and must say so rather than report clean.
-if [ "$( git rev-parse --is-shallow-repository 2>/dev/null )" = "true" ]; then
-	echo "verify-screenshots: shallow clone — history is not deep enough to compare. Run 'git fetch --unshallow'." >&2
+# Contents, with an explicit marker for a file that is not there — so deleting a
+# watched source registers as a change rather than silently shrinking what is
+# covered. The paths go in too, which costs nothing and makes the stream legible if
+# it is ever dumped, but it is the marker and the fixed ordering that do the work:
+# with an ordered list, a deletion or a swap already moves the digest without them.
+digest_of() {
+	for path in $1; do
+		printf '%s\n' "$path"
+		if [ -f "$path" ]; then
+			cat "$path"
+		else
+			printf '(absent)\n'
+		fi
+	done | sha
+}
+
+UI_NOW="$( digest_of "$UI" )"
+PICTURES_NOW="$( digest_of "$( ls .wordpress-org/screenshot-*.png 2>/dev/null | sort )" )"
+
+write_stamp() {
+	cat > "$STAMP" <<EOF
+# Written by bin/verify-screenshots.sh --record. Not a commit id: see that file.
+# ui      — the admin sources these pictures depict
+# pictures — the pictures themselves
+ui=${UI_NOW}
+pictures=${PICTURES_NOW}
+EOF
+}
+
+if [ "$RECORD" -eq 1 ]; then
+	write_stamp
+	echo "screenshots: recorded as reviewed."
+	echo "  screens  ${UI_NOW:0:12}"
+	echo "  pictures ${PICTURES_NOW:0:12}"
+	exit 0
+fi
+
+if [ ! -f "$STAMP" ]; then
+	echo "verify-screenshots: no review on record ($STAMP is missing)." >&2
+	echo "Look at the pictures, then: composer verify:screenshots -- --record" >&2
 	exit 1
 fi
 
-STAMP=".wordpress-org/.screenshots-reviewed"
+UI_WAS="$( sed -n 's/^ui=//p' "$STAMP" | tr -d '[:space:]' )"
+PICTURES_WAS="$( sed -n 's/^pictures=//p' "$STAMP" | tr -d '[:space:]' )"
 
-# The commit the screenshots were last *reviewed* at, not the commit that last
-# changed the files. Those differ whenever a UI change does not alter the
-# picture — ARIA attributes, a new screen that is not one of the three — and
-# comparing against the file's own commit made the check unsatisfiable in
-# exactly that case: retaking produced byte-identical images, so there was
-# nothing to commit and the guard failed forever.
-#
-# Recording a reviewed-at commit says what is actually being asserted: somebody
-# looked since the screens changed.
-#
-# Record it from main, after the merge. This repository squash-merges, so a SHA
-# taken on a feature branch never exists once that branch lands — which is how
-# the stamp came to name a commit git could not resolve, and why the fallback
-# below has to be a real fallback rather than a pass.
-# When the pictures themselves last changed. This is the fallback whenever the
-# stamp cannot be used, and it is the conservative answer: it asks "have the
-# screens moved since the images were last written", which is answerable from
-# whatever history this clone has.
-PICTURES="$( git log --format='%H' -1 -- '.wordpress-org/screenshot-*.png' )"
+# Every checkout that predates this change holds a bare commit id. Comparing it to a
+# digest would fail with a true but useless message about the pictures having moved,
+# so it is named for what it is and cleared by one re-record.
+if [ -z "$UI_WAS" ] || [ -z "$PICTURES_WAS" ]; then
+	LEGACY="$( tr -d '[:space:]' < "$STAMP" )"
 
-CAPTURED=""
-WHY=""
-
-if [ -f "$STAMP" ]; then
-	CAPTURED="$( tr -d '[:space:]' < "$STAMP" )"
-
-	# Two ways a stamp stops being usable, and this repository squash-merges, so
-	# both happen routinely rather than exceptionally.
-	#
-	# The commit may not be in this clone at all: the stamp records a SHA from a
-	# feature branch, the squash replaces it with a different commit, the branch is
-	# deleted. Whoever merged still has the object and everyone else does not.
-	#
-	# Or it may resolve and still be off this line of history, which makes
-	# `git log <stamp>..HEAD` a range about two unrelated branches. Refusing
-	# outright was the old behaviour, and it turned every squash-merged screenshot
-	# change into a failure that could only be cleared by hand-editing the stamp.
-	if ! git cat-file -e "${CAPTURED}^{commit}" 2>/dev/null; then
-		WHY="the stamped commit ${CAPTURED:0:8} is not in this clone (squash-merged and pruned?)"
-		CAPTURED=""
-	elif ! git merge-base --is-ancestor "$CAPTURED" HEAD 2>/dev/null; then
-		WHY="the stamped commit ${CAPTURED:0:8} is not in this branch's history (squash-merged?)"
-		CAPTURED=""
+	if printf '%s' "$LEGACY" | grep -Eq '^[0-9a-f]{7,40}$'; then
+		echo "verify-screenshots: $STAMP holds a commit id (${LEGACY:0:8}), which this check no longer uses." >&2
+		echo "A commit id does not survive a squash merge; a hash of the files does." >&2
+	else
+		echo "verify-screenshots: $STAMP is not in the expected format." >&2
 	fi
-fi
 
-if [ -z "$CAPTURED" ]; then
-	CAPTURED="$PICTURES"
-
-	if [ -n "$WHY" ]; then
-		echo "verify-screenshots: ${WHY}."
-		echo "Falling back to when the pictures last changed, ${CAPTURED:0:8}."
-		echo
-	fi
-fi
-
-if [ -z "$CAPTURED" ]; then
-	echo "verify-screenshots: $SHOT has never been committed." >&2
+	echo "Look at the pictures once, then: composer verify:screenshots -- --record" >&2
 	exit 1
 fi
 
-# shellcheck disable=SC2086
-STALE="$( git log --oneline "${CAPTURED}..HEAD" -- $UI )"
+STALE=0
 
-if [ -n "$STALE" ]; then
-	echo "The screenshots were captured at ${CAPTURED:0:8}, and the screens have changed since:"
-	echo "$STALE" | sed 's/^/  /'
+if [ "$UI_WAS" != "$UI_NOW" ]; then
+	echo "The screens have changed since the screenshots were reviewed."
+	STALE=1
+fi
+
+if [ "$PICTURES_WAS" != "$PICTURES_NOW" ]; then
+	echo "The pictures have changed since they were reviewed."
+	STALE=1
+fi
+
+if [ "$STALE" -eq 1 ]; then
 	echo
-	echo "Retake them:  node bin/screenshots.mjs --url http://localhost:8881 --wp @keel"
+	echo "Retake them if they no longer match:"
+	echo "  node bin/screenshots.mjs --url http://localhost:8881 --wp @keel"
 	echo
-	echo "If the pictures are unchanged — an ARIA-only change, or a screen these three"
-	echo "do not show — confirm you looked, and record it:"
-	echo "  git rev-parse HEAD > $STAMP"
+	echo "If they still match — an ARIA-only change, or a screen these three do not"
+	echo "show — that is a review, and recording it is the point:"
+	echo "  composer verify:screenshots -- --record"
 	echo
-	echo "Run that AFTER the commit carrying the new pictures has landed. HEAD is"
-	echo "still the branch point while the change is uncommitted, so stamping early"
-	echo "records a commit older than the images and this check fails again."
+	echo "Record in the same commit as any retaken pictures. Nothing here depends on"
+	echo "which commit you are on, so a squash merge cannot invalidate it."
 	exit 1
 fi
 
-echo "screenshots: current (nothing has touched the admin screens since ${CAPTURED:0:8})"
+echo "screenshots: current (reviewed against screens ${UI_NOW:0:12})"
