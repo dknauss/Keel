@@ -23,7 +23,19 @@
 # fact about history, so history cannot invalidate it — and it can be recorded on
 # the branch, in the same commit as the pictures.
 #
-# It also means a shallow clone can answer the question, so this is now safe in CI.
+# It also means a shallow clone could answer the question, so this would now be safe
+# in CI. It is deliberately not there.
+#
+# Decided 2026-09-06: this is a **major-release step**, run by a person who then
+# affirms or skips it. Wiring it into CI would make every pull request touching an
+# admin screen fail until someone recorded a review, which sounds like rigour and is
+# not: the value here is that somebody looked at three pictures and judged them still
+# true, and a gate that must be cleared to merge turns that judgement into a chore
+# discharged by running the recording command. The one thing this check cannot
+# survive is being routinely satisfied without looking.
+#
+# So: not on pull requests, not on push, not a release blocker. Before a major
+# release, run it, look, and either record or say why it is being skipped.
 #
 #   composer verify:screenshots            # check
 #   composer verify:screenshots -- --record  # record, having looked

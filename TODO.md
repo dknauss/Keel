@@ -16,6 +16,12 @@ into ROADMAP.md or here.
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
 - [x] **Validate the published artifacts** — GitHub ZIP, SVN tag, directory version,
       screenshots, upgrade notice and Playground links, per release.
+- [x] **Decide where the screenshot check belongs** — a **major-release step**, looked
+      at by a person who then records or skips it. Not CI. Making it a merge gate would
+      turn "somebody looked at three pictures and judged them still true" into a chore
+      discharged by running the recording command, and being routinely satisfied without
+      looking is the one failure this check cannot survive. Recorded in
+      `bin/verify-screenshots.sh`.
 - [ ] **Observe the field**
   - Watch the next scheduled live matrix run.
   - Triage early reports before opening another release cycle.
