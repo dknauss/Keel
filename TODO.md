@@ -45,15 +45,17 @@ into ROADMAP.md or here.
       the right split: the directory listing wants the acknowledgement, the
       repository can afford the detail.
 
-- [ ] **Offer the patch on the Updates screen** — 0.6.3
-  - `get_core_updates()` drops every `autoupdate` offer, so the Updates screen never
-    shows the same-line patch. The Site Health panel links there anyway and, in the
-    common `none` state, sends a reader to a screen that will not offer what the panel
-    just named.
-  - Render it on `core_upgrade_preamble` (`wp-admin/update-core.php:1139`), beside core's
-    own list, as the comparison an administrator is making rather than as a second
-    opinion.
-  - Follows PX's C13-C15, which is unreleased and can absorb the surprises first.
+- [x] **Offer the patch on the Updates screen** — shipped in 0.6.3
+  - Rendered on `after_core_auto_updates_settings`, not `core_upgrade_preamble` as
+    planned: core documents the latter as firing *after* the update tables, which would
+    have put the offer at the bottom of the page. The former fires immediately before
+    core's update block, directly below the settings that decide which release the site
+    would take.
+  - The premise was confirmed live rather than only read in core — WordPress.org offers
+    `6.9.7 autoupdate` to a 6.9.6 site and `get_core_updates()` returns only 7.1.
+  - Carried a defect of its own: an install started there returned to Site Health and
+    reported nothing, because a successful install removes the panel that would have
+    shown the result. Fixed in the same release.
 
 ## Then — 0.8.0 performance observability
 
