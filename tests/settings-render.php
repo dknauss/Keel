@@ -467,6 +467,36 @@ keel_assert(
 	false !== strpos( $locked_assets['css/settings.css'], 'keel-menu-width-preview' ),
 	'The stylesheet carries the slider preview the markup toggles.'
 );
+
+/*
+ * The preview has to outrank Keel's own widen, not just core's stylesheet.
+ *
+ * It shipped with no `!important` anywhere, on the reasoning that a preview
+ * layered over the admin's own CSS could lose a specificity contest and only
+ * look wrong. That reasoning named the wrong opponent. The saved widen in
+ * admin-ux.php marks width, width:auto and margin-left `!important`, and an
+ * important declaration beats a non-important one whatever the specificity —
+ * so on every site with a width actually saved, Keel's own rule shadowed
+ * Keel's own preview and dragging the slider did nothing at all.
+ *
+ * Only these three need it. `#adminmenuback` positioning and the submenu
+ * offsets are not important in the saved widen, so the preview's extra class
+ * already wins those on specificity.
+ */
+$preview_css = $locked_assets['css/settings.css'];
+
+keel_assert(
+	1 === preg_match( '/width:\s*var\(\s*--keel-menu-preview-width\s*\)\s*!important/', $preview_css ),
+	'The preview width outranks the saved widen, which is !important.'
+);
+keel_assert(
+	1 === preg_match( '/width:\s*auto\s*!important/', $preview_css ),
+	'The preview keeps menu-top anchors auto-width against an !important saved rule.'
+);
+keel_assert(
+	1 === preg_match( '/margin-left:\s*var\(\s*--keel-menu-preview-width\s*\)\s*!important/', $preview_css ),
+	'The preview moves the content column against an !important saved rule.'
+);
 keel_assert(
 	false !== strpos( $locked_assets['js/settings.js'], 'data-keel-range' ),
 	'The script reads the slider data the markup carries.'
