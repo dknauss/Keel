@@ -795,21 +795,26 @@ function keel_defaults_render_conflicts_notice() {
 		<?php if ( ! empty( $unnamed ) ) : ?>
 		<p>
 			<?php
-			/* translators: %d: number of hooks. */
+			/* translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag. */
 			$untraceable = _n(
-				'%d more setting is shared with a callback that cannot be traced to any plugin, so there is no name to give you.',
-				'%d more settings are shared with callbacks that cannot be traced to any plugin, so there are no names to give you.',
+				'%1$s of %2$sKeel%3$s\'s settings is shared with a callback from another source that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings are shared with callbacks from another source that cannot be traced to any plugin.',
 				count( $unnamed ),
 				'keel-defaults'
 			);
 
-			printf( esc_html( $untraceable ), count( $unnamed ) );
+			printf(
+				esc_html( $untraceable ),
+				esc_html( number_format_i18n( count( $unnamed ) ) ),
+				'<strong>',
+				'</strong>'
+			);
 			?>
-			<?php esc_html_e( 'A plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it. Site Health lists which settings.', 'keel-defaults' ); ?>
+			<?php esc_html_e( 'A plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<p>
-			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings are contested, under Site Health', 'keel-defaults' ); ?></a>
+			<a href="<?php echo esc_url( $health ); ?>"><?php esc_html_e( 'See which settings may be contested under Site Health', 'keel-defaults' ); ?></a>
 			<?php if ( $dismissible ) : ?>
 				&nbsp;|&nbsp;
 				<a class="keel-dismiss-conflicts" href="<?php echo esc_url( wp_nonce_url( admin_url( 'index.php?keel-dismiss-conflicts=1' ), 'keel-dismiss-conflicts' ) ); ?>">

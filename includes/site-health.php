@@ -493,6 +493,41 @@ function keel_defaults_site_health_conflicts() {
 			);
 		}
 
+		/*
+		 * The same argument, for the case with nobody to name at all.
+		 *
+		 * A hook shared with a callback that cannot be traced is still a finding
+		 * — the Dashboard notice reports it and links here. Deciding the status
+		 * on attributable overlaps alone answered 'good' and printed "No
+		 * attributable policy overlap was found" above the very list the notice
+		 * had promised. True of attributable overlaps; read as "nothing here" by
+		 * anyone who arrived from the notice.
+		 *
+		 * 'good' also decided *where* it rendered. A passing test goes inside the
+		 * collapsed "Passed tests" accordion, so the finding sat behind a fold,
+		 * under a green badge, beneath a headline denying it. 'recommended' puts
+		 * it in the visible list where the notice said it would be.
+		 *
+		 * Gated on the same helper the notice counts, so the two cannot disagree
+		 * about whether there is anything to see.
+		 */
+		$unattributed = keel_defaults_unattributed_hooks();
+
+		if ( ! empty( $unattributed ) ) {
+			return array(
+				'label'       => _n(
+					'A setting is shared with an untraceable callback',
+					'Some settings are shared with untraceable callbacks',
+					count( $unattributed ),
+					'keel-defaults'
+				),
+				'status'      => 'recommended',
+				'badge'       => $badge,
+				'description' => $intro . $details,
+				'test'        => 'keel_defaults_conflicts',
+			);
+		}
+
 		return array(
 			'label'       => __( 'No attributable policy overlap was found', 'keel-defaults' ),
 			'status'      => 'good',
