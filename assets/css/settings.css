@@ -46,10 +46,21 @@ tr:has( > td > .keel-anchor:target ),
  * is why this is a static stylesheet and not computed CSS: the value moves, the
  * rules never do.
  *
- * No !important anywhere, unlike the real widen in admin-ux.php. This is a
- * preview layered over the admin's own stylesheet on one screen, and losing to
- * a more specific core rule here is a cosmetic miss rather than the feature
- * silently not working.
+ * Three declarations carry !important, and only three: width, the auto-width on
+ * menu-top anchors, and the content column's margin-left. Those are exactly the
+ * ones the saved widen in admin-ux.php marks important, and an important
+ * declaration beats a non-important one whatever the specificity.
+ *
+ * This file originally carried none, reasoning that a preview layered over the
+ * admin's own stylesheet could lose a specificity contest and merely look
+ * wrong. The opponent was misidentified. It is not core's stylesheet, it is
+ * Keel's own widen — so on every site with a width saved, this preview lost
+ * outright and the slider moved nothing. That is the feature silently not
+ * working, which is the thing the original note set out to avoid.
+ *
+ * `#adminmenuback` positioning and the submenu offsets stay plain: the saved
+ * widen does not mark those important, so the extra body class already wins
+ * them on specificity.
  */
 @media screen and (min-width: 783px) {
 	body.keel-menu-width-preview #adminmenu,
@@ -57,7 +68,7 @@ tr:has( > td > .keel-anchor:target ),
 	body.keel-menu-width-preview #adminmenuwrap,
 	body.keel-menu-width-preview #adminmenu li.menu-top,
 	body.keel-menu-width-preview #adminmenu .wp-submenu {
-		width: var(--keel-menu-preview-width);
+		width: var(--keel-menu-preview-width) !important;
 	}
 
 	body.keel-menu-width-preview #adminmenuback {
@@ -70,7 +81,7 @@ tr:has( > td > .keel-anchor:target ),
 	body.keel-menu-width-preview #adminmenu li.menu-top > a.menu-top,
 	body.keel-menu-width-preview #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
 	body.keel-menu-width-preview #adminmenu li.current a.menu-top {
-		width: auto;
+		width: auto !important;
 	}
 
 	body.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
@@ -83,7 +94,7 @@ tr:has( > td > .keel-anchor:target ),
 
 	body.keel-menu-width-preview #wpcontent,
 	body.keel-menu-width-preview #wpfooter {
-		margin-left: var(--keel-menu-preview-width);
+		margin-left: var(--keel-menu-preview-width) !important;
 	}
 
 	body.rtl.keel-menu-width-preview #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu {
