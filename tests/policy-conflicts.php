@@ -319,12 +319,14 @@ $GLOBALS['wp_filter'] = array();
  * renders inside the collapsed Passed tests accordion, so the one finding the
  * notice promised was behind a fold, under a green badge, beneath a headline
  * denying it. The same argument the divergence branch already makes.
+ *
+ * `__return_false` is deliberately NOT defined here. keel_defaults_callback_file()
+ * guards on function_exists() and catches Throwable, so an undefined callback
+ * resolves to an empty file — and the `__return_` prefix is what marks it a core
+ * helper, which is all the attribution code reads. Leaving it undefined also
+ * keeps this file's central invariant honest: a callback that does not exist
+ * cannot be invoked by accident.
  */
-if ( ! function_exists( '__return_false' ) ) {
-	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionDoubleUnderscore -- WordPress's own helper, which this harness does not load. Its name is the fixture: the attribution code keys on the `__return_` prefix, so renaming it would stop reproducing the case.
-	function __return_false() { return false; }
-}
-
 $GLOBALS['wp_filter'] = array(
 	'xmlrpc_enabled' => new Keel_Test_Hook(
 		array(
