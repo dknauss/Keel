@@ -57,8 +57,8 @@ keel_assert( in_array( '240', $schema['admin_menu_width']['values'], true ), 'ad
 
 // Regression for the save bug: a posted slider index must map to its value and persist,
 // not fall through to the default (numeric option keys used to break the strict compare).
-$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '4' ) ); // index 4 = 300
-keel_assert( '300' === $saved['admin_menu_width'], 'Slider index 4 saves as 300, not the default.' );
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '5' ) ); // index 5 = 300
+keel_assert( '300' === $saved['admin_menu_width'], 'Slider index 5 saves as 300, not the default.' );
 $saved = keel_defaults_sanitize( array( 'admin_menu_width' => '0' ) ); // index 0 = default
 keel_assert( 'default' === $saved['admin_menu_width'], 'Slider index 0 saves as default.' );
 $saved = keel_defaults_sanitize( array( 'admin_menu_width' => '300' ) ); // direct value also accepted
@@ -76,6 +76,33 @@ $css                                      = keel_defaults_admin_menu_width_css()
 keel_assert( false !== strpos( $css, '240px' ), 'Chosen width appears in the CSS.' );
 keel_assert( false !== strpos( $css, '#adminmenu' ), 'CSS targets the admin menu.' );
 keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the non-collapsed breakpoint.' );
+
+/*
+ * --- Reclaiming 160px ---
+ *
+ * Stop 0 was labelled "WordPress default (160px)" and emitted nothing, so it
+ * promised a width it never set. On a site where something else widens the menu
+ * — a host mu-plugin, an admin UI plugin, a theme — that stop is the one a user
+ * reaches for and the one guaranteed to do nothing. Two guards enforced it: the
+ * `'default' !== ...` check in bootstrap and `$width < 161` here.
+ *
+ * There is now an explicit 160px stop that emits the rule like any other width,
+ * and stop 0 says what it actually does. "Leave unchanged" and "put it back" are
+ * different intentions and now have different controls.
+ */
+keel_assert( in_array( '160', $schema['admin_menu_width']['values'], true ), 'admin_menu_width offers an explicit 160px stop.' );
+
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '1' ) ); // index 1 = 160
+keel_assert( '160' === $saved['admin_menu_width'], 'Slider index 1 saves as an explicit 160.' );
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => '160' );
+$css_160                                  = keel_defaults_admin_menu_width_css();
+keel_assert( false !== strpos( $css_160, '160px' ), 'An explicit 160 emits the width rather than standing down.' );
+keel_assert( false !== strpos( $css_160, '!important' ), 'The reclaim is forceful enough to beat another source.' );
+
+// And "leave unchanged" still means exactly that.
+$GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => 'default' );
+keel_assert( '' === trim( keel_defaults_admin_menu_width_css() ), 'Leaving it unchanged still prints no CSS.' );
 
 // The Media group is registered.
 $groups = keel_defaults_group_labels();

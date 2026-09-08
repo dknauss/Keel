@@ -252,8 +252,20 @@ keel_assert(
  * state would not notice.
  */
 keel_assert(
-	preg_match( '/type="range"[^>]*aria-valuetext="WordPress default \(160px\)"/s', $stock ),
+	preg_match( '/type="range"[^>]*aria-valuetext="Leave unchanged"/s', $stock ),
 	'The slider announces its position as a word, not an index, at the default.'
+);
+
+/*
+ * Stop 0 announces "Leave unchanged" rather than "WordPress default (160px)"
+ * because that is what it does — it stands down and sets no width. The 160px
+ * stop beside it is the one that asserts core's width, and a screen reader has
+ * to be able to tell the two apart, since choosing wrongly is the difference
+ * between doing nothing and taking the width back.
+ */
+keel_assert(
+	preg_match( '/type="range"[^>]*aria-valuetext="160px \(WordPress default\)"/s', keel_render( array( 'admin_menu_width' => '160' ) ) ),
+	'The explicit 160px stop announces itself as a width, not as standing down.'
 );
 keel_assert(
 	preg_match( '/type="range"[^>]*aria-valuetext="200px"/s', $configured ),
