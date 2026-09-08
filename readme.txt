@@ -123,6 +123,8 @@ That evidence confirms shared ownership of a hook, not that the plugins' configu
 
 There is a limit worth knowing. WordPress ships tiny helper callbacks such as `__return_false`; the callback belongs to WordPress, not the plugin that registered it. Keel labels that limitation unconfirmed instead of guessing from source code or naming a plugin without evidence.
 
+A second limit is broader, and it is worth knowing before you rely on the reporting. Everything above is about filters: Keel can watch a filter because its own callback runs when WordPress runs it, so it can see what the chain settled on. A plugin, theme or host that changes the admin with CSS registers no filter at all, so there is nothing to observe and nothing to report. The width of the admin menu is the usual case — a managed host may style the admin to its own design, and that is not a conflict Keel can detect or should fight. Keel offers settings that can win some of those, the menu width among them, but it will not tell you that you need one.
+
 Keel also stays out of the fight where it has nothing to say: when a setting is still at the value WordPress itself uses, Keel does not register the filter at all, so it cannot override a deliberate choice another plugin has made — and it will not report a conflict on a setting it is not itself setting.
 
 = Why is there no password strength meter? =
