@@ -20,6 +20,7 @@ function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
+function _n( $single, $plural, $number, $d = null ) { return 1 === (int) $number ? $single : $plural; }
 function esc_html( $s ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }
@@ -300,6 +301,63 @@ $xmlrpc = keel_defaults_competing_plugins( true );
 keel_assert(
 	isset( $xmlrpc['xmlrpc_enabled'] ) && array( 'rival-plugin' ) === $xmlrpc['xmlrpc_enabled'],
 	'A plugin disabling XML-RPC beside Keel is reported.'
+);
+
+$GLOBALS['wp_filter'] = array();
+
+/*
+ * --- UNATTRIBUTED OVERLAP, AND NOTHING ELSE ---
+ *
+ * The common case in the field, and the one the status logic got wrong: no
+ * attributable rival to name, no divergence to report, and a policy hook shared
+ * with a callback nothing can trace back to a plugin.
+ *
+ * The Dashboard notice reports exactly this and links to Site Health. Site
+ * Health answered 'good', labelled "No attributable policy overlap was found",
+ * which is true of *attributable* overlaps and reads as "nothing here" to
+ * somebody sent by a notice saying two settings are shared. A passing test also
+ * renders inside the collapsed Passed tests accordion, so the one finding the
+ * notice promised was behind a fold, under a green badge, beneath a headline
+ * denying it. The same argument the divergence branch already makes.
+ *
+ * `__return_false` is deliberately NOT defined here. keel_defaults_callback_file()
+ * guards on function_exists() and catches Throwable, so an undefined callback
+ * resolves to an empty file — and the `__return_` prefix is what marks it a core
+ * helper, which is all the attribution code reads. Leaving it undefined also
+ * keeps this file's central invariant honest: a callback that does not exist
+ * cannot be invoked by accident.
+ */
+$GLOBALS['wp_filter'] = array(
+	'xmlrpc_enabled' => new Keel_Test_Hook(
+		array(
+			10 => array(
+				array( 'function' => '__return_false' ),
+				array( 'function' => 'keel_defaults_xmlrpc_enabled' ),
+			),
+		)
+	),
+);
+
+keel_defaults_policy_overlap_report( true );
+
+keel_assert(
+	array( 'xmlrpc_enabled' ) === keel_defaults_unattributed_hooks(),
+	'A core helper on a policy hook is recorded as unattributed.'
+);
+keel_assert(
+	array() === keel_defaults_competing_plugins(),
+	'The unattributed-only fixture names no rival plugin.'
+);
+
+$unnamed_health = keel_defaults_site_health_conflicts();
+
+keel_assert(
+	'recommended' === $unnamed_health['status'],
+	'An untraceable overlap is findable in Site Health, not filed under Passed tests.'
+);
+keel_assert(
+	false === strpos( $unnamed_health['label'], 'No attributable policy overlap' ),
+	'Site Health does not report nothing found when the notice reports something.'
 );
 
 $GLOBALS['wp_filter'] = array();
