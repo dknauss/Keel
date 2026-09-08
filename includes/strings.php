@@ -194,8 +194,8 @@ function keel_defaults_strings() {
 		),
 		'admin_menu_width'                => array(
 			'label'  => __( 'Admin Menu Width', 'keel-defaults' ),
-			'help'   => __( 'Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider.', 'keel-defaults' ),
-			'labels' => array( __( 'WordPress default (160px)', 'keel-defaults' ), __( '200px', 'keel-defaults' ), __( '240px', 'keel-defaults' ), __( '280px', 'keel-defaults' ), __( '300px', 'keel-defaults' ) ),
+			'help'   => __( 'Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core\'s width over a theme, host, or plugin that has widened the menu. Drag the slider.', 'keel-defaults' ),
+			'labels' => array( __( 'Leave unchanged', 'keel-defaults' ), __( '160px (WordPress default)', 'keel-defaults' ), __( '200px', 'keel-defaults' ), __( '240px', 'keel-defaults' ), __( '280px', 'keel-defaults' ), __( '300px', 'keel-defaults' ) ),
 		),
 		'helper_list_columns'             => array(
 			'label'     => __( 'Admin List Columns', 'keel-defaults' ),

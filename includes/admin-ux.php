@@ -139,7 +139,12 @@ function keel_defaults_lowercase_filename( $filename ) {
 function keel_defaults_admin_menu_width_css() {
 	$width = (int) keel_defaults_get( 'admin_menu_width' );
 
-	if ( $width < 161 ) {
+	/*
+	 * Below core's own width there is nothing sensible to assert, and a narrower
+	 * menu is a different feature. 160 itself is allowed on purpose: it is how a
+	 * site takes the width back from something else that widened it.
+	 */
+	if ( $width < 160 ) {
 		return '';
 	}
 	$w = (int) $width;

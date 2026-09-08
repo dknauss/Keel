@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-08T04:16:48+00:00\n"
+"POT-Creation-Date: 2026-09-08T05:15:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -36,72 +36,72 @@ msgstr ""
 msgid "Dan Knauss"
 msgstr ""
 
-#: includes/admin-ux.php:214
+#: includes/admin-ux.php:219
 msgid "ID"
 msgstr ""
 
-#: includes/admin-ux.php:215
+#: includes/admin-ux.php:220
 msgid "Image"
 msgstr ""
 
-#: includes/admin-ux.php:216
+#: includes/admin-ux.php:221
 msgid "Modified"
 msgstr ""
 
-#: includes/admin-ux.php:247
-#: includes/admin-ux.php:354
+#: includes/admin-ux.php:252
+#: includes/admin-ux.php:359
 msgid "File size"
 msgstr ""
 
-#: includes/admin-ux.php:272
+#: includes/admin-ux.php:277
 msgid "Registered"
 msgstr ""
 
-#: includes/admin-ux.php:273
+#: includes/admin-ux.php:278
 msgid "Last login"
 msgstr ""
 
-#: includes/admin-ux.php:337
+#: includes/admin-ux.php:342
 msgid "Generated Image Sizes"
 msgstr ""
 
-#: includes/admin-ux.php:349
+#: includes/admin-ux.php:354
 msgid "No generated image sizes were found for this attachment."
 msgstr ""
 
-#: includes/admin-ux.php:353
+#: includes/admin-ux.php:358
 msgid "Read-only view of the generated image files and URLs."
 msgstr ""
 
-#: includes/admin-ux.php:354
+#: includes/admin-ux.php:359
 msgid "Size"
 msgstr ""
 
-#: includes/admin-ux.php:354
+#: includes/admin-ux.php:359
 msgid "Dimensions"
 msgstr ""
 
-#: includes/admin-ux.php:354
+#: includes/admin-ux.php:359
 msgid "URL"
 msgstr ""
 
-#: includes/admin-ux.php:391
+#: includes/admin-ux.php:396
 msgid "Unknown"
 msgstr ""
 
-#: includes/admin-ux.php:441
+#: includes/admin-ux.php:446
 msgid "Production"
 msgstr ""
 
-#: includes/admin-ux.php:447
+#: includes/admin-ux.php:452
 msgid "Staging"
 msgstr ""
 
-#: includes/admin-ux.php:453
+#: includes/admin-ux.php:458
 msgid "Development"
 msgstr ""
 
-#: includes/admin-ux.php:459
+#: includes/admin-ux.php:464
 msgid "Local"
 msgstr ""
 
@@ -1499,11 +1499,15 @@ msgid "Admin Menu Width"
 msgstr ""
 
 #: includes/strings.php:197
-msgid "Widens the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Drag the slider."
+msgid "Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core's width over a theme, host, or plugin that has widened the menu. Drag the slider."
 msgstr ""
 
 #: includes/strings.php:198
-msgid "WordPress default (160px)"
+msgid "Leave unchanged"
+msgstr ""
+
+#: includes/strings.php:198
+msgid "160px (WordPress default)"
 msgstr ""
 
 #: includes/strings.php:198
