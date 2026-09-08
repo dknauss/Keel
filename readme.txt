@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.3
+Stable tag: 0.6.4
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -156,6 +156,11 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
+= 0.6.4 =
+* Fixed: the admin menu width slider offered "WordPress default (160px)" as its first stop, but that stop set no width at all - it only made Keel stand down. On a site where a theme, a host, or another plugin had widened the menu, it was the stop you would reach for and the one guaranteed to do nothing. There is now an explicit 160px stop that asserts core's width, and the first stop says what it does: "Leave unchanged".
+* Fixed: the conflict notice reported settings shared with callbacks it could not trace and sent you to Site Health, where there were no open issues. The finding was there, but filed under a passing test - green, collapsed, and headed "No attributable policy overlap was found". Untraceable overlaps are now reported as a recommendation, so the notice and Site Health describe the same site.
+* Changed: the conflict notice names Keel, drops a sentence the link beneath it already made, and says settings "may be contested" rather than asserting a contest the Site Health test itself declines to assert.
+
 = 0.6.3 =
 * Added: the security release on your own version line is now offered on the Updates screen, where WordPress sends you to update. WordPress builds that screen with `get_core_updates()`, which discards every offer flagged for automatic installation — and a same-line security patch is only ever offered that way. So the screen has always listed the newest release and never mentioned the patch. Keel adds it back, directly below the automatic-update settings that decide which release the site would take.
 * Fixed: an install started from the Updates screen finished, then sent you to Site Health to find out whether it had worked. Worse, it usually said nothing when you got there: a successful install leaves the site secure, so the panel carrying the result correctly stops rendering. The result now appears on the screen the button was pressed on, once.
@@ -292,6 +297,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.4 =
+Two reporting fixes. The menu width slider's first stop claimed to set WordPress's 160px and set nothing; there is now a real 160px stop, and the first reads "Leave unchanged". The conflict notice no longer sends you to a Site Health page reporting nothing found. No setting changes.
 
 = 0.6.3 =
 The security release on your own version line is now offered on the Updates screen, not only in Site Health — WordPress omits it there, and that is the screen people go to. Installing from it now returns you there and tells you what happened. No setting changes.
