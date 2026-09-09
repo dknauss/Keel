@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.4
+Stable tag: 0.6.5
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -158,6 +158,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
+= 0.6.5 =
+* Fixed: the admin menu width slider stopped previewing the change as you dragged it, on any site that had a width saved. The preview was still there; Keel's own saved rule was overriding it, because that rule is marked important and the preview was not. The preview now outranks it, as it was always meant to.
+* Documentation: the FAQ now states a limit that was unstated. Keel reports a setting that is not taking effect by watching WordPress filters. A plugin, theme or host that restyles the admin with CSS registers no filter, so there is nothing to observe - the admin menu width is the usual case, and a managed host styling the admin to its own design is not a conflict Keel can see or should fight.
+
 = 0.6.4 =
 * Fixed: the admin menu width slider offered "WordPress default (160px)" as its first stop, but that stop set no width at all - it only made Keel stand down. On a site where a theme, a host, or another plugin had widened the menu, it was the stop you would reach for and the one guaranteed to do nothing. There is now an explicit 160px stop that asserts core's width, and the first stop says what it does: "Leave unchanged".
 * Fixed: the conflict notice reported settings shared with callbacks it could not trace and sent you to Site Health, where there were no open issues. The finding was there, but filed under a passing test - green, collapsed, and headed "No attributable policy overlap was found". Untraceable overlaps are now reported as a recommendation, so the notice and Site Health describe the same site.
@@ -299,6 +303,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.5 =
+The admin menu width slider previews again while you drag it. On any site with a width saved, Keel's own saved rule had been overriding its own preview, so the slider moved nothing on screen. No setting changes.
 
 = 0.6.4 =
 Two reporting fixes. The menu width slider's first stop claimed to set WordPress's 160px and set nothing; there is now a real 160px stop, and the first reads "Leave unchanged". The conflict notice no longer sends you to a Site Health page reporting nothing found. No setting changes.

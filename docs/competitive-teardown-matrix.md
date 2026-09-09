@@ -64,6 +64,12 @@ the way its own settings screen would configure it.
   wp-admin copy read by a logged-in administrator; no row here probes any of it.
   The 0.6.1 caveat still stands.
 
+  **Nor is 0.6.5.** It stops Keel's own saved menu-width rule from overriding
+  Keel's own live preview on the settings screen, and adds an FAQ paragraph. Both
+  are admin-side: one is CSS precedence on a wp-admin screen a logged-in
+  administrator is looking at, the other is prose. No row here probes either. The
+  0.6.1 caveat still stands.
+
   Deliberately *not* the Studio site — an always-on managed plugin there was
   filtering `pings_open`, stripping XML-RPC methods and answering comment queries
   empty, which silently contaminated the first run.
@@ -98,7 +104,7 @@ Raw per-probe output is in the appendix.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.6.4 | — | live |
+| **Keel** 0.6.5 | — | live |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
