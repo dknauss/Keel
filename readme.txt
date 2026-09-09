@@ -111,6 +111,14 @@ Keel can now govern it as well as document it. Under **Network Admin → Setting
 
 Nothing is written into your sites. A network value is applied when a setting is read, so a site's own saved settings are untouched — untick a setting later and every site returns to exactly the value it had. Settings left unticked stay each site's own business.
 
+= Does Keel control plugin and theme auto-updates? =
+
+No. Keel's Updates group covers WordPress core and translations. Plugin and theme auto-updates are WordPress's own, enabled one item at a time, and Keel neither sets them nor reports on them.
+
+On a network they live under **Network Admin → Plugins**, in the Automatic Updates column, and the choice is network-wide: one list for every site, which only a Super Admin can change. The rules themselves are no different from a single site — the same opt-in, the same default of off until you enable it. What changes is who decides and how far the decision reaches.
+
+Worth knowing on a Keel network specifically: a subsite's own Plugins screen does not show that column at all. That is WordPress hiding it, not Keel locking it. Keel locks settings visibly, showing the value and marking it as network policy, so an absent control is somebody else's doing.
+
 = I already have another defaults or security plugin. Can I run both? =
 
 You can, but you probably should not, and Keel will tell you when it matters.
