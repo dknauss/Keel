@@ -117,7 +117,7 @@ No. Keel's Updates group covers WordPress core and translations. Plugin and them
 
 On a network they live under **Network Admin → Plugins**, in the Automatic Updates column, and the choice is network-wide: one list for every site, which only a Super Admin can change. The rules themselves are no different from a single site — the same opt-in, the same default of off until you enable it. What changes is who decides and how far the decision reaches.
 
-Worth knowing on a Keel network specifically: a subsite's own Plugins screen does not show that column at all. That is WordPress hiding it, not Keel locking it. Keel locks settings visibly, showing the value and marking it as network policy, so an absent control is somebody else's doing.
+Worth knowing on a Keel network specifically: a subsite's own Plugins screen does not show that column at all - not to a site administrator, and not to a Super Admin visiting it either. WordPress hides it by where you are rather than by who you are, so there is no permission you could grant that would bring it back. On that screen a site administrator can activate and deactivate, and only if the network has enabled the Plugins menu for sites at all. None of it is Keel: Keel locks settings visibly, showing the value and marking it as network policy, so a control that is simply absent is somebody else's doing.
 
 = I already have another defaults or security plugin. Can I run both? =
 
