@@ -318,17 +318,25 @@ keel_assert(
 );
 
 /*
- * Working material that must not be published. Everything left in
- * .wordpress-org is uploaded verbatim to the plugin's public assets directory,
- * so these two excludes are the only thing keeping the blueprint sources and
- * the brand working files off a public URL.
+ * Everything left in .wordpress-org is uploaded verbatim to the plugin's public
+ * assets directory, so what is excluded here is what stays private. brand/ is
+ * working material with no consumer on the directory page.
+ *
+ * blueprints/ is the opposite of that, and was excluded alongside brand/ until
+ * 2026-09-10 on the assumption that it was source material too. It is not: the
+ * directory reads assets/blueprints/blueprint.json out of SVN to power the Live
+ * Preview button, so this upload is the blueprint's only route to wordpress.org.
+ * While the exclude stood, the API returned no preview_link and the listing had
+ * no Live Preview button, with a valid blueprint sitting unshipped in the repo.
  */
-foreach ( array( 'blueprints/', 'brand/' ) as $private ) {
-	keel_assert(
-		false !== strpos( $deploy_src, "--exclude '{$private}'" ),
-		"The asset staging excludes {$private}, which is source material, not a directory-page asset."
-	);
-}
+keel_assert(
+	false !== strpos( $deploy_src, "--exclude 'brand/'" ),
+	'The asset staging excludes brand/, which is working material, not a directory-page asset.'
+);
+keel_assert(
+	false === strpos( $deploy_src, "--exclude 'blueprints/'" ),
+	'The asset staging does not exclude blueprints/; assets/blueprints/blueprint.json is what gives the listing its Live Preview button.'
+);
 
 /*
  * --- the slug and the built folder are the same name ---
