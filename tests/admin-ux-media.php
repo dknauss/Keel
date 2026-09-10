@@ -75,7 +75,21 @@ $GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => '240' )
 $css                                      = keel_defaults_admin_menu_width_css();
 keel_assert( false !== strpos( $css, '240px' ), 'Chosen width appears in the CSS.' );
 keel_assert( false !== strpos( $css, '#adminmenu' ), 'CSS targets the admin menu.' );
-keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the non-collapsed breakpoint.' );
+keel_assert( false !== strpos( $css, 'min-width: 961px' ), 'CSS starts above core\'s auto-fold ceiling, so the automatic collapse is respected.' );
+
+/*
+ * Regression: `auto-fold` is not a width signal.
+ *
+ * admin-header.php adds it to the body for every user without the `unfold`
+ * user setting — the default — at every viewport width. It is core's CSS,
+ * `@media only screen and (max-width: 960px) { .auto-fold #adminmenu { width: 36px } }`,
+ * that scopes the actual folding. Gating the widen on `:not(.auto-fold)`
+ * therefore matches almost nobody and silently disables the whole feature,
+ * which is exactly what an earlier attempt at this fix shipped. Respecting
+ * the automatic collapse is a job for the media query floor.
+ */
+keel_assert( false === strpos( $css, ':not(.auto-fold)' ), 'The widen does not gate on .auto-fold, which core sets by default for everyone.' );
+keel_assert( false === strpos( $css, 'min-width: 783px' ), 'The old 783px floor is gone; it overlapped core\'s 783-960px auto-fold band.' );
 
 /*
  * --- The widen must lose to a folded menu ---
@@ -87,8 +101,8 @@ keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the
  * toggle, `.auto-fold` is the automatic collapse WordPress applies between
  * 783px and 960px, which sits entirely inside this rule's own media query.
  */
-keel_assert( false !== strpos( $css, 'body:not(.folded):not(.auto-fold) #adminmenuwrap' ), 'The menu width rule is scoped away from a folded menu.' );
-keel_assert( false !== strpos( $css, 'body:not(.folded):not(.auto-fold) #wpcontent' ), 'The content margin is scoped away from a folded menu.' );
+keel_assert( false !== strpos( $css, 'body:not(.folded) #adminmenuwrap' ), 'The menu width rule is scoped away from a menu the user folded.' );
+keel_assert( false !== strpos( $css, 'body:not(.folded) #wpcontent' ), 'The content margin is scoped away from a menu the user folded.' );
 keel_assert( false === strpos( $css, '.folded #wpcontent' ), 'No folded-state margin patch is needed once the widen is properly scoped.' );
 
 /*
