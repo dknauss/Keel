@@ -117,3 +117,43 @@ tr:has( > td > .keel-anchor:target ),
 		margin-left: 36px;
 	}
 }
+
+/*
+ * The wp-config / network lock note.
+ *
+ * This shipped with a class and no rule, so it inherited `.description` and read
+ * as one more grey hint among thirty-nine of them. Everything else on this
+ * screen is advice; this is a statement that the control above it is not yours.
+ * Those are different kinds of sentence and were rendered identically.
+ *
+ * Deliberately not styled as a warning. On a managed host a locked setting is
+ * the normal and correct state — the host set a constant and Keel stood down —
+ * so amber, red, or a warning glyph would cry wolf on every such site. Neutral
+ * and distinct is the whole requirement: noticeable, not alarming.
+ *
+ * Screen readers already had this. The note is wired into aria-describedby ahead
+ * of the help text, so the reason a control is disabled is announced first. This
+ * closes the visual half of the same gap.
+ */
+.keel-config-lock {
+	background: #f6f7f7;
+	border-left: 4px solid #8c8f94;
+	color: #1d2327;
+	font-size: 13px;
+	margin-top: 8px;
+	padding: 8px 12px;
+}
+
+.keel-config-lock::before {
+	content: "\f160";
+	font-family: dashicons, sans-serif;
+	speak: never;
+	vertical-align: text-bottom;
+	color: #8c8f94;
+	margin-right: 6px;
+	text-decoration: none;
+}
+
+.keel-config-lock code {
+	background: #fff;
+}

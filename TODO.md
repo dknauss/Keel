@@ -41,6 +41,20 @@ into ROADMAP.md or here.
 - [ ] **Leave typographic punctuation as typed**
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
+- [ ] **Mark locked settings in the row, not only in the note** — considered while
+      fixing the lock note's visibility and deliberately left out of that change. The
+      note only helps once you are already reading the row it belongs to; on a
+      thirty-nine setting screen the question a host-managed site actually has is
+      "which of these are not mine?", and answering it currently means reading every
+      row. A lock glyph beside the label would make that scannable. Bigger than a CSS
+      rule: it touches label rendering for every field type, so it wants its own pass.
+- [ ] **Summarise locks at the top of the settings screen** — "3 settings are locked by
+      `wp-config.php`", each linking to its anchor. `keel_defaults_setting_anchor()`
+      already generates the targets, so the linking is free; the work is deciding
+      whether it belongs on the settings screen, in Site Health, or both, and whether
+      network policy locks count in the same sentence as constant locks. They are
+      different authorities and probably should not be summed into one number without
+      saying so.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
