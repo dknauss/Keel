@@ -78,6 +78,20 @@ keel_assert( false !== strpos( $css, '#adminmenu' ), 'CSS targets the admin menu
 keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the non-collapsed breakpoint.' );
 
 /*
+ * --- The widen must lose to a folded menu ---
+ *
+ * The docblock claimed a `body:not(.folded)` guard, but no selector carried
+ * one: the width rules fired with `!important` whatever the fold state, so a
+ * collapsed menu stayed pinned open at full width showing nothing but icons.
+ * Two ways to fold, and both have to be excluded — `.folded` is the core
+ * toggle, `.auto-fold` is the automatic collapse WordPress applies between
+ * 783px and 960px, which sits entirely inside this rule's own media query.
+ */
+keel_assert( false !== strpos( $css, 'body:not(.folded):not(.auto-fold) #adminmenuwrap' ), 'The menu width rule is scoped away from a folded menu.' );
+keel_assert( false !== strpos( $css, 'body:not(.folded):not(.auto-fold) #wpcontent' ), 'The content margin is scoped away from a folded menu.' );
+keel_assert( false === strpos( $css, '.folded #wpcontent' ), 'No folded-state margin patch is needed once the widen is properly scoped.' );
+
+/*
  * --- Reclaiming 160px ---
  *
  * Stop 0 was labelled "WordPress default (160px)" and emitted nothing, so it

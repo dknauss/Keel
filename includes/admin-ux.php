@@ -131,8 +131,12 @@ function keel_defaults_lowercase_filename( $filename ) {
  *    plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
  *    which is why the plain-selector version (and pixel-experience's) does nothing
  *    on current WordPress.
- * 2. `body:not(.folded)` — so a menu the user has manually collapsed with the
- *    core toggle still collapses; the widen only applies to the expanded menu.
+ * 2. `body:not(.folded):not(.auto-fold)` on every selector — so a folded menu
+ *    still folds. Both fold paths have to be excluded: `.folded` is the core
+ *    toggle, and `.auto-fold` is the automatic collapse WordPress applies
+ *    between 783px and 960px, which sits entirely inside the media query
+ *    below. Scoping the widen out means core's own fold CSS governs and no
+ *    folded-state margin patch is needed.
  *
  * @return string CSS, or '' at the default width.
  */
@@ -151,29 +155,26 @@ function keel_defaults_admin_menu_width_css() {
 
 	return sprintf(
 		'@media screen and (min-width: 783px) {
-			#adminmenu,
-			#adminmenuback,
-			#adminmenuwrap,
-			#adminmenu li.menu-top,
-			#adminmenu .wp-submenu { width: %1$dpx !important; }
-			#adminmenuback { position: fixed; top: 0; bottom: -120px; }
-			#adminmenu li.menu-top > a.menu-top,
-			#adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
-			#adminmenu li.current a.menu-top { width: auto !important; }
-			#wpcontent,
-			#wpfooter { margin-left: %1$dpx !important; }
-			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { left: %1$dpx; }
-			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { left: auto; }
-			.rtl #wpcontent,
-			.rtl #wpfooter { margin-right: %1$dpx !important; margin-left: 0 !important; }
-			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { right: %1$dpx; left: auto; }
-			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
-			.folded #wpcontent,
-			.folded #wpfooter { margin-left: 36px !important; }
-			.rtl.folded #wpcontent,
-			.rtl.folded #wpfooter { margin-right: 36px !important; margin-left: 0 !important; }
+			%2$s #adminmenu,
+			%2$s #adminmenuback,
+			%2$s #adminmenuwrap,
+			%2$s #adminmenu li.menu-top,
+			%2$s #adminmenu .wp-submenu { width: %1$dpx !important; }
+			%2$s #adminmenuback { position: fixed; top: 0; bottom: -120px; }
+			%2$s #adminmenu li.menu-top > a.menu-top,
+			%2$s #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+			%2$s #adminmenu li.current a.menu-top { width: auto !important; }
+			%2$s #wpcontent,
+			%2$s #wpfooter { margin-left: %1$dpx !important; }
+			%2$s #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { left: %1$dpx; }
+			%2$s #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { left: auto; }
+			%2$s.rtl #wpcontent,
+			%2$s.rtl #wpfooter { margin-right: %1$dpx !important; margin-left: 0 !important; }
+			%2$s.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { right: %1$dpx; left: auto; }
+			%2$s.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
 		}',
-		$w
+		$w,
+		'body:not(.folded):not(.auto-fold)'
 	);
 }
 
