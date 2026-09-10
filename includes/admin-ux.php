@@ -124,19 +124,22 @@ function keel_defaults_lowercase_filename( $filename ) {
  * Registered only when a non-default width is selected. Widths come from a fixed
  * allowlist in the schema, so the stored value is a known integer.
  *
- * Two things are needed to actually override core (WordPress 6.x/7.x):
+ * Three things are needed to actually override core (WordPress 6.x/7.x):
  * 1. `!important` — the base width lives in the color-scheme stylesheet
- *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), and the `.auto-fold`
- *    rules that collapse the menu at 783–960px have higher specificity than a
- *    plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
+ *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), which has higher
+ *    specificity than a plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
  *    which is why the plain-selector version (and pixel-experience's) does nothing
  *    on current WordPress.
- * 2. `body:not(.folded):not(.auto-fold)` on every selector — so a folded menu
- *    still folds. Both fold paths have to be excluded: `.folded` is the core
- *    toggle, and `.auto-fold` is the automatic collapse WordPress applies
- *    between 783px and 960px, which sits entirely inside the media query
- *    below. Scoping the widen out means core's own fold CSS governs and no
- *    folded-state margin patch is needed.
+ * 2. `body:not(.folded)` on every selector — so a menu the user collapsed with
+ *    the core toggle still collapses. Core's own fold CSS then governs it, and
+ *    no folded-state margin patch is needed.
+ * 3. A 961px floor rather than 783px. Core folds the menu automatically with
+ *    `@media only screen and (max-width: 960px) { .auto-fold #adminmenu }`, so
+ *    starting above that ceiling is what respects the automatic collapse.
+ *    `.auto-fold` itself is NOT a width signal: admin-header.php adds the class
+ *    for every user without the `unfold` setting, at every width. Gating the
+ *    widen on `:not(.auto-fold)` therefore matches almost nobody and silently
+ *    disables the feature — which is what an earlier attempt at this shipped.
  *
  * @return string CSS, or '' at the default width.
  */
@@ -154,7 +157,7 @@ function keel_defaults_admin_menu_width_css() {
 	$w = (int) $width;
 
 	return sprintf(
-		'@media screen and (min-width: 783px) {
+		'@media screen and (min-width: 961px) {
 			%2$s #adminmenu,
 			%2$s #adminmenuback,
 			%2$s #adminmenuwrap,
@@ -174,7 +177,7 @@ function keel_defaults_admin_menu_width_css() {
 			%2$s.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
 		}',
 		$w,
-		'body:not(.folded):not(.auto-fold)'
+		'body:not(.folded)'
 	);
 }
 
