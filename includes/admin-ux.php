@@ -141,6 +141,12 @@ function keel_defaults_lowercase_filename( $filename ) {
  *    widen on `:not(.auto-fold)` therefore matches almost nobody and silently
  *    disables the feature — which is what an earlier attempt at this shipped.
  *
+ * @emits body:not(.folded)
+ * @emits min-width: 961px
+ * @emits !important
+ * @omits :not(.auto-fold)
+ * @omits .folded #wpcontent
+ *
  * @return string CSS, or '' at the default width.
  */
 function keel_defaults_admin_menu_width_css() {
