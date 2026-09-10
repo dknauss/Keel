@@ -127,9 +127,8 @@ function keel_defaults_lowercase_filename( $filename ) {
  * Three things are needed to actually override core (WordPress 6.x/7.x):
  * 1. `!important` — the base width lives in the color-scheme stylesheet
  *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), which has higher
- *    specificity than a plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
- *    which is why the plain-selector version (and pixel-experience's) does nothing
- *    on current WordPress.
+ *    specificity than a plain `#adminmenuwrap`. Without `!important` the widen
+ *    is silently ignored.
  * 2. `body:not(.folded)` on every selector — so a menu the user collapsed with
  *    the core toggle still collapses. Core's own fold CSS then governs it, and
  *    no folded-state margin patch is needed.
