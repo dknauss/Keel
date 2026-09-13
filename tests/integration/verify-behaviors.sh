@@ -8,12 +8,15 @@
 # harness sets each option in the database and asserts the real effect through a
 # fresh WordPress load (so the schema-driven bootstrap re-wires with that value).
 #
-# Default target is the Studio site at ~/Studio/keel-test. Override with:
+# Default target is the current-release lab at ~/Developer/wp-labs/keel-latest,
+# a throwaway SQLite install (see "Building a throwaway install" in README.md).
+# It used to be the Studio site ~/Studio/keel-test, which no longer exists.
+# Override with:
 #   KEEL_SITE=/path/to/wp  bash tests/integration/verify-behaviors.sh
 # Uses `studio wp` when the path is a Studio site, else plain `wp --path`.
 
 set -u
-SITE="${KEEL_SITE:-$HOME/Studio/keel-test}"
+SITE="${KEEL_SITE:-$HOME/Developer/wp-labs/keel-latest}"
 
 # A db.php dropin is not a Studio marker — SQLite installs, object caches and
 # Query Monitor all ship one. Only route through `studio wp` for a path Studio
@@ -39,7 +42,7 @@ fi
 # the harness actually reads is caught by this.
 WP() { WPBIN "$@" 2>&1 | LC_ALL=C sed -E 's/\x1b\[[0-9;]*m//g; s/[[:cntrl:]]//g' | grep -avE "Deprecated: Case|react/promise|Loading sites" | LC_ALL=C grep -av -e $'\342\224' -e $'\342\225'; }
 
-pass=0; fail=0
+pass=0; fail=0; skipped=0
 setopt() { WPBIN option patch update keel_settings "$1" "$2" >/dev/null 2>&1; }
 # check <description> <php-that-echoes-OK-on-success>
 check() {
@@ -171,16 +174,27 @@ setopt restrict_rest_user_discovery yes
 check "users endpoint filter registered"               'echo has_filter("rest_endpoints")?"OK":"no";'
 
 echo; echo "== Core updates =="
-setopt core_update_policy minor
-check "minor auto-updates allowed"                     'echo apply_filters("allow_minor_auto_core_updates",false)?"OK":"blocked";'
-check "major auto-updates blocked under minor"         'echo apply_filters("allow_major_auto_core_updates",true)?"allowed":"OK";'
-setopt core_update_policy all
-check "major allowed under all"                        'echo apply_filters("allow_major_auto_core_updates",false)?"OK":"blocked";'
-setopt core_update_policy minor
+# Keel wires its update-policy filters only when WP_AUTO_UPDATE_CORE is undefined
+# (includes/bootstrap.php): the constant outranks the option by design. On a site
+# that defines it — every version-pinned lab does — these three checks would
+# measure wp-config.php and report Keel as broken, so they are skipped instead.
+pinned=$(WP eval 'echo defined("WP_AUTO_UPDATE_CORE")?"PINNED":"FREE";' | tr -d '[:space:]')
+if [ "$pinned" = "PINNED" ]; then
+	printf '  \033[33mSKIP\033[0m  core update policy (3 checks)  WP_AUTO_UPDATE_CORE is defined, so wp-config.php decides, not Keel\n'
+	skipped=$((skipped+3))
+else
+	setopt core_update_policy minor
+	check "minor auto-updates allowed"                     'echo apply_filters("allow_minor_auto_core_updates",false)?"OK":"blocked";'
+	check "major auto-updates blocked under minor"         'echo apply_filters("allow_major_auto_core_updates",true)?"allowed":"OK";'
+	setopt core_update_policy all
+	check "major allowed under all"                        'echo apply_filters("allow_major_auto_core_updates",false)?"OK":"blocked";'
+	setopt core_update_policy minor
+fi
 
 echo; echo "== Site Health =="
 check "posture test registered"                        '$t=apply_filters("site_status_tests",array("direct"=>array()));echo isset($t["direct"]["keel_defaults_posture"])?"OK":"no";'
 
 echo
 printf 'Result: \033[32m%d passed\033[0m, ' "$pass"
+[ "$skipped" -gt 0 ] && printf '\033[33m%d skipped\033[0m, ' "$skipped"
 if [ "$fail" -gt 0 ]; then printf '\033[31m%d failed\033[0m\n' "$fail"; exit 1; else printf '0 failed\n'; fi
