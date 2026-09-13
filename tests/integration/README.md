@@ -164,6 +164,22 @@ checksums, proves the signed request cannot be replayed, rolls back with WP-CLI,
 installs through Keel again, and finally moves forward to the current release.
 One row is localized and one is multisite.
 
+Before the first install, every row also stages release day with
+`stable-check-refresh-probe.php`. The stable-check map is cached for a day, and
+the day that matters is the one a release lands: the running version has just
+become insecure while yesterday's map still calls it latest. The probe fetches
+the live map, removes every release core is offering and marks the running
+version latest — what the map looked like before those releases existed — then
+runs core's unmodified `wp_version_check()`. The row asserts that Keel stayed out
+of the check while nothing was cached, refetched exactly once when the map was
+stale, reported the source `insecure` with the row's target as its tip, and did
+not fetch again once the map listed every offer. The same probe runs on any
+throwaway install on a vulnerable release:
+
+```bash
+wp eval-file tests/integration/stable-check-refresh-probe.php --path=/tmp/probe-wp
+```
+
 It is manually dispatchable for a release candidate and runs weekly. It is
 deliberately not PR CI because WordPress.org's two APIs and historical packages
 are external, changing dependencies; a failure there needs diagnosis rather
@@ -172,6 +188,18 @@ than blocking an unrelated patch by default.
 ---
 
 ## Things that will waste an hour if you do not know them
+
+**A transient hook does not fire for a write that changes nothing.**
+`set_site_transient()` runs `set_site_transient_{$transient}` only when the store
+reports a change, and updating an option to its current value is not one. Core
+stamps `update_core` with `last_checked = time()`, so two update checks inside the
+same second write identical values and the second fires no hook. Real checks are a
+minute or more apart and never hit this; a probe running checks back to back does.
+The first matrix run of the release-day probe failed five of six rows this way —
+"0 stable-check requests" — while Keel was working; the one row that passed was the
+slowest. It passed locally for the same reason: a home connection is slower than a
+CI runner. The probe now backdates `last_checked` before each check and counts the
+hook, so a zero cannot be vacuous.
 
 **A lab pinned to an old WordPress will not stay there.** A throwaway install
 happily updates itself in the background, and it does not ask. The 6.4 lab built

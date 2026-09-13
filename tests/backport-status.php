@@ -126,7 +126,8 @@ function get_site_transient( $k ) {
  * @return bool
  */
 function set_site_transient( $k, $v, $t = 0 ) {
-	$GLOBALS['keel_test']['transients'][ $k ] = $v;
+	$GLOBALS['keel_test']['transients'][ $k ]     = $v;
+	$GLOBALS['keel_test']['transient_ttls'][ $k ] = $t;
 	return true;
 }
 
@@ -1803,6 +1804,118 @@ foreach ( $panel_states as $case ) {
 		);
 	}
 }
+
+// --- release-day refresh of the cached status map ---------------------------
+//
+// The map is cached for a day, and the day it matters most is the day a release
+// lands: the version this site runs has just become insecure, and a map fetched
+// yesterday still calls it latest. Core learns of the release on its own
+// schedule, through the update_core offers. An offer naming a release the map
+// has never heard of is proof the map predates that release.
+
+/**
+ * Stub: the stable-check request, counted.
+ *
+ * @param string $url  URL.
+ * @param array  $args Args.
+ * @return array
+ */
+function wp_remote_get( $url, $args = array() ) {
+	$GLOBALS['keel_test']['http_calls'] = isset( $GLOBALS['keel_test']['http_calls'] ) ? $GLOBALS['keel_test']['http_calls'] + 1 : 1;
+	return $GLOBALS['keel_test']['http'];
+}
+
+/** Stub: response code. */
+function wp_remote_retrieve_response_code( $response ) {
+	return $response['response']['code'];
+}
+
+/** Stub: response body. */
+function wp_remote_retrieve_body( $response ) {
+	return $response['body'];
+}
+
+/**
+ * The update_core transient as core stores it.
+ *
+ * @param string[] $versions Offered versions.
+ * @return object
+ */
+function keel_test_update_core( array $versions ) {
+	return (object) array(
+		'updates' => array_map(
+			static function ( $v ) {
+				return (object) array( 'current' => $v );
+			},
+			$versions
+		),
+	);
+}
+
+/**
+ * Reset the store and HTTP stub for one refresh scenario.
+ *
+ * @param array|null $cached   Cached map, or null for none.
+ * @param array|null $response Next stable-check response map, or null for a failure.
+ */
+function keel_test_refresh_scenario( $cached, $response ) {
+	unset( $GLOBALS['keel_test']['transients'][ KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ] );
+	unset( $GLOBALS['keel_test']['transients'][ KEEL_DEFAULTS_STABLE_CHECK_FAILED ] );
+	$GLOBALS['keel_test']['transient_ttls'] = array();
+	$GLOBALS['keel_test']['http_calls']     = 0;
+	$GLOBALS['keel_test']['http']           = null === $response
+		? array(
+			'response' => array( 'code' => 503 ),
+			'body'     => '',
+		)
+		: array(
+			'response' => array( 'code' => 200 ),
+			'body'     => json_encode( $response ), // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- runs without WordPress.
+		);
+
+	if ( null !== $cached ) {
+		keel_test_prime( $cached );
+	}
+}
+
+$before = array(
+	'6.8.8' => 'outdated',
+	'7.1'   => 'latest',
+);
+$after  = array(
+	'6.8.8' => 'insecure',
+	'6.8.9' => 'outdated',
+	'7.1'   => 'insecure',
+	'7.1.1' => 'latest',
+);
+
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.1', '6.8.8' ) ) ), 'offers the map already lists do not make it stale' );
+keel_assert( true === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.1.1', '7.1' ) ) ), 'an offer newer than the map makes it stale' );
+keel_assert( true === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.1', '6.8.9' ) ) ), 'a backport-only release the map does not list makes it stale, though the map\'s latest is still offered' );
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.2-beta1', '7.1' ) ) ), 'a development offer is never listed, so it proves nothing' );
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, false ), 'no update_core transient proves nothing' );
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, (object) array() ), 'an update_core with no updates list proves nothing' );
+keel_assert( false === keel_defaults_stable_check_is_stale( array(), keel_test_update_core( array( '7.1.1' ) ) ), 'an empty map is not stale, it is absent' );
+
+keel_test_refresh_scenario( $before, $after );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1.1', '6.8.9' ) ) );
+keel_assert( 1 === $GLOBALS['keel_test']['http_calls'], 'a stale map is fetched again as soon as core learns of the release' );
+keel_assert( get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ) === $after, 'the fresh map replaces the stale one' );
+$GLOBALS['keel_test']['version'] = '7.1';
+keel_assert( 'insecure' === keel_defaults_version_status(), 'the release the new version fixes reports insecure the same day, not tomorrow' );
+
+keel_test_refresh_scenario( $before, $after );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1' ) ) );
+keel_assert( 0 === $GLOBALS['keel_test']['http_calls'], 'a map that lists every offer is not fetched again' );
+
+keel_test_refresh_scenario( null, $after );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1.1' ) ) );
+keel_assert( 0 === $GLOBALS['keel_test']['http_calls'], 'with nothing cached there is nothing stale: the fetch stays lazy, on a screen that expects it' );
+
+keel_test_refresh_scenario( $before, null );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1.1' ) ) );
+keel_assert( get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ) === $before, 'a failed refresh keeps the old map rather than leaving no answer at all' );
+keel_assert( KEEL_DEFAULTS_STABLE_CHECK_FAIL_TTL === $GLOBALS['keel_test']['transient_ttls'][ KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ], 'a kept stale map is kept briefly, not granted another full day' );
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

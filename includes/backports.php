@@ -99,6 +99,73 @@ function keel_defaults_stable_check() {
 }
 
 /**
+ * Whether the cached status map predates a release core is already offering.
+ *
+ * The daily cache is wrong on exactly one day that matters: the day a release
+ * lands, when the version this site runs has just become insecure and a map
+ * fetched yesterday still calls it latest. Core hears about the release on its
+ * own schedule, through the update_core offers, and an offer naming a release
+ * the map does not list is proof the map is older than that release.
+ *
+ * Any unlisted offer, not only one newer than the map's latest: a security
+ * release can ship on an older line alone, and the map's latest is then still
+ * offered and still current. Development offers carry a suffix and are never
+ * listed, so they prove nothing and are skipped by the same pattern the map is
+ * filtered with.
+ *
+ * @param array<string,string> $map         Cached version => status.
+ * @param mixed                $update_core The update_core transient value.
+ * @return bool
+ */
+function keel_defaults_stable_check_is_stale( array $map, $update_core ) {
+	if ( empty( $map ) || ! is_object( $update_core ) || ! isset( $update_core->updates ) || ! is_array( $update_core->updates ) ) {
+		return false;
+	}
+
+	foreach ( $update_core->updates as $offer ) {
+		if ( ! is_object( $offer ) || ! isset( $offer->current ) || ! is_string( $offer->current ) ) {
+			continue;
+		}
+
+		if ( preg_match( '/^\d+\.\d+(\.\d+)?$/', $offer->current ) && ! isset( $map[ $offer->current ] ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Fetch the status map again when core's update check shows it is out of date.
+ *
+ * Runs when core stores its update offers, which is already a background or
+ * update-screen request making calls to api.wordpress.org, so the extra request
+ * lands where a network wait is expected rather than on an arbitrary admin page.
+ * With nothing cached it does nothing: the first fetch stays lazy.
+ *
+ * A failed refresh keeps the old map, which is still right about every release
+ * but the new one, rather than leaving Site Health with no answer. It is kept for
+ * the failure interval only, so a map known to be stale is not granted another
+ * full day.
+ *
+ * @param mixed $update_core The update_core value being stored.
+ */
+function keel_defaults_refresh_stale_stable_check( $update_core ) {
+	$cached = get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
+
+	if ( ! is_array( $cached ) || ! keel_defaults_stable_check_is_stale( $cached, $update_core ) ) {
+		return;
+	}
+
+	delete_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
+
+	if ( empty( keel_defaults_stable_check() ) ) {
+		set_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT, $cached, KEEL_DEFAULTS_STABLE_CHECK_FAIL_TTL );
+	}
+}
+add_action( 'set_site_transient_update_core', 'keel_defaults_refresh_stale_stable_check' );
+
+/**
  * The running WordPress version, on every version Keel supports.
  *
  * Core added wp_get_wp_version() in 6.7. Keel declares `Requires at least:
