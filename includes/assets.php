@@ -210,6 +210,9 @@ const KEEL_DEFAULTS_SETTINGS_SCRIPT = 'keel-defaults-settings';
 /** Handle for the shared locked-control script. */
 const KEEL_DEFAULTS_LOCKED_SCRIPT = 'keel-defaults-locked-controls';
 
+/** Handle for the shared locked-control stylesheet. */
+const KEEL_DEFAULTS_LOCKED_STYLE = 'keel-defaults-locked-controls';
+
 /**
  * Arrange for a screen's assets to be enqueued when that screen loads.
  *
@@ -259,7 +262,7 @@ function keel_defaults_enqueue_settings_assets() {
 /**
  * Enqueue the network policy screen's assets.
  *
- * The locked-control script and nothing else. The network screen is
+ * The locked-control script and stylesheet, and nothing else. The network screen is
  * deliberately simpler than the per-site one — no dependent-row hiding, no
  * range slider, no setting anchors — so every rule in settings.css and every
  * line of settings.js would be inert there, and a screen that loads assets it
@@ -272,11 +275,23 @@ function keel_defaults_enqueue_network_assets() {
 }
 
 /**
- * Enqueue the script that refuses changes to a locked control.
+ * Enqueue what a locked control needs on either screen: the script that refuses
+ * changes to it, and the stylesheet that makes it look like it will.
+ *
+ * The style used to sit in settings.css, which the network screen deliberately
+ * does not load, so the network screen's lock notes and locked controls were
+ * never styled at all. Both halves now travel together.
  *
  * @return void
  */
 function keel_defaults_enqueue_locked_controls() {
+	wp_enqueue_style(
+		KEEL_DEFAULTS_LOCKED_STYLE,
+		keel_defaults_asset_url( 'css/locked-controls.css' ),
+		array(),
+		KEEL_DEFAULTS_VERSION
+	);
+
 	wp_enqueue_script(
 		KEEL_DEFAULTS_LOCKED_SCRIPT,
 		keel_defaults_asset_url( 'js/locked-controls.js' ),
