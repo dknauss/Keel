@@ -299,7 +299,7 @@ function keel_defaults_render_network_page() {
 									</label>
 
 									<p style="margin:6px 0 0;">
-										<?php keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $described, $locked ); ?>
+										<?php keel_defaults_render_network_control( $key, $name, $locked ? keel_defaults_config_locked_value( $key, $value ) : $value, $field, $s, $statement, $described, $locked ); ?>
 									</p>
 
 									<?php if ( $locked ) : ?>

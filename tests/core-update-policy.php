@@ -137,9 +137,68 @@ foreach ( array(
 	keel_assert( false === keel_defaults_allow_translation_updates( $incoming ), "Translations do not update when the toggle is off (WordPress said {$incoming_label})." );
 }
 
+/*
+ * --- what a control locked by WP_AUTO_UPDATE_CORE shows ---
+ *
+ * The locked select used to show the stored policy. With the constant set to
+ * true it read "Maintenance/security releases only" on a site installing every
+ * release, and nothing on the screen disagreed with it: the lock note says who
+ * decided, not what they decided.
+ *
+ * The table follows Core_Upgrader::should_update_to_version(), and the strict
+ * comparisons are its. true and the four pre-release strings are one branch
+ * there, because the pre-release part only matters to a site already running a
+ * development build, which never offers a stable site a beta. Anything that
+ * branch does not recognise falls through to WordPress's own defaults, which is
+ * "Leave unchanged" here — including the string 'true', the likeliest typo.
+ */
+$constant_table = array(
+	array( false, 'manual' ),
+	array( true, 'all' ),
+	array( 'minor', 'minor' ),
+	array( 'beta', 'all' ),
+	array( 'rc', 'all' ),
+	array( 'development', 'all' ),
+	array( 'branch-development', 'all' ),
+	array( 'true', 'inherit' ),
+	array( 'major', 'inherit' ),
+	array( '', 'inherit' ),
+	array( 1, 'inherit' ),
+	array( 0, 'inherit' ),
+);
+
+foreach ( $constant_table as $row ) {
+	list( $constant, $policy ) = $row;
+	$shown                     = keel_defaults_core_policy_for_constant( $constant );
+
+	keel_assert(
+		$policy === $shown,
+		'WP_AUTO_UPDATE_CORE = ' . var_export( $constant, true ) . " shows '{$policy}', not '{$shown}'." // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export -- test message.
+	);
+	keel_assert(
+		in_array( $shown, $choices, true ),
+		'WP_AUTO_UPDATE_CORE = ' . var_export( $constant, true ) . ' maps to a choice the select can show.' // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export -- test message.
+	);
+}
+
+/*
+ * And the screen asks the constant, not the stored option. Defined last: a
+ * constant cannot be undefined, and every gate above had to run without it.
+ */
+define( 'WP_AUTO_UPDATE_CORE', true );
+
+keel_assert(
+	'all' === keel_defaults_config_locked_value( 'core_update_policy', 'minor' ),
+	'A control locked by WP_AUTO_UPDATE_CORE = true shows all releases, whatever was stored.'
+);
+keel_assert(
+	'yes' === keel_defaults_config_locked_value( 'disable_emojis', 'yes' ),
+	'A setting no constant locks shows its stored value.'
+);
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "core update policy: {$fail} failed\n" );
 	exit( 1 );
 }
 
-fwrite( STDOUT, "core update policy: OK (4 gates, 4 policies)\n" );
+fwrite( STDOUT, 'core update policy: OK (4 gates, 4 policies, ' . count( $constant_table ) . " constant values)\n" );
