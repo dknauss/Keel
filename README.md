@@ -19,7 +19,7 @@ The stable demo follows each release; the rolling demo is rebuilt after successf
 
 ## What it does
 
-Keel exposes each choice under **Settings → Site Defaults**, explains it in place, and reports the effective posture in **Tools → Site Health**. It does not modify content, and each default can be switched off independently.
+Keel exposes each choice under **Settings → Site Defaults**, explains it in place, and reports the effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and each default can be switched off independently.
 
 - Reduce accidental exposure: anonymous user discovery, author archives, comments, pingbacks, attachment pages, raw HTML, security headers, AI connectors, and more.
 - Make routine maintenance safer: conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
@@ -31,7 +31,7 @@ Keel exposes each choice under **Settings → Site Defaults**, explains it in pl
 
 Keel independently checks WordPress.org's stable-check status for the installed core version. If a release line has a known vulnerability and a same-line fix exists, Keel names that exact patch, explains what WordPress's Updates screen is offering, and lets an authorized administrator deliberately install only that patch through WordPress's upgrader with rollback enabled.
 
-This is intentionally distinct from asking whether a newer major release exists. A secure same-line patch may be hidden as an automatic-update offer, absent from the Updates screen, or unavailable because WordPress.org has not published one. Keel reports the uncertainty or blocker rather than implying that an update is available when it is not. Details: [core update and stable-check behavior](docs/wordpress-default-settings.md#core-updates).
+This is intentionally distinct from asking whether a newer major release exists. A secure same-line patch may be hidden as an automatic-update offer, absent from the Updates screen, or unavailable because WordPress.org has not published one. Keel reports the uncertainty or blocker rather than implying that an update is available when it is not. Details: [core update and stable-check behavior](docs/wordpress-default-settings.md#5-update-policy).
 
 ## Screens
 
@@ -49,7 +49,7 @@ This is intentionally distinct from asking whether a newer major release exists.
 
 `keel_defaults_schema()` is the configuration source of truth. It drives the settings UI, validation, Site Health, and the bootstrap hooks that apply enabled defaults. Settings are per-site; network policy and selected `wp-config.php` constants are evaluated as higher-priority effective values, without overwriting the stored site configuration.
 
-Keel avoids cosmetic-only controls. For example, disabling comments also closes query and feed surfaces, while a closed REST API stops advertising itself but retains oEmbed so other sites can still embed posts. The [default-by-default reference](docs/wordpress-default-settings.md) documents the behavior, scope, tradeoffs, constants, and filters for every setting.
+Keel avoids cosmetic-only controls. For example, disabling comments also closes query and feed surfaces, while a closed REST API stops advertising itself but retains oEmbed so other sites can still embed posts. The [per-setting reference](docs/wordpress-default-settings.md) documents the behavior, scope, tradeoffs, constants, and filters for every setting.
 
 ### Integration and operations
 
@@ -61,7 +61,7 @@ Keel avoids cosmetic-only controls. For example, disabling comments also closes 
 
 ### Development and verification
 
-The test suite is standalone PHP scripts in [`tests/`](tests/), run with `php tests/<name>.php`; CI covers PHP 7.4 through 8.5, code style, compatibility, package construction, and live WordPress installer/backport paths. The release package is built with `bash bin/build-zip.sh build`.
+The test suite is standalone PHP scripts in [`tests/`](tests/), run with `php tests/<name>.php`. On every push and pull request, CI runs syntax, coding-standards, and PHP-compatibility checks, plus the unit tests on each PHP version from 7.4 through 8.5; pushes to `main` also build the plugin zip for the rolling Playground demo. A separate scheduled matrix exercises live WordPress installer and backport paths. The release package is built with `bash bin/build-zip.sh build`.
 
 Useful references:
 
