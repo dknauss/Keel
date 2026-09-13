@@ -15,6 +15,17 @@
  * is marked latest — which is exactly what the map looked like before those
  * releases existed. The site then runs core's update check, unmodified.
  *
+ * Each check is preceded by backdating core's last_checked. set_site_transient()
+ * fires set_site_transient_update_core only when the stored value changes, and
+ * core stamps last_checked with time(). Real checks are at least a minute apart,
+ * so every real check is a change. Three checks back to back are not: on a CI
+ * runner they finish inside one second, write a byte-identical value, and the hook
+ * never fires — the first matrix run of this probe failed five of six rows on
+ * exactly that, while Keel was working. Backdating restores what a real site looks
+ * like between checks, and it runs before the stage is set, so the write it makes
+ * cannot itself trigger the refresh under test. The hook is counted too, so a
+ * reported zero requests can never mean the hook simply did not run.
+ *
  * Emits JSON rather than asserting, so the shell owns the verdict.
  *
  * Run only through WP-CLI in a disposable integration site.
@@ -29,6 +40,7 @@ if ( 'cli' !== PHP_SAPI || ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 require_once ABSPATH . 'wp-admin/includes/update.php';
 
 $keel_requests = 0;
+$keel_writes   = 0;
 
 add_filter(
 	'pre_http_request',
@@ -42,12 +54,33 @@ add_filter(
 	3
 );
 
+add_action(
+	'set_site_transient_update_core',
+	static function () use ( &$keel_writes ) {
+		++$keel_writes;
+	},
+	20
+);
+
+$keel_age_update_core = static function () {
+	$current = get_site_transient( 'update_core' );
+
+	if ( is_object( $current ) ) {
+		$current->last_checked = time() - HOUR_IN_SECONDS;
+		set_site_transient( 'update_core', $current );
+	}
+};
+
 // Start from nothing Keel cached, and let core fetch current offers. With no map
 // cached, Keel must stay out of core's update check entirely.
 delete_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
 delete_site_transient( KEEL_DEFAULTS_STABLE_CHECK_FAILED );
+$keel_age_update_core();
+$keel_requests = 0;
+$keel_writes   = 0;
 wp_version_check( array(), true );
 $uncached_requests = $keel_requests;
+$uncached_writes   = $keel_writes;
 
 $real    = keel_defaults_stable_check();
 $current = get_site_transient( 'update_core' );
@@ -61,6 +94,10 @@ if ( is_object( $current ) && isset( $current->updates ) && is_array( $current->
 	}
 }
 
+// Age core's record while the real map is still cached, so this write finds
+// nothing stale; only then stage yesterday's map.
+$keel_age_update_core();
+
 $yesterday = array_diff_key( $real, array_flip( $offered ) );
 
 $yesterday[ keel_defaults_wp_version() ] = 'latest';
@@ -71,16 +108,21 @@ $staged_tip    = keel_defaults_branch_tip();
 
 // Release day: core's own update check, unmodified.
 $keel_requests = 0;
+$keel_writes   = 0;
 wp_version_check( array(), true );
 $refresh_requests = $keel_requests;
+$refresh_writes   = $keel_writes;
 $refreshed        = get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
 $after_status     = keel_defaults_version_status();
 $after_tip        = keel_defaults_branch_tip();
 
-// The day after: the map lists every offer, so core's next check costs nothing.
+// The next check: the map lists every offer, so core's check costs nothing.
+$keel_age_update_core();
 $keel_requests = 0;
+$keel_writes   = 0;
 wp_version_check( array(), true );
 $quiet_requests = $keel_requests;
+$quiet_writes   = $keel_writes;
 
 echo wp_json_encode(
 	array(
@@ -88,12 +130,15 @@ echo wp_json_encode(
 		'offered'           => $offered,
 		'real_count'        => count( $real ),
 		'uncached_requests' => $uncached_requests,
+		'uncached_writes'   => $uncached_writes,
 		'staged_status'     => $staged_status,
 		'staged_tip'        => $staged_tip,
 		'refresh_requests'  => $refresh_requests,
+		'refresh_writes'    => $refresh_writes,
 		'refreshed_matches' => $refreshed === $real,
 		'after_status'      => $after_status,
 		'after_tip'         => $after_tip,
 		'quiet_requests'    => $quiet_requests,
+		'quiet_writes'      => $quiet_writes,
 	)
 );

@@ -127,8 +127,11 @@ assert_release_day_refresh() {
 	local probe
 	probe="$( "${KEEL_WP[@]}" eval-file "$KEEL_PLUGIN_ROOT/tests/integration/stable-check-refresh-probe.php" )"
 
-	echo "backport matrix: release day -- $( jq -c 'del(.offered)' <<<"$probe" )"
+	echo "backport matrix: release day -- $( jq -c '.offered |= length' <<<"$probe" )"
 
+	# A request count of zero only means something if core's write fired the hook.
+	jq -e '.uncached_writes > 0 and .refresh_writes > 0 and .quiet_writes > 0' <<<"$probe" >/dev/null \
+		|| fail "release day: a core update check stored nothing that fired set_site_transient_update_core, so its request count proves nothing"
 	jq -e '.uncached_requests == 0' <<<"$probe" >/dev/null \
 		|| fail "release day: with nothing cached, core's update check still made Keel fetch stable-check"
 	jq -e '.staged_status == "latest"' <<<"$probe" >/dev/null \

@@ -189,6 +189,18 @@ than blocking an unrelated patch by default.
 
 ## Things that will waste an hour if you do not know them
 
+**A transient hook does not fire for a write that changes nothing.**
+`set_site_transient()` runs `set_site_transient_{$transient}` only when the store
+reports a change, and updating an option to its current value is not one. Core
+stamps `update_core` with `last_checked = time()`, so two update checks inside the
+same second write identical values and the second fires no hook. Real checks are a
+minute or more apart and never hit this; a probe running checks back to back does.
+The first matrix run of the release-day probe failed five of six rows this way —
+"0 stable-check requests" — while Keel was working; the one row that passed was the
+slowest. It passed locally for the same reason: a home connection is slower than a
+CI runner. The probe now backdates `last_checked` before each check and counts the
+hook, so a zero cannot be vacuous.
+
 **A lab pinned to an old WordPress will not stay there.** A throwaway install
 happily updates itself in the background, and it does not ask. The 6.4 lab built
 for the older-WordPress run was WordPress 7.0.3 by the next morning — confirmed by
