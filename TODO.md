@@ -22,6 +22,19 @@ into ROADMAP.md or here.
       discharged by running the recording command, and being routinely satisfied without
       looking is the one failure this check cannot survive. Recorded in
       `bin/verify-screenshots.sh`.
+- [x] **Refresh the stable-check cache on release day** — done 2026-09-13, unreleased
+      (release hold). The status map was cached for a day and never invalidated, so a
+      site running the version a new security release had just made insecure read as
+      latest for up to 24 hours: the window the check exists for. Keel now fetches it
+      again when core stores update offers naming any release the map does not list —
+      any, not only a newer one, because a security release can ship on an older line
+      alone. Development offers prove nothing and are skipped; with nothing cached the
+      fetch stays lazy; a failed refresh keeps the old map for five minutes, not a day.
+      Found reading the wp-env thread on the same endpoint
+      ([WordPress/gutenberg#81553](https://github.com/WordPress/gutenberg/issues/81553)),
+      where stable-check and the release it names are shown drifting apart by hours.
+      Pinned in `tests/backport-status.php`; staged live on every row of the backport
+      matrix by `tests/integration/stable-check-refresh-probe.php`.
 - [ ] **Observe the field**
   - Watch the next scheduled live matrix run.
   - Triage early reports before opening another release cycle.
