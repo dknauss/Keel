@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-14T02:29:16+00:00\n"
+"POT-Creation-Date: 2026-09-14T05:30:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1691,11 +1691,11 @@ msgid "WordPress would install %1$s and skip %2$s. It takes the highest release 
 msgstr ""
 
 #. translators: 1: release the Updates screen is offering, 2: patched release on this line.
-#: includes/updates-screen.php:151
+#: includes/updates-screen.php:154
 #, php-format
-msgid "The update offered above is %1$s. %2$s is the minor update that closes the known vulnerabilities."
+msgid "The update offered below is %1$s. %2$s is the minor update that closes the known vulnerabilities."
 msgstr ""
 
-#: includes/updates-screen.php:173
+#: includes/updates-screen.php:176
 msgid "A security release exists for your version line"
 msgstr ""

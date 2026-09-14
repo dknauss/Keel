@@ -141,14 +141,17 @@ function keel_defaults_updates_screen_markup( $status, $tip, $latest, $selected 
 		/*
 		 * $offered, not keel_defaults_latest_version(). The latter is the WordPress.org
 		 * stable check, which refreshes on its own schedule; this screen renders the
-		 * update_core transient. Sourcing a sentence about what is "offered above" from
+		 * update_core transient. Sourcing a sentence about what is "offered below" from
 		 * the other cache is a claim about a screen it has not read, and the two can
 		 * disagree -- or the screen can be offering nothing at all, in which case there
 		 * is no comparison to draw and the paragraph is simply omitted.
+		 *
+		 * Below: this panel prints on after_core_auto_updates_settings, which runs
+		 * before core_upgrade_preamble() lists the offers.
 		 */
 		$compare = sprintf(
 			/* translators: 1: release the Updates screen is offering, 2: patched release on this line. */
-			esc_html__( 'The update offered above is %1$s. %2$s is the minor update that closes the known vulnerabilities.', 'keel-defaults' ),
+			esc_html__( 'The update offered below is %1$s. %2$s is the minor update that closes the known vulnerabilities.', 'keel-defaults' ),
 			'<code>' . esc_html( $offered ) . '</code>',
 			$patch
 		);
