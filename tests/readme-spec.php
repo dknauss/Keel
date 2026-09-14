@@ -335,6 +335,56 @@ if ( preg_match( '/^=== [^=]+ ===\s*\n(.*?)^==/ms', $readme, $head )
 	);
 }
 
+/*
+ * Ceiling guard: "Tested up to" must track the highest WordPress the live matrix
+ * actually runs, so the header cannot quietly outrun the evidence for it.
+ *
+ * The sibling repo added this after its header sat at 6.9 while CI verified 7.0 --
+ * an understatement rather than a lie, but the same mechanism produces the
+ * overstatement, and only one of those is a claim to a user about a release nobody
+ * ran. Keel's header has been correct so far by attention rather than by anything
+ * checking it.
+ *
+ * The versions come from backport-install-matrix.yml, because that is the workflow
+ * that installs WordPress and drives the plugin on it. ci.yml is a PHP matrix and
+ * establishes nothing about a WordPress release. Every source, target and forward
+ * version counts: a row that starts on 6.4.9, installs 6.4.10 and then upgrades
+ * forward to 7.1 has exercised the plugin on all three.
+ */
+$matrix_path = dirname( __DIR__ ) . '/.github/workflows/backport-install-matrix.yml';
+
+keel_readme_assert( is_file( $matrix_path ), 'the live install matrix exists to read a ceiling from.' );
+
+if ( is_file( $matrix_path ) ) {
+	$matrix = file_get_contents( $matrix_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+	preg_match_all( "/^\s*(?:source|target|forward):\s*'([0-9]+\.[0-9]+(?:\.[0-9]+)?)'/m", $matrix, $matrix_versions );
+
+	keel_readme_assert(
+		! empty( $matrix_versions[1] ),
+		'the live matrix pins WordPress versions this header can be checked against.'
+	);
+
+	if ( ! empty( $matrix_versions[1] ) ) {
+		$pinned = array_values( array_unique( $matrix_versions[1] ) );
+		usort( $pinned, 'version_compare' );
+		$highest = end( $pinned );
+
+		// "Tested up to" is a release line, not a patch: 7.1, never 7.1.0.
+		$parts   = explode( '.', $highest );
+		$ceiling = $parts[0] . '.' . ( isset( $parts[1] ) ? $parts[1] : '0' );
+
+		preg_match( '/^Tested up to:\s*(\S+)\s*$/m', $readme, $tested );
+		$claimed = isset( $tested[1] ) ? $tested[1] : '(missing)';
+
+		keel_readme_assert(
+			$claimed === $ceiling,
+			"'Tested up to' is {$claimed}; the live matrix runs WordPress up to {$ceiling}. "
+				. 'Raise the header, or raise the matrix and re-run it.'
+		);
+	}
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "readme spec: {$fail} failed\n" );
 	exit( 1 );

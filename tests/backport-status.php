@@ -126,7 +126,8 @@ function get_site_transient( $k ) {
  * @return bool
  */
 function set_site_transient( $k, $v, $t = 0 ) {
-	$GLOBALS['keel_test']['transients'][ $k ] = $v;
+	$GLOBALS['keel_test']['transients'][ $k ]     = $v;
+	$GLOBALS['keel_test']['transient_ttls'][ $k ] = $t;
 	return true;
 }
 
@@ -272,6 +273,24 @@ function esc_html__( $s, $d = '' ) {
  * @param string $s Text.
  * @return string
  */
+/**
+ * Stub: wp_kses(), keeping only the allowed tags.
+ *
+ * Faithful enough for these assertions: disallowed tags are removed, so a test
+ * can tell code printed as markup from code escaped into visible tags.
+ *
+ * @param string $content Content.
+ * @param array  $allowed Allowed tags.
+ * @return string
+ */
+function wp_kses( $content, $allowed ) {
+	$keep = '';
+	foreach ( array_keys( $allowed ) as $tag ) {
+		$keep .= '<' . $tag . '>';
+	}
+	return strip_tags( (string) $content, $keep );
+}
+
 function esc_html( $s ) {
 	return $s;
 }
@@ -951,7 +970,7 @@ $GLOBALS['keel_test']['offers'] = array();
 // --- 17. one panel says the blocker once -----------------------------------
 // Found by reading the real Site Health output on a 6.9.5 site. Three separate
 // blocks each named the same cause in full — "automatic updates are switched
-// off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php"
+// off by the <code>AUTOMATIC_UPDATER_DISABLED</code> constant, normally set in <code>wp-config.php</code>"
 // appeared three times in one panel, and "this will not install by itself" was
 // said five ways. Each block was written to stand alone, which is right when it
 // is shown alone and wrong when they are concatenated.
@@ -1006,6 +1025,38 @@ $GLOBALS['keel_test']['updater_disabled'] = false;
 $GLOBALS['keel_test']['offers']           = array();
 $GLOBALS['keel_test']['can']              = false;
 
+
+// --- 17a. blocker text that names code prints it as code -----------------
+// Blocker descriptions put the filter, the constants and wp-config.php in
+// <code>. The panel joins and prints them in three places; esc_html() there
+// showed a reader the literal tags. Section 17's fixture blocks for an unnamed
+// reason, whose text names no code, so this switches the filter on instead.
+
+// Its own complete fixture, section 8's: inheriting the state left by the
+// scenarios above made the result depend on their order.
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']                   = '6.8.7';
+$GLOBALS['keel_test']['options']                   = array();
+$GLOBALS['keel_test']['updater_disabled']          = true;
+$GLOBALS['keel_test']['automatic_disabled_filter'] = true;
+
+$state = keel_defaults_minor_update_state();
+keel_assert_blocker( $state, 'automatic_disabled_filter', 'the fixture blocks automatic updates through the filter' );
+
+$result = keel_defaults_backport_test();
+$panel  = $result['description'] . keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $panel, '<code>automatic_updater_disabled</code>' ),
+	'the blocked panel prints the filter a blocker names as code'
+);
+keel_assert(
+	false === strpos( $panel, '&lt;code&gt;' ),
+	'no blocker markup reaches the panel escaped into visible tags'
+);
+
+$GLOBALS['keel_test']['automatic_disabled_filter'] = false;
+$GLOBALS['keel_test']['updater_disabled']          = false;
 
 // --- 18. do not tell a working site to resume what it never stopped -------
 // The same failure as 16, one block further on. When the policy permits minor
@@ -1803,6 +1854,118 @@ foreach ( $panel_states as $case ) {
 		);
 	}
 }
+
+// --- release-day refresh of the cached status map ---------------------------
+//
+// The map is cached for a day, and the day it matters most is the day a release
+// lands: the version this site runs has just become insecure, and a map fetched
+// yesterday still calls it latest. Core learns of the release on its own
+// schedule, through the update_core offers. An offer naming a release the map
+// has never heard of is proof the map predates that release.
+
+/**
+ * Stub: the stable-check request, counted.
+ *
+ * @param string $url  URL.
+ * @param array  $args Args.
+ * @return array
+ */
+function wp_remote_get( $url, $args = array() ) {
+	$GLOBALS['keel_test']['http_calls'] = isset( $GLOBALS['keel_test']['http_calls'] ) ? $GLOBALS['keel_test']['http_calls'] + 1 : 1;
+	return $GLOBALS['keel_test']['http'];
+}
+
+/** Stub: response code. */
+function wp_remote_retrieve_response_code( $response ) {
+	return $response['response']['code'];
+}
+
+/** Stub: response body. */
+function wp_remote_retrieve_body( $response ) {
+	return $response['body'];
+}
+
+/**
+ * The update_core transient as core stores it.
+ *
+ * @param string[] $versions Offered versions.
+ * @return object
+ */
+function keel_test_update_core( array $versions ) {
+	return (object) array(
+		'updates' => array_map(
+			static function ( $v ) {
+				return (object) array( 'current' => $v );
+			},
+			$versions
+		),
+	);
+}
+
+/**
+ * Reset the store and HTTP stub for one refresh scenario.
+ *
+ * @param array|null $cached   Cached map, or null for none.
+ * @param array|null $response Next stable-check response map, or null for a failure.
+ */
+function keel_test_refresh_scenario( $cached, $response ) {
+	unset( $GLOBALS['keel_test']['transients'][ KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ] );
+	unset( $GLOBALS['keel_test']['transients'][ KEEL_DEFAULTS_STABLE_CHECK_FAILED ] );
+	$GLOBALS['keel_test']['transient_ttls'] = array();
+	$GLOBALS['keel_test']['http_calls']     = 0;
+	$GLOBALS['keel_test']['http']           = null === $response
+		? array(
+			'response' => array( 'code' => 503 ),
+			'body'     => '',
+		)
+		: array(
+			'response' => array( 'code' => 200 ),
+			'body'     => json_encode( $response ), // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- runs without WordPress.
+		);
+
+	if ( null !== $cached ) {
+		keel_test_prime( $cached );
+	}
+}
+
+$before = array(
+	'6.8.8' => 'outdated',
+	'7.1'   => 'latest',
+);
+$after  = array(
+	'6.8.8' => 'insecure',
+	'6.8.9' => 'outdated',
+	'7.1'   => 'insecure',
+	'7.1.1' => 'latest',
+);
+
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.1', '6.8.8' ) ) ), 'offers the map already lists do not make it stale' );
+keel_assert( true === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.1.1', '7.1' ) ) ), 'an offer newer than the map makes it stale' );
+keel_assert( true === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.1', '6.8.9' ) ) ), 'a backport-only release the map does not list makes it stale, though the map\'s latest is still offered' );
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, keel_test_update_core( array( '7.2-beta1', '7.1' ) ) ), 'a development offer is never listed, so it proves nothing' );
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, false ), 'no update_core transient proves nothing' );
+keel_assert( false === keel_defaults_stable_check_is_stale( $before, (object) array() ), 'an update_core with no updates list proves nothing' );
+keel_assert( false === keel_defaults_stable_check_is_stale( array(), keel_test_update_core( array( '7.1.1' ) ) ), 'an empty map is not stale, it is absent' );
+
+keel_test_refresh_scenario( $before, $after );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1.1', '6.8.9' ) ) );
+keel_assert( 1 === $GLOBALS['keel_test']['http_calls'], 'a stale map is fetched again as soon as core learns of the release' );
+keel_assert( get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ) === $after, 'the fresh map replaces the stale one' );
+$GLOBALS['keel_test']['version'] = '7.1';
+keel_assert( 'insecure' === keel_defaults_version_status(), 'the release the new version fixes reports insecure the same day, not tomorrow' );
+
+keel_test_refresh_scenario( $before, $after );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1' ) ) );
+keel_assert( 0 === $GLOBALS['keel_test']['http_calls'], 'a map that lists every offer is not fetched again' );
+
+keel_test_refresh_scenario( null, $after );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1.1' ) ) );
+keel_assert( 0 === $GLOBALS['keel_test']['http_calls'], 'with nothing cached there is nothing stale: the fetch stays lazy, on a screen that expects it' );
+
+keel_test_refresh_scenario( $before, null );
+keel_defaults_refresh_stale_stable_check( keel_test_update_core( array( '7.1.1' ) ) );
+keel_assert( get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ) === $before, 'a failed refresh keeps the old map rather than leaving no answer at all' );
+keel_assert( KEEL_DEFAULTS_STABLE_CHECK_FAIL_TTL === $GLOBALS['keel_test']['transient_ttls'][ KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT ], 'a kept stale map is kept briefly, not granted another full day' );
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "\n{$fail} assertion(s) failed.\n" );

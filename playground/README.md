@@ -24,9 +24,18 @@ site is empty and half the toggles look inert.
 ## `.wordpress-org/blueprints/blueprint.json`
 
 A second blueprint, in a different directory, for a different consumer: the
-wordpress.org plugin directory reads it from there to power the **Live Preview**
-button on the listing page. It is not referenced from the README and nothing in
-this repository links to it.
+wordpress.org plugin directory reads it to power the **Live Preview** button on
+the listing page. It is not referenced from the README and nothing in this
+repository links to it.
+
+It is read from SVN, not from here. `wp-deploy.yml` stages `.wordpress-org/` as
+the deploy action's `ASSETS_DIR`, and the action rsyncs that into SVN `assets/`
+recursively, so this file lands at `assets/blueprints/blueprint.json` — the one
+path the directory looks at. Until 2026-09-10 that staging step excluded
+`blueprints/` as though it were working material like `brand/`, so the blueprint
+never left the repository: the API returned no `preview_link`, the listing had
+no Live Preview button, and `readme.txt` had been claiming a "try it live" link
+since 0.3.0. `tests/release-workflows.php` now asserts the exclude is absent.
 
 **It must not install Keel.** The directory mounts the copy of the plugin it is
 serving into the Playground instance itself, before the blueprint runs. That is

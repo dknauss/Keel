@@ -252,8 +252,20 @@ keel_assert(
  * state would not notice.
  */
 keel_assert(
-	preg_match( '/type="range"[^>]*aria-valuetext="WordPress default \(160px\)"/s', $stock ),
+	preg_match( '/type="range"[^>]*aria-valuetext="Leave unchanged"/s', $stock ),
 	'The slider announces its position as a word, not an index, at the default.'
+);
+
+/*
+ * Stop 0 announces "Leave unchanged" rather than "WordPress default (160px)"
+ * because that is what it does — it stands down and sets no width. The 160px
+ * stop beside it is the one that asserts core's width, and a screen reader has
+ * to be able to tell the two apart, since choosing wrongly is the difference
+ * between doing nothing and taking the width back.
+ */
+keel_assert(
+	preg_match( '/type="range"[^>]*aria-valuetext="160px \(WordPress default\)"/s', keel_render( array( 'admin_menu_width' => '160' ) ) ),
+	'The explicit 160px stop announces itself as a width, not as standing down.'
 );
 keel_assert(
 	preg_match( '/type="range"[^>]*aria-valuetext="200px"/s', $configured ),
@@ -351,7 +363,7 @@ $still_disabled = array_filter(
  * so a rename shows up here as an empty string rather than a missing key.
  */
 $locked_assets = array();
-foreach ( array( 'css/settings.css', 'js/settings.js', 'js/locked-controls.js' ) as $asset ) {
+foreach ( array( 'css/settings.css', 'css/locked-controls.css', 'js/settings.js', 'js/locked-controls.js' ) as $asset ) {
 	$asset_path = dirname( __DIR__ ) . '/assets/' . $asset;
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
 	$locked_assets[ $asset ] = is_readable( $asset_path ) ? (string) file_get_contents( $asset_path ) : '';
@@ -402,6 +414,87 @@ $attempt2 = keel_defaults_sanitize_site(
 keel_assert( 'yes' === $attempt2['disable_emojis'], 'An unlocked setting on the same submission still saves.' );
 
 /*
+ * --- a locked control shows what is enforced, not what is stored ---
+ *
+ * The hidden input carries the stored preference, so it survives a save and is
+ * what the site returns to when the constant goes. The visible control is a
+ * different thing: it is the only place on the screen that says what the site
+ * will actually do. Under DISALLOW_FILE_MODS it said "Maintenance/security
+ * releases only" and ticked the translations box, on a site that installs
+ * nothing at all.
+ */
+$option_name = preg_quote( KEEL_DEFAULTS_OPTION, '/' );
+
+keel_assert(
+	1 === preg_match( '/<select name="' . $option_name . '\[core_update_policy\]"[^>]*>.*?<\/select>/s', $locked_html, $locked_select ),
+	'The locked core policy select renders.'
+);
+keel_assert(
+	isset( $locked_select[0] ) && 1 === preg_match( '/value="manual"\s+selected/', $locked_select[0] ),
+	'Under DISALLOW_FILE_MODS the core policy shows "No automatic core releases", which is what the site does.'
+);
+keel_assert(
+	false !== strpos( $locked_html, '<input type="hidden" name="' . KEEL_DEFAULTS_OPTION . '[core_update_policy]" value="minor" />' ),
+	'The stored core policy is still carried through a save underneath the lock.'
+);
+
+keel_assert(
+	1 === preg_match( '/<input type="checkbox" name="' . $option_name . '\[auto_update_translations\]"[^>]*>/', $locked_html, $locked_translations ),
+	'The locked translations toggle renders.'
+);
+keel_assert(
+	isset( $locked_translations[0] ) && false === strpos( $locked_translations[0], ' checked' ),
+	'Under DISALLOW_FILE_MODS the translations toggle is not ticked, because no translation updates install.'
+);
+keel_assert(
+	false !== strpos( $locked_html, '<input type="hidden" name="' . KEEL_DEFAULTS_OPTION . '[auto_update_translations]" value="yes" />' ),
+	'The stored translations preference is still carried through a save underneath the lock.'
+);
+
+/*
+ * --- and a locked control looks locked, on both screens ---
+ *
+ * The lock note shipped with its colour set on `.keel-config-lock`, which is
+ * (0,1,0), and every note is a `p.description`, which core colours at (0,1,1).
+ * Core won. The border, background and icon applied, so the note looked
+ * finished in review, while its text stayed the same grey as every hint on the
+ * screen — the one property the treatment existed to change.
+ *
+ * The controls themselves had no locked style at all. aria-disabled is right
+ * for a screen reader and invisible to everyone else, so a control the script
+ * refuses to change looked exactly as editable as its neighbours.
+ *
+ * Both rules live in the stylesheet the locked-control script ships with, so
+ * the network screen gets them too. It loaded the script and never the style.
+ */
+$lock_css = $locked_assets['css/locked-controls.css'];
+
+keel_assert(
+	1 === preg_match( '/p\.description\.keel-config-lock\s*\{[^}]*\bcolor\s*:/', $lock_css ),
+	"The lock note's colour is set at a specificity that outranks core's p.description."
+);
+
+foreach ( array( 'select', 'input[type="number"]', 'input[type="checkbox"]', 'input[type="range"]' ) as $locked_control ) {
+	keel_assert(
+		false !== strpos( $lock_css, $locked_control . '[data-keel-locked]' ),
+		"A locked {$locked_control} is styled as locked, not only announced as locked."
+	);
+}
+
+keel_assert(
+	false === strpos( $locked_assets['css/settings.css'], 'keel-config-lock' ),
+	'The lock rules live in one stylesheet, the one both screens load, not also in the site screen\'s.'
+);
+
+$locked_enqueue = strstr( $assets_src, 'function keel_defaults_enqueue_locked_controls()' );
+$locked_enqueue = false === $locked_enqueue ? '' : substr( $locked_enqueue, 0, (int) strpos( $locked_enqueue, "\n}\n" ) );
+
+keel_assert(
+	false !== strpos( $locked_enqueue, "'css/locked-controls.css'" ),
+	'The helper both screens call enqueues the locked-control stylesheet alongside the script.'
+);
+
+/*
  * --- dependent rows say what governs them ---
  *
  * A row that appears had no programmatic relationship to the choice that
@@ -443,7 +536,7 @@ foreach ( array( 'aria-controls', 'aria-expanded' ) as $wiring ) {
  * nothing in the markup to show it. Each of the three has to be reachable from
  * assets.php by the same path this test reads.
  */
-foreach ( array( 'css/settings.css', 'js/settings.js', 'js/locked-controls.js' ) as $asset ) {
+foreach ( array( 'css/settings.css', 'css/locked-controls.css', 'js/settings.js', 'js/locked-controls.js' ) as $asset ) {
 	keel_assert( '' !== $locked_assets[ $asset ], "assets/{$asset} exists and is not empty." );
 	keel_assert(
 		false !== strpos( $assets_src, "'" . $asset . "'" ),
@@ -454,6 +547,75 @@ foreach ( array( 'css/settings.css', 'js/settings.js', 'js/locked-controls.js' )
 keel_assert(
 	false !== strpos( $locked_assets['css/settings.css'], 'keel-menu-width-preview' ),
 	'The stylesheet carries the slider preview the markup toggles.'
+);
+
+/*
+ * The preview has to outrank Keel's own widen, not just core's stylesheet.
+ *
+ * It shipped with no `!important` anywhere, on the reasoning that a preview
+ * layered over the admin's own CSS could lose a specificity contest and only
+ * look wrong. That reasoning named the wrong opponent. The saved widen in
+ * admin-ux.php marks width, width:auto and margin-left `!important`, and an
+ * important declaration beats a non-important one whatever the specificity —
+ * so on every site with a width actually saved, Keel's own rule shadowed
+ * Keel's own preview and dragging the slider did nothing at all.
+ *
+ * Only these three need it. `#adminmenuback` positioning and the submenu
+ * offsets are not important in the saved widen, so the preview's extra class
+ * already wins those on specificity.
+ */
+$preview_css = $locked_assets['css/settings.css'];
+
+keel_assert(
+	1 === preg_match( '/width:\s*var\(\s*--keel-menu-preview-width\s*\)\s*!important/', $preview_css ),
+	'The preview width outranks the saved widen, which is !important.'
+);
+keel_assert(
+	1 === preg_match( '/width:\s*auto\s*!important/', $preview_css ),
+	'The preview keeps menu-top anchors auto-width against an !important saved rule.'
+);
+keel_assert(
+	1 === preg_match( '/margin-left:\s*var\(\s*--keel-menu-preview-width\s*\)\s*!important/', $preview_css ),
+	'The preview moves the content column against an !important saved rule.'
+);
+
+/*
+ * --- and the preview follows the same folding rules as the widen it previews ---
+ *
+ * #189 gave the saved widen a 961px floor and scoped every selector to
+ * body:not(.folded): a menu the user collapsed stays collapsed, and core's
+ * automatic fold below 961px is respected. The preview kept the old 783px floor
+ * and a folded-margin patch. So with the menu folded, or anywhere from 783px to
+ * 960px, dragging the slider showed a widened menu that saving would never
+ * produce — a preview of something else.
+ */
+$GLOBALS['keel_options'] = array( KEEL_DEFAULTS_OPTION => array( 'admin_menu_width' => '200' ) );
+$saved_widen_css         = keel_defaults_admin_menu_width_css();
+
+preg_match( '/@media screen and \(min-width:\s*(\d+)px\)/', $saved_widen_css, $saved_floor );
+preg_match( '/@media screen and \(min-width:\s*(\d+)px\)/', $preview_css, $preview_floor );
+
+keel_assert(
+	isset( $saved_floor[1], $preview_floor[1] ) && $saved_floor[1] === $preview_floor[1],
+	'The preview starts at the same breakpoint as the saved widen (preview ' . ( isset( $preview_floor[1] ) ? $preview_floor[1] : '?' ) . 'px, saved ' . ( isset( $saved_floor[1] ) ? $saved_floor[1] : '?' ) . 'px).'
+);
+
+preg_match_all( '/^\s*(body[^{,\n]*keel-menu-width-preview[^{,\n]*)\s*[,{]/m', $preview_css, $preview_selectors );
+$unscoped_preview = array_filter(
+	$preview_selectors[1],
+	static function ( $selector ) {
+		return false === strpos( $selector, ':not(.folded)' );
+	}
+);
+
+keel_assert( count( $preview_selectors[1] ) > 10, 'The preview selectors were found to check (' . count( $preview_selectors[1] ) . ').' );
+keel_assert(
+	array() === $unscoped_preview,
+	count( $unscoped_preview ) . ' preview selector(s) still apply to a folded menu: ' . implode( ' / ', array_slice( $unscoped_preview, 0, 3 ) )
+);
+keel_assert(
+	false === strpos( $preview_css, '.folded.keel-menu-width-preview' ),
+	'The folded-margin patch is gone from the preview, as it went from the saved widen: core governs a folded menu.'
 );
 keel_assert(
 	false !== strpos( $locked_assets['js/settings.js'], 'data-keel-range' ),
@@ -470,6 +632,33 @@ foreach ( array( 'settings-page.php', 'network.php' ) as $screen_file ) {
 		"includes/{$screen_file} enqueues its assets only on its own screen."
 	);
 }
+
+/*
+ * --- when two constants apply, the note names the one that decides ---
+ *
+ * WP_AUTO_UPDATE_CORE = true under DISALLOW_FILE_MODS installs nothing: core
+ * never reaches the policy question. The note used to blame the policy constant
+ * anyway, which was harmless while the control showed a stored value and became
+ * a contradiction once the control shows the enforced one.
+ */
+define( 'WP_AUTO_UPDATE_CORE', true );
+
+keel_assert(
+	false !== strpos( (string) keel_defaults_config_lock( 'core_update_policy' ), 'DISALLOW_FILE_MODS' ),
+	'With both constants defined, the core policy note names DISALLOW_FILE_MODS, which is what stops the updates.'
+);
+keel_assert(
+	'manual' === keel_defaults_config_locked_value( 'core_update_policy', 'minor' ),
+	'And the control agrees with the note it sits above.'
+);
+
+// A numeric or false WP_POST_REVISIONS is the revision limit, shown as a number.
+define( 'WP_POST_REVISIONS', false );
+
+keel_assert(
+	1 === preg_match( '/<input type="number"[^>]*name="' . $option_name . '\[post_revisions_limit\]"\s*value="0"/s', keel_render( array() ) ),
+	'WP_POST_REVISIONS = false shows a limit of 0, not the stored 10.'
+);
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "settings render: {$fail} failed\n" );

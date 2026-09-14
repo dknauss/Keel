@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.6.2`**. Keel was first published on wordpress.org as
+**Current version: `0.6.5`**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -16,52 +16,53 @@ GPL-2.0-or-later.
 
 ---
 
-## Next — offer the patch on the Updates screen
+## 0.6.3 completion record
 
-**The gap.** Keel's panel says "Install 6.4.10 now from the Updates screen" and links
-there. In the `visible` state that works. In the `none` state — which is the common one —
-the Updates screen will not offer 6.4.10 at all, because `get_core_updates()` drops every
-`autoupdate` offer: an unconditional `continue` in `wp-admin/includes/update.php`, before
-the `dismissed` and `available` options are even read. So the panel currently names a
-screen and that screen does not deliver, which is a sharper version of the problem this
-feature exists to solve.
+**The offer is on the Updates screen.** U1 and U2 shipped in
+[#168](https://github.com/dknauss/Keel/pull/168) and U3 in
+[#169](https://github.com/dknauss/Keel/pull/169), with the copy pass in
+[#170](https://github.com/dknauss/Keel/pull/170); released as 0.6.3 on 2026-09-04.
 
-The install button covers the `none` state, and it works. But it lives in Site Health,
-and Site Health is not where an administrator goes to update WordPress.
+The premise was confirmed against the live API rather than only read in core. A 6.9.6
+site asking WordPress.org gets five offers including `6.9.7 response=autoupdate`, and
+`get_core_updates()` — the function `update-core.php` renders from — returns **7.1
+twice and nothing else**. The same-line security release is dropped exactly as this
+section assumed.
 
-**The fix.** `do_action( 'core_upgrade_preamble' )` fires at `wp-admin/update-core.php`
-line 1139, inside the block that lists core updates. Keel can render the same-line offer
-there, beside core's own "Update to version 7.1", and answer the omission where it
-happens rather than somewhere else.
+**One thing this section got wrong.** It specified `core_upgrade_preamble`, on the
+strength of that hook firing inside the block listing core updates. Core documents it
+as firing *after* the core, plugin and theme update tables, which would have put the
+offer at the bottom of the page, a long way from the release it argues with. What
+shipped uses `after_core_auto_updates_settings`, which fires immediately before core
+renders its update block — directly below the automatic-update settings that decide
+which release the site would take. `core_upgrade_preamble()` the function has no hooks
+of its own, so rendering inside core's own table was never available.
 
-- **U1** — render the offer on `core_upgrade_preamble`, reusing the existing actions
-  markup. The Updates screen does not filter through `wp_kses_post`, so the form
-  survives; assert that against the rendered screen rather than the builder.
-- **U2** — present it as the comparison being made: 7.1 is available, 6.4.10 fixes the
-  vulnerability without the major change. Alongside core's block, not passing as part of
-  it.
-- **U3** — revisit the panel copy. "Install %s now from the Updates screen" becomes true
-  in every state once U1 lands, and the `none`-state wording that explains the screen
-  will not offer it can go.
+**A defect shipped with U1 and was fixed in 0.6.3 too.** An install started from the
+Updates screen returned to Site Health, and usually reported nothing when it got
+there: a successful install leaves the site secure, so the panel carrying the result
+correctly stops rendering — meaning the better the outcome, the more certain the
+silence. [#171](https://github.com/dknauss/Keel/pull/171) made the request carry the
+screen it came from, as a key into a fixed map rather than anything the form supplies,
+and rendered the result outside the offer. PX had inherited both halves and was fixed
+alongside it.
 
-**Sequencing.** PX is doing the same work as C13-C15 in `keel-px-core-patch-port.md`,
-released as 1.27.0, so neither plugin is the safe one to break any more. Ships as 0.6.3;
-no schema change, no migration.
+## Now — observe 0.6.3 in the field
 
-## Now — observe 0.6.2 in the field
-
-0.6.0, 0.6.1 and 0.6.2 are all published. 0.6.0 introduced the vulnerability check
+0.6.0 through 0.6.3 are all published. 0.6.0 introduced the vulnerability check
 and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
 security review; 0.6.2 stopped the panel promising a scheduled install that the
-ladder beneath it contradicted.
+ladder beneath it contradicted; 0.6.3 put the offer on the Updates screen, which
+is the screen the whole feature exists because of — `get_core_updates()` drops
+the same-line patch, so that screen had never shown it.
 
-- [x] **Release 0.6.0, 0.6.1 and 0.6.2** — each tagged on a commit carrying its own
+- [x] **Release 0.6.0 through 0.6.3** — each tagged on a commit carrying its own
       green CI and live matrix, and deployed to wordpress.org through the reviewed
       SVN path.
 - [x] **Validate the published artifacts** — done per release: the GitHub ZIP, the
       SVN tag and the directory version, plus screenshots, upgrade notice and
       Playground links.
-- [ ] **Observe the field** — 0.6.2 is hours old. Watch the scheduled live matrix and
+- [ ] **Observe the field** — 0.6.3 is hours old. Watch the scheduled live matrix and
       early reports before opening another release. The install path has now been
       exercised on real sites in `en_US` and `fr_FR`, but by its authors rather than
       by anyone who did not already know how it works.

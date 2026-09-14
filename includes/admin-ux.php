@@ -124,51 +124,65 @@ function keel_defaults_lowercase_filename( $filename ) {
  * Registered only when a non-default width is selected. Widths come from a fixed
  * allowlist in the schema, so the stored value is a known integer.
  *
- * Two things are needed to actually override core (WordPress 6.x/7.x):
+ * Three things are needed to actually override core (WordPress 6.x/7.x):
  * 1. `!important` — the base width lives in the color-scheme stylesheet
- *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), and the `.auto-fold`
- *    rules that collapse the menu at 783–960px have higher specificity than a
- *    plain `#adminmenuwrap`. Without `!important` the widen is silently ignored —
- *    which is why the plain-selector version (and pixel-experience's) does nothing
- *    on current WordPress.
- * 2. `body:not(.folded)` — so a menu the user has manually collapsed with the
- *    core toggle still collapses; the widen only applies to the expanded menu.
+ *    (`#adminmenu,#adminmenuback,#adminmenuwrap{width:160px}`), which has higher
+ *    specificity than a plain `#adminmenuwrap`. Without `!important` the widen
+ *    is silently ignored.
+ * 2. `body:not(.folded)` on every selector — so a menu the user collapsed with
+ *    the core toggle still collapses. Core's own fold CSS then governs it, and
+ *    no folded-state margin patch is needed.
+ * 3. A 961px floor rather than 783px. Core folds the menu automatically with
+ *    `@media only screen and (max-width: 960px) { .auto-fold #adminmenu }`, so
+ *    starting above that ceiling is what respects the automatic collapse.
+ *    `.auto-fold` itself is NOT a width signal: admin-header.php adds the class
+ *    for every user without the `unfold` setting, at every width. Gating the
+ *    widen on `:not(.auto-fold)` therefore matches almost nobody and silently
+ *    disables the feature — which is what an earlier attempt at this shipped.
+ *
+ * @emits body:not(.folded)
+ * @emits min-width: 961px
+ * @emits !important
+ * @omits :not(.auto-fold)
+ * @omits .folded #wpcontent
  *
  * @return string CSS, or '' at the default width.
  */
 function keel_defaults_admin_menu_width_css() {
 	$width = (int) keel_defaults_get( 'admin_menu_width' );
 
-	if ( $width < 161 ) {
+	/*
+	 * Below core's own width there is nothing sensible to assert, and a narrower
+	 * menu is a different feature. 160 itself is allowed on purpose: it is how a
+	 * site takes the width back from something else that widened it.
+	 */
+	if ( $width < 160 ) {
 		return '';
 	}
 	$w = (int) $width;
 
 	return sprintf(
-		'@media screen and (min-width: 783px) {
-			#adminmenu,
-			#adminmenuback,
-			#adminmenuwrap,
-			#adminmenu li.menu-top,
-			#adminmenu .wp-submenu { width: %1$dpx !important; }
-			#adminmenuback { position: fixed; top: 0; bottom: -120px; }
-			#adminmenu li.menu-top > a.menu-top,
-			#adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
-			#adminmenu li.current a.menu-top { width: auto !important; }
-			#wpcontent,
-			#wpfooter { margin-left: %1$dpx !important; }
-			#adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { left: %1$dpx; }
-			#adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { left: auto; }
-			.rtl #wpcontent,
-			.rtl #wpfooter { margin-right: %1$dpx !important; margin-left: 0 !important; }
-			.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { right: %1$dpx; left: auto; }
-			.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
-			.folded #wpcontent,
-			.folded #wpfooter { margin-left: 36px !important; }
-			.rtl.folded #wpcontent,
-			.rtl.folded #wpfooter { margin-right: 36px !important; margin-left: 0 !important; }
+		'@media screen and (min-width: 961px) {
+			%2$s #adminmenu,
+			%2$s #adminmenuback,
+			%2$s #adminmenuwrap,
+			%2$s #adminmenu li.menu-top,
+			%2$s #adminmenu .wp-submenu { width: %1$dpx !important; }
+			%2$s #adminmenuback { position: fixed; top: 0; bottom: -120px; }
+			%2$s #adminmenu li.menu-top > a.menu-top,
+			%2$s #adminmenu .wp-has-current-submenu a.wp-has-current-submenu,
+			%2$s #adminmenu li.current a.menu-top { width: auto !important; }
+			%2$s #wpcontent,
+			%2$s #wpfooter { margin-left: %1$dpx !important; }
+			%2$s #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { left: %1$dpx; }
+			%2$s #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { left: auto; }
+			%2$s.rtl #wpcontent,
+			%2$s.rtl #wpfooter { margin-right: %1$dpx !important; margin-left: 0 !important; }
+			%2$s.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { right: %1$dpx; left: auto; }
+			%2$s.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
 		}',
-		$w
+		$w,
+		'body:not(.folded)'
 	);
 }
 

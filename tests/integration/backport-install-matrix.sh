@@ -118,9 +118,40 @@ assert_report() {
 		|| fail "reporting: rendered output contains an unresolved placeholder"
 }
 
+# Stage release day: yesterday's status map, which calls this vulnerable source
+# latest because the releases that superseded it did not exist yet, then core's
+# own update check. The map is cached for a day, so without the refresh this site
+# would read as current for up to 24 hours after the release that made it
+# insecure. The probe explains how the stage is built.
+assert_release_day_refresh() {
+	local probe
+	probe="$( "${KEEL_WP[@]}" eval-file "$KEEL_PLUGIN_ROOT/tests/integration/stable-check-refresh-probe.php" )"
+
+	echo "backport matrix: release day -- $( jq -c '.offered |= length' <<<"$probe" )"
+
+	# A request count of zero only means something if core's write fired the hook.
+	jq -e '.uncached_writes > 0 and .refresh_writes > 0 and .quiet_writes > 0' <<<"$probe" >/dev/null \
+		|| fail "release day: a core update check stored nothing that fired set_site_transient_update_core, so its request count proves nothing"
+	jq -e '.uncached_requests == 0' <<<"$probe" >/dev/null \
+		|| fail "release day: with nothing cached, core's update check still made Keel fetch stable-check"
+	jq -e '.staged_status == "latest"' <<<"$probe" >/dev/null \
+		|| fail "release day: the staged map does not call $KEEL_SOURCE latest, so the stage proves nothing"
+	jq -e '.refresh_requests == 1' <<<"$probe" >/dev/null \
+		|| fail "release day: core's update check made $(jq -r '.refresh_requests' <<<"$probe") stable-check requests, expected exactly 1"
+	jq -e '.refreshed_matches' <<<"$probe" >/dev/null \
+		|| fail "release day: the refreshed map is not the live map"
+	jq -e '.after_status == "insecure"' <<<"$probe" >/dev/null \
+		|| fail "release day: after the refresh $KEEL_SOURCE reports $(jq -r '.after_status' <<<"$probe"), not insecure"
+	jq -e --arg t "$KEEL_TARGET" '.after_tip == $t' <<<"$probe" >/dev/null \
+		|| fail "release day: after the refresh the tip is $(jq -r '.after_tip' <<<"$probe"), not $KEEL_TARGET"
+	jq -e '.quiet_requests == 0' <<<"$probe" >/dev/null \
+		|| fail "release day: a map that lists every offer was fetched again"
+}
+
 assert_version "$KEEL_SOURCE"
 refresh_offers
 assert_report
+assert_release_day_refresh
 
 first_auth="$(auth_json)"
 [[ "$(jq -r '.target' <<<"$first_auth")" == "$KEEL_TARGET" ]] || fail "Keel did not derive target $KEEL_TARGET"

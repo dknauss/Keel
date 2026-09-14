@@ -8,14 +8,33 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## Now — observe 0.6.2
+## Now — observe 0.6.3
 
-0.6.0, 0.6.1 and 0.6.2 are published. The release checklist ran in full for each.
+0.6.0 through 0.6.3 are published. The release checklist ran in full for each.
 
-- [x] **Release 0.6.0, 0.6.1, 0.6.2** — tagged on commits carrying their own green CI
-      and live matrix; deployed to wordpress.org through the reviewed SVN path.
+- [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
+      green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
 - [x] **Validate the published artifacts** — GitHub ZIP, SVN tag, directory version,
       screenshots, upgrade notice and Playground links, per release.
+- [x] **Decide where the screenshot check belongs** — a **major-release step**, looked
+      at by a person who then records or skips it. Not CI. Making it a merge gate would
+      turn "somebody looked at three pictures and judged them still true" into a chore
+      discharged by running the recording command, and being routinely satisfied without
+      looking is the one failure this check cannot survive. Recorded in
+      `bin/verify-screenshots.sh`.
+- [x] **Refresh the stable-check cache on release day** — done 2026-09-13, unreleased
+      (release hold). The status map was cached for a day and never invalidated, so a
+      site running the version a new security release had just made insecure read as
+      latest for up to 24 hours: the window the check exists for. Keel now fetches it
+      again when core stores update offers naming any release the map does not list —
+      any, not only a newer one, because a security release can ship on an older line
+      alone. Development offers prove nothing and are skipped; with nothing cached the
+      fetch stays lazy; a failed refresh keeps the old map for five minutes, not a day.
+      Found reading the wp-env thread on the same endpoint
+      ([WordPress/gutenberg#81553](https://github.com/WordPress/gutenberg/issues/81553)),
+      where stable-check and the release it names are shown drifting apart by hours.
+      Pinned in `tests/backport-status.php`; staged live on every row of the backport
+      matrix by `tests/integration/stable-check-refresh-probe.php`.
 - [ ] **Observe the field**
   - Watch the next scheduled live matrix run.
   - Triage early reports before opening another release cycle.
@@ -35,6 +54,20 @@ into ROADMAP.md or here.
 - [ ] **Leave typographic punctuation as typed**
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
+- [ ] **Mark locked settings in the row, not only in the note** — considered while
+      fixing the lock note's visibility and deliberately left out of that change. The
+      note only helps once you are already reading the row it belongs to; on a
+      thirty-nine setting screen the question a host-managed site actually has is
+      "which of these are not mine?", and answering it currently means reading every
+      row. A lock glyph beside the label would make that scannable. Bigger than a CSS
+      rule: it touches label rendering for every field type, so it wants its own pass.
+- [ ] **Summarise locks at the top of the settings screen** — "3 settings are locked by
+      `wp-config.php`", each linking to its anchor. `keel_defaults_setting_anchor()`
+      already generates the targets, so the linking is free; the work is deciding
+      whether it belongs on the settings screen, in Site Health, or both, and whether
+      network policy locks count in the same sentence as constant locks. They are
+      different authorities and probably should not be summed into one number without
+      saying so.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
@@ -45,15 +78,17 @@ into ROADMAP.md or here.
       the right split: the directory listing wants the acknowledgement, the
       repository can afford the detail.
 
-- [ ] **Offer the patch on the Updates screen** — 0.6.3
-  - `get_core_updates()` drops every `autoupdate` offer, so the Updates screen never
-    shows the same-line patch. The Site Health panel links there anyway and, in the
-    common `none` state, sends a reader to a screen that will not offer what the panel
-    just named.
-  - Render it on `core_upgrade_preamble` (`wp-admin/update-core.php:1139`), beside core's
-    own list, as the comparison an administrator is making rather than as a second
-    opinion.
-  - Follows PX's C13-C15, which is unreleased and can absorb the surprises first.
+- [x] **Offer the patch on the Updates screen** — shipped in 0.6.3
+  - Rendered on `after_core_auto_updates_settings`, not `core_upgrade_preamble` as
+    planned: core documents the latter as firing *after* the update tables, which would
+    have put the offer at the bottom of the page. The former fires immediately before
+    core's update block, directly below the settings that decide which release the site
+    would take.
+  - The premise was confirmed live rather than only read in core — WordPress.org offers
+    `6.9.7 autoupdate` to a 6.9.6 site and `get_core_updates()` returns only 7.1.
+  - Carried a defect of its own: an install started there returned to Site Health and
+    reported nothing, because a successful install removes the panel that would have
+    shown the result. Fixed in the same release.
 
 ## Then — 0.8.0 performance observability
 

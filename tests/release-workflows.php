@@ -318,17 +318,25 @@ keel_assert(
 );
 
 /*
- * Working material that must not be published. Everything left in
- * .wordpress-org is uploaded verbatim to the plugin's public assets directory,
- * so these two excludes are the only thing keeping the blueprint sources and
- * the brand working files off a public URL.
+ * Everything left in .wordpress-org is uploaded verbatim to the plugin's public
+ * assets directory, so what is excluded here is what stays private. brand/ is
+ * working material with no consumer on the directory page.
+ *
+ * blueprints/ is the opposite of that, and was excluded alongside brand/ until
+ * 2026-09-10 on the assumption that it was source material too. It is not: the
+ * directory reads assets/blueprints/blueprint.json out of SVN to power the Live
+ * Preview button, so this upload is the blueprint's only route to wordpress.org.
+ * While the exclude stood, the API returned no preview_link and the listing had
+ * no Live Preview button, with a valid blueprint sitting unshipped in the repo.
  */
-foreach ( array( 'blueprints/', 'brand/' ) as $private ) {
-	keel_assert(
-		false !== strpos( $deploy_src, "--exclude '{$private}'" ),
-		"The asset staging excludes {$private}, which is source material, not a directory-page asset."
-	);
-}
+keel_assert(
+	false !== strpos( $deploy_src, "--exclude 'brand/'" ),
+	'The asset staging excludes brand/, which is working material, not a directory-page asset.'
+);
+keel_assert(
+	false === strpos( $deploy_src, "--exclude 'blueprints/'" ),
+	'The asset staging does not exclude blueprints/; assets/blueprints/blueprint.json is what gives the listing its Live Preview button.'
+);
 
 /*
  * --- the slug and the built folder are the same name ---
@@ -404,6 +412,37 @@ keel_assert(
 	false !== strpos( $deploy_src, 'Stable tag:' ) && false !== strpos( $deploy_src, 'Version:' ),
 	'wp-deploy.yml verifies the tag against the plugin header and readme.txt Stable tag before uploading.'
 );
+
+/*
+ * --- a tag publishes only past the gate a pull request has to pass ---
+ *
+ * release.yml ran `php -l` and the unit tests, nothing else, before it published
+ * a Release and handed the tag to the WordPress.org deploy. ci.yml's gate also
+ * runs coding standards and the PHP compatibility floor. A tag cut from a commit
+ * that never went through CI, or whose CI failed on either, could ship to every
+ * site without anything executing them.
+ *
+ * Derived from ci.yml rather than restated: every command its `test` job runs has
+ * to run in release.yml's `release` job before the zip is built, so a step added
+ * to the gate later is required here the moment it lands. Whole `run:` lines are
+ * matched, because `composer lint` is a substring of `composer lint:compat` and a
+ * substring check would pass with coding standards missing.
+ */
+$ci_test_job = (string) strstr( (string) strstr( $ci_src, "\n  test:\n" ), "\n  compat:\n", true );
+preg_match_all( '/^\s+run:\s*(\S.*?)\s*$/m', $ci_test_job, $gate_commands );
+
+$release_job       = (string) strstr( (string) strstr( $release_src, "\n  release:\n" ), "\n  deploy:\n", true );
+$release_pre_build = (string) strstr( $release_job, 'bash bin/build-zip.sh', true );
+
+keel_assert( count( $gate_commands[1] ) >= 4, 'ci.yml\'s test job has gate commands to compare (' . count( $gate_commands[1] ) . ').' );
+keel_assert( '' !== $release_pre_build, 'release.yml\'s release job builds the zip, so there is a before-the-build to check.' );
+
+foreach ( $gate_commands[1] as $gate_command ) {
+	keel_assert(
+		1 === preg_match( '/^\s+run:\s*' . preg_quote( $gate_command, '/' ) . '\s*$/m', $release_pre_build ),
+		'release.yml runs "' . $gate_command . '" before it builds the zip it publishes, as the ci.yml gate does.'
+	);
+}
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "release workflows: {$fail} failed\n" );

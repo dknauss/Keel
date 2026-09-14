@@ -1,0 +1,70 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Keel <-> PX sync gate: fail a pull request whose body does not record its counterpart.
+ *
+ * Keel and Pixel Managed Platform share code paths, so a change to one usually needs
+ * the same change in the other, or a recorded reason it does not. The body has to
+ * carry exactly one line saying which:
+ *
+ *   Counterpart: ported — owner/repo#123
+ *   Counterpart: pending — owner/repo#123 (what is left)
+ *   Counterpart: not applicable — why the other plugin has no such code path
+ *
+ * Reads the body on stdin. Exits 0 and echoes the line when it is valid, or 1 with
+ * the reason on stderr. HTML comments are ignored, so a template's own examples
+ * never count. Kept identical in both repositories. See docs/keel-px-sync.md.
+ *
+ * Usage: printf '%s' "$PR_BODY" | php bin/check-counterpart
+ */
+
+$body = (string) stream_get_contents( STDIN );
+$body = (string) preg_replace( '/<!--.*?-->/s', '', $body );
+
+$reject = static function ( $reason ) {
+	fwrite( STDERR, "Counterpart check failed: {$reason}\nSee docs/keel-px-sync.md for the three accepted forms.\n" );
+	exit( 1 );
+};
+
+preg_match_all( '/^[ \t]*Counterpart:[ \t]*(.*?)[ \t]*$/mi', $body, $found );
+
+if ( 0 === count( $found[1] ) ) {
+	$reject( 'No "Counterpart:" line in the pull request body.' );
+}
+
+if ( count( $found[1] ) > 1 ) {
+	$reject( 'Found ' . count( $found[1] ) . ' "Counterpart:" lines; keep exactly one.' );
+}
+
+$line = trim( $found[1][0] );
+
+if ( preg_match( '/<[^>]*>/', $line ) ) {
+	$reject( "The Counterpart line still has a template placeholder: {$line}" );
+}
+
+if ( ! preg_match( '/^(ported|pending|not applicable)\s*(?:—|–|-|:)\s*(\S.*)$/iu', $line, $parts ) ) {
+	$reject( "Start the line with \"ported\", \"pending\", or \"not applicable\", then a dash and the detail. Got: {$line}" );
+}
+
+$kind   = strtolower( $parts[1] );
+$detail = trim( $parts[2] );
+$ref    = '~(?:\b[\w.-]+/[\w.-]+#\d+\b|https://github\.com/[\w.-]+/[\w.-]+/(?:pull|issues|commit)/\w+)~';
+
+if ( 'ported' === $kind && ! preg_match( $ref, $detail ) ) {
+	$reject( '"ported" needs the counterpart change as owner/repo#N or a GitHub link.' );
+}
+
+if ( 'pending' === $kind && ! preg_match( $ref, $detail ) ) {
+	$reject( '"pending" needs where the port is tracked, as owner/repo#N or a GitHub link.' );
+}
+
+/*
+ * A reason is at least two real words. Counting only runs of two or more letters or
+ * digits is what rejects "n/a", "none" and "-" while still accepting "docs only".
+ */
+if ( 'not applicable' === $kind && preg_match_all( '/[\p{L}\p{N}]{2,}/u', $detail ) < 2 ) {
+	$reject( '"not applicable" needs a reason, in a few words.' );
+}
+
+fwrite( STDOUT, "Counterpart: {$kind} — {$detail}\n" );
+exit( 0 );

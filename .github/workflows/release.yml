@@ -17,11 +17,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Lint + unit tests
-        run: |
-          set -e
-          for f in keel.php includes/*.php; do php -l "$f" > /dev/null; done
-          for t in tests/*.php; do php "$t"; done
+      # The same gate a pull request passes in ci.yml, step for step. A tag
+      # publishes a Release and hands off to the WordPress.org deploy, so this is
+      # the last point anything can stop a build reaching every site. It used to
+      # run only php -l and the unit tests, which let a tag skip coding standards
+      # and the PHP compatibility floor. tests/release-workflows.php derives the
+      # commands from ci.yml's test job, so a step added there is required here.
+      #
+      # composer install puts dev dependencies in vendor/ before the build below.
+      # bin/build-zip.sh removes vendor/ from the package, so none of it ships.
+      - name: Syntax check every PHP file
+        run: bash bin/lint-syntax.sh
+
+      - name: Install dev dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Coding standards
+        run: composer lint
+
+      - name: PHP compatibility floor
+        run: composer lint:compat
+
+      - name: Unit tests
+        run: composer test
 
       - name: Build plugin zip
         run: bash bin/build-zip.sh build

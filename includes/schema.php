@@ -244,9 +244,18 @@ function keel_defaults_schema() {
 			'default' => 'default',
 			'type'    => 'range',
 			'group'   => 'ux',
-			// Ordered stops. The slider posts an index (0–4) which sanitize maps back
-			// to the value — this deliberately avoids numeric option keys.
-			'values'  => array( 'default', '200', '240', '280', '300' ),
+
+			/*
+			 * Ordered stops. The slider posts an index which sanitize maps back to
+			 * the value — this deliberately avoids numeric option keys.
+			 *
+			 * `default` and `160` are different intentions, not duplicates.
+			 * `default` stands down and emits nothing; `160` asserts core's width
+			 * against something else that widened the menu. Stop 0 used to be
+			 * labelled "WordPress default (160px)" while doing the former, which
+			 * promised a width it never set.
+			 */
+			'values'  => array( 'default', '160', '200', '240', '280', '300' ),
 		),
 		'helper_list_columns'             => array(
 			'default' => 'no',

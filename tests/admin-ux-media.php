@@ -57,8 +57,8 @@ keel_assert( in_array( '240', $schema['admin_menu_width']['values'], true ), 'ad
 
 // Regression for the save bug: a posted slider index must map to its value and persist,
 // not fall through to the default (numeric option keys used to break the strict compare).
-$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '4' ) ); // index 4 = 300
-keel_assert( '300' === $saved['admin_menu_width'], 'Slider index 4 saves as 300, not the default.' );
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '5' ) ); // index 5 = 300
+keel_assert( '300' === $saved['admin_menu_width'], 'Slider index 5 saves as 300, not the default.' );
 $saved = keel_defaults_sanitize( array( 'admin_menu_width' => '0' ) ); // index 0 = default
 keel_assert( 'default' === $saved['admin_menu_width'], 'Slider index 0 saves as default.' );
 $saved = keel_defaults_sanitize( array( 'admin_menu_width' => '300' ) ); // direct value also accepted
@@ -75,7 +75,62 @@ $GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => '240' )
 $css                                      = keel_defaults_admin_menu_width_css();
 keel_assert( false !== strpos( $css, '240px' ), 'Chosen width appears in the CSS.' );
 keel_assert( false !== strpos( $css, '#adminmenu' ), 'CSS targets the admin menu.' );
-keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'CSS is scoped to the non-collapsed breakpoint.' );
+keel_assert( false !== strpos( $css, 'min-width: 961px' ), 'CSS starts above core\'s auto-fold ceiling, so the automatic collapse is respected.' );
+
+/*
+ * Regression: `auto-fold` is not a width signal.
+ *
+ * admin-header.php adds it to the body for every user without the `unfold`
+ * user setting — the default — at every viewport width. It is core's CSS,
+ * `@media only screen and (max-width: 960px) { .auto-fold #adminmenu { width: 36px } }`,
+ * that scopes the actual folding. Gating the widen on `:not(.auto-fold)`
+ * therefore matches almost nobody and silently disables the whole feature,
+ * which is exactly what an earlier attempt at this fix shipped. Respecting
+ * the automatic collapse is a job for the media query floor.
+ */
+keel_assert( false === strpos( $css, ':not(.auto-fold)' ), 'The widen does not gate on .auto-fold, which core sets by default for everyone.' );
+keel_assert( false === strpos( $css, 'min-width: 783px' ), 'The old 783px floor is gone; it overlapped core\'s 783-960px auto-fold band.' );
+
+/*
+ * --- The widen must lose to a folded menu ---
+ *
+ * The docblock claimed a `body:not(.folded)` guard, but no selector carried
+ * one: the width rules fired with `!important` whatever the fold state, so a
+ * collapsed menu stayed pinned open at full width showing nothing but icons.
+ * Two ways to fold, and both have to be excluded — `.folded` is the core
+ * toggle, `.auto-fold` is the automatic collapse WordPress applies between
+ * 783px and 960px, which sits entirely inside this rule's own media query.
+ */
+keel_assert( false !== strpos( $css, 'body:not(.folded) #adminmenuwrap' ), 'The menu width rule is scoped away from a menu the user folded.' );
+keel_assert( false !== strpos( $css, 'body:not(.folded) #wpcontent' ), 'The content margin is scoped away from a menu the user folded.' );
+keel_assert( false === strpos( $css, '.folded #wpcontent' ), 'No folded-state margin patch is needed once the widen is properly scoped.' );
+
+/*
+ * --- Reclaiming 160px ---
+ *
+ * Stop 0 was labelled "WordPress default (160px)" and emitted nothing, so it
+ * promised a width it never set. On a site where something else widens the menu
+ * — a host mu-plugin, an admin UI plugin, a theme — that stop is the one a user
+ * reaches for and the one guaranteed to do nothing. Two guards enforced it: the
+ * `'default' !== ...` check in bootstrap and `$width < 161` here.
+ *
+ * There is now an explicit 160px stop that emits the rule like any other width,
+ * and stop 0 says what it actually does. "Leave unchanged" and "put it back" are
+ * different intentions and now have different controls.
+ */
+keel_assert( in_array( '160', $schema['admin_menu_width']['values'], true ), 'admin_menu_width offers an explicit 160px stop.' );
+
+$saved = keel_defaults_sanitize( array( 'admin_menu_width' => '1' ) ); // index 1 = 160
+keel_assert( '160' === $saved['admin_menu_width'], 'Slider index 1 saves as an explicit 160.' );
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => '160' );
+$css_160                                  = keel_defaults_admin_menu_width_css();
+keel_assert( false !== strpos( $css_160, '160px' ), 'An explicit 160 emits the width rather than standing down.' );
+keel_assert( false !== strpos( $css_160, '!important' ), 'The reclaim is forceful enough to beat another source.' );
+
+// And "leave unchanged" still means exactly that.
+$GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => 'default' );
+keel_assert( '' === trim( keel_defaults_admin_menu_width_css() ), 'Leaving it unchanged still prints no CSS.' );
 
 // The Media group is registered.
 $groups = keel_defaults_group_labels();

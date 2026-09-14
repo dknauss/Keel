@@ -54,6 +54,14 @@
     {
       "phrase": "without adding much to guess",
       "why": "the awkward intermediate phrasing of the same point; say 'without making them harder to guess'"
+    },
+    {
+      "phrase": "closes the same hole",
+      "why": "vague and faintly lurid for an admin screen; the accurate phrasing names what it is, a minor update that closes the known vulnerabilities"
+    },
+    {
+      "phrase": "so only the third number changes",
+      "why": "an explanation nobody looking at 6.9.6 and 6.9.7 needs; the sentence is stronger ending on the release line"
     }
   ],
   "keel": [],
