@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.5
+Stable tag: 0.6.6
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -120,6 +120,21 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
+
+= 0.6.6 =
+* Security: with comments disabled, the REST API went on serving a single comment by ID (/wp/v2/comments/123). The guard added in 0.6.1 to close that route checked for a function WordPress does not define, so it never ran. It now checks correctly, and the route answers 404.
+* Added: the WordPress.org listing has a Live Preview button. The blueprint behind it was in the repository all along, but the deploy held it back from the upload, so the listing never had one.
+* Fixed: on the day a security release ships, Site Health could go on reporting your version as the latest for up to a day. Keel cached WordPress.org's release status for a day; it now fetches it again as soon as WordPress learns of a release the cached answer does not list.
+* Fixed: a setting locked in wp-config.php showed the preference stored underneath the lock, not what the constant enforces. With WP_AUTO_UPDATE_CORE set to true, Core Auto-Updates read "Maintenance/security releases only" on a site installing every release. Locked controls now show what is in force, and when background updates are switched off entirely, the note names the constant that did it.
+* Changed: a locked setting now looks locked. The note beneath it reads as a statement rather than a hint, the control itself is visibly inactive, and both are styled on the network settings screen too.
+* Fixed: a folded admin menu stayed pinned open at a custom width. It now folds, and the width applies only above 960px, where WordPress does not fold the menu automatically. The live preview follows the same rules, so it no longer shows a width that saving would not apply.
+* Changed: clearer wording throughout the core update and security patch messages, with constant, filter and file names shown as code.
+* Fixed: with automatic updates switched off or held back by an earlier failed update, the Site Health patch panel said Keel would not offer a deliberate install directly above a working Install button. It now says the patch can still be installed deliberately, and keeps the refusal for the cases where Keel's installer really does refuse.
+* Fixed: the security patch panel on Dashboard › Updates said "the update offered above", but WordPress lists its offers below the panel. It now says "below".
+* Fixed: on the network policy screen, the Admin Menu Width help told a Super Admin to drag a slider that screen does not have. The sentence is gone from both screens.
+* Fixed: following a link to a setting highlights its row, and the highlight bar sat directly against the setting's label. The label now clears it, and in right-to-left languages the bar and the lock note's rule move to the right-hand side.
+* Documentation: the WordPress.org listing showed the settings screen and the patch-status panel under each other's captions. The screenshots are retaken and numbered to match.
+* Documentation: the FAQ now says Keel does not manage plugin and theme auto-updates, and explains why subsite administrators on multisite do not see the auto-update column.
 
 = 0.6.5 =
 * Fixed: the admin menu width slider stopped previewing the change as you dragged it, on any site that had a width saved. The preview was still there; Keel's own saved rule was overriding it, because that rule is marked important and the preview was not. The preview now outranks it, as it was always meant to.
@@ -266,6 +281,9 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Breach screening can be switched off with the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter, and a truncated or malformed range response is now rejected instead of parsed and cached.
 
 == Upgrade Notice ==
+
+= 0.6.6 =
+Security: with comments off, the REST API no longer serves a comment by ID. Locked settings show what wp-config.php enforces, Site Health notices a new security release the day it ships, and a folded admin menu stays folded. No setting changes.
 
 = 0.6.5 =
 The admin menu width slider previews again while you drag it. On any site with a width saved, Keel's own saved rule had been overriding its own preview, so the slider moved nothing on screen. No setting changes.
