@@ -68,6 +68,16 @@ into ROADMAP.md or here.
       network policy locks count in the same sentence as constant locks. They are
       different authorities and probably should not be summed into one number without
       saying so.
+- [ ] **Check the settings screens in a right-to-left admin** — deferred from the
+      0.6.6 visual check. Keel ships no `-rtl` stylesheet, so every directional rule is
+      mirrored by hand, and none of them has been looked at in a right-to-left locale.
+  - The highlight bar on a linked setting: it belongs on the right edge, with the
+    label's clearance on that side.
+  - The lock note: its rule and the gap after its lock glyph, on the site and network
+    screens.
+  - The admin menu width, saved and previewed, including a folded menu.
+  - Use a right-to-left locale such as `he_IL` or `ar` on a lab site, not a forced
+    direction alone, so translated strings and core's own RTL stylesheet load too.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the

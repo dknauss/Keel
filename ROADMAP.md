@@ -85,6 +85,10 @@ the typography control is useful but strategically smaller.
 - [ ] **Leave typographic punctuation as typed** — add a focused toggle around
    `wptexturize`, with editor, feed and front-end coverage so the label does not
    promise more surfaces than the implementation controls.
+- [ ] **Check the settings screens in a right-to-left admin** — deferred from the
+   0.6.6 visual check. Keel has no `-rtl` stylesheet, so its directional rules are
+   mirrored by hand, and the highlight bar, the lock note and the menu width have
+   not been looked at in a right-to-left locale. Checklist in `TODO.md`.
 
 ## Then — 0.8.0 performance observability
 
