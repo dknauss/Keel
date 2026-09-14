@@ -1,0 +1,34 @@
+name: Counterpart
+
+# Keel and Pixel Managed Platform (PX) share code paths: core version status and
+# the same-line patch, the core auto-update policy and its wp-config locks, the
+# admin menu width, the security defaults. A change to one usually needs the same
+# change in the other, or a recorded reason it does not. Ports used to happen when
+# somebody remembered to ask.
+#
+# This fails a pull request whose description does not carry exactly one line
+# saying which: "Counterpart: ported|pending|not applicable — ...". It re-runs when
+# the description is edited, so fixing the text is enough. See docs/keel-px-sync.md.
+#
+# The description reaches the script through an environment variable and is never
+# interpolated into the command, so text in a pull request cannot become shell.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  counterpart:
+    name: Counterpart recorded
+    # Dependency bumps and other bot pull requests have no counterpart to record.
+    if: github.event.pull_request.user.type != 'Bot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the description says what happened in the other plugin
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" | php bin/check-counterpart

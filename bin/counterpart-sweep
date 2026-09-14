@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# List pull requests merged since the last release tag whose Counterpart line still
+# says "pending": ports promised and not yet delivered. Run before tagging; the
+# release steps expect it to report nothing and exit 0.
+#
+# HTML comments are stripped first, so a template's example lines are never read
+# as a real pending port.
+#
+# Usage: bin/counterpart-sweep [tag]    (default: the most recent tag)
+#
+# See docs/keel-px-sync.md.
+set -euo pipefail
+
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+
+TAG="${1:-$(git describe --tags --abbrev=0)}"
+SINCE="$(git log -1 --format=%cs "$TAG")"
+
+PENDING="$(
+	gh pr list --state merged --search "merged:>=${SINCE}" --limit 500 --json number,title,url,body \
+		--jq '.[]
+			| ((.body // "") | gsub("<!--[\\s\\S]*?-->"; "")) as $body
+			| select($body | test("^[ \\t]*Counterpart:[ \\t]*pending"; "i"))
+			| "#\(.number) \(.title)\n  \(.url)\n  \($body | capture("(?<line>Counterpart:[ \\t]*pending[^\\n]*)"; "i").line)"'
+)"
+
+if [[ -n "$PENDING" ]]; then
+	printf 'Ports still pending since %s (%s):\n\n%s\n' "$TAG" "$SINCE" "$PENDING"
+	exit 1
+fi
+
+printf 'No pending counterparts since %s (%s).\n' "$TAG" "$SINCE"

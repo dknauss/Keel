@@ -264,6 +264,9 @@ every screenshot file is captioned in `readme.txt` and shown in `README.md`.
   will tell you if you missed one.
 - If the change rests on a decision shared with the sibling plugins, restate the
   reasoning here rather than citing a document this repository does not contain.
+- Record the PX counterpart: exactly one `Counterpart:` line saying the change was
+  ported, is pending, or does not apply, and why. The Counterpart check fails the
+  pull request without it. See `docs/keel-px-sync.md`.
 
 ## Releases
 
@@ -283,7 +286,9 @@ commit that does not build:
    this list — `tests/docs-consistency.php` knows it better than prose does, and
    this paragraph was itself written a version short.
 2. Open it as a pull request and let CI go green.
-3. Merge, and only then push the `v*` tag.
+3. Run `bin/counterpart-sweep`. It must report no pending counterparts: deliver each
+   port that was promised, or change its line to `not applicable` with the reason.
+4. Merge, and only then push the `v*` tag.
 
 Tag last. `release.yml` fires on the tag and runs the checks itself, so tagging
 first means a failure discovered when the tag already exists and a GitHub
