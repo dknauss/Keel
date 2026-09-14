@@ -22,21 +22,57 @@ D=~/Developer/wp-labs/keel-6.9
 # 1. Still on a release WordPress.org flags. The panel is empty otherwise.
 wp --path=$D core version   # expect 6.9.6
 
-# 2. The lab's updater constants removed, and cron off. The lab ships with
-#    AUTOMATIC_UPDATER_DISABLED and WP_AUTO_UPDATE_CORE false in wp-config.php, which
-#    puts every panel below in the blocked state. Copy wp-config.php first, remove those
-#    two lines, and define DISABLE_WP_CRON — without it, serving pages fires wp-cron
-#    and the site patches itself out of the state mid-test.
+# 2. Snapshot what this script changes, before changing anything. The lab is shared,
+#    and "Putting the lab back" below restores from these two copies.
 cp $D/wp-config.php $D/wp-config.php.manual-test
+cp $D/wp-content/database/.ht.sqlite $D/wp-content/database/.ht.sqlite.manual-test
 
-# 3. Fresh offers.
+# 3. The lab's updater constants removed, and cron off. The lab ships with
+#    AUTOMATIC_UPDATER_DISABLED and WP_AUTO_UPDATE_CORE false in wp-config.php, which
+#    puts every panel below in the blocked state. Remove those two lines and define
+#    DISABLE_WP_CRON — without it, serving pages fires wp-cron and the site patches
+#    itself out of the state mid-test.
+
+# 4. Fresh offers.
 wp --path=$D eval 'delete_site_transient("update_core"); delete_site_transient("keel_defaults_stable_check"); wp_version_check( array(), true );'
 
-php -S 127.0.0.1:9369 -t $D
+# Several workers: Site Health's REST and loopback checks call back into the site
+# while the page request is still open, and a single-worker server times them out.
+PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:9369 -t $D
 ```
 
-Log in as the lab's administrator (`wp --path=$D user list --role=administrator`). When
-finished, restore `wp-config.php.manual-test` and confirm `core version` is still 6.9.6.
+Log in as the lab's administrator (`wp --path=$D user list --role=administrator`).
+
+## Putting the lab back
+
+Run this when you finish, pass or fail. Every section below changes the lab, and
+restoring `wp-config.php` alone leaves most of it behind:
+
+- the install in section 3 moves core off 6.9.6;
+- section 4 downloads 7.1, which can upgrade the database as well;
+- the state switches rewrite Keel's `core_update_policy` option;
+- section 4's `wp-config.php` constants.
+
+A lab left on 7.1, or on 6.9.7, no longer reproduces any of this for the next person.
+Stop the server first, then:
+
+```bash
+# Core files back to 6.9.6. Replaces core only; wp-content and the plugin symlink stay.
+wp --path=$D core download --version=6.9.6 --force --skip-content
+
+# The database from the snapshot, not downgraded: nothing reverses a schema upgrade that
+# 7.1 ran. This also puts back Keel's settings.
+cp $D/wp-content/database/.ht.sqlite.manual-test $D/wp-content/database/.ht.sqlite
+cp $D/wp-config.php.manual-test $D/wp-config.php
+
+wp --path=$D core version            # expect 6.9.6
+wp --path=$D option get db_version   # expect 60717, 6.9's schema
+wp --path=$D core verify-checksums   # delete any file it says should not exist; a 7.1
+                                     # download leaves files behind that 6.9.6 never had
+
+# Only once all three checks pass:
+rm $D/wp-config.php.manual-test $D/wp-content/database/.ht.sqlite.manual-test
+```
 
 ## Switching between the two states that matter
 
