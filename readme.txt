@@ -23,7 +23,7 @@ Keel is especially useful when you build, manage, or maintain many sites — or 
 * **Make safer defaults routine.** Reduce unnecessary exposure, set practical update and revision policies, improve password protection, and keep site settings consistent without a collection of small single-purpose plugins.
 * **Avoid expensive staging mistakes.** Keel stops outgoing mail on non-production copies by default, so a copied database cannot unexpectedly email customers, members, or clients.
 * **See what is really active.** Site Health summarizes Keel's current settings in one place and highlights likely overlaps with other plugins.
-* **Manage a network without flattening it.** On multisite, a Super Admin can enforce a network policy while preserving each site's own setting for later.
+* **Manage a network without flattening it.** On multisite, a Super Admin can decide selected defaults for every site from one Network Policy screen. Sites can still keep their own choices underneath; the policy is visible and locked while it applies, and lifting it brings those choices back.
 
 Keel does not alter posts, pages, media, or comments. Turning off a Keel setting returns that behavior to WordPress; uninstalling removes Keel's settings.
 
@@ -63,7 +63,7 @@ Keel blocks outgoing email outside production by default. This protects real cus
 
 = Can I use Keel on client sites or multisite? =
 
-Yes. Keel is built for independent sites, agencies, freelancers, and multisite networks. On a network, a Super Admin can set a visible network policy without destroying the local choices underneath it.
+Yes. Keel is built for independent sites, agencies, freelancers, and multisite networks. On a network, a Super Admin uses **Network Admin → Settings → Network Policy** to choose which defaults apply everywhere. The policy is visible and locked on each site, but it does not destroy the local choices underneath it; remove a policy later and each site returns to its own saved choice.
 
 = Can I use Keel with another security or defaults plugin? =
 
@@ -75,6 +75,7 @@ Usually, choose one plugin to own a particular setting. Keel helps by showing li
 2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
 3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
 4. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
+5. Network Admin → Settings → Network Policy. A Super Admin chooses individual safeguards for every site without replacing the local choices that return when the network policy is lifted.
 
 == Credits ==
 

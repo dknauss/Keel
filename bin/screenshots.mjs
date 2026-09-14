@@ -15,6 +15,11 @@
  * --url at a deliberately old install, or that capture throws rather than
  * writing a picture of an empty check.
  *
+ * To retake just the multisite listing image, point this at a network-enabled
+ * install and run:
+ *
+ *   node bin/screenshots.mjs --url http://localhost:8889 --wp-path /path/to/site --network-only
+ *
  * Requires Playwright (`npm i playwright`) and a WordPress install with the
  * current code and a WP-CLI alias that reaches it. It mints its own admin
  * session, so nothing has to be logged in first, and it never writes the cookie
@@ -36,13 +41,16 @@ const arg = ( name, fallback ) => {
 
 const base = arg( 'url', 'http://localhost:8881' );
 const alias = arg( 'wp', '@keel' );
+const wpPath = arg( 'wp-path', null );
+const networkOnly = args.includes( '--network-only' );
 const out = path.resolve( fileURLToPath( new URL( '../.wordpress-org', import.meta.url ) ) );
 
 // Mint a session through WP-CLI. Two cookies, not one: wp-admin validates the
 // auth cookie while REST accepts logged_in alone, and sending only the latter
 // silently redirects every capture to wp-login.php.
 const wp = ( php ) => {
-	const out = execFileSync( 'wp', [ alias, 'eval', php ], { encoding: 'utf8' } )
+	const wpArgs = wpPath ? [ `--path=${ wpPath }`, 'eval', php ] : [ alias, 'eval', php ];
+	const out = execFileSync( 'wp', wpArgs, { encoding: 'utf8' } )
 		.split( '\n' )
 		.map( ( l ) => l.trim() )
 		// WP-CLI prints PHP deprecation notices on some toolchains; the payload is
@@ -126,6 +134,30 @@ if ( ! ( await page.locator( '.keel-page-header' ).count() ) ) {
 }
 
 await tidy();
+
+// This screen is deliberately a listing screenshot, not merely a test fixture:
+// network policy is one of Keel's substantial operator features. Its checkbox
+// answers who decides, while the selected values show that it is an actual
+// enforceable policy rather than a broad, opaque network switch.
+if ( networkOnly ) {
+	await page.goto( `${ base }/wp-admin/network/settings.php?page=keel-network`, { waitUntil: 'networkidle' } );
+	if ( ! ( await page.locator( 'h1', { hasText: 'network policy' } ).count() ) ) {
+		throw new Error( 'The Network Policy screen did not render. Use a multisite install and a Super Admin session.' );
+	}
+
+	await tidy();
+	await page.waitForSelector( 'input[name="keel_network_manage[restrict_rest_user_discovery]"]:checked' );
+	await page.screenshot( {
+		path: `${ out }/screenshot-5.png`,
+		fullPage: true,
+		clip: { x: 0, y: 0, width: 1280, height: 1100 },
+	} );
+
+	await browser.close();
+	console.log( `Wrote screenshot-5.png to ${ out }` );
+	process.exit( 0 );
+}
+
 await page.screenshot( { path: `${ out }/screenshot-1.png`, fullPage: true, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
 
 await page.goto( settings, { waitUntil: 'networkidle' } );

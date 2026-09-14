@@ -25,7 +25,7 @@ Keel exposes each choice under **Settings → Site Defaults**, explains it in pl
 - Make routine maintenance safer: conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
 - Protect non-production copies: outgoing mail is suppressed outside production by default, preventing a staging or local copy from sending to real recipients.
 - Make operations legible: Site Health lists the active state of every default and flags attributable policy overlaps with other plugins.
-- Support multisite deliberately: a Super Admin can apply a network policy without overwriting each site's stored choice; sites see enforced settings as locked.
+- Run a network without flattening every site: a Super Admin can decide selected defaults for the whole network, while each site keeps its own choices underneath. Enforced settings are visibly locked, and lifting the policy restores every saved local choice.
 
 ### See all available WordPress core updates
 
@@ -38,6 +38,8 @@ This is intentionally distinct from asking whether a newer major release exists.
 <img src=".wordpress-org/screenshot-1.png" alt="Site Health identifies a vulnerable WordPress version, the same-line fix, and the releases WordPress offers" width="900">
 
 <img src=".wordpress-org/screenshot-4.png" alt="Settings to control each Keel default" width="900">
+
+<img src=".wordpress-org/screenshot-5.png" alt="Network Admin policy, where a Super Admin can enforce selected Keel defaults across a multisite network" width="900">
 
 <img src=".wordpress-org/screenshot-2.png" alt="Password policy help" width="900">
 
@@ -56,7 +58,7 @@ Keel avoids cosmetic-only controls. For example, disabling comments also closes 
 - **Requirements:** WordPress 6.4+, PHP 7.4+.
 - **External services:** optional password breach screening uses HIBP's k-anonymous range API; the core security-status check uses WordPress.org's stable-check API. See the [WordPress.org listing](https://wordpress.org/plugins/keel-defaults/) for full disclosures.
 - **Configuration:** prefer the settings screen. Deployment-level constants and documented filters are available when code ownership is appropriate; see [the reference](docs/wordpress-default-settings.md).
-- **Multisite:** network policy is at **Network Admin → Settings → Network Policy**. It is read-time policy, so removing it restores each site's previous setting.
+- **Multisite:** a Super Admin uses **Network Admin → Settings → Network Policy** to decide individual settings for every site. Policy is read-time and visibly locked on sites; it never rewrites stored site settings, so removing it restores each site's previous choice.
 - **Compatibility:** Keel identifies attributable shared policy hooks without executing third-party callbacks. Treat a reported overlap as a prompt to compare configuration, not as proof that another plugin must be removed.
 
 ### Development and verification

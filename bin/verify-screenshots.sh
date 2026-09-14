@@ -2,7 +2,7 @@
 #
 # Do the listing screenshots still show the screens this plugin renders?
 #
-# The three PNGs in .wordpress-org/ are the wordpress.org listing images and the
+# The PNGs in .wordpress-org/ are the wordpress.org listing images and the
 # ones README.md shows. They went stale once already: twenty-one commits touched
 # the settings screen and the Site Health surface between capture and the day
 # somebody looked, and nothing said so.
@@ -50,7 +50,7 @@ SHOT=".wordpress-org/screenshot-1.png"
 # is a screen that can change without anyone being asked whether the screenshots
 # still match — which is how they went stale before (#144, and again with
 # updates-screen.php, added in #168 and unwatched until #170).
-UI="includes/settings-page.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php includes/updates-screen.php"
+UI="includes/settings-page.php includes/network.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php includes/updates-screen.php"
 
 RECORD=0
 
