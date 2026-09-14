@@ -10,7 +10,12 @@
  *
  *   node bin/screenshots.mjs --url http://localhost:8881 --wp @keel
  *
- * screenshot-4 photographs the patch-status panel, which only has anything in
+ * The file numbers follow readme.txt's captions: 1 is the patch-status panel,
+ * 2 the Passwords help tab, 3 Site Health Info, 4 the settings screen. This
+ * wrote the settings screen to 1 and the panel to 4, so the listing showed each
+ * of those two images under the other's caption.
+ *
+ * screenshot-1 photographs the patch-status panel, which only has anything in
  * it on a site whose core version WordPress.org classifies as insecure. Point
  * --url at a deliberately old install, or that capture throws rather than
  * writing a picture of an empty check.
@@ -126,7 +131,9 @@ if ( ! ( await page.locator( '.keel-page-header' ).count() ) ) {
 }
 
 await tidy();
-await page.screenshot( { path: `${ out }/screenshot-1.png`, fullPage: true, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
+// screenshot-4: readme.txt captions the settings screen fourth. The patch-status panel
+// leads the listing, so it is screenshot-1, captured last below.
+await page.screenshot( { path: `${ out }/screenshot-4.png`, fullPage: true, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
 
 await page.goto( settings, { waitUntil: 'networkidle' } );
 await page.click( '#contextual-help-link' );
@@ -207,7 +214,7 @@ if ( ! body || body.height < 100 ) {
 }
 
 await page.screenshot( {
-	path: `${ out }/screenshot-4.png`,
+	path: `${ out }/screenshot-1.png`,
 	fullPage: true,
 	clip: {
 		x: 0,
