@@ -121,6 +121,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
 = 0.6.6 =
+* Security: with comments disabled, the REST API went on serving a single comment by ID (/wp/v2/comments/123). The guard added in 0.6.1 to close that route checked for a function WordPress does not define, so it never ran. It now checks correctly, and the route answers 404.
 * Added: the WordPress.org listing has a Live Preview button. The blueprint behind it was in the repository all along, but the deploy held it back from the upload, so the listing never had one.
 * Fixed: on the day a security release ships, Site Health could go on reporting your version as the latest for up to a day. Keel cached WordPress.org's release status for a day; it now fetches it again as soon as WordPress learns of a release the cached answer does not list.
 * Fixed: a setting locked in wp-config.php showed the preference stored underneath the lock, not what the constant enforces. With WP_AUTO_UPDATE_CORE set to true, Core Auto-Updates read "Maintenance/security releases only" on a site installing every release. Locked controls now show what is in force, and when background updates are switched off entirely, the note names the constant that did it.
