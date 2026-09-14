@@ -87,8 +87,28 @@ if grep -qE "AUTOMATIC_UPDATER_DISABLED|WP_AUTO_UPDATE_CORE" "$D/wp-config.php";
   fail "an updater constant is still set in the copy"
 fi
 
-# 5. Fresh offers.
-wp --path="$D" eval 'delete_site_transient("update_core"); delete_site_transient("keel_defaults_stable_check"); wp_version_check( array(), true );'
+# 5. Fresh offers and a fresh security status. Keel caches WordPress.org's stable-check
+#    answer for a day (KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT, keel_stable_check) and a
+#    failed fetch for five minutes (KEEL_DEFAULTS_STABLE_CHECK_FAILED,
+#    keel_stable_check_failed). While the failure is cached Keel does not try again, so
+#    either transient would let the panels read old data. The constants name them, so
+#    this cannot drift from the code. The map is then fetched, and setup stops unless it
+#    arrives and flags this version, because an unflagged version leaves the panels empty.
+wp --path="$D" eval '
+  delete_site_transient( "update_core" );
+  delete_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
+  delete_site_transient( KEEL_DEFAULTS_STABLE_CHECK_FAILED );
+  wp_version_check( array(), true );
+  $map     = keel_defaults_stable_check();
+  $version = get_bloginfo( "version" );
+  if ( empty( $map ) ) {
+    WP_CLI::error( "WordPress.org stable-check returned no usable answer; the panels would have nothing to show." );
+  }
+  if ( "insecure" !== ( $map[ $version ] ?? "" ) ) {
+    WP_CLI::error( "stable-check does not flag $version as insecure, so the patch panels will be empty." );
+  }
+  echo "stable-check: fresh, ", count( $map ), " versions; $version is insecure\n";
+'
 
 # 6. Serve the copy. Several workers: Site Health's REST and loopback checks call back
 #    into the site while the page request is still open, and a single worker times out.
