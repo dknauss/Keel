@@ -413,6 +413,37 @@ keel_assert(
 	'wp-deploy.yml verifies the tag against the plugin header and readme.txt Stable tag before uploading.'
 );
 
+/*
+ * --- a tag publishes only past the gate a pull request has to pass ---
+ *
+ * release.yml ran `php -l` and the unit tests, nothing else, before it published
+ * a Release and handed the tag to the WordPress.org deploy. ci.yml's gate also
+ * runs coding standards and the PHP compatibility floor. A tag cut from a commit
+ * that never went through CI, or whose CI failed on either, could ship to every
+ * site without anything executing them.
+ *
+ * Derived from ci.yml rather than restated: every command its `test` job runs has
+ * to run in release.yml's `release` job before the zip is built, so a step added
+ * to the gate later is required here the moment it lands. Whole `run:` lines are
+ * matched, because `composer lint` is a substring of `composer lint:compat` and a
+ * substring check would pass with coding standards missing.
+ */
+$ci_test_job = (string) strstr( (string) strstr( $ci_src, "\n  test:\n" ), "\n  compat:\n", true );
+preg_match_all( '/^\s+run:\s*(\S.*?)\s*$/m', $ci_test_job, $gate_commands );
+
+$release_job       = (string) strstr( (string) strstr( $release_src, "\n  release:\n" ), "\n  deploy:\n", true );
+$release_pre_build = (string) strstr( $release_job, 'bash bin/build-zip.sh', true );
+
+keel_assert( count( $gate_commands[1] ) >= 4, 'ci.yml\'s test job has gate commands to compare (' . count( $gate_commands[1] ) . ').' );
+keel_assert( '' !== $release_pre_build, 'release.yml\'s release job builds the zip, so there is a before-the-build to check.' );
+
+foreach ( $gate_commands[1] as $gate_command ) {
+	keel_assert(
+		1 === preg_match( '/^\s+run:\s*' . preg_quote( $gate_command, '/' ) . '\s*$/m', $release_pre_build ),
+		'release.yml runs "' . $gate_command . '" before it builds the zip it publishes, as the ci.yml gate does.'
+	);
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "release workflows: {$fail} failed\n" );
 	exit( 1 );
