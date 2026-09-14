@@ -9,70 +9,66 @@ screen offer, or the installer.
 
 ## The site
 
-The `keel-6.9` lab in `~/Developer/wp-labs`, WP-CLI alias `@keel-6.9`, served at
-http://127.0.0.1:9369. It already runs WordPress 6.9.6, a release WordPress.org flags,
-and its `wp-content/plugins/keel` is symlinked to the repository, so the site runs
-whatever is checked out.
+**A disposable copy of the `keel-6.9` lab, never the lab itself.** This script installs
+a patch, downloads 7.1 (which can upgrade the database), rewrites Keel's settings, adds
+`wp-config.php` constants and clears update transients. Undoing all of that by hand on a
+shared lab is too easy to get wrong, and a lab left on 6.9.7 or 7.1 no longer reproduces
+anything for the next person. So every step below runs on a copy, and the copy is deleted
+at the end.
 
-Three things have to be true or nothing below reproduces:
+The source is the `keel-6.9` lab in `~/Developer/wp-labs`: WordPress 6.9.6, a release
+WordPress.org flags, with `wp-content/plugins/keel` symlinked to the repository. The copy
+keeps that symlink, so it runs whatever is checked out. It is a symlink to the same
+checkout, so don't switch branches while a run is in progress.
 
 ```bash
-D=~/Developer/wp-labs/keel-6.9
+SRC=~/Developer/wp-labs/keel-6.9
+D=~/Developer/wp-labs/keel-manual-test
+PORT=9379
 
-# 1. Still on a release WordPress.org flags. The panel is empty otherwise.
-wp --path=$D core version   # expect 6.9.6
+# 1. The source is still on a release WordPress.org flags; the panel is empty otherwise.
+#    Checked, never changed.
+wp --path=$SRC core version   # expect 6.9.6
 
-# 2. Snapshot what this script changes, before changing anything. The lab is shared,
-#    and "Putting the lab back" below restores from these two copies.
-cp $D/wp-config.php $D/wp-config.php.manual-test
-cp $D/wp-content/database/.ht.sqlite $D/wp-content/database/.ht.sqlite.manual-test
+# 2. A fresh copy. If $D already exists, a previous run was not thrown away: do that
+#    first (see the end of this section), or cp nests the new copy inside the old one.
+[ -e "$D" ] && echo "$D exists: throw the previous copy away first"
+cp -RP "$SRC" "$D"                     # -P: copy the plugin symlink as a symlink
+readlink "$D/wp-content/plugins/keel"  # expect the repository checkout
 
-# 3. The lab's updater constants removed, and cron off. The lab ships with
-#    AUTOMATIC_UPDATER_DISABLED and WP_AUTO_UPDATE_CORE false in wp-config.php, which
-#    puts every panel below in the blocked state. Remove those two lines and define
-#    DISABLE_WP_CRON — without it, serving pages fires wp-cron and the site patches
-#    itself out of the state mid-test.
+# 3. Give the copy its own address, updaters back on, cron off.
+#    - WP_HOME/WP_SITEURL: the copied database still says port 9369, the source's.
+#    - The source ships AUTOMATIC_UPDATER_DISABLED and WP_AUTO_UPDATE_CORE false, which
+#      put every panel below in the blocked state; removed here, in the copy only.
+#    - DISABLE_WP_CRON: without it, serving pages fires wp-cron and the copy patches
+#      itself out of the state mid-test.
+perl -0pi -e "s/^define\( 'AUTOMATIC_UPDATER_DISABLED', true \);\n//m; s/^define\( 'WP_AUTO_UPDATE_CORE', false \);\n//m; s|(/\* That's all, stop editing!)|define( 'WP_HOME', 'http://127.0.0.1:$PORT' );\ndefine( 'WP_SITEURL', 'http://127.0.0.1:$PORT' );\ndefine( 'DISABLE_WP_CRON', true );\n\$1|" "$D/wp-config.php"
+grep -nE "AUTOMATIC_UPDATER_DISABLED|WP_AUTO_UPDATE_CORE|WP_HOME|WP_SITEURL|DISABLE_WP_CRON" "$D/wp-config.php"
+# expect WP_HOME, WP_SITEURL and DISABLE_WP_CRON, and neither updater constant
 
 # 4. Fresh offers.
 wp --path=$D eval 'delete_site_transient("update_core"); delete_site_transient("keel_defaults_stable_check"); wp_version_check( array(), true );'
 
-# Several workers: Site Health's REST and loopback checks call back into the site
-# while the page request is still open, and a single-worker server times them out.
-PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:9369 -t $D
+# 5. Serve the copy. Several workers: Site Health's REST and loopback checks call back
+#    into the site while the page request is still open, and a single worker times out.
+PHP_CLI_SERVER_WORKERS=4 php -S 127.0.0.1:$PORT -t $D
 ```
 
-Log in as the lab's administrator (`wp --path=$D user list --role=administrator`).
+Log in at http://127.0.0.1:9379/wp-login.php as the copy's administrator
+(`wp --path=$D user list --role=administrator`; the copy has the source's users).
+Every command below uses `$D`, the copy.
 
-## Putting the lab back
+### Throwing the copy away
 
-Run this when you finish, pass or fail. Every section below changes the lab, and
-restoring `wp-config.php` alone leaves most of it behind:
-
-- the install in section 3 moves core off 6.9.6;
-- section 4 downloads 7.1, which can upgrade the database as well;
-- the state switches rewrite Keel's `core_update_policy` option;
-- section 4's `wp-config.php` constants.
-
-A lab left on 7.1, or on 6.9.7, no longer reproduces any of this for the next person.
-Stop the server first, then:
+Run this when you finish, pass or fail. Stop the server (Ctrl-C in its terminal), then:
 
 ```bash
-# Core files back to 6.9.6. Replaces core only; wp-content and the plugin symlink stay.
-wp --path=$D core download --version=6.9.6 --force --skip-content
-
-# The database from the snapshot, not downgraded: nothing reverses a schema upgrade that
-# 7.1 ran. This also puts back Keel's settings.
-cp $D/wp-content/database/.ht.sqlite.manual-test $D/wp-content/database/.ht.sqlite
-cp $D/wp-config.php.manual-test $D/wp-config.php
-
-wp --path=$D core version            # expect 6.9.6
-wp --path=$D option get db_version   # expect 60717, 6.9's schema
-wp --path=$D core verify-checksums   # delete any file it says should not exist; a 7.1
-                                     # download leaves files behind that 6.9.6 never had
-
-# Only once all three checks pass:
-rm $D/wp-config.php.manual-test $D/wp-content/database/.ht.sqlite.manual-test
+rm -rf "$D"
+wp --path=$SRC core version   # still 6.9.6: the source was never touched
 ```
+
+There is nothing else to restore. The core version, the database, Keel's settings, the
+transients, `wp-config.php` and the server all belonged to the copy.
 
 ## Switching between the two states that matter
 
