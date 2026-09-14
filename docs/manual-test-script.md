@@ -9,23 +9,34 @@ screen offer, or the installer.
 
 ## The site
 
-`keel-test` at http://localhost:8883, admin / `keel-demo-2026`. The plugin is symlinked
-to the repository, so the site runs whatever is checked out.
+The `keel-6.9` lab in `~/Developer/wp-labs`, WP-CLI alias `@keel-6.9`, served at
+http://127.0.0.1:9369. It already runs WordPress 6.9.6, a release WordPress.org flags,
+and its `wp-content/plugins/keel` is symlinked to the repository, so the site runs
+whatever is checked out.
 
-Two things have to be true or nothing below reproduces:
+Three things have to be true or nothing below reproduces:
 
 ```bash
-D=~/Studio/keel-test
+D=~/Developer/wp-labs/keel-6.9
 
-# 1. On a release WordPress.org flags. The panel is empty otherwise.
-wp --path=$D core download --version=6.9.6 --force --skip-content
-wp --path=$D option update db_version "$(grep -m1 'wp_db_version =' $D/wp-includes/version.php | grep -o '[0-9]\+')"
+# 1. Still on a release WordPress.org flags. The panel is empty otherwise.
+wp --path=$D core version   # expect 6.9.6
 
-# 2. Cron off, or the site patches itself out of the state mid-test.
-#    (wp-config.php should already define DISABLE_WP_CRON for this site.)
+# 2. The lab's updater constants removed, and cron off. The lab ships with
+#    AUTOMATIC_UPDATER_DISABLED and WP_AUTO_UPDATE_CORE false in wp-config.php, which
+#    puts every panel below in the blocked state. Copy wp-config.php first, remove those
+#    two lines, and define DISABLE_WP_CRON — without it, serving pages fires wp-cron
+#    and the site patches itself out of the state mid-test.
+cp $D/wp-config.php $D/wp-config.php.manual-test
 
+# 3. Fresh offers.
 wp --path=$D eval 'delete_site_transient("update_core"); delete_site_transient("keel_defaults_stable_check"); wp_version_check( array(), true );'
+
+php -S 127.0.0.1:9369 -t $D
 ```
+
+Log in as the lab's administrator (`wp --path=$D user list --role=administrator`). When
+finished, restore `wp-config.php.manual-test` and confirm `core version` is still 6.9.6.
 
 ## Switching between the two states that matter
 
@@ -93,6 +104,7 @@ repeat it.
 | `wp --path=$D core download --version=7.1 --force --skip-content` | no panel finding, no Updates-screen offer |
 | A release flagged with no patched release on its line | the panel says moving to a maintained line is the only remedy, and offers no install |
 | `define( 'DISALLOW_FILE_MODS', true )` in `wp-config.php` | the blocker is named, no install button, and nothing claims the release cannot be installed at all — Keel refuses, a deployment workflow may not |
+| `define( 'AUTOMATIC_UPDATER_DISABLED', true )` in `wp-config.php` | the blocker is named, the install button is present, and the panel says the patch can still be installed deliberately — never "Keel will not offer a deliberate install" above a working button |
 
 ## Recording it
 
