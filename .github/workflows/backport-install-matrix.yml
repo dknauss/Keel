@@ -95,6 +95,20 @@ jobs:
           coverage: none
           tools: wp-cli
 
+      # setup-php reports a failed tool download ("Could not setup wp-cli") without
+      # failing its step, so a transient refusal surfaced later as `wp: command not
+      # found` in the install step and failed the row for a reason unrelated to Keel.
+      - name: Ensure WP-CLI is installed
+        run: |
+          set -euo pipefail
+          if ! command -v wp >/dev/null; then
+            echo "setup-php did not install WP-CLI; installing the phar directly"
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors \
+              --output /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+            sudo install -m 0755 /tmp/wp-cli.phar /usr/local/bin/wp
+          fi
+          wp --version --allow-root
+
       - name: Build disposable source install
         env:
           SOURCE: ${{ matrix.source }}
