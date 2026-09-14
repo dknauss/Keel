@@ -26,6 +26,13 @@ function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }
 function esc_attr( $s ) { return $s; }
 function esc_attr_e( $s, $d = null ) { echo $s; }
+
+/*
+ * wp_is_rest_endpoint(), the core function (6.5+). Not wp_is_rest_request():
+ * WordPress defines no such function, and the guard was written against it
+ * behind function_exists(), so on every real site it silently never fired.
+ */
+function wp_is_rest_endpoint() { return ! empty( $GLOBALS['keel_is_rest'] ); }
 function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value;
 }
@@ -134,5 +141,35 @@ keel_assert( true === keel_defaults_remove_comment_blocks( true ), 'Without a bl
 keel_assert( '0' === keel_defaults_return_zero(), 'The comment count is the string "0", the type core returns and compares against.' );
 keel_assert( 0 === (int) keel_defaults_return_zero(), 'It still casts to int 0 for the consumers that cast.' );
 keel_assert( ! keel_defaults_return_zero(), 'And it is still falsy, for the consumers that test truthiness.' );
+
+/*
+ * --- the REST single-comment route ---
+ *
+ * GET /wp/v2/comments/123 reads through get_comment(), not a comment query, so
+ * keel_defaults_hide_rest_comment() guards it. It asked wp_is_rest_request(),
+ * a function WordPress does not define, behind function_exists(): the check was
+ * always false and the route kept serving comments with comments off. Measured
+ * on WordPress 7.1 before this change: filter registered, disable_comments on,
+ * and the route still answered 200. The registration test in route-coverage.php
+ * could not see it, because the filter was registered; it just never did anything.
+ */
+$rest_comment               = new stdClass();
+$rest_comment->comment_type = 'comment';
+$untyped                    = new stdClass();
+$untyped->comment_type      = '';
+$rest_note                  = new stdClass();
+$rest_note->comment_type    = 'note';
+
+$GLOBALS['keel_is_rest'] = true;
+keel_assert( null === keel_defaults_hide_rest_comment( $rest_comment ), 'A comment read over REST is hidden, so the route answers 404.' );
+keel_assert( null === keel_defaults_hide_rest_comment( $untyped ), 'An untyped comment is a comment, and is hidden too.' );
+keel_assert( keel_defaults_hide_rest_comment( $rest_note ) === $rest_note, 'A Note is still readable over REST.' );
+keel_assert( null === keel_defaults_hide_rest_comment( null ), 'A missing comment passes through untouched.' );
+
+$GLOBALS['keel_is_rest'] = false;
+keel_assert( keel_defaults_hide_rest_comment( $rest_comment ) === $rest_comment, 'Outside REST the comment is returned, so admin and notification paths still see it.' );
+
+$keel_content_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/content.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
+keel_assert( false === strpos( $keel_content_source, 'wp_is_rest_request' ), 'The REST guard does not depend on wp_is_rest_request(), which WordPress does not define.' );
 
 echo "comments tests passed.\n";
