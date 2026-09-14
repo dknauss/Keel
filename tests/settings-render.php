@@ -578,6 +578,45 @@ keel_assert(
 	1 === preg_match( '/margin-left:\s*var\(\s*--keel-menu-preview-width\s*\)\s*!important/', $preview_css ),
 	'The preview moves the content column against an !important saved rule.'
 );
+
+/*
+ * --- and the preview follows the same folding rules as the widen it previews ---
+ *
+ * #189 gave the saved widen a 961px floor and scoped every selector to
+ * body:not(.folded): a menu the user collapsed stays collapsed, and core's
+ * automatic fold below 961px is respected. The preview kept the old 783px floor
+ * and a folded-margin patch. So with the menu folded, or anywhere from 783px to
+ * 960px, dragging the slider showed a widened menu that saving would never
+ * produce — a preview of something else.
+ */
+$GLOBALS['keel_options'] = array( KEEL_DEFAULTS_OPTION => array( 'admin_menu_width' => '200' ) );
+$saved_widen_css         = keel_defaults_admin_menu_width_css();
+
+preg_match( '/@media screen and \(min-width:\s*(\d+)px\)/', $saved_widen_css, $saved_floor );
+preg_match( '/@media screen and \(min-width:\s*(\d+)px\)/', $preview_css, $preview_floor );
+
+keel_assert(
+	isset( $saved_floor[1], $preview_floor[1] ) && $saved_floor[1] === $preview_floor[1],
+	'The preview starts at the same breakpoint as the saved widen (preview ' . ( isset( $preview_floor[1] ) ? $preview_floor[1] : '?' ) . 'px, saved ' . ( isset( $saved_floor[1] ) ? $saved_floor[1] : '?' ) . 'px).'
+);
+
+preg_match_all( '/^\s*(body[^{,\n]*keel-menu-width-preview[^{,\n]*)\s*[,{]/m', $preview_css, $preview_selectors );
+$unscoped_preview = array_filter(
+	$preview_selectors[1],
+	static function ( $selector ) {
+		return false === strpos( $selector, ':not(.folded)' );
+	}
+);
+
+keel_assert( count( $preview_selectors[1] ) > 10, 'The preview selectors were found to check (' . count( $preview_selectors[1] ) . ').' );
+keel_assert(
+	array() === $unscoped_preview,
+	count( $unscoped_preview ) . ' preview selector(s) still apply to a folded menu: ' . implode( ' / ', array_slice( $unscoped_preview, 0, 3 ) )
+);
+keel_assert(
+	false === strpos( $preview_css, '.folded.keel-menu-width-preview' ),
+	'The folded-margin patch is gone from the preview, as it went from the saved widen: core governs a folded menu.'
+);
 keel_assert(
 	false !== strpos( $locked_assets['js/settings.js'], 'data-keel-range' ),
 	'The script reads the slider data the markup carries.'
