@@ -1,0 +1,1301 @@
+# Quebec French (fr_CA) translation of Keel Defaults 0.6.6, for import on translate.wordpress.org.
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Keel Defaults 0.6.6\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
+"Last-Translator: Dan Knauss\n"
+"Language-Team: French (Canada)\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-14T05:40:40+00:00\n"
+"PO-Revision-Date: 2026-09-14 07:41+0000\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Domain: keel-defaults\n"
+
+#. Plugin Name of the plugin
+msgid "Keel Defaults"
+msgstr "Keel Defaults"
+
+#. Plugin URI of the plugin
+msgid "https://github.com/dknauss/keel"
+msgstr "https://github.com/dknauss/keel"
+
+#. Description of the plugin
+msgid "39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
+msgstr "39 réglages par défaut judicieux pour WordPress, chacun un interrupteur visible que vous pouvez désactiver — sécurité, mises à jour, vie privée, expérience utilisateur et performance."
+
+#. Author of the plugin
+msgid "Dan Knauss"
+msgstr "Dan Knauss"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Image"
+msgstr "Image"
+
+msgid "Modified"
+msgstr "Modifié"
+
+msgid "File size"
+msgstr "Taille du fichier"
+
+msgid "Registered"
+msgstr "Inscription"
+
+msgid "Last login"
+msgstr "Dernière connexion"
+
+msgid "Generated Image Sizes"
+msgstr "Tailles d’image générées"
+
+msgid "No generated image sizes were found for this attachment."
+msgstr "Aucune taille d’image générée n’a été trouvée pour ce fichier joint."
+
+msgid "Read-only view of the generated image files and URLs."
+msgstr "Vue en lecture seule des fichiers d’image générés et de leurs URL."
+
+msgid "Size"
+msgstr "Taille"
+
+msgid "Dimensions"
+msgstr "Dimensions"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Unknown"
+msgstr "Inconnu"
+
+msgid "Production"
+msgstr "Production"
+
+msgid "Staging"
+msgstr "Préproduction"
+
+msgid "Development"
+msgstr "Développement"
+
+msgid "Local"
+msgstr "Local"
+
+msgid "This action requires a POST request."
+msgstr "Cette action nécessite une requête POST."
+
+msgid "You are not allowed to update WordPress on this site."
+msgstr "Vous n’avez pas l’autorisation de mettre à jour WordPress sur ce site."
+
+msgid "WordPress did not provide a usable automatic-update offer for this patch."
+msgstr "WordPress n’a fourni aucune offre de mise à jour automatique utilisable pour ce correctif."
+
+msgid "The cached update offer is incomplete. Check for updates again, then retry."
+msgstr "L’offre de mise à jour en cache est incomplète. Vérifiez de nouveau les mises à jour, puis réessayez."
+
+msgid "The cached update offer contains an invalid package. Check for updates again, then retry."
+msgstr "L’offre de mise à jour en cache contient un paquet invalide. Vérifiez de nouveau les mises à jour, puis réessayez."
+
+msgid "WordPress did not provide a download package for this patch."
+msgstr "WordPress n’a fourni aucun paquet à télécharger pour ce correctif."
+
+msgid "The cached update offer does not include its system requirements."
+msgstr "L’offre de mise à jour en cache n’indique pas sa configuration requise."
+
+#. translators: 1: target WordPress version, 2: required PHP version, 3: installed PHP version.
+#, php-format
+msgid "WordPress %1$s requires PHP %2$s or newer. This site is running PHP %3$s."
+msgstr "WordPress %1$s nécessite PHP %2$s ou une version plus récente. Ce site utilise PHP %3$s."
+
+#. translators: 1: target WordPress version, 2: required database version, 3: installed database version.
+#, php-format
+msgid "WordPress %1$s requires MySQL %2$s or newer. This site is running %3$s."
+msgstr "WordPress %1$s nécessite MySQL %2$s ou une version plus récente. Ce site utilise %3$s."
+
+#. translators: 1: target WordPress version, 2: comma-separated PHP extension names.
+#, php-format
+msgid "WordPress %1$s requires these missing PHP extensions: %2$s."
+msgstr "WordPress %1$s nécessite ces extensions PHP manquantes : %2$s."
+
+msgid "That patch is no longer the current target for this release line. Refresh Site Health and try again."
+msgstr "Ce correctif n’est plus la cible actuelle de cette branche de versions. Actualisez Santé du site et réessayez."
+
+#. translators: %s: target WordPress version.
+#, php-format
+msgid "Install WordPress %s now"
+msgstr "Installer WordPress %s maintenant"
+
+msgid "A previous core update failed critically. This deliberate attempt may repair that state, but back up the site first."
+msgstr "Une mise à jour précédente du cœur a échoué de façon critique. Cette tentative délibérée pourrait corriger cet état, mais sauvegardez d’abord le site."
+
+msgid "WordPress did not report the update as complete. Check the Updates screen for the version now installed before retrying."
+msgstr "WordPress n’a pas signalé la mise à jour comme terminée. Vérifiez la version maintenant installée sur l’écran Mises à jour avant de réessayer."
+
+#. translators: %s: installed WordPress version.
+#, php-format
+msgid "WordPress %s was installed successfully."
+msgstr "WordPress %s a été installé avec succès."
+
+msgid "file changes are blocked, normally because the <code>DISALLOW_FILE_MODS</code> constant is set in <code>wp-config.php</code>"
+msgstr "les modifications de fichiers sont bloquées, normalement parce que la constante <code>DISALLOW_FILE_MODS</code> est définie dans <code>wp-config.php</code>"
+
+msgid "automatic updates are switched off by the <code>AUTOMATIC_UPDATER_DISABLED</code> constant, normally set in <code>wp-config.php</code>"
+msgstr "les mises à jour automatiques sont désactivées par la constante <code>AUTOMATIC_UPDATER_DISABLED</code>, normalement définie dans <code>wp-config.php</code>"
+
+msgid "a plugin or theme on this site switches automatic updates off, using the <code>automatic_updater_disabled</code> filter"
+msgstr "une extension ou un thème de ce site désactive les mises à jour automatiques à l’aide du filtre <code>automatic_updater_disabled</code>"
+
+msgid "automatic updates are switched off, but not by a constant or filter Keel can identify"
+msgstr "les mises à jour automatiques sont désactivées, mais pas par une constante ou un filtre que Keel peut identifier"
+
+msgid "WordPress cannot write to its own files without credentials it would have to stop and ask for"
+msgstr "WordPress ne peut pas écrire dans ses propres fichiers sans des identifiants qu’il devrait s’arrêter pour demander"
+
+msgid "an earlier core update failed badly enough that WordPress will not retry on its own"
+msgstr "une mise à jour antérieure du cœur a échoué si gravement que WordPress ne réessaiera pas de lui-même"
+
+msgid "the site is under version control, so WordPress will not overwrite its own files"
+msgstr "le site est sous gestion de versions, donc WordPress n’écrasera pas ses propres fichiers"
+
+msgid "Security patch status"
+msgstr "État des correctifs de sécurité"
+
+msgid "The configured policy permits minor updates, the updater looks operable, and this is the release WordPress would install, so it should arrive on a scheduled check. That is not a guarantee: WP-Cron still has to run."
+msgstr "La politique configurée permet les mises à jour mineures, le système de mise à jour semble fonctionnel et c’est la version que WordPress installerait; elle devrait donc arriver lors d’une vérification planifiée. Ce n’est pas une garantie : WP-Cron doit encore s’exécuter."
+
+#. translators: 1: release core would install, 2: the same-line patch.
+#, php-format
+msgid "Automatic updates are running here, but WordPress would install %1$s rather than %2$s: it takes the highest release the settings permit, not the nearest. This patch will not arrive on its own. If you want it, you'll need to install it manually."
+msgstr "Les mises à jour automatiques fonctionnent ici, mais WordPress installerait %1$s plutôt que %2$s : il prend la version la plus élevée que les réglages permettent, pas la plus proche. Ce correctif n’arrivera pas de lui-même. Si vous le voulez, vous devrez l’installer manuellement."
+
+msgid "Automatic updates appear to be available, but Keel could not determine which release WordPress would install next, so nothing here establishes that this patch is scheduled."
+msgstr "Les mises à jour automatiques semblent disponibles, mais Keel n’a pas pu déterminer quelle version WordPress installerait ensuite; rien ici n’établit donc que ce correctif est planifié."
+
+msgid "Automatic updates appear to be available, but WordPress is not selecting a release to install, so this patch is not scheduled."
+msgstr "Les mises à jour automatiques semblent disponibles, mais WordPress ne sélectionne aucune version à installer; ce correctif n’est donc pas planifié."
+
+msgid "None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to perform the update."
+msgstr "Aucune de ces versions ne s’installera d’elle-même, car le système de mise à jour ne peut pas agir ici. Keel ne proposera pas d’installation délibérée depuis cet écran tant que ce problème ne sera pas réglé; un processus de déploiement ou WP-CLI pourrait tout de même effectuer la mise à jour."
+
+msgid "None of these will install on their own while automatic updates are held back here. That does not prevent a deliberate install."
+msgstr "Aucune de ces versions ne s’installera d’elle-même tant que les mises à jour automatiques sont retenues ici. Cela n’empêche pas une installation délibérée."
+
+msgid "Keel could not determine which of these WordPress would install."
+msgstr "Keel n’a pas pu déterminer laquelle de ces versions WordPress installerait."
+
+#. translators: %s: version WordPress would install.
+#, php-format
+msgid "WordPress would install %s and skip the rest. It does not step through them one version line at a time."
+msgstr "WordPress installerait %s et sauterait les autres. Il ne les parcourt pas une branche de versions à la fois."
+
+msgid "None of these will install on their own. Something is declining every one of them, which may be this site's update settings or a requirement the offers do not meet. If it is a requirement, Keel will refuse a deliberate install for the same reason."
+msgstr "Aucune de ces versions ne s’installera d’elle-même. Quelque chose les refuse toutes, peut-être les réglages de mise à jour de ce site ou une exigence que les offres ne remplissent pas. S’il s’agit d’une exigence, Keel refusera une installation délibérée pour la même raison."
+
+msgid "This version is not currently flagged as insecure"
+msgstr "Cette version n’est pas actuellement signalée comme non sécurisée"
+
+msgid "Security"
+msgstr "Sécurité"
+
+msgid "Patch status could not be determined"
+msgstr "L’état des correctifs n’a pas pu être déterminé"
+
+msgid "This is a development build, which WordPress.org does not classify."
+msgstr "Il s’agit d’une version de développement, que WordPress.org ne classe pas."
+
+msgid "Keel could not reach WordPress.org, or the response was not usable. That may be a passing outage rather than anything about this site."
+msgstr "Keel n’a pas pu joindre WordPress.org, ou la réponse n’était pas utilisable. Il peut s’agir d’une panne passagère plutôt que d’un problème lié à ce site."
+
+msgid "WordPress.org does not list this exact version."
+msgstr "WordPress.org ne répertorie pas cette version exacte."
+
+#. translators: 1: WordPress version, 2: explanation.
+#, php-format
+msgid "Keel could not determine whether %1$s has known vulnerabilities. %2$s"
+msgstr "Keel n’a pas pu déterminer si %1$s comporte des vulnérabilités connues. %2$s"
+
+msgid "This version of WordPress has known vulnerabilities"
+msgstr "Cette version de WordPress comporte des vulnérabilités connues"
+
+#. translators: %s: WordPress version.
+#, php-format
+msgid "WordPress.org classifies %s as insecure, and every release on this line is flagged the same way, so there is no nearer release to move to. No setting will produce one. The only remedy is moving to a line that is still maintained."
+msgstr "WordPress.org classe %s comme non sécurisée, et toutes les versions de cette branche sont signalées de la même façon; il n’existe donc aucune version plus proche vers laquelle passer. Aucun réglage n’en produira une. La seule solution est de passer à une branche encore maintenue."
+
+#. translators: 1: current version, 2: patched version.
+#, php-format
+msgid "WordPress.org classifies %1$s as %2$s: it has publicly known vulnerabilities. The nearest release without known vulnerabilities is %4$s, on your own %3$s line."
+msgstr "WordPress.org classe %1$s comme %2$s : elle comporte des vulnérabilités connues publiquement. La version la plus proche sans vulnérabilités connues est %4$s, sur votre propre branche %3$s."
+
+msgid "insecure"
+msgstr "non sécurisée"
+
+msgid "The policy permits minor updates, but this patch cannot currently install automatically."
+msgstr "La politique permet les mises à jour mineures, mais ce correctif ne peut pas s’installer automatiquement pour le moment."
+
+#. translators: %s: patched version.
+#, php-format
+msgid "%s will not install by itself."
+msgstr "%s ne s’installera pas d’elle-même."
+
+msgid "Minor updates are switched off on this site, so WordPress will not fetch it."
+msgstr "Les mises à jour mineures sont désactivées sur ce site; WordPress ne la récupérera donc pas."
+
+#. translators: %s: reasons the updater cannot run.
+#, php-format
+msgid "Two things are stopping it: minor updates are switched off, and %s."
+msgstr "Deux choses l’en empêchent : les mises à jour mineures sont désactivées, et %s."
+
+msgid "WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other."
+msgstr "WordPress n’a aucun réglage de mise à jour limité à la sécurité. Les correctifs de sécurité sont livrés dans des versions de maintenance ordinaires; désactiver les mises à jour mineures désactive donc aussi les correctifs de sécurité — il est impossible de garder les uns sans les autres."
+
+msgid "This core version is not currently flagged as insecure"
+msgstr "Cette version du cœur n’est pas actuellement signalée comme non sécurisée"
+
+#. translators: 1: current version, 2: latest version.
+#, php-format
+msgid "%1$s is not currently flagged as insecure by WordPress.org. The current release is %2$s."
+msgstr "%1$s n’est pas actuellement signalée comme non sécurisée par WordPress.org. La version actuelle est %2$s."
+
+msgid "That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and this line will eventually be retired. This check covers core only — not plugins, themes or PHP."
+msgstr "Ce n’est pas une garantie de soutien. Seule la version actuelle est activement prise en charge. Les correctifs sont rétroportés vers les branches plus anciennes lorsque c’est possible, et cette branche finira par être retirée. Cette vérification ne porte que sur le cœur — pas sur les extensions, les thèmes ou PHP."
+
+#. translators: %s: WordPress version.
+#, php-format
+msgid "%s is the current release."
+msgstr "%s est la version actuelle."
+
+msgid "Start with what is blocking this patch, above. Until it passes those checks, no change to the update policy will make any difference."
+msgstr "Commencez par ce qui bloque ce correctif, ci-dessus. Tant qu’il ne franchit pas ces vérifications, aucun changement de la politique de mise à jour ne fera de différence."
+
+msgid "Turn automatic security updates back on"
+msgstr "Réactiver les mises à jour de sécurité automatiques"
+
+msgid "Recommended. This patch, and every future one on this release line, will install without being asked for."
+msgstr "Recommandé. Ce correctif, et tous les suivants sur cette branche de versions, s’installeront sans qu’on ait à les demander."
+
+msgid "Change the core update policy in Keel"
+msgstr "Modifier la politique de mise à jour du cœur dans Keel"
+
+msgid "Keel is deciding this, not the stored WordPress option. Setting the option directly would have no effect."
+msgstr "C’est Keel qui décide, pas l’option WordPress enregistrée. Modifier l’option directement n’aurait aucun effet."
+
+#. translators: 1: constant name, 2: configuration file name.
+#, php-format
+msgid "The %1$s constant is deciding this, and Keel will not override it. Change it in %2$s."
+msgstr "C’est la constante %1$s qui décide, et Keel ne la contournera pas. Modifiez-la dans %2$s."
+
+msgid "Another plugin is filtering this decision, so neither the stored option nor Keel governs it. Whatever registered that filter has to change."
+msgstr "Une autre extension filtre cette décision; ni l’option enregistrée ni Keel ne la contrôlent donc. C’est ce qui a enregistré ce filtre qui doit changer."
+
+#. translators: %s: target version.
+#, php-format
+msgid "Install %s now from the Updates screen"
+msgstr "Installer %s maintenant depuis l’écran Mises à jour"
+
+#. translators: 1: target version, 2: the "Show hidden updates" link on the Updates screen.
+#, php-format
+msgid "Someone dismissed %1$s on this site, so the Updates screen keeps it out of the way until you select %2$s."
+msgstr "Quelqu’un a ignoré %1$s sur ce site; l’écran Mises à jour la garde donc à l’écart jusqu’à ce que vous sélectionniez %2$s."
+
+msgid "Show hidden updates"
+msgstr "Afficher les mises à jour cachées"
+
+msgid "Check the Updates screen"
+msgstr "Consulter l’écran Mises à jour"
+
+#. translators: %s: target version.
+#, php-format
+msgid "This site has not checked WordPress.org for core updates yet, so Keel cannot say whether the Updates screen is offering %s. Opening that screen checks, and answers it."
+msgstr "Ce site n’a pas encore vérifié les mises à jour du cœur auprès de WordPress.org; Keel ne peut donc pas dire si l’écran Mises à jour propose %s. Ouvrir cet écran lance la vérification et répond à la question."
+
+#. translators: %s: target version.
+#, php-format
+msgid "Or install %s now, below."
+msgstr "Ou installez %s maintenant, ci-dessous."
+
+#. translators: 1: version WordPress own update list is offering, 2: patched release on this line.
+#, php-format
+msgid "WordPress's own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen."
+msgstr "La liste de mises à jour de WordPress propose %1$s et n’inclura pas %2$s. Keel l’ajoute à l’écran Mises à jour."
+
+#. translators: %s: patched release on this line.
+#, php-format
+msgid "WordPress's own update list does not include %s. Keel adds it to the Updates screen."
+msgstr "La liste de mises à jour de WordPress n’inclut pas %s. Keel l’ajoute à l’écran Mises à jour."
+
+msgid "WordPress would pick this"
+msgstr "WordPress choisirait celle-ci"
+
+msgid "WordPress installs this"
+msgstr "WordPress installe celle-ci"
+
+#. translators: %s: target version.
+#, php-format
+msgid "Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
+msgstr "Rien ne s’installera de soi-même tant que le système de mise à jour ne peut pas agir, quelle que soit la version que le cœur choisirait autrement. Keel ne proposera pas d’installation délibérée de %s d’ici tant que ce problème ne sera pas réglé."
+
+#. translators: %s: target version.
+#, php-format
+msgid "Nothing will install on its own while automatic updates are held back here, whatever core would otherwise select. %s can still be installed deliberately from the command line."
+msgstr "Rien ne s’installera de soi-même tant que les mises à jour automatiques sont retenues ici, quelle que soit la version que le cœur choisirait autrement. %s peut tout de même être installée délibérément en ligne de commande."
+
+#. translators: %s: target version.
+#, php-format
+msgid "Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line."
+msgstr "Keel n’a pas pu déterminer ce que WordPress installerait ensuite; rien ici n’établit donc si %s est planifiée. Elle peut être installée délibérément en ligne de commande."
+
+#. translators: %s: target version.
+#, php-format
+msgid "Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line."
+msgstr "Pour obtenir %s, il faut attendre que la vérification planifiée l’installe, ou l’installer délibérément en ligne de commande."
+
+#. translators: 1: the version the scheduled check would install, 2: target version.
+#, php-format
+msgid "The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line."
+msgstr "La vérification planifiée installera %1$s et sautera %2$s. Pour obtenir %2$s, il faut l’installer délibérément en ligne de commande."
+
+#. translators: %s: target version.
+#, php-format
+msgid "WordPress is not scheduling %s: it is not in this site's cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. Installing it deliberately requires an offer for it, which this site does not currently hold."
+msgstr "WordPress ne planifie pas %s : elle ne figure pas encore dans la liste en cache des mises à jour du cœur de ce site. Les mises à jour automatiques fonctionnent ici; une vérification ultérieure pourrait donc la détecter. L’installer délibérément nécessite une offre pour cette version, que ce site ne détient pas actuellement."
+
+#. translators: %s: target version.
+#, php-format
+msgid "WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line."
+msgstr "WordPress ne planifie pas actuellement %s, bien qu’elle fasse partie des versions proposées à ce site. Les mises à jour automatiques fonctionnent; quelque chose refuse donc cette version en particulier. Elle peut être installée délibérément en ligne de commande."
+
+#. translators: %s: target version.
+#, php-format
+msgid "Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line."
+msgstr "Pour obtenir %s, il faut soit laisser les mises à jour automatiques reprendre, soit l’installer délibérément en ligne de commande."
+
+msgid "You are not allowed to change update settings on this site."
+msgstr "Vous n’avez pas l’autorisation de modifier les réglages de mise à jour sur ce site."
+
+#. translators: %s: WordPress version.
+#, php-format
+msgid "WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy."
+msgstr "WordPress %s comporte des vulnérabilités connues, et toutes les versions de cette branche sont signalées de la même façon. Passer à une branche maintenue est la seule solution."
+
+#. translators: 1: current version, 2: patched version.
+#, php-format
+msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install."
+msgstr "WordPress %1$s comporte des vulnérabilités connues. La version la plus proche sans vulnérabilités connues est %2$s, sur cette même branche. La mise à jour automatique semble disponible; Santé du site indique quelle version WordPress installerait réellement."
+
+#. translators: 1: current version, 2: patched version, 3: reasons.
+#, php-format
+msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but it cannot currently install automatically: %3$s."
+msgstr "WordPress %1$s comporte des vulnérabilités connues. La version la plus proche sans vulnérabilités connues est %2$s, sur cette même branche, mais elle ne peut pas s’installer automatiquement pour le moment : %3$s."
+
+#. translators: 1: current version, 2: patched version.
+#, php-format
+msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but minor updates are switched off on this site, so it will not arrive on its own."
+msgstr "WordPress %1$s comporte des vulnérabilités connues. La version la plus proche sans vulnérabilités connues est %2$s, sur cette même branche, mais les mises à jour mineures sont désactivées sur ce site; elle n’arrivera donc pas d’elle-même."
+
+msgid "See what is preventing it — Site Health"
+msgstr "Voir ce qui l’en empêche — Santé du site"
+
+msgid "security and maintenance, same release line"
+msgstr "sécurité et maintenance, même branche de versions"
+
+msgid "new release line"
+msgstr "nouvelle branche de versions"
+
+msgid " — a delta package is available"
+msgstr " — un paquet différentiel est disponible"
+
+msgid "security fix"
+msgstr "correctif de sécurité"
+
+#. translators: %d: number of releases offered.
+#, php-format
+msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
+msgstr "WordPress.org propose %d versions à ce site. Il en installera au plus une, et il choisit la plus élevée que vos réglages permettent plutôt que la plus proche :"
+
+msgid "AI connectors are disabled on this site."
+msgstr "Les connecteurs d’IA sont désactivés sur ce site."
+
+#. translators: %s: comma-separated setting/hook names.
+#, php-format
+msgid "A Keel setting is not taking effect on this site: %s"
+msgid_plural "Some Keel settings are not taking effect on this site: %s"
+msgstr[0] "Un réglage de Keel ne prend pas effet sur ce site : %s"
+msgstr[1] "Certains réglages de Keel ne prennent pas effet sur ce site : %s"
+
+msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgstr "La dernière fois qu’ils ont été observés, ces réglages produisaient une valeur différente de celle configurée ici; quelque chose d’autre sur ce site en décide donc. Keel ne peut pas dire quoi : une extension qui désactive une fonctionnalité à l’aide d’une des fonctions utilitaires de WordPress ne laisse aucune trace permettant de remonter jusqu’à elle. C’est du côté de vos extensions actives qu’il faut chercher."
+
+#. translators: %s: comma-separated plugin directory names.
+#, php-format
+msgid "Another plugin may influence some of the same settings as Keel: %s"
+msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
+msgstr[0] "Une autre extension pourrait influer sur certains des mêmes réglages que Keel : %s"
+msgstr[1] "D’autres extensions pourraient influer sur certains des mêmes réglages que Keel : %s"
+
+msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
+msgstr "Ces extensions sont enregistrées sur des crochets de politique déterminants que Keel utilise aussi. Comparez leurs réglages : cela confirme un chevauchement, pas que leurs résultats configurés divergent."
+
+#. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
+#, php-format
+msgid "%1$s of %2$sKeel%3$s's settings is shared with a callback from another source that cannot be traced to any plugin."
+msgid_plural "%1$s of %2$sKeel%3$s's settings are shared with callbacks from another source that cannot be traced to any plugin."
+msgstr[0] "%1$s réglage de %2$sKeel%3$s est partagé avec une fonction de rappel d’une autre source qui ne peut être associée à aucune extension."
+msgstr[1] "%1$s réglages de %2$sKeel%3$s sont partagés avec des fonctions de rappel d’une autre source qui ne peuvent être associées à aucune extension."
+
+msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
+msgstr "Une extension qui désactive une fonctionnalité à l’aide d’une des fonctions utilitaires de WordPress ne laisse rien derrière elle qui permette de l’identifier."
+
+msgid "See which settings may be contested under Site Health"
+msgstr "Voir dans Santé du site quels réglages pourraient être contestés"
+
+msgid "Dismiss until this changes"
+msgstr "Ignorer jusqu’à ce que cela change"
+
+msgid "Site Contributor"
+msgstr "Contributeur du site"
+
+msgid "Use a trusted SMTP or transactional email plugin such as WP Mail SMTP, Post SMTP, or a host-provided mail plugin."
+msgstr "Utilisez une extension SMTP ou de courriel transactionnel fiable, comme WP Mail SMTP, Post SMTP ou une extension de courriel fournie par votre hébergeur."
+
+msgid "Site email may be misconfigured."
+msgstr "Le courriel du site est peut-être mal configuré."
+
+msgid "No password reset links were sent."
+msgstr "Aucun lien de réinitialisation du mot de passe n’a été envoyé."
+
+msgid "Site email may not be configured, or the selected users may not have deliverable email addresses."
+msgstr "Le courriel du site n’est peut-être pas configuré, ou les utilisateurs sélectionnés n’ont peut-être pas d’adresse courriel où la livraison est possible."
+
+msgid "Outgoing email is switched off on this site."
+msgstr "Les courriels sortants sont désactivés sur ce site."
+
+#. translators: %s: environment name, such as staging or local.
+#, php-format
+msgid "This is the %s environment, not production, so nothing is delivered — including password resets. WordPress still reports each message as sent, so code that depends on the result behaves as it would in production."
+msgstr "Ceci est l’environnement %s, pas la production; rien n’est donc livré — y compris les réinitialisations de mot de passe. WordPress signale tout de même chaque message comme envoyé, de sorte que le code qui dépend du résultat se comporte comme il le ferait en production."
+
+#. translators: %s: link to the Non-Production Email setting.
+#, php-format
+msgid "Turn off %s to send from here anyway."
+msgstr "Désactivez %s pour envoyer quand même depuis ce site."
+
+msgid "Non-Production Email"
+msgstr "Courriel hors production"
+
+msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Network Policy."
+msgstr "Défini pour tout le réseau par un super-admin. Modifiez-le dans Admin du réseau → Réglages → Politique du réseau."
+
+msgid "Network Policy"
+msgstr "Politique du réseau"
+
+msgid "You do not have permission to set network policy."
+msgstr "Vous n’avez pas l’autorisation de définir la politique du réseau."
+
+msgid "Keel — network policy"
+msgstr "Keel — politique du réseau"
+
+msgid "Network policy saved."
+msgstr "Politique du réseau enregistrée."
+
+msgid "Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site's own business, and their saved values are untouched — untick it later and every site returns to exactly what it had."
+msgstr "Cochez un réglage pour en décider pour tous les sites de ce réseau. Les sites le voient verrouillé et ne peuvent pas le modifier. Ce qui reste décoché demeure l’affaire de chaque site, et leurs valeurs enregistrées restent intactes — décochez-le plus tard et chaque site retrouve exactement ce qu’il avait."
+
+msgid "The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there."
+msgstr "Les règles de mot de passe sont celles qu’il vaut le plus la peine de définir ici. WordPress conserve une seule table d’utilisateurs pour tout le réseau; un mot de passe est donc vérifié selon le site où il est défini — sans politique du réseau, le site le plus strict fixe le minimum pour quiconque y change son mot de passe."
+
+msgid "Decide this for the whole network"
+msgstr "En décider pour tout le réseau"
+
+msgid "Save network policy"
+msgstr "Enregistrer la politique du réseau"
+
+msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
+msgstr "Jetpack est actif sur ce site. Il utilise XML-RPC pour sa connexion à WordPress.com; bloquer le point de terminaison la rompra donc. Laissez ce réglage désactivé à moins que des tests de connexion et de fonctionnalités prouvent que Jetpack n’a plus besoin de XML-RPC."
+
+msgid "<strong>Error:</strong> Enter a password."
+msgstr "<strong>Erreur :</strong> saisissez un mot de passe."
+
+msgid "<strong>Error:</strong> That password is too long."
+msgstr "<strong>Erreur :</strong> ce mot de passe est trop long."
+
+msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
+msgstr "<strong>Erreur :</strong> choisissez un mot de passe qui n’est apparu dans aucune fuite de données connue."
+
+#. translators: %d: minimum password length.
+#, php-format
+msgid "<strong>Error:</strong> Password must be at least %d characters."
+msgstr "<strong>Erreur :</strong> le mot de passe doit comporter au moins %d caractères."
+
+msgid "<strong>Error:</strong> Choose a password that is not commonly used."
+msgstr "<strong>Erreur :</strong> choisissez un mot de passe qui n’est pas couramment utilisé."
+
+msgid "<strong>Error:</strong> Password must not contain your username or email name."
+msgstr "<strong>Erreur :</strong> le mot de passe ne doit pas contenir votre identifiant ni la partie nom de votre adresse courriel."
+
+msgid "REST API restricted to authenticated users."
+msgstr "API REST réservée aux utilisateurs authentifiés."
+
+msgid "Keel"
+msgstr "Keel"
+
+msgid "Site Defaults"
+msgstr "Réglages par défaut du site"
+
+msgid "Settings"
+msgstr "Réglages"
+
+msgid "Overview"
+msgstr "Aperçu"
+
+msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all."
+msgstr "Keel applique à WordPress un ensemble de réglages par défaut judicieux en matière de sécurité, de vie privée, d’expérience utilisateur et de performance. Chaque interrupteur de cette page correspond à un réglage, et ils sont indépendants : en activer un n’en active aucun autre, et un interrupteur laissé désactivé signifie que Keel n’applique pas du tout ce réglage."
+
+msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
+msgstr "Les réglages activés d’office présentent peu de risques et conviennent à presque tous les sites. Tout ce qui peut modifier le comportement ou briser une intégration — exiger l’authentification pour toutes les requêtes REST, bloquer le point de terminaison XML-RPC, l’éditeur classique — est désactivé par défaut et ne s’active que sur demande."
+
+msgid "There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
+msgstr "Il y a une exception : Keel envoie un en-tête <code>X-Frame-Options</code> de valeur <code>SAMEORIGIN</code>, pour que d’autres sites ne puissent pas intégrer le vôtre dans un iframe. Si autre chose doit afficher ce site dans un cadre — un tableau de bord intranet, un service de captures d’écran ou de révision visuelle, une borne ou un écran d’affichage — réglez Options de cadre à « Laisser inchangé » sous Sécurité et surface d’attaque. Un cadre bloqué échoue généralement en silence, sous forme de boîte vide."
+
+msgid "Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off."
+msgstr "Cinq réglages disparaissent, deviennent inactifs et ne peuvent plus être modifiés lorsqu’un autre choix les rend inutiles : les trois contrôles des méthodes XML-RPC quand le point de terminaison lui-même est bloqué, Durée de « Se souvenir de moi » quand « Se souvenir de moi » est désactivé, et Exemptions de la politique de mot de passe quand Robustesse du mot de passe est désactivé."
+
+msgid "Passwords"
+msgstr "Mots de passe"
+
+msgid "For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess."
+msgstr "Pour des mots de passe robustes, Keel exige une longueur minimale et une vérification des fuites plutôt que des règles de composition imposant un mélange de types de caractères. Cette approche suit la norme <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Les règles de composition poussent les gens vers des formes prévisibles — comme <code>Password1!</code> — sans les rendre plus difficiles à deviner."
+
+msgid "WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all."
+msgstr "WordPress affiche déjà un indicateur de robustesse pendant la saisie, et Keel le conserve — c’est un bon conseil. Mais il ne peut pas servir de règle. L’indicateur, l’avertissement de mot de passe faible et la case demandant de confirmer un mot de passe faible fonctionnent tous en JavaScript, et rien sur le serveur ne les lit; un mot de passe défini par l’API REST, WP-CLI ou un formulaire sans scripts n’est donc jamais mesuré."
+
+msgid "Keel enforces password strength on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the strength meter is good at."
+msgstr "Keel impose la robustesse des mots de passe sur le serveur, où rien ne peut la contourner — mais il vérifie la longueur d’un mot de passe et s’il est déjà apparu dans une fuite, pas s’il est facile à deviner. Un mot de passe long qui n’a jamais fuité peut tout de même être un choix évident, et c’est justement ce que l’indicateur de robustesse sait repérer."
+
+msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange\" target=\"_blank\" rel=\"noopener noreferrer\">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter."
+msgstr "La vérification des fuites n’envoie à <a href=\"https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange\" target=\"_blank\" rel=\"noopener noreferrer\">Have I Been Pwned</a> que les cinq premiers caractères d’un hachage SHA-1 calculé sur ce site, et compare localement les suffixes renvoyés — ni le mot de passe ni son hachage complet ne quittent donc le site. Elle peut être désactivée avec la constante <code>KEEL_DISABLE_HIBP</code> ou le filtre <code>keel_disable_hibp</code>."
+
+msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate — the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers."
+msgstr "Une panne ou une réponse malformée laisse passer le mot de passe au lieu de le bloquer. C’est voulu — sinon, personne ne pourrait changer de mot de passe lorsque l’API HIBP est hors service. Les règles de longueur, de liste de blocage et de contexte personnel s’appliquent toujours, et seule une réponse reçue en entier et analysée correctement est mise en cache; une seule mauvaise réponse ne peut donc pas produire des heures de faux « aucune fuite »."
+
+#. translators: %s: URL of the Site Health status screen.
+#, php-format
+msgid "It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href=\"%s\">Site Health</a>, which says what went wrong — unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. The record clears itself once a lookup succeeds."
+msgstr "Elle n’échoue toutefois pas en silence. Une recherche qui ne peut pas aboutir est consignée et signalée dans <a href=\"%s\">Santé du site</a>, qui indique ce qui s’est mal passé — service injoignable, limite de requêtes atteinte, réponse interrompue, ou réponse d’autre chose que le service. La vérification des fuites est la seule partie de la politique de mot de passe qui dépend d’un tiers; c’est donc la seule qui peut cesser de fonctionner sans avertissement. L’enregistrement s’efface de lui-même dès qu’une recherche réussit."
+
+msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
+msgstr "En multisite, ce réglage est enregistré par site, mais n’agit pas par site. WordPress conserve une seule table d’utilisateurs pour tout le réseau; un mot de passe est donc vérifié selon le site où la personne le définit — et une fois défini, c’est son mot de passe partout. Un super-admin peut régler la question pour tout le monde : dans Admin du réseau → Réglages → Politique du réseau, cocher un réglage en décide pour tout le réseau et le verrouille sur chaque site. S’il reste décoché, chaque site décide pour lui-même, et le site le plus strict fixe le minimum pour quiconque y change son mot de passe."
+
+msgid "XML-RPC"
+msgstr "XML-RPC"
+
+msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
+msgstr "XML-RPC est l’API distante d’origine de WordPress. Elle précède l’API REST et porte encore les méthodes qui permettent à un client externe de publier, de récupérer et de gérer le contenu d’un site avec un identifiant et un mot de passe. La plupart des sites n’utilisent plus XML-RPC, mais certains peuvent en avoir besoin en partie ou en totalité."
+
+msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
+msgstr "C’est pourquoi il y a quatre interrupteurs plutôt qu’un seul. Désactiver complètement le point de terminaison est la position la plus stricte. Les trois contrôles plus ciblés retirent les familles de méthodes précises qui attirent les abus — les pingbacks, la publication authentifiée par identifiants et multicall — tout en laissant le point de terminaison accessible."
+
+msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
+msgstr "Jetpack communique avec WordPress.com par XML-RPC; bloquer le point de terminaison rompt donc la connexion et tout ce qui en dépend. Testez la connexion et les fonctionnalités que vous utilisez avant de conclure que Jetpack n’en a plus besoin."
+
+msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
+msgstr "Bloquer le point de terminaison dans WordPress coûte tout de même une requête. PHP démarre, WordPress se charge, et c’est seulement ensuite que l’extension répond 403. Si votre hébergeur, votre CDN ou votre pare-feu peut refuser <code>xmlrpc.php</code> avant même que la requête n’atteigne WordPress, c’est moins coûteux précisément sous la charge qui rend le blocage intéressant — un déluge de requêtes. Ce réglage est la solution pour les sites qui n’ont pas cette possibilité."
+
+msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
+msgstr "La mauvaise réputation de <code>system.multicall</code> est dépassée. Cette méthode permettait autrefois à un attaquant de regrouper des centaines de tentatives de mot de passe en une seule requête. WordPress 4.4 a corrigé cela en 2015. La refuser aujourd’hui réduit modestement la surface d’attaque contre le regroupement de requêtes; ce n’est pas le correctif d’une vulnérabilité active."
+
+msgid "Environments"
+msgstr "Environnements"
+
+msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration."
+msgstr "Deux réglages par défaut se comportent différemment selon que Keel s’exécute dans un environnement de production ou hors production : les courriels sortants et l’indicateur d’environnement. Les deux lisent <code>wp_get_environment_type()</code>, qui renvoie la valeur définie par la constante ou la variable d’environnement <code>WP_ENVIRONMENT_TYPE</code> — la constante est l’entrée, la fonction est la sortie — et <code>production</code> lorsque rien ne la définit. Keel reconnaît aussi les noms d’hôte locaux courants sans configuration."
+
+msgid "<strong>Outgoing email stops at the edge of production.</strong> A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived."
+msgstr "<strong>Les courriels sortants s’arrêtent à la frontière de la production.</strong> Une base de données copiée depuis un site en ligne contient de vraies adresses de clients et le service de courriel qu’utilisait la production; une tâche cron ou une action groupée peut alors envoyer des courriels à de vraies personnes depuis un site de préproduction ou un ordinateur portable. Dans tout environnement autre que la production, Keel bloque les courriels sortants — et le signale dans un avis d’administration, car sinon quelqu’un passerait l’après-midi à se demander pourquoi une réinitialisation de mot de passe n’est jamais arrivée."
+
+msgid "WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of <code>wp_mail()</code> then behaves the way it will in production, instead of taking an error path that only ever runs on staging."
+msgstr "WordPress signale tout de même chaque message bloqué comme envoyé, et c’est voulu. Le code qui réagit au résultat de <code>wp_mail()</code> se comporte alors comme il le fera en production, au lieu d’emprunter un chemin d’erreur qui ne s’exécute jamais qu’en préproduction."
+
+msgid "<strong>The environment indicator is the colour-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
+msgstr "<strong>L’indicateur d’environnement est l’étiquette colorée de la barre d’administration qui nomme l’environnement actuel.</strong> Il est désactivé par défaut et mérite d’être activé partout où quelqu’un pourrait avoir la production et la préproduction ouvertes dans des onglets voisins. Sous 960 px, l’étiquette se réduit à son icône pour gagner de la place, mais elle reste lisible par les lecteurs d’écran. <strong>C’est volontairement la moitié facultative de cette paire :</strong> bloquer les courriels n’est pas nécessaire en production, alors que l’indicateur d’environnement serait visible en permanence sur chaque écran de chaque site de production. Il est utile en option lorsque la production en ligne, les tests locaux et la préproduction coexistent et peuvent être confondus — avec de très graves conséquences."
+
+msgid "If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting <code>WP_ENVIRONMENT_TYPE</code> explicitly in <code>wp-config.php</code> is worth doing on every install regardless, because core, plugins and themes all read it."
+msgstr "Si les courriels sont bloqués sur un site que vous considérez comme la production, c’est le type d’environnement qu’il faut vérifier en premier — pas cette extension. Définir explicitement <code>WP_ENVIRONMENT_TYPE</code> dans <code>wp-config.php</code> vaut la peine sur chaque installation de toute façon, car le cœur, les extensions et les thèmes le lisent tous."
+
+msgid "Overlapping plugins"
+msgstr "Extensions qui se chevauchent"
+
+msgid "Many of Keel's defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one plugin's activity prevails. There is no error, nothing is logged, and the plugin that was quietly overruled goes on showing the setting you think it applied. That is why WordPress can have two plugins configured to disable comments and still have comments."
+msgstr "Bon nombre des réglages de Keel sont appliqués au moyen de filtres WordPress qui renvoient une seule valeur. Lorsque deux extensions sont enregistrées sur le même filtre, l’action d’une seule l’emporte. Il n’y a aucune erreur, rien n’est consigné, et l’extension discrètement contredite continue d’afficher le réglage que vous croyez appliqué. C’est pourquoi WordPress peut avoir deux extensions configurées pour désactiver les commentaires et quand même afficher des commentaires."
+
+msgid "Keel reports collisions with other plugins in two ways, and they answer different questions."
+msgstr "Keel signale les collisions avec d’autres extensions de deux façons, qui répondent à des questions différentes."
+
+msgid "<strong>The first method names plugins:</strong> another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either one. Compare their settings and decide which plugin should own the disabling function."
+msgstr "<strong>La première méthode nomme des extensions :</strong> une autre extension active est enregistrée sur un réglage que Keel définit aussi. Cela confirme un chevauchement, pas un désaccord — deux extensions qui désactivent la même chose obtiennent toutes deux ce qu’elles veulent, et le rapport n’est pas une raison de désactiver l’une ou l’autre. Comparez leurs réglages et décidez quelle extension doit prendre en charge la désactivation."
+
+msgid "<strong>The second method says a setting is not taking effect:</strong> Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
+msgstr "<strong>La deuxième méthode indique qu’un réglage ne prend pas effet :</strong> Keel a demandé une valeur, a observé celle sur laquelle la chaîne de filtres s’est réellement arrêtée, et les deux diffèrent. Celle-là mérite qu’on agisse, car elle est mesurée plutôt que déduite."
+
+msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
+msgstr "<strong>Parfois, aucune extension ne peut être nommée.</strong> Une extension qui désactive une fonctionnalité à l’aide d’une des fonctions utilitaires de WordPress ne laisse rien derrière elle qui permette de l’identifier — la fonction de rappel appartient à WordPress, pas à qui l’a enregistrée. Ces chevauchements sont signalés comme impossibles à retracer plutôt que devinés, et c’est dans votre liste d’extensions actives qu’il faut chercher pour élucider le mystère."
+
+#. translators: %s: linked name of the Site Health screen.
+#, php-format
+msgid "<strong>The full collision report, hook by hook, is under %s.</strong> The dashboard and plugins screens carry a short version, and the dashboard notification can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing it means “I have seen this” rather than “never mention this again.”"
+msgstr "<strong>Le rapport complet des collisions, crochet par crochet, se trouve dans %s.</strong> Le tableau de bord et l’écran des extensions en présentent une version abrégée, et la notification du tableau de bord peut être ignorée — elle réapparaît si l’ensemble des extensions qui se chevauchent change; l’ignorer signifie donc « j’ai vu ceci » plutôt que « ne m’en parlez plus jamais »."
+
+msgid "Site Health"
+msgstr "Santé du site"
+
+msgid "Nothing in Keel runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them."
+msgstr "Rien dans Keel n’exécute le code d’une autre extension pour découvrir ce qu’il fait. Une version antérieure le faisait, et cela a été retiré pour une raison simple : une vérification qui signale des collisions ne doit pas pouvoir en causer."
+
+msgid "Current posture"
+msgstr "Configuration actuelle"
+
+#. translators: %s: URL of the Site Health Info screen.
+#, php-format
+msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
+msgstr "Chaque réglage et son état actuel sont listés dans <a href=\"%s\">Santé du site → Info</a>, dans la section <strong>Keel Defaults</strong>. Santé du site → État ne signale que les réglages qui méritent attention, et classe les autres sous « Tests réussis »."
+
+#. translators: %s: a wp-config.php constant name.
+#, php-format
+msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
+msgstr "Remplacé par <code>%s</code> dans <code>wp-config.php</code> : WordPress n’installe aucune mise à jour en arrière-plan."
+
+msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
+msgstr "Verrouillé par <code>WP_AUTO_UPDATE_CORE</code> dans <code>wp-config.php</code>. Retirez cette constante pour gérer ici les versions du cœur."
+
+msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
+msgstr "<code>DISALLOW_UNFILTERED_HTML</code> dans <code>wp-config.php</code> retire déjà le HTML non filtré à tous les rôles; cette restriction n’a donc aucun effet supplémentaire."
+
+msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
+msgstr "Verrouillé par <code>WP_POST_REVISIONS</code> dans <code>wp-config.php</code>. Retirez cette constante pour gérer ici la conservation des révisions."
+
+msgid "Sensible defaults for steady sites."
+msgstr "Des réglages par défaut judicieux pour des sites stables."
+
+msgid "Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
+msgstr "Keel établit une base solide pour votre site — des réglages par défaut judicieux en matière de sécurité, de mises à jour, de vie privée, d’expérience d’administration et de performance. Chaque option ci-dessous est un réglage délibéré que vous pouvez voir et désactiver. Rien ne s’exécute qui ne soit listé ici, et tout ce que vous laissez décoché garde WordPress exactement tel qu’il est livré."
+
+msgid "No low-privilege roles are available to exempt."
+msgstr "Aucun rôle à faibles privilèges ne peut être exempté."
+
+msgid "Overlapping defaults plugins"
+msgstr "Extensions de réglages qui se chevauchent"
+
+msgid "Password breach screening"
+msgstr "Vérification des fuites de mots de passe"
+
+msgid "On"
+msgstr "Activé"
+
+msgid "Off"
+msgstr "Désactivé"
+
+msgid "Unchanged"
+msgstr "Inchangé"
+
+msgid "None"
+msgstr "Aucun"
+
+#. translators: %s: link to the Keel settings screen.
+#, php-format
+msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
+msgstr "Chaque réglage géré par Keel et son état actuel sur ce site. Lecture seule — modifiez-les dans %s."
+
+msgid "Settings → Site Defaults"
+msgstr "Réglages → Réglages par défaut du site"
+
+#. translators: %s: link to the Keel settings screen.
+#, php-format
+msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning."
+msgstr "État actuel des réglages gérés par Keel sur ce site — un résumé en lecture seule de vos choix dans %s, pas un avertissement."
+
+msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
+msgstr "Les mots de passe robustes sont désactivés; les comptes privilégiés peuvent donc définir des mots de passe faibles ou ayant fuité."
+
+msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
+msgstr "La découverte des utilisateurs par REST est ouverte; les visiteurs anonymes peuvent donc énumérer les identifiants."
+
+msgid "Worth a look:"
+msgstr "À examiner :"
+
+msgid "Keel defaults are in place"
+msgstr "Les réglages par défaut de Keel sont en place"
+
+msgid "Some Keel security defaults are off"
+msgstr "Certains réglages de sécurité de Keel sont désactivés"
+
+msgid "Review Keel settings"
+msgstr "Revoir les réglages de Keel"
+
+#. translators: %s: comma-separated plugin directory names.
+#, php-format
+msgid "callbacks from %s, and one that cannot be traced to a plugin"
+msgstr "des fonctions de rappel de %s, et une qui ne peut être associée à aucune extension"
+
+#. translators: %s: comma-separated plugin directory names.
+#, php-format
+msgid "callbacks from %s"
+msgstr "des fonctions de rappel de %s"
+
+msgid "a callback that cannot be traced to a plugin"
+msgstr "une fonction de rappel qui ne peut être associée à aucune extension"
+
+msgid "No breach-screening failures recorded"
+msgstr "Aucun échec de vérification des fuites enregistré"
+
+msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
+msgstr "Les nouveaux mots de passe sont vérifiés dans la base de Have I Been Pwned, et aucun échec n’a été signalé."
+
+msgid "Password breach screening is switched off"
+msgstr "La vérification des fuites de mots de passe est désactivée"
+
+#. translators: %s: link to the Password Strength setting.
+#, php-format
+msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
+msgstr "Les mots de passe robustes ne sont pas exigés; rien n’est donc vérifié par rapport aux fuites connues. Activez %s pour la mettre en marche."
+
+msgid "Password Strength"
+msgstr "Robustesse du mot de passe"
+
+msgid "Password breach screening is switched off in code"
+msgstr "La vérification des fuites de mots de passe est désactivée dans le code"
+
+msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+msgstr "La longueur et les autres règles de mot de passe s’appliquent toujours, mais la constante <code>KEEL_DISABLE_HIBP</code> ou le filtre <code>keel_disable_hibp</code> empêche la recherche de fuites. Il s’agit d’une configuration délibérée, pas d’une défaillance."
+
+msgid "Password breach screening is working"
+msgstr "La vérification des fuites de mots de passe fonctionne"
+
+#. translators: %s: human-readable time difference, e.g. "2 hours".
+#, php-format
+msgid "New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago."
+msgstr "Les nouveaux mots de passe sont vérifiés dans la base de Have I Been Pwned. La dernière recherche s’est terminée il y a %s."
+
+msgid "New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password."
+msgstr "Les nouveaux mots de passe sont vérifiés dans la base de Have I Been Pwned. Aucune recherche n’a encore abouti sur ce site, et aucune n’a échoué — la vérification est en place, mais rien ne l’a encore sollicitée. Elle s’exécutera la prochaine fois que quelqu’un définira ou changera un mot de passe."
+
+msgid "the service could not be reached"
+msgstr "le service était injoignable"
+
+msgid "the reply was cut short before it could be read"
+msgstr "la réponse a été interrompue avant de pouvoir être lue"
+
+msgid "the reply was not the list of hashes it should have been, which usually means something answered on the service's behalf — a captive portal, or a filtering proxy"
+msgstr "la réponse n’était pas la liste de hachages attendue, ce qui signifie généralement que quelque chose a répondu à la place du service — un portail captif ou un proxy de filtrage"
+
+#. translators: %s: HTTP status code.
+#, php-format
+msgid "the service answered with HTTP %s"
+msgstr "le service a répondu avec le code HTTP %s"
+
+msgid "the lookup did not complete"
+msgstr "la recherche n’a pas abouti"
+
+msgid "Passwords are not being screened against known breaches"
+msgstr "Les mots de passe ne sont pas vérifiés par rapport aux fuites connues"
+
+#. translators: %s: short reason the lookup failed.
+#, php-format
+msgid "The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check."
+msgstr "La dernière recherche de fuites n’a pas abouti : %s. Les mots de passe définis depuis ont été acceptés sans cette vérification."
+
+msgid "This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person's own name and email — is unaffected and still applies."
+msgstr "Cela n’empêche personne de changer son mot de passe, et ce n’en est pas une raison. Le reste de la politique de mot de passe — la longueur, la liste de blocage et les vérifications par rapport au nom et à l’adresse courriel de la personne — n’est pas touché et s’applique toujours."
+
+msgid "If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds."
+msgstr "Si le site ne peut pas effectuer de requêtes HTTPS sortantes, cela vaut la peine d’être corrigé en soi : les mises à jour des extensions et du cœur passent par le même chemin. Cet avis disparaît de lui-même dès qu’une recherche réussit."
+
+msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
+msgstr "WordPress exécute chaque fonction de rappel d’un filtre par ordre de priorité et utilise la valeur finale. Keel signale lorsqu’une autre extension identifiable est enregistrée sur un crochet de politique déterminant que Keel utilise aussi. Cela confirme un chevauchement, pas que les extensions produisent des résultats différents."
+
+#. translators: %s: comma-separated list of filter names.
+#, php-format
+msgid "Not taking effect: %s"
+msgstr "Sans effet : %s"
+
+msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgstr "La dernière fois qu’ils ont été observés, ces réglages produisaient une valeur différente de celle configurée ici; quelque chose d’autre sur ce site en décide donc. Keel ne peut pas dire quoi : une extension qui désactive une fonctionnalité à l’aide d’une des fonctions utilitaires de WordPress ne laisse aucune trace permettant de remonter jusqu’à elle. C’est du côté de vos extensions actives qu’il faut chercher."
+
+msgid "Unconfirmed overlaps"
+msgstr "Chevauchements non confirmés"
+
+msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
+msgstr "Ces fonctions de rappel partagent un crochet de composition ou ne peuvent pas être attribuées. C’est à titre informatif seulement; ce n’est pas une raison de désactiver quoi que ce soit."
+
+msgid "A setting is not taking effect"
+msgstr "Un réglage ne prend pas effet"
+
+msgid "A setting is shared with an untraceable callback"
+msgid_plural "Some settings are shared with untraceable callbacks"
+msgstr[0] "Un réglage est partagé avec une fonction de rappel impossible à retracer"
+msgstr[1] "Certains réglages sont partagés avec des fonctions de rappel impossibles à retracer"
+
+msgid "No attributable policy overlap was found"
+msgstr "Aucun chevauchement de politique attribuable n’a été trouvé"
+
+#. translators: %s: comma-separated plugin directory names.
+#, php-format
+msgid "Also registered on these policy hooks: %s"
+msgstr "Également enregistrées sur ces crochets de politique : %s"
+
+msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
+msgstr "Examinez les réglages correspondants dans les deux extensions. Un enregistrement sur le même crochet ne prouve pas que leurs résultats configurés divergent; ne désactivez donc aucune des deux extensions sur la seule base de ce rapport."
+
+msgid "More than one plugin may influence the same settings"
+msgstr "Plusieurs extensions pourraient influer sur les mêmes réglages"
+
+msgid "REST User Discovery"
+msgstr "Découverte des utilisateurs par REST"
+
+msgid "Hide users from anonymous REST requests"
+msgstr "Masquer les utilisateurs aux requêtes REST anonymes"
+
+msgid "Stops the REST API from listing account login names to logged-out visitors. Without it, anyone can read <code>/wp/v2/users</code> and collect valid usernames — half of what a password-guessing attack needs, so the attacker no longer has to find the username first."
+msgstr "Empêche l’API REST de lister les identifiants de connexion des comptes aux visiteurs non connectés. Sans cela, n’importe qui peut lire <code>/wp/v2/users</code> et recueillir des identifiants valides — la moitié de ce dont une attaque par devinette de mots de passe a besoin; l’attaquant n’a alors plus à trouver l’identifiant d’abord."
+
+msgid "REST Authentication"
+msgstr "Authentification REST"
+
+msgid "Require authentication for all REST requests"
+msgstr "Exiger l’authentification pour toutes les requêtes REST"
+
+msgid "Blocks anonymous REST entirely and stops advertising the endpoint. The logged-in block editor still works, but public blocks, search, and integrations may not. <code>oembed/1.0</code> stays open so other sites can still embed your posts — it serves only what a published post already shows. Filter: <code>keel_public_rest_routes</code>."
+msgstr "Bloque entièrement les requêtes REST anonymes et cesse d’annoncer le point de terminaison. L’éditeur de blocs fonctionne toujours pour les utilisateurs connectés, mais les blocs publics, la recherche et les intégrations pourraient ne plus fonctionner. <code>oembed/1.0</code> reste ouvert pour que d’autres sites puissent toujours intégrer vos articles — il ne sert que ce qu’un article publié montre déjà. Filtre : <code>keel_public_rest_routes</code>."
+
+msgid "XML-RPC Pingbacks"
+msgstr "Pingbacks XML-RPC"
+
+msgid "Accept incoming pingbacks"
+msgstr "Accepter les pingbacks entrants"
+
+msgid "Off by default. Removes <code>pingback.ping</code> — a spam/reflection-DDoS vector — and the <code>X-Pingback</code> header."
+msgstr "Désactivé par défaut. Retire <code>pingback.ping</code> — un vecteur de pourriel et d’attaques DDoS par réflexion — ainsi que l’en-tête <code>X-Pingback</code>."
+
+msgid "XML-RPC Remote Publishing"
+msgstr "Publication à distance XML-RPC"
+
+msgid "Allow remote publishing (blogging apps)"
+msgstr "Autoriser la publication à distance (applications de blogue)"
+
+msgid "Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave it on while Jetpack is active unless connection and feature testing proves it unnecessary."
+msgstr "Désactivé par défaut. Retire les méthodes <code>wp.*/metaWeblog/MT/blogger</code> authentifiées par identifiants ainsi que le lien RSD. Laissez-le activé tant que Jetpack est actif, à moins que des tests de connexion et de fonctionnalités prouvent qu’il est inutile."
+
+msgid "XML-RPC Multicall"
+msgstr "Multicall XML-RPC"
+
+msgid "Allow <code>system.multicall</code>"
+msgstr "Autoriser <code>system.multicall</code>"
+
+msgid "Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. However, almost nothing legitimately uses this method, so leaving it off is safe."
+msgstr "Désactivé par défaut. <code>system.multicall</code> regroupe plusieurs appels XML-RPC en une seule requête. WordPress 4.4 a empêché qu’on l’utilise pour multiplier les tentatives de mot de passe; le refuser aujourd’hui réduit donc légèrement la surface d’attaque sans bloquer de menace active. Cela dit, presque rien n’utilise légitimement cette méthode, et la laisser désactivée est sans risque."
+
+msgid "XML-RPC Endpoint"
+msgstr "Point de terminaison XML-RPC"
+
+msgid "Block the endpoint entirely (returns 403)"
+msgstr "Bloquer entièrement le point de terminaison (renvoie 403)"
+
+msgid "Strictest tier — <code>xmlrpc.php</code> answers 403 for every request. Leave XML-RPC reachable while Jetpack is active, unless connection and feature testing proves Jetpack no longer needs it. See the XML-RPC help tab for why this runs inside WordPress and when blocking further out is better."
+msgstr "Niveau le plus strict — <code>xmlrpc.php</code> répond 403 à chaque requête. Laissez XML-RPC accessible tant que Jetpack est actif, à moins que des tests de connexion et de fonctionnalités prouvent que Jetpack n’en a plus besoin. Consultez l’onglet d’aide XML-RPC pour savoir pourquoi ce blocage s’exécute dans WordPress et quand il vaut mieux bloquer en amont."
+
+msgid "Application Passwords"
+msgstr "Mots de passe d’application"
+
+msgid "Prohibit application passwords"
+msgstr "Interdire les mots de passe d’application"
+
+msgid "Off by default — application passwords are hashed, revocable, per-application credentials for REST and XML-RPC, and usually the safest way to grant API access. They carry the owning account's full access and skip interactive 2FA, so prohibit them only when policy requires every login to pass 2FA or SSO, or when no integration needs API access at all."
+msgstr "Désactivé par défaut — les mots de passe d’application sont des identifiants hachés, révocables et propres à chaque application pour REST et XML-RPC, et généralement le moyen le plus sûr d’accorder un accès à l’API. Ils portent tous les droits du compte propriétaire et contournent l’authentification à deux facteurs interactive; ne les interdisez donc que si la politique exige que chaque connexion passe par l’authentification à deux facteurs ou l’authentification unique, ou si aucune intégration n’a besoin d’accéder à l’API."
+
+msgid "Require strong passwords"
+msgstr "Exiger des mots de passe robustes"
+
+msgid "15+ characters, not your username or email name, not a common choice, and not found in a known breach. Every account is breach-screened, including the roles exempted below — the exemption covers the other rules only. See the Help tab for why the rules are shaped this way and what the breach check sends."
+msgstr "Au moins 15 caractères, sans votre identifiant ni la partie nom de votre adresse courriel, pas un choix courant et absent des fuites connues. Chaque compte fait l’objet de la vérification des fuites, y compris les rôles exemptés ci-dessous — l’exemption ne couvre que les autres règles. Consultez l’onglet Aide pour savoir pourquoi les règles sont ainsi conçues et ce que la vérification des fuites envoie."
+
+msgid "Password Policy Exemptions"
+msgstr "Exemptions de la politique de mot de passe"
+
+msgid "Roles that skip the length, common-password and username rules; breach screening still applies to everyone. Only roles with no content or settings capabilities appear — which is why Contributor does not. A user is exempt only if every role they hold is listed here. Filter: <code>keel_weak_roles</code>."
+msgstr "Rôles dispensés des règles de longueur, de mots de passe courants et d’identifiant; la vérification des fuites s’applique toujours à tout le monde. Seuls les rôles sans capacités de contenu ni de réglages apparaissent — c’est pourquoi Contributeur n’y figure pas. Un utilisateur n’est exempté que si chacun de ses rôles est listé ici. Filtre : <code>keel_weak_roles</code>."
+
+msgid "Unfiltered HTML"
+msgstr "HTML non filtré"
+
+msgid "Limit raw HTML and JavaScript to Administrators"
+msgstr "Réserver le HTML brut et le JavaScript aux administrateurs"
+
+msgid "Removes the <code>unfiltered_html</code> capability from Editors and every non-Administrator, so only Administrators (and Super Admins on multisite) can save raw, unfiltered HTML and scripts. Cuts stored-XSS risk from lower-privileged editorial accounts. On by default."
+msgstr "Retire la capacité <code>unfiltered_html</code> aux éditeurs et à tous les non-administrateurs, pour que seuls les administrateurs (et les super-admins en multisite) puissent enregistrer du HTML brut non filtré et des scripts. Réduit le risque de XSS stocké provenant de comptes éditoriaux moins privilégiés. Activé par défaut."
+
+msgid "Version Fingerprint"
+msgstr "Empreinte de version"
+
+msgid "Remove the WordPress version fingerprint"
+msgstr "Retirer l’empreinte de version de WordPress"
+
+msgid "Strips the generator meta tag. Obscurity, not hardening — it trims scanner noise but does not make an out-of-date site any safer, and the version still leaks from asset query strings and feeds."
+msgstr "Supprime la balise meta generator. C’est de l’obscurité, pas du renforcement — cela réduit le bruit des outils d’analyse, mais ne rend pas un site désuet plus sûr, et la version fuit encore par les chaînes de requête des fichiers et par les flux."
+
+msgid "Security Headers"
+msgstr "En-têtes de sécurité"
+
+msgid "Send baseline security headers"
+msgstr "Envoyer les en-têtes de sécurité de base"
+
+msgid "<code>X-Content-Type-Options</code>: <code>nosniff</code> and <code>Referrer-Policy</code>: <code>strict-origin-when-cross-origin</code>. Both are low-risk. Framing is controlled separately below, because that is the one that can break a site. Already-set headers are never overwritten."
+msgstr "<code>X-Content-Type-Options</code> : <code>nosniff</code> et <code>Referrer-Policy</code> : <code>strict-origin-when-cross-origin</code>. Les deux présentent peu de risques. L’intégration dans un cadre est contrôlée séparément ci-dessous, car c’est elle qui peut briser un site. Les en-têtes déjà définis ne sont jamais écrasés."
+
+msgid "Frame Options"
+msgstr "Options de cadre"
+
+msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere."
+msgstr "Détermine qui peut intégrer ce site dans un iframe. <code>SAMEORIGIN</code> bloque l’intégration depuis une autre origine, ce qui empêche le détournement de clic, mais brise aussi les intégrations légitimes — l’intranet d’un client, un site partenaire ou un outil d’aperçu ou de révision — généralement sous forme de cadre vide, sans message. Laissez inchangé si votre hébergeur ou votre CDN définit déjà cet en-tête, ou si le site doit être intégré ailleurs."
+
+msgid "SAMEORIGIN — only this site may frame it"
+msgstr "SAMEORIGIN — seul ce site peut l’intégrer dans un cadre"
+
+msgid "DENY — nobody may frame it"
+msgstr "DENY — personne ne peut l’intégrer dans un cadre"
+
+msgid "Leave unchanged (host/CDN sets it, or the site is embedded elsewhere)"
+msgstr "Laisser inchangé (l’hébergeur ou le CDN le définit, ou le site est intégré ailleurs)"
+
+msgid "AI Connectors"
+msgstr "Connecteurs d’IA"
+
+msgid "Disable AI provider connectors"
+msgstr "Désactiver les connecteurs de fournisseurs d’IA"
+
+msgid "Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about."
+msgstr "Désactive les connecteurs de fournisseurs d’IA de WordPress 7.0 au moyen du contrôle <code>wp_supports_ai</code> et ferme l’écran Connecteurs du cœur. Déclenche aussi <code>keel_disable_ai_connectors</code> pour les intégrations d’IA que le cœur ne connaît pas."
+
+msgid "Core Auto-Updates"
+msgstr "Mises à jour automatiques du cœur"
+
+msgid "Chooses which core updates install automatically. Minor releases are maintenance and security fixes; major releases are feature updates that can break incompatible themes and plugins. If an explicit <code>wp-config.php</code> policy exists, it takes precedence, and then this control is locked."
+msgstr "Détermine quelles mises à jour du cœur s’installent automatiquement. Les versions mineures sont des correctifs de maintenance et de sécurité; les versions majeures ajoutent des fonctionnalités et peuvent briser les thèmes et extensions incompatibles. Si une politique explicite existe dans <code>wp-config.php</code>, elle a priorité, et ce contrôle est alors verrouillé."
+
+msgid "Maintenance/security releases only — recommended"
+msgstr "Versions de maintenance et de sécurité seulement — recommandé"
+
+msgid "All stable releases"
+msgstr "Toutes les versions stables"
+
+msgid "No automatic core releases"
+msgstr "Aucune version du cœur automatique"
+
+msgid "Leave unchanged (WordPress, host, or another plugin decides)"
+msgstr "Laisser inchangé (WordPress, l’hébergeur ou une autre extension décide)"
+
+msgid "Translations"
+msgstr "Traductions"
+
+msgid "Automatically update translation files"
+msgstr "Mettre à jour automatiquement les fichiers de traduction"
+
+msgid "Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress's individual per-item choices."
+msgstr "Installe les mises à jour de langue disponibles pour WordPress, les extensions et les thèmes. Les mises à jour du code des extensions et des thèmes restent régies par les choix individuels de WordPress pour chaque élément."
+
+msgid "Comments"
+msgstr "Commentaires"
+
+msgid "Disable comments, trackbacks, and pingbacks"
+msgstr "Désactiver les commentaires, les rétroliens et les pingbacks"
+
+msgid "Closes comments everywhere, hides existing threads, defaults new content to closed, and reports a count of zero. Removes the admin menu, admin-bar node, Recent Comments dashboard widget, comment feeds, and the comment blocks — both from the inserter and from what a block theme renders. Nothing is deleted: turn this off and every comment comes back."
+msgstr "Ferme les commentaires partout, masque les fils existants, ferme par défaut les commentaires sur les nouveaux contenus et affiche un nombre de zéro. Retire le menu d’administration, l’élément de la barre d’administration, le widget Commentaires récents du tableau de bord, les flux de commentaires et les blocs de commentaires — à la fois de l’outil d’insertion et de l’affichage d’un thème de blocs. Rien n’est supprimé : désactivez ce réglage et tous les commentaires reviennent."
+
+msgid "Pingbacks On New Posts"
+msgstr "Pingbacks sur les nouveaux articles"
+
+msgid "Close pingbacks and trackbacks on new posts by default"
+msgstr "Fermer par défaut les pingbacks et rétroliens sur les nouveaux articles"
+
+msgid "Sets the \"allow pingbacks\" default to off for newly created content."
+msgstr "Désactive par défaut l’option « autoriser les pingbacks » pour les contenus nouvellement créés."
+
+msgid "Self-Pingbacks"
+msgstr "Auto-pingbacks"
+
+msgid "Disable self-pingbacks"
+msgstr "Désactiver les auto-pingbacks"
+
+msgid "Stops internal links from generating pingback noise."
+msgstr "Empêche les liens internes de générer des pingbacks inutiles."
+
+msgid "Author Archives"
+msgstr "Archives d’auteur"
+
+msgid "Disable public author archives"
+msgstr "Désactiver les archives d’auteur publiques"
+
+msgid "Redirects the HTML <code>/author/{slug}/</code> archive to the home page and returns 404 for its feed. Author pages leak usernames (like the REST list above) and are usually thin, duplicate content."
+msgstr "Redirige l’archive HTML <code>/author/{slug}/</code> vers la page d’accueil et renvoie une erreur 404 pour son flux. Les pages d’auteur divulguent les identifiants (comme la liste REST ci-dessus) et sont habituellement du contenu mince et en double."
+
+msgid "Attachment Pages"
+msgstr "Pages de fichier joint"
+
+msgid "Redirect attachment pages to the parent post"
+msgstr "Rediriger les pages de fichier joint vers l’article parent"
+
+msgid "Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since the theme means to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file."
+msgstr "Envoie les pages de fichier joint peu utiles vers l’article parent, ou vers le fichier lui-même lorsque le média n’est rattaché à rien. Ignoré automatiquement lorsque le thème fournit <code>attachment.php</code> ou <code>image.php</code>, puisque le thème prévoit alors de les afficher. Le cœur a son propre interrupteur depuis la version 6.4 (<code>wp_attachment_pages_enabled</code>); ce réglage privilégie l’article parent plutôt que le fichier seul."
+
+msgid "Emoji Script"
+msgstr "Script des émojis"
+
+msgid "Disable the emoji detection script"
+msgstr "Désactiver le script de détection des émojis"
+
+msgid "Removes the emoji detection script and inline CSS from every page."
+msgstr "Retire le script de détection des émojis et le CSS en ligne de chaque page."
+
+msgid "Post Passwords"
+msgstr "Mots de passe des articles"
+
+msgid "Hide post password protection in the editor"
+msgstr "Masquer la protection par mot de passe dans l’éditeur"
+
+msgid "Hides the \"Password protected\" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default."
+msgstr "Masque l’option de visibilité « Protégé par mot de passe » dans l’éditeur. Les mots de passe d’article de WordPress sont faibles et contournés par la mise en cache de pages complètes, qui sert la même page en cache quoi qu’il arrive. Les articles existants protégés par mot de passe conservent leur champ afin de rester modifiables. Désactivé par défaut."
+
+msgid "Post Revision Retention"
+msgstr "Conservation des révisions"
+
+msgid "revisions"
+msgstr "révisions"
+
+msgid "revision"
+msgstr "révision"
+
+msgid "Unlimited"
+msgstr "Illimité"
+
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Maximum revisions WordPress keeps for each post. Enter <code>-1</code> for unlimited or <code>0</code> to disable revisions. Changing this governs future saves; it does not immediately delete revisions already stored. A numeric or false <code>WP_POST_REVISIONS</code> value in <code>wp-config.php</code> takes precedence."
+msgstr "Nombre maximal de révisions que WordPress conserve pour chaque article. Saisissez <code>-1</code> pour un nombre illimité ou <code>0</code> pour désactiver les révisions. Ce changement s’applique aux prochains enregistrements; il ne supprime pas immédiatement les révisions déjà stockées. Une valeur numérique ou false de <code>WP_POST_REVISIONS</code> dans <code>wp-config.php</code> a priorité."
+
+msgid "Classic Editor"
+msgstr "Éditeur classique"
+
+msgid "Use the Classic editor instead of the block editor"
+msgstr "Utiliser l’éditeur classique au lieu de l’éditeur de blocs"
+
+msgid "Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default."
+msgstr "Rétablit l’expérience d’édition d’avant les blocs pour les articles, les pages et les types de publication personnalisés, ainsi que l’écran Widgets classique. L’affichage public du contenu en blocs existant n’est pas touché, et avec un thème de blocs l’éditeur de site reste accessible. Désactivé par défaut."
+
+msgid "Upload Filenames"
+msgstr "Noms des fichiers téléversés"
+
+msgid "Lowercase new upload filenames"
+msgstr "Mettre en minuscules les noms des nouveaux fichiers téléversés"
+
+msgid "Avoids case-sensitivity surprises when files move between case-insensitive local/staging and case-sensitive Linux production. On by default; only affects new uploads."
+msgstr "Évite les surprises liées à la casse lorsque des fichiers passent d’un environnement local ou de préproduction insensible à la casse à une production Linux sensible à la casse. Activé par défaut; ne touche que les nouveaux téléversements."
+
+msgid "Image Sizes"
+msgstr "Tailles d’image"
+
+msgid "Show generated image sizes on attachments"
+msgstr "Afficher les tailles d’image générées sur les fichiers joints"
+
+msgid "Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default."
+msgstr "Ajoute à l’écran de modification des fichiers joints un panneau en lecture seule listant chaque taille d’image générée avec ses dimensions, sa taille de fichier et son URL — un moyen rapide de confirmer ce que WordPress a produit. Activé par défaut."
+
+msgid "Email Deliverability"
+msgstr "Livraison des courriels"
+
+msgid "Warn when site email looks broken"
+msgstr "Avertir lorsque le courriel du site semble défaillant"
+
+msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
+msgstr "Avertit les administrateurs lorsque le courriel du site semble défaillant : une adresse d’expéditeur par défaut risquée (invalide, ou un domaine d’exemple, local ou de test) sur un site non local, et une réinitialisation groupée de mots de passe qui n’a envoyé aucun courriel — en remplaçant l’avis de « succès » trompeur de WordPress. Activé par défaut."
+
+msgid "Stop outgoing email unless this is the production site"
+msgstr "Bloquer les courriels sortants sauf sur le site de production"
+
+msgid "A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Override per site with <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> in <code>wp-config.php</code> or the <code>keel_suppress_nonproduction_mail</code> filter."
+msgstr "Une base de données copiée depuis la production apporte de vraies adresses et le service de courriel qu’utilisait la production. Une tâche cron ou une action groupée envoie alors des courriels à de vraies personnes depuis un site de préproduction ou un ordinateur portable. Sans effet en production, ce réglage ne peut donc pas y rester activé par erreur. Remplacez-le par site avec <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> dans <code>wp-config.php</code> ou le filtre <code>keel_suppress_nonproduction_mail</code>."
+
+msgid "Admin Search"
+msgstr "Recherche dans l’administration"
+
+msgid "Search titles only in admin list tables"
+msgstr "Chercher seulement dans les titres des tableaux de listes d’administration"
+
+msgid "Speeds up admin list-table search on big sites by matching titles only."
+msgstr "Accélère la recherche dans les tableaux de listes d’administration des gros sites en ne comparant que les titres."
+
+msgid "Front-End Admin Bar"
+msgstr "Barre d’administration publique"
+
+msgid "The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins or everyone, or auto-hide it so it slides out of the way and returns on hover or keyboard focus (desktop only)."
+msgstr "La barre d’outils WordPress affichée en haut du site pour les utilisateurs connectés. Masquez-la pour les non-administrateurs ou pour tout le monde, ou masquez-la automatiquement pour qu’elle s’efface et réapparaisse au survol ou au focus clavier (ordinateur seulement)."
+
+msgid "Leave unchanged (WordPress default)"
+msgstr "Laisser inchangé (par défaut de WordPress)"
+
+msgid "Hide for non-admins"
+msgstr "Masquer pour les non-administrateurs"
+
+msgid "Hide for everyone"
+msgstr "Masquer pour tout le monde"
+
+msgid "Auto-hide, reveal on hover or keyboard focus (desktop)"
+msgstr "Masquer automatiquement, afficher au survol ou au focus clavier (ordinateur)"
+
+msgid "Admin Menu Width"
+msgstr "Largeur du menu d’administration"
+
+msgid "Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core's width over a theme, host, or plugin that has widened the menu."
+msgstr "Définit la largeur du menu d’administration de gauche, utile lorsque les libellés de menu des extensions sont longs. La largeur par défaut de WordPress est de 160 px. Laissez inchangé et Keel ne définit aucune largeur; choisissez 160 px pour imposer la largeur du cœur à un thème, un hébergeur ou une extension qui a élargi le menu."
+
+msgid "Leave unchanged"
+msgstr "Laisser inchangé"
+
+msgid "160px (WordPress default)"
+msgstr "160 px (par défaut de WordPress)"
+
+msgid "200px"
+msgstr "200 px"
+
+msgid "240px"
+msgstr "240 px"
+
+msgid "280px"
+msgstr "280 px"
+
+msgid "300px"
+msgstr "300 px"
+
+msgid "Admin List Columns"
+msgstr "Colonnes des listes d’administration"
+
+msgid "Add helper columns to admin list tables"
+msgstr "Ajouter des colonnes utiles aux tableaux de listes d’administration"
+
+msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
+msgstr "Ajoute des colonnes d’un coup d’œil aux tableaux de listes d’administration : ID, image mise en avant et date de modification pour les articles et les pages; taille de fichier dans la bibliothèque de médias; dates d’inscription et de dernière connexion pour les utilisateurs. La dernière connexion est enregistrée à partir du moment où ce réglage est activé. Désactivé par défaut."
+
+msgid "Environment Indicator"
+msgstr "Indicateur d’environnement"
+
+msgid "Show the current environment in the admin bar"
+msgstr "Afficher l’environnement actuel dans la barre d’administration"
+
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgstr "Ajoute à la barre d’administration une étiquette colorée indiquant l’environnement actuel (Production, Préproduction, Développement ou Local) selon <code>wp_get_environment_type()</code> — une protection rapide contre les actions sur le mauvais site. Les hôtes de développement local courants sont reconnus automatiquement. Désactivé par défaut."
+
+msgid "Remember Me"
+msgstr "Se souvenir de moi"
+
+msgid "Disable Remember Me and remove the login checkbox"
+msgstr "Désactiver « Se souvenir de moi » et retirer la case de la page de connexion"
+
+msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
+msgstr "Retire la case « Se souvenir de moi » du formulaire de connexion; chaque connexion utilise donc la durée de session normale ci-dessous. Utile pour les ordinateurs partagés ou les bornes."
+
+msgid "Regular Session Length"
+msgstr "Durée de session normale"
+
+msgid "days"
+msgstr "jours"
+
+msgid "day"
+msgstr "jour"
+
+msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
+msgstr "Durée pendant laquelle une connexion normale (sans « Se souvenir de moi ») reste active. La valeur par défaut de WordPress est de 2 jours."
+
+msgid "Remember Me Length"
+msgstr "Durée de « Se souvenir de moi »"
+
+msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
+msgstr "Durée pendant laquelle une connexion mémorisée reste active. La valeur par défaut de WordPress est de 14 jours. Elle ne peut pas être plus courte que la durée de session normale ci-dessus."
+
+msgid "Login Logo"
+msgstr "Logo de connexion"
+
+msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
+msgstr "Le logo par défaut renvoie vers wordpress.org, hors de votre site. Il reste intact par défaut, car modifier l’écran de connexion d’office est intrusif. Retirer, délier ou remplacer le logo fait toujours pointer le lien de l’en-tête vers votre page d’accueil. Le remplacement utilise le logo défini dans l’outil de personnalisation, ou l’icône du site s’il n’y a pas de logo; si aucun des deux n’est défini, le logo WordPress reste."
+
+msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
+msgstr "Garder le logo WordPress et le lien vers wordpress.org (par défaut de WordPress)"
+
+msgid "Remove the logo and the wordpress.org link"
+msgstr "Retirer le logo et le lien vers wordpress.org"
+
+msgid "Keep the logo, drop the wordpress.org link"
+msgstr "Garder le logo, retirer le lien vers wordpress.org"
+
+msgid "Replace the logo with your site logo"
+msgstr "Remplacer le logo par celui de votre site"
+
+msgid "Heartbeat API"
+msgstr "API Heartbeat"
+
+msgid "Slow background admin polling"
+msgstr "Ralentir les interrogations en arrière-plan de l’administration"
+
+msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
+msgstr "Ralentit les interrogations de l’administration à 60 secondes et les supprime sur l’accueil du tableau de bord. Désactivé par défaut : Heartbeat alimente aussi l’enregistrement automatique et les avertissements de verrouillage d’article; activer ce réglage les rendra moins fréquents."
+
+msgid "Security and Attack Surface"
+msgstr "Sécurité et surface d’attaque"
+
+msgid "Updates"
+msgstr "Mises à jour"
+
+msgid "Content and Public Surfaces"
+msgstr "Contenu et surfaces publiques"
+
+msgid "Editor"
+msgstr "Éditeur"
+
+msgid "Media"
+msgstr "Médias"
+
+msgid "Email"
+msgstr "Courriel"
+
+msgid "Admin and Front-End UX"
+msgstr "Expérience de l’administration et du site public"
+
+msgid "Login and Sessions"
+msgstr "Connexion et sessions"
+
+msgid "Branding"
+msgstr "Image de marque"
+
+msgid "Performance"
+msgstr "Performance"
+
+msgid "REST API"
+msgstr "API REST"
+
+#. translators: %s: patched WordPress version on the site's own release line.
+#, php-format
+msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line."
+msgstr "Ce site utilise une version comportant des vulnérabilités connues publiquement. %s les corrige et reste sur la même branche de versions."
+
+#. translators: 1: release WordPress would install, 2: patched release on this line.
+#, php-format
+msgid "WordPress would install %1$s and skip %2$s. It takes the highest release your settings allow rather than the nearest, so the fix for the line you are on is passed over."
+msgstr "WordPress installerait %1$s et sauterait %2$s. Il prend la version la plus élevée que vos réglages permettent plutôt que la plus proche; le correctif de votre branche est donc ignoré."
+
+#. translators: 1: release the Updates screen is offering, 2: patched release on this line.
+#, php-format
+msgid "The update offered below is %1$s. %2$s is the minor update that closes the known vulnerabilities."
+msgstr "La mise à jour proposée ci-dessous est %1$s. %2$s est la mise à jour mineure qui corrige les vulnérabilités connues."
+
+msgid "A security release exists for your version line"
+msgstr "Une version de sécurité existe pour votre branche de versions"

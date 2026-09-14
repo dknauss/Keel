@@ -36,6 +36,11 @@
 # translation that can only drift from the one users actually receive.
 /languages/*.po
 /languages/*.mo
+#
+# What was imported on translate.wordpress.org, readme translations included, kept
+# as a record of the submission. The patterns above are not recursive, so this
+# directory needs its own entry.
+/languages/imported
 /README.md
 /ROADMAP.md
 /TODO.md
