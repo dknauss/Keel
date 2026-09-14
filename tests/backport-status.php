@@ -273,6 +273,24 @@ function esc_html__( $s, $d = '' ) {
  * @param string $s Text.
  * @return string
  */
+/**
+ * Stub: wp_kses(), keeping only the allowed tags.
+ *
+ * Faithful enough for these assertions: disallowed tags are removed, so a test
+ * can tell code printed as markup from code escaped into visible tags.
+ *
+ * @param string $content Content.
+ * @param array  $allowed Allowed tags.
+ * @return string
+ */
+function wp_kses( $content, $allowed ) {
+	$keep = '';
+	foreach ( array_keys( $allowed ) as $tag ) {
+		$keep .= '<' . $tag . '>';
+	}
+	return strip_tags( (string) $content, $keep );
+}
+
 function esc_html( $s ) {
 	return $s;
 }
@@ -952,7 +970,7 @@ $GLOBALS['keel_test']['offers'] = array();
 // --- 17. one panel says the blocker once -----------------------------------
 // Found by reading the real Site Health output on a 6.9.5 site. Three separate
 // blocks each named the same cause in full — "automatic updates are switched
-// off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php"
+// off by the <code>AUTOMATIC_UPDATER_DISABLED</code> constant, normally set in <code>wp-config.php</code>"
 // appeared three times in one panel, and "this will not install by itself" was
 // said five ways. Each block was written to stand alone, which is right when it
 // is shown alone and wrong when they are concatenated.
@@ -1007,6 +1025,38 @@ $GLOBALS['keel_test']['updater_disabled'] = false;
 $GLOBALS['keel_test']['offers']           = array();
 $GLOBALS['keel_test']['can']              = false;
 
+
+// --- 17a. blocker text that names code prints it as code -----------------
+// Blocker descriptions put the filter, the constants and wp-config.php in
+// <code>. The panel joins and prints them in three places; esc_html() there
+// showed a reader the literal tags. Section 17's fixture blocks for an unnamed
+// reason, whose text names no code, so this switches the filter on instead.
+
+// Its own complete fixture, section 8's: inheriting the state left by the
+// scenarios above made the result depend on their order.
+keel_test_prime( $map );
+$GLOBALS['keel_test']['version']                   = '6.8.7';
+$GLOBALS['keel_test']['options']                   = array();
+$GLOBALS['keel_test']['updater_disabled']          = true;
+$GLOBALS['keel_test']['automatic_disabled_filter'] = true;
+
+$state = keel_defaults_minor_update_state();
+keel_assert_blocker( $state, 'automatic_disabled_filter', 'the fixture blocks automatic updates through the filter' );
+
+$result = keel_defaults_backport_test();
+$panel  = $result['description'] . keel_defaults_backport_actions( '6.8.8' );
+
+keel_assert(
+	false !== strpos( $panel, '<code>automatic_updater_disabled</code>' ),
+	'the blocked panel prints the filter a blocker names as code'
+);
+keel_assert(
+	false === strpos( $panel, '&lt;code&gt;' ),
+	'no blocker markup reaches the panel escaped into visible tags'
+);
+
+$GLOBALS['keel_test']['automatic_disabled_filter'] = false;
+$GLOBALS['keel_test']['updater_disabled']          = false;
 
 // --- 18. do not tell a working site to resume what it never stopped -------
 // The same failure as 16, one block further on. When the policy permits minor

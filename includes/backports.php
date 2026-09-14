@@ -468,7 +468,7 @@ function keel_defaults_minor_update_state() {
 	if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) ) {
 		$blockers[] = array(
 			'code' => 'file_mods',
-			'text' => __( 'file changes are blocked, normally by the DISALLOW_FILE_MODS constant in wp-config.php', 'keel-defaults' ),
+			'text' => __( 'file changes are blocked, normally because the <code>DISALLOW_FILE_MODS</code> constant is set in <code>wp-config.php</code>', 'keel-defaults' ),
 		);
 	}
 
@@ -500,7 +500,7 @@ function keel_defaults_minor_update_state() {
 		if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
 			$blockers[] = array(
 				'code' => 'automatic_disabled_constant',
-				'text' => __( 'automatic updates are switched off by the AUTOMATIC_UPDATER_DISABLED constant, normally set in wp-config.php', 'keel-defaults' ),
+				'text' => __( 'automatic updates are switched off by the <code>AUTOMATIC_UPDATER_DISABLED</code> constant, normally set in <code>wp-config.php</code>', 'keel-defaults' ),
 			);
 		} elseif (
 			// Core's filter, asked core's question. PrefixAllGlobals wants a plugin
@@ -514,12 +514,12 @@ function keel_defaults_minor_update_state() {
 		) {
 			$blockers[] = array(
 				'code' => 'automatic_disabled_filter',
-				'text' => __( 'a plugin or theme on this site switches automatic updates off, using the automatic_updater_disabled filter', 'keel-defaults' ),
+				'text' => __( 'a plugin or theme on this site switches automatic updates off, using the <code>automatic_updater_disabled</code> filter', 'keel-defaults' ),
 			);
 		} else {
 			$blockers[] = array(
 				'code' => 'automatic_disabled_unknown',
-				'text' => __( 'automatic updates are switched off, though not by a constant or filter Keel can name', 'keel-defaults' ),
+				'text' => __( 'automatic updates are switched off, but not by a constant or filter Keel can identify', 'keel-defaults' ),
 			);
 		}
 	}
@@ -607,6 +607,9 @@ function keel_defaults_minor_update_state() {
  * making it impossible to recover control flow by matching translated text.
  *
  * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * The descriptions may name a constant or file in <code>, so print them through
+ * wp_kses() allowing code. esc_html() turns that markup into visible tags.
+ *
  * @return string[] Translated blocker descriptions.
  */
 function keel_defaults_blocker_texts( array $blockers ) {
@@ -729,23 +732,23 @@ function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
 	}
 
 	if ( is_string( $selected ) && '' !== $selected && $selected === $tip ) {
-		return esc_html__( 'The configured policy permits minor updates, the updater looks operable, and this is the release WordPress would install, so it should arrive on a scheduled check. That is not a guarantee: WP-Cron has to run.', 'keel-defaults' );
+		return esc_html__( 'The configured policy permits minor updates, the updater looks operable, and this is the release WordPress would install, so it should arrive on a scheduled check. That is not a guarantee: WP-Cron still has to run.', 'keel-defaults' );
 	}
 
 	if ( is_string( $selected ) && '' !== $selected ) {
 		return sprintf(
 			/* translators: 1: release core would install, 2: the same-line patch. */
-			esc_html__( 'Automatic updates are running here, but WordPress would install %1$s rather than %2$s: it takes the highest release the settings permit, not the nearest. This patch will not arrive on its own.', 'keel-defaults' ),
+			esc_html__( 'Automatic updates are running here, but WordPress would install %1$s rather than %2$s: it takes the highest release the settings permit, not the nearest. This patch will not arrive on its own. If you want it, you\'ll need to install it manually.', 'keel-defaults' ),
 			'<code>' . esc_html( $selected ) . '</code>',
 			'<code>' . esc_html( $tip ) . '</code>'
 		);
 	}
 
 	if ( false === $selected ) {
-		return esc_html__( 'Automatic updates appear to be available, but Keel could not determine which release WordPress would install, so nothing here establishes that this patch is scheduled.', 'keel-defaults' );
+		return esc_html__( 'Automatic updates appear to be available, but Keel could not determine which release WordPress would install next, so nothing here establishes that this patch is scheduled.', 'keel-defaults' );
 	}
 
-	return esc_html__( 'Automatic updates appear to be available, but WordPress is selecting no release to install, so this patch is not scheduled.', 'keel-defaults' );
+	return esc_html__( 'Automatic updates appear to be available, but WordPress is not selecting a release to install, so this patch is not scheduled.', 'keel-defaults' );
 }
 
 /**
@@ -775,7 +778,7 @@ function keel_defaults_ladder_note( $selection, $selected ) {
 		 * how this site is meant to be updated. Claiming the release cannot be
 		 * installed at all overstated what this screen can know.
 		 */
-		return esc_html__( 'None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to.', 'keel-defaults' );
+		return esc_html__( 'None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to perform the update.', 'keel-defaults' );
 	}
 
 	if ( 'unknown' === $selection ) {
@@ -785,7 +788,7 @@ function keel_defaults_ladder_note( $selection, $selected ) {
 	if ( 'scheduled' === $selection ) {
 		return sprintf(
 			/* translators: %s: version WordPress would install. */
-			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one line at a time.', 'keel-defaults' ),
+			esc_html__( 'WordPress would install %s and skip the rest. It does not step through them one version line at a time.', 'keel-defaults' ),
 			'<code>' . esc_html( $selected ) . '</code>'
 		);
 	}
@@ -879,7 +882,7 @@ function keel_defaults_backport_verdict() {
 			$result['description'] .= '<p>' . keel_defaults_schedule_statement( $state, keel_defaults_ladder_selection(), $tip ) . '</p>';
 		} elseif ( $state['policy'] && ! $state['operable'] ) {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but this patch cannot currently install automatically.', 'keel-defaults' ) . '</strong> '
-				. esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) ) . '.</p>';
+				. wp_kses( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ), array( 'code' => array() ) ) . '.</p>';
 		} else {
 			// This is the one place in the panel that states the cause in
 			// full. The ladder and the actions below name the kind of problem
@@ -897,7 +900,7 @@ function keel_defaults_backport_verdict() {
 					: sprintf(
 						/* translators: %s: reasons the updater cannot run. */
 						esc_html__( 'Two things are stopping it: minor updates are switched off, and %s.', 'keel-defaults' ),
-						esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) )
+						wp_kses( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ), array( 'code' => array() ) )
 					)
 				) . '</p><p>'
 				. esc_html__( 'WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other.', 'keel-defaults' ) . '</p>';
@@ -996,9 +999,10 @@ function keel_defaults_backport_actions( $tip ) {
 			. '</p>';
 		} elseif ( 'constant' === $state['owner'] ) {
 			$out .= '<p class="description">' . sprintf(
-				/* translators: %s: constant name. */
-				esc_html__( 'The %s constant is deciding this, and Keel will not override it. Change it in wp-config.php.', 'keel-defaults' ),
-				'<code>WP_AUTO_UPDATE_CORE</code>'
+				/* translators: 1: constant name, 2: configuration file name. */
+				esc_html__( 'The %1$s constant is deciding this, and Keel will not override it. Change it in %2$s.', 'keel-defaults' ),
+				'<code>WP_AUTO_UPDATE_CORE</code>',
+				'<code>wp-config.php</code>'
 			) . '</p>';
 		} else {
 			$out .= '<p class="description">'
@@ -1406,7 +1410,7 @@ function keel_defaults_backport_notice() {
 			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but it cannot currently install automatically: %3$s.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>',
-			esc_html( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ) )
+			wp_kses( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ), array( 'code' => array() ) )
 		);
 	} else {
 		$body = sprintf(
