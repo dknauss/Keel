@@ -45,6 +45,21 @@ p.description.keel-config-lock code {
 }
 
 /*
+ * Right to left, the rule and the gap after the lock glyph belong on the other
+ * side. Keel ships no -rtl stylesheet, so each directional property is mirrored
+ * here rather than generated.
+ */
+.rtl p.description.keel-config-lock {
+	border-left: 0;
+	border-right: 4px solid #8c8f94;
+}
+
+.rtl p.description.keel-config-lock::before {
+	margin-left: 6px;
+	margin-right: 0;
+}
+
+/*
  * The control itself.
  *
  * aria-disabled rather than disabled keeps it focusable, so a screen reader
