@@ -15,7 +15,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The same gate a pull request passes in ci.yml, step for step. A tag
       # publishes a Release and hands off to the WordPress.org deploy, so this is
