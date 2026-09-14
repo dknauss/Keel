@@ -128,6 +128,11 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Changed: a locked setting now looks locked. The note beneath it reads as a statement rather than a hint, the control itself is visibly inactive, and both are styled on the network settings screen too.
 * Fixed: a folded admin menu stayed pinned open at a custom width. It now folds, and the width applies only above 960px, where WordPress does not fold the menu automatically. The live preview follows the same rules, so it no longer shows a width that saving would not apply.
 * Changed: clearer wording throughout the core update and security patch messages, with constant, filter and file names shown as code.
+* Fixed: with automatic updates switched off or held back by an earlier failed update, the Site Health patch panel said Keel would not offer a deliberate install directly above a working Install button. It now says the patch can still be installed deliberately, and keeps the refusal for the cases where Keel's installer really does refuse.
+* Fixed: the security patch panel on Dashboard › Updates said "the update offered above", but WordPress lists its offers below the panel. It now says "below".
+* Fixed: on the network policy screen, the Admin Menu Width help told a Super Admin to drag a slider that screen does not have. The sentence is gone from both screens.
+* Fixed: following a link to a setting highlights its row, and the highlight bar sat directly against the setting's label. The label now clears it, and in right-to-left languages the bar and the lock note's rule move to the right-hand side.
+* Documentation: the WordPress.org listing showed the settings screen and the patch-status panel under each other's captions. The screenshots are retaken and numbered to match.
 * Documentation: the FAQ now says Keel does not manage plugin and theme auto-updates, and explains why subsite administrators on multisite do not see the auto-update column.
 
 = 0.6.5 =
@@ -277,7 +282,7 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 == Upgrade Notice ==
 
 = 0.6.6 =
-Locked settings now show what wp-config.php actually enforces, Site Health notices a new security release the day it ships, and a folded admin menu stays folded at a custom width. The listing gains a Live Preview. No setting changes.
+Security: with comments off, the REST API no longer serves a comment by ID. Locked settings show what wp-config.php enforces, Site Health notices a new security release the day it ships, and a folded admin menu stays folded. No setting changes.
 
 = 0.6.5 =
 The admin menu width slider previews again while you drag it. On any site with a width saved, Keel's own saved rule had been overriding its own preview, so the slider moved nothing on screen. No setting changes.
