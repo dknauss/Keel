@@ -42,7 +42,7 @@ function keel_defaults_strings() {
 		'xmlrpc_allow_multicall'          => array(
 			'label'     => __( 'XML-RPC Multicall', 'keel-defaults' ),
 			'statement' => __( 'Allow <code>system.multicall</code>', 'keel-defaults' ),
-			'help'      => __( 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 removed its old use as a password-guessing multiplier, so refusing it today is minor attack-surface reduction, not a fix for a live threat — almost nothing legitimately uses it, so leaving it off is safe.', 'keel-defaults' ),
+			'help'      => __( 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. However, almost nothing legitimately uses this method, so leaving it off is safe.', 'keel-defaults' ),
 		),
 		'block_xmlrpc_endpoint'           => array(
 			'label'     => __( 'XML-RPC Endpoint', 'keel-defaults' ),
@@ -94,7 +94,7 @@ function keel_defaults_strings() {
 		),
 		'core_update_policy'              => array(
 			'label'   => __( 'Core Auto-Updates', 'keel-defaults' ),
-			'help'    => __( 'Chooses which core updates install automatically. Minor releases are maintenance and security fixes; major releases are feature updates that can affect themes and plugins. An explicit <code>wp-config.php</code> policy takes precedence, and then this control is locked.', 'keel-defaults' ),
+			'help'    => __( 'Chooses which core updates install automatically. Minor releases are maintenance and security fixes; major releases are feature updates that can break incompatible themes and plugins. If an explicit <code>wp-config.php</code> policy exists, it takes precedence, and then this control is locked.', 'keel-defaults' ),
 			'choices' => array(
 				'minor'   => __( 'Maintenance/security releases only — recommended', 'keel-defaults' ),
 				'all'     => __( 'All stable releases', 'keel-defaults' ),
