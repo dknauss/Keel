@@ -141,7 +141,6 @@ if ( ! ( await page.locator( '.keel-page-header' ).count() ) ) {
 await tidy();
 // screenshot-4: readme.txt captions the settings screen fourth. The patch-status panel
 // leads the listing, so it is screenshot-1, captured last below.
-await page.screenshot( { path: `${ out }/screenshot-4.png`, fullPage: true, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
 
 // This screen is deliberately a listing screenshot, not merely a test fixture:
 // network policy is one of Keel's substantial operator features. Its checkbox
@@ -165,6 +164,10 @@ if ( networkOnly ) {
 	console.log( `Wrote screenshot-5.png to ${ out }` );
 	process.exit( 0 );
 }
+
+// screenshot-4: readme.txt captions the settings screen fourth. The patch-status panel
+// leads the listing, so this capture runs before the panel below.
+await page.screenshot( { path: `${ out }/screenshot-4.png`, fullPage: true, clip: { x: 0, y: 0, width: 1280, height: 1000 } } );
 
 await page.goto( settings, { waitUntil: 'networkidle' } );
 await page.click( '#contextual-help-link' );
