@@ -25,6 +25,53 @@ tr:has( > td > .keel-anchor:target ),
 	background: #f0f6fc;
 }
 
+/*
+ * Clear the bar. Core gives a form-table label no left padding, so the 4px
+ * inset shadow sat directly against the label text. Only the label cell touches
+ * the bar in the two-column layout, so only it moves, and the field column keeps
+ * its alignment with the rows around it.
+ */
+tr:has( > td > .keel-anchor:target ) > th {
+	padding-left: 16px;
+}
+
+.keel-dep-item:has( > .keel-anchor:target ) {
+	padding: 8px 12px 8px 16px;
+}
+
+/* Below 783px core stacks the label above the field, so both cells meet the bar. */
+@media screen and (max-width: 782px) {
+	tr:has( > td > .keel-anchor:target ) > td {
+		padding-left: 16px;
+	}
+}
+
+/*
+ * Right to left, the label sits at the right edge, so the bar and its clearance
+ * move there too. Without this the bar ran down the far side of the field column
+ * and the label stayed against the right edge of the row.
+ */
+.rtl tr:has( > td > .keel-anchor:target ),
+.rtl .keel-dep-item:has( > .keel-anchor:target ) {
+	box-shadow: inset -4px 0 0 #2271b1;
+}
+
+.rtl tr:has( > td > .keel-anchor:target ) > th {
+	padding-left: 10px;
+	padding-right: 16px;
+}
+
+.rtl .keel-dep-item:has( > .keel-anchor:target ) {
+	padding: 8px 16px 8px 12px;
+}
+
+@media screen and (max-width: 782px) {
+	.rtl tr:has( > td > .keel-anchor:target ) > td {
+		padding-left: 0;
+		padding-right: 16px;
+	}
+}
+
 /* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
 .form-table .keel-dep-item {
 	margin-bottom: 14px;
