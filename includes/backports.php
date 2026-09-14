@@ -762,23 +762,31 @@ function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
  *
  * @param string       $selection Result of keel_defaults_selection_state().
  * @param string|false $selected  Result of keel_defaults_ladder_selection().
+ * @param array        $state     Result of keel_defaults_minor_update_state().
  * @return string Escaped sentence.
  */
-function keel_defaults_ladder_note( $selection, $selected ) {
+function keel_defaults_ladder_note( $selection, $selected, array $state ) {
 	if ( 'blocked' === $selection ) {
 		/*
 		 * Deliberately does not repeat the blocker list. It is stated in full above,
 		 * and this list is appended directly beneath it.
 		 *
-		 * And it offers no deliberate install *from here*. The blockers that produce
-		 * this state are file_mods, credentials and vcs, and Keel's own installer
-		 * refuses all three — but that is a statement about Keel, not about the site.
-		 * DISALLOW_FILE_MODS does stop WP-CLI as well; a checkout or a web-request
-		 * credentials problem often does not, and a deployment workflow may be exactly
-		 * how this site is meant to be updated. Claiming the release cannot be
-		 * installed at all overstated what this screen can know.
+		 * Whether Keel offers a deliberate install from here is the installer's answer,
+		 * so this asks it. Only the installer's refusals close that route. A switched-off
+		 * automatic updater or an earlier critical failure also produce this state, and
+		 * the Install button beneath still works for both.
+		 *
+		 * A refusal is a statement about Keel, not about the site. DISALLOW_FILE_MODS
+		 * does stop WP-CLI as well; a checkout or a web-request credentials problem
+		 * often does not, and a deployment workflow may be exactly how this site is
+		 * meant to be updated. Claiming the release cannot be installed at all
+		 * overstated what this screen can know.
 		 */
-		return esc_html__( 'None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to perform the update.', 'keel-defaults' );
+		if ( keel_defaults_installer_refusals( $state['blockers'] ) ) {
+			return esc_html__( 'None of these will install on their own, because the updater cannot act here. Keel will not offer a deliberate install from this screen until that is cleared; a deployment workflow or WP-CLI may still be able to perform the update.', 'keel-defaults' );
+		}
+
+		return esc_html__( 'None of these will install on their own while automatic updates are held back here. That does not prevent a deliberate install.', 'keel-defaults' );
 	}
 
 	if ( 'unknown' === $selection ) {
@@ -964,8 +972,7 @@ function keel_defaults_backport_actions( $tip ) {
 	$out = '';
 
 	$state              = keel_defaults_minor_update_state();
-	$codes              = keel_defaults_blocker_codes( $state['blockers'] );
-	$filesystem_blocked = ! empty( array_intersect( $codes, array( 'file_mods', 'credentials', 'vcs' ) ) );
+	$filesystem_blocked = ! empty( keel_defaults_installer_refusals( $state['blockers'] ) );
 
 	if ( $filesystem_blocked ) {
 		// The blockers are listed in the verdict this is appended to, so
@@ -1252,14 +1259,24 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 
 	if ( 'blocked' === $selection ) {
 		/*
-		 * No deliberate-install promise here. The blockers that produce this state are
-		 * file_mods, credentials and vcs — Keel's own installer refuses all three, and
-		 * DISALLOW_FILE_MODS stops WP-CLI too. Naming a route that is also closed is
-		 * worse than naming none.
+		 * Promise a deliberate install only where the installer would perform one.
+		 * Its refusals — file_mods, credentials, vcs — close that route, and
+		 * DISALLOW_FILE_MODS stops WP-CLI too, so naming a route there would name one
+		 * that is also closed. A switched-off automatic updater or an earlier critical
+		 * failure stop only the scheduled updater; saying Keel would not offer an
+		 * install there sat directly above a working Install button.
 		 */
+		if ( keel_defaults_installer_refusals( $state['blockers'] ) ) {
+			return sprintf(
+				/* translators: %s: target version. */
+				esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared.', 'keel-defaults' ),
+				$code
+			);
+		}
+
 		return sprintf(
 			/* translators: %s: target version. */
-			esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared.', 'keel-defaults' ),
+			esc_html__( 'Nothing will install on its own while automatic updates are held back here, whatever core would otherwise select. %s can still be installed deliberately from the command line.', 'keel-defaults' ),
 			$code
 		);
 	}
@@ -1651,7 +1668,7 @@ function keel_defaults_ladder_markup() {
 		);
 	}
 
-	$note = keel_defaults_ladder_note( $selection, $selected );
+	$note = keel_defaults_ladder_note( $selection, $selected, $state );
 
 	// Always at least two rungs: the markup returns early below that, so no
 	// plural handling is needed.

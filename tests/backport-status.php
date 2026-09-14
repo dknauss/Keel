@@ -1458,13 +1458,26 @@ $GLOBALS['keel_test']['can']              = false;
 // than staged — including the one no stub here can produce, a selector that was
 // never asked.
 
-$op    = array(
+$op = array(
 	'policy'   => true,
 	'operable' => true,
 	'blockers' => array(),
 	'owner'    => 'option',
 );
-$inop  = array_merge( $op, array( 'operable' => false ) );
+// Inoperable because of a blocker Keel's installer refuses. An inoperable state
+// with no blocker at all is not one minor_update_state() can produce.
+$inop  = array_merge(
+	$op,
+	array(
+		'operable' => false,
+		'blockers' => array(
+			array(
+				'code' => 'file_mods',
+				'text' => 'file changes blocked',
+			),
+		),
+	)
+);
 $nopol = array_merge( $op, array( 'policy' => false ) );
 $creds = array_merge(
 	$inop,
@@ -1823,7 +1836,7 @@ foreach ( $panel_states as $case ) {
 	list( $sel, $st ) = $case;
 
 	$selection = keel_defaults_selection_state( $st, $sel );
-	$panel     = keel_defaults_backport_route( '6.8.8', $st, $sel, true ) . ' ' . keel_defaults_ladder_note( $selection, $sel );
+	$panel     = keel_defaults_backport_route( '6.8.8', $st, $sel, true ) . ' ' . keel_defaults_ladder_note( $selection, $sel, $st );
 
 	$promises = false !== strpos( $panel, 'can still be installed deliberately' )
 		|| false !== strpos( $panel, 'means installing it deliberately' );
@@ -1854,6 +1867,53 @@ foreach ( $panel_states as $case ) {
 		);
 	}
 }
+
+/*
+ * The panel's refusal and the install button read one rule.
+ *
+ * The blocked route and note said Keel would not offer a deliberate install for every
+ * inoperable state, while the button beneath them hid only for file_mods, credentials
+ * and vcs — the installer's actual refusals. With automatic updates switched off by
+ * the constant or a filter, or held back by a previous critical failure, the panel
+ * refused an install directly above a working Install button. So for every blocker
+ * code, the panel refuses exactly when the button is absent.
+ */
+$keel_can_before             = isset( $GLOBALS['keel_test']['can'] ) ? $GLOBALS['keel_test']['can'] : false;
+$GLOBALS['keel_test']['can'] = true;
+
+foreach ( array( 'file_mods', 'credentials', 'vcs', 'automatic_disabled_constant', 'automatic_disabled_filter', 'automatic_disabled_unknown', 'previous_failure' ) as $code ) {
+	$st = array_merge(
+		$inop,
+		array(
+			'blockers' => array(
+				array(
+					'code' => $code,
+					'text' => $code,
+				),
+			),
+		)
+	);
+
+	foreach ( array( '', '7.1' ) as $sel ) {
+		$selection = keel_defaults_selection_state( $st, $sel );
+
+		// Credentials with a selection is scheduled, not blocked; covered above.
+		if ( 'blocked' !== $selection ) {
+			continue;
+		}
+
+		$panel   = keel_defaults_backport_route( '6.8.8', $st, $sel, true ) . ' ' . keel_defaults_ladder_note( $selection, $sel, $st );
+		$refuses = false !== strpos( $panel, 'will not offer a deliberate install' );
+		$button  = keel_defaults_backport_install_button( '6.8.8', 'none', $st );
+
+		keel_assert(
+			( '' === $button ) === $refuses,
+			"the panel refuses a deliberate install exactly when Keel shows no install button ({$code}, selected '{$sel}')"
+		);
+	}
+}
+
+$GLOBALS['keel_test']['can'] = $keel_can_before;
 
 // --- release-day refresh of the cached status map ---------------------------
 //

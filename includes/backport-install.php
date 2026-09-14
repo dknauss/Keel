@@ -21,6 +21,26 @@ function keel_defaults_can_install_backport() {
 }
 
 /**
+ * Blocker codes that make Keel's own installer refuse a deliberate install.
+ *
+ * The installer, its button and the Site Health copy all ask this rather than each
+ * keeping a list. When they kept their own, the copy refused an install for every
+ * inoperable state while the button beneath it hid only for these three, so a site
+ * with automatic updates switched off saw a refusal directly above a working button.
+ *
+ * A switched-off automatic updater and an earlier critical failure stop the scheduled
+ * updater, not a deliberate install through core's upgrader, so they are not listed.
+ *
+ * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * @return string[] Refusing blocker codes, in the order found.
+ */
+function keel_defaults_installer_refusals( array $blockers ) {
+	return array_values(
+		array_intersect( keel_defaults_blocker_codes( $blockers ), array( 'file_mods', 'credentials', 'vcs' ) )
+	);
+}
+
+/**
  * Stable nonce action for one exact target version.
  *
  * @param string $version Target version.
@@ -246,8 +266,7 @@ function keel_defaults_prepare_backport_install( $version ) {
 	}
 
 	$state    = keel_defaults_minor_update_state();
-	$codes    = keel_defaults_blocker_codes( $state['blockers'] );
-	$refusing = array_intersect( $codes, array( 'file_mods', 'credentials', 'vcs' ) );
+	$refusing = keel_defaults_installer_refusals( $state['blockers'] );
 
 	if ( ! empty( $refusing ) ) {
 		$texts = array();
@@ -427,10 +446,11 @@ function keel_defaults_backport_install_button( $version, $screen, array $state,
 		return '';
 	}
 
-	$codes = keel_defaults_blocker_codes( $state['blockers'] );
-	if ( array_intersect( $codes, array( 'file_mods', 'credentials', 'vcs' ) ) ) {
+	if ( keel_defaults_installer_refusals( $state['blockers'] ) ) {
 		return '';
 	}
+
+	$codes = keel_defaults_blocker_codes( $state['blockers'] );
 
 	$out = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">'
 		. '<input type="hidden" name="action" value="keel_defaults_install_backport">'
