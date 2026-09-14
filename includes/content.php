@@ -143,7 +143,19 @@ function keel_defaults_hide_rest_comment( $comment ) {
 		return $comment;
 	}
 
-	if ( ! function_exists( 'wp_is_rest_request' ) || ! wp_is_rest_request() ) {
+	/*
+	 * wp_is_rest_endpoint() (core, 6.5+) covers a served REST request and an
+	 * internal rest_do_request() dispatch alike. Keel supports 6.4, which lacks
+	 * it, so fall back to the REST_REQUEST constant rest_api_loaded() defines.
+	 *
+	 * This used to ask a REST-request helper that WordPress does not define,
+	 * behind function_exists(), so the guard never fired on any real site.
+	 */
+	$is_rest = function_exists( 'wp_is_rest_endpoint' )
+		? wp_is_rest_endpoint()
+		: ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+
+	if ( ! $is_rest ) {
 		return $comment;
 	}
 
