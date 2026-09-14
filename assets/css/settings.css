@@ -160,9 +160,15 @@ tr:has( > td > .keel-anchor:target ) > th {
 		right: auto;
 	}
 
+	/*
+	 * Both declarations are !important. The left-to-right rule above sets margin-left
+	 * !important and also matches an .rtl body, and the saved widen sets margin-right
+	 * !important, so plain declarations here lost to both: the preview pushed the
+	 * content from the wrong side while the saved margin stayed on the right one.
+	 */
 	body.rtl.keel-menu-width-preview:not(.folded) #wpcontent,
 	body.rtl.keel-menu-width-preview:not(.folded) #wpfooter {
-		margin-right: var(--keel-menu-preview-width);
-		margin-left: 0;
+		margin-right: var(--keel-menu-preview-width) !important;
+		margin-left: 0 !important;
 	}
 }
