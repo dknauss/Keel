@@ -204,7 +204,7 @@ $GLOBALS['keel_pending_result'] = '';
  *
  * keel_defaults_latest_version() comes from the WordPress.org stable check, which
  * refreshes independently of the update_core transient that update-core.php renders.
- * Saying "the update offered above is 7.1" from the first source is a claim about
+ * Saying "the update offered below is 7.1" from the first source is a claim about
  * the second, and the two can disagree.
  * ------------------------------------------------------------------------
  */
@@ -221,12 +221,23 @@ keel_assert(
 	'the comparison does not name a release the screen is not offering'
 );
 
-// The screen is offering nothing, so there is no "update offered above" to point at.
+/*
+ * Below, not above. The panel prints on after_core_auto_updates_settings, which
+ * update-core.php runs before core_upgrade_preamble() lists the offers, and its
+ * notice class lets core's script lift it to the top of the page as well. Either
+ * way core's list is under it.
+ */
+keel_assert(
+	false !== strpos( $divergent, 'offered below' ) && false === strpos( $divergent, 'offered above' ),
+	'the comparison points down at core\'s list, which renders after the panel'
+);
+
+// The screen is offering nothing, so there is no "update offered below" to point at.
 $GLOBALS['keel_manual_offer'] = '';
 $silent                       = keel_defaults_updates_screen_markup( 'insecure', '6.9.7', '7.1', false );
 keel_assert(
-	false === stripos( $silent, 'offered above' ),
-	'with nothing offered above, the screen does not claim there is'
+	false === stripos( $silent, 'offered below' ),
+	'with nothing offered below, the screen does not claim there is'
 );
 keel_assert(
 	false !== strpos( $silent, '6.9.7' ),
