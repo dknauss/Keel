@@ -68,16 +68,23 @@ into ROADMAP.md or here.
       network policy locks count in the same sentence as constant locks. They are
       different authorities and probably should not be summed into one number without
       saying so.
-- [ ] **Check the settings screens in a right-to-left admin** — deferred from the
-      0.6.6 visual check. Keel ships no `-rtl` stylesheet, so every directional rule is
-      mirrored by hand, and none of them has been looked at in a right-to-left locale.
-  - The highlight bar on a linked setting: it belongs on the right edge, with the
-    label's clearance on that side.
-  - The lock note: its rule and the gap after its lock glyph, on the site and network
-    screens.
-  - The admin menu width, saved and previewed, including a folded menu.
-  - Use a right-to-left locale such as `he_IL` or `ar` on a lab site, not a forced
-    direction alone, so translated strings and core's own RTL stylesheet load too.
+- [x] **Check the settings screens in a right-to-left admin** — done 2026-09-14, on
+      disposable `he_IL` copies of the `keel-latest` and `keel-network` labs, measured with
+      Playwright at 1280px and 390px. Keel ships no `-rtl` stylesheet, so every directional
+      rule is mirrored by hand.
+  - The highlight bar on a linked setting: on the right edge (`inset -4px`), label clearance
+    `padding-right: 16px`, grouped items `8px 16px 8px 12px`, and on mobile the stacked
+    field cell clears it too. Correct.
+  - The lock note: rule on the right, lock glyph gap on its left, on the site screen and for
+    a network-locked setting. The locked control stays keyboard-focusable. Correct.
+  - The admin menu width saved at 240px: menu flush right, content and footer
+    `margin-right: 240px`, flyout submenus open beside the menu without overlap, and a
+    folded menu is core's 36px. Correct.
+  - **The live preview was wrong, and is fixed.** Dragging the slider to 300px on a site saved
+    at 240px gave the content `margin-left: 300px` and kept `margin-right: 240px`, so the
+    widened menu covered the start of every label. The left-to-right preview rule matched
+    the `.rtl` body with `!important`, and the right-to-left rule had none. Both of its
+    margins are now `!important`, and `tests/settings-render.php` asserts it.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
