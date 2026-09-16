@@ -1,0 +1,688 @@
+# Translation of Plugins - Keel Defaults - Stable Readme (latest release) in English (Canada)
+# This file is distributed under the same license as the Plugins - Keel Defaults - Stable Readme (latest release) package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: +0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/4.1.0\n"
+"Language: en_CA\n"
+"Project-Id-Version: Plugins - Keel Defaults - Stable Readme (latest release)\n"
+
+#. Short description.
+msgid "39 sane WordPress defaults, vulnerable-core alerts, and deliberate patch installs when a secure fix is available."
+msgstr "39 sane WordPress defaults, vulnerable-core alerts, and deliberate patch installs when a secure fix is available."
+
+#. Plugin name.
+msgid "Keel Defaults"
+msgstr "Keel Defaults"
+
+#. Found in faq paragraph.
+msgid "WordPress's meter is JavaScript: it advises the person typing but cannot refuse a password, so passwords set through the REST API, WP-CLI, or a form without scripts never meet it. Keel enforces length, breach screening, a blocklist, and a personal-context check on the server instead, where they cannot be bypassed."
+msgstr "WordPress's meter is JavaScript: it advises the person typing but cannot refuse a password, so passwords set through the REST API, WP-CLI, or a form without scripts never meet it. Keel enforces length, breach screening, a blocklist, and a personal-context check on the server instead, where they cannot be bypassed."
+
+#. Found in faq paragraph.
+msgid "No. Keel's update settings cover WordPress core and translations only. Plugin and theme auto-updates stay under WordPress's own controls — on a network, in the Automatic Updates column under <strong>Network Admin → Plugins</strong>."
+msgstr "No. Keel's update settings cover WordPress core and translations only. Plugin and theme auto-updates stay under WordPress's own controls — on a network, in the Automatic Updates column under <strong>Network Admin → Plugins</strong>."
+
+#. Found in faq paragraph.
+msgid "The setting is stored per site, but WordPress keeps one user table for the whole network, so a password set on any site becomes that person's password everywhere. In practice, the strictest site sets the floor for anyone who changes their password there. For one rule across the network, set the password policy under <strong>Network Admin → Settings → Network Policy</strong>; each site's own saved value stays untouched underneath."
+msgstr "The setting is stored per site, but WordPress keeps one user table for the whole network, so a password set on any site becomes that person's password everywhere. In practice, the strictest site sets the floor for anyone who changes their password there. For one rule across the network, set the password policy under <strong>Network Admin → Settings → Network Policy</strong>; each site's own saved value stays untouched underneath."
+
+#. Found in faq paragraph.
+msgid "Yes. Many defaults can be set with a <code>wp-config.php</code> constant or a filter — for example <code>KEEL_DISABLE_HIBP</code> or <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code>. A constant wins over the settings screen, and the screen shows when a setting is being overridden. The full list is in the plugin's documentation on GitHub."
+msgstr "Yes. Many defaults can be set with a <code>wp-config.php</code> constant or a filter — for example <code>KEEL_DISABLE_HIBP</code> or <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code>. A constant wins over the settings screen, and the screen shows when a setting is being overridden. The full list is in the plugin's documentation on GitHub."
+
+#. Found in faq paragraph.
+msgid "No. Disabling comments hides them and closes the forms; nothing is removed from the database, and turning the setting off brings them back. Uninstalling removes only Keel's own settings."
+msgstr "No. Disabling comments hides them and closes the forms; nothing is removed from the database, and turning the setting off brings them back. Uninstalling removes only Keel's own settings."
+
+#. Found in faq paragraph.
+msgid "Two lookups, both described under <strong>External services</strong> above. When strong passwords are required, the first five characters of a new password's SHA-1 hash are checked against Have I Been Pwned — never the password or the full hash. Keel also asks WordPress.org's stable-check service whether your WordPress version has known vulnerabilities. Neither sends personal data."
+msgstr "Two lookups, both described under <strong>External services</strong> above. When strong passwords are required, the first five characters of a new password's SHA-1 hash are checked against Have I Been Pwned — never the password or the full hash. Keel also asks WordPress.org's stable-check service whether your WordPress version has known vulnerabilities. Neither sends personal data."
+
+#. Found in faq paragraph.
+msgid "Usually, choose one plugin to own a particular setting. Keel helps by showing likely overlaps in Site Health, so you can compare the two configurations instead of discovering a disagreement later."
+msgstr "Usually, choose one plugin to own a particular setting. Keel helps by showing likely overlaps in Site Health, so you can compare the two configurations instead of discovering a disagreement later."
+
+#. Found in faq paragraph.
+msgid "Yes. Keel is built for independent sites, agencies, freelancers, and multisite networks. On a network, a Super Admin uses <strong>Network Admin → Settings → Network Policy</strong> to choose which defaults apply everywhere. The policy is visible and locked on each site, but it does not destroy the local choices underneath it; remove a policy later and each site returns to its own saved choice."
+msgstr "Yes. Keel is built for independent sites, agencies, freelancers, and multisite networks. On a network, a Super Admin uses <strong>Network Admin → Settings → Network Policy</strong> to choose which defaults apply everywhere. The policy is visible and locked on each site, but it does not destroy the local choices underneath it; remove a policy later and each site returns to its own saved choice."
+
+#. Found in faq paragraph.
+msgid "Keel blocks outgoing email outside production by default. This protects real customers and clients when a production database is copied to staging or a local machine. It does not block mail on production. Turn <strong>Non-Production Email</strong> off in <strong>Settings → Site Defaults</strong> when your test environment needs to send email."
+msgstr "Keel blocks outgoing email outside production by default. This protects real customers and clients when a production database is copied to staging or a local machine. It does not block mail on production. Turn <strong>Non-Production Email</strong> off in <strong>Settings → Site Defaults</strong> when your test environment needs to send email."
+
+#. Found in faq paragraph.
+msgid "Keel is designed to make its effects visible and reversible. The default most likely to surprise you is frame protection: it is on out of the box, and a blocked frame usually shows up as a silent blank box. If another site or service is meant to display yours in a frame, set <strong>Frame options</strong> to \"Leave unchanged\". Also review the settings after activation if a service publishes through XML-RPC or depends on a feature you intend to turn off. Each control explains its practical effect before you change it."
+msgstr "Keel is designed to make its effects visible and reversible. The default most likely to surprise you is frame protection: it is on out of the box, and a blocked frame usually shows up as a silent blank box. If another site or service is meant to display yours in a frame, set <strong>Frame options</strong> to \"Leave unchanged\". Also review the settings after activation if a service publishes through XML-RPC or depends on a feature you intend to turn off. Each control explains its practical effect before you change it."
+
+#. Found in faq paragraph.
+msgid "Read the message in Site Health. Keel tells you whether a safe patch is available for your current WordPress version line, whether WordPress is offering it, and whether something is preventing automatic updates. If the button is offered, an authorized administrator can install that same-line patch deliberately. If there is no secure patch, Keel says so clearly; plan an upgrade rather than assuming one exists."
+msgstr "Read the message in Site Health. Keel tells you whether a safe patch is available for your current WordPress version line, whether WordPress is offering it, and whether something is preventing automatic updates. If the button is offered, an authorized administrator can install that same-line patch deliberately. If there is no secure patch, Keel says so clearly; plan an upgrade rather than assuming one exists."
+
+#. Found in faq paragraph.
+msgid "Comments, trackbacks, and pingbacks are disabled; public author archives are hidden; and other sites cannot put yours inside a frame. Comments are not deleted — turning that setting off makes them available again. If your site is meant to appear in another site's frame, set <strong>Frame options</strong> to \"Leave unchanged\"."
+msgstr "Comments, trackbacks, and pingbacks are disabled; public author archives are hidden; and other sites cannot put yours inside a frame. Comments are not deleted — turning that setting off makes them available again. If your site is meant to appear in another site's frame, set <strong>Frame options</strong> to \"Leave unchanged\"."
+
+#. Found in faq paragraph.
+msgid "Keel applies its documented starting choices and gives you one screen to review them. It does not edit or delete your posts, pages, media, users, or comments, though new uploads get lowercase filenames. Settings that could affect an integration are left off until you enable them — except frame protection, described below."
+msgstr "Keel applies its documented starting choices and gives you one screen to review them. It does not edit or delete your posts, pages, media, users, or comments, though new uploads get lowercase filenames. Settings that could affect an integration are left off until you enable them — except frame protection, described below."
+
+#. Found in faq header.
+msgid "Does Keel control plugin and theme auto-updates?"
+msgstr "Does Keel control plugin and theme auto-updates?"
+
+#. Found in faq header.
+msgid "Can I use Keel with another security or defaults plugin?"
+msgstr "Can I use Keel with another security or defaults plugin?"
+
+#. Found in faq header.
+msgid "Can I use Keel on client sites or multisite?"
+msgstr "Can I use Keel on client sites or multisite?"
+
+#. Found in faq header.
+msgid "Keel says this version is insecure. What should I do?"
+msgstr "Keel says this version is insecure. What should I do?"
+
+#. Found in installation paragraph.
+msgid "Defaults that could disrupt an integration are off until you choose them, with one exception: Keel sends <code>X-Frame-Options: SAMEORIGIN</code>, so other sites cannot display yours inside a frame. If your site is meant to be embedded — an intranet dashboard, a visual-review service, a kiosk or signage screen — set <strong>Frame options</strong> to \"Leave unchanged\" under Security and Attack Surface. Deactivating stops Keel's behavior while keeping your choices for a future reactivation; uninstalling removes its settings."
+msgstr "Defaults that could disrupt an integration are off until you choose them, with one exception: Keel sends <code>X-Frame-Options: SAMEORIGIN</code>, so other sites cannot display yours inside a frame. If your site is meant to be embedded — an intranet dashboard, a visual-review service, a kiosk or signage screen — set <strong>Frame options</strong> to \"Leave unchanged\" under Security and Attack Surface. Deactivating stops Keel's behaviour while keeping your choices for a future reactivation; uninstalling removes its settings."
+
+#. Found in installation list item.
+msgid "Visit <strong>Settings → Site Defaults</strong> to review the starting choices and adjust anything for this site."
+msgstr "Visit <strong>Settings → Site Defaults</strong> to review the starting choices and adjust anything for this site."
+
+#. Found in description paragraph.
+msgid "Keel does not edit or delete your existing posts, pages, media, or comments; the one file-level change it makes by default is lowercasing the filenames of new uploads. Turning off a Keel setting returns that behavior to WordPress; uninstalling removes Keel's settings."
+msgstr "Keel does not edit or delete your existing posts, pages, media, or comments; the one file-level change it makes by default is lowercasing the filenames of new uploads. Turning off a Keel setting returns that behaviour to WordPress; uninstalling removes Keel's settings."
+
+#. Found in description paragraph.
+msgid "Keel is especially useful when you build, manage, or maintain many sites — or when one site matters too much to leave its basic safeguards to memory."
+msgstr "Keel is especially useful when you build, manage, or maintain many sites — or when one site matters too much to leave its basic safeguards to memory."
+
+#. Found in description paragraph.
+msgid "<strong><a href=\"https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json\">Try Keel live in WordPress Playground</a></strong> — a temporary WordPress site opens in your browser with the current release of Keel already enabled. No hosting, installation, or account required."
+msgstr "<strong><a href=\"https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json\">Try Keel live in WordPress Playground</a></strong> — a temporary WordPress site opens in your browser with the current release of Keel already enabled. No hosting, installation, or account required."
+
+#. Found in description paragraph.
+msgid "Keel gives WordPress site owners a sensible starting point: 39 clear controls for security, updates, privacy, content, email, media, and the admin experience. Every choice lives under <strong>Settings → Site Defaults</strong>, says what it does, and can be changed independently."
+msgstr "Keel gives WordPress site owners a sensible starting point: 39 clear controls for security, updates, privacy, content, email, media, and the admin experience. Every choice lives under <strong>Settings → Site Defaults</strong>, says what it does, and can be changed independently."
+
+#. Found in description list item.
+msgid "<strong>Manage a network without flattening it.</strong> On multisite, a Super Admin can decide selected defaults for every site from one Network Policy screen. Sites can still keep their own choices underneath; the policy is visible and locked while it applies, and lifting it brings those choices back."
+msgstr "<strong>Manage a network without flattening it.</strong> On multisite, a Super Admin can decide selected defaults for every site from one Network Policy screen. Sites can still keep their own choices underneath; the policy is visible and locked while it applies, and lifting it brings those choices back."
+
+#. Found in description list item.
+msgid "<strong>See what is really active.</strong> Site Health summarizes Keel's current settings in one place and highlights likely overlaps with other plugins."
+msgstr "<strong>See what is really active.</strong> Site Health summarizes Keel's current settings in one place and highlights likely overlaps with other plugins."
+
+#. Found in description list item.
+msgid "<strong>Avoid expensive staging mistakes.</strong> Keel stops outgoing mail on non-production copies by default, so a copied database cannot unexpectedly email customers, members, or clients."
+msgstr "<strong>Avoid expensive staging mistakes.</strong> Keel stops outgoing mail on non-production copies by default, so a copied database cannot unexpectedly email customers, members, or clients."
+
+#. Found in description list item.
+msgid "<strong>Make safer defaults routine.</strong> Reduce unnecessary exposure, set practical update and revision policies, improve password protection, and keep site settings consistent without a collection of small single-purpose plugins."
+msgstr "<strong>Make safer defaults routine.</strong> Reduce unnecessary exposure, set practical update and revision policies, improve password protection, and keep site settings consistent without a collection of small single-purpose plugins."
+
+#. Found in description list item.
+msgid "<strong>Know when core needs attention.</strong> Keel warns when WordPress.org flags the installed WordPress version as insecure. When a safe patch for the same version line is available, it names that patch and lets an authorized administrator install it deliberately. You get a clear answer even when no secure patch is available yet."
+msgstr "<strong>Know when core needs attention.</strong> Keel warns when WordPress.org flags the installed WordPress version as insecure. When a safe patch for the same version line is available, it names that patch and lets an authorized administrator install it deliberately. You get a clear answer even when no secure patch is available yet."
+
+#. Found in description header.
+msgid "Credits"
+msgstr "Credits"
+
+#. Screenshot description.
+msgid "Network Admin → Settings → Network Policy. A Super Admin chooses individual safeguards for every site without replacing the local choices that return when the network policy is lifted."
+msgstr "Network Admin → Settings → Network Policy. A Super Admin chooses individual safeguards for every site without replacing the local choices that return when the network policy is lifted."
+
+#. Screenshot description.
+msgid "Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, which secure patch is available for its current release line, and what WordPress itself is offering."
+msgstr "Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, which secure patch is available for its current release line, and what WordPress itself is offering."
+
+#. Found in description paragraph.
+msgid "<a href=\"https://github.com/austinginder\">Austin Ginder</a> of Anchor Hosting (<a href=\"https://anchor.host\">anchor.host</a> · <a href=\"https://github.com/anchorhost\">@anchorhost</a>) reviewed Keel for security, and the plugin is better for it. Thank you, Austin."
+msgstr "<a href=\"https://github.com/austinginder\">Austin Ginder</a> of Anchor Hosting (<a href=\"https://anchor.host\">anchor.host</a> · <a href=\"https://github.com/anchorhost\">@anchorhost</a>) reviewed Keel for security, and the plugin is better for it. Thank you, Austin."
+
+#. Found in description paragraph.
+msgid "Keel also asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (<code>https://api.wordpress.org/core/stable-check/1.0/</code>). This is WordPress.org's own service, on the same host core already contacts for updates and translations; core itself never queries it. The request carries no site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way core's own update requests identify the site. The response maps the WordPress releases it lists to their current status; Keel keeps it for a day, and asks again sooner only when WordPress's own update check offers a release that answer does not list yet, so a new security release is reported the day it ships. If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not add a network wait to every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine. WordPress.org's privacy policy is at https://wordpress.org/about/privacy/."
+msgstr "Keel also asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (<code>https://api.wordpress.org/core/stable-check/1.0/</code>). This is WordPress.org's own service, on the same host core already contacts for updates and translations; core itself never queries it. The request carries no site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way core's own update requests identify the site. The response maps the WordPress releases it lists to their current status; Keel keeps it for a day, and asks again sooner only when WordPress's own update check offers a release that answer does not list yet, so a new security release is reported the day it ships. If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not add a network wait to every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine. WordPress.org's privacy policy is at https://wordpress.org/about/privacy/."
+
+#. Found in faq header.
+msgid "Why is there no password strength meter?"
+msgstr "Why is there no password strength meter?"
+
+#. Found in faq header.
+msgid "I run multisite. Does the password policy apply per site?"
+msgstr "I run multisite. Does the password policy apply per site?"
+
+#. Found in faq header.
+msgid "Can I set these in code instead?"
+msgstr "Can I set these in code instead?"
+
+#. Found in faq header.
+msgid "Does Keel delete anything?"
+msgstr "Does Keel delete anything?"
+
+#. Found in faq header.
+msgid "Why has email stopped working on my staging site?"
+msgstr "Why has email stopped working on my staging site?"
+
+#. Found in faq header.
+msgid "Does Keel send anything off my site?"
+msgstr "Does Keel send anything off my site?"
+
+#. Found in faq header.
+msgid "Will Keel break my site?"
+msgstr "Will Keel break my site?"
+
+#. Found in faq header.
+msgid "What changes when I activate Keel?"
+msgstr "What changes when I activate Keel?"
+
+#. Found in installation list item.
+msgid "Activate it. The documented defaults are seeded on activation; nothing is applied before that."
+msgstr "Activate it. The documented defaults are seeded on activation; nothing is applied before that."
+
+#. Found in installation list item.
+msgid "Copy the plugin folder into <code>wp-content/plugins/</code>, or upload the built zip through <strong>Plugins → Add New → Upload Plugin</strong>."
+msgstr "Copy the plugin folder into <code>wp-content/plugins/</code>, or upload the built zip through <strong>Plugins → Add New → Upload Plugin</strong>."
+
+#. Found in description paragraph.
+msgid "Bug reports and feature requests are welcome on the issue tracker: <a href=\"https://github.com/dknauss/keel/issues\">https://github.com/dknauss/keel/issues</a>. If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how."
+msgstr "Bug reports and feature requests are welcome on the issue tracker: <a href=\"https://github.com/dknauss/keel/issues\">https://github.com/dknauss/keel/issues</a>. If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how."
+
+#. Found in description paragraph.
+msgid "Keel is free and will stay free. If it saves you an afternoon of hardening a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through <a href=\"https://github.com/sponsors/dknauss\">GitHub Sponsors</a>."
+msgstr "Keel is free and will stay free. If it saves you an afternoon of hardening a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through <a href=\"https://github.com/sponsors/dknauss\">GitHub Sponsors</a>."
+
+#. Found in description paragraph.
+msgid "The Pixel version is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text."
+msgstr "The Pixel version is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text."
+
+#. Found in description paragraph.
+msgid "Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel (@dknauss), additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later)."
+msgstr "Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel (@dknauss), additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later)."
+
+#. Found in description paragraph.
+msgid "Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default"
+msgstr "Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default"
+
+#. Found in description paragraph.
+msgid "When the <strong>Require strong passwords</strong> default is enabled, Keel screens new passwords against the <strong>Have I Been Pwned</strong> Pwned Passwords range API (<code>https://api.pwnedpasswords.com</code>) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with <code>define( 'KEEL_DISABLE_HIBP', true );</code> in <code>wp-config.php</code>, with the <code>keel_disable_hibp</code> filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health, so a site whose screening has stopped working can tell. Only the kind of failure and when it happened are stored — never the password, and never the hash prefix. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy."
+msgstr "When the <strong>Require strong passwords</strong> default is enabled, Keel screens new passwords against the <strong>Have I Been Pwned</strong> Pwned Passwords range API (<code>https://api.pwnedpasswords.com</code>) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with <code>define( 'KEEL_DISABLE_HIBP', true );</code> in <code>wp-config.php</code>, with the <code>keel_disable_hibp</code> filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health, so a site whose screening has stopped working can tell. Only the kind of failure and when it happened are stored — never the password, and never the hash prefix. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy."
+
+#. Found in description header.
+msgid "Support This Plugin"
+msgstr "Support This Plugin"
+
+#. Found in description header.
+msgid "External services"
+msgstr "External services"
+
+#. Screenshot description.
+msgid "Site Health → Info. Every default and its current state on one read-only screen, so you can answer \"what is this plugin doing to my site?\" without opening the settings and reading checkboxes."
+msgstr "Site Health → Info. Every default and its current state on one read-only screen, so you can answer \"what is this plugin doing to my site?\" without opening the settings and reading checkboxes."
+
+#. Screenshot description.
+msgid "The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password."
+msgstr "The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password."
+
+#. Screenshot description.
+msgid "Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at."
+msgstr "Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at."
+
+#. Found in changelog list item.
+msgid "Documentation: the FAQ now says Keel does not manage plugin and theme auto-updates, and explains why subsite administrators on multisite do not see the auto-update column."
+msgstr "Documentation: the FAQ now says Keel does not manage plugin and theme auto-updates, and explains why subsite administrators on multisite do not see the auto-update column."
+
+#. Found in changelog list item.
+msgid "Documentation: the WordPress.org listing showed the settings screen and the patch-status panel under each other's captions. The screenshots are retaken and numbered to match."
+msgstr "Documentation: the WordPress.org listing showed the settings screen and the patch-status panel under each other's captions. The screenshots are retaken and numbered to match."
+
+#. Found in changelog list item.
+msgid "Fixed: following a link to a setting highlights its row, and the highlight bar sat directly against the setting's label. The label now clears it, and in right-to-left languages the bar and the lock note's rule move to the right-hand side."
+msgstr "Fixed: following a link to a setting highlights its row, and the highlight bar sat directly against the setting's label. The label now clears it, and in right-to-left languages the bar and the lock note's rule move to the right-hand side."
+
+#. Found in changelog list item.
+msgid "Fixed: on the network policy screen, the Admin Menu Width help told a Super Admin to drag a slider that screen does not have. The sentence is gone from both screens."
+msgstr "Fixed: on the network policy screen, the Admin Menu Width help told a Super Admin to drag a slider that screen does not have. The sentence is gone from both screens."
+
+#. Found in changelog list item.
+msgid "Fixed: the security patch panel on Dashboard › Updates said \"the update offered above\", but WordPress lists its offers below the panel. It now says \"below\"."
+msgstr "Fixed: the security patch panel on Dashboard › Updates said \"the update offered above\", but WordPress lists its offers below the panel. It now says \"below\"."
+
+#. Found in changelog list item.
+msgid "Fixed: with automatic updates switched off or held back by an earlier failed update, the Site Health patch panel said Keel would not offer a deliberate install directly above a working Install button. It now says the patch can still be installed deliberately, and keeps the refusal for the cases where Keel's installer really does refuse."
+msgstr "Fixed: with automatic updates switched off or held back by an earlier failed update, the Site Health patch panel said Keel would not offer a deliberate install directly above a working Install button. It now says the patch can still be installed deliberately, and keeps the refusal for the cases where Keel's installer really does refuse."
+
+#. Found in changelog list item.
+msgid "Changed: clearer wording throughout the core update and security patch messages, with constant, filter and file names shown as code."
+msgstr "Changed: clearer wording throughout the core update and security patch messages, with constant, filter and file names shown as code."
+
+#. Found in changelog list item.
+msgid "Fixed: a folded admin menu stayed pinned open at a custom width. It now folds, and the width applies only above 960px, where WordPress does not fold the menu automatically. The live preview follows the same rules, so it no longer shows a width that saving would not apply."
+msgstr "Fixed: a folded admin menu stayed pinned open at a custom width. It now folds, and the width applies only above 960px, where WordPress does not fold the menu automatically. The live preview follows the same rules, so it no longer shows a width that saving would not apply."
+
+#. Found in changelog list item.
+msgid "Changed: a locked setting now looks locked. The note beneath it reads as a statement rather than a hint, the control itself is visibly inactive, and both are styled on the network settings screen too."
+msgstr "Changed: a locked setting now looks locked. The note beneath it reads as a statement rather than a hint, the control itself is visibly inactive, and both are styled on the network settings screen too."
+
+#. Found in changelog list item.
+msgid "Fixed: a setting locked in wp-config.php showed the preference stored underneath the lock, not what the constant enforces. With WP_AUTO_UPDATE_CORE set to true, Core Auto-Updates read \"Maintenance/security releases only\" on a site installing every release. Locked controls now show what is in force, and when background updates are switched off entirely, the note names the constant that did it."
+msgstr "Fixed: a setting locked in wp-config.php showed the preference stored underneath the lock, not what the constant enforces. With WP_AUTO_UPDATE_CORE set to true, Core Auto-Updates read \"Maintenance/security releases only\" on a site installing every release. Locked controls now show what is in force, and when background updates are switched off entirely, the note names the constant that did it."
+
+#. Found in changelog list item.
+msgid "Fixed: on the day a security release ships, Site Health could go on reporting your version as the latest for up to a day. Keel cached WordPress.org's release status for a day; it now fetches it again as soon as WordPress learns of a release the cached answer does not list."
+msgstr "Fixed: on the day a security release ships, Site Health could go on reporting your version as the latest for up to a day. Keel cached WordPress.org's release status for a day; it now fetches it again as soon as WordPress learns of a release the cached answer does not list."
+
+#. Found in changelog list item.
+msgid "Added: the WordPress.org listing has a Live Preview button. The blueprint behind it was in the repository all along, but the deploy held it back from the upload, so the listing never had one."
+msgstr "Added: the WordPress.org listing has a Live Preview button. The blueprint behind it was in the repository all along, but the deploy held it back from the upload, so the listing never had one."
+
+#. Found in changelog list item.
+msgid "Security: with comments disabled, the REST API went on serving a single comment by ID (/wp/v2/comments/123). The guard added in 0.6.1 to close that route checked for a function WordPress does not define, so it never ran. It now checks correctly, and the route answers 404."
+msgstr "Security: with comments disabled, the REST API went on serving a single comment by ID (/wp/v2/comments/123). The guard added in 0.6.1 to close that route checked for a function WordPress does not define, so it never ran. It now checks correctly, and the route answers 404."
+
+#. Found in changelog list item.
+msgid "Documentation: the FAQ now states a limit that was unstated. Keel reports a setting that is not taking effect by watching WordPress filters. A plugin, theme or host that restyles the admin with CSS registers no filter, so there is nothing to observe - the admin menu width is the usual case, and a managed host styling the admin to its own design is not a conflict Keel can see or should fight."
+msgstr "Documentation: the FAQ now states a limit that was unstated. Keel reports a setting that is not taking effect by watching WordPress filters. A plugin, theme or host that restyles the admin with CSS registers no filter, so there is nothing to observe - the admin menu width is the usual case, and a managed host styling the admin to its own design is not a conflict Keel can see or should fight."
+
+#. Found in changelog list item.
+msgid "Fixed: the admin menu width slider stopped previewing the change as you dragged it, on any site that had a width saved. The preview was still there; Keel's own saved rule was overriding it, because that rule is marked important and the preview was not. The preview now outranks it, as it was always meant to."
+msgstr "Fixed: the admin menu width slider stopped previewing the change as you dragged it, on any site that had a width saved. The preview was still there; Keel's own saved rule was overriding it, because that rule is marked important and the preview was not. The preview now outranks it, as it was always meant to."
+
+#. Found in changelog list item.
+msgid "Changed: the conflict notice names Keel, drops a sentence the link beneath it already made, and says settings \"may be contested\" rather than asserting a contest the Site Health test itself declines to assert."
+msgstr "Changed: the conflict notice names Keel, drops a sentence the link beneath it already made, and says settings \"may be contested\" rather than asserting a contest the Site Health test itself declines to assert."
+
+#. Found in changelog list item.
+msgid "Fixed: the conflict notice reported settings shared with callbacks it could not trace and sent you to Site Health, where there were no open issues. The finding was there, but filed under a passing test - green, collapsed, and headed \"No attributable policy overlap was found\". Untraceable overlaps are now reported as a recommendation, so the notice and Site Health describe the same site."
+msgstr "Fixed: the conflict notice reported settings shared with callbacks it could not trace and sent you to Site Health, where there were no open issues. The finding was there, but filed under a passing test - green, collapsed, and headed \"No attributable policy overlap was found\". Untraceable overlaps are now reported as a recommendation, so the notice and Site Health describe the same site."
+
+#. Found in changelog list item.
+msgid "Fixed: the admin menu width slider offered \"WordPress default (160px)\" as its first stop, but that stop set no width at all - it only made Keel stand down. On a site where a theme, a host, or another plugin had widened the menu, it was the stop you would reach for and the one guaranteed to do nothing. There is now an explicit 160px stop that asserts core's width, and the first stop says what it does: \"Leave unchanged\"."
+msgstr "Fixed: the admin menu width slider offered \"WordPress default (160px)\" as its first stop, but that stop set no width at all - it only made Keel stand down. On a site where a theme, a host, or another plugin had widened the menu, it was the stop you would reach for and the one guaranteed to do nothing. There is now an explicit 160px stop that asserts core's width, and the first stop says what it does: \"Leave unchanged\"."
+
+#. Found in changelog list item.
+msgid "Screenshots retaken against the current wording."
+msgstr "Screenshots retaken against the current wording."
+
+#. Found in changelog list item.
+msgid "Changed: the ladder markers are one symbol and one label per rung rather than several, and the plainer wording drops an explanation of release numbering nobody reading two version numbers needs."
+msgstr "Changed: the ladder markers are one symbol and one label per rung rather than several, and the plainer wording drops an explanation of release numbering nobody reading two version numbers needs."
+
+#. Found in changelog list item.
+msgid "Fixed: the Site Health panel told you the Updates screen would not offer the patch, on sites where Keel had just added it there."
+msgstr "Fixed: the Site Health panel told you the Updates screen would not offer the patch, on sites where Keel had just added it there."
+
+#. Found in changelog list item.
+msgid "Fixed: the Updates screen offer named the newest release from the WordPress.org stable check, and called it \"the update offered above\". That check and the update list WordPress renders refresh on their own schedules, so the two could disagree — or the screen could be offering nothing at all. It now reads the same list the screen does, and says nothing rather than inventing an update above."
+msgstr "Fixed: the Updates screen offer named the newest release from the WordPress.org stable check, and called it \"the update offered above\". That check and the update list WordPress renders refresh on their own schedules, so the two could disagree — or the screen could be offering nothing at all. It now reads the same list the screen does, and says nothing rather than inventing an update above."
+
+#. Found in changelog list item.
+msgid "Fixed: an install started from the Updates screen finished, then sent you to Site Health to find out whether it had worked. Worse, it usually said nothing when you got there: a successful install leaves the site secure, so the panel carrying the result correctly stops rendering. The result now appears on the screen the button was pressed on, once."
+msgstr "Fixed: an install started from the Updates screen finished, then sent you to Site Health to find out whether it had worked. Worse, it usually said nothing when you got there: a successful install leaves the site secure, so the panel carrying the result correctly stops rendering. The result now appears on the screen the button was pressed on, once."
+
+#. Found in changelog list item.
+msgid "Added: the security release on your own version line is now offered on the Updates screen, where WordPress sends you to update. WordPress builds that screen with <code>get_core_updates()</code>, which discards every offer flagged for automatic installation — and a same-line security patch is only ever offered that way. So the screen has always listed the newest release and never mentioned the patch. Keel adds it back, directly below the automatic-update settings that decide which release the site would take."
+msgstr "Added: the security release on your own version line is now offered on the Updates screen, where WordPress sends you to update. WordPress builds that screen with <code>get_core_updates()</code>, which discards every offer flagged for automatic installation — and a same-line security patch is only ever offered that way. So the screen has always listed the newest release and never mentioned the patch. Keel adds it back, directly below the automatic-update settings that decide which release the site would take."
+
+#. Found in changelog list item.
+msgid "Screenshots retaken against a release WordPress.org flags, so the listing images show the current wording."
+msgstr "Screenshots retaken against a release WordPress.org flags, so the listing images show the current wording."
+
+#. Found in changelog list item.
+msgid "Added: two live matrix rows that leave the automatic updater operable — one where WordPress would take the same-line patch, one where major updates are permitted and it steps over. Every previous row switched the updater off, so no row had ever rendered the panel in the state these fixes are about."
+msgstr "Added: two live matrix rows that leave the automatic updater operable — one where WordPress would take the same-line patch, one where major updates are permitted and it steps over. Every previous row switched the updater off, so no row had ever rendered the panel in the state these fixes are about."
+
+#. Found in changelog list item.
+msgid "Fixed: an unexpected <code>null</code> from WordPress's upgrader was reported as a successful install. Core documents a version string on success, so <code>null</code> establishes nothing."
+msgstr "Fixed: an unexpected <code>null</code> from WordPress's upgrader was reported as a successful install. Core documents a version string on success, so <code>null</code> establishes nothing."
+
+#. Found in changelog list item.
+msgid "Fixed: the panel offered a deliberate install in states where Keel refuses one, and then, once corrected, claimed no install was possible at all. Both were wrong. Keel refuses a blocked install; a deployment workflow or WP-CLI may still manage it, and the wording now says which of those it is speaking for."
+msgstr "Fixed: the panel offered a deliberate install in states where Keel refuses one, and then, once corrected, claimed no install was possible at all. Both were wrong. Keel refuses a blocked install; a deployment workflow or WP-CLI may still manage it, and the wording now says which of those it is speaking for."
+
+#. Found in changelog list item.
+msgid "Fixed: the persistent admin notice repeated the same promise with no ladder beneath it to correct it. It renders on every admin screen, so it cannot afford to ask WordPress which release it would install — it now says automatic updating appears available and sends you to Site Health, which can answer."
+msgstr "Fixed: the persistent admin notice repeated the same promise with no ladder beneath it to correct it. It renders on every admin screen, so it cannot afford to ask WordPress which release it would install — it now says automatic updating appears available and sends you to Site Health, which can answer."
+
+#. Found in changelog list item.
+msgid "Fixed: the patch-status panel could promise a scheduled install the ladder directly beneath it contradicted. \"Minor updates are permitted and the updater works\" does not establish what WordPress would install: a site that also accepts major updates gets the highest release on offer, not the nearest, so the panel could say a patch was scheduled above a ladder marking a different release as the one WordPress would take. The claim is now made only when core's own selection is that patch, and names the release core would take instead when it is not."
+msgstr "Fixed: the patch-status panel could promise a scheduled install the ladder directly beneath it contradicted. \"Minor updates are permitted and the updater works\" does not establish what WordPress would install: a site that also accepts major updates gets the highest release on offer, not the nearest, so the panel could say a patch was scheduled above a ladder marking a different release as the one WordPress would take. The claim is now made only when core's own selection is that patch, and names the release core would take instead when it is not."
+
+#. Found in changelog list item.
+msgid "Thanks to Austin Ginder of Anchor Hosting for the security review these fixes come from."
+msgstr "Thanks to Austin Ginder of Anchor Hosting for the security review these fixes come from."
+
+#. Found in changelog list item.
+msgid "Added: <code>tests/hook-precedence.php</code> and <code>tests/route-coverage.php</code>, which check that a registration wins its hook and covers its routes rather than merely existing. The first two fixes above were invisible to the previous suite."
+msgstr "Added: <code>tests/hook-precedence.php</code> and <code>tests/route-coverage.php</code>, which check that a registration wins its hook and covers its routes rather than merely existing. The first two fixes above were invisible to the previous suite."
+
+#. Found in changelog list item.
+msgid "Fixed: an empty or over-long password reached the breach-screening network call before anything cheap rejected it."
+msgstr "Fixed: an empty or over-long password reached the breach-screening network call before anything cheap rejected it."
+
+#. Found in changelog list item.
+msgid "Fixed: the REST password policy resolved any user ID in the request before the route checked authorization, so the policy ran against another account's login, email and nicename and returned the answer in the validation error. It now resolves only the caller's own user, or one they may edit."
+msgstr "Fixed: the REST password policy resolved any user ID in the request before the route checked authorization, so the policy ran against another account's login, email and nicename and returned the answer in the validation error. It now resolves only the caller's own user, or one they may edit."
+
+#. Found in changelog list item.
+msgid "Fixed: a site with comments disabled still answered <code>/wp/v2/comments/123</code>. The filter covering every comment listing does not cover the single-item REST route, which reads its row without building a query."
+msgstr "Fixed: a site with comments disabled still answered <code>/wp/v2/comments/123</code>. The filter covering every comment listing does not cover the single-item REST route, which reads its row without building a query."
+
+#. Found in changelog list item.
+msgid "Fixed: <code>/?author=N</code> still disclosed the author nicename, and attachment pages still rendered, on sites with those defaults enabled. Both redirects registered on <code>template_redirect</code> at the default priority, where core has already registered <code>redirect_canonical</code> during load — so they lost the tie on registration order every time. Both now run at priority 9."
+msgstr "Fixed: <code>/?author=N</code> still disclosed the author nicename, and attachment pages still rendered, on sites with those defaults enabled. Both redirects registered on <code>template_redirect</code> at the default priority, where core has already registered <code>redirect_canonical</code> during load — so they lost the tie on registration order every time. Both now run at priority 9."
+
+#. Found in changelog list item.
+msgid "The other remediation switches minor auto-updates back on, and only where the stored option is genuinely what decides."
+msgstr "The other remediation switches minor auto-updates back on, and only where the stored option is genuinely what decides."
+
+#. Found in changelog list item.
+msgid "Being blocked from automatic updates does not block a deliberate install. A disabled updater, a filter, or an earlier failed update are all reasons a patch will not arrive by itself, and installing it deliberately is the remedy for each."
+msgstr "Being blocked from automatic updates does not block a deliberate install. A disabled updater, a filter, or an earlier failed update are all reasons a patch will not arrive by itself, and installing it deliberately is the remedy for each."
+
+#. Found in changelog list item.
+msgid "New: install the patch from the Site Health panel, using WordPress's own upgrader with rollback enabled. The target is recomputed on the server and can only ever be the patched tip of your own release line, so it cannot cross a release line or move a site backwards. It refuses when files are not writable, when the site is a version-control checkout, or when the release's PHP or MySQL requirements are not met — that last check runs before anything is downloaded, because core otherwise reads those requirements out of the new version's own files and only finds out after unpacking it."
+msgstr "New: install the patch from the Site Health panel, using WordPress's own upgrader with rollback enabled. The target is recomputed on the server and can only ever be the patched tip of your own release line, so it cannot cross a release line or move a site backwards. It refuses when files are not writable, when the site is a version-control checkout, or when the release's PHP or MySQL requirements are not met — that last check runs before anything is downloaded, because core otherwise reads those requirements out of the new version's own files and only finds out after unpacking it."
+
+#. Found in changelog list item.
+msgid "Blockers name their own cause — the constant and the file it usually lives in, or the filter a plugin is using — instead of describing the situation in the abstract. Each one needs a different fix, and they now carry stable codes rather than being told apart by their translated text."
+msgstr "Blockers name their own cause — the constant and the file it usually lives in, or the filter a plugin is using — instead of describing the situation in the abstract. Each one needs a different fix, and they now carry stable codes rather than being told apart by their translated text."
+
+#. Found in changelog list item.
+msgid "Fixed: the panel offered \"Install this now from the Updates screen\" when the patch appeared only as an automatic-update offer. <code>get_core_updates()</code> omits those offers, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known."
+msgstr "Fixed: the panel offered \"Install this now from the Updates screen\" when the patch appeared only as an automatic-update offer. <code>get_core_updates()</code> omits those offers, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known."
+
+#. Found in changelog list item.
+msgid "New: the ladder of releases WordPress.org is currently offering this site, and which one WordPress would actually install. It takes the highest release your settings permit rather than the nearest, so a site accepting major updates skips the patch and jumps to the newest release."
+msgstr "New: the ladder of releases WordPress.org is currently offering this site, and which one WordPress would actually install. It takes the highest release your settings permit rather than the nearest, so a site accepting major updates skips the patch and jumps to the newest release."
+
+#. Found in changelog list item.
+msgid "Where a patched release exists on your own release line, Keel names that release rather than the newest one. A 6.9.5 site is told about 6.9.7, not 7.1 — only the third number changes, so nothing is deprecated."
+msgstr "Where a patched release exists on your own release line, Keel names that release rather than the newest one. A 6.9.5 site is told about 6.9.7, not 7.1 — only the third number changes, so nothing is deprecated."
+
+#. Found in changelog list item.
+msgid "New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries."
+msgstr "New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries."
+
+#. Found in changelog list item.
+msgid "Two links in Site Health pointed at \"Settings → Keel\", a menu that has not existed since that screen was renamed to Site Defaults. They now name the screen you will actually find. The same correction has been made to the multisite password help text and to this readme."
+msgstr "Two links in Site Health pointed at \"Settings → Keel\", a menu that has not existed since that screen was renamed to Site Defaults. They now name the screen you will actually find. The same correction has been made to the multisite password help text and to this readme."
+
+#. Found in changelog list item.
+msgid "The network settings screen is now <strong>Network Policy</strong> rather than \"Keel Defaults\". It decides settings for every site on a network and locks them, which is the opposite of what the per-site screen does, and the old name did not say so. The screen, its address and its behaviour are otherwise unchanged."
+msgstr "The network settings screen is now <strong>Network Policy</strong> rather than \"Keel Defaults\". It decides settings for every site on a network and locks them, which is the opposite of what the per-site screen does, and the old name did not say so. The screen, its address and its behaviour are otherwise unchanged."
+
+#. Found in changelog paragraph.
+msgid "Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release."
+msgstr "Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release."
+
+#. Found in changelog list item.
+msgid "Initial scaffold: base imported from Better by Default (WPYEG, GPL-3.0-or-later) and re-identified  &hellip;"
+msgstr "Initial scaffold: base imported from Better by Default (WPYEG, GPL-3.0-or-later) and re-identified  &hellip;"
+
+#. Found in changelog list item.
+msgid "Removed the reserved-usernames default. It refused to create accounts named <code>admin</code>, <code>support</code>, <code>info</code> and 70 others, which is a reasonable policy for a managed fleet and a presumptuous one for a general-purpose defaults plugin — the list is long, opinionated, and includes names an ordinary site legitimately uses (<code>manager</code>, <code>marketing</code>, <code>sales</code>, <code>office</code>, <code>client</code>). Existing accounts were never affected and still are not. A stored setting is ignored and drops out of the option on the next save; no migration is needed. To keep the behaviour, WordPress's own filter does it in one call: <code>add_filter( 'illegal_user_logins', function ( $logins ) { return array_merge( $logins, array( 'admin', 'administrator', 'root' ) ); } );</code>"
+msgstr "Removed the reserved-usernames default. It refused to create accounts named <code>admin</code>, <code>support</code>, <code>info</code> and 70 others, which is a reasonable policy for a managed fleet and a presumptuous one for a general-purpose defaults plugin — the list is long, opinionated, and includes names an ordinary site legitimately uses (<code>manager</code>, <code>marketing</code>, <code>sales</code>, <code>office</code>, <code>client</code>). Existing accounts were never affected and still are not. A stored setting is ignored and drops out of the option on the next save; no migration is needed. To keep the behaviour, WordPress's own filter does it in one call: <code>add_filter( 'illegal_user_logins', function ( $logins ) { return array_merge( $logins, array( 'admin', 'administrator', 'root' ) ); } );</code>"
+
+#. Found in changelog list item.
+msgid "Environment detection no longer overrides a site that declares <code>WP_ENVIRONMENT_TYPE</code> through an environment variable rather than the constant."
+msgstr "Environment detection no longer overrides a site that declares <code>WP_ENVIRONMENT_TYPE</code> through an environment variable rather than the constant."
+
+#. Found in changelog list item.
+msgid "The session-length filter stands down when it has nothing to say, so it does not overrule a host or another plugin that has already decided."
+msgstr "The session-length filter stands down when it has nothing to say, so it does not overrule a host or another plugin that has already decided."
+
+#. Found in changelog list item.
+msgid "Outgoing mail is suppressed outside production, and the settings screen says so on screen rather than only in a notice."
+msgstr "Outgoing mail is suppressed outside production, and the settings screen says so on screen rather than only in a notice."
+
+#. Found in changelog list item.
+msgid "Site Health reports every default and its state under Info, flags only what warrants attention under Status, and names other active plugins setting the same defaults."
+msgstr "Site Health reports every default and its state under Info, flags only what warrants attention under Status, and names other active plugins setting the same defaults."
+
+#. Found in changelog list item.
+msgid "Activation seeds every existing site on a network, and a subsite created afterwards is seeded too, so a later schema change cannot move some sites and not others."
+msgstr "Activation seeds every existing site on a network, and a subsite created afterwards is seeded too, so a later schema change cannot move some sites and not others."
+
+#. Found in changelog list item.
+msgid "Uninstall leaves nothing behind: settings, the last-login user meta and the breach-screening transients are all removed, network-wide on multisite."
+msgstr "Uninstall leaves nothing behind: settings, the last-login user meta and the breach-screening transients are all removed, network-wide on multisite."
+
+#. Found in changelog list item.
+msgid "Author identity no longer leaks past a hidden author archive. oEmbed responses drop <code>author_name</code> and <code>author_url</code>, and the users sitemap provider is removed."
+msgstr "Author identity no longer leaks past a hidden author archive. oEmbed responses drop <code>author_name</code> and <code>author_url</code>, and the users sitemap provider is removed."
+
+#. Found in changelog list item.
+msgid "A closed REST API stops advertising itself — the <code>&lt;link rel&gt;</code>, the <code>Link:</code> header and the RSD entry all go — and oEmbed stays reachable through the gate so other sites embedding yours do not silently degrade to a bare link."
+msgstr "A closed REST API stops advertising itself — the <code>&lt;link rel&gt;</code>, the <code>Link:</code> header and the RSD entry all go — and oEmbed stays reachable through the gate so other sites embedding yours do not silently degrade to a bare link."
+
+#. Found in changelog list item.
+msgid "Comment teardown now reaches past the rendered page: comment queries are answered empty, comment blocks stop rendering in block themes, comment feeds return a real 404 instead of a redirect loop, and the comment count reports zero."
+msgstr "Comment teardown now reaches past the rendered page: comment queries are answered empty, comment blocks stop rendering in block themes, comment feeds return a real 404 instead of a redirect loop, and the comment count reports zero."
+
+#. Found in changelog list item.
+msgid "First stable release. The initial feature set was frozen; what changed since the scaffold is listed below."
+msgstr "First stable release. The initial feature set was frozen; what changed since the scaffold is listed below."
+
+#. Found in changelog list item.
+msgid "A \"try it live\" Playground link that follows each stable release."
+msgstr "A \"try it live\" Playground link that follows each stable release."
+
+#. Found in changelog list item.
+msgid "An XML-RPC help tab covering the whole family — what it is, why four switches rather than one, the Jetpack constraint, and why system.multicall's reputation is out of date."
+msgstr "An XML-RPC help tab covering the whole family — what it is, why four switches rather than one, the Jetpack constraint, and why system.multicall's reputation is out of date."
+
+#. Found in changelog list item.
+msgid "Translation catalogs rebuilt: 68 strings in the code were missing from the template, and the en_CA catalog translated nothing because every string it named had been reworded."
+msgstr "Translation catalogues rebuilt: 68 strings in the code were missing from the template, and the en_CA catalogue translated nothing because every string it named had been reworded."
+
+#. Found in changelog list item.
+msgid "X-Frame-Options is left alone inside the Customizer preview, which sets that header itself so the preview can load."
+msgstr "X-Frame-Options is left alone inside the Customizer preview, which sets that header itself so the preview can load."
+
+#. Found in changelog list item.
+msgid "Number settings report their unit, so Site Health says \"14 days\" rather than \"14\"."
+msgstr "Number settings report their unit, so Site Health says \"14 days\" rather than \"14\"."
+
+#. Found in changelog list item.
+msgid "Site Health → Info groups the defaults by category instead of repeating the group name on every row, and the section is named \"Keel Defaults\" rather than \"Keel\"."
+msgstr "Site Health → Info groups the defaults by category instead of repeating the group name on every row, and the section is named \"Keel Defaults\" rather than \"Keel\"."
+
+#. Found in changelog list item.
+msgid "The admin menu width slider announces its setting as a word rather than a position, and no longer repeats itself on every keypress."
+msgstr "The admin menu width slider announces its setting as a word rather than a position, and no longer repeats itself on every keypress."
+
+#. Found in changelog list item.
+msgid "The staging environment indicator failed WCAG AA contrast at 2.41:1 against the 4.5:1 minimum for text that size. Every environment colour is now checked by the test suite."
+msgstr "The staging environment indicator failed WCAG AA contrast at 2.41:1 against the 4.5:1 minimum for text that size. Every environment colour is now checked by the test suite."
+
+#. Found in changelog list item.
+msgid "Settings that hide when another choice makes them irrelevant now tell assistive technology which control governs them, and whether they are showing."
+msgstr "Settings that hide when another choice makes them irrelevant now tell assistive technology which control governs them, and whether they are showing."
+
+#. Found in changelog list item.
+msgid "Locked controls can be reached by keyboard and screen reader, and say why they are locked. They were disabled, which removes them from the tab order — so the explanation attached to them was announced on a focus that never happened."
+msgstr "Locked controls can be reached by keyboard and screen reader, and say why they are locked. They were disabled, which removes them from the tab order — so the explanation attached to them was announced on a focus that never happened."
+
+#. Found in changelog list item.
+msgid "A locked setting now stays locked when the form is saved, not only when it is drawn. A wp-config constant or a network policy was enforced in the rendered control and nowhere else, so a submission could still write the value it protected. It never took effect, but the stored setting drifted from what the screen showed."
+msgstr "A locked setting now stays locked when the form is saved, not only when it is drawn. A wp-config constant or a network policy was enforced in the rendered control and nowhere else, so a submission could still write the value it protected. It never took effect, but the stored setting drifted from what the screen showed."
+
+#. Found in changelog list item.
+msgid "Multisite: a Super Admin can decide any setting for the whole network, under Network Admin → Settings → Keel Defaults. Sites see those settings as locked. Policy applies when a value is read rather than being written into each site, so a site's own saved settings are untouched and lifting the policy returns every site to exactly what it had."
+msgstr "Multisite: a Super Admin can decide any setting for the whole network, under Network Admin → Settings → Keel Defaults. Sites see those settings as locked. Policy applies when a value is read rather than being written into each site, so a site's own saved settings are untouched and lifting the policy returns every site to exactly what it had."
+
+#. Found in changelog list item.
+msgid "Tested against WordPress 7.1, behaviourally rather than by reading the release notes."
+msgstr "Tested against WordPress 7.1, behaviourally rather than by reading the release notes."
+
+#. Found in changelog list item.
+msgid "AI Connectors no longer appears on WordPress versions that have no AI connectors. The setting is gated on the core function rather than a version number, and its stored value is left alone, so a site that upgrades to 7.0 finds the default already there."
+msgstr "AI Connectors no longer appears on WordPress versions that have no AI connectors. The setting is gated on the core function rather than a version number, and its stored value is left alone, so a site that upgrades to 7.0 finds the default already there."
+
+#. Found in changelog list item.
+msgid "Capability conflicts are judged by the capability rather than by the filter. Nearly every plugin that adds a custom role uses the same filter Keel uses to take <code>unfiltered_html</code> away, and almost none of them touch that capability; only the ones that do are reported."
+msgstr "Capability conflicts are judged by the capability rather than by the filter. Nearly every plugin that adds a custom role uses the same filter Keel uses to take <code>unfiltered_html</code> away, and almost none of them touch that capability; only the ones that do are reported."
+
+#. Found in changelog list item.
+msgid "A conflict needs Keel to be on the hook too. Turning a default off takes Keel out of the contest and the report follows, instead of warning about a setting Keel has stopped touching."
+msgstr "A conflict needs Keel to be on the hook too. Turning a default off takes Keel out of the contest and the report follows, instead of warning about a setting Keel has stopped touching."
+
+#. Found in changelog list item.
+msgid "What it cannot see is stated where it is reported. A plugin that turns a feature off by handing one of WordPress's own helper functions to a filter leaves nothing to trace back to it, so a clear result means nothing traceable was found rather than nothing competing."
+msgstr "What it cannot see is stated where it is reported. A plugin that turns a feature off by handing one of WordPress's own helper functions to a filter leaves nothing to trace back to it, so a clear result means nothing traceable was found rather than nothing competing."
+
+#. Found in changelog list item.
+msgid "Keel now tells you when another plugin is setting the same things it is. Session length, comment behaviour, the editor and a dozen other settings are applied through WordPress filters that return a single value: when more than one plugin uses the same filter, only one of them takes effect, there is no error, and the ones that lost go on showing the values they set. The check names the plugins and the settings — on the Plugins screen, on Keel's own screen, and in full under Site Health."
+msgstr "Keel now tells you when another plugin is setting the same things it is. Session length, comment behaviour, the editor and a dozen other settings are applied through WordPress filters that return a single value: when more than one plugin uses the same filter, only one of them takes effect, there is no error, and the ones that lost go on showing the values they set. The check names the plugins and the settings — on the Plugins screen, on Keel's own screen, and in full under Site Health."
+
+#. Found in changelog list item.
+msgid "The plugin folder is now <code>keel-defaults</code> rather than <code>keel</code>, and the text domain moved with it. WordPress.org serves translations as <code>{slug}-{locale}.mo</code>, so a text domain that is not the slug means no translation ever loads — silently, with nothing to search for."
+msgstr "The plugin folder is now <code>keel-defaults</code> rather than <code>keel</code>, and the text domain moved with it. WordPress.org serves translations as <code>{slug}-{locale}.mo</code>, so a text domain that is not the slug means no translation ever loads — silently, with nothing to search for."
+
+#. Found in changelog list item.
+msgid "The check now says what it cannot see, on the settings screen and in Site Health. A plugin that turns something off by handing one of WordPress's own helper functions to a filter cannot be traced back from that filter, so a clear result means nothing traceable was found rather than nothing competing."
+msgstr "The check now says what it cannot see, on the settings screen and in Site Health. A plugin that turns something off by handing one of WordPress's own helper functions to a filter cannot be traced back from that filter, so a clear result means nothing traceable was found rather than nothing competing."
+
+#. Found in changelog list item.
+msgid "Removed the unconfirmed half of the overlapping-settings check. It reported a plugin when something untraceable was registered on a setting Keel also sets and that plugin's source mentioned the same filter — but WordPress itself, and Keel itself, both register through the same untraceable helper functions, so the first of those two conditions was true on nearly every setting. That left one weak signal doing the work of two, and it named plugins that were not doing anything: Clearfy and WP Master Toolkit were both reported on five settings between them while registering nothing at all. Confirmed detection is unchanged and unaffected."
+msgstr "Removed the unconfirmed half of the overlapping-settings check. It reported a plugin when something untraceable was registered on a setting Keel also sets and that plugin's source mentioned the same filter — but WordPress itself, and Keel itself, both register through the same untraceable helper functions, so the first of those two conditions was true on nearly every setting. That left one weak signal doing the work of two, and it named plugins that were not doing anything: Clearfy and WP Master Toolkit were both reported on five settings between them while registering nothing at all. Confirmed detection is unchanged and unaffected."
+
+#. Found in changelog list item.
+msgid "Rebuilt overlapping-policy detection around confirmed, compatible, and unconfirmed effects. Callback presence alone no longer generates deactivation advice, and the incorrect claim that mail/comment-query callbacks stop after the first non-null value is gone."
+msgstr "Rebuilt overlapping-policy detection around confirmed, compatible, and unconfirmed effects. Callback presence alone no longer generates deactivation advice, and the incorrect claim that mail/comment-query callbacks stop after the first non-null value is gone."
+
+#. Found in changelog list item.
+msgid "Author feeds now return an explicit 404 when author archives are disabled. They were already closed by the archive's broad 301 because WordPress sets both query flags; the corrected test now proves that routing fact against the real request."
+msgstr "Author feeds now return an explicit 404 when author archives are disabled. They were already closed by the archive's broad 301 because WordPress sets both query flags; the corrected test now proves that routing fact against the real request."
+
+#. Found in changelog list item.
+msgid "Added post-revision retention: new activations keep 10 revisions, existing sites preserve their previous unlimited behavior on upgrade, <code>-1</code> means unlimited, and <code>0</code> disables future revisions. Numeric or false <code>WP_POST_REVISIONS</code> policy locks both site and network controls."
+msgstr "Added post-revision retention: new activations keep 10 revisions, existing sites preserve their previous unlimited behaviour on upgrade, <code>-1</code> means unlimited, and <code>0</code> disables future revisions. Numeric or false <code>WP_POST_REVISIONS</code> policy locks both site and network controls."
+
+#. Found in changelog list item.
+msgid "Memoized the overlap report for each request and added adversarial coverage for mutating, throwing, and terminating callbacks, plus guards against hook-registry mutation and overstated UI copy."
+msgstr "Memoized the overlap report for each request and added adversarial coverage for mutating, throwing, and terminating callbacks, plus guards against hook-registry mutation and overstated UI copy."
+
+#. Found in changelog list item.
+msgid "Restored structural detection on authoritative hooks: Keel must be registered on the hook and the other callback must be attributable to an active plugin. The report confirms shared ownership only, tells administrators to compare settings, and does not recommend deactivation from presence alone."
+msgstr "Restored structural detection on authoritative hooks: Keel must be registered on the hook and the other callback must be attributable to an active plugin. The report confirms shared ownership only, tells administrators to compare settings, and does not recommend deactivation from presence alone."
+
+#. Found in changelog list item.
+msgid "Removed effect probes from policy-overlap detection. Diagnostics no longer execute another plugin's callbacks with synthetic or real user/post context, so reporting an overlap cannot send mail, write data, terminate the request, mutate hooks, or trigger other callback side effects."
+msgstr "Removed effect probes from policy-overlap detection. Diagnostics no longer execute another plugin's callbacks with synthetic or real user/post context, so reporting an overlap cannot send mail, write data, terminate the request, mutate hooks, or trigger other callback side effects."
+
+#. Found in changelog list item.
+msgid "A plugin that only removes entries from the block inserter is no longer reported as competing with Keel. Two plugins restricting which blocks are available both get their way, so reporting a collision there suggested deactivating a plugin that works alongside this one."
+msgstr "A plugin that only removes entries from the block inserter is no longer reported as competing with Keel. Two plugins restricting which blocks are available both get their way, so reporting a collision there suggested deactivating a plugin that works alongside this one."
+
+#. Found in changelog list item.
+msgid "The Network Admin role list shows role names again rather than their internal slugs, and no longer emits a PHP notice for each one."
+msgstr "The Network Admin role list shows role names again rather than their internal slugs, and no longer emits a PHP notice for each one."
+
+#. Found in changelog list item.
+msgid "Network Admin no longer offers a network-wide policy for a feature the running WordPress does not have, and an existing policy for one survives a save rather than being read as switched off."
+msgstr "Network Admin no longer offers a network-wide policy for a feature the running WordPress does not have, and an existing policy for one survives a save rather than being read as switched off."
+
+#. Found in changelog list item.
+msgid "A setting the screen does not show is no longer changed by saving the screen. This is the same protection settings locked by <code>wp-config.php</code> already had, for the same reason: the form has no business speaking for a control it did not draw."
+msgstr "A setting the screen does not show is no longer changed by saving the screen. This is the same protection settings locked by <code>wp-config.php</code> already had, for the same reason: the form has no business speaking for a control it did not draw."
+
+#. Found in changelog list item.
+msgid "Fixed a setting being switched off by saving a different one. On WordPress 6.4 to 6.9 the AI Connectors control is not shown, because those versions have no AI connectors to turn off — but saving any other setting still read the missing checkbox as \"off\" and rewrote the stored value from on to off. Silently, and against a note in 0.4.0 saying the stored value was left alone. A site that had chosen to block connectors would have reached WordPress 7.0 with them enabled."
+msgstr "Fixed a setting being switched off by saving a different one. On WordPress 6.4 to 6.9 the AI Connectors control is not shown, because those versions have no AI connectors to turn off — but saving any other setting still read the missing checkbox as \"off\" and rewrote the stored value from on to off. Silently, and against a note in 0.4.0 saying the stored value was left alone. A site that had chosen to block connectors would have reached WordPress 7.0 with them enabled."
+
+#. Found in changelog list item.
+msgid "Dropped the compiled Canadian English translation from the plugin package. Translations for every locale are generated and delivered by translate.wordpress.org; shipping a catalog alongside that only means two sources for the same strings."
+msgstr "Dropped the compiled Canadian English translation from the plugin package. Translations for every locale are generated and delivered by translate.wordpress.org; shipping a catalogue alongside that only means two sources for the same strings."
+
+#. Found in changelog list item.
+msgid "Deleting the plugin now also removes the settings option from before the rename, which a site that had run both the older plugin and this one kept as an orphaned autoloaded row. Deleting from the Plugins screen left it behind, because nothing in the current code refers to that name any more."
+msgstr "Deleting the plugin now also removes the settings option from before the rename, which a site that had run both the older plugin and this one kept as an orphaned autoloaded row. Deleting from the Plugins screen left it behind, because nothing in the current code refers to that name any more."
+
+#. Found in changelog list item.
+msgid "The network policy screen and the per-site settings screen now share one copy of the script that refuses changes to a locked control. There were two, and they had already drifted apart."
+msgstr "The network policy screen and the per-site settings screen now share one copy of the script that refuses changes to a locked control. There were two, and they had already drifted apart."
+
+#. Found in changelog list item.
+msgid "The settings screen's CSS and JavaScript are now static files rather than markup rebuilt on every page load, so a browser caches them. The admin-menu-width slider carries its labels and widths as data attributes, which also makes its script work for any number of sliders rather than being re-emitted once per field."
+msgstr "The settings screen's CSS and JavaScript are now static files rather than markup rebuilt on every page load, so a browser caches them. The admin-menu-width slider carries its labels and widths as data attributes, which also makes its script work for any number of sliders rather than being re-emitted once per field."
+
+#. Found in changelog list item.
+msgid "Every stylesheet and script Keel adds now goes through the WordPress asset API instead of being written straight into the page. Nothing changes on screen. It means a site can dequeue, override, or defer any of it by handle, and that caching and asset-optimizing plugins can see it — none of which was possible while the markup was printed directly."
+msgstr "Every stylesheet and script Keel adds now goes through the WordPress asset API instead of being written straight into the page. Nothing changes on screen. It means a site can dequeue, override, or defer any of it by handle, and that caching and asset-optimizing plugins can see it — none of which was possible while the markup was printed directly."
+
+#. Found in changelog list item.
+msgid "Keel can now see another plugin that switches the same setting off in the same way it does. WordPress stores one entry per callback, so when two plugins register the identical callback at the identical priority the second replaces the first and only one remains — which meant a plugin doing exactly what Keel does could be reported as Keel's own registration, or hide Keel's. Keel now uses callbacks that are its alone, so both are always visible and the report can tell them apart."
+msgstr "Keel can now see another plugin that switches the same setting off in the same way it does. WordPress stores one entry per callback, so when two plugins register the identical callback at the identical priority the second replaces the first and only one remains — which meant a plugin doing exactly what Keel does could be reported as Keel's own registration, or hide Keel's. Keel now uses callbacks that are its alone, so both are always visible and the report can tell them apart."
+
+#. Found in changelog list item.
+msgid "Fixed the login screen's logo link. Removing, unlinking or replacing the logo is supposed to point that link at your site's home page; it pointed at your home page with <code>https://wordpress.org/</code> appended, which goes nowhere. Affected every site with any of those three behaviours set."
+msgstr "Fixed the login screen's logo link. Removing, unlinking or replacing the logo is supposed to point that link at your site's home page; it pointed at your home page with <code>https://wordpress.org/</code> appended, which goes nowhere. Affected every site with any of those three behaviours set."
+
+#. Found in changelog list item.
+msgid "Pingbacks are now watched for the same override as comments. Both are decided by the same setting and were registered together, but only comments was checked."
+msgstr "Pingbacks are now watched for the same override as comments. Both are decided by the same setting and were registered together, but only comments was checked."
+
+#. Found in changelog list item.
+msgid "Fixed a comments heading appearing on posts with comments switched off. Keel reported the count as the number zero where WordPress reports it as the text \"0\", and core's Comments Title block compares the two exactly — so it did not take its early return. Affected block themes, which is the default."
+msgstr "Fixed a comments heading appearing on posts with comments switched off. Keel reported the count as the number zero where WordPress reports it as the text \"0\", and core's Comments Title block compares the two exactly — so it did not take its early return. Affected block themes, which is the default."
+
+#. Found in changelog list item.
+msgid "A setting that is not taking effect now says so where you will see it. Keel could already detect that something else on the site was overriding one of its settings, but it reported that only under Site Health — which nobody opens until something has already gone wrong. It now appears on the dashboard and the plugins screen, which is where the overlap warnings already were. This is the case you most need telling about, because a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to name it by."
+msgstr "A setting that is not taking effect now says so where you will see it. Keel could already detect that something else on the site was overriding one of its settings, but it reported that only under Site Health — which nobody opens until something has already gone wrong. It now appears on the dashboard and the plugins screen, which is where the overlap warnings already were. This is the case you most need telling about, because a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to name it by."
+
+#. Found in changelog list item.
+msgid "Fixed a confusing conflict report. Where a callback could not be traced back to a plugin, Site Health said \"callbacks from Unattributed callback\" — which reads as the name of a plugin, and several such lines read as several plugins, none of them the one the notice had actually named. It now says a callback could not be traced to a plugin, and the notice accounts for those settings too, so the two screens agree."
+msgstr "Fixed a confusing conflict report. Where a callback could not be traced back to a plugin, Site Health said \"callbacks from Unattributed callback\" — which reads as the name of a plugin, and several such lines read as several plugins, none of them the one the notice had actually named. It now says a callback could not be traced to a plugin, and the notice accounts for those settings too, so the two screens agree."
+
+#. Found in changelog list item.
+msgid "Added help for environments and for overlapping plugins. The Help menu on the settings screen explains why email stops on staging, what the environment indicator is for, and what the two kinds of overlap report actually mean — including why some overlaps name a plugin and some cannot."
+msgstr "Added help for environments and for overlapping plugins. The Help menu on the settings screen explains why email stops on staging, what the environment indicator is for, and what the two kinds of overlap report actually mean — including why some overlaps name a plugin and some cannot."
+
+#. Found in changelog list item.
+msgid "Breach screening now says when it is not working. If the Have I Been Pwned lookup cannot be completed — the service is unreachable, rate-limiting, or something else answered in its place — Site Health reports it instead of the check being skipped in silence. Passwords are still never blocked by an outage, and the rest of the password policy is unaffected; the difference is that a site whose screening stopped working weeks ago can now find out."
+msgstr "Breach screening now says when it is not working. If the Have I Been Pwned lookup cannot be completed — the service is unreachable, rate-limiting, or something else answered in its place — Site Health reports it instead of the check being skipped in silence. Passwords are still never blocked by an outage, and the rest of the password policy is unaffected; the difference is that a site whose screening stopped working weeks ago can now find out."
+
+#. Found in changelog list item.
+msgid "Tightened the check that removes the settings option from before the rename. It deleted any stored array carrying one of five fairly ordinary keys, which could have taken an unrelated option with it."
+msgstr "Tightened the check that removes the settings option from before the rename. It deleted any stored array carrying one of five fairly ordinary keys, which could have taken an unrelated option with it."
+
+#. Found in changelog list item.
+msgid "Deleting the plugin clears breach-cache data held in a persistent object cache. On a site with an external cache the cached hash prefixes were not database rows at all, so they outlived the plugin by up to twelve hours."
+msgstr "Deleting the plugin clears breach-cache data held in a persistent object cache. On a site with an external cache the cached hash prefixes were not database rows at all, so they outlived the plugin by up to twelve hours."
+
+#. Found in changelog list item.
+msgid "Network-locked sliders and role checkboxes now behave as locked. They said they were locked and then accepted edits anyway. The server always refused the value; now the screen agrees with it."
+msgstr "Network-locked sliders and role checkboxes now behave as locked. They said they were locked and then accepted edits anyway. The server always refused the value; now the screen agrees with it."
+
+#. Found in changelog list item.
+msgid "Grouped settings that depend on another setting now show and hide as you change it. The three XML-RPC method controls were the only settings rendered inside a group, and the script that reveals dependent settings only looked at ungrouped ones — so those three stayed as they were until the page reloaded, and never announced the relationship to a screen reader."
+msgstr "Grouped settings that depend on another setting now show and hide as you change it. The three XML-RPC method controls were the only settings rendered inside a group, and the script that reveals dependent settings only looked at ungrouped ones — so those three stayed as they were until the page reloaded, and never announced the relationship to a screen reader."
+
+#. Found in changelog list item.
+msgid "Breach-screening reports are now based on evidence rather than the absence of it. A successful lookup clears an earlier failure, which it did not before — so a site that recovered kept being told it had a problem, against the notice's own promise. Site Health also distinguishes \"the last lookup completed\" from \"nothing has ever run here\", and notices when the lookup has been switched off with the filter rather than only the constant."
+msgstr "Breach-screening reports are now based on evidence rather than the absence of it. A successful lookup clears an earlier failure, which it did not before — so a site that recovered kept being told it had a problem, against the notice's own promise. Site Health also distinguishes \"the last lookup completed\" from \"nothing has ever run here\", and notices when the lookup has been switched off with the filter rather than only the constant."
+
+#. Found in changelog list item.
+msgid "Header names, constants and file names in the Help menu are shown as code again rather than as running text. Three paragraphs across two tabs had lost the formatting the rest of the help uses."
+msgstr "Header names, constants and file names in the Help menu are shown as code again rather than as running text. Three paragraphs across two tabs had lost the formatting the rest of the help uses."
+
+#. Found in changelog list item.
+msgid "Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the <code>WP_ENVIRONMENT_TYPE</code> constant and <code>wp_get_environment_type()</code> reports the result, not the other way round."
+msgstr "Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the <code>WP_ENVIRONMENT_TYPE</code> constant and <code>wp_get_environment_type()</code> reports the result, not the other way round."
+
+#. Found in changelog list item.
+msgid "Breach-cache entries can no longer be reached again after the plugin is removed and reinstalled. On a site with Redis or Memcached, WordPress keeps transients in the object cache rather than the database, where the uninstaller's queries cannot follow them. Each installation now has its own cache namespace, so anything left behind belongs to an installation that no longer exists."
+msgstr "Breach-cache entries can no longer be reached again after the plugin is removed and reinstalled. On a site with Redis or Memcached, WordPress keeps transients in the object cache rather than the database, where the uninstaller's queries cannot follow them. Each installation now has its own cache namespace, so anything left behind belongs to an installation that no longer exists."
+
+#. Found in changelog header.
+msgid "0.1.0-dev"
+msgstr "0.1.0-dev"

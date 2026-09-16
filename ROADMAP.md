@@ -85,20 +85,20 @@ the typography control is useful but strategically smaller.
 - [ ] **Leave typographic punctuation as typed** — add a focused toggle around
    `wptexturize`, with editor, feed and front-end coverage so the label does not
    promise more surfaces than the implementation controls.
-- [ ] **Check the settings screens in a right-to-left admin** — deferred from the
-   0.6.6 visual check. Keel has no `-rtl` stylesheet, so its directional rules are
-   mirrored by hand, and the highlight bar, the lock note and the menu width have
-   not been looked at in a right-to-left locale. Checklist in `TODO.md`.
+- [x] **Check the settings screens in a right-to-left admin** — done 2026-09-14 in a
+   `he_IL` admin. The highlight bar, the lock note, and the saved and folded menu width
+   were correct. The live menu-width preview pushed the content from the wrong side, and
+   is fixed. Details in `TODO.md`.
 - [ ] **Run a UI/UX/accessibility sweep across the settings screens** — review
    visual hierarchy, clarity of labels and help text, responsive layout, keyboard
    use, focus visibility, screen-reader names and descriptions, contrast, and
-   single-site versus network-level controls. Include the RTL pass above and capture
-   representative site and network screens before and after fixes. One confirmed
-   example is the introductory copy at the top of the multisite network settings
-   screen: it is confined to roughly half the available content width while the
-   settings below use the full width, making the opening explanation wrap into a
-   cramped column. Let that copy use the available content width and verify it at
-   narrow and wide admin viewports.
+   single-site versus network-level controls. Capture representative site and
+   network screens before and after fixes. One confirmed example is the introductory
+   copy at the top of the multisite network settings screen: it is confined to
+   roughly half the available content width while the settings below use the full
+   width, making the opening explanation wrap into a cramped column. Let that copy
+   use the available content width and verify it at narrow and wide admin
+   viewports.
 
 ## Then — 0.8.0 performance observability
 

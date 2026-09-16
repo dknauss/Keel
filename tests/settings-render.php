@@ -617,6 +617,22 @@ keel_assert(
 	false === strpos( $preview_css, '.folded.keel-menu-width-preview' ),
 	'The folded-margin patch is gone from the preview, as it went from the saved widen: core governs a folded menu.'
 );
+
+/*
+ * Right to left, the preview's content margins must be !important on both sides.
+ * The left-to-right rule sets margin-left !important and also matches an .rtl body,
+ * and the saved widen sets margin-right !important. A plain declaration loses to
+ * both, so a he_IL admin previewing 300px on a site saved at 240px got
+ * margin-left: 300px and margin-right: 240px: the widened menu covered the start of
+ * every label and an empty strip opened on the far side.
+ */
+preg_match( '/body\.rtl\.keel-menu-width-preview:not\(\.folded\) #wpcontent,\s*body\.rtl\.keel-menu-width-preview:not\(\.folded\) #wpfooter\s*\{([^}]*)\}/', $preview_css, $rtl_margins );
+keel_assert( isset( $rtl_margins[1] ), 'The right-to-left preview margin rule was found to check.' );
+keel_assert(
+	1 === preg_match( '/margin-right:\s*var\(--keel-menu-preview-width\)\s*!important/', $rtl_margins[1] )
+		&& 1 === preg_match( '/margin-left:\s*0\s*!important/', $rtl_margins[1] ),
+	'Right to left, the preview sets margin-right to the preview width and margin-left to 0, both !important, so neither the left-to-right preview nor the saved widen wins.'
+);
 keel_assert(
 	false !== strpos( $locked_assets['js/settings.js'], 'data-keel-range' ),
 	'The script reads the slider data the markup carries.'

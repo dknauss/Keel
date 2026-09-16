@@ -163,6 +163,11 @@ $catalogs = array_merge(
 keel_assert( array() === $catalogs, 'No compiled translation catalogs ship: ' . implode( ', ', $catalogs ) );
 keel_assert( is_file( $out . '/keel-defaults/languages/keel-defaults.pot' ), 'The translation template does ship.' );
 
+// languages/imported/ keeps the files imported on translate.wordpress.org, readme
+// translations included. The *.po globs above are not recursive, so a subdirectory
+// needs its own check, or those files ship without anything noticing.
+keel_assert( ! file_exists( $out . '/keel-defaults/languages/imported' ), 'The imported translation files do not ship.' );
+
 // --- a stale build directory does not ship, whatever path the output takes ---
 
 $sandbox = keel_sandbox( $root );
