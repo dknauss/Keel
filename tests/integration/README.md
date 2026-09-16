@@ -1,6 +1,6 @@
 # Integration harnesses
 
-Two scripts, asking different questions.
+Several scripts, asking different questions.
 
 **`verify-behaviors.sh`** — does each setting register the filters it should, and
 do they answer correctly? Runs against a real WordPress load, so the
@@ -21,8 +21,36 @@ filter-level test can see that. The probe caught it on the first run.
 
 `probe-teardown.sh` is deliberately plugin-agnostic — it reports what the site
 does, not what any plugin claims. That is what makes it a comparison tool. The
-numbers in [`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md)
+teardown half of [`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md)
 came from running it against ten plugins on one install.
+
+**`probe-updates.sh`** — which core release would this site install, and does any
+screen the plugin owns say anything true about the release it is running? A
+different question of a different field, and the two halves of it are separate:
+the policy half is asked of core (`WP_Automatic_Updater::should_update()` over
+every offer, because `find_core_auto_update()` applies no policy at all), and the
+reporting half is an authenticated render of every admin screen the plugin adds,
+discovered by diffing the admin menu against a no-plugins baseline.
+
+It needs an install that is behind — one that is neither the newest release nor
+the tip of its own line — or most rows have nothing to measure. The lab the
+published numbers came from is WordPress 6.9.5: `insecure` per stable-check, with
+6.9.7 on its own line and 7.1 as latest.
+
+```bash
+PROBE_URL=http://127.0.0.1:9315 PROBE_PATH=/tmp/probe-wp \
+PROBE_MENU_BASELINE=/tmp/menu-baseline.txt \
+  bash tests/integration/probe-updates.sh "keel — core_update_policy=minor"
+```
+
+`PROBE_MENU_BASELINE` is a file of the admin-menu hrefs a no-plugins install
+renders; capture it first with the same script and no plugins active. Without it
+every screen counts as core's and the reporting rows read zero for everybody.
+`probe-http-log.php`, an mu-plugin on the lab install, records outbound requests
+so the harness can tell "reports that this release is insecure" from "reports
+that an update exists" — whether a plugin asks
+`api.wordpress.org/core/stable-check/1.0/` is the only objective form of that
+question.
 
 **`verify-network.sh`** — does the multisite behaviour hold on a real network?
 Everything Keel does on multisite was proven only against stubs the plugin's own
@@ -84,7 +112,20 @@ PROBE_URL=http://127.0.0.1:9314 PROBE_PATH=/tmp/probe-wp \
 ```
 
 Configuration lives in `probe-configs/<slug>.php` and is optional; plugins with
-nothing to configure simply have no file. Each one says what it sets and why,
+nothing to configure simply have no file. `PROBE_SCRIPT` chooses which probe runs
+(default `probe-teardown.sh`), and the update-policy comparison pairs
+`probe-updates.sh` with its own directory of configs:
+
+```bash
+PROBE_URL=http://127.0.0.1:9315 PROBE_PATH=/tmp/probe-wp \
+PROBE_CONFIG_DIR="$PWD/tests/integration/probe-configs-updates" \
+PROBE_SCRIPT=probe-updates.sh \
+  bash tests/integration/probe-plugin.sh update-control "Update Control 1.5.1 (4k)"
+```
+
+A `<slug>.post.php` alongside it runs *after* activation, for a plugin whose
+storage does not exist before then — Companion Auto Update keeps its settings in
+a table its deactivation hook drops. Each one says what it sets and why,
 including where it deliberately leaves something alone — Admin and Site
 Enhancements keeps its feed-disabling off so a 404 on a comment feed can be
 attributed, and Keel keeps its XML-RPC endpoint block off so the per-method rows
@@ -222,6 +263,26 @@ wp core version --path=/tmp/probe-wp    # before every run, not just the first
 but a stale server from another session answers happily on that port — so the
 probe runs, returns plausible numbers, and measures somebody else's install.
 Confirm with `lsof -nP -iTCP:9314 -sTCP:LISTEN` before trusting a single result.
+
+**An update-policy lab needs its own state reset between plugins, and it is not
+only transients.** WP Auto Updater writes `auto_update_core_major = 'disable'` as
+a site option on activation and never puts it back, so the next plugin measured
+is measured against a site whose major-update default it did not set. Reset
+`auto_update_core_dev`, `auto_update_core_minor` and `auto_update_core_major` to
+`enabled`, drop every transient, and refetch the update check between runs.
+
+**The outbound-request log has to be cleared before the plugin is activated, not
+before the screens are fetched.** Every plugin in that field caches its API
+answer for a day, so only the first load that needs one makes the call — and for
+a plugin that fetches in a constructor, that load is the activation. Clearing
+after it reported Core Rollback as making no network request at all.
+
+**A word count over a plugin's admin screen counts WordPress's furniture too.**
+The footer reads "Get Version 7.1" on every wp-admin page and the update nag
+names the same release inside the content area, so five of nine plugins scored
+hits on "names the release WordPress would install" before the harness scoped
+each screen to `#wpbody-content` minus `.update-nag`. Neither shows up in the
+stock column, because stock has no plugin screens to compare against.
 
 **`ping_status` must be open on post 1** or `X-Pingback` never appears and the
 header probe reads 0 for every plugin, including none.

@@ -16,6 +16,13 @@
 # probe-configs/<slug>.php is applied when it exists, and plugins with nothing to
 # configure (Disable XML-RPC, Disable WP REST API, Disable Blog) simply have no
 # file.
+#
+# PROBE_SCRIPT selects which probe runs; the default is probe-teardown.sh. The
+# update-policy comparison uses probe-updates.sh with its own config directory:
+#
+#   PROBE_CONFIG_DIR=tests/integration/probe-configs-updates \
+#   PROBE_SCRIPT=probe-updates.sh \
+#     bash tests/integration/probe-plugin.sh update-control "Update Control 1.5.1"
 
 set -u
 
@@ -43,6 +50,21 @@ if [ -n "${PROBE_CONFIG_DIR:-}" ] && [ -f "${PROBE_CONFIG_DIR}/${SLUG}.php" ]; t
 	CONFIG="${PROBE_CONFIG_DIR}/${SLUG}.php"
 fi
 
+# Clear the outbound-request log before anything loads the plugin.
+#
+# probe-updates.sh counts requests to api.wordpress.org to tell "reports the
+# security status of this release" from "reports that an update exists". Those
+# answers are cached in day-long transients, so only the first load that needs
+# one makes the call — and for a plugin that fetches in a constructor, that load
+# is the activation below, not any screen. Clearing the log after activation
+# reports such a plugin as making no request at all.
+if [ -n "${PROBE_HTTP_LOG:-}" ]; then
+	: > "$PROBE_HTTP_LOG"
+elif [ -f "$WP/wp-content/probe-http.log" ]; then
+	: > "$WP/wp-content/probe-http.log"
+fi
+export PROBE_HTTP_LOG_PRESERVE=1
+
 # Configuration runs BEFORE activation, with --skip-plugins.
 #
 # Both halves matter, and the reason is not tidiness. A teardown plugin changes
@@ -67,6 +89,33 @@ wp plugin activate "$SLUG" --path="$WP" >/dev/null 2>&1 || {
 	exit 1
 }
 
-PROBE_URL="$URL" PROBE_PATH="$WP" bash "$HERE/probe-teardown.sh" "$LABEL"
+# A second, optional config that runs AFTER activation.
+#
+# The pre-activation ordering above is right for everything that stores settings
+# in options, and impossible for a plugin whose storage does not exist until it
+# is active. Companion Auto Update keeps its settings in a table of its own and
+# DROPS that table in its deactivation hook — so between runs there is nothing to
+# write to, and a pre-activation config can only ever report it missing.
+#
+# Kept as a separate file rather than a flag on the first one, because the two
+# run at times when different things are true, and a config that could be either
+# invites being written for the wrong one.
+POST="${CONFIG%.php}.post.php"
+
+if [ -f "$POST" ]; then
+	if ! wp eval-file "$POST" --path="$WP"; then
+		echo "probe-plugin: post-activation configuration of $SLUG failed; not probing a plugin in an unknown state." >&2
+		wp plugin deactivate "$SLUG" --path="$WP" >/dev/null 2>&1
+		exit 1
+	fi
+	echo
+fi
+
+# Which question this run is asking. probe-teardown.sh is the default because it
+# is what every existing caller means; the update-policy field is measured by
+# probe-updates.sh instead, which asks a different set of questions of a
+# different set of plugins. The activate/configure/deactivate ordering below is
+# the same either way, and it is the part worth not duplicating.
+PROBE_URL="$URL" PROBE_PATH="$WP" bash "$HERE/${PROBE_SCRIPT:-probe-teardown.sh}" "$LABEL"
 
 wp plugin deactivate "$SLUG" --path="$WP" >/dev/null 2>&1
