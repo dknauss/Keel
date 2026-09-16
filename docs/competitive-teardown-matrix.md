@@ -1,13 +1,21 @@
 # How other plugins do the teardowns Keel does
 
 A measured comparison of the most-installed wordpress.org plugins that overlap with
-Keel's disable-style defaults, focused on the two surfaces that are easy to get
-wrong: **the REST API** and **the comment teardown**.
+Keel's defaults, across three surfaces that are easy to get wrong: **the REST
+API**, **the comment teardown**, and **the core update policy**.
 
 Nothing here is taken from readmes or marketing copy. Every cell in the matrix is a
 live HTTP or PHP probe against a real install with that plugin active and configured
 the way its own settings screen would configure it.
 
+The first two surfaces are a comparison of teardowns: what does the site still
+serve once the plugin has switched something off. The third is a different
+question asked of a different field — given the plugin's own configuration, which
+core release would this site actually install, and does any screen the plugin owns
+say anything true about the release it is running? A plugin can get the first half
+exactly right and still leave an administrator with no way to learn that the
+version underneath it has publicly known vulnerabilities. Those are separate
+features and the matrix scores them separately.
 ---
 
 ## Method
@@ -89,9 +97,126 @@ the way its own settings screen would configure it.
   front-end HTML, and **cookie+nonce authenticated admin requests** — the last one
   is what catches plugins that break the block editor.
 
+### The update-policy lab
+
+A second lab, because the first one cannot ask this question. Every row above is
+about what a site serves to an anonymous request; every row below is about which
+core release a site would install and what it says about the one it is running,
+and neither has an answer on an install that is already on the newest release.
+
+Measured **2026-09-16**.
+
+- **Lab:** a throwaway WordPress **6.9.5** install (SQLite, PHP 8.5, `php -S`),
+  separate from the 7.0.2 one above and built for this. 6.9.5 was chosen because
+  it makes all five questions answerable at once. On the day of the run
+  WordPress.org's stable-check map classified it **`insecure`**; the highest
+  release on its own 6.9 line that is not so classified is **6.9.7**; and the
+  release WordPress.org calls latest is **7.1**. So the site is running a version
+  with publicly known vulnerabilities, there is a same-line patch for it, and that
+  patch is not the newest release — which is the only arrangement in which
+  "the nearest fix" and "what WordPress will install" can be told apart.
+- **What core offers it.** `wp_version_check()` returns four offers: `upgrade 7.1`,
+  `autoupdate 7.1`, `autoupdate 7.0.4`, and `autoupdate 6.9.7` (with
+  `partial_version 6.9.5`). `get_core_updates()` discards every offer whose
+  response is `autoupdate`, so `update-core.php` lists exactly one release — 7.1.
+  **6.9.7, the patch for the line this site is on, is not on that screen at all.**
+  That is core's behaviour, not any plugin's, and it is the thing the reporting
+  rows below are about.
+- **One plugin active at a time**, configured, probed, deactivated, with the
+  state core keeps outside the plugin reset between every run. That reset is not
+  hygiene theatre: WP Auto Updater writes `auto_update_core_major = 'disable'` as
+  a **site option** on activation and never puts it back, so without the reset it
+  re-points the "which release would install" row for every plugin measured after
+  it. The update-check transient is refetched each time too, and every cached
+  transient is dropped, because a plugin that asks api.wordpress.org once a day
+  asks nothing at all on the second run of the morning and would score as never
+  asking.
+- **Configuration is each plugin's own nearest equivalent of Keel's
+  `core_update_policy = minor`** — install maintenance and security releases
+  automatically, do not install a major. The files are in
+  `tests/integration/probe-configs-updates/`, one per plugin, each saying where it
+  got its keys. Comparing a plugin configured to "disable everything" against one
+  configured to "minor only" measures the configuration rather than the plugin;
+  where a plugin's shipped default is something else, the default is a row in the
+  matrix rather than something quietly configured away.
+- **Probes** are run by `tests/integration/probe-updates.sh` and come in three
+  kinds:
+  - **Ground truth**, asked of core rather than of the plugin: which release would
+    actually install, which the Updates screen lists, and what the four policy
+    filters answer. `find_core_auto_update()` is not the answer to the first —
+    it returns the newest auto-update offer without applying the policy at all,
+    and says 7.1 on this lab whatever any plugin has decided. The decision is
+    `WP_Automatic_Updater::should_update()`, evaluated per offer, and the release
+    that lands is the **highest** offer that passes rather than the nearest.
+  - **Authenticated renders** of every admin screen the plugin adds — discovered
+    by diffing the admin menu against a no-plugins baseline, not by being told
+    where to look — plus `update-core.php`, both Site Health tabs and
+    `options-general.php`. Counts from a plugin's own screens and counts from the
+    shared core screens are reported separately and never added together.
+  - **Outbound requests**, logged by an mu-plugin on `http_api_debug`. Whether a
+    plugin asks `api.wordpress.org/core/stable-check/1.0/` is the only objective
+    way to separate "reports that this version has known vulnerabilities" from
+    "reports that an update exists": that endpoint is the only public source for
+    the first, and rendered text can use the word "insecure" about anything.
+
+**Every number below reproduces.** The full pass was re-run from the committed
+harness and the committed configs after the write-up was finished, and the output
+is byte-identical to the table in the appendix. That is a lower bar than it
+sounds — it says the harness is deterministic and the configs do not depend on
+state left by a previous run, which is exactly what went wrong the last time this
+document's numbers were re-verified — but it is a bar the first draft of this
+harness did not clear.
+
+Four things about this lab are worth knowing before reading a number off it.
+
+**`DISABLE_WP_CRON` is defined in its `wp-config.php`.** A throwaway install
+happily updates itself overnight and does not ask — the 6.4 lab built for the
+older-WordPress run above was 7.0.3 by the next morning. The usual guard,
+`AUTOMATIC_UPDATER_DISABLED`, could not be used here: it is one of the two
+constants these rows are about, and defining it would have made the
+constant-override question unaskable. Disabling cron stops the background updater
+without touching update policy. It is visible to plugins, and one of them reports
+it: Easy Updates Manager's constants notice names `DISABLE_WP_CRON` on every run.
+
+**Easy Updates Manager's settings screen renders in JavaScript.** 9.0.22 ships
+`<div class="eum-dashboard-app"></div>` and builds the rest client-side, so an
+HTTP probe reads an empty container. Its reporting rows below were confirmed
+separately in a real browser, logged in, against the same install — the rendered
+screen offers "Manually update / Disable core updates / Auto update all minor
+versions / Auto update all releases", and names no WordPress version anywhere. It
+is the only plugin in this field that needs that; the other eight render
+server-side and their dumps show it.
+
+**SQLite is not MySQL for one plugin here.** Companion Auto Update keeps its
+settings in a table of its own rather than in options, and its deactivation hook
+runs `DROP TABLE` on it — so its settings and its entire recorded update history
+are destroyed by a deactivation, and there is nothing for a pre-activation config
+file to write to. It is configured after activation instead
+(`companion-auto-update.post.php`). That is a real property of the plugin, not a
+lab artefact; what *was* a lab artefact was the first attempt to detect the
+table, which asked `information_schema` (MySQL's, and the SQLite dropin answers 0
+for every name) and then `sqlite_master` with a double-quoted literal (SQLite's,
+and it parses that as an identifier). Both report a table that exists as missing.
+
+**Two of these numbers were wrong before they were right, in ways the control
+could not catch.** Counting words across a plugin's screens scored three of
+the nine for naming "the release WordPress would install", on screens that say
+nothing of the kind: WordPress's own footer reads "Get Version 7.1" on every
+admin page and the update nag names it again inside the content area. And the
+outbound-request log was originally cleared after the plugin was activated, which
+reported Core Rollback — which fetches `core/version-check` in a constructor that
+runs on activation — as making no network request at all. Neither shows up in the
+stock column, because stock has no plugin screens and activates no plugin. The
+harness now scopes each screen to `#wpbody-content` minus `.update-nag`, and
+clears the log before activation.
+
 Raw per-probe output is in the appendix.
 
 ## The field
+
+### The teardown field
+
+Probed on the 7.0.2 lab.
 
 | Plugin | Active installs | Probed |
 |---|---|---|
@@ -109,6 +234,36 @@ Raw per-probe output is in the appendix.
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
 | [WP Master Toolkit](https://wordpress.org/plugins/wpmastertoolkit/) 2.22.0 | 5,000+ | live |
+
+### The update-policy field
+
+Probed on the 6.9.5 lab, 2026-09-16. Install counts from the wordpress.org API on
+the day of the run.
+
+| Plugin | Active installs | Probed |
+|---|---|---|
+| [Easy Updates Manager](https://wordpress.org/plugins/stops-core-theme-and-plugin-updates/) 9.0.22 | 300,000+ | live |
+| [Companion Auto Update](https://wordpress.org/plugins/companion-auto-update/) 3.9.4 | 40,000+ | live |
+| [Core Rollback](https://wordpress.org/plugins/core-rollback/) 1.4.3 | 20,000+ | live |
+| [Disable All WordPress Updates](https://wordpress.org/plugins/disable-wordpress-updates/) 2.0.2 | 10,000+ | live |
+| [Disable Updates – Updates Manager](https://wordpress.org/plugins/webcraftic-updates-manager/) 1.3.3 (Webcraftic) | 10,000+ | live |
+| [Disable Updates](https://wordpress.org/plugins/disable-updates/) 1.4.3 | 10,000+ | live |
+| [Disable WordPress Update Notifications](https://wordpress.org/plugins/disable-update-notifications/) 2.4.3 | 10,000+ | live |
+| [WP Auto Updater](https://wordpress.org/plugins/wp-auto-updater/) 1.7.4 | 7,000+ | live |
+| [Update Control](https://wordpress.org/plugins/update-control/) 1.5.1 | 4,000+ | live |
+| **Keel** 0.6.6 | — | live |
+
+**[WP Rollback](https://wordpress.org/plugins/wp-rollback/) (300,000+) is not in
+this field**, and it is the first name anyone will look for. It rolls back
+plugins and themes and does not touch core; Core Rollback, by the same author, is
+the core half and is the one probed. Webcraftic's Updates Manager is from the
+vendor behind Clearfy, which the teardown field above already covers, but it is a
+separate plugin with a separate install base rather than a Clearfy module.
+
+Three plugins in the earlier field also carry update-related toggles — Admin and
+Site Enhancements, WP Master Toolkit and Clearfy — and are not re-probed here.
+None of them competes on core update *policy*: their controls suppress update
+notices rather than choose which releases install, which is the surface below.
 
 ---
 
@@ -253,6 +408,286 @@ account nicename — to exactly the anonymous caller the gate has just refused
 enumeration the gate exists to close.
 
 None of the other three allowlist `oembed/1.0`.
+
+### 8. Nothing in the update-policy field asks whether the release you are running is insecure
+
+Nine plugins besides Keel, one lab, one running version that WordPress.org
+classifies `insecure` on the day of the run. Requests to
+`api.wordpress.org/core/stable-check/1.0/` during a full pass over every admin
+screen each plugin owns, plus `update-core.php`, both Site Health tabs and
+Settings → General:
+
+| | EUM | Companion | Core Rollback | Disable All | Webcraftic | Update Control | Disable Updates | Disable Notices | WP Auto Updater | **Keel** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `net.stable_check` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | **1** |
+
+Zero is not a near miss. That endpoint is the only public source for the question
+"does the version this site is running have publicly known vulnerabilities", and a
+plugin that never asks it cannot answer, whatever its screens say. Confirmed
+against the source as well as the wire: `grep` for `api.wordpress.org` across the
+nine finds `plugins/info`, `themes/info`, `plugins/update-check`,
+`themes/update-check` and `core/version-check`, and nothing else.
+
+The whole field therefore reports the same thing WordPress already reports: that a
+newer release exists. None of them distinguishes that from "this one is
+vulnerable" — and the two come apart in both directions. A site on 6.9.7 has an
+update available and no known vulnerabilities; this lab's 6.9.5 has both, and
+nothing in the field says which.
+
+**The near miss belongs to Core Rollback, and it is worth reading exactly.** Its
+readme is the only document in the field that knows the endpoint exists:
+
+> Refer to https://api.wordpress.org/core/stable-check/1.0/
+
+That is an instruction to the reader to go and look it up in a browser. The
+plugin's own screen offers "any outdated, secure release version of WordPress
+Core" and lists 7.1, 7.0.4, 6.9.7, 6.8.8, 6.7.7 and down — which are in fact the
+secure tips of each line, but only because that is what `core/version-check/1.7/`
+happens to return per branch. Nothing on the screen says the running version is
+one of the insecure ones, or which entry in that list is the fix for it.
+
+### 9. Disable All WordPress Updates installs the major release its Security Mode exists to refuse
+
+Its Security Mode is the one setting in that plugin that takes this field's
+position — minor core updates install themselves, nothing else does. It registers
+eight filters, and two of them contradict each other:
+
+```php
+add_filter( 'allow_minor_auto_core_updates', '__return_true', 20 );
+add_filter( 'allow_major_auto_core_updates', '__return_false', 20 );
+add_filter( 'allow_dev_auto_core_updates', '__return_false', 20 );
+add_filter( 'auto_update_core', '__return_true', 20 );
+```
+
+`WP_Automatic_Updater::should_update()` asks the branch filters first, through
+`Core_Upgrader::should_update_to_version()`, and then passes the answer through
+`auto_update_core`. `__return_true` ignores the value handed to it. So the third
+line of that block discards the second, and measured on the lab:
+
+```
+allow_major_auto_core_updates( true )        -> false
+Core_Upgrader::should_update_to_version(7.1) -> false
+auto_update_core( false )                    -> true
+callbacks on auto_update_core: [10] __return_false  [20] __return_true
+```
+
+`truth.would_install` for this plugin with Security Mode on is **7.1** — a major
+release, on a site configured for security releases only, from the plugin whose
+name is Disable All WordPress Updates.
+
+**Its own screen states the opposite of what it then does.** With
+`WP_AUTO_UPDATE_CORE` defined, the plugin renders a block that reads, in part:
+
+> The `WP_AUTO_UPDATE_CORE` constant is defined outside of this plugin … This
+> constant always overrides this plugin's filters
+
+Measured with `WP_AUTO_UPDATE_CORE = false`, which in core returns from
+`should_update_to_version()` before any branch filter runs: stock WordPress
+installs nothing (`would_install none`), and this plugin **still installs 7.1**.
+The constant does not override its filters; its filters override the constant, in
+the one direction that matters.
+
+This is the only defect in either field where a plugin's configured-for-security
+state is measurably less safe than its configured-for-nothing state, so it is
+worth being precise about the blast radius: the release it installs is a current,
+signed WordPress release, not a downgrade. The failure is that an operator who
+chose "security releases only" gets a major version upgrade, unattended, on
+whatever schedule cron runs.
+
+### 10. Easy Updates Manager (300k) switches core automatic updates off on activation
+
+`MPSUM_Admin_Core::get_defaults()` ships `core_updates => 'on'`, and
+`MPSUM_Disable_Updates` reads `'on'` as *manually update*:
+
+```php
+if ( ! isset( $core_options['core_updates'] ) || 'on' == $core_options['core_updates'] ) {
+    $this->is_core_updating_allowed = false; // on means manually update
+}
+```
+
+which is then hooked onto `auto_update_core` at `PHP_INT_MAX - 10`, above anything
+else on the site. Install the most popular plugin in this category, change
+nothing, and automatic core updates — including security releases — stop. The
+screen's own wording for the setting that restores them is "Auto update all minor
+versions"; the default is the entry above it, "Manually update".
+
+Configured to `automatic_minor`, it is correct: `would_install 6.9.7`, majors and
+dev refused. The matrix rows below are the configured state, and this paragraph
+is the default.
+
+**A second thing in the same file makes its filters order-dependent.**
+`core_should_update_to_new_version()` answers all three branch filters by writing
+one instance property and returning it, and `is_core_updating_allowed()` — the
+`auto_update_core` callback — returns whatever that property was last set to. The
+answer to "would this plugin allow a core update" therefore depends on which
+branch filter ran most recently. Core's own sequence makes it come out right; a
+harness that probes the filters in a convenient order and then reads
+`auto_update_core` gets a plugin blocking an update it in fact installs. This
+harness measures `would_install` through core's own code path first for exactly
+that reason, and the ordering is pinned in `probe-updates.sh` with the reason
+written next to it.
+
+### 11. Disable Updates (10k) leaves the site insecure, silent, and unable to notice
+
+Four lines of a 90-line plugin, and together they close every route by which a
+site learns it needs patching:
+
+```php
+add_filter( 'pre_site_transient_update_core', 'du_last_checked' );   // fakes an empty, freshly-checked result
+add_filter( 'automatic_updater_disabled', '__return_true' );
+add_action( 'admin_menu', 'du_remove_menus', 102 );                  // removes the Updates menu item
+add_filter( 'site_status_tests', function ( $tests ) {
+    unset( $tests['async']['background_updates'] );                  // removes the Site Health test
+    unset( $tests['direct']['plugin_theme_auto_updates'] );
+    return $tests;
+} );
+```
+
+Measured, it is the only column in the field where the ground-truth rows go blank:
+`same_line_patch none`, `would_install none`, `updates_screen none`,
+`updater_disabled 1`. The faked transient reports `last_checked = time()` and no
+updates, so nothing anywhere — not `update-core.php`, not the menu bubble, not
+Site Health — indicates that this site is running a release with publicly known
+vulnerabilities and will never install another one.
+
+That is a defensible thing to want on a site whose updates are managed by
+something outside WordPress. It is worth stating plainly anyway, because the
+plugin has no settings screen and no way to say so: there is no partial mode, and
+nothing tells a later administrator why the Updates menu is missing.
+
+### 12. Disable WordPress Update Notifications makes the site re-check the API on every admin page
+
+Its core setting nulls the update transient:
+
+```php
+add_filter( 'pre_option_update_core', '__return_null' );
+add_filter( 'pre_site_transient_update_core', '__return_null' );
+```
+
+Unlike Disable Updates above, which substitutes a freshly-stamped empty object,
+this returns nothing at all — so core cannot see a `last_checked` and re-checks.
+Measured over one pass of four admin screens:
+
+| | stock | Disable Notices | every other plugin |
+|---|---|---|---|
+| `net.version_check` | 0 | **8** | 0 or 1 |
+
+Eight outbound requests to `api.wordpress.org/core/version-check/1.7/` where stock
+makes none, on a site whose owner installed the plugin to stop thinking about
+updates. The notice is hidden; the polling it was hiding got louder.
+
+The same callback has its capability check the way round that only works by
+accident:
+
+```php
+if ( ! current_user_can( 'update_core' ) ) {
+    return;
+}
+```
+
+The suppression is applied **only** to users who can update core, and skipped for
+everyone else. That is the intended effect — the nag is what it is hiding, and
+core only shows that to users with `update_core` — but written this way the
+plugin also hides the update data itself from precisely the people who would act
+on it, and leaves it in place for people who cannot.
+
+### 13. Four plugins install the right release and none of them says so
+
+Configured to minor-only, four of the nine put the site on the same-line patch:
+
+| | EUM | Companion | Update Control | WP Auto Updater | Keel | stock |
+|---|---|---|---|---|---|---|
+| `truth.would_install` | 6.9.7 | 6.9.7 | 6.9.7 | 6.9.7 | **6.9.7** | 7.1 |
+| names 6.9.7 anywhere | ❌ | ❌ | ❌ | ❌ | ✅ | — |
+
+That is the policy half of this category working. The reporting half is the
+column of crosses: none of the four names the release it is about to install, or
+the one the site is on, or the fact that the Updates screen is offering a
+different release from the one the plugin has decided on.
+
+The gap is not cosmetic. On this lab, `update-core.php` offers 7.1 and nothing
+else, because `get_core_updates()` discards every offer whose response is
+`autoupdate` and 6.9.7 is one of those. An administrator running any of these four
+sees one release on the Updates screen, has a plugin configured to install a
+different one, and has nothing anywhere that reconciles the two.
+
+### 14. Only Keel stands down for `WP_AUTO_UPDATE_CORE`, and only two plugins mention it at all
+
+Re-run with the constant defined in `wp-config.php` and every plugin still
+configured to minor-only, so the constant and the plugin disagree on purpose:
+
+| `WP_AUTO_UPDATE_CORE = true` | stock | WP Auto Updater | EUM | Companion | Disable All | Webcraftic | Update Control | **Keel** |
+|---|---|---|---|---|---|---|---|---|
+| `truth.would_install` | 7.1 | 7.1 | 6.9.7 | 6.9.7 | 7.1 | 7.1 | 6.9.7 | 7.1 |
+| `policy.allow_major` | 10 | 10 | 00 | 00 | 00 | 10 | 00 | **10** |
+| names the constant on screen | 0 | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ✅ |
+
+| `WP_AUTO_UPDATE_CORE = false` | stock | EUM | Disable All | **Keel** |
+|---|---|---|---|---|
+| `truth.would_install` | none | **6.9.7** | **7.1** | none |
+| names the constant on screen | 0 | ❌ | ✅ | ✅ |
+
+Core treats the constant as a *default*: it sets `$upgrade_minor` / `$upgrade_major`
+and then runs the branch filters over them, so any plugin using `__return_false`
+or `__return_true` silently wins. Every plugin here that registers those filters
+does win, and only one of them tells you.
+
+Keel takes the other position. Its bootstrap does not register those filters at
+all when the constant is defined (`includes/bootstrap.php`):
+
+```php
+if ( ! defined( 'WP_AUTO_UPDATE_CORE' ) && 'inherit' !== keel_defaults_get( 'core_update_policy' ) ) {
+```
+
+so the constant decides, and the settings screen says which setting is no longer
+in charge:
+
+> Locked by `WP_AUTO_UPDATE_CORE` in `wp-config.php`. Remove that constant to
+> manage core releases here.
+
+Whether standing down is the right call is a judgement rather than a defect —
+Easy Updates Manager overriding a `false` constant is arguably what a plugin whose
+whole job is update policy should do. What is not a judgement is saying nothing
+about it: on a site where a host set that constant deliberately, EUM installs a
+core release and neither its screen nor the constant's owner is told.
+
+Disable All WordPress Updates is the only other plugin that reports the constant,
+and it reports it in detail — value, likely origin, consequence. Finding 9 above
+is that the consequence it states is the reverse of the one measured.
+
+### 15. Keel is the only plugin that surfaces the patch `get_core_updates()` throws away
+
+The same-line patch is invisible on `update-core.php` by core's own design. What
+Keel renders there, measured on this lab:
+
+> **A security release exists for your version line.** This site is running a
+> release with publicly known vulnerabilities. 6.9.7 fixes them and stays on the
+> same release line. The update offered below is 7.1. 6.9.7 is the minor update
+> that closes the known vulnerabilities. **[Install WordPress 6.9.7 now]**
+
+and, on a site whose policy permits majors:
+
+> WordPress would install 7.1 and skip 6.9.7. It takes the highest release your
+> settings allow rather than the nearest, so the fix for the line you are on is
+> passed over.
+
+Those are the two claims the probe was built to check, and they are the two
+nobody else makes. `core.says_same_line_patch` is 4 for Keel and 0 for every
+other plugin and for stock; `core.says_insecure` is the same. The install button
+is a same-line install: it targets 6.9.7 specifically rather than sending the
+administrator to a screen that would install 7.1.
+
+**Core Rollback is the only other plugin that can put 6.9.7 on the site**, from a
+dropdown of core releases on its own screen. It is framed as a rollback — the
+screen's first line is a warning about downgrading — it does not mark which entry
+is the security fix for the running version, and it gets there by re-writing
+core's version-check request rather than through the offer core already has.
+
+**One limit on Keel's side of this, since it is the whole feature.** Every row
+above depends on `api.wordpress.org/core/stable-check/1.0/` being reachable. When
+it is not, `keel_defaults_version_status()` returns `unknown` and the panel says
+so rather than guessing; the probe's `net.stable_check 1` is a measurement that
+Keel asks, not that the answer is always available.
 
 ---
 
@@ -523,6 +958,95 @@ fires under CLI. That divergence is the reason this column could not be settled 
 reading code: a filter can be present and invisible, or absent and irrelevant, and
 only the rendered screen tells you which.
 
+### Core update policy
+
+Measured on the 6.9.5 lab, every plugin configured to its own nearest equivalent
+of "install maintenance and security releases, not majors". `would install` is
+core's own decision — `WP_Automatic_Updater::should_update()` evaluated over every
+offer — not the plugin's stored setting.
+
+| | EUM | Companion | Core Rollback | Disable All *(Security Mode)* | Webcraftic | Update Control | Disable Updates | Disable Notices | WP Auto Updater | **Keel** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Has a core update policy control | ✅ | ✅ | ❌ | ⚠️ one checkbox | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
+| Configured policy is actually applied | ✅ 6.9.7 | ✅ 6.9.7 | — | ❌ **installs 7.1** | ❌ 7.1 | ✅ 6.9.7 | — | — | ✅ 6.9.7 | ✅ 6.9.7 |
+| Refuses majors | ✅ | ✅ | — | ⚠️ filter set, overridden | ❌ inherits | ✅ | — | — | ✅ *(site option)* | ✅ |
+| Refuses development builds | ✅ | ❌ inherits | — | ✅ | ❌ inherits | ✅ | — | — | ❌ inherits | ✅ |
+| Policy holds during an ordinary request | ✅ | ✅ | — | ✅ | ✅ | ✅ | — | — | ⚠️ majors only | ✅ |
+| Correct out of the box | ❌ **auto-updates off** | ✅ minor-only | — | ❌ all updates off | ⚠️ minors on, majors untouched | ✅ minor-only | ❌ all off | ❌ | ✅ minor-only | ⚠️ `inherit` by default |
+| Leaves `auto_update_core` alone | ❌ forces | ✅ | ✅ | ❌ **forces true** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Site can still learn an update exists | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ **transient faked** | ⚠️ re-checks ×8 | ✅ | ✅ |
+| Can install a specific same-line release | ❌ | ❌ | ⚠️ as a rollback | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+### What the screens say
+
+The five questions this field was probed for. A ✅ means the plugin's own screens,
+or a screen it adds content to, state it; core's own output does not count, and
+the stock column is 0 on every marker below.
+
+| | EUM | Companion | Core Rollback | Disable All | Webcraftic | Update Control | Disable Updates | Disable Notices | WP Auto Updater | **Keel** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Reports the stable-check status of the installed version | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Distinguishes "an update exists" from "this version is vulnerable" | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Surfaces the same-line patch `get_core_updates()` discards | ❌ | ❌ | ⚠️ listed, unmarked | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Names the release WordPress would actually install | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Says when a `wp-config.php` constant overrides the setting | ❌ | ❌ | — | ⚠️ says it, backwards | ❌ | ❌ | — | — | ❌ | ✅ |
+| Asks `api.wordpress.org/core/stable-check/1.0/` | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Flags blocking `wp-config.php` constants at all | ⚠️ `DISABLE_WP_CRON` only | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+Two rows deserve their caveats spelled out rather than left in a symbol.
+
+**Easy Updates Manager has the mechanism and checks one constant.**
+`MPSUM_CONSTANT_CHECKS::get_prohibited_active_constants()` is a five-line method
+whose entire body tests `DISABLE_WP_CRON`. The notice it drives is well written
+and appears on every screen; it simply does not look at `WP_AUTO_UPDATE_CORE` or
+`AUTOMATIC_UPDATER_DISABLED`, which are the two constants that decide the policy
+the rest of that screen is configuring.
+
+**Core Rollback lists 6.9.7 without saying what it is.** Its dropdown is the
+secure tip of each release line, which on this lab includes the patch for the
+running version, and its copy calls them "outdated, secure" releases. Nothing
+marks the running version as insecure or that entry as its fix, and the screen
+frames the whole operation as a downgrade.
+
+#### One number that is not what it looks like
+
+`own.says_insecure` reads 1 for Keel in the appendix, and it is not the patch
+panel. It is the word "vulnerability" in the help text on Keel's own settings
+screen. Keel's reporting is not on its settings screen at all: it is on Site
+Health, on `update-core.php`, and in an admin notice — all shared screens, which
+is why it is counted in the `core.says_*` rows, where stock reads 0 and
+attribution is therefore clean.
+
+Two cells in the first table are code review rather than measurement, because the
+lab offers no development build to measure against: the "refuses development
+builds" row reads the `allow_dev_auto_core_updates` pair and the
+`auto_update_core_dev` site option, not an install.
+
+**Webcraftic's "minor" setting does not stop a major.** Its `wp_update_core`
+branch for that position adds `allow_minor_auto_core_updates => __return_true`
+and touches nothing else, so majors are left to whatever core's own
+`auto_update_core_major` site option says. On a site installed at
+5.6 or later that option is `enabled` — `populate_options()` seeds
+`auto_update_core_major => 'enabled'` for new installs — and this lab is one,
+which is why `would_install` is 7.1 for a plugin configured to minor-only. A site
+upgraded from before 5.6 has `'unset'` instead, written by the upgrade routine
+specifically to override that seed, and the same configuration then behaves
+correctly. So this plugin's answer depends on how old the site is — which is the
+thing the comment above Keel's own filter registration says those filters exist
+to remove.
+
+**WP Auto Updater's two rows need reading together.** Its
+`allow_*_auto_core_updates` filters are registered *inside its own cron callback*,
+between `wp_auto_updater/before_auto_update/wordpress_core` and the matching
+after-action, so a probe of those filters during an ordinary admin request
+correctly reads all three as untouched. What holds outside that callback is a site
+option: it writes `auto_update_core_major = 'disable'` on activation, which is why
+`would_install` is 6.9.7 rather than 7.1. The consequence is that its four other
+core scenarios — Minor Only, Previous Generation, Manual — apply only on its own
+schedule, and a core auto-update triggered by anything else on the site is
+governed by that one site option alone. It also never puts the option back on
+deactivation.
+
 ---
 
 ## What this means for Keel
@@ -604,9 +1128,66 @@ all passing). That harness also had a bug of its own: it routed any site with a
 `KEEL_SITE` override unusable on exactly the kind of throwaway SQLite install this
 comparison needs. It now keys off the path instead.
 
+### What the update-policy field adds
+
+Keel measures best-in-field on the surface it leads with, and the margin is
+wider than on the other two — but it is a margin on *reporting*, not on policy,
+and the two should not be run together.
+
+**On policy, Keel is one of five plugins that get it right.** Configured to
+minor-only it installs 6.9.7 and refuses 7.1, and so do Easy Updates Manager,
+Companion Auto Update, Update Control and (by a different mechanism) WP Auto
+Updater. Keel's policy implementation has no advantage over theirs; Update
+Control in particular does the same three filters in about the same number of
+lines. Two of the nine get it wrong — Disable All WordPress Updates installs the
+major its Security Mode refuses, Webcraftic never refuses majors at all — and
+three more have no core policy at all.
+
+**On reporting, nothing else in the field is trying.** The five questions this
+probe was built around are answered by one plugin out of ten, and the reason is
+structural rather than a matter of effort: none of the other nine asks
+`api.wordpress.org/core/stable-check/1.0/`, so none of them *can* say whether the
+running release is insecure, and everything downstream of that — which patch
+closes it, whether the Updates screen is offering that patch, which release would
+actually install instead — follows from the same missing fact.
+
+That asymmetry is the honest summary of this category. The policy filters are
+well-trodden; what is unoccupied is the question of whether the site is actually
+patched, which WordPress core does not ask and which every plugin in this field
+has inherited core's silence about.
+
+**Two things the probes found in Keel, neither of them fixed here.**
+
+1. **Keel's reporting is not on Keel's screen.** `own.says_same_line_patch` and
+   `own.says_would_install` are both 0: the patch panel lives on Site Health and
+   `update-core.php`, and the settings screen where an administrator chooses the
+   core update policy says nothing about the release the site is on. That is
+   defensible — the panel belongs where the diagnosis is — but the setting and
+   the diagnosis are the same decision, and someone reading only the settings
+   screen sees the policy and not the reason to care about it.
+2. **The default is `inherit`.** Every other plugin in this field that ships a
+   working policy ships it switched on; Keel's `core_update_policy` defaults to
+   leaving WordPress's own decision alone. That is the correct default for a
+   defaults plugin and it is what the "correct out of the box" row's ⚠️ means —
+   Keel does not decide until asked. Worth stating because the same row marks
+   Easy Updates Manager's default as a defect, and the difference is that EUM's
+   default silently *changes* the behaviour (core auto-updates stop) while Keel's
+   silently preserves it.
+
+**And one thing the field found that Keel should not copy.** Companion Auto
+Update's deactivation hook drops its tables, destroying its settings and its
+update history; Disable Updates removes the Site Health test that would have
+reported the problem it creates; WP Auto Updater leaves `auto_update_core_major`
+set to `'disable'` behind it when deactivated. Keel's uninstall coverage is
+tested (`tests/uninstall-coverage.php`) and its deactivation leaves core's own
+options alone — the probes confirmed that by resetting those options between
+runs and finding Keel's column unchanged either way — but the three failures
+above are all "what the plugin leaves behind", and that is a surface worth a test
+rather than an assumption.
+
 ---
 
-## Appendix: raw probe matrix
+## Appendix: raw teardown matrix
 
 Every value is a live measurement. HTTP status codes unless noted; `n=` is the
 number of comments returned in the JSON body; `fault=` is the XML-RPC fault code
@@ -652,3 +1233,80 @@ from a direct method call (`-32601` = method not found, `none` = no response bod
 | `php.number` | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | 0 |
 | `php.supports` | 1 | 1 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 0 |
 | `php.default_status` | open | open | closed | open | open | open | open | open | open | open | closed |
+
+---
+
+## Appendix: raw update-policy matrix
+
+Every value is a live measurement on the 6.9.5 lab, 2026-09-16, one plugin active
+at a time, each configured by the file of its name in
+`tests/integration/probe-configs-updates/`. Produced by
+`tests/integration/probe-updates.sh`.
+
+How to read the rows:
+
+- `truth.*` is asked of WordPress, not of the plugin. `would_install` is the
+  highest offer that passes `WP_Automatic_Updater::should_update()`;
+  `updates_screen` is what `get_core_updates()` returns, which is what
+  `update-core.php` renders.
+- `policy.*` filter rows are a **pair**: the filter is applied to `true` and then
+  to `false`, and the two answers are printed together. `10` is a filter nothing
+  has touched, `11` is forced on, `00` is forced off. Asking once with an invented
+  default would measure the default.
+- `own.says_*` counts occurrences on the plugin's own admin screens only;
+  `core.says_*` counts them on `update-core.php`, both Site Health tabs and
+  Settings → General. Each screen is reduced to `#wpbody-content` with
+  `.update-nag` removed, so WordPress's own "WordPress 7.1 is available!" and
+  "Get Version 7.1" do not score for anybody. Stock reads 0 on every `says_` row.
+- `net.*` counts outbound requests to those api.wordpress.org endpoints across the
+  whole run, including plugin activation.
+
+| probe | stock | wp-auto-updater | EUM | companion | core-rollback | disable-all | webcraftic | update-control | disable-updates | disable-notices | Keel |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `truth.running_version` | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 | 6.9.5 |
+| `truth.same_line_patch` | 6.9.7 | 6.9.7 | 6.9.7 | 6.9.7 | 6.9.7 | 6.9.7 | 6.9.7 | 6.9.7 | none | 6.9.7 | 6.9.7 |
+| `truth.would_install` | 7.1 | 6.9.7 | 6.9.7 | 6.9.7 | 7.1 | 7.1 | 7.1 | 6.9.7 | none | 7.1 | 6.9.7 |
+| `truth.updates_screen` | 7.1 | 7.1 | 7.1 | 7.1 | 7.1 | 7.1 | 7.1 | 7.1 | none | 7.1 | 7.1 |
+| `policy.allow_minor` | 10 | 10 | 11 | 11 | 10 | 11 | 11 | 11 | 10 | 10 | 11 |
+| `policy.allow_major` | 10 | 10 | 00 | 00 | 10 | 00 | 10 | 00 | 10 | 10 | 00 |
+| `policy.allow_dev` | 10 | 10 | 00 | 10 | 10 | 00 | 10 | 00 | 10 | 10 | 00 |
+| `policy.auto_update_core` | 10 | 10 | 11 | 10 | 10 | 11 | 10 | 10 | 10 | 10 | 10 |
+| `policy.updater_disabled` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `ui.own_screens` | 0 | 2 | 8 | 1 | 1 | 2 | 4 | 0 | 0 | 1 | 1 |
+| `own.says_running_version` | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `own.says_same_line_patch` | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `own.says_would_install` | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `own.says_insecure` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| `own.says_constant` | 0 | 0 | 0 | 0 | 0 | 2 | 0 | 0 | 0 | 0 | 0 |
+| `core.says_same_line_patch` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+| `core.says_insecure` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 4 |
+| `core.says_constant` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `net.stable_check` | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| `net.version_check` | 0 | 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 8 | 0 |
+
+### With `WP_AUTO_UPDATE_CORE` defined
+
+The same lab and the same configurations, re-run twice with the constant set in
+`wp-config.php`. Only plugins with a core policy control are included; the other
+three have no setting for a constant to override.
+
+
+**`WP_AUTO_UPDATE_CORE = true`**
+
+| probe | stock | wp-auto-updater | EUM | companion | disable-all | webcraftic | update-control | Keel |
+|---|---|---|---|---|---|---|---|---|
+| `truth.would_install` | 7.1 | 7.1 | 6.9.7 | 6.9.7 | 7.1 | 7.1 | 6.9.7 | 7.1 |
+| `policy.allow_minor` | 10 | 10 | 11 | 11 | 11 | 11 | 11 | 10 |
+| `policy.allow_major` | 10 | 10 | 00 | 00 | 00 | 10 | 00 | 10 |
+| `policy.auto_update_core` | 10 | 10 | 11 | 10 | 11 | 10 | 10 | 10 |
+| `own.says_constant` | 0 | 0 | 0 | 0 | 6 | 0 | 0 | 1 |
+
+**`WP_AUTO_UPDATE_CORE = false`**
+
+| probe | stock | disable-all | EUM | Keel |
+|---|---|---|---|---|
+| `truth.would_install` | none | 7.1 | 6.9.7 | none |
+| `policy.allow_minor` | 10 | 11 | 11 | 10 |
+| `policy.allow_major` | 10 | 00 | 00 | 10 |
+| `policy.auto_update_core` | 10 | 11 | 11 | 10 |
+| `own.says_constant` | 0 | 6 | 0 | 1 |
