@@ -86,6 +86,19 @@ into ROADMAP.md or here.
     the `.rtl` body with `!important`, and the right-to-left rule had none. Both of its
     margins are now `!important`, and `tests/settings-render.php` asserts it.
 
+- [ ] **Run a UI/UX/accessibility sweep across the settings screens** — the
+      right-to-left check above looked at one locale and three surfaces; this is the
+      whole screen, at both levels.
+  - Visual hierarchy, label and help-text clarity, responsive layout.
+  - Keyboard use, focus visibility, screen-reader names and descriptions, contrast.
+  - Single-site versus network-level controls, which differ in more than wording.
+  - Capture representative site and network screens before and after.
+  - One confirmed defect to start from: the introductory copy at the top of the
+    multisite network settings screen is confined to roughly half the content width
+    while the settings below use all of it, so the opening explanation wraps into a
+    cramped column. Let it use the available width and verify at narrow and wide
+    admin viewports.
+
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
       changelog, so the credit naming 0.6.0 failed the moment 0.6.1 was the current
