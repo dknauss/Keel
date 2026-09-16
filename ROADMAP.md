@@ -89,6 +89,16 @@ the typography control is useful but strategically smaller.
    `he_IL` admin. The highlight bar, the lock note, and the saved and folded menu width
    were correct. The live menu-width preview pushed the content from the wrong side, and
    is fixed. Details in `TODO.md`.
+- [ ] **Run a UI/UX/accessibility sweep across the settings screens** — review
+   visual hierarchy, clarity of labels and help text, responsive layout, keyboard
+   use, focus visibility, screen-reader names and descriptions, contrast, and
+   single-site versus network-level controls. Capture representative site and
+   network screens before and after fixes. One confirmed example is the introductory
+   copy at the top of the multisite network settings screen: it is confined to
+   roughly half the available content width while the settings below use the full
+   width, making the opening explanation wrap into a cramped column. Let that copy
+   use the available content width and verify it at narrow and wide admin
+   viewports.
 
 ## Then — 0.8.0 performance observability
 
