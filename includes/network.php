@@ -243,11 +243,11 @@ function keel_defaults_render_network_page() {
 			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Network policy saved.', 'keel-defaults' ); ?></p></div>
 		<?php endif; ?>
 
-		<p class="description" style="max-width:46em;">
+		<p class="description">
 			<?php esc_html_e( 'Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site\'s own business, and their saved values are untouched — untick it later and every site returns to exactly what it had.', 'keel-defaults' ); ?>
 		</p>
 
-		<p class="description" style="max-width:46em;">
+		<p class="description">
 			<?php esc_html_e( 'The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there.', 'keel-defaults' ); ?>
 		</p>
 
