@@ -1,30 +1,38 @@
 <?php
 /**
- * One prose measure on the network policy screen.
+ * The network policy screen does not cap the width of its own prose.
  *
- * The intro copy shipped with `style="max-width:46em;"` inline on two
- * paragraphs, from the commit that first built the screen. Measured against
- * this WordPress tree's own admin CSS, that is 598px — and it stays 598px while
- * everything under it grows with the viewport:
+ * It used to, on two paragraphs, with `style="max-width:46em;"` inline — from
+ * the commit that first built the screen. Measured against this WordPress
+ * tree's admin CSS at a 1920px window, that left the screen like this:
  *
- *     viewport   intro          settings table   help text in a row
- *     1280px     598px / 74ch   1078px           848px /  98ch
- *     1600px     598px / 74ch   1398px          1168px / 135ch
- *     1920px     598px / 74ch   1718px          1488px / 172ch
+ *     intro          settings table   help text in a row
+ *     598px / 74ch   1718px           1488px / 172ch
  *
- * Read as "the intro is cramped", the fix is to remove the cap. Measured, the
- * opposite is true: 74 characters is inside the 45-75 range a line wants to be,
- * and uncapping the intro takes it to 212 characters at 1920px. The intro was
- * never the defect. It looked wrong because it was the only prose on the screen
- * that was right, sitting above help text running to 172 characters.
+ * which was reported as "the introductory copy is confined to roughly half the
+ * content width while the settings below use all of it".
  *
- * So the measure stays and stops being a one-off. What this pins is the part
- * that made it a defect in the first place: the rule has to reach the whole
- * screen's prose, and it has to live somewhere the network screen actually
- * loads. Those are two separate ways to get this wrong and the second one has
- * already happened here once — the lock-note styles sat in settings.css, which
- * the network screen deliberately does not enqueue, so they never applied to
- * the screen they were written for.
+ * Two coherent answers exist and the middle ground is not one of them. Cap
+ * every piece of prose and the screen is internally consistent; cap none and it
+ * behaves like the admin around it. Cap only the intro — any value, including
+ * core's own 800px — and the mismatch that was reported is still on screen,
+ * because the table beside it is 1718px either way.
+ *
+ * WordPress itself does both, and picks by screen. `wp-admin/network.php` runs
+ * thirteen paragraphs at full width with no cap. `edit.css` caps
+ * `.privacy-settings-body` and `.health-check-body` at 800px, because those
+ * screens lead with explanation. The closest analogue to this one,
+ * `wp-admin/network/settings.php`, avoids the question: its page is an `<h1>`
+ * and a form table, and all eight explanatory paragraphs live in a help tab.
+ *
+ * Keel does not follow that last one. "Nothing is hidden. Everything is
+ * explained" is the first promise in the readme, and an explanation behind a
+ * collapsed tab is not the same promise. The prose stays on the page, and the
+ * admin's own width is what wraps it.
+ *
+ * So this guards a deletion, which is the hard kind to keep deleted. A cap can
+ * come back in two places — inline on the markup, or in any stylesheet this
+ * screen loads — and both look reasonable in isolation to whoever adds one.
  *
  * Run: php tests/network-screen-prose.php
  *
@@ -49,8 +57,6 @@ function keel_assert( $cond, $msg ) {
 	}
 }
 
-$root = dirname( __DIR__ );
-
 /**
  * Read a repository file.
  *
@@ -65,83 +71,86 @@ function keel_read( $relative ) {
 
 $network_src = keel_read( 'includes/network.php' );
 $assets_src  = keel_read( 'includes/assets.php' );
-$network_css = keel_read( 'assets/css/network.css' );
 
 keel_assert( '' !== $network_src, 'includes/network.php is readable.' );
+keel_assert( '' !== $assets_src, 'includes/assets.php is readable.' );
 
 /*
- * --- the measure is not inline ---
+ * --- nothing inline on the markup ---
  *
- * An inline style cannot be overridden by a stylesheet without !important, is
- * invisible to anyone reading the CSS, and — the reason it matters here — can
- * only ever describe the one element it sits on. The screen grew around these
- * two paragraphs and nothing else could inherit the decision.
+ * Where it was last time. An inline style is also the version of this that no
+ * stylesheet review would catch.
  */
 keel_assert(
-	1 !== preg_match( '/<p[^>]*class="[^"]*description[^"]*"[^>]*style="[^"]*max-width/', $network_src ),
-	'No intro paragraph carries an inline max-width; the measure belongs in the stylesheet.'
+	0 === preg_match_all( '/<p[^>]*class="[^"]*description[^"]*"[^>]*style="[^"]*(?:max-)?width/i', $network_src, $inline ),
+	'No paragraph on the network screen carries an inline width.'
 );
 
 /*
- * --- the intro is addressable from CSS ---
- */
-keel_assert(
-	false !== strpos( $network_src, 'keel-network-intro' ),
-	'The intro paragraphs carry a class a stylesheet can reach.'
-);
-keel_assert(
-	substr_count( $network_src, 'keel-network-intro' ) >= 2,
-	'Both intro paragraphs carry it, not just the first (' . substr_count( $network_src, 'keel-network-intro' ) . ' found).'
-);
-
-/*
- * --- the stylesheet exists and says it once ---
- */
-keel_assert( '' !== $network_css, 'assets/css/network.css exists.' );
-
-keel_assert(
-	1 === preg_match( '/\.keel-network-intro/', $network_css ),
-	'The stylesheet gives the intro its measure.'
-);
-
-/*
- * The half that makes this a fix rather than a tidy-up. Capping the intro alone
- * would leave it the narrowest prose on a screen whose help text is unbounded,
- * which is the complaint restated rather than answered.
- */
-keel_assert(
-	1 === preg_match( '/form-table\s+p\.description/', $network_css ),
-	'The same measure reaches the help text inside the settings rows.'
-);
-
-/*
- * `em`, not `px`. The intro renders at 13px and the row help at 14px, because
- * the form table sets its own size — so a pixel cap would give the two a
- * different number of characters per line and miss the point of sharing a rule.
- */
-keel_assert(
-	1 === preg_match( '/max-width:\s*\d+(?:\.\d+)?em/', $network_css ),
-	'The measure is expressed in em, so it tracks each element\'s own font size.'
-);
-
-/*
- * --- and the network screen actually loads it ---
+ * --- and nothing in the stylesheets this screen loads ---
  *
- * The failure this guards against has happened on this screen before. The lock
- * note and locked-control styles lived in settings.css, which the network
- * screen deliberately does not enqueue, so a screen that rendered locked
- * controls styled none of them. Shipping a rule the screen never loads looks
- * exactly like shipping no rule.
+ * Read the enqueues rather than naming the files, so a stylesheet added to this
+ * screen later is covered on the day it is added rather than the day someone
+ * remembers to extend this list. The network screen's assets come from
+ * keel_defaults_enqueue_network_assets(), which currently delegates to
+ * keel_defaults_enqueue_locked_controls() — both are scanned, and so is
+ * anything either of them grows.
  */
+$loaded = array();
+if ( preg_match( '/function keel_defaults_enqueue_network_assets.*?\n\}/s', $assets_src, $network_fn ) ) {
+	$body = $network_fn[0];
+
+	// Follow one level of delegation, which is how this screen gets its CSS today.
+	if ( false !== strpos( $body, 'keel_defaults_enqueue_locked_controls' )
+		&& preg_match( '/function keel_defaults_enqueue_locked_controls.*?\n\}/s', $assets_src, $locked_fn ) ) {
+		$body .= $locked_fn[0];
+	}
+
+	if ( preg_match_all( '#[\'"](css/[a-z0-9._-]+\.css)[\'"]#i', $body, $found ) ) {
+		$loaded = array_unique( $found[1] );
+	}
+}
+
 keel_assert(
-	1 === preg_match( '/keel_defaults_enqueue_network_assets\s*\(\s*\)\s*\{(?:[^}]*)css\/network\.css/s', $assets_src )
-		|| 1 === preg_match( '/function keel_defaults_enqueue_network_assets.*?css\/network\.css/s', $assets_src ),
-	'keel_defaults_enqueue_network_assets() enqueues css/network.css.'
+	array() !== $loaded,
+	'Found the stylesheets the network screen enqueues. Finding none would pass every check below without reading anything.'
 );
+
+foreach ( $loaded as $sheet ) {
+	$css = keel_read( 'assets/' . $sheet );
+
+	keel_assert( '' !== $css, "assets/{$sheet} is readable." );
+
+	/*
+	 * Only rules that speak about prose. A width on a control, an icon or a
+	 * layout box is somebody else's decision and not this test's business —
+	 * banning every max-width would make this fail for reasons unrelated to
+	 * what it is protecting, and a guard that cries wolf gets deleted.
+	 */
+	if ( ! preg_match_all( '/([^{}]*\bdescription\b[^{}]*)\{([^}]*)\}/i', $css, $rules, PREG_SET_ORDER ) ) {
+		continue;
+	}
+
+	foreach ( $rules as $rule ) {
+		keel_assert(
+			1 !== preg_match( '/(?:^|[;\s])(?:max-)?width\s*:/i', $rule[2] ),
+			sprintf(
+				'assets/%s caps the width of prose on this screen: "%s". The screen deliberately lets the admin column wrap it.',
+				$sheet,
+				trim( preg_replace( '/\s+/', ' ', $rule[1] ) )
+			)
+		);
+	}
+}
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "network screen prose: {$fail} failed\n" );
 	exit( 1 );
 }
 
-echo "network screen prose: OK\n";
+printf(
+	"network screen prose: OK (no width cap; %d stylesheet%s checked: %s)\n",
+	count( $loaded ),
+	1 === count( $loaded ) ? '' : 's',
+	implode( ', ', $loaded )
+);
