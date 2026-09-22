@@ -89,8 +89,3 @@ p.description.keel-config-lock code {
 .wp-core-ui input[type="range"][data-keel-locked] {
 	opacity: 0.7;
 }
-
-/* TEMP break test */
-.wrap p.description {
-	max-width: 46em;
-}

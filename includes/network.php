@@ -243,7 +243,7 @@ function keel_defaults_render_network_page() {
 			<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Network policy saved.', 'keel-defaults' ); ?></p></div>
 		<?php endif; ?>
 
-		<p class="description" style="max-width:46em;">
+		<p class="description">
 			<?php esc_html_e( 'Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site\'s own business, and their saved values are untouched — untick it later and every site returns to exactly what it had.', 'keel-defaults' ); ?>
 		</p>
 

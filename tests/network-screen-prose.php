@@ -122,6 +122,14 @@ foreach ( $loaded as $sheet ) {
 	keel_assert( '' !== $css, "assets/{$sheet} is readable." );
 
 	/*
+	 * Comments out first. Without this the selector captured for the failure
+	 * message picks up whatever comment precedes the rule, and the comments in
+	 * this project's stylesheets run to paragraphs — so a one-line failure
+	 * would arrive as a wall of text with the selector buried in it.
+	 */
+	$css = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+
+	/*
 	 * Only rules that speak about prose. A width on a control, an icon or a
 	 * layout box is somebody else's decision and not this test's business —
 	 * banning every max-width would make this fail for reasons unrelated to
