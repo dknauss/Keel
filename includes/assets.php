@@ -214,6 +214,15 @@ const KEEL_DEFAULTS_LOCKED_SCRIPT = 'keel-defaults-locked-controls';
 const KEEL_DEFAULTS_LOCKED_STYLE = 'keel-defaults-locked-controls';
 
 /**
+ * Handle for the network policy screen's own stylesheet.
+ *
+ * Separate from the settings handle because the network screen does not load
+ * settings.css, and separate from the locked-controls handle because a lock is
+ * not a layout.
+ */
+const KEEL_DEFAULTS_NETWORK_STYLE = 'keel-defaults-network';
+
+/**
  * Arrange for a screen's assets to be enqueued when that screen loads.
  *
  * @param string $hook     Screen hook suffix from add_*_page().
@@ -272,6 +281,19 @@ function keel_defaults_enqueue_settings_assets() {
  */
 function keel_defaults_enqueue_network_assets() {
 	keel_defaults_enqueue_locked_controls();
+
+	/*
+	 * The screen's own layout, which nothing else loads. settings.css is not an
+	 * option here: the network screen deliberately does not enqueue it, and a
+	 * rule written for this screen and filed there would never arrive — the way
+	 * the lock notes did not until locked-controls.css was split out.
+	 */
+	wp_enqueue_style(
+		KEEL_DEFAULTS_NETWORK_STYLE,
+		keel_defaults_asset_url( 'css/network.css' ),
+		array(),
+		KEEL_DEFAULTS_VERSION
+	);
 }
 
 /**

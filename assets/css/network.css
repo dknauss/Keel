@@ -1,0 +1,45 @@
+/*
+ * The network policy screen's prose measure.
+ *
+ * Loaded only by keel_defaults_enqueue_network_assets(). It lives in its own
+ * file rather than in settings.css because the network screen deliberately does
+ * not enqueue that one — a rule written for this screen and put there would
+ * never reach it, which is exactly how the lock notes went unstyled until
+ * locked-controls.css was split out.
+ */
+
+/*
+ * One measure for everything on the screen that is prose.
+ *
+ * The intro copy shipped with `max-width:46em` inline on its two paragraphs.
+ * Against this admin's own stylesheet that is 598px, and it stayed 598px while
+ * the settings table under it grew with the viewport:
+ *
+ *     viewport   intro          settings table   help text in a row
+ *     1280px     598px / 74ch   1078px           848px /  98ch
+ *     1600px     598px / 74ch   1398px          1168px / 135ch
+ *     1920px     598px / 74ch   1718px          1488px / 172ch
+ *
+ * Which reads as a cramped column, and was reported as one. The measurement
+ * says the opposite: 74 characters is inside the 45-75 a line wants to be, and
+ * uncapping the intro takes it to 212 characters at 1920px. The intro was never
+ * the defect. It looked wrong because it was the only prose on the screen that
+ * was right, sitting above help text running to 172 characters.
+ *
+ * So the cap stays and stops being a property of two paragraphs. Every piece of
+ * prose on the screen now gets it, and the contrast that made the intro look
+ * broken is gone because there is nothing left for it to contrast with.
+ *
+ * `em`, not `px`, and that is load-bearing rather than taste: the intro renders
+ * at 13px and the row help at 14px, because the form table sets its own size. A
+ * pixel cap would give the two different line lengths and miss the point of
+ * sharing a rule. `em` resolves against each element's own size, so both land on
+ * the same number of characters.
+ *
+ * Nothing here needs a media query. Below roughly 960px the column is narrower
+ * than the cap, so the cap is already inert and the layout is core's.
+ */
+.wrap .keel-network-intro,
+.wrap .form-table p.description {
+	max-width: 46em;
+}
