@@ -199,11 +199,20 @@ require __DIR__ . '/index.php';
 ## Same-line installer rollback/forward matrix
 
 `.github/workflows/backport-install-matrix.yml` is a live-API matrix for the
-security-patch installer. It starts from four vulnerable releases, submits the
-real authenticated `admin-post.php` form, verifies the patched version and core
-checksums, proves the signed request cannot be replayed, rolls back with WP-CLI,
-installs through Keel again, and finally moves forward to the current release.
-One row is localized and one is multisite.
+security-patch installer. It starts from a vulnerable release on each of four
+branches, submits the real authenticated `admin-post.php` form, verifies the
+patched version and core checksums, proves the signed request cannot be replayed,
+rolls back with WP-CLI, installs through Keel again, and finally moves forward to
+the current release. One row is localized and one is multisite.
+
+Rows name a branch, not versions. Each row's first step,
+`resolve-backport-versions.sh`, takes the branch's newest release from the live
+stable-check map as the target and the release before it as the source, and
+refuses the row if that source is not `insecure`. The rows used to pin both, which
+failed the weekly run on every WordPress security release ("expected tip 6.9.7,
+got 6.9.8") — the check working, against stale numbers, and indistinguishable
+from a real regression. `tests/backport-matrix-versions.php` covers the resolver
+against fixed maps.
 
 Before the first install, every row also stages release day with
 `stable-check-refresh-probe.php`. The stable-check map is cached for a day, and
