@@ -3,6 +3,12 @@ name: Live core backport matrix
 # The version-check and stable-check APIs are live inputs, so this is not an
 # ordinary pull-request gate. Run it for a release candidate, and weekly to find
 # drift in old-branch offers while there is still time to react.
+#
+# Each row names a branch, not versions. tests/integration/resolve-backport-versions.sh
+# takes the branch's newest release as the target and the one before it as the
+# source, and refuses the row if that source is not insecure. Pinned versions went
+# stale with every WordPress security release, so the run failed on release days
+# for a reason indistinguishable from a real regression.
 on:
   workflow_dispatch:
   schedule:
@@ -13,36 +19,32 @@ permissions:
 
 jobs:
   install:
-    name: ${{ matrix.id }} — ${{ matrix.source }} to ${{ matrix.target }} (PHP ${{ matrix.php }}, ${{ matrix.locale }})
+    name: ${{ matrix.id }} — ${{ matrix.branch }} branch (PHP ${{ matrix.php }}, ${{ matrix.locale }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
           - id: '6.4-floor'
-            source: '6.4.9'
-            target: '6.4.10'
+            branch: '6.4'
             forward: '7.1'
             php: '7.4'
             locale: en_US
             multisite: false
           - id: '6.8-fr'
-            source: '6.8.7'
-            target: '6.8.8'
+            branch: '6.8'
             forward: '7.1'
             php: '8.2'
             locale: fr_FR
             multisite: false
           - id: '6.9-multisite'
-            source: '6.9.6'
-            target: '6.9.7'
+            branch: '6.9'
             forward: '7.1'
             php: '8.2'
             locale: en_US
             multisite: true
           - id: '7.0-line'
-            source: '7.0.3'
-            target: '7.0.4'
+            branch: '7.0'
             forward: '7.1'
             php: '8.2'
             locale: en_US
@@ -53,8 +55,7 @@ jobs:
           # contradiction. These two leave it operable: one where core would take the
           # same-line patch, one where majors are permitted and core steps over it.
           - id: '6.9-operable-minor'
-            source: '6.9.6'
-            target: '6.9.7'
+            branch: '6.9'
             forward: '7.1'
             php: '8.2'
             locale: en_US
@@ -62,8 +63,7 @@ jobs:
             updater: operable
             majors: false
           - id: '6.9-operable-majors'
-            source: '6.9.6'
-            target: '6.9.7'
+            branch: '6.9'
             forward: '7.1'
             php: '8.2'
             locale: en_US
@@ -88,6 +88,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Resolve the branch's source and target releases
+        env:
+          KEEL_BRANCH: ${{ matrix.branch }}
+        run: bash tests/integration/resolve-backport-versions.sh
+
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -111,7 +116,6 @@ jobs:
 
       - name: Build disposable source install
         env:
-          SOURCE: ${{ matrix.source }}
           LOCALE: ${{ matrix.locale }}
           UPDATER: ${{ matrix.updater }}
           MAJORS: ${{ matrix.majors }}
@@ -119,7 +123,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/keel-wp
-          wp core download --path=/tmp/keel-wp --version="$SOURCE" --locale="$LOCALE" --force --allow-root
+          wp core download --path=/tmp/keel-wp --version="$KEEL_SOURCE" --locale="$LOCALE" --force --allow-root
           wp config create --path=/tmp/keel-wp --dbname=wordpress --dbuser=root --dbpass=root --dbhost=127.0.0.1 --allow-root
           if [[ "${UPDATER:-disabled}" == "operable" ]]; then
             # Leave the updater able to act, so the panel renders its scheduled-install
@@ -147,8 +151,9 @@ jobs:
         run: |
           set -euo pipefail
           # The row is only evidence if a reader can see what it configured. Three
-          # rows share a source and target; without this they are indistinguishable
-          # in the log, and a collapsed matrix reads exactly like a passing one.
+          # rows share a branch, and so its resolved versions; without this they are
+          # indistinguishable in the log, and a collapsed matrix reads exactly like a
+          # passing one.
           echo "row: $ROW"
           echo "multisite:                $(wp config get MULTISITE --path=/tmp/keel-wp --allow-root 2>/dev/null || echo 'not set')"
           echo "AUTOMATIC_UPDATER_DISABLED: $(wp config get AUTOMATIC_UPDATER_DISABLED --path=/tmp/keel-wp --allow-root 2>/dev/null || echo 'not set')"
@@ -169,8 +174,6 @@ jobs:
         env:
           KEEL_SITE: /tmp/keel-wp
           KEEL_URL: http://127.0.0.1:8899
-          KEEL_SOURCE: ${{ matrix.source }}
-          KEEL_TARGET: ${{ matrix.target }}
           KEEL_FORWARD: ${{ matrix.forward }}
           KEEL_LOCALE: ${{ matrix.locale }}
           KEEL_MULTISITE: ${{ matrix.multisite }}
