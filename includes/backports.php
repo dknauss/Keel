@@ -822,7 +822,7 @@ function keel_defaults_backport_verdict() {
 	$tip     = keel_defaults_branch_tip();
 
 	$result = array(
-		'label'       => __( 'This version is not currently flagged as insecure', 'keel-defaults' ),
+		'label'       => __( 'This version of WordPress core is not currently flagged as insecure', 'keel-defaults' ),
 		'status'      => 'good',
 		'badge'       => array(
 			'label' => __( 'Security', 'keel-defaults' ),
@@ -926,14 +926,18 @@ function keel_defaults_backport_verdict() {
 		// when yours does, this check flips to critical with no patch to offer.
 		// Reporting that as 'good' would hide a decision worth revisiting.
 		$result['status']      = 'recommended';
-		$result['label']       = __( 'This core version is not currently flagged as insecure', 'keel-defaults' );
+		$result['label']       = __( 'This version of WordPress core is not currently flagged as insecure', 'keel-defaults' );
 		$result['description'] = '<p>' . sprintf(
 			/* translators: 1: current version, 2: latest version. */
 			esc_html__( '%1$s is not currently flagged as insecure by WordPress.org. The current release is %2$s.', 'keel-defaults' ),
 			'<code>' . esc_html( $version ) . '</code>',
 			'<code>' . esc_html( keel_defaults_latest_version() ) . '</code>'
 		) . '</p>';
-		$result['description'] .= '<p>' . esc_html__( 'That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and this line will eventually be retired. This check covers core only — not plugins, themes or PHP.', 'keel-defaults' ) . '</p>';
+		$result['description'] .= '<p>' . sprintf(
+			/* translators: %s: release line, such as 7.0. */
+			esc_html__( 'That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and the %s line will eventually be retired. This check covers WordPress core only — not plugins, themes or PHP.', 'keel-defaults' ),
+			esc_html( keel_defaults_version_line( $version ) )
+		) . '</p>';
 
 		return $result;
 	}
@@ -1269,14 +1273,14 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
 		if ( keel_defaults_installer_refusals( $state['blockers'] ) ) {
 			return sprintf(
 				/* translators: %s: target version. */
-				esc_html__( 'Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared.', 'keel-defaults' ),
+				esc_html__( 'Nothing will install on its own while the updater cannot act, whatever WordPress core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared.', 'keel-defaults' ),
 				$code
 			);
 		}
 
 		return sprintf(
 			/* translators: %s: target version. */
-			esc_html__( 'Nothing will install on its own while automatic updates are held back here, whatever core would otherwise select. %s can still be installed deliberately from the command line.', 'keel-defaults' ),
+			esc_html__( 'Nothing will install on its own while automatic updates are held back here, whatever WordPress core would otherwise select. %s can still be installed deliberately from the command line.', 'keel-defaults' ),
 			$code
 		);
 	}
