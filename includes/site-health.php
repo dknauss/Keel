@@ -254,6 +254,63 @@ function keel_defaults_site_health_posture() {
 }
 
 /**
+ * What Keel uses a policy hook for, in the settings screen's own words.
+ *
+ * An overlap row that names only the other plugins reads as though they were
+ * the whole story. Naming Keel's side lets the reader judge the overlap: Keel
+ * on `user_has_cap` only removes `unfiltered_html`, which says at once whether
+ * a plugin granting its own capabilities there could matter.
+ *
+ * The settings recorded at registration come first, because they are what this
+ * request actually wired up; the static map covers anything not recorded. The
+ * per-post-type revision filters are found live rather than mapped, so they are
+ * attributed here to the one setting that produces them.
+ *
+ * @param string $hook Hook name.
+ * @return string Statement of a toggle that is on, else the label, else ''.
+ */
+function keel_defaults_overlap_purpose( $hook ) {
+	$registered = keel_defaults_registered_policy_hooks();
+	$settings   = array();
+
+	if ( isset( $registered[ $hook ] ) ) {
+		foreach ( $registered[ $hook ] as $record ) {
+			if ( '' !== $record['setting'] ) {
+				$settings[ $record['setting'] ] = true;
+			}
+		}
+	}
+
+	if ( empty( $settings ) ) {
+		$setting = keel_defaults_policy_setting_for_hook( $hook );
+
+		if ( '' === $setting && preg_match( '/^wp_.+_revisions_to_keep$/', $hook ) ) {
+			$setting = 'post_revisions_limit';
+		}
+
+		if ( '' !== $setting ) {
+			$settings[ $setting ] = true;
+		}
+	}
+
+	$strings  = keel_defaults_strings();
+	$purposes = array();
+
+	foreach ( array_keys( $settings ) as $setting ) {
+		// A statement describes its toggle switched on. Keel holds some hooks
+		// either way — xmlrpc_enabled among them, off by default — and the row
+		// must not say Keel is doing what it is currently not doing.
+		if ( ! empty( $strings[ $setting ]['statement'] ) && keel_defaults_enabled( $setting ) ) {
+			$purposes[] = $strings[ $setting ]['statement'];
+		} elseif ( ! empty( $strings[ $setting ]['label'] ) ) {
+			$purposes[] = $strings[ $setting ]['label'];
+		}
+	}
+
+	return implode( '; ', $purposes );
+}
+
+/**
  * One <li> per contested hook, naming what is contesting it.
  *
  * Extracted only because the report emits the same list twice under different
@@ -290,6 +347,17 @@ function keel_defaults_conflict_list( $conflicts ) {
 			);
 		} else {
 			$text = esc_html__( 'a callback that cannot be traced to a plugin', 'keel-defaults' );
+		}
+
+		$purpose = keel_defaults_overlap_purpose( $hook );
+
+		if ( '' !== $purpose ) {
+			$text = sprintf(
+				/* translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: the other callbacks on it, such as "callbacks from gravityforms". */
+				esc_html__( 'Keel: %1$s; also %2$s', 'keel-defaults' ),
+				esc_html( $purpose ),
+				$text
+			);
 		}
 
 		$out .= '<li><code>' . esc_html( $hook ) . '</code> — ' . $text . '</li>';

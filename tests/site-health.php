@@ -256,4 +256,48 @@ keel_assert(
 	'The group name is semibold, matching the weight core itself uses on this table below 782px.'
 );
 
+// Each overlap row says what Keel uses the shared hook for, so a row naming
+// other plugins is not the only side of it a reader sees.
+$row = keel_defaults_conflict_list( array( 'user_has_cap' => array( 'user-switching', 'gravityforms' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel: Limit raw HTML and JavaScript to Administrators; also callbacks from user-switching, gravityforms' ),
+	'An overlap row names the Keel setting that uses the hook, then the other callbacks.'
+);
+
+$row = keel_defaults_conflict_list( array( 'wp_revisions_to_keep' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel: Post Revision Retention; also callbacks from some-plugin' ),
+	'A setting with no statement falls back to its label.'
+);
+
+$row = keel_defaults_conflict_list( array( 'wp_page_revisions_to_keep' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel: Post Revision Retention' ),
+	'A post-type revision hook is attributed to the revision setting.'
+);
+
+// A toggle's statement describes it switched on. Keel holds xmlrpc_enabled
+// either way, and by default remote publishing is off — so the row must not
+// claim Keel is allowing it.
+$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'no' );
+$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel: XML-RPC Remote Publishing; also' ),
+	'A toggle that is off is named by its label, not by a statement describing it on.'
+);
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'yes' );
+$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel: Allow remote publishing (blogging apps); also' ),
+	'A toggle that is on is named by its statement.'
+);
+$GLOBALS['keel_options']['keel_settings'] = array();
+
+$row = keel_defaults_conflict_list( array( 'keel_test_unmapped_hook' => array( KEEL_DEFAULTS_UNATTRIBUTED ) ) );
+keel_assert(
+	false === strpos( $row, 'Keel:' ) && false !== strpos( $row, 'a callback that cannot be traced to a plugin' ),
+	'A hook with no Keel setting keeps the plain row.'
+);
+
 fwrite( STDOUT, "site health tests passed.\n" );

@@ -548,6 +548,7 @@ function keel_defaults_policy_setting_for_hook( $hook ) {
 		'pre_wp_mail'                           => 'suppress_nonproduction_mail',
 		'comments_pre_query'                    => 'disable_comments',
 		'user_has_cap'                          => 'limit_unfiltered_html_to_admins',
+		'xmlrpc_enabled'                        => 'xmlrpc_allow_remote_publishing',
 	);
 
 	return isset( $settings[ $hook ] ) ? $settings[ $hook ] : '';
