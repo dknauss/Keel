@@ -7,28 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keel Defaults 0.6.6\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
+"POT-Creation-Date: 2026-09-27T00:33:10+00:00\n"
+"PO-Revision-Date: 2026-09-14T06:51:57+00:00\n"
 "Last-Translator: \n"
 "Language-Team: \n"
+"Language: en_CA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-14T05:40:40+00:00\n"
-"PO-Revision-Date: 2026-09-14T06:51:57+00:00\n"
-"Language: en_CA\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 
-#: includes/settings-page.php:88
-msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
-msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
-
-#: includes/strings.php:208
-msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
-msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognised automatically. Off by default."
-
 #. Plugin Name of the plugin
-#: keel.php
-#: includes/site-health.php:21
-#: includes/site-health.php:184
+#: keel.php includes/site-health.php:21 includes/site-health.php:184
 msgid "Keel Defaults"
 msgstr ""
 
@@ -59,8 +49,7 @@ msgstr ""
 msgid "Modified"
 msgstr ""
 
-#: includes/admin-ux.php:261
-#: includes/admin-ux.php:368
+#: includes/admin-ux.php:261 includes/admin-ux.php:368
 msgid "File size"
 msgstr ""
 
@@ -258,8 +247,11 @@ msgstr ""
 msgid "None of these will install on their own. Something is declining every one of them, which may be this site's update settings or a requirement the offers do not meet. If it is a requirement, Keel will refuse a deliberate install for the same reason."
 msgstr ""
 
-#: includes/backports.php:828
-#: includes/site-health.php:243
+#: includes/backports.php:825 includes/backports.php:929
+msgid "This version of WordPress core is not currently flagged as insecure"
+msgstr ""
+
+#: includes/backports.php:828 includes/site-health.php:243
 msgid "Security"
 msgstr ""
 
@@ -329,10 +321,6 @@ msgstr ""
 msgid "WordPress has no security-only update setting. Security fixes ship inside ordinary maintenance releases, so switching off minor updates switches off security fixes with them — there is no way to keep one without the other."
 msgstr ""
 
-#: includes/backports.php:929
-msgid "This version of WordPress core is not currently flagged as insecure"
-msgstr ""
-
 #. translators: 1: current version, 2: latest version.
 #: includes/backports.php:932
 #, php-format
@@ -340,198 +328,197 @@ msgid "%1$s is not currently flagged as insecure by WordPress.org. The current r
 msgstr ""
 
 #. translators: %s: release line, such as 7.0.
-#: includes/backports.php:936
+#: includes/backports.php:938
 #, php-format
 msgid "That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and the %s line will eventually be retired. This check covers WordPress core only — not plugins, themes or PHP."
 msgstr ""
 
 #. translators: %s: WordPress version.
-#: includes/backports.php:943
+#: includes/backports.php:947
 #, php-format
 msgid "%s is the current release."
 msgstr ""
 
-#: includes/backports.php:981
+#: includes/backports.php:985
 msgid "Start with what is blocking this patch, above. Until it passes those checks, no change to the update policy will make any difference."
 msgstr ""
 
-#: includes/backports.php:996
+#: includes/backports.php:1000
 msgid "Turn automatic security updates back on"
 msgstr ""
 
-#: includes/backports.php:997
+#: includes/backports.php:1001
 msgid "Recommended. This patch, and every future one on this release line, will install without being asked for."
 msgstr ""
 
-#: includes/backports.php:1003
+#: includes/backports.php:1007
 msgid "Change the core update policy in Keel"
 msgstr ""
 
-#: includes/backports.php:1005
+#: includes/backports.php:1009
 msgid "Keel is deciding this, not the stored WordPress option. Setting the option directly would have no effect."
 msgstr ""
 
 #. translators: 1: constant name, 2: configuration file name.
-#: includes/backports.php:1010
+#: includes/backports.php:1014
 #, php-format
 msgid "The %1$s constant is deciding this, and Keel will not override it. Change it in %2$s."
 msgstr ""
 
-#: includes/backports.php:1016
+#: includes/backports.php:1020
 msgid "Another plugin is filtering this decision, so neither the stored option nor Keel governs it. Whatever registered that filter has to change."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1031
-#: includes/backports.php:1041
+#: includes/backports.php:1035 includes/backports.php:1045
 #, php-format
 msgid "Install %s now from the Updates screen"
 msgstr ""
 
 #. translators: 1: target version, 2: the "Show hidden updates" link on the Updates screen.
-#: includes/backports.php:1046
+#: includes/backports.php:1050
 #, php-format
 msgid "Someone dismissed %1$s on this site, so the Updates screen keeps it out of the way until you select %2$s."
 msgstr ""
 
-#: includes/backports.php:1048
+#: includes/backports.php:1052
 msgid "Show hidden updates"
 msgstr ""
 
-#: includes/backports.php:1055
+#: includes/backports.php:1059
 msgid "Check the Updates screen"
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1058
+#: includes/backports.php:1062
 #, php-format
 msgid "This site has not checked WordPress.org for core updates yet, so Keel cannot say whether the Updates screen is offering %s. Opening that screen checks, and answers it."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1089
+#: includes/backports.php:1093
 #, php-format
 msgid "Or install %s now, below."
 msgstr ""
 
 #. translators: 1: version WordPress own update list is offering, 2: patched release on this line.
-#: includes/backports.php:1127
+#: includes/backports.php:1131
 #, php-format
 msgid "WordPress's own update list is offering %1$s and will not include %2$s. Keel adds it to the Updates screen."
 msgstr ""
 
 #. translators: %s: patched release on this line.
-#: includes/backports.php:1135
+#: includes/backports.php:1139
 #, php-format
 msgid "WordPress's own update list does not include %s. Keel adds it to the Updates screen."
 msgstr ""
 
-#: includes/backports.php:1165
+#: includes/backports.php:1169
 msgid "WordPress would pick this"
 msgstr ""
 
-#: includes/backports.php:1172
+#: includes/backports.php:1176
 msgid "WordPress installs this"
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1272
+#: includes/backports.php:1276
 #, php-format
 msgid "Nothing will install on its own while the updater cannot act, whatever WordPress core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1279
+#: includes/backports.php:1283
 #, php-format
 msgid "Nothing will install on its own while automatic updates are held back here, whatever WordPress core would otherwise select. %s can still be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1287
+#: includes/backports.php:1291
 #, php-format
 msgid "Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1295
+#: includes/backports.php:1299
 #, php-format
 msgid "Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line."
 msgstr ""
 
 #. translators: 1: the version the scheduled check would install, 2: target version.
-#: includes/backports.php:1303
+#: includes/backports.php:1307
 #, php-format
 msgid "The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1315
+#: includes/backports.php:1319
 #, php-format
 msgid "WordPress is not scheduling %s: it is not in this site's cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. Installing it deliberately requires an offer for it, which this site does not currently hold."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1323
+#: includes/backports.php:1327
 #, php-format
 msgid "WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backports.php:1330
+#: includes/backports.php:1334
 #, php-format
 msgid "Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line."
 msgstr ""
 
-#: includes/backports.php:1344
+#: includes/backports.php:1348
 msgid "You are not allowed to change update settings on this site."
 msgstr ""
 
 #. translators: %s: WordPress version.
-#: includes/backports.php:1408
+#: includes/backports.php:1412
 #, php-format
 msgid "WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backports.php:1420
+#: includes/backports.php:1424
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version, 3: reasons.
-#: includes/backports.php:1427
+#: includes/backports.php:1431
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but it cannot currently install automatically: %3$s."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backports.php:1435
+#: includes/backports.php:1439
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but minor updates are switched off on this site, so it will not arrive on its own."
 msgstr ""
 
-#: includes/backports.php:1446
+#: includes/backports.php:1450
 msgid "See what is preventing it — Site Health"
 msgstr ""
 
-#: includes/backports.php:1626
+#: includes/backports.php:1630
 msgid "security and maintenance, same release line"
 msgstr ""
 
-#: includes/backports.php:1627
+#: includes/backports.php:1631
 msgid "new release line"
 msgstr ""
 
-#: includes/backports.php:1630
+#: includes/backports.php:1634
 msgid " — a delta package is available"
 msgstr ""
 
-#: includes/backports.php:1649
+#: includes/backports.php:1653
 msgid "security fix"
 msgstr ""
 
 #. translators: %d: number of releases offered.
-#: includes/backports.php:1678
+#: includes/backports.php:1682
 #, php-format
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
@@ -540,47 +527,47 @@ msgstr ""
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
-#. translators: %s: comma-separated setting/hook names.
-#: includes/conflicts.php:754
+#. translators: %s: comma-separated setting names, each followed by its hook.
+#: includes/conflicts.php:853
 #, php-format
 msgid "A Keel setting is not taking effect on this site: %s"
 msgid_plural "Some Keel settings are not taking effect on this site: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:769
+#: includes/conflicts.php:868
 msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:777
+#. translators: %s: comma-separated plugin names.
+#: includes/conflicts.php:876
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:792
-msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
+#: includes/conflicts.php:891
+msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflicts.php:799
+#: includes/conflicts.php:898
 #, php-format
-msgid "%1$s of %2$sKeel%3$s's settings is shared with a callback from another source that cannot be traced to any plugin."
-msgid_plural "%1$s of %2$sKeel%3$s's settings are shared with callbacks from another source that cannot be traced to any plugin."
+msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
+msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:813
+#: includes/conflicts.php:912
 msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflicts.php:817
+#: includes/conflicts.php:916
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:821
+#: includes/conflicts.php:920
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -620,8 +607,7 @@ msgstr ""
 msgid "Turn off %s to send from here anyway."
 msgstr ""
 
-#: includes/email.php:162
-#: includes/strings.php:176
+#: includes/email.php:162 includes/strings.php:176
 msgid "Non-Production Email"
 msgstr ""
 
@@ -629,8 +615,7 @@ msgstr ""
 msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Network Policy."
 msgstr ""
 
-#: includes/network.php:186
-#: includes/network.php:187
+#: includes/network.php:186 includes/network.php:187
 msgid "Network Policy"
 msgstr ""
 
@@ -696,10 +681,8 @@ msgstr ""
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
-#: includes/settings-page.php:21
-#: includes/settings-page.php:838
-#: includes/site-health.php:320
-#: includes/site-health.php:443
+#: includes/settings-page.php:21 includes/settings-page.php:838
+#: includes/site-health.php:361 includes/site-health.php:484
 msgid "Keel"
 msgstr ""
 
@@ -718,6 +701,10 @@ msgstr ""
 #: includes/settings-page.php:87
 msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all."
 msgstr ""
+
+#: includes/settings-page.php:88
+msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
+msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
 
 #: includes/settings-page.php:90
 msgid "There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
@@ -761,8 +748,7 @@ msgstr ""
 msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
-#: includes/settings-page.php:157
-#: includes/strings.php:273
+#: includes/settings-page.php:157 includes/strings.php:273
 msgid "XML-RPC"
 msgstr ""
 
@@ -859,8 +845,7 @@ msgid "Every default and its current state is listed under <a href=\"%s\">Site H
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:584
-#: includes/settings-page.php:595
+#: includes/settings-page.php:584 includes/settings-page.php:595
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
@@ -919,8 +904,7 @@ msgstr ""
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
 msgstr ""
 
-#: includes/site-health.php:188
-#: includes/site-health.php:212
+#: includes/site-health.php:188 includes/site-health.php:212
 msgid "Settings → Site Defaults"
 msgstr ""
 
@@ -954,154 +938,163 @@ msgstr ""
 msgid "Review Keel settings"
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:282
+#. translators: %s: comma-separated plugin names.
+#: includes/site-health.php:312
 #, php-format
-msgid "callbacks from %s, and one that cannot be traced to a plugin"
+msgid "used by %s, and by code Keel cannot trace to a plugin"
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:288
+#. translators: %s: comma-separated plugin names.
+#: includes/site-health.php:318
 #, php-format
-msgid "callbacks from %s"
+msgid "used by %s"
 msgstr ""
 
-#: includes/site-health.php:292
-msgid "a callback that cannot be traced to a plugin"
+#: includes/site-health.php:322
+msgid "used by code Keel cannot trace to a plugin"
 msgstr ""
 
-#: includes/site-health.php:317
+#. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms".
+#: includes/site-health.php:330
+#, php-format
+msgid "Keel setting: %1$s; also %2$s"
+msgstr ""
+
+#: includes/site-health.php:358
 msgid "No breach-screening failures recorded"
 msgstr ""
 
-#: includes/site-health.php:323
+#: includes/site-health.php:364
 msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
 msgstr ""
 
-#: includes/site-health.php:330
+#: includes/site-health.php:371
 msgid "Password breach screening is switched off"
 msgstr ""
 
 #. translators: %s: link to the Password Strength setting.
-#: includes/site-health.php:333
+#: includes/site-health.php:374
 #, php-format
 msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
 msgstr ""
 
-#: includes/site-health.php:334
-#: includes/strings.php:58
+#: includes/site-health.php:375 includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
-#: includes/site-health.php:352
+#: includes/site-health.php:393
 msgid "Password breach screening is switched off in code"
 msgstr ""
 
-#: includes/site-health.php:354
+#: includes/site-health.php:395
 msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
 msgstr ""
 
-#: includes/site-health.php:373
+#: includes/site-health.php:414
 msgid "Password breach screening is working"
 msgstr ""
 
 #. translators: %s: human-readable time difference, e.g. "2 hours".
-#: includes/site-health.php:376
+#: includes/site-health.php:417
 #, php-format
 msgid "New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago."
 msgstr ""
 
-#: includes/site-health.php:383
+#: includes/site-health.php:424
 msgid "New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password."
 msgstr ""
 
-#: includes/site-health.php:389
+#: includes/site-health.php:430
 msgid "the service could not be reached"
 msgstr ""
 
-#: includes/site-health.php:390
+#: includes/site-health.php:431
 msgid "the reply was cut short before it could be read"
 msgstr ""
 
-#: includes/site-health.php:391
+#: includes/site-health.php:432
 msgid "the reply was not the list of hashes it should have been, which usually means something answered on the service's behalf — a captive portal, or a filtering proxy"
 msgstr ""
 
 #. translators: %s: HTTP status code.
-#: includes/site-health.php:401
+#: includes/site-health.php:442
 #, php-format
 msgid "the service answered with HTTP %s"
 msgstr ""
 
-#: includes/site-health.php:405
+#: includes/site-health.php:446
 msgid "the lookup did not complete"
 msgstr ""
 
-#: includes/site-health.php:409
+#: includes/site-health.php:450
 msgid "Passwords are not being screened against known breaches"
 msgstr ""
 
 #. translators: %s: short reason the lookup failed.
-#: includes/site-health.php:413
+#: includes/site-health.php:454
 #, php-format
 msgid "The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check."
 msgstr ""
 
-#: includes/site-health.php:417
+#: includes/site-health.php:458
 msgid "This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person's own name and email — is unaffected and still applies."
 msgstr ""
 
-#: includes/site-health.php:419
+#: includes/site-health.php:460
 msgid "If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds."
 msgstr ""
 
-#: includes/site-health.php:446
-msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
+#: includes/site-health.php:487
+msgid "Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there's a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose."
 msgstr ""
 
-#. translators: %s: comma-separated list of filter names.
-#: includes/site-health.php:462
+#: includes/site-health.php:487
+msgid "Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too."
+msgstr ""
+
+#. translators: %s: comma-separated setting names, each followed by its hook.
+#: includes/site-health.php:503
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:464
+#: includes/site-health.php:505
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:469
-msgid "Unconfirmed overlaps"
+#: includes/site-health.php:510
+msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:469
-msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
+#: includes/site-health.php:510
+msgid "On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:488
+#: includes/site-health.php:529
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:518
-msgid "A setting is shared with an untraceable callback"
-msgid_plural "Some settings are shared with untraceable callbacks"
+#: includes/site-health.php:559
+msgid "A Keel setting is also affected by code Keel cannot identify"
+msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:532
-msgid "No attributable policy overlap was found"
+#: includes/site-health.php:573
+msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:549
+#. translators: %s: comma-separated plugin names.
+#: includes/site-health.php:590
 #, php-format
-msgid "Also registered on these policy hooks: %s"
+msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:551
-msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
+#: includes/site-health.php:592
+msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:555
+#: includes/site-health.php:596
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
@@ -1561,6 +1554,10 @@ msgstr ""
 msgid "Show the current environment in the admin bar"
 msgstr ""
 
+#: includes/strings.php:208
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognised automatically. Off by default."
+
 #: includes/strings.php:211
 msgid "Remember Me"
 msgstr ""
@@ -1577,13 +1574,11 @@ msgstr ""
 msgid "Regular Session Length"
 msgstr ""
 
-#: includes/strings.php:217
-#: includes/strings.php:223
+#: includes/strings.php:217 includes/strings.php:223
 msgid "days"
 msgstr ""
 
-#: includes/strings.php:218
-#: includes/strings.php:224
+#: includes/strings.php:218 includes/strings.php:224
 msgid "day"
 msgstr ""
 

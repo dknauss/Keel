@@ -261,42 +261,15 @@ function keel_defaults_site_health_posture() {
  * on `user_has_cap` only removes `unfiltered_html`, which says at once whether
  * a plugin granting its own capabilities there could matter.
  *
- * The settings recorded at registration come first, because they are what this
- * request actually wired up; the static map covers anything not recorded. The
- * per-post-type revision filters are found live rather than mapped, so they are
- * attributed here to the one setting that produces them.
- *
  * @param string $hook Hook name.
  * @return string Statement of a toggle that is on, else the label, else ''.
  */
 function keel_defaults_overlap_purpose( $hook ) {
-	$registered = keel_defaults_registered_policy_hooks();
-	$settings   = array();
-
-	if ( isset( $registered[ $hook ] ) ) {
-		foreach ( $registered[ $hook ] as $record ) {
-			if ( '' !== $record['setting'] ) {
-				$settings[ $record['setting'] ] = true;
-			}
-		}
-	}
-
-	if ( empty( $settings ) ) {
-		$setting = keel_defaults_policy_setting_for_hook( $hook );
-
-		if ( '' === $setting && preg_match( '/^wp_.+_revisions_to_keep$/', $hook ) ) {
-			$setting = 'post_revisions_limit';
-		}
-
-		if ( '' !== $setting ) {
-			$settings[ $setting ] = true;
-		}
-	}
-
+	$settings = keel_defaults_hook_settings( $hook );
 	$strings  = keel_defaults_strings();
 	$purposes = array();
 
-	foreach ( array_keys( $settings ) as $setting ) {
+	foreach ( $settings as $setting ) {
 		// A statement describes its toggle switched on. Keel holds some hooks
 		// either way — xmlrpc_enabled among them, off by default — and the row
 		// must not say Keel is doing what it is currently not doing.
@@ -331,30 +304,30 @@ function keel_defaults_conflict_list( $conflicts ) {
 		 * none of them the one the notice actually named.
 		 */
 		$unnamed = in_array( KEEL_DEFAULTS_UNATTRIBUTED, $hook_plugins, true );
-		$named   = array_values( array_diff( $hook_plugins, array( KEEL_DEFAULTS_UNATTRIBUTED ) ) );
+		$named   = array_map( 'keel_defaults_plugin_name', array_values( array_diff( $hook_plugins, array( KEEL_DEFAULTS_UNATTRIBUTED ) ) ) );
 
 		if ( $named && $unnamed ) {
 			$text = sprintf(
-				/* translators: %s: comma-separated plugin directory names. */
-				esc_html__( 'callbacks from %s, and one that cannot be traced to a plugin', 'keel-defaults' ),
+				/* translators: %s: comma-separated plugin names. */
+				esc_html__( 'used by %s, and by code Keel cannot trace to a plugin', 'keel-defaults' ),
 				esc_html( implode( ', ', $named ) )
 			);
 		} elseif ( $named ) {
 			$text = sprintf(
-				/* translators: %s: comma-separated plugin directory names. */
-				esc_html__( 'callbacks from %s', 'keel-defaults' ),
+				/* translators: %s: comma-separated plugin names. */
+				esc_html__( 'used by %s', 'keel-defaults' ),
 				esc_html( implode( ', ', $named ) )
 			);
 		} else {
-			$text = esc_html__( 'a callback that cannot be traced to a plugin', 'keel-defaults' );
+			$text = esc_html__( 'used by code Keel cannot trace to a plugin', 'keel-defaults' );
 		}
 
 		$purpose = keel_defaults_overlap_purpose( $hook );
 
 		if ( '' !== $purpose ) {
 			$text = sprintf(
-				/* translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: the other callbacks on it, such as "callbacks from gravityforms". */
-				esc_html__( 'Keel: %1$s; also %2$s', 'keel-defaults' ),
+				/* translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms". */
+				esc_html__( 'Keel setting: %1$s; also %2$s', 'keel-defaults' ),
 				esc_html( $purpose ),
 				$text
 			);
@@ -511,7 +484,7 @@ function keel_defaults_site_health_conflicts() {
 		'label' => __( 'Keel', 'keel-defaults' ),
 		'color' => 'blue',
 	);
-	$intro    = '<p>' . esc_html__( 'WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes.', 'keel-defaults' ) . '</p>';
+	$intro    = '<p>' . esc_html__( 'Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there\'s a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose.', 'keel-defaults' ) . '</p><p>' . esc_html__( 'Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too.', 'keel-defaults' ) . '</p>';
 
 	/*
 	 * The other half, and the one that answers "so is my setting working?".
@@ -526,15 +499,15 @@ function keel_defaults_site_health_conflicts() {
 
 	if ( ! empty( $divergences ) ) {
 		$intro .= '<p><strong>' . sprintf(
-			/* translators: %s: comma-separated list of filter names. */
+			/* translators: %s: comma-separated setting names, each followed by its hook. */
 			esc_html__( 'Not taking effect: %s', 'keel-defaults' ),
-			esc_html( implode( ', ', array_keys( $divergences ) ) )
+			keel_defaults_hook_setting_names( array_keys( $divergences ) )
 		) . '</strong></p><p>' . esc_html__( 'These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ) . '</p>';
 	}
 	$details = '';
 
 	if ( ! empty( $report['unconfirmed'] ) ) {
-		$details .= '<p><strong>' . esc_html__( 'Unconfirmed overlaps', 'keel-defaults' ) . '</strong> ' . esc_html__( 'These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything.', 'keel-defaults' ) . '</p><ul>';
+		$details .= '<p><strong>' . esc_html__( 'Shared, for information only', 'keel-defaults' ) . '</strong> ' . esc_html__( 'On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected.', 'keel-defaults' ) . '</p><ul>';
 		$details .= keel_defaults_conflict_list( $report['unconfirmed'] ) . '</ul>';
 	}
 
@@ -584,8 +557,8 @@ function keel_defaults_site_health_conflicts() {
 		if ( ! empty( $unattributed ) ) {
 			return array(
 				'label'       => _n(
-					'A setting is shared with an untraceable callback',
-					'Some settings are shared with untraceable callbacks',
+					'A Keel setting is also affected by code Keel cannot identify',
+					'Some Keel settings are also affected by code Keel cannot identify',
 					count( $unattributed ),
 					'keel-defaults'
 				),
@@ -597,7 +570,7 @@ function keel_defaults_site_health_conflicts() {
 		}
 
 		return array(
-			'label'       => __( 'No attributable policy overlap was found', 'keel-defaults' ),
+			'label'       => __( 'No other plugin was found changing Keel\'s settings', 'keel-defaults' ),
 			'status'      => 'good',
 			'badge'       => $badge,
 			'description' => $intro . $details,
@@ -613,10 +586,10 @@ function keel_defaults_site_health_conflicts() {
 	}
 
 	$description = $intro . '<p><strong>' . sprintf(
-		/* translators: %s: comma-separated plugin directory names. */
-		esc_html__( 'Also registered on these policy hooks: %s', 'keel-defaults' ),
-		esc_html( implode( ', ', array_keys( $plugins ) ) )
-	) . '</strong></p><p>' . esc_html__( 'Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone.', 'keel-defaults' ) . '</p><ul>';
+		/* translators: %s: comma-separated plugin names. */
+		esc_html__( 'Plugins that may change the same settings as Keel: %s', 'keel-defaults' ),
+		esc_html( implode( ', ', array_map( 'keel_defaults_plugin_name', array_keys( $plugins ) ) ) )
+	) . '</strong></p><p>' . esc_html__( 'On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn\'t deactivate a plugin simply for this reason without further investigation.', 'keel-defaults' ) . '</p><ul>';
 	$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
 
 	return array(

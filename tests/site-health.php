@@ -41,6 +41,14 @@ define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
 
+/** Installed plugins, as wp-admin/includes/plugin.php reports them. */
+function get_plugins() {
+	return array(
+		'user-switching/user-switching.php' => array( 'Name' => 'User Switching' ),
+		'hello.php'                         => array( 'Name' => 'Hello Dolly' ),
+	);
+}
+
 function keel_assert( $cond, $msg ) {
 	if ( ! $cond ) {
 		fwrite( STDERR, "Assertion failed: {$msg}\n" );
@@ -260,19 +268,19 @@ keel_assert(
 // other plugins is not the only side of it a reader sees.
 $row = keel_defaults_conflict_list( array( 'user_has_cap' => array( 'user-switching', 'gravityforms' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel: Limit raw HTML and JavaScript to Administrators; also callbacks from user-switching, gravityforms' ),
+	false !== strpos( $row, 'Keel setting: Limit raw HTML and JavaScript to Administrators; also used by User Switching, gravityforms' ),
 	'An overlap row names the Keel setting that uses the hook, then the other callbacks.'
 );
 
 $row = keel_defaults_conflict_list( array( 'wp_revisions_to_keep' => array( 'some-plugin' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel: Post Revision Retention; also callbacks from some-plugin' ),
+	false !== strpos( $row, 'Keel setting: Post Revision Retention; also used by some-plugin' ),
 	'A setting with no statement falls back to its label.'
 );
 
 $row = keel_defaults_conflict_list( array( 'wp_page_revisions_to_keep' => array( 'some-plugin' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel: Post Revision Retention' ),
+	false !== strpos( $row, 'Keel setting: Post Revision Retention' ),
 	'A post-type revision hook is attributed to the revision setting.'
 );
 
@@ -282,22 +290,30 @@ keel_assert(
 $GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'no' );
 $row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel: XML-RPC Remote Publishing; also' ),
+	false !== strpos( $row, 'Keel setting: XML-RPC Remote Publishing; also' ),
 	'A toggle that is off is named by its label, not by a statement describing it on.'
 );
 
 $GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'yes' );
 $row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel: Allow remote publishing (blogging apps); also' ),
+	false !== strpos( $row, 'Keel setting: Allow remote publishing (blogging apps); also' ),
 	'A toggle that is on is named by its statement.'
 );
 $GLOBALS['keel_options']['keel_settings'] = array();
 
 $row = keel_defaults_conflict_list( array( 'keel_test_unmapped_hook' => array( KEEL_DEFAULTS_UNATTRIBUTED ) ) );
 keel_assert(
-	false === strpos( $row, 'Keel:' ) && false !== strpos( $row, 'a callback that cannot be traced to a plugin' ),
+	false === strpos( $row, 'Keel setting:' ) && false !== strpos( $row, 'used by code Keel cannot trace to a plugin' ),
 	'A hook with no Keel setting keeps the plain row.'
+);
+
+// Hooks that are not taking effect are named by setting, with the hook kept
+// for developers.
+$names = keel_defaults_hook_setting_names( array( 'comments_open', 'keel_test_unmapped_hook' ) );
+keel_assert(
+	'Comments (<code>comments_open</code>), <code>keel_test_unmapped_hook</code>' === $names,
+	'A hook is named by its Keel setting, then the hook; an unmapped hook by the hook alone.'
 );
 
 fwrite( STDOUT, "site health tests passed.\n" );

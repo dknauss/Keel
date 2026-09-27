@@ -530,47 +530,47 @@ msgstr ""
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
-#. translators: %s: comma-separated setting/hook names.
-#: includes/conflicts.php:755
+#. translators: %s: comma-separated setting names, each followed by its hook.
+#: includes/conflicts.php:853
 #, php-format
 msgid "A Keel setting is not taking effect on this site: %s"
 msgid_plural "Some Keel settings are not taking effect on this site: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:770
+#: includes/conflicts.php:868
 msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/conflicts.php:778
+#. translators: %s: comma-separated plugin names.
+#: includes/conflicts.php:876
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:793
-msgid "These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree."
+#: includes/conflicts.php:891
+msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflicts.php:800
+#: includes/conflicts.php:898
 #, php-format
-msgid "%1$s of %2$sKeel%3$s's settings is shared with a callback from another source that cannot be traced to any plugin."
-msgid_plural "%1$s of %2$sKeel%3$s's settings are shared with callbacks from another source that cannot be traced to any plugin."
+msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
+msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:814
+#: includes/conflicts.php:912
 msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflicts.php:818
+#: includes/conflicts.php:916
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:822
+#: includes/conflicts.php:920
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -688,8 +688,8 @@ msgstr ""
 
 #: includes/settings-page.php:21
 #: includes/settings-page.php:838
-#: includes/site-health.php:388
-#: includes/site-health.php:511
+#: includes/site-health.php:361
+#: includes/site-health.php:484
 msgid "Keel"
 msgstr ""
 
@@ -948,160 +948,164 @@ msgstr ""
 msgid "Review Keel settings"
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:339
+#. translators: %s: comma-separated plugin names.
+#: includes/site-health.php:312
 #, php-format
-msgid "callbacks from %s, and one that cannot be traced to a plugin"
+msgid "used by %s, and by code Keel cannot trace to a plugin"
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:345
+#. translators: %s: comma-separated plugin names.
+#: includes/site-health.php:318
 #, php-format
-msgid "callbacks from %s"
+msgid "used by %s"
 msgstr ""
 
-#: includes/site-health.php:349
-msgid "a callback that cannot be traced to a plugin"
+#: includes/site-health.php:322
+msgid "used by code Keel cannot trace to a plugin"
 msgstr ""
 
-#. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: the other callbacks on it, such as "callbacks from gravityforms".
-#: includes/site-health.php:357
+#. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms".
+#: includes/site-health.php:330
 #, php-format
-msgid "Keel: %1$s; also %2$s"
+msgid "Keel setting: %1$s; also %2$s"
 msgstr ""
 
-#: includes/site-health.php:385
+#: includes/site-health.php:358
 msgid "No breach-screening failures recorded"
 msgstr ""
 
-#: includes/site-health.php:391
+#: includes/site-health.php:364
 msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
 msgstr ""
 
-#: includes/site-health.php:398
+#: includes/site-health.php:371
 msgid "Password breach screening is switched off"
 msgstr ""
 
 #. translators: %s: link to the Password Strength setting.
-#: includes/site-health.php:401
+#: includes/site-health.php:374
 #, php-format
 msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
 msgstr ""
 
-#: includes/site-health.php:402
+#: includes/site-health.php:375
 #: includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
-#: includes/site-health.php:420
+#: includes/site-health.php:393
 msgid "Password breach screening is switched off in code"
 msgstr ""
 
-#: includes/site-health.php:422
+#: includes/site-health.php:395
 msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
 msgstr ""
 
-#: includes/site-health.php:441
+#: includes/site-health.php:414
 msgid "Password breach screening is working"
 msgstr ""
 
 #. translators: %s: human-readable time difference, e.g. "2 hours".
-#: includes/site-health.php:444
+#: includes/site-health.php:417
 #, php-format
 msgid "New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago."
 msgstr ""
 
-#: includes/site-health.php:451
+#: includes/site-health.php:424
 msgid "New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password."
 msgstr ""
 
-#: includes/site-health.php:457
+#: includes/site-health.php:430
 msgid "the service could not be reached"
 msgstr ""
 
-#: includes/site-health.php:458
+#: includes/site-health.php:431
 msgid "the reply was cut short before it could be read"
 msgstr ""
 
-#: includes/site-health.php:459
+#: includes/site-health.php:432
 msgid "the reply was not the list of hashes it should have been, which usually means something answered on the service's behalf — a captive portal, or a filtering proxy"
 msgstr ""
 
 #. translators: %s: HTTP status code.
-#: includes/site-health.php:469
+#: includes/site-health.php:442
 #, php-format
 msgid "the service answered with HTTP %s"
 msgstr ""
 
-#: includes/site-health.php:473
+#: includes/site-health.php:446
 msgid "the lookup did not complete"
 msgstr ""
 
-#: includes/site-health.php:477
+#: includes/site-health.php:450
 msgid "Passwords are not being screened against known breaches"
 msgstr ""
 
 #. translators: %s: short reason the lookup failed.
-#: includes/site-health.php:481
+#: includes/site-health.php:454
 #, php-format
 msgid "The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check."
 msgstr ""
 
-#: includes/site-health.php:485
+#: includes/site-health.php:458
 msgid "This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person's own name and email — is unaffected and still applies."
 msgstr ""
 
-#: includes/site-health.php:487
+#: includes/site-health.php:460
 msgid "If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds."
 msgstr ""
 
-#: includes/site-health.php:514
-msgid "WordPress runs every callback on a filter in priority order and uses the final value. Keel reports when another attributable plugin is registered on an authoritative policy hook that Keel also uses. This confirms an overlap, not that the plugins produce different outcomes."
+#: includes/site-health.php:487
+msgid "Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there's a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose."
 msgstr ""
 
-#. translators: %s: comma-separated list of filter names.
-#: includes/site-health.php:530
+#: includes/site-health.php:487
+msgid "Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too."
+msgstr ""
+
+#. translators: %s: comma-separated setting names, each followed by its hook.
+#: includes/site-health.php:503
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:532
+#: includes/site-health.php:505
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:537
-msgid "Unconfirmed overlaps"
+#: includes/site-health.php:510
+msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:537
-msgid "These callbacks share a compositional hook or cannot be attributed. This is informational only; it is not a reason to deactivate anything."
+#: includes/site-health.php:510
+msgid "On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:556
+#: includes/site-health.php:529
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:586
-msgid "A setting is shared with an untraceable callback"
-msgid_plural "Some settings are shared with untraceable callbacks"
+#: includes/site-health.php:559
+msgid "A Keel setting is also affected by code Keel cannot identify"
+msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:600
-msgid "No attributable policy overlap was found"
+#: includes/site-health.php:573
+msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
-#. translators: %s: comma-separated plugin directory names.
-#: includes/site-health.php:617
+#. translators: %s: comma-separated plugin names.
+#: includes/site-health.php:590
 #, php-format
-msgid "Also registered on these policy hooks: %s"
+msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:619
-msgid "Review the corresponding settings in both plugins. Registration on the same hook does not prove that their configured outcomes disagree, so do not deactivate either plugin based on this report alone."
+#: includes/site-health.php:592
+msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:623
+#: includes/site-health.php:596
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
