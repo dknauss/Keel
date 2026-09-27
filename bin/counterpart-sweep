@@ -16,14 +16,16 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 
 TAG="${1:-$(git describe --tags --abbrev=0)}"
 
-# The line is matched at the start of *any* line: "(^|\n)", not "^". jq's regex
-# has no multiline flag, so a bare ^ only ever matched a body that began with
-# the Counterpart line, and the sweep passed every release. Pinned in
-# tests/counterpart-sweep.php.
+# The line is matched at the start of *any* line: "(^|\n)", not "^". A bare ^
+# in these jq filters matched only at the very start of the body, so the sweep
+# passed any body that did not open with the Counterpart line — every real one.
+# Both the test and the reported capture are anchored this way, so a mention
+# of "Counterpart: pending" inside a sentence is neither counted nor printed.
+# Pinned in tests/counterpart-sweep.php.
 FILTER='.[]
 	| ((.body // "") | gsub("<!--[\\s\\S]*?-->"; "")) as $body
 	| select($body | test("(^|\\n)[ \\t]*Counterpart:[ \\t]*pending"; "i"))
-	| "#\(.number) \(.title)\n  \(.url)\n  \($body | capture("(?<line>Counterpart:[ \\t]*pending[^\\n]*)"; "i").line)"'
+	| "#\(.number) \(.title)\n  \(.url)\n  \($body | capture("(^|\\n)[ \\t]*(?<line>Counterpart:[ \\t]*pending[^\\n]*)"; "i").line)"'
 
 # COUNTERPART_SWEEP_JSON: a file of PRs in gh's JSON shape, read instead of
 # calling gh, so the filter can be tested offline.
