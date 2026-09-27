@@ -8,9 +8,9 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## Now — observe 0.6.3
+## Now — observe 0.6.7
 
-0.6.0 through 0.6.3 are published. The release checklist ran in full for each.
+0.6.0 through 0.6.7 are published. The release checklist ran in full for each.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -93,11 +93,10 @@ into ROADMAP.md or here.
   - Keyboard use, focus visibility, screen-reader names and descriptions, contrast.
   - Single-site versus network-level controls, which differ in more than wording.
   - Capture representative site and network screens before and after.
-  - One confirmed defect to start from: the introductory copy at the top of the
-    multisite network settings screen is confined to roughly half the content width
-    while the settings below use all of it, so the opening explanation wraps into a
-    cramped column. Let it use the available width and verify at narrow and wide
-    admin viewports.
+  - [x] The network settings screen's intro looked confined to half the width — done in
+    #217, the other way round from how it was queued. The intro was already at a
+    readable 74 characters; the help text below ran to 172 on a wide display. Every
+    piece of prose on the screen now shares the intro's measure.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
