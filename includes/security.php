@@ -89,22 +89,26 @@ function keel_defaults_session_policy_is_custom() {
  *
  * One filter, auth_cookie_expiration, carries all three, and the overlap report
  * names Keel's side of it from what is recorded here. Read from the stored day
- * values rather than the clamped lengths: a long regular session raises the
+ * values, but judged against the clamp: a long regular session raises the
  * remembered one too, and that is the regular setting at work, not Remember Me
  * Length. A remembered length is moot while Remember Me is off.
  *
  * @return string[] Schema keys, in settings-screen order.
  */
 function keel_defaults_session_settings_in_effect() {
-	$settings = array();
+	$settings   = array();
+	$regular    = (int) keel_defaults_get( 'session_regular_days' );
+	$remembered = (int) keel_defaults_get( 'remember_me_days' );
 
-	if ( 2 !== (int) keel_defaults_get( 'session_regular_days' ) ) {
+	if ( 2 !== $regular ) {
 		$settings[] = 'session_regular_days';
 	}
 
+	// Remembered sessions last max( regular, remembered ), so the remembered
+	// length counts only where it changes that from what core's 14 would give.
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
 		$settings[] = 'disable_remember_me';
-	} elseif ( 14 !== (int) keel_defaults_get( 'remember_me_days' ) ) {
+	} elseif ( max( $regular, $remembered ) !== max( $regular, 14 ) ) {
 		$settings[] = 'remember_me_days';
 	}
 

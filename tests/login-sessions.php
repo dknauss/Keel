@@ -231,3 +231,22 @@ keel_assert(
 
 $GLOBALS['keel_options'] = array();
 keel_assert( array() === keel_defaults_session_settings_in_effect(), 'Core values put no session setting in effect.' );
+
+// A remembered length the regular one overrides has no effect: remembered
+// sessions last max( regular, remembered ). Reachable when options bypass the
+// settings-form sanitizer, e.g. WP-CLI or a migration.
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 30,
+	'remember_me_days'     => 10,
+);
+keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'A remembered length the regular length overrides is not attributed.' );
+
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 5,
+	'remember_me_days'     => 5,
+);
+keel_assert(
+	array( 'session_regular_days', 'remember_me_days' ) === keel_defaults_session_settings_in_effect(),
+	'A remembered length that shortens remembered sessions from core is attributed.'
+);
+$GLOBALS['keel_options'] = array();
