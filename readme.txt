@@ -125,7 +125,7 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 * Changed: the Site Health check for plugins sharing Keel's settings is rewritten in plain language. Each item now names the Keel setting involved and the other plugins by their names, not their folder names, and the report says outright that sharing a hook is not evidence of a conflict. Settings that are not taking effect are listed by name, with the hook shown for developers.
 * Changed: the Site Health check on your WordPress version is titled "This version of WordPress core is not currently flagged as insecure", and on an older release line it names the line that will eventually be retired, such as "the 7.0 line".
 * Fixed: in a right-to-left admin, dragging the admin menu width slider pushed the content from the wrong side, and the widened menu covered the start of every label. The preview now moves the content from the right.
-* Fixed: on the network settings screen, the help text under each setting ran to the full width of the table, well past a comfortable line length on a wide display. It now wraps at the same width as the introduction above it.
+* Fixed: on the network settings screen, the introduction was held to a narrow column while the settings below it used the full width. The cap is gone, so the introduction follows the Network Admin's own width like the rest of the screen.
 
 = 0.6.6 =
 * Security: with comments disabled, the REST API went on serving a single comment by ID (/wp/v2/comments/123). The guard added in 0.6.1 to close that route checked for a function WordPress does not define, so it never ran. It now checks correctly, and the route answers 404.
