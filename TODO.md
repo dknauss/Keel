@@ -8,9 +8,9 @@ partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later).
 the repo as authoritative and retire that file once anything still live in it has moved
 into ROADMAP.md or here.
 
-## Now — observe 0.6.7
+## Now — observe the 0.6 line
 
-0.6.0 through 0.6.7 are published. The release checklist ran in full for each.
+Each 0.6 release is published only after the release checklist runs in full; 0.6.0 through 0.6.6 are out.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -93,10 +93,10 @@ into ROADMAP.md or here.
   - Keyboard use, focus visibility, screen-reader names and descriptions, contrast.
   - Single-site versus network-level controls, which differ in more than wording.
   - Capture representative site and network screens before and after.
-  - [x] The network settings screen's intro looked confined to half the width — done in
-    #217, the other way round from how it was queued. The intro was already at a
-    readable 74 characters; the help text below ran to 172 on a wide display. Every
-    piece of prose on the screen now shares the intro's measure.
+  - [x] The network settings screen's intro was confined to half the width — done in
+    #217. The inline `max-width:46em` is gone, so the intro follows the admin
+    column like the settings below it, and `tests/network-screen-prose.php` keeps
+    a cap from coming back inline or in a stylesheet the screen loads.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
