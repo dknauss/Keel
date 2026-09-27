@@ -122,7 +122,7 @@ keel_assert( null === keel_defaults_config_lock( 'post_revisions_limit' ), 'Core
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
 $bootstrap_src = file_get_contents( dirname( __DIR__ ) . '/includes/bootstrap.php' );
 keel_assert(
-	false !== strpos( $bootstrap_src, "keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );" ),
+	false !== strpos( $bootstrap_src, "keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3," ),
 	'The session clamp runs at priority 50, after plugins filtering at the default 10.'
 );
 
@@ -207,3 +207,70 @@ $GLOBALS['keel_options'] = array(
 	'remember_me_days'     => 14,
 );
 keel_assert( false === keel_defaults_session_policy_is_custom(), 'Explicitly setting core values is still core values.' );
+
+/*
+ * One filter carries three settings. The overlap report names Keel's side of
+ * auth_cookie_expiration by what was recorded at registration, so recording
+ * only the regular length misnamed a site that had just disabled Remember Me.
+ */
+$GLOBALS['keel_options'] = array( 'disable_remember_me' => 'yes' );
+keel_assert( array( 'disable_remember_me' ) === keel_defaults_session_settings_in_effect(), 'Disabling Remember Me alone is attributed to Remember Me.' );
+
+$GLOBALS['keel_options'] = array( 'remember_me_days' => 30 );
+keel_assert( array( 'remember_me_days' ) === keel_defaults_session_settings_in_effect(), 'A longer remembered session alone is attributed to Remember Me Length.' );
+
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 1,
+	'disable_remember_me'  => 'yes',
+	'remember_me_days'     => 30,
+);
+keel_assert(
+	array( 'session_regular_days', 'disable_remember_me' ) === keel_defaults_session_settings_in_effect(),
+	'A remembered length that Remember Me being off makes moot is not attributed.'
+);
+
+$GLOBALS['keel_options'] = array();
+keel_assert( array() === keel_defaults_session_settings_in_effect(), 'Core values put no session setting in effect.' );
+
+// A remembered length the regular one overrides has no effect: remembered
+// sessions last max( regular, remembered ). Reachable when options bypass the
+// settings-form sanitizer, e.g. WP-CLI or a migration.
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 30,
+	'remember_me_days'     => 10,
+);
+keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'A remembered length the regular length overrides is not attributed.' );
+
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 5,
+	'remember_me_days'     => 5,
+);
+keel_assert(
+	array( 'session_regular_days', 'remember_me_days' ) === keel_defaults_session_settings_in_effect(),
+	'A remembered length that shortens remembered sessions from core is attributed.'
+);
+$GLOBALS['keel_options'] = array();
+
+// A non-positive stored length means "use core's", so it is not in effect.
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 0,
+	'remember_me_days'     => 30,
+);
+keel_assert( array( 'remember_me_days' ) === keel_defaults_session_settings_in_effect(), 'A non-positive regular length inherits core and is not attributed.' );
+
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 1,
+	'remember_me_days'     => -5,
+);
+keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'A non-positive remembered length inherits core and is not attributed.' );
+$GLOBALS['keel_options'] = array();
+
+// Disabling Remember Me changes nothing when the regular length already meets
+// the remembered one: both branches last 30 days.
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 30,
+	'remember_me_days'     => 30,
+	'disable_remember_me'  => 'yes',
+);
+keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'Disabling Remember Me is not attributed where it changes no length.' );
+$GLOBALS['keel_options'] = array();

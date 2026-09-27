@@ -85,6 +85,67 @@ function keel_defaults_session_policy_is_custom() {
 }
 
 /**
+ * The session settings that currently change how long a login lasts.
+ *
+ * One filter, auth_cookie_expiration, carries all three, and the overlap report
+ * names Keel's side of it from what is recorded here. A setting counts when
+ * putting it back to its default would change either length. That is asked of
+ * the lengths rather than the stored values because the three interact: the
+ * regular length floors the remembered one, a non-positive length means core's,
+ * and turning Remember Me off can be moot. Special-casing each of those one at
+ * a time is how this kept getting them wrong.
+ *
+ * @return string[] Schema keys, in settings-screen order.
+ */
+function keel_defaults_session_settings_in_effect() {
+	$actual = array(
+		'session_regular_days' => (int) keel_defaults_get( 'session_regular_days' ),
+		'disable_remember_me'  => keel_defaults_enabled( 'disable_remember_me' ),
+		'remember_me_days'     => (int) keel_defaults_get( 'remember_me_days' ),
+	);
+	$core   = array(
+		'session_regular_days' => 2,
+		'disable_remember_me'  => false,
+		'remember_me_days'     => 14,
+	);
+	$now    = keel_defaults_session_lengths( $actual );
+
+	$settings = array();
+	foreach ( $core as $key => $default ) {
+		if ( keel_defaults_session_lengths( array_merge( $actual, array( $key => $default ) ) ) !== $now ) {
+			$settings[] = $key;
+		}
+	}
+
+	return $settings;
+}
+
+/**
+ * Ordinary and remembered login lengths, in days, for a set of session values.
+ *
+ * Mirrors keel_defaults_session_length() with core's own 2 and 14 days as the
+ * incoming lengths, which is what a non-positive stored value falls back to.
+ * Kept separate rather than shared: that function is the security clamp, and
+ * this one only labels a diagnostic.
+ *
+ * @param array $values session_regular_days, disable_remember_me, remember_me_days.
+ * @return int[] Ordinary days, remembered days.
+ */
+function keel_defaults_session_lengths( array $values ) {
+	$regular  = $values['session_regular_days'];
+	$ordinary = $regular > 0 ? $regular : 2;
+	$floor    = $regular > 0 ? $regular : 14;
+
+	if ( $values['disable_remember_me'] ) {
+		return array( $ordinary, $floor );
+	}
+
+	$remembered = $values['remember_me_days'] > 0 ? $values['remember_me_days'] : 14;
+
+	return array( $ordinary, max( $floor, $remembered ) );
+}
+
+/**
  * Decide how long a login lasts.
  *
  * Both lengths are stored in days. Registered at priority 50, not the default

@@ -41,6 +41,14 @@ define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
 
+/** Installed plugins, as wp-admin/includes/plugin.php reports them. */
+function get_plugins() {
+	return array(
+		'user-switching/user-switching.php' => array( 'Name' => 'User Switching' ),
+		'hello.php'                         => array( 'Name' => 'Hello Dolly' ),
+	);
+}
+
 function keel_assert( $cond, $msg ) {
 	if ( ! $cond ) {
 		fwrite( STDERR, "Assertion failed: {$msg}\n" );
@@ -254,6 +262,68 @@ foreach ( array( 'th', 'td' ) as $cell ) {
 keel_assert(
 	(bool) preg_match( '/\.health-check-table th\{[^}]*font-weight:600/', $info_css ),
 	'The group name is semibold, matching the weight core itself uses on this table below 782px.'
+);
+
+// Each overlap row says what Keel uses the shared hook for, so a row naming
+// other plugins is not the only side of it a reader sees.
+$row = keel_defaults_conflict_list( array( 'user_has_cap' => array( 'user-switching', 'gravityforms' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: Limit raw HTML and JavaScript to Administrators; also used by User Switching, gravityforms' ),
+	'An overlap row names the Keel setting that uses the hook, then the other callbacks.'
+);
+
+$row = keel_defaults_conflict_list( array( 'wp_revisions_to_keep' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: Post Revision Retention; also used by some-plugin' ),
+	'A setting with no statement falls back to its label.'
+);
+
+$row = keel_defaults_conflict_list( array( 'wp_page_revisions_to_keep' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: Post Revision Retention' ),
+	'A post-type revision hook is attributed to the revision setting.'
+);
+
+// A toggle's statement describes it switched on. Keel holds xmlrpc_enabled
+// either way, and by default remote publishing is off — so the row must not
+// claim Keel is allowing it.
+$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'no' );
+$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: XML-RPC Remote Publishing; also' ),
+	'A toggle that is off is named by its label, not by a statement describing it on.'
+);
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'yes' );
+$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: Allow remote publishing (blogging apps); also' ),
+	'A toggle that is on is named by its statement.'
+);
+$GLOBALS['keel_options']['keel_settings'] = array();
+
+$row = keel_defaults_conflict_list( array( 'keel_test_unmapped_hook' => array( KEEL_DEFAULTS_UNATTRIBUTED ) ) );
+keel_assert(
+	false === strpos( $row, 'Keel setting:' ) && false !== strpos( $row, 'used by code Keel cannot trace to a plugin' ),
+	'A hook with no Keel setting keeps the plain row.'
+);
+
+// A hook recorded with several settings names each of them, not the map's one.
+$GLOBALS['keel_options']['keel_settings'] = array( 'disable_remember_me' => 'yes' );
+keel_defaults_registered_policy_hooks( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, array( 'disable_remember_me' ) );
+$row = keel_defaults_conflict_list( array( 'auth_cookie_expiration' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: Disable Remember Me and remove the login checkbox; also' ) && false === strpos( $row, 'Regular Session Length' ),
+	'A session overlap names the session setting actually in effect.'
+);
+$GLOBALS['keel_options']['keel_settings'] = array();
+
+// Hooks that are not taking effect are named by setting, with the hook kept
+// for developers.
+$names = keel_defaults_hook_setting_names( array( 'comments_open', 'keel_test_unmapped_hook' ) );
+keel_assert(
+	'Comments (<code>comments_open</code>), <code>keel_test_unmapped_hook</code>' === $names,
+	'A hook is named by its Keel setting, then the hook; an unmapped hook by the hook alone.'
 );
 
 fwrite( STDOUT, "site health tests passed.\n" );

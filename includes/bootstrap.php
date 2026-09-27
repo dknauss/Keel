@@ -673,7 +673,7 @@ function keel_defaults_bootstrap() {
 	 * login that expires sooner than an ordinary one.
 	 */
 	if ( keel_defaults_session_policy_is_custom() ) {
-		keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );
+		keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, keel_defaults_session_settings_in_effect() );
 	}
 
 	/* ----- Branding ----- */

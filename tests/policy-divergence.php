@@ -71,6 +71,7 @@ function apply_filters( $hook, $value ) {
 	return $value; }
 
 require dirname( __DIR__ ) . '/includes/schema.php';
+require dirname( __DIR__ ) . '/includes/strings.php';
 require dirname( __DIR__ ) . '/includes/conflicts.php';
 require dirname( __DIR__ ) . '/includes/site-health.php';
 

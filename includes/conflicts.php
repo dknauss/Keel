@@ -237,6 +237,106 @@ function keel_defaults_active_plugin_roots() {
 }
 
 /**
+ * A plugin's name as the Plugins screen shows it, from its directory.
+ *
+ * The overlap report works in directory names because that is what a callback's
+ * file resolves to, and the fingerprints stay keyed on them. People reading the
+ * report know "Yoast SEO", not "wordpress-seo", so names are swapped in only
+ * when something is printed. Falls back to the directory when the plugin
+ * header cannot be read.
+ *
+ * @param string $slug Plugin directory, or a single-file plugin's file name.
+ * @return string
+ */
+function keel_defaults_plugin_name( $slug ) {
+	static $installed = null;
+
+	if ( null === $installed ) {
+		if ( ! function_exists( 'get_plugins' ) && defined( 'ABSPATH' ) && file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$installed = function_exists( 'get_plugins' ) ? (array) get_plugins() : array();
+	}
+
+	foreach ( $installed as $file => $data ) {
+		if ( ( $file === $slug || 0 === strpos( $file, $slug . '/' ) ) && ! empty( $data['Name'] ) ) {
+			return (string) $data['Name'];
+		}
+	}
+
+	return (string) $slug;
+}
+
+/**
+ * The Keel settings a policy hook carries.
+ *
+ * The settings recorded at registration come first, because they are what this
+ * request actually wired up; the static map covers anything not recorded. The
+ * per-post-type revision filters are found live rather than mapped, so they are
+ * attributed here to the one setting that produces them.
+ *
+ * @param string $hook Hook name.
+ * @return string[] Schema keys.
+ */
+function keel_defaults_hook_settings( $hook ) {
+	$registered = keel_defaults_registered_policy_hooks();
+	$settings   = array();
+
+	if ( isset( $registered[ $hook ] ) ) {
+		foreach ( $registered[ $hook ] as $record ) {
+			foreach ( (array) $record['setting'] as $setting ) {
+				if ( '' !== $setting ) {
+					$settings[ $setting ] = true;
+				}
+			}
+		}
+	}
+
+	if ( empty( $settings ) ) {
+		$setting = keel_defaults_policy_setting_for_hook( $hook );
+
+		if ( '' === $setting && preg_match( '/^wp_.+_revisions_to_keep$/', $hook ) ) {
+			$setting = 'post_revisions_limit';
+		}
+
+		if ( '' !== $setting ) {
+			$settings[ $setting ] = true;
+		}
+	}
+
+	return array_keys( $settings );
+}
+
+/**
+ * Hooks named by the Keel setting they carry, with the hook kept for developers.
+ *
+ * "Comments (<code>comments_open</code>)" rather than a bare filter name, which
+ * means nothing to most people reading Site Health. A hook with no mapped
+ * setting is printed on its own.
+ *
+ * @param string[] $hooks Hook names.
+ * @return string Escaped HTML, comma-separated.
+ */
+function keel_defaults_hook_setting_names( array $hooks ) {
+	$strings = keel_defaults_strings();
+	$out     = array();
+
+	foreach ( $hooks as $hook ) {
+		$labels = array();
+		foreach ( keel_defaults_hook_settings( $hook ) as $setting ) {
+			if ( ! empty( $strings[ $setting ]['label'] ) ) {
+				$labels[] = $strings[ $setting ]['label'];
+			}
+		}
+
+		$code  = '<code>' . esc_html( $hook ) . '</code>';
+		$out[] = empty( $labels ) ? $code : esc_html( implode( ', ', $labels ) ) . ' (' . $code . ')';
+	}
+
+	return implode( ', ', $out );
+}
+
+/**
  * Other plugins competing for the policies Keel sets.
  *
  * Only structural overlaps on authoritative hooks are returned. No registered
@@ -507,15 +607,15 @@ function keel_defaults_login_header_url() {
  * other half of the job, identifying *rivals*, where a plugin's own named
  * callback resolves to its own directory.
  *
- * @param string   $hook          Hook name.
- * @param callable $callback      Callback.
- * @param int      $priority      Priority.
- * @param int      $accepted_args Number of arguments.
- * @param string   $setting       Schema key whose outcome this callback governs.
+ * @param string          $hook          Hook name.
+ * @param callable        $callback      Callback.
+ * @param int             $priority      Priority.
+ * @param int             $accepted_args Number of arguments.
+ * @param string|string[] $setting Schema key(s) whose outcome this callback governs.
  * @return void
  */
 function keel_defaults_add_policy_filter( $hook, $callback, $priority = 10, $accepted_args = 1, $setting = '' ) {
-	if ( '' === $setting ) {
+	if ( '' === $setting || array() === $setting ) {
 		$setting = keel_defaults_policy_setting_for_hook( $hook );
 	}
 	keel_defaults_registered_policy_hooks( $hook, $callback, $priority, $accepted_args, $setting );
@@ -548,6 +648,7 @@ function keel_defaults_policy_setting_for_hook( $hook ) {
 		'pre_wp_mail'                           => 'suppress_nonproduction_mail',
 		'comments_pre_query'                    => 'disable_comments',
 		'user_has_cap'                          => 'limit_unfiltered_html_to_admins',
+		'xmlrpc_enabled'                        => 'xmlrpc_allow_remote_publishing',
 	);
 
 	return isset( $settings[ $hook ] ) ? $settings[ $hook ] : '';
@@ -561,11 +662,11 @@ function keel_defaults_policy_setting_for_hook( $hook ) {
  * depends on the settings, the environment and the screen. Storing it would only
  * create something to go stale.
  *
- * @param string   $add           Hook to record. Omit to read the list.
- * @param callable $callback      Registered callback.
- * @param int      $priority      Registration priority.
- * @param int      $accepted_args Accepted argument count.
- * @param string   $setting       Governing schema key.
+ * @param string          $add           Hook to record. Omit to read the list.
+ * @param callable        $callback      Registered callback.
+ * @param int             $priority      Registration priority.
+ * @param int             $accepted_args Accepted argument count.
+ * @param string|string[] $setting Governing schema key(s).
  * @return array<string, array<int, array<string,mixed>>> Hook registration records.
  */
 function keel_defaults_registered_policy_hooks( $add = '', $callback = null, $priority = 10, $accepted_args = 1, $setting = '' ) {
@@ -579,7 +680,7 @@ function keel_defaults_registered_policy_hooks( $add = '', $callback = null, $pr
 			'callback'      => $callback,
 			'priority'      => (int) $priority,
 			'accepted_args' => (int) $accepted_args,
-			'setting'       => (string) $setting,
+			'setting'       => is_array( $setting ) ? array_map( 'strval', $setting ) : (string) $setting,
 		);
 	}
 
@@ -750,7 +851,7 @@ function keel_defaults_render_conflicts_notice() {
 		<p>
 			<strong>
 			<?php
-			/* translators: %s: comma-separated setting/hook names. */
+			/* translators: %s: comma-separated setting names, each followed by its hook. */
 			$not_taking_effect = _n(
 				'A Keel setting is not taking effect on this site: %s',
 				'Some Keel settings are not taking effect on this site: %s',
@@ -760,7 +861,7 @@ function keel_defaults_render_conflicts_notice() {
 
 			printf(
 				esc_html( $not_taking_effect ),
-				esc_html( implode( ', ', array_keys( $divergences ) ) )
+				keel_defaults_hook_setting_names( array_keys( $divergences ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by the helper.
 			);
 			?>
 			</strong>
@@ -773,7 +874,7 @@ function keel_defaults_render_conflicts_notice() {
 		<p>
 			<strong>
 			<?php
-			/* translators: %s: comma-separated plugin directory names. */
+			/* translators: %s: comma-separated plugin names. */
 			$heading = _n(
 				'Another plugin may influence some of the same settings as Keel: %s',
 				'Other plugins may influence some of the same settings as Keel: %s',
@@ -783,13 +884,13 @@ function keel_defaults_render_conflicts_notice() {
 
 			printf(
 				esc_html( $heading ),
-				esc_html( implode( ', ', array_keys( $plugins ) ) )
+				esc_html( implode( ', ', array_map( 'keel_defaults_plugin_name', array_keys( $plugins ) ) ) )
 			);
 			?>
 			</strong>
 		</p>
 		<p>
-				<?php esc_html_e( 'These plugins are registered on authoritative policy hooks that Keel also uses. Compare their settings: this confirms an overlap, not that their configured outcomes disagree.', 'keel-defaults' ); ?>
+				<?php esc_html_e( 'They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel\'s are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<?php if ( ! empty( $unnamed ) ) : ?>
@@ -797,8 +898,8 @@ function keel_defaults_render_conflicts_notice() {
 			<?php
 			/* translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag. */
 			$untraceable = _n(
-				'%1$s of %2$sKeel%3$s\'s settings is shared with a callback from another source that cannot be traced to any plugin.',
-				'%1$s of %2$sKeel%3$s\'s settings are shared with callbacks from another source that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings is also affected by code that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings are also affected by code that cannot be traced to any plugin.',
 				count( $unnamed ),
 				'keel-defaults'
 			);
