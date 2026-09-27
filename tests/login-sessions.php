@@ -250,3 +250,17 @@ keel_assert(
 	'A remembered length that shortens remembered sessions from core is attributed.'
 );
 $GLOBALS['keel_options'] = array();
+
+// A non-positive stored length means "use core's", so it is not in effect.
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 0,
+	'remember_me_days'     => 30,
+);
+keel_assert( array( 'remember_me_days' ) === keel_defaults_session_settings_in_effect(), 'A non-positive regular length inherits core and is not attributed.' );
+
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 1,
+	'remember_me_days'     => -5,
+);
+keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'A non-positive remembered length inherits core and is not attributed.' );
+$GLOBALS['keel_options'] = array();

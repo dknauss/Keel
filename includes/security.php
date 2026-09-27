@@ -100,15 +100,20 @@ function keel_defaults_session_settings_in_effect() {
 	$regular    = (int) keel_defaults_get( 'session_regular_days' );
 	$remembered = (int) keel_defaults_get( 'remember_me_days' );
 
-	if ( 2 !== $regular ) {
+	// Read the way keel_defaults_session_length() reads them: a non-positive
+	// length means "use core's", which is 2 days for an ordinary login and 14
+	// for a remembered one — including the regular length's floor on it.
+	if ( $regular > 0 && 2 !== $regular ) {
 		$settings[] = 'session_regular_days';
 	}
 
 	// Remembered sessions last max( regular, remembered ), so the remembered
 	// length counts only where it changes that from what core's 14 would give.
+	$floor = $regular > 0 ? $regular : 14;
+
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {
 		$settings[] = 'disable_remember_me';
-	} elseif ( max( $regular, $remembered ) !== max( $regular, 14 ) ) {
+	} elseif ( $remembered > 0 && max( $floor, $remembered ) !== max( $floor, 14 ) ) {
 		$settings[] = 'remember_me_days';
 	}
 
