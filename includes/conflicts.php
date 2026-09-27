@@ -284,8 +284,10 @@ function keel_defaults_hook_settings( $hook ) {
 
 	if ( isset( $registered[ $hook ] ) ) {
 		foreach ( $registered[ $hook ] as $record ) {
-			if ( '' !== $record['setting'] ) {
-				$settings[ $record['setting'] ] = true;
+			foreach ( (array) $record['setting'] as $setting ) {
+				if ( '' !== $setting ) {
+					$settings[ $setting ] = true;
+				}
 			}
 		}
 	}
@@ -605,15 +607,15 @@ function keel_defaults_login_header_url() {
  * other half of the job, identifying *rivals*, where a plugin's own named
  * callback resolves to its own directory.
  *
- * @param string   $hook          Hook name.
- * @param callable $callback      Callback.
- * @param int      $priority      Priority.
- * @param int      $accepted_args Number of arguments.
- * @param string   $setting       Schema key whose outcome this callback governs.
+ * @param string          $hook          Hook name.
+ * @param callable        $callback      Callback.
+ * @param int             $priority      Priority.
+ * @param int             $accepted_args Number of arguments.
+ * @param string|string[] $setting Schema key(s) whose outcome this callback governs.
  * @return void
  */
 function keel_defaults_add_policy_filter( $hook, $callback, $priority = 10, $accepted_args = 1, $setting = '' ) {
-	if ( '' === $setting ) {
+	if ( '' === $setting || array() === $setting ) {
 		$setting = keel_defaults_policy_setting_for_hook( $hook );
 	}
 	keel_defaults_registered_policy_hooks( $hook, $callback, $priority, $accepted_args, $setting );
@@ -660,11 +662,11 @@ function keel_defaults_policy_setting_for_hook( $hook ) {
  * depends on the settings, the environment and the screen. Storing it would only
  * create something to go stale.
  *
- * @param string   $add           Hook to record. Omit to read the list.
- * @param callable $callback      Registered callback.
- * @param int      $priority      Registration priority.
- * @param int      $accepted_args Accepted argument count.
- * @param string   $setting       Governing schema key.
+ * @param string          $add           Hook to record. Omit to read the list.
+ * @param callable        $callback      Registered callback.
+ * @param int             $priority      Registration priority.
+ * @param int             $accepted_args Accepted argument count.
+ * @param string|string[] $setting Governing schema key(s).
  * @return array<string, array<int, array<string,mixed>>> Hook registration records.
  */
 function keel_defaults_registered_policy_hooks( $add = '', $callback = null, $priority = 10, $accepted_args = 1, $setting = '' ) {
@@ -678,7 +680,7 @@ function keel_defaults_registered_policy_hooks( $add = '', $callback = null, $pr
 			'callback'      => $callback,
 			'priority'      => (int) $priority,
 			'accepted_args' => (int) $accepted_args,
-			'setting'       => (string) $setting,
+			'setting'       => is_array( $setting ) ? array_map( 'strval', $setting ) : (string) $setting,
 		);
 	}
 

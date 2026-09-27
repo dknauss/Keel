@@ -122,7 +122,7 @@ keel_assert( null === keel_defaults_config_lock( 'post_revisions_limit' ), 'Core
 // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a local source file in a test.
 $bootstrap_src = file_get_contents( dirname( __DIR__ ) . '/includes/bootstrap.php' );
 keel_assert(
-	false !== strpos( $bootstrap_src, "keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3 );" ),
+	false !== strpos( $bootstrap_src, "keel_defaults_add_policy_filter( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3," ),
 	'The session clamp runs at priority 50, after plugins filtering at the default 10.'
 );
 
@@ -207,3 +207,27 @@ $GLOBALS['keel_options'] = array(
 	'remember_me_days'     => 14,
 );
 keel_assert( false === keel_defaults_session_policy_is_custom(), 'Explicitly setting core values is still core values.' );
+
+/*
+ * One filter carries three settings. The overlap report names Keel's side of
+ * auth_cookie_expiration by what was recorded at registration, so recording
+ * only the regular length misnamed a site that had just disabled Remember Me.
+ */
+$GLOBALS['keel_options'] = array( 'disable_remember_me' => 'yes' );
+keel_assert( array( 'disable_remember_me' ) === keel_defaults_session_settings_in_effect(), 'Disabling Remember Me alone is attributed to Remember Me.' );
+
+$GLOBALS['keel_options'] = array( 'remember_me_days' => 30 );
+keel_assert( array( 'remember_me_days' ) === keel_defaults_session_settings_in_effect(), 'A longer remembered session alone is attributed to Remember Me Length.' );
+
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 1,
+	'disable_remember_me'  => 'yes',
+	'remember_me_days'     => 30,
+);
+keel_assert(
+	array( 'session_regular_days', 'disable_remember_me' ) === keel_defaults_session_settings_in_effect(),
+	'A remembered length that Remember Me being off makes moot is not attributed.'
+);
+
+$GLOBALS['keel_options'] = array();
+keel_assert( array() === keel_defaults_session_settings_in_effect(), 'Core values put no session setting in effect.' );

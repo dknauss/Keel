@@ -308,6 +308,16 @@ keel_assert(
 	'A hook with no Keel setting keeps the plain row.'
 );
 
+// A hook recorded with several settings names each of them, not the map's one.
+$GLOBALS['keel_options']['keel_settings'] = array( 'disable_remember_me' => 'yes' );
+keel_defaults_registered_policy_hooks( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, array( 'disable_remember_me' ) );
+$row = keel_defaults_conflict_list( array( 'auth_cookie_expiration' => array( 'some-plugin' ) ) );
+keel_assert(
+	false !== strpos( $row, 'Keel setting: Disable Remember Me and remove the login checkbox; also' ) && false === strpos( $row, 'Regular Session Length' ),
+	'A session overlap names the session setting actually in effect.'
+);
+$GLOBALS['keel_options']['keel_settings'] = array();
+
 // Hooks that are not taking effect are named by setting, with the hook kept
 // for developers.
 $names = keel_defaults_hook_setting_names( array( 'comments_open', 'keel_test_unmapped_hook' ) );
