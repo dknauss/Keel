@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T00:33:10+00:00\n"
+"POT-Creation-Date: 2026-09-27T00:33:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -531,46 +531,46 @@ msgid "AI connectors are disabled on this site."
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/conflicts.php:853
+#: includes/conflicts.php:855
 #, php-format
 msgid "A Keel setting is not taking effect on this site: %s"
 msgid_plural "Some Keel settings are not taking effect on this site: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:868
+#: includes/conflicts.php:870
 msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/conflicts.php:876
+#: includes/conflicts.php:878
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:891
+#: includes/conflicts.php:893
 msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflicts.php:898
+#: includes/conflicts.php:900
 #, php-format
 msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
 msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:912
+#: includes/conflicts.php:914
 msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflicts.php:916
+#: includes/conflicts.php:918
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:920
+#: includes/conflicts.php:922
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -652,37 +652,37 @@ msgstr ""
 msgid "Save network policy"
 msgstr ""
 
-#: includes/security.php:171
+#: includes/security.php:202
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:464
+#: includes/security.php:495
 msgid "<strong>Error:</strong> Enter a password."
 msgstr ""
 
-#: includes/security.php:473
+#: includes/security.php:504
 msgid "<strong>Error:</strong> That password is too long."
 msgstr ""
 
-#: includes/security.php:480
+#: includes/security.php:511
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:513
+#: includes/security.php:544
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:534
+#: includes/security.php:565
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:553
+#: includes/security.php:584
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:729
+#: includes/security.php:760
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
@@ -1078,7 +1078,7 @@ msgid "Shared, for information only"
 msgstr ""
 
 #: includes/site-health.php:510
-msgid "On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
+msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
 #: includes/site-health.php:529

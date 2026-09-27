@@ -507,7 +507,7 @@ function keel_defaults_site_health_conflicts() {
 	$details = '';
 
 	if ( ! empty( $report['unconfirmed'] ) ) {
-		$details .= '<p><strong>' . esc_html__( 'Shared, for information only', 'keel-defaults' ) . '</strong> ' . esc_html__( 'On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected.', 'keel-defaults' ) . '</p><ul>';
+		$details .= '<p><strong>' . esc_html__( 'Shared, for information only', 'keel-defaults' ) . '</strong> ' . esc_html__( 'Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected.', 'keel-defaults' ) . '</p><ul>';
 		$details .= keel_defaults_conflict_list( $report['unconfirmed'] ) . '</ul>';
 	}
 
