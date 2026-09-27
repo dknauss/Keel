@@ -258,10 +258,6 @@ msgstr ""
 msgid "None of these will install on their own. Something is declining every one of them, which may be this site's update settings or a requirement the offers do not meet. If it is a requirement, Keel will refuse a deliberate install for the same reason."
 msgstr ""
 
-#: includes/backports.php:825
-msgid "This version is not currently flagged as insecure"
-msgstr ""
-
 #: includes/backports.php:828
 #: includes/site-health.php:243
 msgid "Security"
@@ -334,7 +330,7 @@ msgid "WordPress has no security-only update setting. Security fixes ship inside
 msgstr ""
 
 #: includes/backports.php:929
-msgid "This core version is not currently flagged as insecure"
+msgid "This version of WordPress core is not currently flagged as insecure"
 msgstr ""
 
 #. translators: 1: current version, 2: latest version.
@@ -343,8 +339,10 @@ msgstr ""
 msgid "%1$s is not currently flagged as insecure by WordPress.org. The current release is %2$s."
 msgstr ""
 
+#. translators: %s: release line, such as 7.0.
 #: includes/backports.php:936
-msgid "That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and this line will eventually be retired. This check covers core only — not plugins, themes or PHP."
+#, php-format
+msgid "That is not a support guarantee. Only the current release is actively supported. Fixes for older lines are backported where feasible, and the %s line will eventually be retired. This check covers WordPress core only — not plugins, themes or PHP."
 msgstr ""
 
 #. translators: %s: WordPress version.
@@ -439,13 +437,13 @@ msgstr ""
 #. translators: %s: target version.
 #: includes/backports.php:1272
 #, php-format
-msgid "Nothing will install on its own while the updater cannot act, whatever core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
+msgid "Nothing will install on its own while the updater cannot act, whatever WordPress core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
 msgstr ""
 
 #. translators: %s: target version.
 #: includes/backports.php:1279
 #, php-format
-msgid "Nothing will install on its own while automatic updates are held back here, whatever core would otherwise select. %s can still be installed deliberately from the command line."
+msgid "Nothing will install on its own while automatic updates are held back here, whatever WordPress core would otherwise select. %s can still be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.

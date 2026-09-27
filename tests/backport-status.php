@@ -635,10 +635,26 @@ keel_assert(
 	false !== strpos( $r['description'], 'not a support guarantee' ),
 	'the behind-but-patched result says outright that this is not a support guarantee'
 );
+keel_assert(
+	'This version of WordPress core is not currently flagged as insecure' === $r['label'],
+	'the behind-but-patched label names WordPress core, not just "core"'
+);
+keel_assert(
+	false !== strpos( $r['description'], 'the 6.8 line will eventually be retired' ),
+	'the behind-but-patched result names the line that will be retired'
+);
+keel_assert(
+	false !== strpos( $r['description'], 'This check covers WordPress core only' ),
+	'the behind-but-patched result scopes the check to WordPress core'
+);
 
 $GLOBALS['keel_test']['version'] = '7.1';
 $r                               = keel_defaults_backport_test();
 keel_assert( 'good' === $r['status'], 'only the current release is good' );
+keel_assert(
+	'This version of WordPress core is not currently flagged as insecure' === $r['label'],
+	'the current-release label names WordPress core, matching the behind-but-patched one'
+);
 
 $GLOBALS['keel_test']['version'] = '6.8.7';
 $r                               = keel_defaults_backport_test();
