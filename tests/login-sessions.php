@@ -264,3 +264,13 @@ $GLOBALS['keel_options'] = array(
 );
 keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'A non-positive remembered length inherits core and is not attributed.' );
 $GLOBALS['keel_options'] = array();
+
+// Disabling Remember Me changes nothing when the regular length already meets
+// the remembered one: both branches last 30 days.
+$GLOBALS['keel_options'] = array(
+	'session_regular_days' => 30,
+	'remember_me_days'     => 30,
+	'disable_remember_me'  => 'yes',
+);
+keel_assert( array( 'session_regular_days' ) === keel_defaults_session_settings_in_effect(), 'Disabling Remember Me is not attributed where it changes no length.' );
+$GLOBALS['keel_options'] = array();
