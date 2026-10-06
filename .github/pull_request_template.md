@@ -9,16 +9,16 @@
 ## Counterpart
 
 <!--
-Keel and Pixel Managed Platform (PX) share code paths. Fill in exactly one line
+Keel and Agency Experience (AX) share code paths. Fill in exactly one line
 below; the Counterpart check fails the pull request otherwise.
 
-  Counterpart: ported — PX commit 1a2b3c4
+  Counterpart: ported — AX commit 1a2b3c4
   Counterpart: pending — dknauss/Keel#123 (what is left, and where it is tracked)
-  Counterpart: not applicable — why PX has no such code path
+  Counterpart: not applicable — why AX has no such code path
 
-PX is private and local-only: reference a change there by its commit hash only,
-and keep anything about a PX client or deployment out of this public description.
-See docs/keel-px-sync.md.
+AX is a local-only repository: reference a change there by its commit hash only,
+and keep anything about a client, site or deployment out of this public
+description. See docs/keel-sync.md.
 -->
 
 Counterpart:

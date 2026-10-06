@@ -51,9 +51,9 @@ function keel_sweep_run( array $bodies ) {
 
 $template = "## What changed\n\nStuff.\n\n## Verification\n\nRan it.\n\n## Counterpart\n\n<!--\n  Counterpart: pending — dknauss/Keel#123 (example)\n-->\n\n";
 
-list( $code, $out ) = keel_sweep_run( array( $template . 'Counterpart: pending — we-are-pixel/pixel-experience#1 (left to do)' ) );
+list( $code, $out ) = keel_sweep_run( array( $template . 'Counterpart: pending — dknauss/Keel#1 (left to do)' ) );
 keel_sweep_assert( 1 === $code, 'A pending line after the other sections fails the sweep.' );
-keel_sweep_assert( false !== strpos( $out, 'we-are-pixel/pixel-experience#1' ), 'And the sweep names the pending port.' );
+keel_sweep_assert( false !== strpos( $out, 'dknauss/Keel#1' ), 'And the sweep names the pending port.' );
 
 // The reported line is the real one, not a mid-sentence mention earlier on.
 list( $code, $out ) = keel_sweep_run( array( "## What changed\n\nThis used to read Counterpart: pending — decoy#9 in prose.\n\n## Counterpart\n\nCounterpart: pending — real#7 (left to do)" ) );

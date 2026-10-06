@@ -1,6 +1,6 @@
 name: Counterpart
 
-# Keel and Pixel Managed Platform (PX) share code paths: core version status and
+# Keel and Agency Experience (AX) share code paths: core version status and
 # the same-line patch, the core auto-update policy and its wp-config locks, the
 # admin menu width, the security defaults. A change to one usually needs the same
 # change in the other, or a recorded reason it does not. Ports used to happen when
@@ -8,7 +8,7 @@ name: Counterpart
 #
 # This fails a pull request whose description does not carry exactly one line
 # saying which: "Counterpart: ported|pending|not applicable — ...". It re-runs when
-# the description is edited, so fixing the text is enough. See docs/keel-px-sync.md.
+# the description is edited, so fixing the text is enough. See docs/keel-sync.md.
 #
 # The description reaches the script through an environment variable and is never
 # interpolated into the command, so text in a pull request cannot become shell.
