@@ -122,6 +122,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 Versions before 0.5.9 were not published to the directory. The entries below are the development history that led to the first release.
 
 = 0.6.7 =
+* Fixed: with XML-RPC Multicall off, which is the default, a site connected to WordPress.com through Jetpack could be cut off from it. WordPress.com manages a connected site through multicall, so the plugin list and settings changes failed on WordPress.com while Jetpack still reported itself as connected. Keel now lets through the requests Jetpack verifies as signed by WordPress.com, and still refuses every other multicall.
+* Fixed: a refused multicall went out as HTTP 405 instead of an XML-RPC fault, so clients reported a transport error. It is now an ordinary fault (code -32601) on HTTP 200.
+* Added: on a site connected through Jetpack, Site Health now reports when Keel's XML-RPC settings stop WordPress.com from reaching it.
 * Changed: the Site Health check for plugins sharing Keel's settings is rewritten in plain language. Each item now names the Keel setting involved and the other plugins by their names, not their folder names, and the report says outright that sharing a hook is not evidence of a conflict. Settings that are not taking effect are listed by name, with the hook shown for developers.
 * Changed: the Site Health check on your WordPress version is titled "This version of WordPress core is not currently flagged as insecure", and on an older release line it names the line that will eventually be retired, such as "the 7.0 line".
 * Fixed: in a right-to-left admin, dragging the admin menu width slider pushed the content from the wrong side, and the widened menu covered the start of every label. The preview now moves the content from the right.
@@ -289,7 +292,7 @@ Versions before 0.5.9 were not published to the directory. The entries below are
 == Upgrade Notice ==
 
 = 0.6.7 =
-Clearer Site Health. The check for plugins sharing Keel's settings is in plain language and names both sides, and the core version check names WordPress core and its release line. Two admin layout fixes. No setting changes.
+Fixes Jetpack: with multicall off (the default), WordPress.com could not manage a connected site. Requests Jetpack verifies as signed now get through. Also clearer Site Health wording and two admin layout fixes. No setting changes.
 
 = 0.6.6 =
 Security: with comments off, the REST API no longer serves a comment by ID. Locked settings show what wp-config.php enforces, Site Health notices a new security release the day it ships, and a folded admin menu stays folded. No setting changes.
