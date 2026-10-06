@@ -1,9 +1,9 @@
 #!/usr/bin/env php
 <?php
 /**
- * Keel <-> PX sync gate: fail a pull request whose body does not record its counterpart.
+ * Keel <-> Agency Experience sync gate: fail a pull request whose body does not record its counterpart.
  *
- * Keel and Pixel Managed Platform share code paths, so a change to one usually needs
+ * Keel and Agency Experience share code paths, so a change to one usually needs
  * the same change in the other, or a recorded reason it does not. The body has to
  * carry exactly one line saying which:
  *
@@ -13,7 +13,7 @@
  *
  * Reads the body on stdin. Exits 0 and echoes the line when it is valid, or 1 with
  * the reason on stderr. HTML comments are ignored, so a template's own examples
- * never count. Kept identical in both repositories. See docs/keel-px-sync.md.
+ * never count. Kept identical in both repositories. See docs/keel-sync.md.
  *
  * Usage: printf '%s' "$PR_BODY" | php bin/check-counterpart
  */
@@ -22,7 +22,7 @@ $body = (string) stream_get_contents( STDIN );
 $body = (string) preg_replace( '/<!--.*?-->/s', '', $body );
 
 $reject = static function ( $reason ) {
-	fwrite( STDERR, "Counterpart check failed: {$reason}\nSee docs/keel-px-sync.md for the three accepted forms.\n" );
+	fwrite( STDERR, "Counterpart check failed: {$reason}\nSee docs/keel-sync.md for the three accepted forms.\n" );
 	exit( 1 );
 };
 
@@ -48,15 +48,15 @@ if ( ! preg_match( '/^(ported|pending|not applicable)\s*(?:—|–|-|:)\s*(\S.*)
 
 $kind   = strtolower( $parts[1] );
 $detail = trim( $parts[2] );
-// PX is a local-only repository: it has commits but no pull requests or issues, so a
-// change there is named by its commit hash, written "PX commit <hash>".
+// Agency Experience is a local-only repository: it has commits but no pull requests or issues, so a
+// change there is named by its commit hash, written "AX commit <hash>".
 // A commit is a finished port, so it counts for "ported" only. "pending" needs
 // somewhere the remaining work is tracked, which a commit is not.
 $tracker = '(?:\b[\w.-]+/[\w.-]+#\d+\b|https://github\.com/[\w.-]+/[\w.-]+/(?:pull|issues)/\d+)';
-$ref     = '~(?:' . $tracker . '|https://github\.com/[\w.-]+/[\w.-]+/commit/[0-9a-f]{7,40}|\bPX commit [0-9a-f]{7,40}\b)~i';
+$ref     = '~(?:' . $tracker . '|https://github\.com/[\w.-]+/[\w.-]+/commit/[0-9a-f]{7,40}|\bAX commit [0-9a-f]{7,40}\b)~i';
 
 if ( 'ported' === $kind && ! preg_match( $ref, $detail ) ) {
-	$reject( '"ported" needs the counterpart change as owner/repo#N, a GitHub link, or "PX commit <hash>".' );
+	$reject( '"ported" needs the counterpart change as owner/repo#N, a GitHub link, or "AX commit <hash>".' );
 }
 
 if ( 'pending' === $kind && ! preg_match( '~' . $tracker . '~', $detail ) ) {

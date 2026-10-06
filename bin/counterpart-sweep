@@ -9,7 +9,7 @@
 #
 # Usage: bin/counterpart-sweep [tag]    (default: the most recent tag)
 #
-# See docs/keel-px-sync.md.
+# See docs/keel-sync.md.
 set -euo pipefail
 
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."

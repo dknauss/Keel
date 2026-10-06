@@ -271,9 +271,9 @@ every screenshot file is captioned in `readme.txt` and shown in `README.md`.
   will tell you if you missed one.
 - If the change rests on a decision shared with the sibling plugins, restate the
   reasoning here rather than citing a document this repository does not contain.
-- Record the PX counterpart: exactly one `Counterpart:` line saying the change was
+- Record the Agency Experience counterpart: exactly one `Counterpart:` line saying the change was
   ported, is pending, or does not apply, and why. The Counterpart check fails the
-  pull request without it. See `docs/keel-px-sync.md`.
+  pull request without it. See `docs/keel-sync.md`.
 
 ## Releases
 
