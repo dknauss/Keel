@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.6.6\n"
+"Project-Id-Version: Keel Defaults 0.6.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T04:16:31+00:00\n"
+"POT-Creation-Date: 2026-10-06T06:09:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -652,37 +652,37 @@ msgstr ""
 msgid "Save network policy"
 msgstr ""
 
-#: includes/security.php:322
+#: includes/security.php:330
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:615
+#: includes/security.php:623
 msgid "<strong>Error:</strong> Enter a password."
 msgstr ""
 
-#: includes/security.php:624
+#: includes/security.php:632
 msgid "<strong>Error:</strong> That password is too long."
 msgstr ""
 
-#: includes/security.php:631
+#: includes/security.php:639
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:664
+#: includes/security.php:672
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:685
+#: includes/security.php:693
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:704
+#: includes/security.php:712
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:880
+#: includes/security.php:888
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
