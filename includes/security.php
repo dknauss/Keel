@@ -240,8 +240,16 @@ function keel_defaults_jetpack_manager() {
  * This is what lets a Jetpack multicall through, and nothing weaker does. The
  * for=jetpack query argument is not evidence of anything — anyone can send it.
  * Jetpack's own check verifies the signature, body hash, timestamp and nonce
- * against the token this site holds, and Jetpack calls it the same way from
- * several of its packages, so asking again inside one request is safe.
+ * against the token this site holds.
+ *
+ * Asking again inside one request is safe, although Jetpack has already
+ * verified it by the time a method runs and verification uses the nonce up.
+ * The used-nonce list is a static on Jetpack's Nonce_Handler, kept "to keep the
+ * nonces accessible between the Nonce_Handler instances", so a second manager
+ * gets the first answer back rather than an invalid-nonce error. Jetpack relies
+ * on that itself: Jetpack_XMLRPC_Methods::json_api() builds a new manager and
+ * verifies again from inside a method handler. A Jetpack old enough to lack
+ * that list would fail the second check, and multicall would stay refused.
  *
  * Fails closed. If the method is missing, returns an error, or throws, the
  * request is not verified and multicall stays refused; Site Health reports the
