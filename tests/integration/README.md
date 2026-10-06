@@ -24,6 +24,12 @@ does, not what any plugin claims. That is what makes it a comparison tool. The
 teardown half of [`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md)
 came from running it against ten plugins on one install.
 
+**`assert-multicall-refusal.sh`** — is a refused `system.multicall` a fault a
+client can read? Sends an unsigned multicall to `xmlrpc.php?for=jetpack` and
+asserts HTTP 200 with fault `-32601`. Needs only `PROBE_URL`, so it runs against
+a live site as well as a lab. It cannot check that a request WordPress.com
+really signed gets through; the script's header says how to check that half.
+
 **`probe-updates.sh`** — which core release would this site install, and does any
 screen the plugin owns say anything true about the release it is running? A
 different question of a different field, and the two halves of it are separate:

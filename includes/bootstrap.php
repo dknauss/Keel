@@ -201,26 +201,9 @@ function keel_defaults_bootstrap() {
 			}
 
 			if ( ! keel_defaults_enabled( 'xmlrpc_allow_multicall' ) ) {
-				if ( ! class_exists( 'Keel_Multicall_Disabled_Server' ) ) {
-					/**
-					 * Drop-in that refuses only system.multicall.
-					 *
-					 * WordPress 4.4 prevented it from being used as a password-guessing
-					 * multiplier, so refusing it now is modest defence-in-depth against
-					 * general batching, not a password control.
-					 */
-					class Keel_Multicall_Disabled_Server extends wp_xmlrpc_server {
-						/**
-						 * Refuse batched (multicall) requests.
-						 *
-						 * @param array $methodcalls Boxcarred method calls.
-						 * @return IXR_Error
-						 */
-						public function multiCall( $methodcalls ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Overrides a core method name.
-							return new IXR_Error( 405, 'system.multicall is disabled on this site.' );
-						}
-					}
-				}
+				// In its own file so it can be loaded, and tested, without a closure
+				// around it. It lets a request through only when Jetpack verifies it.
+				require_once __DIR__ . '/class-keel-multicall-disabled-server.php';
 				return 'Keel_Multicall_Disabled_Server';
 			}
 

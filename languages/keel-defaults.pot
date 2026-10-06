@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-27T00:33:11+00:00\n"
+"POT-Creation-Date: 2026-10-06T04:16:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -17,7 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: keel.php
 #: includes/site-health.php:21
-#: includes/site-health.php:184
+#: includes/site-health.php:251
 msgid "Keel Defaults"
 msgstr ""
 
@@ -253,7 +253,7 @@ msgid "This version of WordPress core is not currently flagged as insecure"
 msgstr ""
 
 #: includes/backports.php:828
-#: includes/site-health.php:243
+#: includes/site-health.php:310
 msgid "Security"
 msgstr ""
 
@@ -526,7 +526,7 @@ msgstr ""
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
 
-#: includes/bootstrap.php:285
+#: includes/bootstrap.php:268
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
@@ -652,44 +652,45 @@ msgstr ""
 msgid "Save network policy"
 msgstr ""
 
-#: includes/security.php:202
+#: includes/security.php:322
 msgid "Jetpack is active on this site. It uses XML-RPC for its WordPress.com connection, so blocking the endpoint will break it. Leave this off unless connection and feature testing proves Jetpack no longer needs XML-RPC."
 msgstr ""
 
-#: includes/security.php:495
+#: includes/security.php:615
 msgid "<strong>Error:</strong> Enter a password."
 msgstr ""
 
-#: includes/security.php:504
+#: includes/security.php:624
 msgid "<strong>Error:</strong> That password is too long."
 msgstr ""
 
-#: includes/security.php:511
+#: includes/security.php:631
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/security.php:544
+#: includes/security.php:664
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/security.php:565
+#: includes/security.php:685
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/security.php:584
+#: includes/security.php:704
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/security.php:760
+#: includes/security.php:880
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
 #: includes/settings-page.php:21
 #: includes/settings-page.php:838
-#: includes/site-health.php:361
-#: includes/site-health.php:484
+#: includes/site-health.php:62
+#: includes/site-health.php:428
+#: includes/site-health.php:551
 msgid "Keel"
 msgstr ""
 
@@ -777,7 +778,7 @@ msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts,
 msgstr ""
 
 #: includes/settings-page.php:167
-msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability."
+msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability. WordPress.com uses multicall to manage a site through Jetpack, so Keel lets through the requests Jetpack verifies as signed by WordPress.com even while multicall is off."
 msgstr ""
 
 #: includes/settings-page.php:176
@@ -891,221 +892,271 @@ msgstr ""
 msgid "Password breach screening"
 msgstr ""
 
-#: includes/site-health.php:47
+#: includes/site-health.php:37
+msgid "Jetpack and XML-RPC"
+msgstr ""
+
+#: includes/site-health.php:59
+msgid "Jetpack can reach this site over XML-RPC"
+msgstr ""
+
+#: includes/site-health.php:65
+msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. Requests that Jetpack verifies as signed by WordPress.com are let through, so the connection keeps working. Every other multicall is still refused."
+msgstr ""
+
+#: includes/site-health.php:70
+msgid "Batched XML-RPC requests (system.multicall) are allowed on this site, so the requests WordPress.com sends through Jetpack are not affected."
+msgstr ""
+
+#: includes/site-health.php:75
+msgid "Jetpack can still report itself as connected while this is happening, because it checks the connection from this site outwards. On WordPress.com, the plugin list, settings changes and other actions on this site will fail."
+msgstr ""
+
+#: includes/site-health.php:79
+msgid "Jetpack is connected, but the XML-RPC endpoint is blocked"
+msgstr ""
+
+#. translators: %s: link to the XML-RPC Endpoint setting.
+#: includes/site-health.php:82
+#, php-format
+msgid "WordPress.com reaches this site through XML-RPC, and Keel is set to refuse every XML-RPC request. Turn off the block under %s, or disconnect Jetpack if it is not needed."
+msgstr ""
+
+#: includes/site-health.php:83
+#: includes/strings.php:48
+msgid "XML-RPC Endpoint"
+msgstr ""
+
+#: includes/site-health.php:91
+msgid "Requests from WordPress.com to Jetpack are being refused"
+msgstr ""
+
+#. translators: %s: link to the XML-RPC Multicall setting.
+#: includes/site-health.php:94
+#, php-format
+msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognise requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
+msgstr ""
+
+#: includes/site-health.php:95
+#: includes/strings.php:43
+msgid "XML-RPC Multicall"
+msgstr ""
+
+#: includes/site-health.php:114
 msgid "On"
 msgstr ""
 
-#: includes/site-health.php:47
+#: includes/site-health.php:114
 msgid "Off"
 msgstr ""
 
-#: includes/site-health.php:51
+#: includes/site-health.php:118
 msgid "Unchanged"
 msgstr ""
 
-#: includes/site-health.php:57
+#: includes/site-health.php:124
 msgid "None"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:187
+#: includes/site-health.php:254
 #, php-format
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
 msgstr ""
 
-#: includes/site-health.php:188
-#: includes/site-health.php:212
+#: includes/site-health.php:255
+#: includes/site-health.php:279
 msgid "Settings → Site Defaults"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:211
+#: includes/site-health.php:278
 #, php-format
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning."
 msgstr ""
 
-#: includes/site-health.php:229
+#: includes/site-health.php:296
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:232
+#: includes/site-health.php:299
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:234
+#: includes/site-health.php:301
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:239
+#: includes/site-health.php:306
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:240
+#: includes/site-health.php:307
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:250
+#: includes/site-health.php:317
 msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:312
+#: includes/site-health.php:379
 #, php-format
 msgid "used by %s, and by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:318
+#: includes/site-health.php:385
 #, php-format
 msgid "used by %s"
 msgstr ""
 
-#: includes/site-health.php:322
+#: includes/site-health.php:389
 msgid "used by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms".
-#: includes/site-health.php:330
+#: includes/site-health.php:397
 #, php-format
 msgid "Keel setting: %1$s; also %2$s"
 msgstr ""
 
-#: includes/site-health.php:358
+#: includes/site-health.php:425
 msgid "No breach-screening failures recorded"
 msgstr ""
 
-#: includes/site-health.php:364
+#: includes/site-health.php:431
 msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
 msgstr ""
 
-#: includes/site-health.php:371
+#: includes/site-health.php:438
 msgid "Password breach screening is switched off"
 msgstr ""
 
 #. translators: %s: link to the Password Strength setting.
-#: includes/site-health.php:374
+#: includes/site-health.php:441
 #, php-format
 msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
 msgstr ""
 
-#: includes/site-health.php:375
+#: includes/site-health.php:442
 #: includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
-#: includes/site-health.php:393
+#: includes/site-health.php:460
 msgid "Password breach screening is switched off in code"
 msgstr ""
 
-#: includes/site-health.php:395
+#: includes/site-health.php:462
 msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
 msgstr ""
 
-#: includes/site-health.php:414
+#: includes/site-health.php:481
 msgid "Password breach screening is working"
 msgstr ""
 
 #. translators: %s: human-readable time difference, e.g. "2 hours".
-#: includes/site-health.php:417
+#: includes/site-health.php:484
 #, php-format
 msgid "New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago."
 msgstr ""
 
-#: includes/site-health.php:424
+#: includes/site-health.php:491
 msgid "New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password."
 msgstr ""
 
-#: includes/site-health.php:430
+#: includes/site-health.php:497
 msgid "the service could not be reached"
 msgstr ""
 
-#: includes/site-health.php:431
+#: includes/site-health.php:498
 msgid "the reply was cut short before it could be read"
 msgstr ""
 
-#: includes/site-health.php:432
+#: includes/site-health.php:499
 msgid "the reply was not the list of hashes it should have been, which usually means something answered on the service's behalf — a captive portal, or a filtering proxy"
 msgstr ""
 
 #. translators: %s: HTTP status code.
-#: includes/site-health.php:442
+#: includes/site-health.php:509
 #, php-format
 msgid "the service answered with HTTP %s"
 msgstr ""
 
-#: includes/site-health.php:446
+#: includes/site-health.php:513
 msgid "the lookup did not complete"
 msgstr ""
 
-#: includes/site-health.php:450
+#: includes/site-health.php:517
 msgid "Passwords are not being screened against known breaches"
 msgstr ""
 
 #. translators: %s: short reason the lookup failed.
-#: includes/site-health.php:454
+#: includes/site-health.php:521
 #, php-format
 msgid "The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check."
 msgstr ""
 
-#: includes/site-health.php:458
+#: includes/site-health.php:525
 msgid "This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person's own name and email — is unaffected and still applies."
 msgstr ""
 
-#: includes/site-health.php:460
+#: includes/site-health.php:527
 msgid "If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds."
 msgstr ""
 
-#: includes/site-health.php:487
+#: includes/site-health.php:554
 msgid "Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there's a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose."
 msgstr ""
 
-#: includes/site-health.php:487
+#: includes/site-health.php:554
 msgid "Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too."
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/site-health.php:503
+#: includes/site-health.php:570
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:505
+#: includes/site-health.php:572
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:510
+#: includes/site-health.php:577
 msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:510
+#: includes/site-health.php:577
 msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:529
+#: includes/site-health.php:596
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:559
+#: includes/site-health.php:626
 msgid "A Keel setting is also affected by code Keel cannot identify"
 msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:573
+#: includes/site-health.php:640
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:590
+#: includes/site-health.php:657
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:592
+#: includes/site-health.php:659
 msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:596
+#: includes/site-health.php:663
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
@@ -1157,20 +1208,12 @@ msgstr ""
 msgid "Off by default. Removes credential-authenticated <code>wp.*/metaWeblog/MT/blogger</code> methods and the RSD link. Leave it on while Jetpack is active unless connection and feature testing proves it unnecessary."
 msgstr ""
 
-#: includes/strings.php:43
-msgid "XML-RPC Multicall"
-msgstr ""
-
 #: includes/strings.php:44
 msgid "Allow <code>system.multicall</code>"
 msgstr ""
 
 #: includes/strings.php:45
-msgid "Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. However, almost nothing legitimately uses this method, so leaving it off is safe."
-msgstr ""
-
-#: includes/strings.php:48
-msgid "XML-RPC Endpoint"
+msgid "Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. Jetpack does rely on it: WordPress.com manages a connected site through multicall. So while this is off, Keel still lets through the requests Jetpack verifies as signed by WordPress.com, and refuses the rest."
 msgstr ""
 
 #: includes/strings.php:49
