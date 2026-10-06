@@ -31,7 +31,9 @@ AX is a local-only repository with no pull requests or issues. Reference an AX c
 by its commit hash only, track a port that is still to do in a Keel issue, and keep
 anything about a client, site or deployment out of this repository. Older lines that
 cite `we-are-pixel/pixel-experience#N` or `PX commit <hash>` refer to the predecessor
-and no longer resolve; the checker does not accept either form on a new pull request.
+and no longer resolve. Do not write either on a new pull request. The checker rejects
+`PX commit`. It cannot reject the old repository reference, because it accepts any
+`owner/repo#N` without knowing which repositories exist, so that one is on the author.
 
 ## The check
 
