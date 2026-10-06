@@ -52,15 +52,15 @@ $detail = trim( $parts[2] );
 // change there is named by its commit hash, written "PX commit <hash>".
 // A commit is a finished port, so it counts for "ported" only. "pending" needs
 // somewhere the remaining work is tracked, which a commit is not.
-$tracker = '(?:\b[\w.-]+/[\w.-]+#\d+\b|https://github\.com/[\w.-]+/[\w.-]+/(?:pull|issues|commit)/\w+)';
-$ref     = '~(?:' . $tracker . '|\bPX commit [0-9a-f]{7,40}\b)~i';
+$tracker = '(?:\b[\w.-]+/[\w.-]+#\d+\b|https://github\.com/[\w.-]+/[\w.-]+/(?:pull|issues)/\d+)';
+$ref     = '~(?:' . $tracker . '|https://github\.com/[\w.-]+/[\w.-]+/commit/[0-9a-f]{7,40}|\bPX commit [0-9a-f]{7,40}\b)~i';
 
 if ( 'ported' === $kind && ! preg_match( $ref, $detail ) ) {
 	$reject( '"ported" needs the counterpart change as owner/repo#N, a GitHub link, or "PX commit <hash>".' );
 }
 
 if ( 'pending' === $kind && ! preg_match( '~' . $tracker . '~', $detail ) ) {
-	$reject( '"pending" needs where the port is tracked, as owner/repo#N or a GitHub link. A port already made in PX is "ported — PX commit <hash>".' );
+	$reject( '"pending" needs where the port is tracked, as owner/repo#N or a link to an issue or pull request. A commit is a finished port: use "ported".' );
 }
 
 /*

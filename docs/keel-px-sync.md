@@ -36,10 +36,11 @@ that and no longer resolve.
 request event, including edits to the description. It fails when the line is
 missing, repeated, unfilled, or lacks what its kind needs:
 
-- `ported` needs the finished change: `owner/repo#N`, a GitHub link, or
-  `PX commit <hash>`.
-- `pending` needs a tracker for the work that is left: `owner/repo#N` or a GitHub
-  link. A commit hash is not accepted here, because a commit is a finished port.
+- `ported` needs the finished change: `owner/repo#N`, a link to a pull request,
+  issue or commit, or `PX commit <hash>`.
+- `pending` needs a tracker for the work that is left: `owner/repo#N`, or a link to
+  an issue or pull request. A commit, as a hash or a link, is not accepted here,
+  because a commit is a finished port.
 - `not applicable` needs a reason.
 
 Bot pull requests are exempt.
