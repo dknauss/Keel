@@ -87,6 +87,7 @@ $invalid = array(
 	'an unknown kind'                 => array( "Counterpart: maybe — later\n", '"ported", "pending", or "not applicable"' ),
 	'ported without a reference'      => array( "Counterpart: ported — the PX one\n", 'owner/repo#N' ),
 	'pending without a tracker'       => array( "Counterpart: pending — later\n", 'owner/repo#N' ),
+	'pending, citing a PX commit'     => array( "Counterpart: pending — PX commit f4d2a61\n", 'where the port is tracked' ),
 	'a PX commit with no hash'        => array( "Counterpart: ported — PX commit\n", 'PX commit' ),
 	'a PX commit that is not a hash'  => array( "Counterpart: ported — PX commit latest\n", 'PX commit' ),
 	'not applicable without a reason' => array( "Counterpart: not applicable — n/a\n", 'reason' ),
