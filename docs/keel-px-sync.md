@@ -9,12 +9,13 @@ so a bug fixed here could stay live in PX until someone thought to check.
 
 The description carries a `## Counterpart` section with exactly one line:
 
-    Counterpart: ported — we-are-pixel/pixel-experience#344
+    Counterpart: ported — PX commit 1a2b3c4
     Counterpart: pending — dknauss/Keel#123 (the port, and what is left)
     Counterpart: not applicable — Keel-only WordPress.org deploy
 
-- **ported** names the pull request or commit in the other repository carrying the
-  same change, open or merged.
+- **ported** names the change in the other repository carrying the same change. From
+  Keel that is `PX commit <hash>`; from PX it is the Keel pull request,
+  `dknauss/Keel#123`.
 - **pending** names where the port is tracked, so it can be found again. "Later" is
   not a tracker.
 - **not applicable** gives the reason in a few words. Most pull requests are this,
@@ -23,15 +24,19 @@ The description carries a `## Counterpart` section with exactly one line:
 Decide by whether the other plugin has the same code path, not by whether the diff
 would apply to it cleanly.
 
-PX is private. Reference its pull requests by number only, and keep anything about a
-PX client or deployment out of this repository.
+PX is private, and since October 2026 it is a local-only repository with no pull
+requests or issues. Reference a PX change by its commit hash only, track a port that
+is still to do in a Keel issue, and keep anything about a PX client or deployment out
+of this repository. Older lines that cite `we-are-pixel/pixel-experience#N` predate
+that and no longer resolve.
 
 ## The check
 
 `.github/workflows/counterpart.yml` runs `bin/check-counterpart` on every pull
 request event, including edits to the description. It fails when the line is
 missing, repeated, unfilled, or lacks what its kind needs: a reference for `ported`
-and `pending`, a reason for `not applicable`. Bot pull requests are exempt.
+and `pending` (`owner/repo#N`, a GitHub link, or `PX commit <hash>`), a reason for
+`not applicable`. Bot pull requests are exempt.
 `tests/counterpart-check.php` covers the accepted and rejected forms. PX carries the
 same checker, byte for byte.
 

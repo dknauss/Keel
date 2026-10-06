@@ -70,6 +70,9 @@ $valid = array(
 	'not applicable, with a reason'        => "Counterpart: not applicable — Keel-only test harness\n",
 	'any case, and an ASCII hyphen'        => "Counterpart: Not applicable - docs only\n",
 	'the template examples in a comment'   => $template_comment . "Counterpart: ported — dknauss/Keel#196\n",
+	// PX is a local-only repository now: no pull requests, so a commit is the reference.
+	'ported, with a PX commit'             => "Counterpart: ported — PX commit f4d2a61 (the fix; the Site Health check is queued)\n",
+	'ported, with a full PX commit hash'   => "Counterpart: ported — PX commit f4d2a61c0de1234567890abcdef1234567890abc\n",
 );
 
 foreach ( $valid as $label => $body ) {
@@ -84,6 +87,8 @@ $invalid = array(
 	'an unknown kind'                 => array( "Counterpart: maybe — later\n", '"ported", "pending", or "not applicable"' ),
 	'ported without a reference'      => array( "Counterpart: ported — the PX one\n", 'owner/repo#N' ),
 	'pending without a tracker'       => array( "Counterpart: pending — later\n", 'owner/repo#N' ),
+	'a PX commit with no hash'        => array( "Counterpart: ported — PX commit\n", 'PX commit' ),
+	'a PX commit that is not a hash'  => array( "Counterpart: ported — PX commit latest\n", 'PX commit' ),
 	'not applicable without a reason' => array( "Counterpart: not applicable — n/a\n", 'reason' ),
 	'a template placeholder left in'  => array( "Counterpart: ported — <owner/repo#N>\n", 'placeholder' ),
 );
