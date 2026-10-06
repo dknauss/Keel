@@ -164,7 +164,7 @@ function keel_defaults_add_help_tab() {
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability.', 'keel-defaults' ),
+					__( 'The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability. WordPress.com uses multicall to manage a site through Jetpack, so Keel lets through the requests Jetpack verifies as signed by WordPress.com even while multicall is off.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>',
 		)

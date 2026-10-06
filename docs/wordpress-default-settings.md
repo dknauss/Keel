@@ -120,13 +120,27 @@ XML-RPC request later attempts fail without testing more credentials. Multicall 
 pingbacks are also directly callable and do not depend on it. See
 [WordPress Trac #34336](https://core.trac.wordpress.org/ticket/34336).
 
+Two things the replacement server has to get right, both found on a live Jetpack site:
+
+- **Let Jetpack's own requests through.** WordPress.com manages a connected site with
+  `system.multicall`, so refusing every multicall leaves the site reporting itself connected while
+  WordPress.com can no longer list plugins or save settings on it. Ask Jetpack whether it verifies
+  the request as signed (`Automattic\Jetpack\Connection\Manager::verify_xml_rpc_signature()`) and
+  run the real `multiCall()` only then. Do not decide on the `for=jetpack` query argument: anyone
+  can send it.
+- **Do not use an HTTP status as the fault code.** `add_filter( 'xmlrpc_enabled', '__return_false' )`
+  makes `wp_xmlrpc_server::error()` send the fault code as the response status. A refusal coded
+  `405` therefore goes out as HTTP 405, and clients report a transport failure instead of reading
+  the fault. Keel uses `-32601`, XML-RPC's "requested method not found", which is not a status
+  code, so the response stays HTTP 200 with an ordinary fault.
+
 ```php
 add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
     if ( 'yes' === get_option( 'keel_block_xmlrpc_endpoint', 'no' ) ) {
         return 'Keel_Blocked_XMLRPC_Server';     // serve_request() → 403 for everything
     }
     if ( 'yes' !== get_option( 'keel_xmlrpc_allow_multicall', 'no' ) ) {
-        return 'Keel_Multicall_Disabled_Server'; // extends wp_xmlrpc_server, overrides multiCall() → IXR_Error
+        return 'Keel_Multicall_Disabled_Server'; // overrides multiCall(): Jetpack-verified → parent, else IXR_Error( -32601 )
     }
     return $class;
 } );
@@ -134,9 +148,12 @@ add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
 
 > **Jetpack:** Jetpack currently requires a publicly accessible XML-RPC endpoint, so never apply
 > the blanket 403 on a Jetpack site. Turning off incoming pingbacks is the low-risk change. Removing
-> core publishing methods or refusing multicall leaves `jetpack.*` registrations untouched, but
-> method registration alone is not a compatibility guarantee; test the Jetpack connection and the
-> features the site uses. Keep Remote Publishing enabled until that testing proves it unnecessary.
+> core publishing methods leaves `jetpack.*` registrations untouched, but method registration alone
+> is not a compatibility guarantee; test the Jetpack connection and the features the site uses.
+> Keep Remote Publishing enabled until that testing proves it unnecessary. **Refusing multicall is
+> not harmless on a Jetpack site**: an earlier version of this note said it was, and it cut a
+> connected site off from WordPress.com. Keel now lets Jetpack-verified multicalls through, and its
+> Site Health check reports a connected Jetpack site whose requests are still being refused.
 > A plugin-level 403 still boots WordPress and occupies PHP; only an edge block prevents the request
 > from reaching PHP. See [Jetpack's current requirements](https://jetpack.com/support/getting-started-with-jetpack/).
 > **`demo.*`:** the inert `demo.sayHello`/`demo.addTwoNumbers` methods still confirm XML-RPC is

@@ -215,6 +215,96 @@ function keel_defaults_jetpack_active() {
 }
 
 /**
+ * Fault code for a refused system.multicall.
+ *
+ * XML-RPC's "requested method not found". Not 405: with remote publishing off,
+ * core sends the fault code as the HTTP status, and a real status code turned
+ * an ordinary refusal into a transport failure.
+ */
+const KEEL_DEFAULTS_MULTICALL_FAULT = -32601;
+
+/**
+ * Jetpack's connection manager, when this Jetpack has one Keel can use.
+ *
+ * @return object|null
+ */
+function keel_defaults_jetpack_manager() {
+	$class = 'Automattic\\Jetpack\\Connection\\Manager';
+
+	return class_exists( $class ) ? new $class() : null;
+}
+
+/**
+ * Whether Jetpack verifies the current request as signed by WordPress.com.
+ *
+ * This is what lets a Jetpack multicall through, and nothing weaker does. The
+ * for=jetpack query argument is not evidence of anything — anyone can send it.
+ * Jetpack's own check verifies the signature, body hash, timestamp and nonce
+ * against the token this site holds, and Jetpack calls it the same way from
+ * several of its packages, so asking again inside one request is safe.
+ *
+ * Fails closed. If the method is missing, returns an error, or throws, the
+ * request is not verified and multicall stays refused; Site Health reports the
+ * case where Keel cannot ask at all.
+ *
+ * @return bool
+ */
+function keel_defaults_jetpack_request_verified() {
+	$manager = keel_defaults_jetpack_manager();
+
+	if ( null === $manager || ! method_exists( $manager, 'verify_xml_rpc_signature' ) ) {
+		return false;
+	}
+
+	try {
+		$verified = $manager->verify_xml_rpc_signature();
+	} catch ( Throwable $e ) {
+		return false;
+	}
+
+	return is_array( $verified ) && ! empty( $verified );
+}
+
+/**
+ * What Keel's XML-RPC settings mean for a Jetpack connection on this site.
+ *
+ * - `''`         no connected Jetpack, so nothing to report
+ * - `'blocked'`  the endpoint is blocked: WordPress.com cannot reach the site
+ * - `'open'`     multicall is allowed for everyone
+ * - `'verified'` multicall is refused, except requests Jetpack verifies
+ * - `'refused'`  multicall is refused and this Jetpack cannot verify requests
+ *
+ * @return string
+ */
+function keel_defaults_jetpack_xmlrpc_state() {
+	if ( ! keel_defaults_jetpack_active() ) {
+		return '';
+	}
+
+	$manager = keel_defaults_jetpack_manager();
+
+	if ( null !== $manager && method_exists( $manager, 'is_connected' ) ) {
+		try {
+			if ( ! $manager->is_connected() ) {
+				return '';
+			}
+		} catch ( Throwable $e ) {
+			unset( $e ); // Unknown is treated as connected: the report errs towards saying something.
+		}
+	}
+
+	if ( keel_defaults_enabled( 'block_xmlrpc_endpoint' ) ) {
+		return 'blocked';
+	}
+
+	if ( keel_defaults_enabled( 'xmlrpc_allow_multicall' ) ) {
+		return 'open';
+	}
+
+	return ( null !== $manager && method_exists( $manager, 'verify_xml_rpc_signature' ) ) ? 'verified' : 'refused';
+}
+
+/**
  * The Jetpack warning for the XML-RPC endpoint block, when it applies.
  *
  * Returned for the settings screen rather than written into the help text: it is

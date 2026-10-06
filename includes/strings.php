@@ -42,7 +42,7 @@ function keel_defaults_strings() {
 		'xmlrpc_allow_multicall'          => array(
 			'label'     => __( 'XML-RPC Multicall', 'keel-defaults' ),
 			'statement' => __( 'Allow <code>system.multicall</code>', 'keel-defaults' ),
-			'help'      => __( 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. However, almost nothing legitimately uses this method, so leaving it off is safe.', 'keel-defaults' ),
+			'help'      => __( 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. Jetpack does rely on it: WordPress.com manages a connected site through multicall. So while this is off, Keel still lets through the requests Jetpack verifies as signed by WordPress.com, and refuses the rest.', 'keel-defaults' ),
 		),
 		'block_xmlrpc_endpoint'           => array(
 			'label'     => __( 'XML-RPC Endpoint', 'keel-defaults' ),

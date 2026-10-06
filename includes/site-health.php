@@ -29,7 +29,74 @@ function keel_defaults_site_health_tests( $tests ) {
 		'label' => __( 'Password breach screening', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_breach_screening',
 	);
+
+	// Only where there is a Jetpack connection to say something about. A check
+	// that passes on every site without Jetpack is noise in the passed list.
+	if ( '' !== keel_defaults_jetpack_xmlrpc_state() ) {
+		$tests['direct']['keel_defaults_jetpack_xmlrpc'] = array(
+			'label' => __( 'Jetpack and XML-RPC', 'keel-defaults' ),
+			'test'  => 'keel_defaults_site_health_jetpack_xmlrpc',
+		);
+	}
+
 	return $tests;
+}
+
+/**
+ * Report whether Keel's XML-RPC settings leave Jetpack reachable.
+ *
+ * Jetpack goes on reporting itself connected when WordPress.com can no longer
+ * call into the site: the connection is checked from the site outwards, and the
+ * refusal happens on the way in. So the site looks healthy while the plugin
+ * list and settings writes fail on WordPress.com. Nothing else on the site
+ * surfaces that, which is why this is a check rather than a line of help text.
+ *
+ * @return array Site Health result.
+ */
+function keel_defaults_site_health_jetpack_xmlrpc() {
+	$state  = keel_defaults_jetpack_xmlrpc_state();
+	$result = array(
+		'label'       => __( 'Jetpack can reach this site over XML-RPC', 'keel-defaults' ),
+		'status'      => 'good',
+		'badge'       => array(
+			'label' => __( 'Keel', 'keel-defaults' ),
+			'color' => 'blue',
+		),
+		'description' => '<p>' . esc_html__( 'Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. Requests that Jetpack verifies as signed by WordPress.com are let through, so the connection keeps working. Every other multicall is still refused.', 'keel-defaults' ) . '</p>',
+		'test'        => 'keel_defaults_jetpack_xmlrpc',
+	);
+
+	if ( 'open' === $state ) {
+		$result['description'] = '<p>' . esc_html__( 'Batched XML-RPC requests (system.multicall) are allowed on this site, so the requests WordPress.com sends through Jetpack are not affected.', 'keel-defaults' ) . '</p>';
+
+		return $result;
+	}
+
+	$silent = esc_html__( 'Jetpack can still report itself as connected while this is happening, because it checks the connection from this site outwards. On WordPress.com, the plugin list, settings changes and other actions on this site will fail.', 'keel-defaults' );
+
+	if ( 'blocked' === $state ) {
+		$result['status']      = 'critical';
+		$result['label']       = __( 'Jetpack is connected, but the XML-RPC endpoint is blocked', 'keel-defaults' );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: %s: link to the XML-RPC Endpoint setting. */
+			esc_html__( 'WordPress.com reaches this site through XML-RPC, and Keel is set to refuse every XML-RPC request. Turn off the block under %s, or disconnect Jetpack if it is not needed.', 'keel-defaults' ),
+			keel_defaults_setting_link( 'block_xmlrpc_endpoint', __( 'XML-RPC Endpoint', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p><p>' . $silent . '</p>';
+
+		return $result;
+	}
+
+	if ( 'refused' === $state ) {
+		$result['status']      = 'recommended';
+		$result['label']       = __( 'Requests from WordPress.com to Jetpack are being refused', 'keel-defaults' );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: %s: link to the XML-RPC Multicall setting. */
+			esc_html__( 'Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognise requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s.', 'keel-defaults' ),
+			keel_defaults_setting_link( 'xmlrpc_allow_multicall', __( 'XML-RPC Multicall', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p><p>' . $silent . '</p>';
+	}
+
+	return $result;
 }
 
 /**

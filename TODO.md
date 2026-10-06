@@ -41,6 +41,39 @@ into ROADMAP.md or here.
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
 
+## Priority fix — multicall refusal breaks Jetpack
+
+Found 2026-10-05 on a live WordPress.com Atomic site (Jetpack 16.3-a.7, Keel with the
+shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 work.
+
+- [x] **Stop the multicall refusal from cutting a Jetpack site off from WordPress.com**
+  - Evidence. WordPress.com's calls into the site failed with "transport error - HTTP
+    status code was not 200 (405)": the plugin list and the newsletter settings write
+    both failed. A `system.multicall` POST to `xmlrpc.php?for=jetpack` returned HTTP 405
+    with the fault "system.multicall is disabled on this site." Jetpack's server-to-site
+    requests use multicall, so the connection looked healthy from the site while
+    WordPress.com could no longer act on it.
+  - Decided: let Jetpack's own requests through. A multicall runs only when Jetpack's
+    `Manager::verify_xml_rpc_signature()` verifies the request as signed by
+    WordPress.com; `for=jetpack` decides nothing. It fails closed if that check is
+    missing, errors or throws.
+  - Decided: a refusal is an ordinary fault on HTTP 200. The fault code is `-32601`,
+    not 405, because with remote publishing off core sends the fault code as the HTTP
+    status. Pinned in `tests/xmlrpc-multicall.php` and, against a running site, in
+    `tests/integration/assert-multicall-refusal.sh`.
+  - Site Health has a "Jetpack and XML-RPC" check, shown only on a connected Jetpack
+    site: critical when the endpoint is blocked, recommended when this Jetpack cannot
+    verify requests.
+  - Corrected: the setting's help text and `docs/wordpress-default-settings.md`, which
+    both said refusing multicall was harmless.
+- [ ] **Confirm on the site that found it**
+  - Only WordPress.com can sign a request, so the half that matters cannot be probed
+    from outside: with the fix installed and multicall still off, the plugin list
+    loads and a settings change saves from WordPress.com.
+  - Not yet known: whether multicall was the only thing in the way. Remote publishing
+    off also removes the `wp.*` methods and keeps `xmlrpc_enabled` false; if any
+    WordPress.com call needs those, it still fails.
+
 ## Next — 0.7.0 privacy and content integrity
 
 - [ ] **Keep password-protected posts out of site search**
