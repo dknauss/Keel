@@ -34,9 +34,15 @@ that and no longer resolve.
 
 `.github/workflows/counterpart.yml` runs `bin/check-counterpart` on every pull
 request event, including edits to the description. It fails when the line is
-missing, repeated, unfilled, or lacks what its kind needs: a reference for `ported`
-and `pending` (`owner/repo#N`, a GitHub link, or `PX commit <hash>`), a reason for
-`not applicable`. Bot pull requests are exempt.
+missing, repeated, unfilled, or lacks what its kind needs:
+
+- `ported` needs the finished change: `owner/repo#N`, a GitHub link, or
+  `PX commit <hash>`.
+- `pending` needs a tracker for the work that is left: `owner/repo#N` or a GitHub
+  link. A commit hash is not accepted here, because a commit is a finished port.
+- `not applicable` needs a reason.
+
+Bot pull requests are exempt.
 `tests/counterpart-check.php` covers the accepted and rejected forms. PX carries the
 same checker, byte for byte.
 
