@@ -16,7 +16,7 @@ below; the Counterpart check fails the pull request otherwise.
   Counterpart: pending — dknauss/Keel#123 (what is left, and where it is tracked)
   Counterpart: not applicable — why AX has no such code path
 
-AX is a local-only repository: reference a change there by its commit hash only,
+AX is a private repository: reference a change there by its commit hash only,
 and keep anything about a client, site or deployment out of this public
 description. See docs/keel-sync.md.
 -->

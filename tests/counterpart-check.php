@@ -71,7 +71,7 @@ $valid = array(
 	'any case, and an ASCII hyphen'        => "Counterpart: Not applicable - docs only\n",
 	'the template examples in a comment'   => $template_comment . "Counterpart: ported — dknauss/Keel#196\n",
 	'ported, with a commit URL'            => "Counterpart: ported — https://github.com/dknauss/Keel/commit/f4d2a61\n",
-	// Agency Experience is a local-only repository: no pull requests, so a commit is the reference.
+	// Agency Experience is a private repository, so a commit is the reference.
 	'ported, with an AX commit'            => "Counterpart: ported — AX commit f4d2a61 (the fix; the Site Health check is queued)\n",
 	'ported, with a full AX commit hash'   => "Counterpart: ported — AX commit f4d2a61c0de1234567890abcdef1234567890abc\n",
 );
