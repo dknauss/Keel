@@ -92,7 +92,7 @@ $invalid = array(
 	'pending, citing a commit URL'       => array( "Counterpart: pending — https://github.com/dknauss/Keel/commit/f4d2a61\n", 'where the port is tracked' ),
 	'an AX commit with no hash'          => array( "Counterpart: ported — AX commit\n", 'AX commit' ),
 	'an AX commit that is not a hash'    => array( "Counterpart: ported — AX commit latest\n", 'AX commit' ),
-	// The predecessor's name is retired: a new line cites Agency Experience.
+	// The plugin's old name is retired: a new line cites Agency Experience.
 	'a commit under the retired PX name' => array( "Counterpart: ported — PX commit f4d2a61\n", 'AX commit' ),
 	'not applicable without a reason'    => array( "Counterpart: not applicable — n/a\n", 'reason' ),
 	'a template placeholder left in'     => array( "Counterpart: ported — <owner/repo#N>\n", 'placeholder' ),
