@@ -20,7 +20,7 @@
 #   PROBE_URL=http://127.0.0.1:9314 PROBE_PATH=/path/to/wp \
 #     bash tests/integration/assert-privacy.sh keel
 #
-#   PROBE_CONFIG_DIR=/path/to/pixel-experience/tests/probe-configs \
+#   PROBE_CONFIG_DIR=/path/to/agency-experience/tests/probe-configs \
 #     PROBE_URL=… PROBE_PATH=… bash tests/integration/assert-privacy.sh pixel-managed-platform
 #
 # A second argument selects the posture being asserted:

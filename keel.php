@@ -15,7 +15,7 @@
  * Keel is a de-branded evolution of "Better by Default" (WPYEG,
  * https://github.com/WPYEG/Better-by-Default), whose sole author also licenses the
  * portions carried over here under the GPL-2.0-or-later, with further defaults
- * adapted from the Pixel Managed Platform plugin — itself a hard fork of
+ * adapted from the Agency Experience plugin — itself a hard fork of
  * "10up Experience" by 10up (https://github.com/10up/10up-experience),
  * GPL-2.0-or-later. Original copyright is retained by the respective authors; see
  * LICENSE and the Credits section of readme.txt.

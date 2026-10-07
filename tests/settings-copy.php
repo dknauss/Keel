@@ -246,7 +246,7 @@ $copy_surfaces['help sidebar'] = $GLOBALS['keel_test_screen']->sidebar;
 /*
  * The same lesson as the help tabs, learned again on a different surface. The
  * Updates-screen offer is prose in a PHP file, not a schema string or a help tab, so
- * two retired phrases lived there through a clean run of this scan. PX's sibling guard
+ * two retired phrases lived there through a clean run of this scan. AX's sibling guard
  * walks every PHP file under includes/ for exactly this reason; this one now does too.
  */
 foreach ( glob( dirname( __DIR__ ) . '/includes/*.php' ) as $include_path ) {

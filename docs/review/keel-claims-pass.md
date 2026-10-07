@@ -449,5 +449,5 @@ both the renderer and the test read from the same source.
 ## Review complete
 
 All four passes are done for Keel: documentation claims, test integrity,
-pattern conformance, and complexity. Remaining: the same sweep for BBD, then PX
+pattern conformance, and complexity. Remaining: the same sweep for BBD, then AX
 last, since it is undergoing its own intensive review.
