@@ -44,7 +44,7 @@ there: a successful install leaves the site secure, so the panel carrying the re
 correctly stops rendering — meaning the better the outcome, the more certain the
 silence. [#171](https://github.com/dknauss/Keel/pull/171) made the request carry the
 screen it came from, as a key into a fixed map rather than anything the form supplies,
-and rendered the result outside the offer. PX had inherited both halves and was fixed
+and rendered the result outside the offer. AX had inherited both halves and was fixed
 alongside it.
 
 ## Now — observe 0.6.3 in the field
@@ -552,7 +552,7 @@ Plugin Review requirements, not niceties.
 - [x] **Test spine** — done 2026-08-04 (keel#24), and the item as written was wrong.
       It said the regression suite, metrics guard, doc-coverage and badge sync "still
       reference the pre-rename tree". Nothing did. The sentence was carried over from the
-      scope document, which describes Pixel's tooling: Keel has no metrics guard and no
+      scope document, which describes Agency Experience's tooling: Keel has no metrics guard and no
       badge to re-point, and the doc-coverage check (`tests/docs-consistency.php`) was
       written here from scratch.
 
@@ -701,7 +701,7 @@ Plugin Review requirements, not niceties.
       `block_xmlrpc_endpoint`'s description drops from 62 words to 45 and points at
       the tab. Guarded four ways in `tests/settings-copy.php`, each break-tested.
 
-      **Pixel still needs the paragraph moved** into the XML-RPC tab it already has.
+      **Agency Experience still needs the paragraph moved** into the XML-RPC tab it already has.
       Tracked there, not here.
 
 
@@ -714,7 +714,7 @@ Plugin Review requirements, not niceties.
 
       **The better fix turned out not to be the report.** Better by Default asked
       whether the setting says anything WordPress does not already do and stopped
-      registering when it did not (WPYEG#41); Keel and Pixel followed (keel#39,
+      registering when it did not (WPYEG#41); Keel and Agency Experience followed (keel#39,
       px#241). `auth_cookie_expiration` went from three contestants at the same
       priority to **zero at defaults**, and the check now reports it uncontested
       because the conflict shrank rather than because it stopped looking.
@@ -776,12 +776,12 @@ Plugin Review requirements, not niceties.
       guard retired claims independently, and `tests/integration/assert-privacy.sh`
       now runs the *same behavioural probes* against any of the three by slug, which
       is the cross-repo check that was missing — an author-identity leak lived in two
-      plugins while the fix sat in the third. Pixel's probe config stays outside this
+      plugins while the fix sat in the third. Agency Experience's probe config stays outside this
       repo (`PROBE_CONFIG_DIR`), since it is private and Keel is public.
 
       What remains is the shared *fixture*: retired phrases and copy conventions are
       still duplicated per repo, so retiring a phrase once does not retire it
-      everywhere. Pixel still has no copy guard at all.
+      everywhere. Agency Experience still has no copy guard at all.
 
 - [~] **An accessibility sweep of the settings screen.** Static sweep done
       2026-08-09 (keel#74). The four surfaces below were audited against WCAG 2.1
@@ -1231,7 +1231,7 @@ Recording these so they stop being re-litigated:
 - **Plugin/theme governance screens.** Dropped deliberately — blocking admin screens is a
   wordpress.org review problem, and it is not what a defaults plugin is for.
 - **Growing past Better by Default scale.** The budget is roughly 2.5–3.5k LOC against
-  the 1,329-LOC base. Pixel Managed Platform is ~24k. The smallness is the point: every
+  the 1,329-LOC base. Agency Experience is ~24k. The smallness is the point: every
   default is one schema entry plus one bootstrap `if`-block.
 - **Quiet holes in security toggles.** Rewritten 2026-08-04, after measurement showed the
   absolute version was not supported by the facts. It read: blocking anonymous REST takes

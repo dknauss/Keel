@@ -241,6 +241,16 @@ active work belongs in **Now** or **Next**, above.
 
 ## Content / docs
 
+- [ ] **Finish the Agency Experience rename in the two sync docs that still carry
+      the old name.** Keel's own references are renamed, and `docs/keel-sync.md`
+      already names AX. Still to update:
+      - Agency Experience's copy of the sync process, `docs/keel-px-sync.md`, and its
+        feature matrix, `docs/keel-px-feature-matrix.md` — rename both files and the
+        name inside them, then point `docs/keel-sync.md` and
+        `docs/competitive-teardown-matrix.md` at the new matrix filename.
+      - The maintainer's agent instructions, whose sync section still uses the old
+        name and the old doc paths.
+
 - [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
       The current line is *Sensible defaults for steady sites.*, and `branding/README.md`
       records that the waterline in the mark is drawn as the "even keel" cue behind it.
@@ -305,7 +315,7 @@ active work belongs in **Now** or **Next**, above.
       says how much of the hash is sent, says what happens when the API is unreachable,
       and links the operator's privacy policy.
 
-## Feature ports (from pixel-experience) — see scope §13
+## Feature ports (from Agency Experience) — see scope §13
 
 - [x] `limit_unfiltered_html_to_admins` — first port; `user_has_cap` filter, default on,
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
@@ -315,19 +325,19 @@ active work belongs in **Now** or **Next**, above.
       `client`), and a plugin that silently refuses to create a user called
       marketing has decided something on the owner's behalf without saying so.
       Core's `illegal_user_logins` does it in one call with a list the site chose;
-      readme.txt carries the snippet. Kept in Pixel Managed Platform, where a
+      readme.txt carries the snippet. Kept in Agency Experience, where a
       fleet-wide house policy is the point — and there the login-blocking half is
       opt-in with the list and the affected accounts shown before you switch it on.
 - [x] force classic editor — new "Editor" group; 4 filters (use_block_editor_for_post
       [+_post_type], gutenberg_can_edit_post, use_widgets_block_editor). Test: tests/force-classic-editor.php
-- [x] admin menu width — PX-style RANGE SLIDER (index-based save, live label); fixed 2 bugs:
+- [x] admin menu width — AX-style RANGE SLIDER (index-based save, live label); fixed 2 bugs:
       (1) numeric-key strict-compare made saves revert; (2) missing !important made CSS a no-op on WP7 · lowercase upload filenames · media sizes panel ·
       hide admin bar for non-admins · helper list columns
 - [x] environment indicator — admin-bar env label (prod/staging/dev/local), default OFF (opt-in),
       per-value CSS color sanitiser + accessible label-clip. tests/environment-indicator.php
 - [x] disable post-password protection — CSS-hide editor UI (opt-in, non-destructive; keeps field on already-protected posts). tests/post-passwords.php
 - [x] mail-failure notice — new Email group; risky From-address warning + zero password-reset catch (de-branded, no SupportMonitor). tests/mail-failure.php
-- [x] PX comment teardown (default-closed/feeds/widget) · PX header logic (strictness/case-insensitive)
+- [x] AX comment teardown (default-closed/feeds/widget) · AX header logic (strictness/case-insensitive)
       · password role-scoping (keel_weak_roles, subscriber exempt). tests: headers, password-scoping
 
 ## Rebuild / infra

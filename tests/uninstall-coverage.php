@@ -12,7 +12,7 @@
  * writes, and asserts each one is covered by the uninstaller. Adding a key
  * without adding its removal fails here, naming the key and the file.
  *
- * Pattern taken from the Pixel Managed Platform's tests/uninstall-coverage.php,
+ * Pattern taken from Agency Experience's tests/uninstall-coverage.php,
  * which does the same job for a prefix-based sweep.
  *
  * Run: php tests/uninstall-coverage.php

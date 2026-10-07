@@ -39,7 +39,7 @@ fi
 
 # Configs may live outside this repository.
 #
-# Pixel Managed Platform is private and Keel is public, so its settings do not
+# Agency Experience is private and Keel is public, so its settings do not
 # belong in probe-configs/ here. PROBE_CONFIG_DIR points at a directory holding
 # <slug>.php files kept alongside that plugin instead; it takes precedence, and
 # the bundled config is the fallback. That keeps the harness able to measure all

@@ -67,8 +67,8 @@ function keel_defaults_allowed_comment_types() {
  * serves them to anyone who asks the API. This closes that by answering the
  * query itself.
  *
- * Note where this diverges from the Pixel Managed Platform implementation it is
- * adapted from. PX lets any query that explicitly asks for type `comment`
+ * Note where this diverges from Agency Experience implementation it is
+ * adapted from. AX lets any query that explicitly asks for type `comment`
  * through, on the reasoning that code deliberately asking for comments should
  * get them. But core's REST controller declares `'type' => array( 'default' =>
  * 'comment' )`, so *every* `GET /wp/v2/comments` arrives asking for exactly that

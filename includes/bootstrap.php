@@ -111,7 +111,7 @@ function keel_defaults_bootstrap() {
 
 	/*
 	 * XML-RPC is per-category, not all-or-nothing. Each category is off by
-	 * default (locked down) and opt-in to re-enable — the same shape PMP uses.
+	 * default (locked down) and opt-in to re-enable — the same shape Agency Experience uses.
 	 * pingbacks and remote publishing come off via the xmlrpc_methods filter;
 	 * system.multicall and a full endpoint block need a server-class swap,
 	 * because IXR re-adds multicall after the filter runs.

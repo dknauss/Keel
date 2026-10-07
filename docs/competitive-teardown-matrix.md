@@ -1094,29 +1094,29 @@ canonical redirect has to be removed for that request too. Only the HTTP probe
 caught this; every filter-level assertion still passed.
 
 **None of the four were Keel-specific.** All three of the plugins in this lineage —
-Keel, Better by Default and the Pixel Managed Platform — share them, because they
+Keel, Better by Default and Agency Experience — share them, because they
 share the code they came from. A three-way matrix between siblings
 (`~/Code/keel-px-feature-matrix.md`) had already given the comment teardown a
 full read-verdict and found nothing, which is what a sibling comparison does: it
 sees divergence, never common inheritance. These surfaced only against unrelated
 plugins, where Disable Comments and Admin and Site Enhancements turned out to be
 measurably ahead of all three of ours on rendered markup and comment counts. The
-back-ports are filed there as B-8/B-9 (Better by Default) and P11/P12 (Pixel);
+back-ports are filed there as B-8/B-9 (Better by Default) and P11/P12 (Agency Experience);
 both **landed the same day and were re-probed** — all three plugins now return
 identical results across all 30 probes.
 
-Settling it also turned up a reporting bug one layer out. Pixel's Site Health
+Settling it also turned up a reporting bug one layer out. Agency Experience's Site Health
 posture counted `comment_status = 'open'` rows straight from the database, so on a
 site where the teardown was fully on and nothing could post a comment through any
 route, the panel still flagged "Open comments" as a live public-input surface. The
 stored status is a candidate, not the answer — every core write path gates on
 `comments_open()`, which is a filter.
 
-That one was fixed upstream, independently and first: Pixel's `#218` landed while
+That one was fixed upstream, independently and first: Agency Experience's `#218` landed while
 this comparison was being written, and short-circuits the count on
 `Comments::instance()->comments_are_disabled()`. Worth recording that it closes the
-case narrowly. It reports the effective state for *Pixel's own* toggle, so a site
-running Pixel alongside a third-party comment plugin is still flagged for open
+case narrowly. It reports the effective state for *Agency Experience's own* toggle, so a site
+running Agency Experience alongside a third-party comment plugin is still flagged for open
 comments it cannot receive — and it reaches from `PluginContext` back into the
 Comments module, which is the coupling that object's own docblock says it exists to
 avoid. Asking `comments_open` directly would cover any teardown and need no such
