@@ -48,8 +48,8 @@ if ( ! preg_match( '/^(ported|pending|not applicable)\s*(?:—|–|-|:)\s*(\S.*)
 
 $kind   = strtolower( $parts[1] );
 $detail = trim( $parts[2] );
-// Agency Experience is a local-only repository: it has commits but no pull requests or issues, so a
-// change there is named by its commit hash, written "AX commit <hash>".
+// Agency Experience is a private repository: a pull request or issue number there resolves for
+// nobody reading Keel, so a change there is named by its commit hash, written "AX commit <hash>".
 // A commit is a finished port, so it counts for "ported" only. "pending" needs
 // somewhere the remaining work is tracked, which a commit is not.
 $tracker = '(?:\b[\w.-]+/[\w.-]+#\d+\b|https://github\.com/[\w.-]+/[\w.-]+/(?:pull|issues)/\d+)';

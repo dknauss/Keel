@@ -27,8 +27,8 @@ The description carries a `## Counterpart` section with exactly one line:
 Decide by whether the other plugin has the same code path, not by whether the diff
 would apply to it cleanly.
 
-AX is a local-only repository with no pull requests or issues. Reference an AX change
-by its commit hash only, track a port that is still to do in a Keel issue, and keep
+AX is a private repository, so a pull request or issue number there resolves for
+nobody reading this one. Reference an AX change by its commit hash only, track a port that is still to do in a Keel issue, and keep
 anything about a client, site or deployment out of this repository. Older lines that
 cite `we-are-pixel/pixel-experience#N` or `PX commit <hash>` use the old name
 and no longer resolve. Do not write either on a new pull request. The checker rejects
