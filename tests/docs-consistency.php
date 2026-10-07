@@ -218,7 +218,14 @@ $changelog_at = strpos( $readme, '== Changelog ==' );
 keel_assert( false !== $changelog_at, 'readme.txt has a Changelog section.' );
 
 preg_match_all( '/^= ([0-9][^ =]*) =$/m', substr( $readme, $changelog_at ), $cm );
-$released = array_values( array_diff( $cm[1], array( $version ) ) );
+
+// The oldest entries moved to changelog.txt when the section outgrew the
+// directory's 5,000-word limit. They are superseded releases all the same.
+$earlier_path = $root . '/changelog.txt';
+$earlier      = is_file( $earlier_path ) ? (string) file_get_contents( $earlier_path ) : ''; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+preg_match_all( '/^= ([0-9][^ =]*) =$/m', $earlier, $em );
+
+$released = array_values( array_diff( array_merge( $cm[1], $em[1] ), array( $version ) ) );
 
 keel_assert( array() !== $released, 'The changelog records at least one earlier release to check against.' );
 keel_assert( in_array( $version, $cm[1], true ), "The changelog has an entry for the current version ({$version})." );
