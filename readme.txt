@@ -9,111 +9,130 @@ Stable tag: 0.6.7
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-39 sane WordPress defaults, vulnerable-core alerts, and deliberate patch installs when a secure fix is available.
+39 sane WordPress defaults, a warning when your version is vulnerable, and a button to install the secure fix.
 
 == Description ==
 
-Keel gives WordPress site owners a sensible starting point: 39 clear controls for security, updates, privacy, content, email, media, and the admin experience. Every choice lives under **Settings → Site Defaults**, says what it does, and can be changed independently.
+A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 39 defaults on one screen, in plain language, where you can change any of them.
 
-**[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already enabled. No hosting, installation, or account required.
+**[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already switched on. No hosting, installation, or account required.
 
-Keel is especially useful when you build, manage, or maintain many sites — or when one site matters too much to leave its basic safeguards to memory.
+= What Keel does for you =
 
-* **Know when core needs attention.** Keel warns when WordPress.org flags the installed WordPress version as insecure. When a safe patch for the same version line is available, it names that patch and lets an authorized administrator install it deliberately. You get a clear answer even when no secure patch is available yet.
-* **Make safer defaults routine.** Reduce unnecessary exposure, set practical update and revision policies, improve password protection, and keep site settings consistent without a collection of small single-purpose plugins.
-* **Avoid expensive staging mistakes.** Keel stops outgoing mail on non-production copies by default, so a copied database cannot unexpectedly email customers, members, or clients.
-* **See what is really active.** Site Health summarizes Keel's current settings in one place and highlights likely overlaps with other plugins.
-* **Manage a network without flattening it.** On multisite, a Super Admin can decide selected defaults for every site from one Network Policy screen. Sites can still keep their own choices underneath; the policy is visible and locked while it applies, and lifting it brings those choices back.
+* **Tells you when WordPress itself needs attention.** If WordPress.org flags your version of WordPress as insecure, Keel says so in Site Health. When a secure fix exists for your version, Keel names it and gives an administrator a button to install it. If no fix exists yet, it tells you that too.
+* **Makes safer settings routine.** Better password protection, less exposed to the outside world, and practical choices for updates and revisions, without a collection of small single-purpose plugins.
+* **Stops test sites emailing real people.** Staging and local copies of your site send no email by default, so a copied database cannot email your customers, members, or clients by surprise.
+* **Shows you exactly what it is doing.** One Site Health page lists every setting and its current state, and points out likely overlaps with other plugins.
+* **Keeps a multisite network consistent.** A Super Admin can set chosen defaults for every site from one Network Policy screen. Each site's own choices are kept underneath and come back when the policy is lifted.
 
-Keel does not edit or delete your existing posts, pages, media, or comments; the one file-level change it makes by default is lowercasing the filenames of new uploads. Turning off a Keel setting returns that behavior to WordPress; uninstalling removes Keel's settings.
+= Who it is for =
+
+Keel is especially useful if you build or look after many sites, as a freelancer, an agency, or the owner of a multisite network. It is just as useful if you have one site that matters too much to leave its basic safeguards to memory.
+
+= Safe to try, easy to undo =
+
+Every setting is one switch with the reason for it written beside it, under **Settings → Site Defaults**. Keel does not edit or delete your existing posts, pages, media, or comments. The one change it makes to files by default is giving new uploads lowercase filenames. Turn a setting off and that behavior returns to WordPress; uninstall Keel and its settings are removed.
+
+= Good to know before you activate =
+
+Out of the box, Keel turns off comments, trackbacks, and pingbacks, hides public author archives, and stops other sites displaying yours inside a frame. Nothing is deleted, and each of these is a switch you can turn back. The FAQ below explains each one.
 
 == External services ==
 
-When the **Require strong passwords** default is enabled, Keel screens new passwords against the **Have I Been Pwned** Pwned Passwords range API (`https://api.pwnedpasswords.com`) to reject passwords found in known breaches. This uses k-anonymity: only the first five characters of the password's SHA-1 hash are ever sent — never the password, and never the full hash. No personal data is transmitted. The check runs only when a password is being set or changed and the default is on. It can be disabled with `define( 'KEEL_DISABLE_HIBP', true );` in `wp-config.php`, with the `keel_disable_hibp` filter, or by turning off the strong-password default. If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed — a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health, so a site whose screening has stopped working can tell. Only the kind of failure and when it happened are stored — never the password, and never the hash prefix. Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy.
+Keel contacts two outside services. Neither is sent personal data.
 
-Keel also asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (`https://api.wordpress.org/core/stable-check/1.0/`). This is WordPress.org's own service, on the same host core already contacts for updates and translations; core itself never queries it. The request carries no site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way core's own update requests identify the site. The response maps the WordPress releases it lists to their current status; Keel keeps it for a day, and asks again sooner only when WordPress's own update check offers a release that answer does not list yet, so a new security release is reported the day it ships. If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not add a network wait to every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine. WordPress.org's privacy policy is at https://wordpress.org/about/privacy/.
+= Have I Been Pwned: checking passwords against known breaches =
+
+When the **Require strong passwords** default is enabled, Keel screens new passwords against the **Have I Been Pwned** Pwned Passwords range API (`https://api.pwnedpasswords.com`) and rejects passwords found in known breaches.
+
+* **What is sent.** Only the first five characters of the password's SHA-1 hash, a method called k-anonymity. Never the password, never the full hash, and no personal data.
+* **When.** Only when a password is being set or changed and the default is on.
+* **How to turn it off.** Turn off the strong-password default, add `define( 'KEEL_DISABLE_HIBP', true );` to `wp-config.php`, or use the `keel_disable_hibp` filter.
+* **If the service cannot be reached.** If the API is unreachable, or answers with a truncated or malformed response, the check is skipped and the password is allowed, so a breach-data outage never blocks a password change. It is not skipped silently: the failure is recorded and reported under Site Health. Only the kind of failure and when it happened are stored, never the password or the hash prefix.
+
+Have I Been Pwned is operated by Troy Hunt; see https://haveibeenpwned.com/Privacy and https://haveibeenpwned.com/API/v3 for its terms and privacy policy.
+
+= WordPress.org: checking whether your WordPress version is vulnerable =
+
+Keel asks WordPress.org whether the installed version of WordPress has known vulnerabilities, using the core stable-check API (`https://api.wordpress.org/core/stable-check/1.0/`). This is WordPress.org's own service, on the same host WordPress already contacts for updates and translations, although WordPress itself never queries it.
+
+* **What is sent.** No site data beyond the user-agent, which identifies the plugin and the site's home URL in the same way WordPress's own update requests identify the site.
+* **How often.** Keel keeps the answer for a day. It asks again sooner only when WordPress's own update check offers a release that answer does not list yet, so a new security release is reported the day it ships.
+* **If the service cannot be reached.** If WordPress.org is unreachable or answers with something unusable, the failure is remembered for five minutes so an outage does not slow down every admin screen, and Site Health reports that the status could not be determined rather than implying the site is fine.
+
+WordPress.org's privacy policy is at https://wordpress.org/about/privacy/.
 
 == Installation ==
 
-1. Copy the plugin folder into `wp-content/plugins/`, or upload the built zip through **Plugins → Add New → Upload Plugin**.
-2. Activate it. The documented defaults are seeded on activation; nothing is applied before that.
+1. In your WordPress dashboard, go to **Plugins → Add New**, search for "Keel Defaults", and install it. You can also upload the zip through **Plugins → Add New → Upload Plugin**, or copy the plugin folder into `wp-content/plugins/`.
+2. Activate it. Keel's starting choices are applied on activation; nothing changes before that.
 3. Visit **Settings → Site Defaults** to review the starting choices and adjust anything for this site.
 
-Defaults that could disrupt an integration are off until you choose them, with one exception: Keel sends `X-Frame-Options: SAMEORIGIN`, so other sites cannot display yours inside a frame. If your site is meant to be embedded — an intranet dashboard, a visual-review service, a kiosk or signage screen — set **Frame options** to "Leave unchanged" under Security and Attack Surface. Deactivating stops Keel's behavior while keeping your choices for a future reactivation; uninstalling removes its settings.
+Settings that could disrupt another service are off until you choose them, with one exception: Keel stops other sites displaying yours inside a frame. If your site is meant to be embedded, for example in an intranet dashboard, a visual-review service, or a kiosk or signage screen, set **Frame options** to "Leave unchanged" under Security and Attack Surface.
+
+Deactivating stops Keel's behavior while keeping your choices for a future reactivation. Uninstalling removes its settings.
 
 == Frequently Asked Questions ==
 
-= What changes when I activate Keel? =
+= What changes when I activate Keel? Will it break my site? =
 
-Keel applies its documented starting choices and gives you one screen to review them. It does not edit or delete your posts, pages, media, users, or comments, though new uploads get lowercase filenames. Settings that could affect an integration are left off until you enable them — except frame protection, described below.
+Keel applies its starting choices and gives you one screen to review them. Comments, trackbacks, and pingbacks are turned off; public author archives are hidden; other sites cannot put yours inside a frame; and new uploads get lowercase filenames. Settings that could affect another service you rely on are left off until you enable them.
 
-Comments, trackbacks, and pingbacks are disabled; public author archives are hidden; and other sites cannot put yours inside a frame. Comments are not deleted — turning that setting off makes them available again. If your site is meant to appear in another site's frame, set **Frame options** to "Leave unchanged".
+Nothing is deleted. Keel does not edit or remove your posts, pages, media, users, or comments. Disabling comments hides them and closes the forms; turning the setting off brings them back. Uninstalling removes only Keel's own settings.
+
+Everything Keel does is visible and reversible, and each setting explains its practical effect before you change it. The default most likely to surprise you is frame protection: if another site or service is meant to display yours in a frame, that frame will usually show as a blank box. Set **Frame options** to "Leave unchanged" to allow it. Also review the settings after activation if a service publishes to your site through XML-RPC or depends on a feature you intend to turn off.
 
 = Keel says this version is insecure. What should I do? =
 
-Read the message in Site Health. Keel tells you whether a safe patch is available for your current WordPress version line, whether WordPress is offering it, and whether something is preventing automatic updates. If the button is offered, an authorized administrator can install that same-line patch deliberately. If there is no secure patch, Keel says so clearly; plan an upgrade rather than assuming one exists.
-
-= Will Keel break my site? =
-
-Keel is designed to make its effects visible and reversible. The default most likely to surprise you is frame protection: it is on out of the box, and a blocked frame usually shows up as a silent blank box. If another site or service is meant to display yours in a frame, set **Frame options** to "Leave unchanged". Also review the settings after activation if a service publishes through XML-RPC or depends on a feature you intend to turn off. Each control explains its practical effect before you change it.
+Read the message in Site Health. Keel tells you whether a secure fix is available for the version of WordPress you are on, whether WordPress is offering it, and whether something is preventing automatic updates. If the install button is offered, an authorized administrator can use it to install that fix. If there is no secure fix, Keel says so clearly; plan an upgrade to a newer version rather than assuming one exists.
 
 = Why has email stopped working on my staging site? =
 
-Keel blocks outgoing email outside production by default. This protects real customers and clients when a production database is copied to staging or a local machine. It does not block mail on production. Turn **Non-Production Email** off in **Settings → Site Defaults** when your test environment needs to send email.
+Keel blocks outgoing email outside production by default. This protects real customers and clients when a live database is copied to staging or a local machine. It does not block email on your live site. Turn **Non-Production Email** off in **Settings → Site Defaults** when your test site needs to send email.
 
 = Can I use Keel on client sites or multisite? =
 
 Yes. Keel is built for independent sites, agencies, freelancers, and multisite networks. On a network, a Super Admin uses **Network Admin → Settings → Network Policy** to choose which defaults apply everywhere. The policy is visible and locked on each site, but it does not destroy the local choices underneath it; remove a policy later and each site returns to its own saved choice.
 
+Passwords are the one setting that works differently on a network. The setting is stored per site, but WordPress keeps one list of users for the whole network, so a password set on any site becomes that person's password everywhere. For one rule across the network, set the password policy in Network Policy.
+
 = Can I use Keel with another security or defaults plugin? =
 
-Usually, choose one plugin to own a particular setting. Keel helps by showing likely overlaps in Site Health, so you can compare the two configurations instead of discovering a disagreement later.
-
-= Does Keel send anything off my site? =
-
-Two lookups, both described under **External services** above. When strong passwords are required, the first five characters of a new password's SHA-1 hash are checked against Have I Been Pwned — never the password or the full hash. Keel also asks WordPress.org's stable-check service whether your WordPress version has known vulnerabilities. Neither sends personal data.
-
-= Does Keel delete anything? =
-
-No. Disabling comments hides them and closes the forms; nothing is removed from the database, and turning the setting off brings them back. Uninstalling removes only Keel's own settings.
-
-= Can I set these in code instead? =
-
-Yes. Many defaults can be set with a `wp-config.php` constant or a filter — for example `KEEL_DISABLE_HIBP` or `KEEL_ALLOW_NONPRODUCTION_MAIL`. A constant wins over the settings screen, and the screen shows when a setting is being overridden. The full list is in the plugin's documentation on GitHub.
-
-= I run multisite. Does the password policy apply per site? =
-
-The setting is stored per site, but WordPress keeps one user table for the whole network, so a password set on any site becomes that person's password everywhere. In practice, the strictest site sets the floor for anyone who changes their password there. For one rule across the network, set the password policy under **Network Admin → Settings → Network Policy**; each site's own saved value stays untouched underneath.
+Usually, yes, but choose one plugin to own any particular setting. Keel helps by showing likely overlaps in Site Health, so you can compare the two instead of discovering a disagreement later.
 
 = Does Keel control plugin and theme auto-updates? =
 
-No. Keel's update settings cover WordPress core and translations only. Plugin and theme auto-updates stay under WordPress's own controls — on a network, in the Automatic Updates column under **Network Admin → Plugins**.
+No. Keel's update settings cover WordPress itself and translations only. Plugin and theme auto-updates stay under WordPress's own controls; on a network, that is the Automatic Updates column under **Network Admin → Plugins**.
 
 = Why is there no password strength meter? =
 
-WordPress's meter is JavaScript: it advises the person typing but cannot refuse a password, so passwords set through the REST API, WP-CLI, or a form without scripts never meet it. Keel enforces length, breach screening, a blocklist, and a personal-context check on the server instead, where they cannot be bypassed.
+WordPress's strength meter advises the person typing but cannot refuse a password, and passwords set through the REST API, WP-CLI, or a form without scripts never meet it. Keel instead checks length, known breaches, a blocklist, and personal details such as your own name on the server, where the checks cannot be bypassed.
+
+= Can I set these in code instead? =
+
+Yes. Many defaults can be set with a `wp-config.php` constant or a filter, for example `KEEL_DISABLE_HIBP` or `KEEL_ALLOW_NONPRODUCTION_MAIL`. A constant wins over the settings screen, and the screen shows when a setting is being overridden. The full list is in the plugin's documentation on GitHub.
 
 == Screenshots ==
 
-1. Site Health → Status. Whether the running version of WordPress has publicly known vulnerabilities, which secure patch is available for its current release line, and what WordPress itself is offering.
-2. The Passwords help tab. Length and breach screening in place of composition rules, with what the breach check actually sends spelled out — five characters of a hash, never the password.
-3. Site Health → Info. Every default and its current state on one read-only screen, so you can answer "what is this plugin doing to my site?" without opening the settings and reading checkboxes.
-4. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it, so nothing the plugin does is hidden behind a name you have to guess at.
-5. Network Admin → Settings → Network Policy. A Super Admin chooses individual safeguards for every site without replacing the local choices that return when the network policy is lifted.
+1. Site Health → Status. Whether your version of WordPress has known vulnerabilities, which secure fix is available for it, and what WordPress itself is offering.
+2. The Passwords help tab. How Keel's password rules work, and exactly what the breach check sends: five characters of a hash, never the password.
+3. Site Health → Info. Every default and its current state on one page, so you can see what Keel is doing to your site without opening the settings.
+4. Settings → Site Defaults. Every default is one switch with the reason it exists written beside it.
+5. Network Admin → Settings → Network Policy. A Super Admin chooses safeguards for every site on a multisite network; each site's own choices return when the policy is lifted.
 
 == Credits ==
 
 [Austin Ginder](https://github.com/austinginder) of Anchor Hosting ([anchor.host](https://anchor.host) · [@anchorhost](https://github.com/anchorhost)) reviewed Keel for security, and the plugin is better for it. Thank you, Austin.
 
-Keel is a de-branded evolution of Better by Default, the WordPress defaults plugin by WPYEG (a teaching version for the Edmonton WordPress meetup): https://github.com/WPYEG/Better-by-Default
+Keel grew out of Better by Default, a WordPress defaults plugin written by the same author (@dknauss) as a teaching version for the Edmonton WordPress meetup, WPYEG: https://github.com/WPYEG/Better-by-Default
 
-Better by Default is published under the GPL-3.0-or-later; its sole author, who also wrote Keel (@dknauss), additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps Better by Default's core architecture — a single schema array that drives both the settings screen and the bootstrap, where each default is one array entry plus one hook — and adds further hardening and admin defaults adapted from the Pixel Managed Platform plugin (GPL-2.0-or-later).
+Better by Default is published under the GPL-3.0-or-later; its sole author additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps its core architecture and adds further hardening and admin defaults adapted from the Agency Experience plugin (GPL-2.0-or-later).
 
-The Pixel version is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
+Agency Experience is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
 
 == Support This Plugin ==
 
-Keel is free and will stay free. If it saves you an afternoon of hardening a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through [GitHub Sponsors](https://github.com/sponsors/dknauss).
+Keel is free and will stay free. If it saves you an afternoon of securing a new site, or keeps a staging server from emailing your client's customers, you can support its maintenance through [GitHub Sponsors](https://github.com/sponsors/dknauss).
 
 Bug reports and feature requests are welcome on the issue tracker: [https://github.com/dknauss/keel/issues](https://github.com/dknauss/keel/issues). If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how.
 
