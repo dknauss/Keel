@@ -336,6 +336,26 @@ if ( preg_match( '/^=== [^=]+ ===\s*\n(.*?)^==/ms', $readme, $head )
 }
 
 /*
+ * The Changelog has a limit too, and it is counted in words: 5,000, split on
+ * whitespace over the raw section text (`section-changelog` in the directory's
+ * readme parser). Past it the listing shows the section cut mid-entry and the
+ * only notice is a warning on the plugin's own page, visible to committers.
+ *
+ * It grows by one entry per release and nothing else here reads its size, so it
+ * crossed the line at 0.6.7 with every check green. When this fails, move the
+ * oldest entries to changelog.txt, which stays in the repository (.distignore)
+ * and is linked from the section.
+ */
+if ( preg_match( '/^== Changelog ==$(.*?)(?=^== |\z)/ms', $readme, $cl ) ) {
+	$changelog_words = count( preg_split( '/\s+/u', trim( $cl[1] ) ) );
+
+	keel_readme_assert(
+		$changelog_words <= 5000,
+		sprintf( 'the Changelog section is %d words; wordpress.org truncates over 5,000.', $changelog_words )
+	);
+}
+
+/*
  * Ceiling guard: "Tested up to" must track the highest WordPress the live matrix
  * actually runs, so the header cannot quietly outrun the evidence for it.
  *

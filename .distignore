@@ -44,4 +44,9 @@
 /README.md
 /ROADMAP.md
 /TODO.md
+#
+# The changelog entries that no longer fit in readme.txt, which the directory
+# cuts at 5,000 words. History for readers of the repository, linked from the
+# readme; not something an installed copy needs.
+/changelog.txt
 /docs
