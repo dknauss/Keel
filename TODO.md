@@ -241,15 +241,11 @@ active work belongs in **Now** or **Next**, above.
 
 ## Content / docs
 
-- [ ] **Finish the Agency Experience rename in the two sync docs that still carry
-      the old name.** Keel's own references are renamed, and `docs/keel-sync.md`
-      already names AX. Still to update:
-      - Agency Experience's copy of the sync process, `docs/keel-px-sync.md`, and its
-        feature matrix, `docs/keel-px-feature-matrix.md` — rename both files and the
-        name inside them, then point `docs/keel-sync.md` and
-        `docs/competitive-teardown-matrix.md` at the new matrix filename.
-      - The maintainer's agent instructions, whose sync section still uses the old
-        name and the old doc paths.
+- [ ] **Finish the Agency Experience rename in the maintainer's agent instructions.**
+      Their sync section still uses the old name and the old doc paths
+      (`docs/keel-px-sync.md`, `docs/keel-px-feature-matrix.md`). Both repositories
+      already carry the renamed docs: `docs/keel-sync.md` here and in Agency
+      Experience, and `docs/keel-feature-matrix.md` there.
 
 - [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
       The current line is *Sensible defaults for steady sites.*, and `branding/README.md`
