@@ -128,6 +128,61 @@ $css_160                                  = keel_defaults_admin_menu_width_css()
 keel_assert( false !== strpos( $css_160, '160px' ), 'An explicit 160 emits the width rather than standing down.' );
 keel_assert( false !== strpos( $css_160, '!important' ), 'The reclaim is forceful enough to beat another source.' );
 
+/*
+ * --- The block editor follows the menu ---
+ *
+ * Outside fullscreen mode the editor's frame is position: fixed with its own
+ * `left`: 160px from core, 272px from Jetpack's WordPress.com menu stylesheet.
+ * It is not inside #wpcontent, so the content margin never moved it. On a real
+ * site at 240px the menu covered 80px of the editor, and at 160px with Jetpack's
+ * stylesheet loaded a 112px blank strip sat between the two.
+ *
+ * Each width is checked on its own, and each selector is written out rather
+ * than read back from the function: the frame, the snackbar list, and both
+ * again for right to left.
+ */
+$editor_scope = 'body:not(.folded):not(.is-fullscreen-mode)';
+
+foreach ( array( '160', '240', '300' ) as $chosen ) {
+	$GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => $chosen );
+	$flat                                     = preg_replace( '/\s+/', ' ', keel_defaults_admin_menu_width_css() );
+
+	keel_assert(
+		false !== strpos( $flat, "{$editor_scope} .interface-interface-skeleton, {$editor_scope} .edit-post-layout .components-editor-notices__snackbar { left: {$chosen}px !important; }" ),
+		"At {$chosen}px the editor frame and its snackbar list are offset by {$chosen}px, with !important to beat core and Jetpack."
+	);
+	keel_assert(
+		false !== strpos( $flat, "{$editor_scope}.rtl .interface-interface-skeleton, {$editor_scope}.rtl .edit-post-layout .components-editor-notices__snackbar { right: {$chosen}px !important; left: 0 !important; }" ),
+		"At {$chosen}px, right to left, the offset moves to the right and the left one is cleared."
+	);
+	keel_assert(
+		false !== strpos( $flat, "body:not(.folded) #adminmenu .wp-not-current-submenu .wp-submenu { min-width: {$chosen}px !important; }" ),
+		"At {$chosen}px the flyout submenus cannot be held wider by another stylesheet's min-width."
+	);
+
+	/*
+	 * Fullscreen mode has no menu, and core says so with
+	 * `body.is-fullscreen-mode .interface-interface-skeleton { left: 0 !important }`.
+	 * Every rule that offsets an editor element has to stand down there, and for
+	 * a folded menu, where core's 36px governs.
+	 */
+	preg_match_all( '/([^{}]+)\{[^{}]*\}/', substr( $flat, (int) strpos( $flat, '{' ) + 1 ), $rules );
+	$editor_rules = 0;
+
+	foreach ( $rules[1] as $selector_list ) {
+		foreach ( explode( ',', $selector_list ) as $selector ) {
+			if ( false === strpos( $selector, 'interface-skeleton' ) && false === strpos( $selector, 'snackbar' ) ) {
+				continue;
+			}
+			++$editor_rules;
+			keel_assert( false !== strpos( $selector, ':not(.is-fullscreen-mode)' ), "At {$chosen}px, fullscreen mode is excluded by: " . trim( $selector ) );
+			keel_assert( false !== strpos( $selector, 'body:not(.folded)' ), "At {$chosen}px, a folded menu is excluded by: " . trim( $selector ) );
+		}
+	}
+
+	keel_assert( 4 === $editor_rules, "At {$chosen}px there are four editor selectors to check, found {$editor_rules}." );
+}
+
 // And "leave unchanged" still means exactly that.
 $GLOBALS['keel_options']['keel_settings'] = array( 'admin_menu_width' => 'default' );
 keel_assert( '' === trim( keel_defaults_admin_menu_width_css() ), 'Leaving it unchanged still prints no CSS.' );

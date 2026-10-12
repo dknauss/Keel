@@ -686,11 +686,43 @@ WordPress.com's design, and some people want it. Switching the site to the Class
 interface style on WordPress.com removes Jetpack's stylesheet altogether, along with the rest of
 its menu changes.
 
-Two limits. Keel's rules apply from 961px up and only while the menu is expanded, so below that
-width and in a folded menu Jetpack's stylesheet still decides. And Keel overrides the menu, its
-submenus and the content offset, not every `272px` in Jetpack's file: flyout submenus keep a
-`min-width` of 272px, and the block editor outside fullscreen mode is still offset by 272px.
-Those two are read from the stylesheet and have not been checked on a live site.
+Keel's rules apply from 961px up and only while the menu is expanded, so below that width and in
+a folded menu Jetpack's stylesheet still decides.
+
+Jetpack's file has two more `272px` rules, and Keel now overrides both. They were checked on
+2026-10-12 on a disposable local site running Jetpack 16.3 with its masterbar package started by
+hand, at a 1400px viewport:
+
+| Jetpack's rule | Seen before the fix, Admin Menu Width at 160px | Now |
+| --- | --- | --- |
+| `.interface-interface-skeleton { left: 272px }`, the block editor's frame outside fullscreen mode | The frame started at 272px beside a 160px menu: a blank strip 112px wide. | Keel sets the frame's offset to the chosen width. Measured at 160px and 240px. |
+| `#adminmenu .wp-not-current-submenu .wp-submenu { min-width: 272px }`, the flyout submenus | Flyouts were 272px wide. A `min-width` beats a `width`, `!important` or not. | Keel sets the `min-width` to the chosen width as well. Measured at 160px and 240px. |
+
+The editor's frame was not a Jetpack problem alone. Core gives it `left: 160px` for an expanded
+menu, and the frame is `position: fixed` outside `#wpcontent`, so Keel's content margin never
+moved it. On the same site without Jetpack's stylesheet, at 240px, the frame stayed at 160px and
+the menu covered 80px of the editor. Any site that widened the menu and used the editor outside
+fullscreen mode had this. Fullscreen mode is the editor's default, which is how it went unseen.
+
+Keel's editor rules stand down in fullscreen mode, where core pins the frame to the edge of the
+window, and for a folded menu. Both were measured: 0 and 36px, with and without Jetpack. Right
+to left, the offset moves to the right side; measured at 240px with Jetpack's stylesheet loaded.
+
+Snackbar notices are the part that depends on the WordPress version:
+
+- **Post editor.** Jetpack and older core offset the snackbar list with
+  `.edit-post-layout .components-editor-notices__snackbar`. On WordPress 6.4 that matches, and
+  Keel sets it to the chosen width (measured at 240px, without Jetpack). On 6.9 the list is
+  rendered outside `.edit-post-layout`, and on 7.1 it has another class and is centred on the
+  window, so on both the selector matches nothing, for core, for Jetpack and for Keel.
+- **Widgets screen.** Jetpack sets `.edit-widgets-notices__snackbar { left: 272px }`, and Keel
+  leaves it. Core up to 6.9 offsets that list by the menu width and core from 7.0 centres it on
+  the window, under the same class, so a rule that is right for one is wrong for the other.
+  With Jetpack's stylesheet loaded, a snackbar on the widgets screen is still placed for a 272px
+  menu. This is read from the stylesheets. It was not measured with Keel leaving it alone.
+
+Not checked: any of this on a live WordPress.com site, and Jetpack's stylesheet on WordPress
+older than 7.1.
 
 Keel detects this by asking WordPress whether the handle is enqueued
 (`keel_defaults_admin_menu_width_source()`), or, before the style queue is built, whether
