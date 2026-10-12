@@ -35,6 +35,14 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       where stable-check and the release it names are shown drifting apart by hours.
       Pinned in `tests/backport-status.php`; staged live on every row of the backport
       matrix by `tests/integration/stable-check-refresh-probe.php`.
+- [x] **Environment override and mislabelled-site warning** — unreleased. The schema
+      goes to 40 defaults with `environment_override` (Automatic, or a fixed environment
+      Keel uses instead of `WP_ENVIRONMENT_TYPE`). Found on WordPress.com sites whose
+      live `wp-config.php` had been replaced by a WordPress Studio copy declaring
+      `local`: Keel held back their email and Jetpack went offline, with nothing on
+      screen saying why. Keel now warns administrators, without a toggle, when a site
+      declares local or development but is served from a public host or runs on
+      WordPress.com (`IS_ATOMIC`). Pinned in `tests/environment-indicator.php`.
 - [ ] **Observe the field**
   - Watch the next scheduled live matrix run.
   - Triage early reports before opening another release cycle.
@@ -188,7 +196,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Completed in v0.6.0
 
-This release keeps the schema at 39 defaults and adds the security-patch status
+This release added no new defaults; it adds the security-patch status
 and deliberate same-line installer. The completed record stays here for provenance;
 active work belongs in **Now** or **Next**, above.
 

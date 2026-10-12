@@ -207,6 +207,17 @@ function keel_defaults_strings() {
 			'statement' => __( 'Show the current environment in the admin bar', 'keel-defaults' ),
 			'help'      => __( 'Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default.', 'keel-defaults' ),
 		),
+		'environment_override'            => array(
+			'label'   => __( 'Environment', 'keel-defaults' ),
+			'help'    => __( 'What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabelled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too.', 'keel-defaults' ),
+			'choices' => array(
+				'auto'        => __( 'Automatic (WordPress environment type)', 'keel-defaults' ),
+				'production'  => __( 'Production', 'keel-defaults' ),
+				'staging'     => __( 'Staging', 'keel-defaults' ),
+				'development' => __( 'Development', 'keel-defaults' ),
+				'local'       => __( 'Local', 'keel-defaults' ),
+			),
+		),
 		'disable_remember_me'             => array(
 			'label'     => __( 'Remember Me', 'keel-defaults' ),
 			'statement' => __( 'Disable Remember Me and remove the login checkbox', 'keel-defaults' ),

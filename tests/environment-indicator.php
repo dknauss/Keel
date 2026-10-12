@@ -32,6 +32,14 @@ function sanitize_html_class( $c ) { return preg_replace( '/[^A-Za-z0-9_-]/', ''
 function wp_strip_all_tags( $s ) { return preg_replace( '/<[^>]*>/', '', (string) $s ); }
 function wp_parse_args( $args, $defaults = array() ) { return is_array( $args ) ? array_merge( $defaults, $args ) : $defaults; }
 function wp_parse_url( $url, $component = -1 ) { return parse_url( $url, $component ); } // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- this stub is what stands in for wp_parse_url().
+function is_multisite() { return false; }
+function get_option( $name, $default = false ) {
+	return array_key_exists( $name, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $name ] : $default;
+}
+function current_user_can( $cap ) { return true; }
+function admin_url( $path = '' ) { return 'https://example-real.ca/wp-admin/' . $path; }
+function esc_url( $s ) { return $s; }
+$GLOBALS['keel_options'] = array();
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
@@ -163,6 +171,92 @@ keel_assert(
 putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- clearing what the previous line set.
 keel_assert( 'local' === keel_defaults_current_environment(), 'Clearing the variable restores the heuristic.' );
 
+// --- manual override ---
+//
+// The override is Keel's own answer to "what is this site", for the live site
+// whose wp-config.php still says local. It beats everything else, including a
+// declared environment and the host heuristic.
+$GLOBALS['keel_home'] = 'https://client.ddev.site';
+$GLOBALS['keel_env']  = 'production';
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'production' );
+keel_assert( 'production' === keel_defaults_current_environment(), 'An override of production beats the local-host heuristic.' );
+
+putenv( 'WP_ENVIRONMENT_TYPE=local' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+$GLOBALS['keel_env'] = 'local';
+keel_assert( 'production' === keel_defaults_current_environment(), 'An override of production beats a declared local environment.' );
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'staging' );
+keel_assert( 'staging' === keel_defaults_current_environment(), 'Any of the four names can be the override.' );
+
+// A value outside core's four names is automatic, not a fifth environment.
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'prod' );
+keel_assert( '' === keel_defaults_environment_override(), 'An unrecognised override value reads as automatic.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'With an unrecognised override, the declared environment applies.' );
+
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'auto' );
+keel_assert( '' === keel_defaults_environment_override(), 'auto means no override.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'With auto, the declared environment applies.' );
+
+// --- a live site labelled local or development ---
+//
+// The case this exists for: WP_ENVIRONMENT_TYPE says local, the site is served
+// from a real public domain. Still declared local through the variable above.
+$GLOBALS['keel_home'] = 'https://m.arginalia.com';
+keel_assert( keel_defaults_environment_looks_mislabelled(), 'A public host declared local is flagged.' );
+
+$GLOBALS['keel_env'] = 'development';
+putenv( 'WP_ENVIRONMENT_TYPE=development' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+keel_assert( keel_defaults_environment_looks_mislabelled(), 'A public host declared development is flagged.' );
+
+// Staging legitimately lives on public hosts.
+$GLOBALS['keel_env'] = 'staging';
+putenv( 'WP_ENVIRONMENT_TYPE=staging' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+keel_assert( ! keel_defaults_environment_looks_mislabelled(), 'Staging on a public host is not flagged.' );
+
+$GLOBALS['keel_env'] = 'local';
+putenv( 'WP_ENVIRONMENT_TYPE=local' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+
+// Never on a machine that is plainly local, which would tell somebody their
+// laptop is a live site.
+foreach ( array( 'http://localhost:8885', 'https://site.test', 'http://127.0.0.1', 'http://192.168.1.20', 'http://10.0.0.5:8080', 'http://intranet', 'https://wiki.internal', 'http://[::1]:8080' ) as $home ) {
+	$GLOBALS['keel_home'] = $home;
+	keel_assert( ! keel_defaults_environment_looks_mislabelled(), "A local or private home '{$home}' is not flagged." );
+}
+
+// A public IP address is a public host.
+keel_assert( keel_defaults_is_public_host( '8.8.8.8' ), 'A public IPv4 address is a public host.' );
+
+// An override is the administrator's answer; the warning stops asking.
+$GLOBALS['keel_home']                     = 'https://m.arginalia.com';
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'production' );
+keel_assert( ! keel_defaults_environment_looks_mislabelled(), 'With an override set, the site is not flagged.' );
+$GLOBALS['keel_options']['keel_settings'] = array();
+
+// The escape hatch for a development site that really lives on a public host.
+$GLOBALS['keel_filters']['keel_environment_looks_mislabelled'] = false;
+keel_assert( ! keel_defaults_environment_looks_mislabelled(), 'The mislabelled check is filterable.' );
+unset( $GLOBALS['keel_filters']['keel_environment_looks_mislabelled'] );
+
+// The notice names the label, the host and the setting that fixes it.
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+$notice = (string) ob_get_clean();
+keel_assert( false !== strpos( $notice, 'notice-warning' ), 'The mismatch notice is a warning.' );
+keel_assert( false !== strpos( $notice, '<strong>local</strong>' ), 'The notice names the declared environment.' );
+keel_assert( false !== strpos( $notice, 'm.arginalia.com' ), 'The notice names the host.' );
+keel_assert( false !== strpos( $notice, '#keel-setting-environment-override' ), 'The notice links to the Environment setting.' );
+
+// And says nothing when there is nothing to say.
+$GLOBALS['keel_home'] = 'http://localhost:8885';
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+keel_assert( '' === trim( (string) ob_get_clean() ), 'No notice on a local host.' );
+
+putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- clearing what this block set.
+$GLOBALS['keel_env']  = 'production';
+$GLOBALS['keel_home'] = 'https://example-real.ca';
+
 // The constant is the other half of the same test. It cannot be undefined once
 // set, so it is asserted last and the value is one the heuristic would override.
 define( 'WP_ENVIRONMENT_TYPE', 'staging' );
@@ -205,5 +299,7 @@ keel_assert( '' === trim( keel_defaults_environment_css() ), 'No styles when the
 $schema = keel_defaults_schema();
 keel_assert( 'no' === $schema['environment_indicator']['default'], 'environment_indicator defaults off (opt-in).' );
 keel_assert( 'ux' === $schema['environment_indicator']['group'], 'environment_indicator is in the UX group.' );
+keel_assert( 'auto' === $schema['environment_override']['default'], 'environment_override defaults to automatic.' );
+keel_assert( array( 'auto', 'production', 'staging', 'development', 'local' ) === $schema['environment_override']['choices'], 'environment_override offers automatic and the four core environments.' );
 
 fwrite( STDOUT, "environment indicator tests passed.\n" );

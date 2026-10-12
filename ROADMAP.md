@@ -1108,7 +1108,7 @@ what they claim, do any of them do Keel's own features better, and is anything
 missing here that belongs.
 
 The answer to the second was no. Measured by files actually loaded on an admin
-request, Keel now does 39 defaults in 14 files and roughly 250 KB; Disabler pulls in 212 files
+request, Keel now does 40 defaults in 14 files and roughly 250 KB; Disabler pulls in 212 files
 and 1.4 MB to reach a comparable feature set, shipping Action Scheduler and
 monolog to switch things off. The comment claim in `readme.txt` was re-verified
 the hard way — a comment written straight to the table with `$wpdb`, then queried

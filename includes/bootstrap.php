@@ -617,6 +617,12 @@ function keel_defaults_bootstrap() {
 	add_action( 'admin_notices', 'keel_defaults_render_conflicts_notice' );
 	add_action( 'admin_init', 'keel_defaults_handle_conflicts_dismissal' );
 
+	/*
+	 * Also not behind a toggle, for the same reason: a live site labelled
+	 * "local" is a fact about the site, not a default it chose.
+	 */
+	add_action( 'admin_notices', 'keel_defaults_render_environment_mismatch_notice' );
+
 	/* ----- Login and sessions ----- */
 
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {

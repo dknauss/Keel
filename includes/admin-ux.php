@@ -578,6 +578,11 @@ function keel_defaults_environment_is_declared() {
  * @return string
  */
 function keel_defaults_current_environment() {
+	$override = keel_defaults_environment_override();
+	if ( '' !== $override ) {
+		return $override;
+	}
+
 	$type = wp_get_environment_type();
 
 	if ( ! keel_defaults_environment_is_declared() ) {
@@ -588,6 +593,156 @@ function keel_defaults_current_environment() {
 	}
 
 	return $type;
+}
+
+/**
+ * The environment an administrator has told Keel to use, or '' for automatic.
+ *
+ * An override exists for one situation above all: a live site that WordPress
+ * calls "local" because its wp-config.php came from a local install. WordPress
+ * Studio, for one, writes `WP_ENVIRONMENT_TYPE` into wp-config.php and packs
+ * that file into its pushes, so a push can carry "local" onto the live server.
+ * The constant cannot be redefined at runtime, and the person who notices the
+ * symptom is often not the person who can edit the file. The override lets
+ * them stop Keel acting on the wrong label today — holding back the live
+ * site's email, painting it blue in the admin bar — while the file gets fixed.
+ *
+ * Anything outside the four names core accepts is treated as automatic, for
+ * the same reason keel_defaults_environment_is_declared() ignores them: a
+ * corrupted option must not decide where mail goes.
+ *
+ * @return string One of production, staging, development, local, or ''.
+ */
+function keel_defaults_environment_override() {
+	$value = (string) keel_defaults_get( 'environment_override' );
+
+	return in_array( $value, array( 'production', 'staging', 'development', 'local' ), true ) ? $value : '';
+}
+
+/**
+ * Whether a host name looks like a site on the public internet.
+ *
+ * Deliberately conservative, because a false positive tells an administrator
+ * their laptop is a live site. A host counts as public only when it is not a
+ * known local-tool host, contains a dot, and is not a private, reserved or
+ * loopback IP address. Single-label hosts (an intranet name, a Docker service)
+ * are not public.
+ *
+ * @param string $host Host name, without port or scheme.
+ * @return bool
+ */
+function keel_defaults_is_public_host( $host ) {
+	$host = strtolower( trim( (string) $host, '[]' ) );
+
+	if ( '' === $host || ( false === strpos( $host, '.' ) && false === strpos( $host, ':' ) ) ) {
+		return false;
+	}
+
+	if ( keel_defaults_is_local_host( $host ) ) {
+		return false;
+	}
+
+	if ( false !== filter_var( $host, FILTER_VALIDATE_IP ) ) {
+		return false !== filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
+	}
+
+	/**
+	 * Host suffixes that are private even though they look public.
+	 *
+	 * For networks that name internal sites under a real-looking domain, such
+	 * as `.internal` or `.lan`. Each suffix includes its leading dot.
+	 *
+	 * @param string[] $suffixes Host suffixes.
+	 */
+	$private = apply_filters( 'keel_private_host_suffixes', array( '.internal', '.lan', '.home.arpa', '.intranet', '.corp' ) );
+
+	foreach ( (array) $private as $suffix ) {
+		$suffix = strtolower( (string) $suffix );
+		if ( '' !== $suffix && substr( $host, - strlen( $suffix ) ) === $suffix ) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Whether WordPress calls this site local or development while it looks live.
+ *
+ * True when `WP_ENVIRONMENT_TYPE` declares local or development, no Keel
+ * override is set, and the home URL's host is public. A WordPress.com or
+ * Atomic site (the `IS_ATOMIC` constant) counts as live whatever its address,
+ * because that platform does not host development copies under that name.
+ *
+ * Staging is not flagged: staging sites legitimately live on public hosts.
+ *
+ * @return bool
+ */
+function keel_defaults_environment_looks_mislabelled() {
+	if ( '' !== keel_defaults_environment_override() || ! keel_defaults_environment_is_declared() ) {
+		return false;
+	}
+
+	if ( ! in_array( wp_get_environment_type(), array( 'local', 'development' ), true ) ) {
+		return false;
+	}
+
+	$mislabelled = ( defined( 'IS_ATOMIC' ) && IS_ATOMIC )
+		|| keel_defaults_is_public_host( wp_parse_url( home_url(), PHP_URL_HOST ) );
+
+	/**
+	 * Filter whether Keel warns that a live site is labelled local or development.
+	 *
+	 * Return false for a development site that really does live on a public
+	 * address and should stay labelled that way.
+	 *
+	 * @param bool $mislabelled Whether the label looks wrong.
+	 */
+	return (bool) apply_filters( 'keel_environment_looks_mislabelled', $mislabelled );
+}
+
+/**
+ * Warn administrators when a live-looking site is labelled local or development.
+ *
+ * Not behind a toggle, for the reason the conflicts notice is not: this is Keel
+ * reporting a fact about the site rather than a default the site chose. The
+ * consequences are real and silent — Keel holds back the site's email when
+ * non-production mail is switched off, and other plugins (Jetpack among them)
+ * change behaviour on "local" sites — so it is not dismissible either. It goes
+ * away when the label is fixed or an override is chosen.
+ *
+ * @return void
+ */
+function keel_defaults_render_environment_mismatch_notice() {
+	if ( ! current_user_can( 'manage_options' ) || ! keel_defaults_environment_looks_mislabelled() ) {
+		return;
+	}
+
+	$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+	?>
+	<div class="notice notice-warning keel-environment-mismatch">
+		<p>
+			<strong><?php esc_html_e( 'This site looks live, but WordPress says it is not.', 'keel-defaults' ); ?></strong>
+			<?php
+			printf(
+				/* translators: 1: environment name, such as local. 2: the site's host name. */
+				esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may switch features off on a site they think is local.', 'keel-defaults' ),
+				'<strong>' . esc_html( wp_get_environment_type() ) . '</strong>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+				'<code>' . esc_html( $host ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+			);
+			?>
+		</p>
+		<p>
+			<?php
+			printf(
+				/* translators: %s: link to the Environment setting. */
+				esc_html__( 'Fix the WP_ENVIRONMENT_TYPE line in wp-config.php — a local install’s copy may have overwritten it, as WordPress Studio pushes can. Until then, set Keel’s %s to Production.', 'keel-defaults' ),
+				keel_defaults_setting_link( 'environment_override', __( 'Environment', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+			);
+			?>
+		</p>
+	</div>
+	<?php
 }
 
 /**
