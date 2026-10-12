@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-06T06:09:09+00:00\n"
+"POT-Creation-Date: 2026-10-12T18:15:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -28,7 +28,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
+msgid "40 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
 msgstr ""
 
 #. Author of the plugin
@@ -90,19 +90,54 @@ msgid "Unknown"
 msgstr ""
 
 #: includes/admin-ux.php:455
+#: includes/strings.php:215
 msgid "Production"
 msgstr ""
 
 #: includes/admin-ux.php:461
+#: includes/strings.php:216
 msgid "Staging"
 msgstr ""
 
 #: includes/admin-ux.php:467
+#: includes/strings.php:217
 msgid "Development"
 msgstr ""
 
 #: includes/admin-ux.php:473
+#: includes/strings.php:218
 msgid "Local"
+msgstr ""
+
+#: includes/admin-ux.php:836
+#: includes/strings.php:211
+msgid "Environment"
+msgstr ""
+
+#: includes/admin-ux.php:842
+msgid "Keel’s environment override is being ignored on this site."
+msgstr ""
+
+#. translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host.
+#: includes/admin-ux.php:846
+#, php-format
+msgid "It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one."
+msgstr ""
+
+#: includes/admin-ux.php:864
+msgid "This site looks live, but WordPress says it is not."
+msgstr ""
+
+#. translators: 1: environment name, such as local. 2: the site's address.
+#: includes/admin-ux.php:868
+#, php-format
+msgid "WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may switch features off on a site they think is local."
+msgstr ""
+
+#. translators: %s: link to the Environment setting.
+#: includes/admin-ux.php:878
+#, php-format
+msgid "If this is the live site, fix the WP_ENVIRONMENT_TYPE line in wp-config.php — a local install’s copy may have overwritten it, as WordPress Studio pushes can — and until then set Keel’s %s to Production. If it really is a local or development copy, leave the setting alone and filter keel_environment_looks_mislabelled to silence this."
 msgstr ""
 
 #: includes/backport-install.php:64
@@ -757,7 +792,7 @@ msgid "On multisite, this setting is stored per site but does not act per site. 
 msgstr ""
 
 #: includes/settings-page.php:157
-#: includes/strings.php:273
+#: includes/strings.php:284
 msgid "XML-RPC"
 msgstr ""
 
@@ -786,7 +821,7 @@ msgid "Environments"
 msgstr ""
 
 #: includes/settings-page.php:179
-msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration."
+msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
 msgstr ""
 
 #: includes/settings-page.php:183
@@ -1609,124 +1644,132 @@ msgid "Show the current environment in the admin bar"
 msgstr ""
 
 #: includes/strings.php:208
-msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
-msgstr ""
-
-#: includes/strings.php:211
-msgid "Remember Me"
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
 msgstr ""
 
 #: includes/strings.php:212
-msgid "Disable Remember Me and remove the login checkbox"
+msgid "What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabelled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too."
 msgstr ""
 
-#: includes/strings.php:213
-msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
-msgstr ""
-
-#: includes/strings.php:216
-msgid "Regular Session Length"
-msgstr ""
-
-#: includes/strings.php:217
-#: includes/strings.php:223
-msgid "days"
-msgstr ""
-
-#: includes/strings.php:218
-#: includes/strings.php:224
-msgid "day"
-msgstr ""
-
-#: includes/strings.php:219
-msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
+#: includes/strings.php:214
+msgid "Automatic (WordPress environment type)"
 msgstr ""
 
 #: includes/strings.php:222
-msgid "Remember Me Length"
+msgid "Remember Me"
 msgstr ""
 
-#: includes/strings.php:225
-msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
+#: includes/strings.php:223
+msgid "Disable Remember Me and remove the login checkbox"
+msgstr ""
+
+#: includes/strings.php:224
+msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
+msgstr ""
+
+#: includes/strings.php:227
+msgid "Regular Session Length"
 msgstr ""
 
 #: includes/strings.php:228
-msgid "Login Logo"
+#: includes/strings.php:234
+msgid "days"
 msgstr ""
 
 #: includes/strings.php:229
-msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
+#: includes/strings.php:235
+msgid "day"
 msgstr ""
 
-#: includes/strings.php:231
-msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
-msgstr ""
-
-#: includes/strings.php:232
-msgid "Remove the logo and the wordpress.org link"
+#: includes/strings.php:230
+msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
 msgstr ""
 
 #: includes/strings.php:233
-msgid "Keep the logo, drop the wordpress.org link"
+msgid "Remember Me Length"
 msgstr ""
 
-#: includes/strings.php:234
-msgid "Replace the logo with your site logo"
-msgstr ""
-
-#: includes/strings.php:238
-msgid "Heartbeat API"
+#: includes/strings.php:236
+msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
 msgstr ""
 
 #: includes/strings.php:239
-msgid "Slow background admin polling"
+msgid "Login Logo"
 msgstr ""
 
 #: includes/strings.php:240
+msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
+msgstr ""
+
+#: includes/strings.php:242
+msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
+msgstr ""
+
+#: includes/strings.php:243
+msgid "Remove the logo and the wordpress.org link"
+msgstr ""
+
+#: includes/strings.php:244
+msgid "Keep the logo, drop the wordpress.org link"
+msgstr ""
+
+#: includes/strings.php:245
+msgid "Replace the logo with your site logo"
+msgstr ""
+
+#: includes/strings.php:249
+msgid "Heartbeat API"
+msgstr ""
+
+#: includes/strings.php:250
+msgid "Slow background admin polling"
+msgstr ""
+
+#: includes/strings.php:251
 msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
 msgstr ""
 
-#: includes/strings.php:252
+#: includes/strings.php:263
 msgid "Security and Attack Surface"
 msgstr ""
 
-#: includes/strings.php:253
+#: includes/strings.php:264
 msgid "Updates"
 msgstr ""
 
-#: includes/strings.php:254
+#: includes/strings.php:265
 msgid "Content and Public Surfaces"
 msgstr ""
 
-#: includes/strings.php:255
+#: includes/strings.php:266
 msgid "Editor"
 msgstr ""
 
-#: includes/strings.php:256
+#: includes/strings.php:267
 msgid "Media"
 msgstr ""
 
-#: includes/strings.php:257
+#: includes/strings.php:268
 msgid "Email"
 msgstr ""
 
-#: includes/strings.php:258
+#: includes/strings.php:269
 msgid "Admin and Front-End UX"
 msgstr ""
 
-#: includes/strings.php:259
+#: includes/strings.php:270
 msgid "Login and Sessions"
 msgstr ""
 
-#: includes/strings.php:260
+#: includes/strings.php:271
 msgid "Branding"
 msgstr ""
 
-#: includes/strings.php:261
+#: includes/strings.php:272
 msgid "Performance"
 msgstr ""
 
-#: includes/strings.php:272
+#: includes/strings.php:283
 msgid "REST API"
 msgstr ""
 

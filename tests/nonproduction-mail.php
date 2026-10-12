@@ -99,6 +99,17 @@ $GLOBALS['keel_options'] = array( 'suppress_nonproduction_mail' => 'no' );
 keel_assert( false === keel_defaults_suppresses_mail(), 'Turning the setting off sends mail, which is the point of it being visible.' );
 $GLOBALS['keel_options'] = array();
 
+// --- the Environment override decides, both ways ---
+// A live site whose wp-config.php says local, overridden to production, sends.
+$GLOBALS['keel_env']     = 'local';
+$GLOBALS['keel_options'] = array( 'environment_override' => 'production' );
+keel_assert( false === keel_defaults_suppresses_mail(), 'An override of production on a declared-local site sends mail.' );
+// And a production site deliberately overridden to staging stops sending.
+$GLOBALS['keel_env']     = 'production';
+$GLOBALS['keel_options'] = array( 'environment_override' => 'staging' );
+keel_assert( true === keel_defaults_suppresses_mail(), 'An override of staging on a production site suppresses mail.' );
+$GLOBALS['keel_options'] = array();
+
 // --- escape hatch ---
 $GLOBALS['keel_filters']['keel_suppress_nonproduction_mail'] = false;
 keel_assert( false === keel_defaults_suppresses_mail(), 'A staging site that must send can opt out in code.' );

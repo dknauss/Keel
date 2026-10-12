@@ -9,11 +9,11 @@ Stable tag: 0.6.7
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-39 sane WordPress defaults, a warning when your version is vulnerable, and a button to install the secure fix.
+40 sane WordPress defaults, a warning when your version is vulnerable, and a button to install the secure fix.
 
 == Description ==
 
-A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 39 defaults on one screen, in plain language, where you can change any of them.
+A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 40 defaults on one screen, in plain language, where you can change any of them.
 
 **[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already switched on. No hosting, installation, or account required.
 

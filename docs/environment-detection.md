@@ -102,6 +102,63 @@ export WP_ENVIRONMENT_TYPE=staging
 The constant wins if both are set. Use one of core's four names; anything else
 is ignored and the host fallback applies.
 
+## Overriding it in Keel
+
+The **Environment** setting (Admin and Front-End UX) defaults to Automatic, which
+is everything above. Choosing Production, Staging, Development or Local makes
+Keel use that instead, ahead of the declared environment and the host fallback.
+A stored value outside those four is treated as Automatic.
+
+The override applies only on the site it was chosen on. Keel records the site's
+host when the override is set; a copy of the database served from any other host
+— a laptop, a staging site — ignores it, uses the automatic environment, and shows
+a notice saying so. Otherwise setting Production on the live site and copying its
+database down would make the copy send real mail. Saving some other setting on the
+copy does not adopt the override; choosing it again there does.
+
+The override changes Keel only — the indicator, non-production email, and the
+email-misconfiguration notice that depends on it. WordPress
+core and every other plugin keep reading `WP_ENVIRONMENT_TYPE`, so it is a stopgap
+while the real declaration is fixed, not a substitute for fixing it.
+
+## A live site labelled local
+
+The case the override exists for. WordPress Studio writes
+`define( 'WP_ENVIRONMENT_TYPE', 'local' )` into `wp-config.php`, and its export —
+which is also what a push sends — includes `wp-config.php`. A push that replaces
+the live site's file carries `local` with it. Seen on WordPress.com in October
+2026, where it did more than relabel the site:
+
+- Keel held back the site's email, comment notifications included.
+- WordPress.com sign-in disappeared from the login page and returned once the
+  constant said `production` again; Jetpack treats `local` sites as offline.
+- Incoming pingbacks stopped regardless of Keel's own pingback setting. On those
+  sites `xmlrpc_methods` carried WordPress.com's
+  `wpcomsh_disable_incoming_pings_in_non_production_envs` filter (observed with
+  `wp eval` over SSH), and `pingback.ping` came back as soon as the environment
+  was `production`.
+
+Keel now warns administrators, without a toggle and without a dismiss button, when
+no override applies and either `WP_ENVIRONMENT_TYPE` declares `local` on a public
+host or on WordPress.com (`IS_ATOMIC`), or declares `development` on WordPress.com.
+`development` on an ordinary public host is not flagged: managed hosts run real
+development environments on public names, and the advice to choose Production
+would switch their mail suppression off. The notice names the declared value and
+the host, and links to the setting.
+
+"Public" is decided conservatively, because a false alarm tells somebody their
+laptop is a live site. Not public: loopback names, the local-tool suffixes above,
+private, reserved and shared (100.64.0.0/10) IP addresses, IPv4 written as IPv6,
+single-label hosts, and hosts ending in `.internal`, `.lan`, `.home.arpa`,
+`.intranet`, `.corp`, `.localdomain`, `.example`, `.invalid`, `.nip.io` or
+`.sslip.io` (filterable with `keel_private_host_suffixes`). Staging is never flagged, since staging sites
+legitimately live on public hosts. A local or development copy that really does live on
+a public address can silence the warning with:
+
+```php
+add_filter( 'keel_environment_looks_mislabelled', '__return_false' );
+```
+
 ## Changing the labels and colours
 
 The four environments, their labels, icons, and colours come from

@@ -29,7 +29,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "39 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
+msgid "40 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
 msgstr ""
 
 #. Author of the plugin
@@ -778,7 +778,7 @@ msgid "Environments"
 msgstr ""
 
 #: includes/settings-page.php:179
-msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration."
+msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
 msgstr ""
 
 #: includes/settings-page.php:183
@@ -1596,8 +1596,8 @@ msgid "Show the current environment in the admin bar"
 msgstr ""
 
 #: includes/strings.php:208
-msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
-msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code> — a quick guard against acting on the wrong site. Common local-development hosts are recognised automatically. Off by default."
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgstr "Adds a colour-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognised automatically. Off by default."
 
 #: includes/strings.php:211
 msgid "Remember Me"

@@ -268,6 +268,26 @@ function keel_defaults_schema() {
 			'group'   => 'ux',
 		),
 
+		/*
+		 * What Keel itself treats this site as. 'auto' reads WordPress's own
+		 * environment type, with the local-host fallback; anything else is an
+		 * administrator saying "trust me". Read by the indicator and by
+		 * non-production mail suppression, never by WordPress core or other
+		 * plugins, which still read WP_ENVIRONMENT_TYPE.
+		 */
+		'environment_override'            => array(
+			'default' => 'auto',
+			'type'    => 'select',
+			'group'   => 'ux',
+			'choices' => array(
+				'auto',
+				'production',
+				'staging',
+				'development',
+				'local',
+			),
+		),
+
 		// --- Login and sessions ------------------------------------------
 		'disable_remember_me'             => array(
 			'default' => 'no',
