@@ -36,7 +36,12 @@ function is_multisite() { return false; }
 function get_option( $name, $default = false ) {
 	return array_key_exists( $name, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $name ] : $default;
 }
-function current_user_can( $cap ) { return true; }
+function current_user_can( $cap ) { return $GLOBALS['keel_can']; }
+function update_option( $name, $value, $autoload = null ) { $GLOBALS['keel_options'][ $name ] = $value;
+	return true; }
+function delete_option( $name ) { unset( $GLOBALS['keel_options'][ $name ] );
+	return true; }
+$GLOBALS['keel_can'] = true;
 function admin_url( $path = '' ) { return 'https://example-real.ca/wp-admin/' . $path; }
 function esc_url( $s ) { return $s; }
 $GLOBALS['keel_options'] = array();
@@ -205,9 +210,13 @@ keel_assert( 'local' === keel_defaults_current_environment(), 'With auto, the de
 $GLOBALS['keel_home'] = 'https://m.arginalia.com';
 keel_assert( keel_defaults_environment_looks_mislabelled(), 'A public host declared local is flagged.' );
 
+// Development on an ordinary public host is NOT flagged: managed hosts run real
+// development environments on public names, and the notice's advice (set
+// Production) would switch their mail suppression off. Only WordPress.com
+// (IS_ATOMIC, a constant, so not testable in this process) flags development.
 $GLOBALS['keel_env'] = 'development';
 putenv( 'WP_ENVIRONMENT_TYPE=development' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
-keel_assert( keel_defaults_environment_looks_mislabelled(), 'A public host declared development is flagged.' );
+keel_assert( ! keel_defaults_environment_looks_mislabelled(), 'A public host declared development is not flagged off WordPress.com.' );
 
 // Staging legitimately lives on public hosts.
 $GLOBALS['keel_env'] = 'staging';
@@ -224,8 +233,13 @@ foreach ( array( 'http://localhost:8885', 'https://site.test', 'http://127.0.0.1
 	keel_assert( ! keel_defaults_environment_looks_mislabelled(), "A local or private home '{$home}' is not flagged." );
 }
 
-// A public IP address is a public host.
+// Public and private addresses, including the shapes mutation testing found unpinned.
 keel_assert( keel_defaults_is_public_host( '8.8.8.8' ), 'A public IPv4 address is a public host.' );
+keel_assert( keel_defaults_is_public_host( '2606:4700::1111' ), 'A public IPv6 address is a public host.' );
+keel_assert( keel_defaults_is_public_host( 'M.ARGINALIA.COM' ), 'An upper-case public host is a public host.' );
+foreach ( array( '169.254.1.1', '0.0.0.0', '100.100.1.1', '::ffff:10.0.0.1', '::ffff:127.0.0.1', 'localhost.', 'WIKI.INTERNAL', 'site.example', 'app.10.0.0.5.nip.io', 'fd00::1' ) as $private_host ) {
+	keel_assert( ! keel_defaults_is_public_host( $private_host ), "'{$private_host}' is not a public host." );
+}
 
 // An override is the administrator's answer; the warning stops asking.
 $GLOBALS['keel_home']                     = 'https://m.arginalia.com';
@@ -246,6 +260,61 @@ keel_assert( false !== strpos( $notice, 'notice-warning' ), 'The mismatch notice
 keel_assert( false !== strpos( $notice, '<strong>local</strong>' ), 'The notice names the declared environment.' );
 keel_assert( false !== strpos( $notice, 'm.arginalia.com' ), 'The notice names the host.' );
 keel_assert( false !== strpos( $notice, '#keel-setting-environment-override' ), 'The notice links to the Environment setting.' );
+
+// Without the capability, nothing is shown.
+$GLOBALS['keel_can'] = false;
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+keel_assert( '' === trim( (string) ob_get_clean() ), 'No notice for a user who cannot manage options.' );
+$GLOBALS['keel_can'] = true;
+
+// --- an override copied with the database ---
+//
+// Production chosen on the live site, then the database copied to a laptop or
+// a staging site. The copy must not inherit it: that is real mail from a copy.
+$GLOBALS['keel_options']['keel_settings']                  = array( 'environment_override' => 'production' );
+$GLOBALS['keel_options']['keel_environment_override_host'] = 'm.arginalia.com';
+keel_assert( 'production' === keel_defaults_current_environment(), 'On the site it was chosen on, the override applies.' );
+
+$GLOBALS['keel_home'] = 'http://localhost:8885';
+keel_assert( keel_defaults_environment_override_is_stale(), 'On another host, the override is stale.' );
+keel_assert( 'local' === keel_defaults_current_environment(), 'A stale override is ignored; the declared environment applies.' );
+
+$GLOBALS['keel_home'] = 'https://staging.m.arginalia.com';
+keel_assert( 'local' === keel_defaults_current_environment(), 'A staging copy on a public host ignores the override too.' );
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+$stale_notice = (string) ob_get_clean();
+keel_assert( false !== strpos( $stale_notice, 'keel-environment-override-stale' ), 'A stale override is reported.' );
+keel_assert( false !== strpos( $stale_notice, 'm.arginalia.com</code>' ) && false !== strpos( $stale_notice, 'staging.m.arginalia.com' ), 'The stale notice names both hosts.' );
+
+// No recorded host (network policy, older data): nothing to compare, so it applies.
+unset( $GLOBALS['keel_options']['keel_environment_override_host'] );
+keel_assert( 'production' === keel_defaults_current_environment(), 'An override with no recorded host applies.' );
+
+// Recording: only a change to the override records the host.
+$GLOBALS['keel_home'] = 'https://m.arginalia.com/';
+keel_defaults_record_environment_override_host( array( 'environment_override' => 'auto' ), array( 'environment_override' => 'production' ) );
+keel_assert( 'm.arginalia.com' === $GLOBALS['keel_options']['keel_environment_override_host'], 'Choosing an override records this host.' );
+$GLOBALS['keel_home'] = 'http://localhost:8885';
+keel_defaults_record_environment_override_host(
+	array(
+		'environment_override' => 'production',
+		'x'                    => 1,
+	),
+	array(
+		'environment_override' => 'production',
+		'x'                    => 2,
+	)
+);
+keel_assert( 'm.arginalia.com' === $GLOBALS['keel_options']['keel_environment_override_host'], 'Saving another setting on a copy does not adopt the override.' );
+keel_defaults_record_environment_override_host( array( 'environment_override' => 'production' ), array( 'environment_override' => 'auto' ) );
+keel_assert( ! isset( $GLOBALS['keel_options']['keel_environment_override_host'] ), 'Returning to automatic forgets the host.' );
+keel_defaults_record_environment_override_host( 'keel_settings', array( 'environment_override' => 'staging' ) );
+keel_assert( 'localhost' === $GLOBALS['keel_options']['keel_environment_override_host'], 'Adding the option with an override records the host.' );
+unset( $GLOBALS['keel_options']['keel_environment_override_host'] );
+$GLOBALS['keel_options']['keel_settings'] = array();
+$GLOBALS['keel_home']                     = 'https://m.arginalia.com';
 
 // And says nothing when there is nothing to say.
 $GLOBALS['keel_home'] = 'http://localhost:8885';

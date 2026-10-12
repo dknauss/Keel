@@ -623,6 +623,11 @@ function keel_defaults_bootstrap() {
 	 */
 	add_action( 'admin_notices', 'keel_defaults_render_environment_mismatch_notice' );
 
+	// Remember which site an environment override was chosen on, so a copy of
+	// the database does not inherit it. See keel_defaults_environment_override_is_stale().
+	add_action( 'update_option_' . KEEL_DEFAULTS_OPTION, 'keel_defaults_record_environment_override_host', 10, 2 );
+	add_action( 'add_option_' . KEEL_DEFAULTS_OPTION, 'keel_defaults_record_environment_override_host', 10, 2 );
+
 	/* ----- Login and sessions ----- */
 
 	if ( keel_defaults_enabled( 'disable_remember_me' ) ) {

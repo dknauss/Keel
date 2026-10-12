@@ -31,6 +31,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  *   row, and no scan of the current source can find a key the current source
  *   never mentions.
  * - `keel_settings_data_version` — the per-site migration version.
+ * - `keel_environment_override_host` — the host the Environment override was
+ *   chosen on, so a copied database does not inherit it.
  * - `keel_last_login` — user meta, written on each login by the Last login
  *   column. On multisite the user table is shared across the network, so this
  *   is deleted once for the whole network rather than per site.
@@ -58,6 +60,7 @@ function keel_defaults_uninstall_site() {
 
 	delete_option( 'keel_settings' );
 	delete_option( 'keel_settings_data_version' );
+	delete_option( 'keel_environment_override_host' );
 	delete_transient( 'keel_policy_divergence' );
 
 	/*

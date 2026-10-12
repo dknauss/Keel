@@ -176,7 +176,7 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Environments', 'keel-defaults' ),
 			'content' =>
 				'<p>' . wp_kses(
-					__( 'Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration.', 'keel-defaults' ),
+					__( 'Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
