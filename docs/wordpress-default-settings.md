@@ -259,7 +259,7 @@ add_action( 'admin_init', function () {
 
 > **Note:** core also honours a `WP_AI_SUPPORT` constant, which a deployment can set to
 > `false` in `wp-config.php` to hard-lock the disabled posture above the plugin layer. Keel
-> additionally fires a `disable_ai_connectors` action as a seam for AI
+> additionally fires a `keel_disable_ai_connectors` action as a seam for AI
 > integrations core does not know about (a plugin's own provider, say).
 
 > **This is the one default that does not appear on every supported WordPress.** Keel's

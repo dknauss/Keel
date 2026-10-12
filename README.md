@@ -70,6 +70,7 @@ Useful references:
 - [Contributing](CONTRIBUTING.md)
 - [Default behavior and technical reference](docs/wordpress-default-settings.md)
 - [Environment detection](docs/environment-detection.md)
+- [AI integrations](docs/ai-integrations.md)
 - [Competitive behavioral probes](docs/competitive-teardown-matrix.md)
 - [Security policy](SECURITY.md)
 - [Release roadmap](ROADMAP.md)

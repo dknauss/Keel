@@ -266,34 +266,12 @@ installs. Site Health must not become the performance problem it is diagnosing.
   so a switch would be a foot-gun of the kind 0.6.0 exists to warn about. Decide the
   scope before promoting it.
 
-- [ ] **Register Keel's settings as Abilities** — undecided; wait for the API to
-  settle. Found 2026-10-12, auditing comments and pingbacks across seven sites. Keel
-  was the cause on three of them, and its settings could only be read through
-  `wp option get keel_settings` over SSH, or changed by driving the settings screen in
-  a browser. One site had no SSH on its plan, so that was the only route there.
-
-  The WordPress [Abilities API](https://make.wordpress.org/ai/2025/07/17/mcp-adapter/)
-  plus the MCP Adapter would turn a registered ability into a tool an agent or script
-  can call. For Keel, a small set:
-
-  - `keel/get-settings` — the effective value of every setting, with where it came
-    from (stored, default, network policy, filter), the resolved environment and
-    whether it is overridden, and any recorded conflicts. Read-only; `manage_options`.
-  - `keel/update-setting` — one key at a time, validated against the schema exactly
-    as the settings screen validates it, so there is one sanitizer rather than two.
-    `manage_options`; refuses network-locked keys.
-  - `keel/site-posture` — the Site Health summary as data rather than prose.
-
-  Kept private (not exposed through MCP) unless the site opts in, because the adapter
-  publishes only abilities marked public, and a settings writer is a capability an
-  administrator should switch on knowingly.
-
-  Not yet: the API has had breaking changes in quick succession (the adapter ships
-  migration guides for 0.3, 0.5 and 0.7), and the HTTP transport's authentication
-  story — application passwords, which Keel can itself prohibit — needs deciding
-  before an ability that writes settings is reachable over the network. Revisit when
-  core ships the Abilities API without the plugin. Borges and Maestro would follow
-  the same pattern.
+- [ ] **Register Keel's settings as Abilities** — undecided; wait for the MCP Adapter
+  to settle. `keel/get-settings`, `keel/update-setting` and `keel/site-posture`, private
+  by default, registered only where core has the Abilities API (6.9 and later). Found
+  2026-10-12, when Keel's settings on three of seven sites could be read only over SSH
+  or changed only through the settings screen. Design, exposure rules and the
+  conditions for revisiting are in [AI integrations](docs/ai-integrations.md).
 
 Explore database-growth reporting (revision volume, expired transients and unusually
 large rows), media-storage amplification and richer multisite/network diagnostics
