@@ -236,11 +236,17 @@ function keel_defaults_admin_menu_width_source() {
 		foreach ( (array) $callbacks as $registered ) {
 			$callback = isset( $registered['function'] ) ? $registered['function'] : null;
 
-			if ( is_array( $callback )
-				&& isset( $callback[0], $callback[1] )
-				&& 'enqueue_scripts' === $callback[1]
-				&& is_a( $callback[0], 'Automattic\\Jetpack\\Masterbar\\Base_Admin_Menu', true )
-			) {
+			if ( ! is_array( $callback ) || ! isset( $callback[0], $callback[1] ) || 'enqueue_scripts' !== $callback[1] ) {
+				continue;
+			}
+
+			// A class named as a string is only examined if it is already loaded:
+			// is_a() would otherwise run autoloaders for other plugins' classes.
+			if ( is_string( $callback[0] ) && ! class_exists( $callback[0], false ) ) {
+				continue;
+			}
+
+			if ( is_a( $callback[0], 'Automattic\\Jetpack\\Masterbar\\Base_Admin_Menu', true ) ) {
 				return 'jetpack';
 			}
 		}

@@ -136,7 +136,7 @@ $GLOBALS['keel_style_queries']   = 0;
 $GLOBALS['keel_enqueued_styles'] = array( 'jetpack-admin-menu' );
 $GLOBALS['wp_filter']            = array();
 keel_assert( '' === keel_defaults_admin_menu_width_source(), 'Before the hook with nothing registered, nothing is reported.' );
-keel_assert( 0 === $GLOBALS['keel_style_queries'], 'Before the hook the style queue is not consulted at all: asking early is a _doing_it_wrong in core.' );
+keel_assert( 0 === $GLOBALS['keel_style_queries'], 'Before the hook the style queue is not consulted at all: it has not been built, so it is not evidence either way.' );
 $GLOBALS['keel_enqueued_styles'] = array();
 
 keel_hook( array( 11 => array( array( $menu, 'enqueue_scripts' ) ) ) );
@@ -159,6 +159,16 @@ keel_assert( '' === keel_defaults_admin_menu_width_source(), 'A different method
 
 keel_hook( array( 11 => array( array( 'Automattic\\Jetpack\\Masterbar\\Atomic_Admin_Menu', 'enqueue_scripts' ) ) ) );
 keel_assert( 'jetpack' === keel_defaults_admin_menu_width_source(), 'A callback registered by class name is recognised too.' );
+
+$GLOBALS['keel_autoloaded'] = array();
+spl_autoload_register(
+	static function ( $class_name ) {
+		$GLOBALS['keel_autoloaded'][] = $class_name;
+	}
+);
+keel_hook( array( 10 => array( array( 'Some_Plugin_Not_Loaded_Yet', 'enqueue_scripts' ) ) ) );
+keel_assert( '' === keel_defaults_admin_menu_width_source(), 'Another plugin\'s static enqueue_scripts is not Jetpack\'s menu.' );
+keel_assert( array() === $GLOBALS['keel_autoloaded'], 'And looking at it does not autoload that plugin\'s class.' );
 
 // --- during the hook: Site Health at priority 10, Jetpack at 11 --------------
 
@@ -229,6 +239,12 @@ foreach ( $expected as $case ) {
 		}
 	}
 	keel_assert( '' !== $state, "[{$label}] Site Health lists the width." );
+
+	// The two surfaces that print that row, not only the list behind them.
+	$info   = keel_defaults_debug_information( array() );
+	$status = keel_defaults_site_health_posture();
+	keel_assert( ( false !== strpos( implode( ' ', $info[ KEEL_DEFAULTS_INFO_SECTION ]['fields']['ux']['value'] ), 'sets 272px' ) ) === $shown, "[{$label}] Site Health Info " . ( $shown ? 'carries' : 'does not carry' ) . ' the Jetpack note.' );
+	keel_assert( ( false !== strpos( $status['description'], 'sets 272px' ) ) === $shown, "[{$label}] The Status summary " . ( $shown ? 'carries' : 'does not carry' ) . ' the Jetpack note.' );
 	keel_assert( ( false !== strpos( $state, '272px' ) ) === $shown, "[{$label}] Site Health's width row " . ( $shown ? 'names' : 'does not name' ) . ' Jetpack\'s 272px.' );
 }
 

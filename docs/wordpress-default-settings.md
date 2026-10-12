@@ -657,7 +657,7 @@ On WordPress.com the menu can be 272px wide before any plugin touches it. Jetpac
 package (`automattic/jetpack-masterbar`, bundled in the Jetpack plugin) enqueues
 `dist/admin-menu/admin-menu.css` under the style handle `jetpack-admin-menu`, from
 `Base_Admin_Menu::enqueue_scripts()` on `admin_enqueue_scripts` at priority 11. That stylesheet
-sets `#adminmenu, #adminmenuback, #adminmenuwrap { width: 272px }` and
+sets `#adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap { width: 272px }` and
 `#wpcontent, #wpfooter { margin-left: 272px }`, against core's 160px. Read in Jetpack 16.3, and
 seen on a live WordPress.com site on 2026-10-12.
 
@@ -665,7 +665,7 @@ Whether it loads depends on where the site runs, not on Jetpack being active:
 
 | Site | Loads `jetpack-admin-menu`? |
 | --- | --- |
-| WordPress.com, Atomic (plugin-enabled plans) | Yes, when the admin interface style is Default and Jetpack's SSO module is active. `Main::init()` returns early when the `wpcom_admin_interface` option is `wp-admin` (the Classic style); a missing option is the Default style. `should_customize_nav()` in `src/admin-menu/load.php` then refuses the Atomic menu class when SSO is off. |
+| WordPress.com, Atomic (plugin-enabled plans) | Yes, when the admin interface style is Default and Jetpack's SSO module is active. `Main::init()` returns early when the `wpcom_admin_interface` option is `wp-admin` (the Classic style); a missing option is the Default style. `should_customize_nav()` in `src/admin-menu/load.php` then refuses the Atomic menu class when SSO is off. The SSO condition is written for that class only: a site still in a WordPress.com site-building order gets a different menu class, which loads the stylesheet with SSO off too. |
 | WordPress.com, Simple | Yes, on the Default style. The same Classic check applies; the SSO condition does not, because it is written for the Atomic menu class only. Read from the source, not observed on a Simple site. |
 | Jetpack on any other host | No. The Jetpack plugin never calls `Automattic\Jetpack\Masterbar\Main::init()` itself, and the `jetpack_load_admin_menu_class` filter that gates `load.php` defaults to `false`. Jetpack's own "WordPress.com Toolbar" module, which once did this, was removed in Jetpack 13.8 and 13.9 (2024). WordPress.com's platform code is what starts it. A site could opt in by calling `Main::init()` with that filter returning `true`, and Keel would then report it like any other. |
 
