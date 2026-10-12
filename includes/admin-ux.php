@@ -140,11 +140,37 @@ function keel_defaults_lowercase_filename( $filename ) {
  *    widen on `:not(.auto-fold)` therefore matches almost nobody and silently
  *    disables the feature — which is what an earlier attempt at this shipped.
  *
+ * The block editor needs the same width a second time. Outside fullscreen mode
+ * its frame, `.interface-interface-skeleton`, is `position: fixed` with a `left`
+ * of its own: 160px from core, 272px from Jetpack's WordPress.com menu
+ * stylesheet. It does not sit inside `#wpcontent`, so the margin above never
+ * reaches it. Left alone, a wider menu covers the editor's left edge, and 160px
+ * chosen to take the width back from Jetpack leaves a blank strip instead.
+ * Both seen on a real site, 2026-10-12. So:
+ *
+ * 4. The frame's `left` is set to the chosen width. So is the post editor's
+ *    snackbar list where core offsets it the same way, which it does on
+ *    WordPress 6.4. On 6.9 the list is rendered outside `.edit-post-layout`
+ *    and on 7.1 under another class, so there the selector matches nothing,
+ *    and neither does core's own rule or Jetpack's. The widgets screen's list
+ *    is left alone: its class is the same on versions that offset it and
+ *    versions that centre it on the viewport, so one rule cannot suit both.
+ * 5. `:not(.is-fullscreen-mode)` on those selectors. Core pins the frame to
+ *    `left: 0 !important` in fullscreen mode, where there is no menu, and a
+ *    later `!important` of equal weight would push it back out.
+ * 6. `min-width` on the flyout submenus. Core's is 160px, never more than the
+ *    width set here, so this changes nothing on its own. Jetpack's is 272px,
+ *    and a `min-width` beats a `width` whatever its `!important`.
+ *
  * @emits body:not(.folded)
  * @emits min-width: 961px
  * @emits !important
+ * @emits body:not(.folded):not(.is-fullscreen-mode) .interface-interface-skeleton
+ * @emits .wp-submenu { min-width:
  * @omits :not(.auto-fold)
  * @omits .folded #wpcontent
+ * @omits body:not(.folded) .interface-interface-skeleton
+ * @omits edit-widgets-notices__snackbar
  *
  * @return string CSS, or '' at the default width.
  */
@@ -180,9 +206,15 @@ function keel_defaults_admin_menu_width_css() {
 			%2$s.rtl #wpfooter { margin-right: %1$dpx !important; margin-left: 0 !important; }
 			%2$s.rtl #adminmenu li.menu-top:not(.wp-has-current-submenu) .wp-submenu { right: %1$dpx; left: auto; }
 			%2$s.rtl #adminmenu .wp-has-current-submenu .wp-submenu.wp-submenu-wrap { right: auto; }
+			%2$s #adminmenu .wp-not-current-submenu .wp-submenu { min-width: %1$dpx !important; }
+			%3$s .interface-interface-skeleton,
+			%3$s .edit-post-layout .components-editor-notices__snackbar { left: %1$dpx !important; }
+			%3$s.rtl .interface-interface-skeleton,
+			%3$s.rtl .edit-post-layout .components-editor-notices__snackbar { right: %1$dpx !important; left: 0 !important; }
 		}',
 		$w,
-		'body:not(.folded)'
+		'body:not(.folded)',
+		'body:not(.folded):not(.is-fullscreen-mode)'
 	);
 }
 

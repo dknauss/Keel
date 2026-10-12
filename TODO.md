@@ -53,9 +53,21 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       Nothing is inferred from `IS_ATOMIC`. Pinned in `tests/admin-menu-width-source.php`
       and `tests/settings-render.php`; documented under Admin Menu Width in
       `docs/wordpress-default-settings.md`.
-  - Not yet seen on a real site: the note itself, and the block editor and flyout
-    submenus at 160px, where Jetpack's stylesheet has `272px` rules Keel does not
-    override.
+  - Not yet seen on a real site: the note itself.
+- [x] **The block editor follows the admin menu width** — unreleased. Checked 2026-10-12
+      on a disposable local site (Jetpack 16.3, its masterbar package started by hand).
+      Outside fullscreen mode the editor's frame is `position: fixed` with its own
+      `left`, 160px from core and 272px from Jetpack, and Keel never set it. At 240px
+      without Jetpack the menu covered 80px of the editor; at 160px with Jetpack's
+      stylesheet a 112px blank strip sat between menu and editor, and flyout submenus
+      stayed 272px wide. `keel_defaults_admin_menu_width_css()` now sets the frame's
+      offset and the flyouts' `min-width` to the chosen width, and stands down in
+      fullscreen mode and for a folded menu. Pinned in `tests/admin-ux-media.php` and by
+      the function's `@emits`/`@omits` tags; documented under Admin Menu Width in
+      `docs/wordpress-default-settings.md`.
+  - Left alone: the widgets screen's snackbar list, which Jetpack places for a 272px
+    menu. Core offsets it before 7.0 and centres it after, under one class.
+  - Not yet seen on a live WordPress.com site.
 - [ ] **Observe the field**
   - Watch the next scheduled live matrix run.
   - Triage early reports before opening another release cycle.
