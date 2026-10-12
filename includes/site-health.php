@@ -184,12 +184,22 @@ function keel_defaults_posture_by_group() {
 			continue;
 		}
 
-		$group                = isset( $field['group'] ) ? $field['group'] : 'other';
-		$s                    = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
+		$group = isset( $field['group'] ) ? $field['group'] : 'other';
+		$s     = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
+		$state = keel_defaults_state_label( $field, keel_defaults_get( $key ), $s );
+
+		// "Leave unchanged" is true of Keel and misleading about the site when
+		// Jetpack is the one setting the width. Say so on the row itself; this is
+		// an inventory, and the row is where the width gets read.
+		if ( 'admin_menu_width' === $key && keel_defaults_jetpack_sets_menu_width() ) {
+			/* translators: %s: the setting's current state, such as "Leave unchanged". */
+			$state = sprintf( __( '%s (Jetpack\'s WordPress.com menu styling sets 272px)', 'keel-defaults' ), $state );
+		}
+
 		$by_group[ $group ][] = array(
 			'key'   => $key,
 			'label' => isset( $s['label'] ) ? $s['label'] : $key,
-			'state' => keel_defaults_state_label( $field, keel_defaults_get( $key ), $s ),
+			'state' => $state,
 		);
 	}
 

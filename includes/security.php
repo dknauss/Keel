@@ -313,16 +313,27 @@ function keel_defaults_jetpack_xmlrpc_state() {
 }
 
 /**
- * The Jetpack warning for the XML-RPC endpoint block, when it applies.
+ * The Jetpack warning for a setting, when one applies on this site.
  *
  * Returned for the settings screen rather than written into the help text: it is
  * only true on some sites, and a warning that is always on teaches people to
  * stop reading warnings.
  *
+ * Two settings have one. The XML-RPC endpoint block warns wherever Jetpack is
+ * active. Admin Menu Width warns only while Jetpack's WordPress.com menu
+ * stylesheet is actually loading and Keel's width is left unchanged: that is the
+ * state where the menu is 272px wide and Keel appears to be doing nothing.
+ *
  * @param string $key Schema key being rendered.
  * @return string Text, or '' when the warning does not apply.
  */
 function keel_defaults_jetpack_warning( $key ) {
+	if ( 'admin_menu_width' === $key ) {
+		return keel_defaults_jetpack_sets_menu_width()
+			? __( 'Jetpack\'s WordPress.com menu styling is setting the admin menu to 272px on this site, and Keel is leaving it alone. Choose 160px to restore WordPress\'s own width.', 'keel-defaults' )
+			: '';
+	}
+
 	if ( 'block_xmlrpc_endpoint' !== $key || ! keel_defaults_jetpack_active() ) {
 		return '';
 	}

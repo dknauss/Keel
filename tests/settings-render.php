@@ -22,6 +22,18 @@ $GLOBALS['keel_options'] = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
+// The style queue as the settings screen sees it: admin_enqueue_scripts has
+// finished by the time the page body renders. Empty unless a test fills it.
+$GLOBALS['keel_enqueued_styles'] = array();
+function did_action( $hook ) {
+	return 1;
+}
+function doing_action( $hook = null ) {
+	return false;
+}
+function wp_style_is( $handle, $status = 'enqueued' ) {
+	return 'enqueued' === $status && in_array( $handle, $GLOBALS['keel_enqueued_styles'], true );
+}
 function register_activation_hook( ...$args ) {}
 function __( $s, $d = null ) {
 	return $s; }
@@ -648,6 +660,37 @@ foreach ( array( 'settings-page.php', 'network.php' ) as $screen_file ) {
 		"includes/{$screen_file} enqueues its assets only on its own screen."
 	);
 }
+
+/*
+ * The Jetpack width note belongs to one state: Jetpack's menu stylesheet is in
+ * the queue and Keel's width is left unchanged. Each of the other three
+ * combinations is rendered too, because a note that showed in any of them would
+ * be the always-on warning the pattern exists to avoid.
+ */
+$width_note = 'setting the admin menu to 272px';
+
+keel_assert( false === strpos( $stock, $width_note ), 'Without Jetpack\'s stylesheet, the width field carries no Jetpack note at the default.' );
+keel_assert( false === strpos( $configured, $width_note ), 'Nor at a chosen width.' );
+
+$GLOBALS['keel_enqueued_styles'] = array( 'jetpack-admin-menu' );
+
+$with_jetpack = keel_render( array() );
+keel_assert( 1 === substr_count( $with_jetpack, $width_note ), 'With Jetpack\'s stylesheet queued and the width left unchanged, the note is shown once.' );
+keel_assert(
+	1 === preg_match( '/id="admin_menu_width-range".*?<p class="description keel-warning"><strong>[^<]*' . preg_quote( $width_note, '/' ) . '[^<]*Choose 160px[^<]*<\/strong><\/p>/s', $with_jetpack ),
+	'The note sits in the Admin Menu Width row, after the slider, and names the 160px stop as the way back.'
+);
+foreach ( array( '160', '200', '300' ) as $chosen ) {
+	keel_assert(
+		false === strpos( keel_render( array( 'admin_menu_width' => $chosen ) ), $width_note ),
+		"With Jetpack's stylesheet queued and Keel set to {$chosen}, Keel decides the width and the note is gone."
+	);
+}
+
+$GLOBALS['keel_enqueued_styles'] = array( 'jetpack-admin-menu-other', 'colors' );
+keel_assert( false === strpos( keel_render( array() ), $width_note ), 'A different handle in the queue is not Jetpack\'s menu stylesheet.' );
+
+$GLOBALS['keel_enqueued_styles'] = array();
 
 /*
  * --- when two constants apply, the note names the one that decides ---
