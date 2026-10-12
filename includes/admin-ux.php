@@ -187,6 +187,87 @@ function keel_defaults_admin_menu_width_css() {
 }
 
 /**
+ * What else on this site is setting the admin menu's width, if anything.
+ *
+ * Today that is one thing: Jetpack's WordPress.com menu styling. Its masterbar
+ * package enqueues dist/admin-menu/admin-menu.css under the handle
+ * `jetpack-admin-menu`, which sets the menu to 272px and moves the content over
+ * to match. With Keel's width left unchanged Keel emits nothing, so 272px is
+ * what the site gets while Keel's own screen says it is not setting a width.
+ *
+ * This asks WordPress rather than guessing from the host. A WordPress.com site
+ * on the Classic admin style does not load the stylesheet, and neither does a
+ * Jetpack site anywhere else, so `IS_ATOMIC` or "Jetpack is active" would be
+ * wrong in both directions.
+ *
+ * Two places to look, because the answer is needed at two points in a request:
+ *
+ * 1. The style queue, once `admin_enqueue_scripts` has finished. This is the
+ *    settings screen's case: it renders in the page body, after the queue is
+ *    built. A finished queue without the handle is a firm no.
+ * 2. Before then, whether Jetpack's menu class has registered the method that
+ *    enqueues it. Site Health runs its tests on `admin_enqueue_scripts` at
+ *    priority 10, one ahead of Jetpack's 11, so the queue is not yet an answer.
+ *
+ * Reads only. Nothing is registered, enqueued or called on Jetpack's objects.
+ *
+ * @return string 'jetpack', or '' when nothing known is setting the width.
+ */
+function keel_defaults_admin_menu_width_source() {
+	$handle = 'jetpack-admin-menu';
+	$hook   = 'admin_enqueue_scripts';
+
+	if ( did_action( $hook ) && ! doing_action( $hook ) ) {
+		return wp_style_is( $handle, 'enqueued' ) ? 'jetpack' : '';
+	}
+
+	// Asked mid-hook, Jetpack may already have run.
+	if ( doing_action( $hook ) && wp_style_is( $handle, 'enqueued' ) ) {
+		return 'jetpack';
+	}
+
+	global $wp_filter;
+
+	if ( empty( $wp_filter[ $hook ] ) || ! isset( $wp_filter[ $hook ]->callbacks ) ) {
+		return '';
+	}
+
+	foreach ( (array) $wp_filter[ $hook ]->callbacks as $callbacks ) {
+		foreach ( (array) $callbacks as $registered ) {
+			$callback = isset( $registered['function'] ) ? $registered['function'] : null;
+
+			if ( ! is_array( $callback ) || ! isset( $callback[0], $callback[1] ) || 'enqueue_scripts' !== $callback[1] ) {
+				continue;
+			}
+
+			// A class named as a string is only examined if it is already loaded:
+			// is_a() would otherwise run autoloaders for other plugins' classes.
+			if ( is_string( $callback[0] ) && ! class_exists( $callback[0], false ) ) {
+				continue;
+			}
+
+			if ( is_a( $callback[0], 'Automattic\\Jetpack\\Masterbar\\Base_Admin_Menu', true ) ) {
+				return 'jetpack';
+			}
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Whether Jetpack is widening the menu while Keel's width is left unchanged.
+ *
+ * The one state worth telling anyone about. At any other setting Keel's own
+ * rules carry `!important` and decide the width, so there is nothing to explain.
+ *
+ * @return bool
+ */
+function keel_defaults_jetpack_sets_menu_width() {
+	return 'default' === keel_defaults_get( 'admin_menu_width' ) && 'jetpack' === keel_defaults_admin_menu_width_source();
+}
+
+/**
  * Register helper columns for the current post-type list table.
  *
  * Column hooks are per-post-type, so they can only be added once the screen is

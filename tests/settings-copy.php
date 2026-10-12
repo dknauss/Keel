@@ -22,6 +22,9 @@ $GLOBALS['keel_options'] = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
+// Nothing has enqueued anything: keel_defaults_admin_menu_width_source() reads these.
+function did_action( $hook ) { return 0; }
+function doing_action( $hook = null ) { return false; }
 function register_activation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html( $s ) { return $s; }

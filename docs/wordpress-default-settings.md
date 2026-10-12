@@ -651,6 +651,54 @@ add_action( 'admin_head', function () {
 } );
 ```
 
+#### Jetpack's WordPress.com menu sets its own width
+
+On WordPress.com the menu can be 272px wide before any plugin touches it. Jetpack's masterbar
+package (`automattic/jetpack-masterbar`, bundled in the Jetpack plugin) enqueues
+`dist/admin-menu/admin-menu.css` under the style handle `jetpack-admin-menu`, from
+`Base_Admin_Menu::enqueue_scripts()` on `admin_enqueue_scripts` at priority 11. That stylesheet
+sets `#adminmenu, #adminmenu .wp-submenu, #adminmenuback, #adminmenuwrap { width: 272px }` and
+`#wpcontent, #wpfooter { margin-left: 272px }`, against core's 160px. Read in Jetpack 16.3, and
+seen on a live WordPress.com site on 2026-10-12.
+
+Whether it loads depends on where the site runs, not on Jetpack being active:
+
+| Site | Loads `jetpack-admin-menu`? |
+| --- | --- |
+| WordPress.com, Atomic (plugin-enabled plans) | Yes, when the admin interface style is Default and Jetpack's SSO module is active. `Main::init()` returns early when the `wpcom_admin_interface` option is `wp-admin` (the Classic style); a missing option is the Default style. `should_customize_nav()` in `src/admin-menu/load.php` then refuses the Atomic menu class when SSO is off. The SSO condition is written for that class only: a site still in a WordPress.com site-building order gets a different menu class, which loads the stylesheet with SSO off too. |
+| WordPress.com, Simple | Yes, on the Default style. The same Classic check applies; the SSO condition does not, because it is written for the Atomic menu class only. Read from the source, not observed on a Simple site. |
+| Jetpack on any other host | No. The Jetpack plugin never calls `Automattic\Jetpack\Masterbar\Main::init()` itself, and the `jetpack_load_admin_menu_class` filter that gates `load.php` defaults to `false`. Jetpack's own "WordPress.com Toolbar" module, which once did this, was removed in Jetpack 13.8 and 13.9 (2024). WordPress.com's platform code is what starts it. A site could opt in by calling `Main::init()` with that filter returning `true`, and Keel would then report it like any other. |
+
+The platform code that starts the package on WordPress.com is not part of the Jetpack plugin and
+was not read for this page, so the two "Yes" rows describe the conditions Jetpack's package
+checks once it has been started.
+
+What Keel does at each setting:
+
+| Admin Menu Width | Keel emits | Result where Jetpack's stylesheet loads |
+| --- | --- | --- |
+| Leave unchanged (`default`) | Nothing | 272px. The settings screen says so in a note on the field, and Site Health shows it on the Admin Menu Width row. |
+| 160px (`160`) | Core's width, with `!important` | 160px: the menu and the content offset are WordPress's own again. |
+| 200px to 300px | That width, with `!important` | The chosen width. |
+
+To take the width back, choose **160px**. Keel never changes the setting itself: a wider menu is
+WordPress.com's design, and some people want it. Switching the site to the Classic admin
+interface style on WordPress.com removes Jetpack's stylesheet altogether, along with the rest of
+its menu changes.
+
+Two limits. Keel's rules apply from 961px up and only while the menu is expanded, so below that
+width and in a folded menu Jetpack's stylesheet still decides. And Keel overrides the menu, its
+submenus and the content offset, not every `272px` in Jetpack's file: flyout submenus keep a
+`min-width` of 272px, and the block editor outside fullscreen mode is still offset by 272px.
+Those two are read from the stylesheet and have not been checked on a live site.
+
+Keel detects this by asking WordPress whether the handle is enqueued
+(`keel_defaults_admin_menu_width_source()`), or, before the style queue is built, whether
+Jetpack's menu class has registered the callback that enqueues it. It does not infer it from
+`IS_ATOMIC`, `IS_WPCOM` or Jetpack being active. Those would be wrong on a Classic-style
+site, and wrong on a staging or local copy, which is judged by what it loads and not by where
+it was copied from.
+
 ### Environment Indicator
 - **Key:** `environment_indicator`
 - **Default:** `no`

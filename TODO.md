@@ -43,6 +43,19 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       screen saying why. Keel now warns administrators, without a toggle, when a site
       declares local or development but is served from a public host or runs on
       WordPress.com (`IS_ATOMIC`). Pinned in `tests/environment-indicator.php`.
+- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — unreleased. Found
+      2026-10-12 on a WordPress.com Atomic site (Jetpack 16.3): the menu was 272px with
+      Admin Menu Width at "Leave unchanged". Jetpack's masterbar package enqueues
+      `jetpack-admin-menu`, which sets 272px, and Keel emits nothing at that setting.
+      Keel now detects the enqueued handle (`keel_defaults_admin_menu_width_source()`),
+      shows a note on the field only in that state, and marks the width row in Site
+      Health. It does not change the setting; choosing 160px takes the width back.
+      Nothing is inferred from `IS_ATOMIC`. Pinned in `tests/admin-menu-width-source.php`
+      and `tests/settings-render.php`; documented under Admin Menu Width in
+      `docs/wordpress-default-settings.md`.
+  - Not yet seen on a real site: the note itself, and the block editor and flyout
+    submenus at 160px, where Jetpack's stylesheet has `272px` rules Keel does not
+    override.
 - [ ] **Observe the field**
   - Watch the next scheduled live matrix run.
   - Triage early reports before opening another release cycle.
