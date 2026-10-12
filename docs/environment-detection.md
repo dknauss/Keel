@@ -102,6 +102,49 @@ export WP_ENVIRONMENT_TYPE=staging
 The constant wins if both are set. Use one of core's four names; anything else
 is ignored and the host fallback applies.
 
+## Overriding it in Keel
+
+The **Environment** setting (Admin and Front-End UX) defaults to Automatic, which
+is everything above. Choosing Production, Staging, Development or Local makes
+Keel use that instead, ahead of the declared environment and the host fallback.
+A stored value outside those four is treated as Automatic.
+
+The override changes Keel only — the indicator and non-production email. WordPress
+core and every other plugin keep reading `WP_ENVIRONMENT_TYPE`, so it is a stopgap
+while the real declaration is fixed, not a substitute for fixing it.
+
+## A live site labelled local
+
+The case the override exists for. WordPress Studio writes
+`define( 'WP_ENVIRONMENT_TYPE', 'local' )` into `wp-config.php`, and its export —
+which is also what a push sends — includes `wp-config.php`. A push that replaces
+the live site's file carries `local` with it. Seen on WordPress.com in October
+2026, where it did more than relabel the site:
+
+- Keel held back the site's email, comment notifications included.
+- Jetpack went into offline mode, which took WordPress.com sign-in with it.
+- WordPress.com's platform plugin strips `pingback.ping` from XML-RPC on any
+  non-production site, so incoming pingbacks stopped regardless of Keel's own
+  pingback setting.
+
+Keel now warns administrators, without a toggle and without a dismiss button, when
+`WP_ENVIRONMENT_TYPE` declares `local` or `development`, no override is set, and
+either the home URL's host looks public or the site runs on WordPress.com
+(`IS_ATOMIC`). The notice names the declared value and the host, and links to the
+setting.
+
+"Public" is decided conservatively, because a false alarm tells somebody their
+laptop is a live site. Not public: loopback names, the local-tool suffixes above,
+private and reserved IP addresses, single-label hosts, and hosts ending in
+`.internal`, `.lan`, `.home.arpa`, `.intranet` or `.corp` (filterable with
+`keel_private_host_suffixes`). Staging is never flagged, since staging sites
+legitimately live on public hosts. A development site that really does live on a
+public address can silence the warning with:
+
+```php
+add_filter( 'keel_environment_looks_mislabelled', '__return_false' );
+```
+
 ## Changing the labels and colours
 
 The four environments, their labels, icons, and colours come from
