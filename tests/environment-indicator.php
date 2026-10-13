@@ -44,6 +44,7 @@ function delete_option( $name ) { unset( $GLOBALS['keel_options'][ $name ] );
 $GLOBALS['keel_can'] = true;
 function admin_url( $path = '' ) { return 'https://example-real.ca/wp-admin/' . $path; }
 function esc_url( $s ) { return $s; }
+function get_current_screen() { return isset( $GLOBALS['keel_screen'] ) ? (object) array( 'id' => $GLOBALS['keel_screen'] ) : null; }
 $GLOBALS['keel_options'] = array();
 define( 'ABSPATH', __DIR__ . '/' );
 
@@ -245,7 +246,43 @@ foreach ( array( '169.254.1.1', '0.0.0.0', '100.100.1.1', '::ffff:10.0.0.1', '::
 $GLOBALS['keel_home']                     = 'https://m.arginalia.com';
 $GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'production' );
 keel_assert( ! keel_defaults_environment_looks_mislabelled(), 'With an override set, the site is not flagged.' );
+
+// ...but the override changes only Keel. WordPress, Jetpack and the host still
+// read "local", so a second warning replaces the first instead of silence.
+keel_assert( keel_defaults_environment_override_masks_label(), 'An override covering for a wrong label is reported as masking it.' );
+keel_assert( ! keel_defaults_environment_override_is_redundant(), 'An override that disagrees with the declaration is not redundant.' );
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+$masking = (string) ob_get_clean();
+keel_assert( false !== strpos( $masking, 'keel-environment-override-masking' ), 'The masking notice is shown.' );
+keel_assert( false === strpos( $masking, 'keel-environment-mismatch' ), 'The original warning is replaced, not repeated.' );
+keel_assert( false !== strpos( $masking, '<strong>production</strong>' ) && false !== strpos( $masking, '<strong>local</strong>' ), 'The masking notice names both environments.' );
+keel_assert( false !== strpos( $masking, 'wp config set WP_ENVIRONMENT_TYPE production --type=constant' ), 'The masking notice gives the WP-CLI command.' );
+keel_assert( false !== strpos( $masking, 'server environment variable' ), 'A value from the environment variable is named as such.' );
+keel_assert( false !== strpos( $masking, 'back to Automatic' ), 'The masking notice says to return to Automatic afterwards.' );
+
+$health = keel_defaults_site_health_environment();
+keel_assert( 'recommended' === $health['status'], 'Site Health recommends fixing a masked label.' );
+keel_assert( 'keel_defaults_environment' === $health['test'], 'The Site Health test has a stable id.' );
+
+// The Network Admin hears about the label even with a site-level override,
+// because WP_ENVIRONMENT_TYPE is network-wide and overrides are not.
+ob_start();
+keel_defaults_render_network_environment_notice();
+$network = (string) ob_get_clean();
+keel_assert( false !== strpos( $network, 'every site in the network' ), 'The Network Admin is warned about a network-wide label.' );
+keel_assert( false !== strpos( $network, 'wp config set' ), 'The network notice carries the same advice.' );
+$GLOBALS['keel_can'] = false;
+ob_start();
+keel_defaults_render_network_environment_notice();
+keel_assert( '' === trim( (string) ob_get_clean() ), 'No network notice without the capability.' );
+$GLOBALS['keel_can']                      = true;
 $GLOBALS['keel_options']['keel_settings'] = array();
+
+// With nothing done yet, Site Health calls the live site labelled local critical.
+$health = keel_defaults_site_health_environment();
+keel_assert( 'critical' === $health['status'], 'Site Health reports a live site labelled local as critical.' );
+keel_assert( false !== strpos( $health['description'], 'wp config set' ), 'Site Health gives the same advice as the notice.' );
 
 // The escape hatch for a development site that really lives on a public host.
 $GLOBALS['keel_filters']['keel_environment_looks_mislabelled'] = false;
@@ -316,6 +353,47 @@ unset( $GLOBALS['keel_options']['keel_environment_override_host'] );
 $GLOBALS['keel_options']['keel_settings'] = array();
 $GLOBALS['keel_home']                     = 'https://m.arginalia.com';
 
+// --- an override that says what the site already says ---
+//
+// Typically left behind once wp-config.php is fixed. Pointed out on Keel's own
+// screen only, and never as a fault.
+putenv( 'WP_ENVIRONMENT_TYPE=production' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- setting the variable under test is the point.
+$GLOBALS['keel_env']                      = 'production';
+$GLOBALS['keel_home']                     = 'https://m.arginalia.com';
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'production' );
+keel_assert( keel_defaults_environment_override_is_redundant(), 'An override matching the declaration is redundant.' );
+keel_assert( ! keel_defaults_environment_override_masks_label(), 'A redundant override masks nothing.' );
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+keel_assert( '' === trim( (string) ob_get_clean() ), 'A redundant override is not mentioned on every screen.' );
+$GLOBALS['keel_screen'] = 'settings_page_keel';
+ob_start();
+keel_defaults_render_environment_mismatch_notice();
+$redundant = (string) ob_get_clean();
+keel_assert( false !== strpos( $redundant, 'keel-environment-override-redundant' ) && false !== strpos( $redundant, 'notice-info' ), 'Keel’s own screen suggests returning to Automatic.' );
+unset( $GLOBALS['keel_screen'] );
+$health = keel_defaults_site_health_environment();
+keel_assert( 'good' === $health['status'] && false !== strpos( $health['description'], 'back to Automatic' ), 'Site Health passes a redundant override and suggests Automatic.' );
+
+// Agreement passes, and says so.
+$GLOBALS['keel_options']['keel_settings'] = array();
+$health                                   = keel_defaults_site_health_environment();
+keel_assert( 'good' === $health['status'] && false !== strpos( $health['label'], 'agree' ), 'Site Health passes when WordPress and Keel agree.' );
+
+// A deliberate difference that harms nothing passes, but is named.
+$GLOBALS['keel_options']['keel_settings'] = array( 'environment_override' => 'staging' );
+$health                                   = keel_defaults_site_health_environment();
+keel_assert( 'good' === $health['status'] && false !== strpos( $health['label'], 'treats this production site as staging' ), 'A production site overridden to staging is described, not flagged.' );
+$GLOBALS['keel_options']['keel_settings'] = array();
+
+// Nor is a healthy network nagged.
+ob_start();
+keel_defaults_render_network_environment_notice();
+keel_assert( '' === trim( (string) ob_get_clean() ), 'No network notice when the label is right.' );
+
+putenv( 'WP_ENVIRONMENT_TYPE=local' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- restoring this block's starting state.
+$GLOBALS['keel_env'] = 'local';
+
 // And says nothing when there is nothing to say.
 $GLOBALS['keel_home'] = 'http://localhost:8885';
 ob_start();
@@ -326,6 +404,23 @@ putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFun
 $GLOBALS['keel_env']  = 'production';
 $GLOBALS['keel_home'] = 'https://example-real.ca';
 
+// --- where wp-config.php is ---
+//
+// On hosts that share one copy of core between sites (WordPress.com among them)
+// the file sits beside the content directory, not beside WordPress.
+keel_assert( '' === keel_defaults_wp_config_path(), 'No wp-config.php found is reported as none.' );
+$keel_tmp = sys_get_temp_dir() . '/keel-env-' . getmypid();
+mkdir( $keel_tmp . '/wp-content', 0700, true );
+file_put_contents( $keel_tmp . '/wp-config.php', '<?php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- test fixture.
+define( 'WP_CONTENT_DIR', $keel_tmp . '/wp-content' );
+$keel_found  = keel_defaults_wp_config_path();
+$keel_expect = $keel_tmp . '/wp-config.php';
+keel_assert( $keel_expect === $keel_found, 'wp-config.php beside the content directory is found.' );
+keel_assert( false !== strpos( keel_defaults_environment_fix_advice(), $keel_tmp . '/wp-config.php' ), 'The advice names the file it found.' );
+unlink( $keel_tmp . '/wp-config.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- test fixture.
+rmdir( $keel_tmp . '/wp-content' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- test fixture.
+rmdir( $keel_tmp ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- test fixture.
+
 // The constant is the other half of the same test. It cannot be undefined once
 // set, so it is asserted last and the value is one the heuristic would override.
 define( 'WP_ENVIRONMENT_TYPE', 'staging' );
@@ -334,6 +429,8 @@ keel_assert(
 	'staging' === keel_defaults_current_environment(),
 	'The WP_ENVIRONMENT_TYPE constant wins over the host heuristic.'
 );
+keel_assert( 'constant' === keel_defaults_environment_declaration_source(), 'A constant declaration is reported as the constant.' );
+keel_assert( false === strpos( keel_defaults_environment_fix_advice(), 'server environment variable' ), 'Advice for a constant does not mention the variable.' );
 
 // --- toolbar node ---
 $GLOBALS['keel_env'] = 'staging';

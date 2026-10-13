@@ -29,6 +29,10 @@ function keel_defaults_site_health_tests( $tests ) {
 		'label' => __( 'Password breach screening', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_breach_screening',
 	);
+	$tests['direct']['keel_defaults_environment']      = array(
+		'label' => __( 'Environment type', 'keel-defaults' ),
+		'test'  => 'keel_defaults_site_health_environment',
+	);
 
 	// Only where there is a Jetpack connection to say something about. A check
 	// that passes on every site without Jetpack is noise in the passed list.
@@ -40,6 +44,99 @@ function keel_defaults_site_health_tests( $tests ) {
 	}
 
 	return $tests;
+}
+
+/**
+ * Report whether WordPress, Keel and the site agree on what environment this is.
+ *
+ * The admin notices say the same things, but Site Health is where hosts,
+ * support staff and audits look, and where a passing state can be shown too.
+ * Worst state first: a live site labelled local, then an override covering for
+ * that label, then an override ignored on a copied database.
+ *
+ * @return array Site Health result.
+ */
+function keel_defaults_site_health_environment() {
+	$keel      = keel_defaults_current_environment();
+	$wordpress = wp_get_environment_type();
+	$link      = keel_defaults_setting_link( 'environment_override', __( 'Environment', 'keel-defaults' ) );
+	$advice    = keel_defaults_environment_fix_advice();
+	$result    = array(
+		/* translators: %s: environment name, such as production. */
+		'label'       => sprintf( __( 'WordPress and Keel agree that this is a %s site', 'keel-defaults' ), $keel ),
+		'status'      => 'good',
+		'badge'       => array(
+			'label' => __( 'Keel', 'keel-defaults' ),
+			'color' => 'blue',
+		),
+		'description' => '<p>' . esc_html__( 'Keel’s environment indicator and its non-production email handling use the same environment WordPress reports, so the label you see and what Keel does with email match what other plugins see.', 'keel-defaults' ) . '</p>',
+		'test'        => 'keel_defaults_environment',
+	);
+
+	if ( keel_defaults_environment_looks_mislabelled() ) {
+		$result['status'] = 'critical';
+		/* translators: %s: environment name, such as local. */
+		$result['label']       = sprintf( __( 'This site looks live, but WordPress says it is %s', 'keel-defaults' ), $wordpress );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: 1: environment name, such as local. 2: the site's address. */
+			esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local.', 'keel-defaults' ),
+			'<strong>' . esc_html( $wordpress ) . '</strong>',
+			'<code>' . esc_html( keel_defaults_home_host() ) . '</code>'
+		) . '</p>' . $advice;
+
+		return $result;
+	}
+
+	if ( keel_defaults_environment_override_masks_label() ) {
+		$result['status']      = 'recommended';
+		$result['label']       = __( 'Keel’s Environment setting is covering for a wrong WordPress label', 'keel-defaults' );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: 1: environment Keel uses, such as production. 2: environment WordPress reports, such as local. */
+			esc_html__( 'Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labeled local stops accepting pingbacks.', 'keel-defaults' ),
+			'<strong>' . esc_html( $keel ) . '</strong>',
+			'<strong>' . esc_html( $wordpress ) . '</strong>'
+		) . '</p>' . $advice . '<p>' . sprintf(
+			/* translators: %s: link to the Environment setting. */
+			esc_html__( 'Once it is fixed, set Keel’s %s back to Automatic.', 'keel-defaults' ),
+			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p>';
+
+		return $result;
+	}
+
+	if ( keel_defaults_environment_override_is_stale() ) {
+		$result['status']      = 'recommended';
+		$result['label']       = __( 'Keel’s environment override is being ignored on this site', 'keel-defaults' );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting. */
+			esc_html__( 'It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one.', 'keel-defaults' ),
+			'<strong>' . esc_html( keel_defaults_environment_override_stored() ) . '</strong>',
+			'<code>' . esc_html( (string) get_option( KEEL_ENVIRONMENT_OVERRIDE_HOST_OPTION, '' ) ) . '</code>',
+			'<code>' . esc_html( keel_defaults_home_host() ) . '</code>',
+			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p>';
+
+		return $result;
+	}
+
+	if ( keel_defaults_environment_override_is_redundant() ) {
+		$result['description'] .= '<p>' . sprintf(
+			/* translators: 1: environment name, such as production. 2: link to the Environment setting. */
+			esc_html__( 'Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production would go on sending mail from a copy that is meant to be staging.', 'keel-defaults' ),
+			'<strong>' . esc_html( $keel ) . '</strong>',
+			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p>';
+
+		return $result;
+	}
+
+	if ( $keel !== $wordpress ) {
+		/* translators: 1: environment WordPress reports. 2: environment Keel uses. */
+		$result['label']       = sprintf( __( 'Keel treats this %1$s site as %2$s', 'keel-defaults' ), $wordpress, $keel );
+		$result['description'] = '<p>' . esc_html__( 'Keel’s environment indicator and non-production email handling follow Keel’s environment, either because of the Environment setting or because the site is served from a local development address and declares no environment of its own. WordPress core and other plugins still see the environment WordPress reports.', 'keel-defaults' ) . '</p>';
+	}
+
+	return $result;
 }
 
 /**
