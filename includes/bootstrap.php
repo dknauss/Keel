@@ -622,6 +622,10 @@ function keel_defaults_bootstrap() {
 	 * "local" is a fact about the site, not a default it chose.
 	 */
 	add_action( 'admin_notices', 'keel_defaults_render_environment_mismatch_notice' );
+	if ( is_multisite() ) {
+		// WP_ENVIRONMENT_TYPE is network-wide; say so where network admins look.
+		add_action( 'network_admin_notices', 'keel_defaults_render_network_environment_notice' );
+	}
 
 	// Remember which site an environment override was chosen on, so a copy of
 	// the database does not inherit it. See keel_defaults_environment_override_is_stale().

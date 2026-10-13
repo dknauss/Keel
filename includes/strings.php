@@ -209,7 +209,7 @@ function keel_defaults_strings() {
 		),
 		'environment_override'            => array(
 			'label'   => __( 'Environment', 'keel-defaults' ),
-			'help'    => __( 'What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabelled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too.', 'keel-defaults' ),
+			'help'    => __( 'What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabeled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too.', 'keel-defaults' ),
 			'choices' => array(
 				'auto'        => __( 'Automatic (WordPress environment type)', 'keel-defaults' ),
 				'production'  => __( 'Production', 'keel-defaults' ),

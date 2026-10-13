@@ -648,7 +648,7 @@ function keel_defaults_is_local_host( $host ) {
 }
 
 /**
- * Whether this site declares its own environment type.
+ * Where this site's environment declaration comes from, if anywhere.
  *
  * Core resolves `WP_ENVIRONMENT_TYPE` from *either* an environment variable or
  * the constant, the constant winning — so testing only for the constant misses
@@ -658,30 +658,42 @@ function keel_defaults_is_local_host( $host ) {
  * A declared value only counts when core would accept it. Core silently falls
  * back to production for anything outside its four names, and inheriting that
  * fallback would paint a red Production badge across somebody's laptop on the
- * strength of a typo.
+ * strength of a typo. A constant that is set but invalid still wins over the
+ * variable, as it does in core, so it counts as no declaration at all.
+ *
+ * @return string 'constant', 'variable', or '' when nothing valid is declared.
+ */
+function keel_defaults_environment_declaration_source() {
+	$valid = array( 'local', 'development', 'staging', 'production' );
+
+	if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE ) {
+		return in_array( (string) WP_ENVIRONMENT_TYPE, $valid, true ) ? 'constant' : '';
+	}
+
+	if ( function_exists( 'getenv' ) ) {
+		$env = getenv( 'WP_ENVIRONMENT_TYPE' );
+		if ( false !== $env && in_array( (string) $env, $valid, true ) ) {
+			return 'variable';
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Whether this site declares its own environment type.
+ *
+ * @see keel_defaults_environment_declaration_source()
  *
  * @return bool
  */
 function keel_defaults_environment_is_declared() {
-	$declared = '';
-
-	if ( function_exists( 'getenv' ) ) {
-		$env = getenv( 'WP_ENVIRONMENT_TYPE' );
-		if ( false !== $env ) {
-			$declared = (string) $env;
-		}
-	}
-
-	if ( defined( 'WP_ENVIRONMENT_TYPE' ) && WP_ENVIRONMENT_TYPE ) {
-		$declared = (string) WP_ENVIRONMENT_TYPE;
-	}
-
-	return in_array( $declared, array( 'local', 'development', 'staging', 'production' ), true );
+	return '' !== keel_defaults_environment_declaration_source();
 }
 
 /**
- * The current environment, treating known local-tool hosts as local when the
- * site has not declared an environment type of its own.
+ * The environment Keel would use with no override: WordPress's own answer, or
+ * `local` for a known local-tool host when the site declares nothing.
  *
  * The host heuristic is a fallback, never an override. A site that says it is
  * staging is staging, even on a .ddev.site hostname — an indicator that
@@ -690,12 +702,7 @@ function keel_defaults_environment_is_declared() {
  *
  * @return string
  */
-function keel_defaults_current_environment() {
-	$override = keel_defaults_environment_override();
-	if ( '' !== $override ) {
-		return $override;
-	}
-
+function keel_defaults_automatic_environment() {
 	$type = wp_get_environment_type();
 
 	if ( ! keel_defaults_environment_is_declared() ) {
@@ -706,6 +713,18 @@ function keel_defaults_current_environment() {
 	}
 
 	return $type;
+}
+
+/**
+ * The environment Keel acts on: the administrator's override if one applies,
+ * otherwise the automatic environment.
+ *
+ * @return string
+ */
+function keel_defaults_current_environment() {
+	$override = keel_defaults_environment_override();
+
+	return ( '' !== $override ) ? $override : keel_defaults_automatic_environment();
 }
 
 /**
@@ -882,9 +901,10 @@ function keel_defaults_is_public_host( $host ) {
 }
 
 /**
- * Whether WordPress calls this site local while it looks live.
+ * Whether WordPress's own environment label looks wrong for this site.
  *
- * True when no Keel override applies and either:
+ * Judged on what WordPress declares, whether or not a Keel override is covering
+ * for it. True when either:
  *
  * - `WP_ENVIRONMENT_TYPE` declares `local` and the site runs on WordPress.com
  *   (`IS_ATOMIC`) or its home URL's host is public; or
@@ -893,14 +913,14 @@ function keel_defaults_is_public_host( $host ) {
  * `development` on an ordinary public host is not flagged. Managed hosts run
  * genuine development environments on public names (Pantheon's dev and
  * multidev, Codespaces, tunnels), and telling those sites to call themselves
- * production would switch their mail suppression off. A `local` declaration on
+ * production would turn their mail suppression off. A `local` declaration on
  * a public host is much stronger evidence, and is the shape a pushed local
  * wp-config.php leaves behind. Staging is never flagged.
  *
  * @return bool
  */
-function keel_defaults_environment_looks_mislabelled() {
-	if ( '' !== keel_defaults_environment_override() || ! keel_defaults_environment_is_declared() ) {
+function keel_defaults_environment_label_is_wrong() {
+	if ( ! keel_defaults_environment_is_declared() ) {
 		return false;
 	}
 
@@ -927,18 +947,166 @@ function keel_defaults_environment_looks_mislabelled() {
 }
 
 /**
+ * Whether WordPress calls this site local while it looks live, and nothing has
+ * been done about it yet.
+ *
+ * An override that repeats the wrong label — Local on a live site WordPress
+ * already calls local — fixes nothing, so it counts as no override. Choosing it
+ * must not be a way to make the warning go away; the documented way to say "this
+ * really is a local copy" is the keel_environment_looks_mislabelled filter.
+ *
+ * @return bool
+ */
+function keel_defaults_environment_looks_mislabelled() {
+	$override = keel_defaults_environment_override();
+
+	return ( '' === $override || wp_get_environment_type() === $override )
+		&& keel_defaults_environment_label_is_wrong();
+}
+
+/**
+ * Whether a Keel override is covering for a wrong WordPress label.
+ *
+ * The override changes Keel and nothing else. WordPress core, Jetpack, and
+ * WordPress.com's own platform code go on reading `WP_ENVIRONMENT_TYPE`, so a
+ * live site labelled local stays offline to Jetpack and, on WordPress.com,
+ * stops accepting pingbacks, whatever Keel is told. Before this check, choosing
+ * the override also silenced the only warning about that — the stopgap hid the
+ * fault it was meant to buy time to fix.
+ *
+ * @return bool
+ */
+function keel_defaults_environment_override_masks_label() {
+	$override = keel_defaults_environment_override();
+
+	return '' !== $override
+		&& wp_get_environment_type() !== $override
+		&& keel_defaults_environment_label_is_wrong();
+}
+
+/**
+ * Whether the override says what the automatic environment already says.
+ *
+ * Typically left behind after wp-config.php has been fixed. Harmless today, but
+ * it pins the site: if the site later becomes a staging copy on purpose, a
+ * leftover Production override would go on sending its mail.
+ *
+ * @return bool
+ */
+function keel_defaults_environment_override_is_redundant() {
+	$override = keel_defaults_environment_override();
+
+	return '' !== $override
+		&& keel_defaults_automatic_environment() === $override
+		&& ! keel_defaults_environment_label_is_wrong();
+}
+
+/**
+ * Where this site's wp-config.php probably is, for the advice in a notice.
+ *
+ * Checks where core looks — beside WordPress, then one directory up — and then
+ * beside the content directory, which is where it lives on hosts that share one
+ * copy of core between sites, WordPress.com among them. The file is never read
+ * or written; the path is only shown to administrators.
+ *
+ * @return string Absolute path, or '' when none was found.
+ */
+function keel_defaults_wp_config_path() {
+	if ( is_file( ABSPATH . 'wp-config.php' ) ) {
+		return str_replace( '\\', '/', ABSPATH . 'wp-config.php' );
+	}
+
+	/*
+	 * The other places may sit outside open_basedir, where a probe raises a
+	 * warning rather than returning false. Core silences the same probe in
+	 * wp-load.php for the same reason.
+	 */
+	$candidates = array();
+
+	if ( ! @file_exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- open_basedir, as in core's wp-load.php.
+		$candidates[] = dirname( ABSPATH ) . '/wp-config.php';
+	}
+
+	if ( defined( 'WP_CONTENT_DIR' ) ) {
+		$candidates[] = dirname( WP_CONTENT_DIR ) . '/wp-config.php';
+	}
+
+	foreach ( $candidates as $path ) {
+		if ( @is_file( $path ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- open_basedir, as in core's wp-load.php.
+			return str_replace( '\\', '/', $path );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * How to correct the environment declaration itself, as HTML paragraphs.
+ *
+ * Keel does not write wp-config.php — it is the operator's file, and Keel reads
+ * constants but never rewrites them — so the advice names where the value
+ * comes from, the file to change, and the WP-CLI command that changes it.
+ *
+ * @return string
+ */
+function keel_defaults_environment_fix_advice() {
+	// On a network the constant is the network's; a site administrator can only pass it on.
+	if ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) {
+		return '<p>' . esc_html__( 'WP_ENVIRONMENT_TYPE is set once for the whole network. Ask your network administrator to correct it.', 'keel-defaults' ) . '</p>';
+	}
+
+	$command = '<code>wp config set WP_ENVIRONMENT_TYPE production --type=constant</code>';
+	$path    = keel_defaults_wp_config_path();
+	$file    = ( '' !== $path ) ? '<code>' . esc_html( $path ) . '</code>' : '<code>wp-config.php</code>';
+
+	if ( 'variable' === keel_defaults_environment_declaration_source() ) {
+		return '<p>' . sprintf(
+			/* translators: 1: path to wp-config.php. 2: a WP-CLI command. */
+			esc_html__( 'The value comes from a server environment variable, not from wp-config.php. Change it where your host sets environment variables, or define the constant in %1$s, which takes precedence over the variable. With WP-CLI: %2$s', 'keel-defaults' ),
+			$file, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+			$command // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- literal markup.
+		) . '</p>';
+	}
+
+	return '<p>' . sprintf(
+		/* translators: 1: path to wp-config.php. 2: a WP-CLI command. */
+		esc_html__( 'If this is the live site, change the WP_ENVIRONMENT_TYPE line in %1$s to production. A local install’s copy of the file may have overwritten it, as WordPress Studio pushes can. If the line is not in that file, it is in a file that wp-config.php includes: change it there, because a second definition does not take effect. With WP-CLI, for a line in wp-config.php itself: %2$s', 'keel-defaults' ),
+		$file, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+		$command // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- literal markup.
+	) . '</p>';
+}
+
+/**
+ * Whether the current admin screen is Keel's settings screen.
+ *
+ * @return bool
+ */
+function keel_defaults_is_settings_screen() {
+	if ( ! function_exists( 'get_current_screen' ) ) {
+		return false;
+	}
+
+	$screen = get_current_screen();
+
+	return is_object( $screen ) && isset( $screen->id ) && 'settings_page_keel' === $screen->id;
+}
+
+/**
  * Warn administrators when the environment Keel acts on is probably wrong.
  *
- * Two cases, both reported rather than toggled, for the reason the conflicts
- * notice is not behind a switch: they are facts about the site, not defaults
- * it chose.
+ * Reported rather than toggled, for the reason the conflicts notice is not
+ * behind a switch: these are facts about the site, not defaults it chose.
  *
- * - A live-looking site labelled local. Keel holds back its email when
- *   non-production mail is switched off, and other plugins change behaviour on
- *   "local" sites. Not dismissible; it goes away when the label is fixed or an
- *   override is chosen.
- * - An override chosen on another site, now being ignored here because the
- *   database was copied.
+ * - An override chosen on another site, now ignored here because the database
+ *   was copied.
+ * - A live-looking site labelled local, with no override. Keel holds back its
+ *   email when non-production mail is switched off, and other plugins change
+ *   behaviour on "local" sites.
+ * - An override covering for that label. Keel is fixed; WordPress, Jetpack and
+ *   the host are not, so the warning stays until wp-config.php is.
+ * - On Keel's own screen only, an override that has become redundant.
+ *
+ * None is dismissible: each goes away when its cause does.
  *
  * @return void
  */
@@ -949,6 +1117,7 @@ function keel_defaults_render_environment_mismatch_notice() {
 
 	$host = keel_defaults_home_host();
 	$link = keel_defaults_setting_link( 'environment_override', __( 'Environment', 'keel-defaults' ) );
+	$site = '<code>' . esc_html( '' !== $host ? $host : home_url() ) . '</code>';
 
 	if ( keel_defaults_environment_override_is_stale() ) {
 		?>
@@ -957,11 +1126,11 @@ function keel_defaults_render_environment_mismatch_notice() {
 				<strong><?php esc_html_e( 'Keel’s environment override is being ignored on this site.', 'keel-defaults' ); ?></strong>
 				<?php
 				printf(
-					/* translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. */
+					/* translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting. */
 					esc_html__( 'It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one.', 'keel-defaults' ),
 					'<strong>' . esc_html( keel_defaults_environment_override_stored() ) . '</strong>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
 					'<code>' . esc_html( (string) get_option( KEEL_ENVIRONMENT_OVERRIDE_HOST_OPTION, '' ) ) . '</code>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
-					'<code>' . esc_html( '' !== $host ? $host : home_url() ) . '</code>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+					$site, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
 					$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
 				);
 				?>
@@ -970,31 +1139,112 @@ function keel_defaults_render_environment_mismatch_notice() {
 		<?php
 	}
 
-	if ( ! keel_defaults_environment_looks_mislabelled() ) {
+	if ( keel_defaults_environment_looks_mislabelled() ) {
+		?>
+		<div class="notice notice-warning keel-environment-mismatch">
+			<p>
+				<strong><?php esc_html_e( 'This site looks live, but WordPress says it is not.', 'keel-defaults' ); ?></strong>
+				<?php
+				printf(
+					/* translators: 1: environment name, such as local. 2: the site's address. */
+					esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local.', 'keel-defaults' ),
+					'<strong>' . esc_html( wp_get_environment_type() ) . '</strong>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+					$site // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above.
+				);
+				?>
+			</p>
+			<?php echo keel_defaults_environment_fix_advice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts. ?>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: link to the Environment setting. */
+					esc_html__( 'Until the file is fixed, set Keel’s %s to Production. If this really is a local or development copy, leave the setting alone and filter keel_environment_looks_mislabelled to silence this.', 'keel-defaults' ),
+					$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+				);
+				?>
+			</p>
+		</div>
+		<?php
 		return;
 	}
+
+	if ( keel_defaults_environment_override_masks_label() ) {
+		?>
+		<div class="notice notice-warning keel-environment-override-masking">
+			<p>
+				<strong><?php esc_html_e( 'Keel’s Environment setting is covering for a wrong WordPress label.', 'keel-defaults' ); ?></strong>
+				<?php
+				printf(
+					/* translators: 1: environment Keel uses, such as production. 2: environment WordPress reports, such as local. */
+					esc_html__( 'Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labeled local stops accepting pingbacks.', 'keel-defaults' ),
+					'<strong>' . esc_html( keel_defaults_environment_override() ) . '</strong>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+					'<strong>' . esc_html( wp_get_environment_type() ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+				);
+				?>
+			</p>
+			<?php echo keel_defaults_environment_fix_advice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts. ?>
+			<p>
+				<?php
+				printf(
+					/* translators: %s: link to the Environment setting. */
+					esc_html__( 'Once it is fixed, set Keel’s %s back to Automatic.', 'keel-defaults' ),
+					$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+				);
+				?>
+			</p>
+		</div>
+		<?php
+		return;
+	}
+
+	if ( keel_defaults_environment_override_is_redundant() && keel_defaults_is_settings_screen() ) {
+		?>
+		<div class="notice notice-info keel-environment-override-redundant">
+			<p>
+				<?php
+				printf(
+					/* translators: 1: environment name, such as production. 2: link to the Environment setting. */
+					esc_html__( 'Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production, for example, would go on sending mail from a copy that is meant to be staging.', 'keel-defaults' ),
+					'<strong>' . esc_html( keel_defaults_environment_override() ) . '</strong>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
+					$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+				);
+				?>
+			</p>
+		</div>
+		<?php
+	}
+}
+
+/**
+ * The same warning in the Network Admin.
+ *
+ * `WP_ENVIRONMENT_TYPE` is set once for the whole network, so a wrong label is a
+ * network administrator's problem, and they may never open a site's dashboard
+ * to see the per-site notice. Overrides are per site, so only the label itself
+ * is reported here.
+ *
+ * @return void
+ */
+function keel_defaults_render_network_environment_notice() {
+	if ( ! current_user_can( 'manage_network_options' ) || ! keel_defaults_environment_label_is_wrong() ) {
+		return;
+	}
+
+	$host = keel_defaults_home_host();
 	?>
 	<div class="notice notice-warning keel-environment-mismatch">
 		<p>
-			<strong><?php esc_html_e( 'This site looks live, but WordPress says it is not.', 'keel-defaults' ); ?></strong>
+			<strong><?php esc_html_e( 'This network looks live, but WordPress says it is not.', 'keel-defaults' ); ?></strong>
 			<?php
 			printf(
-				/* translators: 1: environment name, such as local. 2: the site's address. */
-				esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may switch features off on a site they think is local.', 'keel-defaults' ),
+				/* translators: 1: environment name, such as local. 2: the main site's address. */
+				esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s for every site in the network, but the main site is served from %2$s. Keel can hold back email on sites it treats as %1$s, and other plugins may turn features off.', 'keel-defaults' ),
 				'<strong>' . esc_html( wp_get_environment_type() ) . '</strong>', // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
 				'<code>' . esc_html( '' !== $host ? $host : home_url() ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped inline.
 			);
 			?>
 		</p>
-		<p>
-			<?php
-			printf(
-				/* translators: %s: link to the Environment setting. */
-				esc_html__( 'If this is the live site, fix the WP_ENVIRONMENT_TYPE line in wp-config.php — a local install’s copy may have overwritten it, as WordPress Studio pushes can — and until then set Keel’s %s to Production. If it really is a local or development copy, leave the setting alone and filter keel_environment_looks_mislabelled to silence this.', 'keel-defaults' ),
-				$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
-			);
-			?>
-		</p>
+		<?php echo keel_defaults_environment_fix_advice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from escaped parts. ?>
 	</div>
 	<?php
 }

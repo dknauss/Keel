@@ -139,12 +139,60 @@ the live site's file carries `local` with it. Seen on WordPress.com in October
   was `production`.
 
 Keel now warns administrators, without a toggle and without a dismiss button, when
-no override applies and either `WP_ENVIRONMENT_TYPE` declares `local` on a public
-host or on WordPress.com (`IS_ATOMIC`), or declares `development` on WordPress.com.
-`development` on an ordinary public host is not flagged: managed hosts run real
-development environments on public names, and the advice to choose Production
-would switch their mail suppression off. The notice names the declared value and
-the host, and links to the setting.
+`WP_ENVIRONMENT_TYPE` declares `local` on a public host or on WordPress.com
+(`IS_ATOMIC`), or declares `development` on WordPress.com. `development` on an
+ordinary public host is not flagged: managed hosts run real development
+environments on public names, and the advice to choose Production would turn
+their mail suppression off. The notice names the declared value and the host.
+
+The advice is specific, because "fix wp-config.php" is not enough on hosts that
+keep the file somewhere unexpected:
+
+- It says whether the value comes from the constant or from a server environment
+  variable. The constant wins over the variable, as it does in core.
+- It names the `wp-config.php` Keel found: beside WordPress, one directory up, or
+  beside the content directory. The last is where it lives on WordPress.com,
+  which shares one copy of core between sites.
+- It gives the WP-CLI command that sets the constant:
+  `wp config set WP_ENVIRONMENT_TYPE production --type=constant`. That edits
+  `wp-config.php` itself; if the constant is defined in a file it includes (Bedrock's
+  `config/application.php`, a `wp-config-local.php`), change it there instead,
+  because a second definition does not take effect.
+- On multisite, a site administrator who cannot manage the network is told to ask
+  the network administrator, without the path or the command.
+
+Keel never writes `wp-config.php` itself. It reads the operator's constants and
+reports on them; changing them is the operator's call.
+
+### After the override
+
+Choosing an override clears the first warning but not the fault, so a second
+one replaces it: **Keel's Environment setting is covering for a wrong WordPress
+label**. It stays, with the same advice, until `wp-config.php` agrees, and then
+asks for the setting to go back to Automatic. Without it, the override would
+have hidden the only sign that Jetpack and WordPress.com still saw `local`.
+
+An override that repeats the wrong label — Local on a live site WordPress already
+calls local — fixes nothing, so it does not count: the original warning stays, and
+Site Health stays critical. A site that really is a local copy on a public address
+says so with the `keel_environment_looks_mislabelled` filter.
+
+An override that says what the site already reports is redundant. It is harmless
+until the site changes on purpose — a leftover Production on a copy meant to be
+staging would go on sending mail — so Keel's own settings screen suggests setting
+it back to Automatic.
+
+### Site Health and the Network Admin
+
+**Tools → Site Health** carries the same findings in one check, worst first: a
+live site labelled local is critical; an override covering for the label, an
+override ignored on a copied database, or a production site overridden to a
+non-production environment while Keel holds back its email, is recommended;
+agreement passes, and says so.
+
+On multisite, `WP_ENVIRONMENT_TYPE` is set once for the whole network, so the
+Network Admin shows the label warning too. Overrides are per site and are
+reported on each site.
 
 "Public" is decided conservatively, because a false alarm tells somebody their
 laptop is a live site. Not public: loopback names, the local-tool suffixes above,

@@ -43,6 +43,16 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       screen saying why. Keel now warns administrators, without a toggle, when a site
       declares local or development but is served from a public host or runs on
       WordPress.com (`IS_ATOMIC`). Pinned in `tests/environment-indicator.php`.
+- [x] **Keep warning while the Environment override covers for a wrong label** — unreleased.
+      Found 2026-10-13 reviewing the override in use: choosing Production cleared the
+      mislabelled-site warning, but WordPress, Jetpack and WordPress.com went on reading
+      `local`, so the stopgap hid the fault. A second warning now replaces the first until
+      `wp-config.php` agrees, then asks for Automatic; Keel's own screen points out an
+      override that has become redundant. The advice names the source (constant or
+      environment variable), the `wp-config.php` Keel found (beside the content directory
+      on WordPress.com) and `wp config set WP_ENVIRONMENT_TYPE production --type=constant`.
+      Site Health gains an Environment type check, and the Network Admin shows the label
+      warning. No new settings. Pinned in `tests/environment-indicator.php`.
 - [x] **Say when Jetpack, not Keel, is setting the admin menu width** — unreleased. Found
       2026-10-12 on a WordPress.com Atomic site (Jetpack 16.3): the menu was 272px with
       Admin Menu Width at "Leave unchanged". Jetpack's masterbar package enqueues
