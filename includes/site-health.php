@@ -60,8 +60,17 @@ function keel_defaults_site_health_environment() {
 	$keel      = keel_defaults_current_environment();
 	$wordpress = wp_get_environment_type();
 	$link      = keel_defaults_setting_link( 'environment_override', __( 'Environment', 'keel-defaults' ) );
-	$advice    = keel_defaults_environment_fix_advice();
-	$result    = array(
+	$host      = keel_defaults_home_host();
+	$site      = '<code>' . esc_html( '' !== $host ? $host : home_url() ) . '</code>';
+	$stale     = '<p>' . sprintf(
+		/* translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting. */
+		esc_html__( 'It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one.', 'keel-defaults' ),
+		'<strong>' . esc_html( keel_defaults_environment_override_stored() ) . '</strong>',
+		'<code>' . esc_html( (string) get_option( KEEL_ENVIRONMENT_OVERRIDE_HOST_OPTION, '' ) ) . '</code>',
+		$site,
+		$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+	) . '</p>';
+	$result = array(
 		/* translators: %s: environment name, such as production. */
 		'label'       => sprintf( __( 'WordPress and Keel agree that this is a %s site', 'keel-defaults' ), $keel ),
 		'status'      => 'good',
@@ -81,8 +90,13 @@ function keel_defaults_site_health_environment() {
 			/* translators: 1: environment name, such as local. 2: the site's address. */
 			esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local.', 'keel-defaults' ),
 			'<strong>' . esc_html( $wordpress ) . '</strong>',
-			'<code>' . esc_html( keel_defaults_home_host() ) . '</code>'
-		) . '</p>' . $advice;
+			$site
+		) . '</p>' . keel_defaults_environment_fix_advice();
+
+		// A copied database can be both: say so here too, as the notices do.
+		if ( keel_defaults_environment_override_is_stale() ) {
+			$result['description'] .= '<p><strong>' . esc_html__( 'Keel’s environment override is being ignored on this site.', 'keel-defaults' ) . '</strong></p>' . $stale;
+		}
 
 		return $result;
 	}
@@ -95,7 +109,7 @@ function keel_defaults_site_health_environment() {
 			esc_html__( 'Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labeled local stops accepting pingbacks.', 'keel-defaults' ),
 			'<strong>' . esc_html( $keel ) . '</strong>',
 			'<strong>' . esc_html( $wordpress ) . '</strong>'
-		) . '</p>' . $advice . '<p>' . sprintf(
+		) . '</p>' . keel_defaults_environment_fix_advice() . '<p>' . sprintf(
 			/* translators: %s: link to the Environment setting. */
 			esc_html__( 'Once it is fixed, set Keel’s %s back to Automatic.', 'keel-defaults' ),
 			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
@@ -107,14 +121,7 @@ function keel_defaults_site_health_environment() {
 	if ( keel_defaults_environment_override_is_stale() ) {
 		$result['status']      = 'recommended';
 		$result['label']       = __( 'Keel’s environment override is being ignored on this site', 'keel-defaults' );
-		$result['description'] = '<p>' . sprintf(
-			/* translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting. */
-			esc_html__( 'It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one.', 'keel-defaults' ),
-			'<strong>' . esc_html( keel_defaults_environment_override_stored() ) . '</strong>',
-			'<code>' . esc_html( (string) get_option( KEEL_ENVIRONMENT_OVERRIDE_HOST_OPTION, '' ) ) . '</code>',
-			'<code>' . esc_html( keel_defaults_home_host() ) . '</code>',
-			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
-		) . '</p>';
+		$result['description'] = $stale;
 
 		return $result;
 	}
@@ -122,7 +129,21 @@ function keel_defaults_site_health_environment() {
 	if ( keel_defaults_environment_override_is_redundant() ) {
 		$result['description'] .= '<p>' . sprintf(
 			/* translators: 1: environment name, such as production. 2: link to the Environment setting. */
-			esc_html__( 'Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production would go on sending mail from a copy that is meant to be staging.', 'keel-defaults' ),
+			esc_html__( 'Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production, for example, would go on sending mail from a copy that is meant to be staging.', 'keel-defaults' ),
+			'<strong>' . esc_html( $keel ) . '</strong>',
+			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p>';
+
+		return $result;
+	}
+
+	if ( $keel !== $wordpress && 'production' === $wordpress && keel_defaults_suppresses_mail() ) {
+		$result['status'] = 'recommended';
+		/* translators: %s: environment Keel uses, such as staging. */
+		$result['label']       = sprintf( __( 'Keel treats this production site as %s and is holding back its email', 'keel-defaults' ), $keel );
+		$result['description'] = '<p>' . sprintf(
+			/* translators: 1: environment Keel uses, such as staging. 2: link to the Environment setting. */
+			esc_html__( 'WordPress reports this site as production, but Keel’s %2$s is set to %1$s, and Keel holds back outgoing email on non-production sites. If this is the live site, its password resets, notifications and other email are not being sent. Set the Environment to Automatic or Production if that is not intended.', 'keel-defaults' ),
 			'<strong>' . esc_html( $keel ) . '</strong>',
 			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
 		) . '</p>';

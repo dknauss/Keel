@@ -154,7 +154,12 @@ keep the file somewhere unexpected:
   beside the content directory. The last is where it lives on WordPress.com,
   which shares one copy of core between sites.
 - It gives the WP-CLI command that sets the constant:
-  `wp config set WP_ENVIRONMENT_TYPE production --type=constant`.
+  `wp config set WP_ENVIRONMENT_TYPE production --type=constant`. That edits
+  `wp-config.php` itself; if the constant is defined in a file it includes (Bedrock's
+  `config/application.php`, a `wp-config-local.php`), change it there instead,
+  because a second definition does not take effect.
+- On multisite, a site administrator who cannot manage the network is told to ask
+  the network administrator, without the path or the command.
 
 Keel never writes `wp-config.php` itself. It reads the operator's constants and
 reports on them; changing them is the operator's call.
@@ -167,6 +172,11 @@ label**. It stays, with the same advice, until `wp-config.php` agrees, and then
 asks for the setting to go back to Automatic. Without it, the override would
 have hidden the only sign that Jetpack and WordPress.com still saw `local`.
 
+An override that repeats the wrong label — Local on a live site WordPress already
+calls local — fixes nothing, so it does not count: the original warning stays, and
+Site Health stays critical. A site that really is a local copy on a public address
+says so with the `keel_environment_looks_mislabelled` filter.
+
 An override that says what the site already reports is redundant. It is harmless
 until the site changes on purpose — a leftover Production on a copy meant to be
 staging would go on sending mail — so Keel's own settings screen suggests setting
@@ -175,9 +185,10 @@ it back to Automatic.
 ### Site Health and the Network Admin
 
 **Tools → Site Health** carries the same findings in one check, worst first: a
-live site labelled local is critical; an override covering for the label, or an
-override ignored on a copied database, is recommended; agreement passes, and
-says so.
+live site labelled local is critical; an override covering for the label, an
+override ignored on a copied database, or a production site overridden to a
+non-production environment while Keel holds back its email, is recommended;
+agreement passes, and says so.
 
 On multisite, `WP_ENVIRONMENT_TYPE` is set once for the whole network, so the
 Network Admin shows the label warning too. Overrides are per site and are
