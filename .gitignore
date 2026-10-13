@@ -75,3 +75,12 @@ wp-config.php
 # committed. .distignore already keeps it out of the zip; this keeps it out of
 # the repository.
 /node_modules/
+
+# Retired marks
+#
+# The two-sail boat Keel used before 2026-08-09, removed from the repository
+# once nothing used it. A maintainer may keep a copy here for the record; the
+# files are in history up to the commit that removed them. Listed in .distignore
+# too, so a local copy never lands in the zip. The current mark is in
+# .wordpress-org/brand/.
+/branding/

@@ -306,8 +306,7 @@ active work belongs in **Now** or **Next**, above.
       checked.
 
 - [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
-      The current line is *Sensible defaults for steady sites.*, and `branding/README.md`
-      records that the waterline in the mark is drawn as the "even keel" cue behind it.
+      The settings screen's line is *Sensible defaults for steady sites.*
       *Balanced defaults* says the same thing in two words and lands the keel metaphor
       without explaining it, which is what a banner has room for.
 
@@ -322,7 +321,7 @@ active work belongs in **Now** or **Next**, above.
         128px icon.
       - `branding/` held the two-sail mark that the racing yacht replaced on
         2026-08-09, and a README describing banners that no longer exist. Nothing
-        used it. Its README now says so and points at the brand package.
+        used it, so it is removed from the repository and ignored; history keeps it.
 
       Where each line appears:
 
