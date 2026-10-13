@@ -85,6 +85,25 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
     a non-production environment, so the 0.6.8 warning for a live site that says it
     is local would show on none of them.
   - The scheduled live matrix last ran green on 2026-10-12. No issues are open.
+  - Looked for conflicts with WordPress.com on the same nine, 2026-10-13. Found none
+    that breaks anything: Jetpack has no stored connection errors on any site, no
+    setting is recorded as failing to take effect, no plugin shares an authoritative
+    hook, and one site's PHP error log for the week has no entry from Keel.
+    WordPress.com's plugin screen lists the plugins with multicall refused.
+  - Found: every one of the nine shows the notice that two settings are "affected by
+    code that cannot be traced to any plugin". The code is the host's own must-use
+    plugins, on `wp_revisions_to_keep` (priority 5, so Keel's limit still decides)
+    and `user_has_cap`. Keel should name must-use and host code, not call it
+    untraceable. Not yet done.
+  - Found: on the site looked at in a browser, the admin menu is core's 160px and
+    the `jetpack-admin-menu` stylesheet is not loaded; the host loads
+    `wpcom-admin-menu` instead. So the 272px menu found on 2026-10-12 is not on that
+    site, and the 0.6.8 note for it would not show there. Where it does occur is
+    still to be pinned down.
+  - Not checked: whether switching off AI connectors, a default, affects
+    WordPress.com's own AI features. And Keel sends `X-Frame-Options: SAMEORIGIN` on
+    the front end, so any WordPress.com screen that frames a site would be blocked;
+    the hosting overview does not frame it, and no other screen was tried.
   - Triage early reports before opening another release cycle.
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
