@@ -120,6 +120,14 @@ XML-RPC request later attempts fail without testing more credentials. Multicall 
 pingbacks are also directly callable and do not depend on it. See
 [WordPress Trac #34336](https://core.trac.wordpress.org/ticket/34336).
 
+**Which settings to use with Jetpack:** keep the XML-RPC endpoint reachable. In
+Keel 0.6.7 and later, leave XML-RPC Multicall off: requests Jetpack verifies as
+signed by WordPress.com are still allowed. Turning it on also permits other
+multicalls. If Site Health reports that signature verification is unavailable,
+update Jetpack or temporarily allow multicall, then test the connection and the
+WordPress.com features you use. This exception does not restore core publishing
+methods removed by XML-RPC Remote Publishing; test that setting separately.
+
 Two things the replacement server has to get right, both found on a live Jetpack site:
 
 - **Let Jetpack's own requests through.** WordPress.com manages a connected site with
@@ -1004,6 +1012,18 @@ break a working site: blocking cross-origin framing also blocks *legitimate* emb
 client intranet, a partner site, a preview or proofing tool — and it usually fails as a silent
 blank frame. Bundling it with `nosniff` would mean a site that needs to be embeddable has to
 give up `nosniff` as well. Set it to *leave unchanged* when a host or CDN already sends it.
+
+**WordPress.com previews:** WordPress.com and a site's custom domain are different
+origins. A response with `SAMEORIGIN` cannot be embedded there unless an applicable
+CSP `frame-ancestors` policy supersedes it. A browser test on 2026-10-13 confirmed
+that a live front-end response was refused in an iframe at the WordPress.com
+origin because of this header. That test used a constructed iframe, not the
+logged-in dashboard's actual preview flow, which remains unverified.
+
+Choose **Leave unchanged** when cross-origin previews are required, then check the
+actual preview. This stops Keel adding the header; it does not remove headers
+from the host, CDN, or another plugin. Do not treat a preview query parameter as
+permission to disable framing protection for every request.
 
 ```php
 add_filter( 'wp_headers', function ( $headers ) {
