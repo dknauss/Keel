@@ -271,6 +271,11 @@ add_action( 'admin_init', function () {
 > them came back. Where Jetpack is active the settings screen says so beneath this
 > setting. Turn the setting off to use Jetpack's AI features.
 >
+> A second site, with WordPress.com's WordPress Agent plugin active, gave the same
+> result and one more: the host's `/agents-manager` REST routes were absent with the
+> gate closed. The agent plugin's own routes stayed registered either way; whether
+> the agent works with the gate closed was not tested.
+>
 > On that site the Gutenberg plugin was active and kept its own Connectors screen in
 > the Settings menu, listing the connectors that are not AI providers. Keel closes
 > core's `options-connectors.php` only.
