@@ -180,6 +180,189 @@ function keel_defaults_callback_plugin_dir( $callback ) {
 }
 
 /**
+ * Prefix marking a report entry as a must-use plugin rather than a plugin
+ * directory. What follows it is the file name in the must-use directory.
+ *
+ * Must-use code is kept apart from ordinary plugins because nobody can switch it
+ * off from the Plugins screen: a host or a developer put it there on purpose.
+ * It is named in Site Health and never raises the notice.
+ */
+const KEEL_DEFAULTS_MU_PLUGIN_PREFIX = 'mu-plugin:';
+
+/**
+ * Where WordPress itself lives, by both the configured and the real path.
+ *
+ * Reflection reports the real path of a file. Where ABSPATH is a symlink, as it
+ * is on some managed hosts, comparing against ABSPATH alone finds no core
+ * callback at all, and every one of them reads as code nobody can trace.
+ *
+ * @return string[] Normalized directories, each with a trailing slash.
+ */
+function keel_defaults_core_roots() {
+	static $roots = null;
+
+	if ( null !== $roots ) {
+		return $roots;
+	}
+
+	$roots = array();
+	$real  = realpath( ABSPATH );
+
+	foreach ( array_unique( array_filter( array( ABSPATH, $real ) ) ) as $core ) {
+		$core = trailingslashit( wp_normalize_path( $core ) );
+
+		if ( defined( 'WPINC' ) ) {
+			$roots[] = trailingslashit( $core . WPINC );
+		}
+		$roots[] = $core . 'wp-admin/';
+	}
+
+	return $roots;
+}
+
+/**
+ * Whether a file is inside one of several directories.
+ *
+ * @param string   $file  Normalized file path.
+ * @param string[] $roots Normalized directories.
+ * @return bool
+ */
+function keel_defaults_path_is_under( $file, array $roots ) {
+	foreach ( $roots as $root ) {
+		if ( 0 === strpos( $file, trailingslashit( $root ) ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Every file a must-use plugin is known to have loaded, and which one loaded it.
+ *
+ * A must-use plugin is often only a loader. Its entry in the must-use directory
+ * can be a symlink to a file somewhere else, and that file can include any
+ * number of others from directories that have nothing to do with wp-content, so
+ * no path prefix identifies them.
+ *
+ * The order PHP included files in does. WordPress includes each must-use plugin
+ * in turn and then `wp-includes/vars.php`, so a file included after one must-use
+ * plugin and before the next, or before `vars.php`, was included by that plugin.
+ * A run of files with no such end is discarded: where the boundary cannot be
+ * seen, saying "cannot be traced" is better than naming the wrong owner. Code a
+ * must-use plugin loads later, from a hook or an autoloader, is not found this
+ * way and stays untraced unless it is under the must-use directory. On
+ * multisite a network-active plugin loads inside the last run; its own files are
+ * recognized as a plugin's, but a file it includes from outside its directory
+ * would be read as the last must-use plugin's.
+ *
+ * Only reads the list of included files. Nothing is loaded or called.
+ *
+ * @return array<string,string> Normalized file path => must-use file name.
+ */
+function keel_defaults_mu_plugin_files() {
+	static $map = null;
+
+	if ( null !== $map ) {
+		return $map;
+	}
+
+	$map = array();
+
+	if ( ! function_exists( 'wp_get_mu_plugins' ) ) {
+		return $map;
+	}
+
+	foreach ( (array) wp_get_mu_plugins() as $mu_plugin ) {
+		$real = realpath( $mu_plugin );
+		$map[ wp_normalize_path( false !== $real ? $real : $mu_plugin ) ] = basename( $mu_plugin );
+	}
+
+	$mains   = $map;
+	$core    = keel_defaults_core_roots();
+	$plugins = array_merge( array_values( keel_defaults_active_plugin_roots() ), array( wp_normalize_path( dirname( __DIR__ ) ) ) );
+	$owner   = '';
+	$pending = array();
+
+	foreach ( get_included_files() as $file ) {
+		$file = wp_normalize_path( $file );
+
+		if ( isset( $mains[ $file ] ) ) {
+			$map    += $pending;
+			$pending = array();
+			$owner   = $mains[ $file ];
+			continue;
+		}
+
+		if ( '' === $owner ) {
+			continue;
+		}
+
+		if ( keel_defaults_path_is_under( $file, $core ) ) {
+			if ( defined( 'WPINC' ) && 'vars.php' === basename( $file ) && WPINC === basename( dirname( $file ) ) ) {
+				$map += $pending;
+				break;
+			}
+			continue;
+		}
+
+		// A must-use loader can pull files out of an active plugin, as a shared
+		// autoloader does, and can load Keel itself. Those stay the plugin's,
+		// and the loader's run carries on past them.
+		if ( keel_defaults_path_is_under( $file, $plugins ) || in_array( $file, $plugins, true ) ) {
+			continue;
+		}
+
+		$pending[ $file ] = $owner;
+	}
+
+	return $map;
+}
+
+/**
+ * Resolve a registered callback to the must-use plugin that loaded it.
+ *
+ * @param mixed $callback Registered callback.
+ * @return string File or directory name in the must-use directory, or ''.
+ */
+function keel_defaults_callback_mu_plugin( $callback ) {
+	$file = keel_defaults_callback_file( $callback );
+
+	if ( '' === $file ) {
+		return '';
+	}
+
+	$real = realpath( $file );
+	$real = wp_normalize_path( false !== $real ? $real : $file );
+
+	// Keel can be installed as a must-use plugin. It is still not its own rival.
+	if ( keel_defaults_path_is_under( $real, array( wp_normalize_path( dirname( __DIR__ ) ) ) ) ) {
+		return '';
+	}
+
+	$files = keel_defaults_mu_plugin_files();
+
+	foreach ( array( $real, wp_normalize_path( $file ) ) as $path ) {
+		if ( isset( $files[ $path ] ) ) {
+			return $files[ $path ];
+		}
+	}
+
+	if ( ! defined( 'WPMU_PLUGIN_DIR' ) ) {
+		return '';
+	}
+
+	// Loaded later than the must-use phase, but from the must-use directory.
+	$real_dir = realpath( WPMU_PLUGIN_DIR );
+	$base     = trailingslashit( wp_normalize_path( false !== $real_dir ? $real_dir : WPMU_PLUGIN_DIR ) );
+	if ( 0 !== strpos( $real, $base ) ) {
+		return '';
+	}
+
+	return (string) strtok( substr( $real, strlen( $base ) ), '/' );
+}
+
+/**
  * Resolve every callable form WordPress accepts to its source file.
  *
  * @param mixed $callback Callback.
@@ -250,6 +433,11 @@ function keel_defaults_active_plugin_roots() {
  */
 function keel_defaults_plugin_name( $slug ) {
 	static $installed = null;
+
+	if ( 0 === strpos( (string) $slug, KEEL_DEFAULTS_MU_PLUGIN_PREFIX ) ) {
+		/* translators: %s: file name of a must-use plugin, such as host-loader.php. */
+		return sprintf( __( 'must-use plugin %s', 'keel-defaults' ), substr( $slug, strlen( KEEL_DEFAULTS_MU_PLUGIN_PREFIX ) ) );
+	}
 
 	if ( null === $installed ) {
 		if ( ! function_exists( 'get_plugins' ) && defined( 'ABSPATH' ) && file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
@@ -444,6 +632,7 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 		}
 
 		$rivals       = array();
+		$must_use     = array();
 		$unattributed = false;
 		foreach ( $wp_filter[ $hook ]->callbacks as $priority => $callbacks ) {
 			foreach ( $callbacks as $registered ) {
@@ -477,16 +666,20 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 				if ( '' !== $plugin ) {
 					$rivals[ $plugin ] = true;
 				} else {
-					$file    = wp_normalize_path( keel_defaults_callback_file( $registered['function'] ) );
-					$core    = trailingslashit( wp_normalize_path( ABSPATH ) );
-					$wpinc   = defined( 'WPINC' ) ? trailingslashit( $core . WPINC ) : '';
-					$wpadmin = $core . 'wp-admin/';
-					$helper  = is_string( $registered['function'] ) && 0 === strpos( $registered['function'], '__return_' );
+					$mu_plugin = keel_defaults_callback_mu_plugin( $registered['function'] );
+
+					if ( '' !== $mu_plugin ) {
+						$must_use[ $mu_plugin ] = true;
+						continue;
+					}
+
+					$file   = wp_normalize_path( keel_defaults_callback_file( $registered['function'] ) );
+					$helper = is_string( $registered['function'] ) && 0 === strpos( $registered['function'], '__return_' );
 
 					// Named core callbacks are known platform behavior, not a rival.
 					// Core helpers remain unconfirmed because a plugin may have
 					// registered the shared callable and left no ownership trace.
-					$is_named_core = ! $helper && '' !== $file && ( ( '' !== $wpinc && 0 === strpos( $file, $wpinc ) ) || 0 === strpos( $file, $wpadmin ) );
+					$is_named_core = ! $helper && '' !== $file && keel_defaults_path_is_under( $file, keel_defaults_core_roots() );
 					if ( ! $is_named_core ) {
 						$unattributed = true;
 					}
@@ -496,6 +689,12 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 
 		if ( $unattributed ) {
 			$report['unconfirmed'][ $hook ][] = KEEL_DEFAULTS_UNATTRIBUTED;
+		}
+
+		// Whatever the hook, must-use code is information: it is not a plugin an
+		// administrator can deactivate or reconfigure from the Plugins screen.
+		foreach ( array_keys( $must_use ) as $mu_plugin ) {
+			$report['unconfirmed'][ $hook ][] = KEEL_DEFAULTS_MU_PLUGIN_PREFIX . $mu_plugin;
 		}
 
 		foreach ( array_keys( $rivals ) as $plugin ) {

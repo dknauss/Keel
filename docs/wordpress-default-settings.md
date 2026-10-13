@@ -1249,6 +1249,18 @@ registered on it. Keel stands down on several — the session filter is not regi
 all when the policy matches WordPress's own — and a hook Keel is not on is another plugin
 doing its job, not a conflict.
 
+**Must-use code is named, and stays out of the notice.** A callback is attributed to a
+must-use plugin when its file is one `wp_get_mu_plugins()` returns, a file that plugin
+included while it loaded, or anything under `WPMU_PLUGIN_DIR`, with symlinks resolved. What a
+loader included is read from the order of `get_included_files()`: WordPress includes each
+must-use plugin in turn and then `wp-includes/vars.php`, so whatever falls between two of
+those was included by the first. It is reported as `mu-plugin:<file>` under `unconfirmed`
+whatever the hook, listed by file name in Site Health, and raises no admin notice, because
+nobody can turn a must-use plugin off from the Plugins screen. This is decided by where the
+code is loaded from, not by which host the site is on. If such code overrides a setting Keel
+can measure, the "not taking effect" warning still appears. Core is recognized through a
+symlinked `ABSPATH` as well.
+
 **Diagnostics never execute foreign callbacks.** Capability direction is never inferred from a
 source mention, and a core helper such as `__return_false` is labelled unattributable rather than
 assigned to whichever plugin happened to contain the same words in a file. A structural overlap
