@@ -9,8 +9,14 @@
  * every release whatever the PRs said. Found when marking a merged PR pending
  * made no difference to the sweep.
  *
- * The script reads a fixture instead of calling gh when COUNTERPART_SWEEP_JSON
+ * The script reads a fixture instead of asking GitHub when COUNTERPART_SWEEP_JSON
  * is set, so this runs offline.
+ *
+ * The sweep reads the REST API's list of closed pull requests. It used
+ * `gh pr list --search`, which goes through GraphQL, and where only REST was
+ * allowed the release gate could not run. REST cannot narrow that list by merge
+ * date or leave out pull requests closed without merging, so the filter does
+ * both, and the second half of this file pins it.
  *
  * @package Keel
  */
@@ -68,5 +74,47 @@ keel_sweep_assert( 1 === $code, 'A pending line at the very start still fails th
 
 list( $code, $out ) = keel_sweep_run( array( $template . 'Counterpart: not applicable — no such path.', $template . 'Counterpart: ported — x#2' ) );
 keel_sweep_assert( 0 === $code, 'Only the template\'s commented example says pending, so the sweep passes: ' . $out );
+
+/**
+ * Run the sweep against pull requests in the REST API's shape.
+ *
+ * @param array<int,string|null> $merged_at Merge time per pull request; null is closed unmerged.
+ * @return array{0:int,1:string} Exit code and output.
+ */
+function keel_sweep_run_rest( array $merged_at ) {
+	$prs = array();
+	foreach ( $merged_at as $i => $when ) {
+		$prs[] = array(
+			'number'    => 800 + $i,
+			'title'     => "REST fixture {$i}",
+			'url'       => "https://api.example.test/pulls/{$i}",
+			'html_url'  => "https://example.test/pull/{$i}",
+			'merged_at' => $when,
+			'body'      => "Counterpart: pending — rest#{$i} (left to do)",
+		);
+	}
+
+	$fixture = tempnam( sys_get_temp_dir(), 'sweep' );
+	file_put_contents( $fixture, json_encode( $prs ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions -- CLI test, no WordPress loaded.
+
+	$script = escapeshellarg( dirname( __DIR__ ) . '/bin/counterpart-sweep' );
+	exec( 'COUNTERPART_SWEEP_SINCE=2026-10-06 COUNTERPART_SWEEP_JSON=' . escapeshellarg( $fixture ) . " bash {$script} v0.0.0-fixture 2>&1", $out, $code ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec -- runs the script under test.
+	unlink( $fixture ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- CLI test, no WordPress loaded.
+
+	return array( $code, implode( "\n", $out ) );
+}
+
+list( $code, $out ) = keel_sweep_run_rest( array( '2026-10-06T00:00:01Z', '2026-10-05T23:59:59Z', null ) );
+keel_sweep_assert( 1 === $code, 'A pending port merged on the day of the tag fails the sweep.' );
+keel_sweep_assert( false !== strpos( $out, 'rest#0' ), 'And the sweep names it: ' . $out );
+keel_sweep_assert( false === strpos( $out, 'rest#1' ), 'A pull request merged before the tag is not swept: ' . $out );
+keel_sweep_assert( false === strpos( $out, 'rest#2' ), 'A pull request closed without merging is not swept: ' . $out );
+keel_sweep_assert(
+	false !== strpos( $out, 'https://example.test/pull/0' ) && false === strpos( $out, 'api.example.test' ),
+	'The sweep prints the page a person can open, not the API address: ' . $out
+);
+
+list( $code, $out ) = keel_sweep_run_rest( array( '2026-10-05T23:59:59Z', null ) );
+keel_sweep_assert( 0 === $code, 'Nothing merged since the tag, so the sweep passes: ' . $out );
 
 fwrite( STDOUT, "counterpart sweep tests passed.\n" );

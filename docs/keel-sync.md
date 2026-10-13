@@ -62,6 +62,13 @@ last tag whose line still says `pending`, and exits non-zero if there are any.
 Deliver each port, or change its line to `not applicable` with the reason it no
 longer applies.
 
+The sweep reads GitHub's REST API, through `gh` when it is installed and `curl`
+otherwise, so it runs wherever REST is reachable. It does not use `gh pr list`,
+whose search goes through GraphQL: a session limited to REST could not run the
+sweep at all, and the 0.6.8 release had to be checked by hand. Where GitHub cannot
+be reached directly, save the closed pull requests as JSON and point
+`COUNTERPART_SWEEP_JSON` at the file.
+
 ## Shared code paths
 
 Check the other plugin whenever a change touches one of these:
