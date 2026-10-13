@@ -137,7 +137,8 @@ function keel_defaults_site_health_environment() {
 		return $result;
 	}
 
-	if ( $keel !== $wordpress && 'production' === $wordpress && keel_defaults_suppresses_mail() ) {
+	// Only an override: a local-tool host that declares nothing is meant to hold mail back.
+	if ( '' !== keel_defaults_environment_override() && $keel !== $wordpress && 'production' === $wordpress && keel_defaults_suppresses_mail() ) {
 		$result['status'] = 'recommended';
 		/* translators: %s: environment Keel uses, such as staging. */
 		$result['label']       = sprintf( __( 'Keel treats this production site as %s and is holding back its email', 'keel-defaults' ), $keel );

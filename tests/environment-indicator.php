@@ -414,6 +414,17 @@ $health                                   = keel_defaults_site_health_environmen
 keel_assert( 'good' === $health['status'] && false !== strpos( $health['label'], 'treats this production site as staging' ), 'With mail not held back, the difference is described, not flagged.' );
 $GLOBALS['keel_options']['keel_settings'] = array();
 
+// A laptop that declares nothing is local by host and holds mail back on
+// purpose: that passes, it is not "a production site holding back its email".
+putenv( 'WP_ENVIRONMENT_TYPE' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- undeclared is the case under test.
+foreach ( array( 'http://localhost:8885', 'https://mysite.ddev.site' ) as $home ) {
+	$GLOBALS['keel_home'] = $home;
+	$health               = keel_defaults_site_health_environment();
+	keel_assert( 'good' === $health['status'], "An undeclared local-tool host '{$home}' passes Site Health." );
+}
+putenv( 'WP_ENVIRONMENT_TYPE=production' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv -- restoring this block's state.
+$GLOBALS['keel_home'] = 'https://m.arginalia.com';
+
 // Nor is a healthy network nagged.
 ob_start();
 keel_defaults_render_network_environment_notice();
