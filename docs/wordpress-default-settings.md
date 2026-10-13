@@ -1251,7 +1251,8 @@ doing its job, not a conflict.
 
 **Must-use code is named, and stays out of the notice.** A callback is attributed to a
 must-use plugin when its file is one `wp_get_mu_plugins()` returns, a file that plugin
-included while it loaded, or anything under `WPMU_PLUGIN_DIR`, with symlinks resolved. What a
+included while it loaded, a file in the directory a symlinked must-use plugin really lives
+in, or anything under `WPMU_PLUGIN_DIR`, with symlinks resolved. What a
 loader included is read from the order of `get_included_files()`: WordPress includes each
 must-use plugin in turn and then `wp-includes/vars.php`, so whatever falls between two of
 those was included by the first. It is reported as `mu-plugin:<file>` under `unconfirmed`

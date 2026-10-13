@@ -251,7 +251,7 @@ function keel_defaults_path_is_under( $file, array $roots ) {
  * A run of files with no such end is discarded: where the boundary cannot be
  * seen, saying "cannot be traced" is better than naming the wrong owner. Code a
  * must-use plugin loads later, from a hook or an autoloader, is not found this
- * way and stays untraced unless it is under the must-use directory. On
+ * way; keel_defaults_mu_plugin_package_dirs() covers what it can of that. On
  * multisite a network-active plugin loads inside the last run; its own files are
  * recognized as a plugin's, but a file it includes from outside its directory
  * would be read as the last must-use plugin's.
@@ -320,6 +320,62 @@ function keel_defaults_mu_plugin_files() {
 }
 
 /**
+ * The directories symlinked must-use plugins really live in.
+ *
+ * A loader that is a symlink points into its own package, and that package goes
+ * on loading files long after the must-use phase is over: a feature loaded on a
+ * later hook, a class found by an autoloader. The include order says nothing
+ * about those, but they sit beside the loader.
+ *
+ * Only a symlink that leaves the must-use directory counts, and never one that
+ * lands in a directory holding WordPress, wp-content or the plugins directory:
+ * a loader linked from somewhere that broad would claim everything on the site.
+ *
+ * @return array<string,string> Normalized real directory => must-use file name.
+ */
+function keel_defaults_mu_plugin_package_dirs() {
+	static $dirs = null;
+
+	if ( null !== $dirs ) {
+		return $dirs;
+	}
+
+	$dirs = array();
+
+	if ( ! function_exists( 'wp_get_mu_plugins' ) || ! defined( 'WPMU_PLUGIN_DIR' ) ) {
+		return $dirs;
+	}
+
+	$guarded = array();
+	foreach ( array( 'ABSPATH', 'WP_CONTENT_DIR', 'WP_PLUGIN_DIR', 'WPMU_PLUGIN_DIR' ) as $constant ) {
+		if ( defined( $constant ) ) {
+			$real      = realpath( constant( $constant ) );
+			$guarded[] = trailingslashit( wp_normalize_path( false !== $real ? $real : constant( $constant ) ) );
+		}
+	}
+
+	foreach ( (array) wp_get_mu_plugins() as $mu_plugin ) {
+		$real = realpath( $mu_plugin );
+
+		if ( false === $real || ! is_link( $mu_plugin ) ) {
+			continue;
+		}
+
+		$dir = trailingslashit( wp_normalize_path( dirname( $real ) ) );
+
+		foreach ( $guarded as $guard ) {
+			if ( 0 === strpos( $guard, $dir ) ) {
+				continue 2;
+			}
+		}
+
+		$dirs[ $dir ] = basename( $mu_plugin );
+	}
+
+	return $dirs;
+}
+
+/**
  * Resolve a registered callback to the must-use plugin that loaded it.
  *
  * @param mixed $callback Registered callback.
@@ -348,11 +404,18 @@ function keel_defaults_callback_mu_plugin( $callback ) {
 		}
 	}
 
+	// Loaded later than the must-use phase, from a symlinked loader's own package.
+	foreach ( keel_defaults_mu_plugin_package_dirs() as $dir => $mu_plugin ) {
+		if ( 0 === strpos( $real, $dir ) ) {
+			return $mu_plugin;
+		}
+	}
+
 	if ( ! defined( 'WPMU_PLUGIN_DIR' ) ) {
 		return '';
 	}
 
-	// Loaded later than the must-use phase, but from the must-use directory.
+	// Or from the must-use directory itself.
 	$real_dir = realpath( WPMU_PLUGIN_DIR );
 	$base     = trailingslashit( wp_normalize_path( false !== $real_dir ? $real_dir : WPMU_PLUGIN_DIR ) );
 	if ( 0 !== strpos( $real, $base ) ) {

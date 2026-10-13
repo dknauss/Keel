@@ -85,6 +85,9 @@ file_put_contents(
 // A shared autoloader makes the loader pull a file out of an active plugin half
 // way through. That file is the plugin's, and the loader's run does not end there.
 file_put_contents( $fixture . '/plugins/active-plugin/autoload.php', "<?php\nfunction keel_test_active_plugin( \$value ) { {$keel_ran} return \$value; }\n" );
+// Part of the loader's own package, but loaded long after the must-use phase, as a
+// feature loaded on a later hook is.
+file_put_contents( $fixture . '/host/loader/1.0/late.php', "<?php\nfunction keel_test_host_late( \$open ) { {$keel_ran} return \$open; }\n" );
 file_put_contents( $fixture . '/host/loader/1.0/feature.php', "<?php\nfunction keel_test_host_limit( \$num ) { {$keel_ran} return 100; }\n" );
 file_put_contents(
 	$fixture . '/host/platform/platform.php',
@@ -110,6 +113,7 @@ register_shutdown_function(
 			'/wp',
 			'/host/loader/1.0/host-loader.php',
 			'/host/loader/1.0/feature.php',
+			'/host/loader/1.0/late.php',
 			'/host/platform/platform.php',
 			'/core/wp-includes/vars.php',
 			'/core/wp-includes/capabilities.php',
@@ -144,6 +148,7 @@ foreach ( wp_get_mu_plugins() as $keel_mu_plugin ) {
 require ABSPATH . WPINC . '/vars.php';
 require ABSPATH . WPINC . '/capabilities.php';
 require $fixture . '/elsewhere/stray.php';
+require $fixture . '/host/loader/1.0/late.php';
 
 require dirname( __DIR__ ) . '/keel.php';
 
@@ -163,6 +168,7 @@ keel_assert( 'host-loader.php' === keel_defaults_callback_mu_plugin( array( $pla
 keel_assert( 'host-loader.php' === keel_defaults_callback_mu_plugin( $GLOBALS['keel_test_host_closure'] ), 'A closure the loader includes is attributed to the loader.' );
 keel_assert( 'active-plugin' === keel_defaults_callback_plugin_dir( 'keel_test_active_plugin' ), 'An active plugin\'s file stays that plugin\'s, whoever included it first.' );
 keel_assert( '' === keel_defaults_callback_mu_plugin( 'keel_test_active_plugin' ), 'A plugin file a must-use loader pulled in is not the loader\'s.' );
+keel_assert( 'host-loader.php' === keel_defaults_callback_mu_plugin( 'keel_test_host_late' ), 'A file in the loader\'s own directory is the loader\'s, however late it loads.' );
 keel_assert( '' === keel_defaults_callback_mu_plugin( 'keel_test_stray' ), 'A file included after the must-use phase is not attributed to a must-use plugin.' );
 keel_assert( '' === keel_defaults_callback_mu_plugin( 'keel_test_core_cap' ), 'Core is not a must-use plugin.' );
 keel_assert( '' === keel_defaults_callback_mu_plugin( 'keel_defaults_revision_limit' ), 'Keel is not a must-use plugin here.' );
@@ -175,13 +181,13 @@ keel_defaults_registered_policy_hooks( 'wp_revisions_to_keep', 'keel_defaults_re
 keel_defaults_registered_policy_hooks( 'user_has_cap', 'keel_defaults_limit_unfiltered_html', PHP_INT_MAX - 1, 4, 'limit_unfiltered_html' );
 keel_defaults_registered_policy_hooks( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, 'session_regular_days' );
 
-class Keel_Test_Hook {
+class Keel_Mu_Test_Hook {
 	public $callbacks = array();
 	public function __construct( array $callbacks ) { $this->callbacks = $callbacks; }
 }
 
 $host_hooks = array(
-	'wp_revisions_to_keep' => new Keel_Test_Hook(
+	'wp_revisions_to_keep' => new Keel_Mu_Test_Hook(
 		array(
 			5  => array( array( 'function' => 'keel_test_host_limit' ) ),
 			10 => array(
@@ -192,7 +198,7 @@ $host_hooks = array(
 			),
 		)
 	),
-	'user_has_cap'         => new Keel_Test_Hook(
+	'user_has_cap'         => new Keel_Mu_Test_Hook(
 		array(
 			1               => array( array( 'function' => array( $platform, 'user_has_cap' ) ) ),
 			10              => array(
@@ -240,7 +246,7 @@ keel_assert( false !== strpos( $health['description'], 'cannot be turned off fro
 
 // --- Code that really cannot be traced still is reported ---
 $GLOBALS['wp_filter']                           = $host_hooks;
-$GLOBALS['wp_filter']['auth_cookie_expiration'] = new Keel_Test_Hook(
+$GLOBALS['wp_filter']['auth_cookie_expiration'] = new Keel_Mu_Test_Hook(
 	array(
 		10 => array( array( 'function' => 'keel_test_stray' ) ),
 		50 => array(

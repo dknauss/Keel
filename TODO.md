@@ -83,12 +83,6 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
   - Triage early reports before opening another release cycle.
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
-  - [x] Found 2026-10-13 on managed hosting: every site showed "2 of Keel's settings are
-    also affected by code that cannot be traced to any plugin". The code was the host's,
-    loaded by a symlinked must-use loader from outside wp-content, and core's own
-    callbacks behind a symlinked `ABSPATH`. Must-use code is now named in Site Health and
-    raises no notice; nothing is inferred from `IS_ATOMIC`. Pinned in
-    `tests/policy-must-use.php`.
 
 ## Priority fix — multicall refusal breaks Jetpack
 
