@@ -5,7 +5,7 @@
 # It is not shipped in the plugin zip; WordPress.org serves locale catalogs.
 msgid ""
 msgstr ""
-"Project-Id-Version: Keel Defaults 0.6.6\n"
+"Project-Id-Version: Keel Defaults 0.6.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/keel-defaults\n"
 "POT-Creation-Date: 2026-10-06T06:09:09+00:00\n"
 "PO-Revision-Date: 2026-09-14T06:51:57+00:00\n"

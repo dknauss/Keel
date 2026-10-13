@@ -10,7 +10,7 @@ into ROADMAP.md or here.
 
 ## Now — observe the 0.6 line
 
-Each 0.6 release is published only after the release checklist runs in full; 0.6.0 through 0.6.6 are out.
+Each 0.6 release is published only after the release checklist runs in full; 0.6.0 through 0.6.7 are out.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -35,7 +35,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       where stable-check and the release it names are shown drifting apart by hours.
       Pinned in `tests/backport-status.php`; staged live on every row of the backport
       matrix by `tests/integration/stable-check-refresh-probe.php`.
-- [x] **Environment override and mislabelled-site warning** — unreleased. The schema
+- [x] **Environment override and mislabelled-site warning** — in 0.6.8, not yet tagged. The schema
       goes to 40 defaults with `environment_override` (Automatic, or a fixed environment
       Keel uses instead of `WP_ENVIRONMENT_TYPE`). Found on WordPress.com sites whose
       live `wp-config.php` had been replaced by a WordPress Studio copy declaring
@@ -43,7 +43,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       screen saying why. Keel now warns administrators, without a toggle, when a site
       declares local or development but is served from a public host or runs on
       WordPress.com (`IS_ATOMIC`). Pinned in `tests/environment-indicator.php`.
-- [x] **Keep warning while the Environment override covers for a wrong label** — unreleased.
+- [x] **Keep warning while the Environment override covers for a wrong label** — in 0.6.8, not yet tagged.
       Found 2026-10-13 reviewing the override in use: choosing Production cleared the
       mislabelled-site warning, but WordPress, Jetpack and WordPress.com went on reading
       `local`, so the stopgap hid the fault. A second warning now replaces the first until
@@ -53,7 +53,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       on WordPress.com) and `wp config set WP_ENVIRONMENT_TYPE production --type=constant`.
       Site Health gains an Environment type check, and the Network Admin shows the label
       warning. No new settings. Pinned in `tests/environment-indicator.php`.
-- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — unreleased. Found
+- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — in 0.6.8, not yet tagged. Found
       2026-10-12 on a WordPress.com Atomic site (Jetpack 16.3): the menu was 272px with
       Admin Menu Width at "Leave unchanged". Jetpack's masterbar package enqueues
       `jetpack-admin-menu`, which sets 272px, and Keel emits nothing at that setting.
@@ -64,7 +64,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       and `tests/settings-render.php`; documented under Admin Menu Width in
       `docs/wordpress-default-settings.md`.
   - Not yet seen on a real site: the note itself.
-- [x] **The block editor follows the admin menu width** — unreleased. Checked 2026-10-12
+- [x] **The block editor follows the admin menu width** — in 0.6.8, not yet tagged. Checked 2026-10-12
       on a disposable local site (Jetpack 16.3, its masterbar package started by hand).
       Outside fullscreen mode the editor's frame is `position: fixed` with its own
       `left`, 160px from core and 272px from Jetpack, and Keel never set it. At 240px

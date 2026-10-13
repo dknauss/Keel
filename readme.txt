@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.7
+Stable tag: 0.6.8
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -140,6 +140,14 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. Their entries, the development history that led to the first release, are in `changelog.txt` in the plugin's repository: [https://github.com/dknauss/keel/blob/main/changelog.txt](https://github.com/dknauss/keel/blob/main/changelog.txt).
 
+= 0.6.8 =
+* Added: an Environment setting under Admin and Front-End UX. Automatic, the default, works as before. Choosing Production, Staging, Development or Local makes Keel use that instead, for the environment label and for holding back email on non-production sites. It applies only on the site where it was chosen, so a copy of the database on a laptop or staging site ignores it and never sends real email as the live site.
+* Added: a warning when a live site says it is local. If WP_ENVIRONMENT_TYPE says local on a public address or on WordPress.com, Keel says so on every admin screen, because that label can hold back the site's email and make other plugins switch features off. A local wp-config.php copied to a live server, as a WordPress Studio push can do, is the usual cause. The warning names where the label comes from, the wp-config.php file Keel found and the WP-CLI command that fixes it. Keel never edits wp-config.php itself.
+* Added: if the Environment setting is covering for a wrong label, Keel keeps a warning on screen until wp-config.php is fixed, because WordPress, Jetpack and the host still see the wrong label. Keel's settings screen also points out a setting that is no longer needed.
+* Added: a Site Health check, Environment type, and the same warning in the Network Admin on multisite.
+* Added: when Jetpack, not Keel, is setting the admin menu width (as on WordPress.com), the Admin Menu Width setting and Site Health now say so.
+* Fixed: the block editor now follows the admin menu width. A wider menu covered the edge of the editor, and a narrower one left a blank strip beside it.
+
 = 0.6.7 =
 * Fixed: with XML-RPC Multicall off, which is the default, a site connected to WordPress.com through Jetpack could be cut off from it. WordPress.com manages a connected site through multicall, so the plugin list and settings changes failed on WordPress.com while Jetpack still reported itself as connected. Keel now lets through the requests Jetpack verifies as signed by WordPress.com, and still refuses every other multicall.
 * Fixed: a refused multicall went out as HTTP 405 instead of an XML-RPC fault, so clients reported a transport error. It is now an ordinary fault (code -32601) on HTTP 200.
@@ -216,6 +224,9 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 == Upgrade Notice ==
+
+= 0.6.8 =
+Adds one setting, Environment, and warns when a live site says it is local, which can hold back its email. Also a new Site Health check and a block editor that follows the admin menu width.
 
 = 0.6.7 =
 Fixes Jetpack: with multicall off (the default), WordPress.com could not manage a connected site. Requests Jetpack verifies as signed now get through. Also clearer Site Health wording and two admin layout fixes. No setting changes.
