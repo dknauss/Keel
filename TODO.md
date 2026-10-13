@@ -95,15 +95,21 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
     plugins, on `wp_revisions_to_keep` (priority 5, so Keel's limit still decides)
     and `user_has_cap`. Keel should name must-use and host code, not call it
     untraceable. Not yet done.
-  - Found: on the site looked at in a browser, the admin menu is core's 160px and
-    the `jetpack-admin-menu` stylesheet is not loaded; the host loads
-    `wpcom-admin-menu` instead. So the 272px menu found on 2026-10-12 is not on that
-    site, and the 0.6.8 note for it would not show there. Where it does occur is
-    still to be pinned down.
-  - Not checked: whether switching off AI connectors, a default, affects
-    WordPress.com's own AI features. And Keel sends `X-Frame-Options: SAMEORIGIN` on
-    the front end, so any WordPress.com screen that frames a site would be blocked;
-    the hosting overview does not frame it, and no other screen was tried.
+  - Found: the 272px menu belongs to one of the nine. Looked at in a browser on
+    eight: one loads Jetpack's `jetpack-admin-menu` stylesheet, and it is the one
+    with no admin interface style stored. The other seven are set to the classic
+    interface, load `wpcom-admin-menu` instead and have core's 160px menu, so the
+    0.6.8 note will not show on them. The one site has its width set in Keel, so
+    the note will show there only at "Leave unchanged". On another, a different
+    plugin sets the width, which Keel does not report.
+  - Found: AI Connectors, a default, switches off Jetpack's AI features too. Run
+    with Keel loaded and with it skipped, on two sites: Jetpack's AI Assistant block,
+    its `jetpack-ai` routes and every AI extension are gone with the setting on.
+    The setting now says so where Jetpack is active (dknauss/Keel#246). Whether the
+    default should stay on where Jetpack is active is undecided.
+  - Keel sends `X-Frame-Options: SAMEORIGIN` on the front end, which blocks a
+    WordPress.com screen from framing the site. dknauss/Keel#245 documents it. The
+    hosting overview and the plugins screen do not frame the site.
   - Triage early reports before opening another release cycle.
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
