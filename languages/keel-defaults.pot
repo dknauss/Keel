@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-13T23:12:08+00:00\n"
+"POT-Creation-Date: 2026-10-13T23:19:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1319,17 +1319,31 @@ msgstr[1] ""
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
+#. translators: %s: theme name, or a child theme and its parent, comma-separated.
+#: includes/site-health.php:797
+#, php-format
+msgid "Your theme may change the same settings as Keel: %s"
+msgstr ""
+
+#: includes/site-health.php:799
+msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
+msgstr ""
+
+#: includes/site-health.php:803
+msgid "Your theme may influence the same settings as Keel"
+msgstr ""
+
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:790
+#: includes/site-health.php:813
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:792
+#: includes/site-health.php:815
 msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:796
+#: includes/site-health.php:819
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 

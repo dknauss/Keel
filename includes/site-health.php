@@ -779,10 +779,33 @@ function keel_defaults_site_health_conflicts() {
 	}
 
 	$plugins = array();
+	$themes  = array();
 	foreach ( $overlaps as $hook_plugins ) {
 		foreach ( $hook_plugins as $plugin ) {
+			if ( 0 === strpos( $plugin, KEEL_DEFAULTS_THEME_PREFIX ) ) {
+				$themes[ substr( $plugin, strlen( KEEL_DEFAULTS_THEME_PREFIX ) ) ] = true;
+			}
 			$plugins[ $plugin ] = true;
 		}
+	}
+
+	// A theme on its own is not "more than one plugin", and nobody deactivates a
+	// theme. Beside a plugin it stays in the one list, marked as a theme.
+	if ( count( $themes ) === count( $plugins ) ) {
+		$description = $intro . '<p><strong>' . sprintf(
+			/* translators: %s: theme name, or a child theme and its parent, comma-separated. */
+			esc_html__( 'Your theme may change the same settings as Keel: %s', 'keel-defaults' ),
+			esc_html( implode( ', ', array_map( 'keel_defaults_theme_name', array_keys( $themes ) ) ) )
+		) . '</strong></p><p>' . esc_html__( 'On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn\'t switch themes simply for this reason without further investigation.', 'keel-defaults' ) . '</p><ul>';
+		$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
+
+		return array(
+			'label'       => __( 'Your theme may influence the same settings as Keel', 'keel-defaults' ),
+			'status'      => 'recommended',
+			'badge'       => $badge,
+			'description' => $description,
+			'test'        => 'keel_defaults_conflicts',
+		);
 	}
 
 	$description = $intro . '<p><strong>' . sprintf(

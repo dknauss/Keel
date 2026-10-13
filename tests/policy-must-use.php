@@ -325,7 +325,9 @@ keel_assert( false === strpos( $notice, 'host-loader.php' ), 'Must-use code stay
 
 $themed_health = keel_defaults_site_health_conflicts();
 keel_assert( 'recommended' === $themed_health['status'], 'A theme overlap is a Site Health recommendation.' );
-keel_assert( false !== strpos( $themed_health['description'], 'Field Theme (theme)' ), 'Site Health names the theme and says it is one.' );
+keel_assert( false !== strpos( $themed_health['description'], 'Field Theme' ), 'Site Health names the theme.' );
+keel_assert( false !== strpos( $themed_health['label'], 'theme' ) && false === stripos( $themed_health['label'], 'plugin' ), 'With only a theme involved, the Site Health headline says theme, not plugin.' );
+keel_assert( false === strpos( $themed_health['description'], 'Plugins that may change' ), 'With only a theme involved, Site Health does not list it under plugins.' );
 
 keel_assert( array() === $GLOBALS['keel_foreign_calls'], 'Attribution invokes no registered callback.' );
 
