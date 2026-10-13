@@ -1249,6 +1249,11 @@ registered on it. Keel stands down on several — the session filter is not regi
 all when the policy matches WordPress's own — and a hook Keel is not on is another plugin
 doing its job, not a conflict.
 
+**A theme is reported as a plugin is.** A callback in the active theme or its parent is
+reported as `theme:<directory>`, under `structural` on an authoritative hook, and named in
+the notice and in Site Health. Somebody chose the theme, and its settings or a child theme
+can change what it does.
+
 **Must-use code is named, and stays out of the notice.** A callback is attributed to a
 must-use plugin when its file is one `wp_get_mu_plugins()` returns, a file that plugin
 included while it loaded, a file in the directory a symlinked must-use plugin really lives

@@ -180,6 +180,59 @@ function keel_defaults_callback_plugin_dir( $callback ) {
 }
 
 /**
+ * Prefix marking a report entry as a theme. What follows is its directory name.
+ *
+ * A theme is reported exactly as a plugin is, notice included: somebody chose
+ * it, and its settings or a child theme can change what it does.
+ */
+const KEEL_DEFAULTS_THEME_PREFIX = 'theme:';
+
+/**
+ * Resolve a registered callback to the active theme, or its parent.
+ *
+ * Only those two can have loaded code on this request, so there is no need to
+ * know where every installed theme lives.
+ *
+ * @param mixed $callback Registered callback.
+ * @return string Theme directory name, or '' when the callback is not a theme's.
+ */
+function keel_defaults_callback_theme( $callback ) {
+	$file = keel_defaults_callback_file( $callback );
+
+	if ( '' === $file || ! function_exists( 'get_stylesheet_directory' ) || ! function_exists( 'get_template_directory' ) ) {
+		return '';
+	}
+
+	$real = realpath( $file );
+	$file = wp_normalize_path( false !== $real ? $real : $file );
+
+	// The child first: it is the more specific owner of a file under both.
+	foreach ( array( get_stylesheet_directory(), get_template_directory() ) as $dir ) {
+		$real_dir = realpath( $dir );
+		$root     = trailingslashit( wp_normalize_path( false !== $real_dir ? $real_dir : $dir ) );
+
+		if ( '/' !== $root && 0 === strpos( $file, $root ) ) {
+			return basename( $dir );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * A theme's name as the Themes screen shows it, from its directory.
+ *
+ * @param string $slug Theme directory name.
+ * @return string
+ */
+function keel_defaults_theme_name( $slug ) {
+	$theme = function_exists( 'wp_get_theme' ) ? wp_get_theme( $slug ) : null;
+	$name  = is_object( $theme ) && $theme->exists() ? (string) $theme->get( 'Name' ) : '';
+
+	return '' !== $name ? $name : (string) $slug;
+}
+
+/**
  * Prefix marking a report entry as a must-use plugin rather than a plugin
  * directory. What follows it is the file name in the must-use directory.
  *
@@ -497,6 +550,11 @@ function keel_defaults_active_plugin_roots() {
 function keel_defaults_plugin_name( $slug ) {
 	static $installed = null;
 
+	if ( 0 === strpos( (string) $slug, KEEL_DEFAULTS_THEME_PREFIX ) ) {
+		/* translators: %s: theme name, such as Twenty Twenty-Five. */
+		return sprintf( __( '%s (theme)', 'keel-defaults' ), keel_defaults_theme_name( substr( $slug, strlen( KEEL_DEFAULTS_THEME_PREFIX ) ) ) );
+	}
+
 	if ( 0 === strpos( (string) $slug, KEEL_DEFAULTS_MU_PLUGIN_PREFIX ) ) {
 		/* translators: %s: file name of a must-use plugin, such as host-loader.php. */
 		return sprintf( __( 'must-use plugin %s', 'keel-defaults' ), substr( $slug, strlen( KEEL_DEFAULTS_MU_PLUGIN_PREFIX ) ) );
@@ -729,6 +787,13 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 				if ( '' !== $plugin ) {
 					$rivals[ $plugin ] = true;
 				} else {
+					$theme = keel_defaults_callback_theme( $registered['function'] );
+
+					if ( '' !== $theme ) {
+						$rivals[ KEEL_DEFAULTS_THEME_PREFIX . $theme ] = true;
+						continue;
+					}
+
 					$mu_plugin = keel_defaults_callback_mu_plugin( $registered['function'] );
 
 					if ( '' !== $mu_plugin ) {
@@ -1092,9 +1157,14 @@ function keel_defaults_render_conflicts_notice() {
 	}
 
 	$plugins = array();
+	$themes  = array();
 	foreach ( $conflicts as $hook_plugins ) {
 		foreach ( $hook_plugins as $plugin ) {
-			$plugins[ $plugin ] = true;
+			if ( 0 === strpos( $plugin, KEEL_DEFAULTS_THEME_PREFIX ) ) {
+				$themes[ substr( $plugin, strlen( KEEL_DEFAULTS_THEME_PREFIX ) ) ] = true;
+			} else {
+				$plugins[ $plugin ] = true;
+			}
 		}
 	}
 
@@ -1151,6 +1221,21 @@ function keel_defaults_render_conflicts_notice() {
 			?>
 			</strong>
 		</p>
+		<?php endif; ?>
+		<?php if ( ! empty( $themes ) ) : ?>
+		<p>
+			<strong>
+			<?php
+			printf(
+				/* translators: %s: theme name, or a child theme and its parent, comma-separated. */
+				esc_html__( 'Your theme may influence some of the same settings as Keel: %s', 'keel-defaults' ),
+				esc_html( implode( ', ', array_map( 'keel_defaults_theme_name', array_keys( $themes ) ) ) )
+			);
+			?>
+			</strong>
+		</p>
+		<?php endif; ?>
+		<?php if ( ! empty( $plugins ) || ! empty( $themes ) ) : ?>
 		<p>
 				<?php esc_html_e( 'They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel\'s are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict.', 'keel-defaults' ); ?>
 		</p>

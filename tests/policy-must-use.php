@@ -21,6 +21,10 @@
  * Must-use code is named in Site Health and raises no notice. Nobody can switch
  * it off from the Plugins screen, so a banner about it is one nobody can clear.
  *
+ * A theme is the other owner that used to read as untraceable. Unlike must-use
+ * code it is something a site owner chose and can change, so it is named in the
+ * notice the way a plugin is.
+ *
  * Its own process under `composer test`: the include order is the fixture.
  *
  * Run: php tests/policy-must-use.php
@@ -61,11 +65,19 @@ function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
 function apply_filters( $hook, $value, ...$args ) { return $value; }
+function esc_url( $s ) { return $s; }
+function number_format_i18n( $n ) { return (string) $n; }
+function current_user_can( $cap ) { return true; }
+function get_current_user_id() { return 1; }
+function get_user_meta( $user_id, $key, $single = false ) { return ''; }
+function admin_url( $path = '' ) { return 'https://example.test/wp-admin/' . $path; }
+function wp_nonce_url( $url, $action = -1 ) { return $url; }
+function get_current_screen() { return (object) array( 'id' => 'plugins' ); }
 
 // Native filesystem calls are appropriate for this standalone temporary fixture.
 // phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.PHP.NoSilencedErrors
 $fixture = sys_get_temp_dir() . '/keel-must-use-' . getmypid();
-foreach ( array( 'plugins/active-plugin', 'mu-plugins', 'host/loader/1.0', 'host/platform', 'core/wp-includes', 'elsewhere' ) as $keel_dir ) {
+foreach ( array( 'plugins/active-plugin', 'themes', 'shared/field-theme', 'mu-plugins', 'host/loader/1.0', 'host/platform', 'core/wp-includes', 'elsewhere' ) as $keel_dir ) {
 	@mkdir( $fixture . '/' . $keel_dir, 0777, true );
 }
 $fixture = realpath( $fixture );
@@ -101,6 +113,10 @@ file_put_contents( $fixture . '/core/wp-includes/vars.php', "<?php\n" );
 file_put_contents( $fixture . '/core/wp-includes/capabilities.php', "<?php\nfunction keel_test_core_cap( \$caps ) { {$keel_ran} return \$caps; }\n" );
 symlink( $fixture . '/core', $fixture . '/wp' );
 
+// The active theme, in a directory that is itself a symlink.
+file_put_contents( $fixture . '/shared/field-theme/functions.php', "<?php\nfunction keel_test_theme_login_url( \$url ) { {$keel_ran} return \$url; }\n" );
+symlink( $fixture . '/shared/field-theme', $fixture . '/themes/field-theme' );
+
 // Loaded after WordPress has finished with must-use plugins, from nowhere known.
 file_put_contents( $fixture . '/elsewhere/stray.php', "<?php\nfunction keel_test_stray( \$value ) { {$keel_ran} return \$value; }\n" );
 
@@ -118,11 +134,13 @@ register_shutdown_function(
 			'/core/wp-includes/vars.php',
 			'/core/wp-includes/capabilities.php',
 			'/elsewhere/stray.php',
+			'/themes/field-theme',
+			'/shared/field-theme/functions.php',
 		);
 		foreach ( $files as $file ) {
 			@unlink( $fixture . $file );
 		}
-		foreach ( array( 'plugins/active-plugin', 'plugins', 'mu-plugins', 'host/loader/1.0', 'host/loader', 'host/platform', 'host', 'core/wp-includes', 'core', 'elsewhere', '' ) as $dir ) {
+		foreach ( array( 'plugins/active-plugin', 'plugins', 'themes', 'shared/field-theme', 'shared', 'mu-plugins', 'host/loader/1.0', 'host/loader', 'host/platform', 'host', 'core/wp-includes', 'core', 'elsewhere', '' ) as $dir ) {
 			@rmdir( $fixture . '/' . $dir );
 		}
 	}
@@ -149,6 +167,17 @@ require ABSPATH . WPINC . '/vars.php';
 require ABSPATH . WPINC . '/capabilities.php';
 require $fixture . '/elsewhere/stray.php';
 require $fixture . '/host/loader/1.0/late.php';
+
+function get_stylesheet_directory() { return $GLOBALS['keel_fixture'] . '/themes/field-theme'; }
+function get_template_directory() { return get_stylesheet_directory(); }
+function wp_get_theme( $slug = '' ) {
+	return new class() {
+		public function exists() { return true; }
+		public function get( $header ) { return 'Name' === $header ? 'Field Theme' : ''; }
+	};
+}
+$GLOBALS['keel_fixture'] = $fixture;
+require get_stylesheet_directory() . '/functions.php';
 
 require dirname( __DIR__ ) . '/keel.php';
 
@@ -261,6 +290,42 @@ $GLOBALS['wp_filter']['auth_cookie_expiration'] = new Keel_Mu_Test_Hook(
 keel_defaults_policy_overlap_report( true );
 keel_assert( array( 'auth_cookie_expiration' ) === keel_defaults_unattributed_hooks(), 'A callback from no known place is still reported as untraceable.' );
 keel_assert( 'recommended' === keel_defaults_site_health_conflicts()['status'], 'An untraceable overlap is still a Site Health recommendation.' );
+
+// --- A theme is named, and it gets the notice ---
+keel_assert( 'field-theme' === keel_defaults_callback_theme( 'keel_test_theme_login_url' ), 'A callback in the active theme is attributed to it, through a symlink.' );
+keel_assert( '' === keel_defaults_callback_theme( 'keel_test_host_limit' ), 'Must-use code is not the theme.' );
+keel_assert( '' === keel_defaults_callback_mu_plugin( 'keel_test_theme_login_url' ), 'The theme is not must-use code.' );
+
+keel_defaults_registered_policy_hooks( 'login_headerurl', 'keel_defaults_login_header_url', 10, 1, 'login_logo_behavior' );
+$GLOBALS['wp_filter']                    = $host_hooks;
+$GLOBALS['wp_filter']['login_headerurl'] = new Keel_Mu_Test_Hook(
+	array(
+		10 => array(
+			array( 'function' => 'keel_test_theme_login_url' ),
+			array( 'function' => 'keel_defaults_login_header_url' ),
+		),
+	)
+);
+
+$themed = keel_defaults_policy_overlap_report( true );
+keel_assert(
+	array( KEEL_DEFAULTS_THEME_PREFIX . 'field-theme' ) === $themed['structural']['login_headerurl'],
+	'A theme on an authoritative hook is a structural overlap, as a plugin is.'
+);
+keel_assert( array() === keel_defaults_unattributed_hooks(), 'Theme code is not called untraceable.' );
+keel_assert( '' !== keel_defaults_notice_fingerprint(), 'A theme overlap is something the notice shows and can be dismissed.' );
+
+ob_start();
+keel_defaults_render_conflicts_notice();
+$notice = (string) ob_get_clean();
+keel_assert( false !== strpos( $notice, 'Field Theme' ), 'The notice names the theme as the Themes screen does.' );
+keel_assert( false !== strpos( $notice, 'Your theme may influence' ), 'The notice says it is the theme.' );
+keel_assert( false === strpos( $notice, 'plugin may influence' ) && false === strpos( $notice, 'plugins may influence' ), 'The notice does not call a theme a plugin.' );
+keel_assert( false === strpos( $notice, 'host-loader.php' ), 'Must-use code stays out of the notice.' );
+
+$themed_health = keel_defaults_site_health_conflicts();
+keel_assert( 'recommended' === $themed_health['status'], 'A theme overlap is a Site Health recommendation.' );
+keel_assert( false !== strpos( $themed_health['description'], 'Field Theme (theme)' ), 'Site Health names the theme and says it is one.' );
 
 keel_assert( array() === $GLOBALS['keel_foreign_calls'], 'Attribution invokes no registered callback.' );
 
