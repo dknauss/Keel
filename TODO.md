@@ -405,7 +405,8 @@ These are maintenance increments alongside feature work, not new release promise
       remove the duplicate-class lint warning; refresh stale lint/compat comments.
 - [x] **Separate backport responsibilities** — extracted 2026-10-14 into status/cache,
       policy, presentation, and actions modules; public functions and hooks retained.
-- [ ] **Extract password and HIBP handling** — preserve all entry points and privacy.
+- [x] **Extract password and HIBP handling** — extracted 2026-10-14 into policy/adapters
+      and HIBP transport/cache modules; entry points and privacy behavior preserved.
 - [ ] **Split conflict diagnostics internally** — attribution, overlaps, divergence.
 - [ ] **Extract settings policy resolution** — configuration locks belong outside UI.
 - [ ] **Strengthen data contracts gradually** — array shapes, scoped PHPStan pilot,
