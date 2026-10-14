@@ -1,17 +1,17 @@
 <?php
 /**
- * The three doors strong-password enforcement is applied at.
+ * The four integration hooks used by strong-password enforcement.
  *
  * The policy function, keel_defaults_validate_password(), decides whether a
  * password is acceptable and has thorough coverage in tests/password-scoping.php.
- * It is never called by WordPress directly. Three wrappers put it in front of the three ways a
- * password actually reaches a site:
+ * It is never called by WordPress directly. Adapters put it in front of the ways a password actually reaches a site:
  *
- *   validate_password_reset  → the reset form and the profile screen
- *   rest_pre_insert_user     → creating or updating a user over REST
- *   rest_endpoints           → the password argument on /wp/v2/users
+ *   user_profile_update_errors → the profile screen
+ *   validate_password_reset    → the reset form
+ *   rest_pre_insert_user       → fallback validation for REST user writes
+ *   rest_endpoints             → the password argument on /wp/v2/users
  *
- * None of them had a test, in either suite. That is the gap that matters: the
+ * These adapters originally had no dedicated test. That is the gap that matters: the
  * policy can be perfect while a wrapper returns the wrong type, reads the wrong
  * field, or bails early — and enforcement silently stops on that path while
  * every existing assertion stays green. Two defects found elsewhere in this
