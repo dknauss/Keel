@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T03:04:23+00:00\n"
+"POT-Creation-Date: 2026-10-14T03:07:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1404,7 +1404,7 @@ msgid "Allow <code>system.multicall</code>"
 msgstr ""
 
 #: includes/strings.php:45
-msgid "Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. Jetpack does rely on it: WordPress.com manages a connected site through multicall. So while this is off, Keel still lets through the requests Jetpack verifies as signed by WordPress.com, and refuses the rest."
+msgid "Leave off when using Jetpack: Keel still allows requests Jetpack verifies as signed by WordPress.com, which uses multicall to manage connected sites. Turning this on allows other multicalls too. If Site Health reports that Jetpack cannot verify these requests, update Jetpack or allow multicall until compatibility is restored. <code>system.multicall</code> bundles several XML-RPC calls into one request. Refusing unsigned multicalls reduces the available attack surface; WordPress has limited its use for password guessing since 4.4."
 msgstr ""
 
 #: includes/strings.php:49
@@ -1484,7 +1484,7 @@ msgid "Frame Options"
 msgstr ""
 
 #: includes/strings.php:83
-msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere."
+msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> permits framing only by this site and can block previews embedded on WordPress.com, partner sites, or other preview tools. Choose Leave unchanged if cross-origin previews or embeds are needed. This stops Keel adding the header; it does not remove a restriction set by your host, CDN, or another plugin. Test the preview after changing this setting."
 msgstr ""
 
 #: includes/strings.php:85
