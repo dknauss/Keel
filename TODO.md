@@ -9,7 +9,7 @@ This file and ROADMAP.md are the only record of scope.
 
 ## Now — observe the 0.6 line
 
-Each 0.6 release is published only after the release checklist runs in full; 0.6.0 through 0.6.6 are out.
+Each 0.6 release is published only after the release checklist runs in full; 0.6.0 through 0.6.7 are out.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -34,7 +34,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       where stable-check and the release it names are shown drifting apart by hours.
       Pinned in `tests/backport-status.php`; staged live on every row of the backport
       matrix by `tests/integration/stable-check-refresh-probe.php`.
-- [x] **Environment override and mislabelled-site warning** — unreleased. The schema
+- [x] **Environment override and mislabelled-site warning** — in 0.6.8, not yet tagged. The schema
       goes to 40 defaults with `environment_override` (Automatic, or a fixed environment
       Keel uses instead of `WP_ENVIRONMENT_TYPE`). Found on WordPress.com sites whose
       live `wp-config.php` had been replaced by a WordPress Studio copy declaring
@@ -42,7 +42,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       screen saying why. Keel now warns administrators, without a toggle, when a site
       declares local or development but is served from a public host or runs on
       WordPress.com (`IS_ATOMIC`). Pinned in `tests/environment-indicator.php`.
-- [x] **Keep warning while the Environment override covers for a wrong label** — unreleased.
+- [x] **Keep warning while the Environment override covers for a wrong label** — in 0.6.8, not yet tagged.
       Found 2026-10-13 reviewing the override in use: choosing Production cleared the
       mislabelled-site warning, but WordPress, Jetpack and WordPress.com went on reading
       `local`, so the stopgap hid the fault. A second warning now replaces the first until
@@ -52,7 +52,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       on WordPress.com) and `wp config set WP_ENVIRONMENT_TYPE production --type=constant`.
       Site Health gains an Environment type check, and the Network Admin shows the label
       warning. No new settings. Pinned in `tests/environment-indicator.php`.
-- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — unreleased. Found
+- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — in 0.6.8, not yet tagged. Found
       2026-10-12 on a WordPress.com Atomic site (Jetpack 16.3): the menu was 272px with
       Admin Menu Width at "Leave unchanged". Jetpack's masterbar package enqueues
       `jetpack-admin-menu`, which sets 272px, and Keel emits nothing at that setting.
@@ -63,7 +63,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       and `tests/settings-render.php`; documented under Admin Menu Width in
       `docs/wordpress-default-settings.md`.
   - Not yet seen on a real site: the note itself.
-- [x] **The block editor follows the admin menu width** — unreleased. Checked 2026-10-12
+- [x] **The block editor follows the admin menu width** — in 0.6.8, not yet tagged. Checked 2026-10-12
       on a disposable local site (Jetpack 16.3, its masterbar package started by hand).
       Outside fullscreen mode the editor's frame is `position: fixed` with its own
       `left`, 160px from core and 272px from Jetpack, and Keel never set it. At 240px
@@ -93,8 +93,8 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
   - Found: every one of the nine shows the notice that two settings are "affected by
     code that cannot be traced to any plugin". The code is the host's own must-use
     plugins, on `wp_revisions_to_keep` (priority 5, so Keel's limit still decides)
-    and `user_has_cap`. Keel should name must-use and host code, not call it
-    untraceable. Not yet done.
+    and `user_has_cap`. Fixed in 0.6.8: the report names must-use plugins and
+    themes (dknauss/Keel#244). Not yet seen on one of the nine.
   - Found: the 272px menu belongs to one of the nine. Looked at in a browser on
     eight: one loads Jetpack's `jetpack-admin-menu` stylesheet, and it is the one
     with no admin interface style stored. The other seven are set to the classic
@@ -105,10 +105,13 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
   - Found: AI Connectors, a default, switches off Jetpack's AI features too. Run
     with Keel loaded and with it skipped, on two sites: Jetpack's AI Assistant block,
     its `jetpack-ai` routes and every AI extension are gone with the setting on.
-    The setting now says so where Jetpack is active (dknauss/Keel#246). Whether the
-    default should stay on where Jetpack is active is undecided.
+    In 0.6.8 the setting says so where Jetpack is active (dknauss/Keel#246). The
+    default stays on: connectors are for features on the site, and nothing an
+    outside tool or agent uses to work on a site passes through that gate. On the
+    site with WordPress.com's agent plugin active, the agent still answered.
   - Keel sends `X-Frame-Options: SAMEORIGIN` on the front end, which blocks a
-    WordPress.com screen from framing the site. dknauss/Keel#245 documents it. The
+    WordPress.com screen from framing the site. The 0.6.8 help text and reference
+    doc say so (dknauss/Keel#245). The
     hosting overview and the plugins screen do not frame the site.
   - Triage early reports before opening another release cycle.
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
@@ -330,56 +333,22 @@ active work belongs in **Now** or **Next**, above.
       `docs/keel-feature-matrix.md`. A second machine keeps its own copies and was not
       checked.
 
-- [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
-      The settings screen's line is *Sensible defaults for steady sites.*
-      *Balanced defaults* says the same thing in two words and lands the keel metaphor
-      without explaining it, which is what a banner has room for.
-
-      **Reviewed 2026-10-13; the choice of line is the maintainer's and is still open.**
-      What the review found:
-      - There are two lines, not three, and the brand package names both:
-        `.wordpress-org/brand/README.md` gives *Keeps your site upright with sensible
-        defaults.* as the tagline and *Sensible defaults for steady sites.* as its
-        short alternate. So the banner and the settings screen are not in conflict;
-        *balanced defaults* would be a third line unless it replaces one of them.
-      - The wordmark and the tagline both read at 772×250, and the mark holds at the
-        128px icon.
-      - `branding/` held the two-sail mark that the racing yacht replaced on
-        2026-08-09, and a README describing banners that no longer exist. Nothing
-        used it, so it is removed from the repository and ignored; history keeps it.
-
-      Where each line appears:
-
-      | Surface | Line |
-      | --- | --- |
-      | `.wordpress-org/brand/README.md` | both; the banner's line is the tagline |
-      | `includes/settings-page.php` | *Sensible defaults for steady sites.* |
-      | newlocalmedia.github.io preview | *Sensible defaults for steady sites.* |
-      | **`.wordpress-org/` banners, live on wordpress.org** | *Keeps your site upright with sensible defaults.* |
-
-      Keel's own brand documentation therefore disagrees with the asset Keel ships, and
-      the one people actually see on the plugin directory is the one nothing else says.
-
-      Scope, because a tagline change is not only a tagline:
-      - `.wordpress-org/banner-1544x500.png` and `banner-772x250.png` — the listing
-        banners, where the line actually appears.
-      - `.wordpress-org/brand/README.md` — names the tagline and its short alternate.
-      - `includes/settings-page.php` — the settings-screen header carries it as a
-        **translatable string**, so a change is a new msgid and the old one is dropped
-        from every existing catalogue. Regenerate the `.pot` in the same commit.
-      - **`newlocalmedia.github.io/assets/keel-preview.png` and `.webp`** — a separate
-        composition drawn by `scripts/generate-project-previews.py`, not a crop of the
-        plugin banner. It is a different treatment entirely: dark navy rather than
-        white, mixed-case *Keel* rather than letter-spaced *KEEL*, no blue keel fin,
-        and no rule under the wordmark. Decide whether it should match the banner or
-        stay a house style for that site. Its alt text in `scripts/site-config.mjs`
-        describes the current image accurately and stops being true the moment the
-        image changes.
-
-      Not release-blocking, and deliberately not in 0.6.0: the listing assets are served
-      from SVN `assets/` and can be updated without a plugin release. The settings-screen
-      string cannot — that one ships with the plugin, so it either waits for a release or
-      the surfaces diverge again in the meantime.
+- [x] **Review the logo graphics and banner tagline** — done 2026-10-13, in 0.6.8.
+      Both lines the brand package names now say *balanced* where they said
+      *sensible*: the banners read *Keeps your site upright with balanced defaults.*
+      and the settings screen reads *Balanced defaults for steady sites.* The review
+      found two lines in use, not three, and that the wordmark, tagline and icon hold
+      at their small sizes. `branding/`, the mark the racing yacht replaced on
+      2026-08-09, is removed from the repository; history keeps it.
+  - The banners have no layered source. `.wordpress-org/brand/README.md` records how
+    the line was changed on the existing PNGs.
+  - The new banners reach wordpress.org when the listing assets are next deployed.
+- [ ] **Bring the newlocalmedia.github.io preview into line with the tagline.**
+      `assets/keel-preview.png` and `.webp` there still say *Sensible defaults for
+      steady sites.* They are a separate composition drawn by
+      `scripts/generate-project-previews.py`, on dark navy with a mixed-case name, not
+      a crop of the plugin banner, and the alt text in `scripts/site-config.mjs`
+      quotes the line.
 
 - [x] **Reference doc coverage** — done 2026-08-04. Every schema key then present received an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
