@@ -120,6 +120,14 @@ foreach ( array( 'status', 'policy', 'presentation', 'actions' ) as $module ) {
 	keel_guard_run( 'bash bin/verify-screenshots.sh --record', $root );
 }
 
+// Diagnostic state and attribution labels also feed visible notices and reports.
+foreach ( array( 'attribution', 'overlap', 'divergence', 'notices' ) as $module ) {
+	file_put_contents( $root . '/includes/conflict-' . $module . '.php', "<?php\n// changed diagnostic UI\n" );
+	list( $code, $out ) = keel_guard_run( 'bash bin/verify-screenshots.sh', $root );
+	keel_guard_assert( 1 === $code, "A changed conflict {$module} module invalidates the screenshot review. Got {$code}: {$out}" );
+	keel_guard_run( 'bash bin/verify-screenshots.sh --record', $root );
+}
+
 // New pictures are also unreviewed pictures.
 file_put_contents( $root . '/.wordpress-org/screenshot-1.png', 'a different picture' );
 
