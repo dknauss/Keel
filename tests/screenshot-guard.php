@@ -128,6 +128,12 @@ foreach ( array( 'attribution', 'overlap', 'divergence', 'notices' ) as $module 
 	keel_guard_run( 'bash bin/verify-screenshots.sh --record', $root );
 }
 
+// Configuration locks and effective control values feed both settings screens.
+file_put_contents( $root . '/includes/settings-policy.php', "<?php\n// changed lock policy\n" );
+list( $code, $out ) = keel_guard_run( 'bash bin/verify-screenshots.sh', $root );
+keel_guard_assert( 1 === $code, "A changed settings-policy module invalidates the screenshot review. Got {$code}: {$out}" );
+keel_guard_run( 'bash bin/verify-screenshots.sh --record', $root );
+
 // New pictures are also unreviewed pictures.
 file_put_contents( $root . '/.wordpress-org/screenshot-1.png', 'a different picture' );
 

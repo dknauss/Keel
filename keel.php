@@ -75,6 +75,7 @@ const KEEL_DEFAULTS_VERSION = '0.6.8';
 
 // Load the plugin's modules.
 require_once __DIR__ . '/includes/schema.php';
+require_once __DIR__ . '/includes/settings-policy.php';
 require_once __DIR__ . '/includes/assets.php';
 require_once __DIR__ . '/includes/network.php';
 require_once __DIR__ . '/includes/lifecycle.php';

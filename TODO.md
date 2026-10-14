@@ -413,7 +413,8 @@ These are maintenance increments alongside feature work, not new release promise
       cache modes and crowded diagnostics; eliminate repeated root resolution. See
       [performance record](docs/review/performance-budget.md).
 - [ ] **Port diagnostic root memoization to counterpart** — [#254](https://github.com/dknauss/Keel/issues/254), before release.
-- [ ] **Extract settings policy resolution** — configuration locks belong outside UI.
+- [x] **Extract settings policy resolution** — extracted 2026-10-14 into a shared,
+      declaration-only module; constant precedence and stored preferences preserved.
 - [ ] **Strengthen data contracts gradually** — array shapes, scoped PHPStan pilot,
       selective PHP 7.4-compatible types.
 - [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
