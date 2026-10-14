@@ -50,6 +50,11 @@ foreach ( $GLOBALS['keel_backport_hooks'] as $registered ) {
 		fwrite( STDERR, "Backport hook contract changed: {$hook}.\n" );
 		exit( 1 );
 	}
+	unset( $expected[ $hook ] );
+}
+if ( ! empty( $expected ) ) {
+	fwrite( STDERR, "Some backport hooks were never registered.\n" );
+	exit( 1 );
 }
 
 fwrite( STDOUT, "backport module loading: OK (8 hooks, no runtime work on load)\n" );
