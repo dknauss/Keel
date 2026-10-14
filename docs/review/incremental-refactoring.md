@@ -52,6 +52,30 @@ verification. Existing behavioral tests continue to cover outages, offers,
 refusals and explicit install planning. The scheduled update matrix was not
 manually dispatched as part of this extraction.
 
+## Third increment: password and HIBP modules
+
+Implemented 2026-10-14. `security.php` remains the public loading entry point and
+loads two declaration-only modules before bootstrap registers the policy hooks:
+
+- `password-policy.php`: role enforcement/exemption discovery, shared validation,
+  profile/reset/REST adapters and REST user context resolution (8 functions).
+- `password-hibp.php`: bounded padded range requests, response parsing, per-prefix
+  caches, failure/success diagnostics, opt-outs and verdict filtering (11 functions).
+
+Capability, session, Jetpack/XML-RPC, header and anonymous-REST access policies
+remain in security.php. All 37 existing security/password function bodies and
+public names matched their pre-extraction hashes. Hook registration remains in
+bootstrap.php, including priorities and argument counts. A misplaced legacy HIBP
+comment was removed; no enforcement or failure policy changed.
+
+The module-loading test requires the existing security entry point twice and
+checks all 19 password callbacks remain available without option reads, network
+requests, writes or new hook registration. Existing password/role/REST/HIBP tests
+remain the behavioral guards. The [password lab record](password-extraction-lab.md)
+documents real WordPress roles, profile/reset hooks and REST updates with mocked
+HIBP transport. It is a local single-site test, not a new live multisite or
+external-service compatibility matrix.
+
 ## Remaining work, in order
 
 1. **Separate backport responsibilities (completed second increment).** Split remote stable-check/cache access,
@@ -61,7 +85,7 @@ manually dispatched as part of this extraction.
    stale offers, filesystem refusals, nonce/capability checks, redirects and
    same-line-only installation against the existing live matrix. Do not invoke
    an update as a side effect of rendering or diagnostics.
-2. **Extract password and HIBP handling.** Separate it from HTTP headers, sessions,
+2. **Extract password and HIBP handling (completed third increment).** Separate it from HTTP headers, sessions,
    XML-RPC and REST access policies in security.php. Keep password entry points
    and role scoping consistent; preserve breach lookup privacy, response bounds,
    cache behavior and failure policy. Use the existing password and HIBP tests
