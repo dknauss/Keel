@@ -343,12 +343,12 @@ active work belongs in **Now** or **Next**, above.
   - The banners have no layered source. `.wordpress-org/brand/README.md` records how
     the line was changed on the existing PNGs.
   - The new banners reach wordpress.org when the listing assets are next deployed.
-- [ ] **Bring the newlocalmedia.github.io preview into line with the tagline.**
-      `assets/keel-preview.png` and `.webp` there still say *Sensible defaults for
-      steady sites.* They are a separate composition drawn by
-      `scripts/generate-project-previews.py`, on dark navy with a mixed-case name, not
-      a crop of the plugin banner, and the alt text in `scripts/site-config.mjs`
-      quotes the line.
+- [x] **Bring the newlocalmedia.github.io preview into line with the tagline** — done
+      2026-10-13 (newlocalmedia/newlocalmedia.github.io#22). `assets/keel-preview.png`
+      and `.webp` there now say *Balanced defaults for steady sites.*, and the alt
+      text quotes it. The image is a static asset, not drawn by a script, so the
+      line was covered and reset in the original's Avenir Next. It still shows the
+      earlier two-sail mark rather than the racing yacht.
 
 - [x] **Reference doc coverage** — done 2026-08-04. Every schema key then present received an
       entry in `docs/wordpress-default-settings.md`. Thirteen were missing outright;
