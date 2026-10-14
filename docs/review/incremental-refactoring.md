@@ -131,6 +131,18 @@ or hook registration; existing core-policy truth tables, site/network render and
 save tests cover behavior. The [lab record](settings-policy-lab.md) records real
 WordPress checks and the paired performance-budget recheck.
 
+## Sixth increment: data-contract and static-analysis pilot
+
+Implemented 2026-10-14. Shared array contracts now describe update state, blocker
+records, visible offers, ladder rungs, install plans, diagnostic tiers and callback
+registrations. PHPStan level 6 checks backport policy and configuration locks at
+the PHP 7.4 target, without a baseline or ignored errors. Positive/negative static
+examples verify the contracts work; the dependency-free runtime matrix remains.
+The [pilot record](data-contracts-phpstan.md) documents exact checked versus scanned
+scope, untrusted-data limits, tooling constraints, verification and follow-ups.
+Expansion to other bodies and higher levels remains on the backlog. PHP 8.x floor
+research is separately tracked and does not change this increment's compatibility.
+
 ## Sequence and acceptance criteria
 
 1. **Separate backport responsibilities (completed second increment).** Split remote stable-check/cache access,
@@ -155,7 +167,7 @@ WordPress checks and the paired performance-budget recheck.
    consumers. Preserve constant precedence, network policy and the stored site
    preference. Do not introduce a second settings cache that becomes stale after
    update_option().
-5. **Strengthen data contracts gradually.** Add precise PHPDoc array shapes for
+5. **Strengthen data contracts gradually (pilot completed sixth increment; expansion open).** Add precise PHPDoc array shapes for
    update states, offers, lock descriptions and diagnostic reports. Introduce
    PHPStan with WordPress stubs on a small, well-defined module first, then expand.
    Do not hide new issues behind a continually growing baseline. Add native types

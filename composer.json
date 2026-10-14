@@ -11,7 +11,9 @@
         "wp-coding-standards/wpcs": "^3.2",
         "phpcompatibility/phpcompatibility-wp": "^3.0@alpha",
         "phpcompatibility/php-compatibility": "^10.0@alpha",
-        "phpcompatibility/phpcompatibility-paragonie": "^2.0@alpha"
+        "phpcompatibility/phpcompatibility-paragonie": "^2.0@alpha",
+        "phpstan/phpstan": "~2.1.0",
+        "php-stubs/wordpress-stubs": "~6.4.0"
     },
     "scripts": {
         "lint": "phpcs --standard=phpcs.xml",
@@ -20,7 +22,9 @@
         "lint:compat": "phpcs --standard=phpcompat.xml",
         "test": "for f in tests/*.php; do php \"$f\" || exit 1; done",
         "test:integration": "bash tests/integration/verify-behaviors.sh",
-        "verify:screenshots": "bash bin/verify-screenshots.sh"
+        "verify:screenshots": "bash bin/verify-screenshots.sh",
+        "analyse": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
+        "test:types": "bash bin/test-phpstan-contracts.sh"
     },
     "config": {
         "allow-plugins": {

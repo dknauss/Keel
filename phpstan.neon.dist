@@ -1,0 +1,22 @@
+# Pilot: analyze policy construction and its consumers, not the whole plugin.
+parameters:
+    level: 6
+    phpVersion: 70400
+    paths:
+        - includes/backport-policy.php
+        - includes/settings-policy.php
+    scanDirectories:
+        - includes
+    scanFiles:
+        - keel.php
+        - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    tmpDir: build/phpstan
+    reportUnmatchedIgnoredErrors: true
+    typeAliases:
+        KeelBlocker: 'array{code: string, text: string}'
+        KeelMinorUpdateState: 'array{policy: bool, owner: "option"|"keel"|"constant"|"filter", operable: bool, blockers: list<KeelBlocker>}'
+        KeelUpdateScreenOffer: 'array{state: "unknown"|"none"|"hidden"|"visible", manual: mixed}'
+        KeelLadderRung: 'array{version: string, same_line: bool, delta: bool}'
+        KeelInstallPlan: 'array{offer: object, args: array{allow_relaxed_file_ownership: bool, attempt_rollback: true}}'
+        KeelOverlapReport: 'array{structural: array<string, list<string>>, unconfirmed: array<string, list<string>>}'
+        KeelPolicyRegistration: 'array{callback: callable|null, priority: int, accepted_args: int, setting: string|array<array-key, string>}'

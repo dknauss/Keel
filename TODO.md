@@ -416,8 +416,17 @@ These are maintenance increments alongside feature work, not new release promise
       AX commit `d62da33`, resolving [#254](https://github.com/dknauss/Keel/issues/254).
 - [x] **Extract settings policy resolution** — extracted 2026-10-14 into a shared,
       declaration-only module; constant precedence and stored preferences preserved.
-- [ ] **Strengthen data contracts gradually** — array shapes, scoped PHPStan pilot,
-      selective PHP 7.4-compatible types.
+- [ ] **Research a PHP 8.x minimum** — separately evaluate supported-version lifetimes,
+      intended users and WordPress/hosting compatibility, paired runtime benchmarks,
+      removable compatibility code, useful native types/enums, CI/tooling savings,
+      and migration/release impact. Produce an evidence-based recommendation before
+      changing the floor; the current minimum remains PHP 7.4.
+- [x] **Start data-contract and PHPStan pilot** — 2026-10-14; shared array shapes,
+      level-6 backport/configuration-policy checks targeting PHP 7.4, and positive/
+      negative contract examples in CI. See [the pilot record](docs/review/data-contracts-phpstan.md).
+- [ ] **Expand data contracts and static analysis** — analyze installer/presentation
+      and diagnostic bodies next; narrow untrusted values only after validation,
+      then assess higher levels and selective PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
       faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives

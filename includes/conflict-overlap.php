@@ -198,7 +198,8 @@ function keel_defaults_competing_plugins( $refresh = false ) {
  * Tests that deliberately rewrite the registry can request a refresh.
  *
  * @param bool $refresh Rebuild the request-local report cache.
- * @return array<string,array<string,string[]>> State => hook => plugin labels.
+ * @return array{structural:array<string,list<string>>,unconfirmed:array<string,list<string>>}
+ * @phpstan-return KeelOverlapReport
  */
 function keel_defaults_policy_overlap_report( $refresh = false ) {
 	global $wp_filter;
@@ -480,11 +481,12 @@ function keel_defaults_policy_setting_for_hook( $hook ) {
  * create something to go stale.
  *
  * @param string          $add           Hook to record. Omit to read the list.
- * @param callable        $callback      Registered callback.
+ * @param callable|null   $callback      Registered callback, or null when reading only.
  * @param int             $priority      Registration priority.
  * @param int             $accepted_args Accepted argument count.
  * @param string|string[] $setting Governing schema key(s).
- * @return array<string, array<int, array<string,mixed>>> Hook registration records.
+ * @return array<string,list<array{callback:callable|null,priority:int,accepted_args:int,setting:string|array<array-key,string>}>>
+ * @phpstan-return array<string, list<KeelPolicyRegistration>> Hook registration records.
  */
 function keel_defaults_registered_policy_hooks( $add = '', $callback = null, $priority = 10, $accepted_args = 1, $setting = '' ) {
 	static $registered = array();
