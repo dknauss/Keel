@@ -176,7 +176,7 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Environments', 'keel-defaults' ),
 			'content' =>
 				'<p>' . wp_kses(
-					__( 'Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database.', 'keel-defaults' ),
+					__( 'Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognizes common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
@@ -188,7 +188,7 @@ function keel_defaults_add_help_tab() {
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( '<strong>The environment indicator is the colour-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn\'t needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It\'s useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences.', 'keel-defaults' ),
+					__( '<strong>The environment indicator is the color-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn\'t needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It\'s useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences.', 'keel-defaults' ),
 					array( 'strong' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(

@@ -210,7 +210,7 @@ function keel_defaults_site_health_jetpack_xmlrpc() {
 		$result['label']       = __( 'Requests from WordPress.com to Jetpack are being refused', 'keel-defaults' );
 		$result['description'] = '<p>' . sprintf(
 			/* translators: %s: link to the XML-RPC Multicall setting. */
-			esc_html__( 'Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognise requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s.', 'keel-defaults' ),
+			esc_html__( 'Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognize requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s.', 'keel-defaults' ),
 			keel_defaults_setting_link( 'xmlrpc_allow_multicall', __( 'XML-RPC Multicall', 'keel-defaults' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
 		) . '</p><p>' . $silent . '</p>';
 	}

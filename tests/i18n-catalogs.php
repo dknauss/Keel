@@ -288,6 +288,22 @@ keel_assert(
 		. '--slug included: wp i18n make-pot . languages/keel-defaults.pot --slug=keel-defaults --exclude=build'
 );
 
+/*
+ * --- the source language is US English ---
+ *
+ * The strings in the code are en_US, and each regional spelling belongs in that
+ * locale's catalog. The settings screen's help tab said "colour-coded" while the
+ * field it describes said "color-coded", so an en_US site read both spellings on
+ * one screen and en_CA had nothing to translate. Only translatable strings are
+ * checked; comments may spell as their author does.
+ */
+$regional = '/\b(colour|behaviour|favour|honour|centre|catalogue|licence|recognis|organis|customis|initialis|prioritis|summaris|analys(?:e|ed|es|ing)\b)/i';
+foreach ( $source as $string ) {
+	if ( preg_match( $regional, $string, $m ) ) {
+		keel_assert( false, 'A translatable string uses the regional spelling "' . $m[1] . '"; write it in US English and put the regional spelling in its locale catalog: "' . substr( $string, 0, 90 ) . '"' );
+	}
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "i18n catalogs: {$fail} failed\n" );
 	exit( 1 );
