@@ -412,7 +412,8 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Establish performance baseline and budget** — 2026-10-14; paired real-WP
       cache modes and crowded diagnostics; eliminate repeated root resolution. See
       [performance record](docs/review/performance-budget.md).
-- [ ] **Port diagnostic root memoization to counterpart** — [#254](https://github.com/dknauss/Keel/issues/254), before release.
+- [x] **Port diagnostic root memoization to counterpart** — completed 2026-10-14;
+      AX commit `d62da33`, resolving [#254](https://github.com/dknauss/Keel/issues/254).
 - [x] **Extract settings policy resolution** — extracted 2026-10-14 into a shared,
       declaration-only module; constant precedence and stored preferences preserved.
 - [ ] **Strengthen data contracts gradually** — array shapes, scoped PHPStan pilot,

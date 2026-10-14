@@ -102,3 +102,14 @@ OPcache deployment behavior, frontend paint metrics, or throughput under load.
 Repeat this matrix after changes to bootstrap, diagnostics, option resolution,
 cache behavior or frontend assets. Run the correctness suite first. Keep benchmark
 traffic separate from test/CI work so contention does not distort comparisons.
+
+## Counterpart completion
+
+Port completed 2026-10-14 in AX commit `d62da33`, resolving #254. AX already
+resolved its installed identity once per report; the port adds the same bounded
+root memo against live site/network option values. Its real WordPress 7.1.3 /
+PHP 8.4.26 crowded report measured 160.63 ms median before and 7.57 ms after, with
+identical results, zero report queries/foreign callback execution and unchanged
+allocated peak memory. A real two-site multisite verified activation/deactivation
+and site switching. These are separate counterpart measurements, not a revision
+of the Keel baseline above.
