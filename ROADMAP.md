@@ -1245,7 +1245,7 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Extract password and HIBP handling** — third increment, 2026-10-14.
 - [x] **Split conflict diagnostics internally** — fourth increment, 2026-10-14.
 - [x] **Establish a performance budget** — [paired baseline and diagnostic fix](docs/review/performance-budget.md), 2026-10-14.
-- [ ] **Port diagnostic root memoization to counterpart** — tracked in #254 before release.
+- [x] **Port diagnostic root memoization to counterpart** — AX commit `d62da33`, 2026-10-14 (#254).
 - [x] **Extract settings policy resolution** — fifth increment, 2026-10-14.
 - [ ] **Strengthen data contracts gradually** — scoped static analysis, no PHP-floor change.
 - [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
