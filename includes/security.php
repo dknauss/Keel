@@ -319,10 +319,16 @@ function keel_defaults_jetpack_xmlrpc_state() {
  * only true on some sites, and a warning that is always on teaches people to
  * stop reading warnings.
  *
- * Two settings have one. The XML-RPC endpoint block warns wherever Jetpack is
+ * Three settings have one. The XML-RPC endpoint block warns wherever Jetpack is
  * active. Admin Menu Width warns only while Jetpack's WordPress.com menu
  * stylesheet is actually loading and Keel's width is left unchanged: that is the
  * state where the menu is 272px wide and Keel appears to be doing nothing.
+ *
+ * AI Connectors warns wherever Jetpack is active, because Jetpack reads the
+ * same `wp_supports_ai` gate: with it closed Jetpack reports its AI extensions
+ * unavailable ("ai_disabled"), leaves its AI Assistant block unregistered and
+ * drops its jetpack-ai REST routes. The setting is named for core's connectors,
+ * so without the note nothing says it reaches a paid Jetpack feature.
  *
  * @param string $key Schema key being rendered.
  * @return string Text, or '' when the warning does not apply.
@@ -331,6 +337,12 @@ function keel_defaults_jetpack_warning( $key ) {
 	if ( 'admin_menu_width' === $key ) {
 		return keel_defaults_jetpack_sets_menu_width()
 			? __( 'Jetpack\'s WordPress.com menu styling is setting the admin menu to 272px on this site, and Keel is leaving it alone. Choose 160px to restore WordPress\'s own width.', 'keel-defaults' )
+			: '';
+	}
+
+	if ( 'disable_ai_connectors' === $key ) {
+		return keel_defaults_jetpack_active()
+			? __( 'Jetpack is active on this site and follows this setting. While it is on, Jetpack\'s AI Assistant and its other AI features are switched off too.', 'keel-defaults' )
 			: '';
 	}
 

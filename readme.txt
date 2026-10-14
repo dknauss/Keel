@@ -147,6 +147,10 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Added: a Site Health check, Environment type, and the same warning in the Network Admin on multisite.
 * Added: when Jetpack, not Keel, is setting the admin menu width (as on WordPress.com), the Admin Menu Width setting and Site Health now say so.
 * Fixed: the block editor now follows the admin menu width. A wider menu covered the edge of the editor, and a narrower one left a blank strip beside it.
+* Added: where Jetpack is active, the AI Connectors setting now says that Jetpack follows it. While it is on, which is the default, Jetpack's AI Assistant and its other AI features are switched off too.
+* Changed: the Site Health report on plugins sharing Keel's settings now names must-use plugins and themes. On a managed host it used to say the code could not be traced to any plugin.
+* Changed: the help for XML-RPC Multicall says to leave it off with Jetpack, because requests WordPress.com signs are still let through. The help for Frame Options says SAMEORIGIN can block previews embedded on WordPress.com.
+* Changed: the line under Keel's name on the settings screen is now "Balanced defaults for steady sites."
 
 = 0.6.7 =
 * Fixed: with XML-RPC Multicall off, which is the default, a site connected to WordPress.com through Jetpack could be cut off from it. WordPress.com manages a connected site through multicall, so the plugin list and settings changes failed on WordPress.com while Jetpack still reported itself as connected. Keel now lets through the requests Jetpack verifies as signed by WordPress.com, and still refuses every other multicall.
@@ -226,7 +230,7 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 == Upgrade Notice ==
 
 = 0.6.8 =
-Adds one setting, Environment, and warns when a live site says it is local, which can hold back its email. Also a new Site Health check and a block editor that follows the admin menu width.
+Adds one setting, Environment, and warns when a live site says it is local, which can hold back its email. Also clearer notes for Jetpack sites, a new Site Health check and a block editor that follows the admin menu width.
 
 = 0.6.7 =
 Fixes Jetpack: with multicall off (the default), WordPress.com could not manage a connected site. Requests Jetpack verifies as signed now get through. Also clearer Site Health wording and two admin layout fixes. No setting changes.

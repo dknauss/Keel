@@ -7,12 +7,11 @@ task-level checklist is [TODO.md](TODO.md).
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
-> **Provenance note.** The original planning document is `~/Code/pixel-lite-scope.md`,
-> outside this repository — so it is invisible to anyone who clones Keel, and it has
-> already drifted (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later in
-> `7822926`). This roadmap is the in-repo source of truth for direction. Where the two
-> disagree, the repository wins. Fold anything still live out of the scope doc and into
-> here or TODO.md, then retire it.
+> **Provenance note.** The original planning document, `pixel-lite-scope.md`, was kept
+> outside this repository and had drifted from it (it recorded a GPL-3 decision; the
+> plugin shipped GPL-2.0-or-later in `7822926`). It is retired: it was no longer on
+> the maintainer's machine when looked for on 2026-10-13. This roadmap is the source
+> of truth for direction.
 
 ---
 
@@ -47,9 +46,10 @@ screen it came from, as a key into a fixed map rather than anything the form sup
 and rendered the result outside the offer. AX had inherited both halves and was fixed
 alongside it.
 
-## Now — observe 0.6.3 in the field
+## Now — observe the 0.6 line in the field
 
-0.6.0 through 0.6.3 are all published. 0.6.0 introduced the vulnerability check
+0.6.0 through 0.6.7 are all published; `readme.txt` carries the changelog for each.
+The four that opened the line: 0.6.0 introduced the vulnerability check
 and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
 security review; 0.6.2 stopped the panel promising a scheduled install that the
 ladder beneath it contradicted; 0.6.3 put the offer on the Updates screen, which
@@ -62,10 +62,13 @@ the same-line patch, so that screen had never shown it.
 - [x] **Validate the published artifacts** — done per release: the GitHub ZIP, the
       SVN tag and the directory version, plus screenshots, upgrade notice and
       Playground links.
-- [ ] **Observe the field** — 0.6.3 is hours old. Watch the scheduled live matrix and
-      early reports before opening another release. The install path has now been
+- [ ] **Observe the field** — watch the scheduled live matrix and early reports
+      before opening another release. Checked 2026-10-13: the matrix last ran green
+      on 2026-10-12, no issues are open, and nine WordPress.com sites the maintainer
+      runs are all on 0.6.7 with Jetpack connected. The install path has been
       exercised on real sites in `en_US` and `fr_FR`, but by its authors rather than
-      by anyone who did not already know how it works.
+      by anyone who did not already know how it works. The fix in 0.6.7 for sites
+      Jetpack connects to WordPress.com is half confirmed; TODO.md has the detail.
 
 ## Next — 0.7.0 privacy and content integrity
 

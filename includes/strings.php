@@ -42,7 +42,7 @@ function keel_defaults_strings() {
 		'xmlrpc_allow_multicall'          => array(
 			'label'     => __( 'XML-RPC Multicall', 'keel-defaults' ),
 			'statement' => __( 'Allow <code>system.multicall</code>', 'keel-defaults' ),
-			'help'      => __( 'Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. Jetpack does rely on it: WordPress.com manages a connected site through multicall. So while this is off, Keel still lets through the requests Jetpack verifies as signed by WordPress.com, and refuses the rest.', 'keel-defaults' ),
+			'help'      => __( 'Leave off when using Jetpack: Keel still allows requests Jetpack verifies as signed by WordPress.com, which uses multicall to manage connected sites. Turning this on allows other multicalls too. If Site Health reports that Jetpack cannot verify these requests, update Jetpack or allow multicall until compatibility is restored. <code>system.multicall</code> bundles several XML-RPC calls into one request. Refusing unsigned multicalls reduces the available attack surface; WordPress has limited its use for password guessing since 4.4.', 'keel-defaults' ),
 		),
 		'block_xmlrpc_endpoint'           => array(
 			'label'     => __( 'XML-RPC Endpoint', 'keel-defaults' ),
@@ -80,7 +80,7 @@ function keel_defaults_strings() {
 		),
 		'frame_options'                   => array(
 			'label'   => __( 'Frame Options', 'keel-defaults' ),
-			'help'    => __( 'Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere.', 'keel-defaults' ),
+			'help'    => __( 'Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> permits framing only by this site and can block previews embedded on WordPress.com, partner sites, or other preview tools. Choose Leave unchanged if cross-origin previews or embeds are needed. This stops Keel adding the header; it does not remove a restriction set by your host, CDN, or another plugin. Test the preview after changing this setting.', 'keel-defaults' ),
 			'choices' => array(
 				'SAMEORIGIN' => __( 'SAMEORIGIN — only this site may frame it', 'keel-defaults' ),
 				'DENY'       => __( 'DENY — nobody may frame it', 'keel-defaults' ),
@@ -90,7 +90,7 @@ function keel_defaults_strings() {
 		'disable_ai_connectors'           => array(
 			'label'     => __( 'AI Connectors', 'keel-defaults' ),
 			'statement' => __( 'Disable AI provider connectors', 'keel-defaults' ),
-			'help'      => __( 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.', 'keel-defaults' ),
+			'help'      => __( 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Other plugins that read the same gate, Jetpack among them, switch their own AI features off as well. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.', 'keel-defaults' ),
 		),
 		'core_update_policy'              => array(
 			'label'   => __( 'Core Auto-Updates', 'keel-defaults' ),

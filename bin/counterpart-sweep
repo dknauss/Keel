@@ -21,23 +21,62 @@ TAG="${1:-$(git describe --tags --abbrev=0)}"
 # passed any body that did not open with the Counterpart line — every real one.
 # Both the test and the reported capture are anchored this way, so a mention
 # of "Counterpart: pending" inside a sentence is neither counted nor printed.
+#
+# The pull requests arrive in the REST API's shape, where a closed pull request
+# that was never merged has a null merged_at and the list cannot be narrowed by
+# merge date, so both are settled here. An entry with no merged_at key at all is
+# taken as already chosen by whoever wrote the file.
 # Pinned in tests/counterpart-sweep.php.
 FILTER='.[]
+	| select((has("merged_at") | not) or (.merged_at != null and .merged_at >= $since))
 	| ((.body // "") | gsub("<!--[\\s\\S]*?-->"; "")) as $body
 	| select($body | test("(^|\\n)[ \\t]*Counterpart:[ \\t]*pending"; "i"))
-	| "#\(.number) \(.title)\n  \(.url)\n  \($body | capture("(^|\\n)[ \\t]*(?<line>Counterpart:[ \\t]*pending[^\\n]*)"; "i").line)"'
+	| "#\(.number) \(.title)\n  \(.html_url // .url)\n  \($body | capture("(^|\\n)[ \\t]*(?<line>Counterpart:[ \\t]*pending[^\\n]*)"; "i").line)"'
 
-# COUNTERPART_SWEEP_JSON: a file of PRs in gh's JSON shape, read instead of
-# calling gh, so the filter can be tested offline.
+# The tag's date in UTC, because merged_at is UTC and is compared as text.
+# COUNTERPART_SWEEP_SINCE names the date outright, for the tests.
+SINCE="${COUNTERPART_SWEEP_SINCE:-$( TZ=UTC git log -1 --date=format-local:%Y-%m-%d --format=%cd "$TAG" 2>/dev/null || true )}"
+
+# REST, not `gh pr list`: that command and its --search go through GitHub's
+# GraphQL API, which a token or proxy limited to REST refuses, and the sweep
+# then could not run at all. Without gh, curl reads the same endpoint, with
+# GH_TOKEN or GITHUB_TOKEN if either is set.
+merged_pull_requests() {
+	local path='pulls?state=closed&sort=updated&direction=desc&per_page=100'
+
+	if command -v gh >/dev/null 2>&1; then
+		gh api --paginate "repos/{owner}/{repo}/${path}"
+		return
+	fi
+
+	local repo token page chunk
+	repo="${GITHUB_REPOSITORY:-$( git remote get-url origin | sed -E 's#\.git$##; s#^.*[:/]([^/]+/[^/]+)$#\1#' )}"
+	token="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+
+	for (( page = 1; ; page++ )); do
+		chunk="$(
+			curl -fsSL -H 'Accept: application/vnd.github+json' \
+				${token:+-H "Authorization: Bearer ${token}"} \
+				"${GITHUB_API_URL:-https://api.github.com}/repos/${repo}/${path}&page=${page}"
+		)"
+		[[ "$( jq 'length' <<<"$chunk" )" -gt 0 ]] || break
+		printf '%s\n' "$chunk"
+	done
+}
+
+# COUNTERPART_SWEEP_JSON: a file of pull requests, read instead of asking GitHub,
+# so the filter can be tested offline. Either shape works: the REST list, or
+# gh's own (number, title, url, body).
 if [[ -n "${COUNTERPART_SWEEP_JSON:-}" ]]; then
-	SINCE="fixture"
-	PENDING="$( jq -r "$FILTER" "$COUNTERPART_SWEEP_JSON" )"
+	PENDING="$( jq -r --arg since "$SINCE" "$FILTER" "$COUNTERPART_SWEEP_JSON" )"
+	SINCE="${SINCE:-fixture}"
 else
-	SINCE="$(git log -1 --format=%cs "$TAG")"
-	PENDING="$(
-		gh pr list --state merged --search "merged:>=${SINCE}" --limit 500 --json number,title,url,body \
-			--jq "$FILTER"
-	)"
+	if [[ -z "$SINCE" ]]; then
+		printf 'No such tag: %s\n' "$TAG" >&2
+		exit 2
+	fi
+	LISTED="$( merged_pull_requests )"
+	PENDING="$( jq -r --arg since "$SINCE" "$FILTER" <<<"$LISTED" )"
 fi
 
 if [[ -n "$PENDING" ]]; then

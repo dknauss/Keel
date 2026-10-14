@@ -120,6 +120,14 @@ XML-RPC request later attempts fail without testing more credentials. Multicall 
 pingbacks are also directly callable and do not depend on it. See
 [WordPress Trac #34336](https://core.trac.wordpress.org/ticket/34336).
 
+**Which settings to use with Jetpack:** keep the XML-RPC endpoint reachable. In
+Keel 0.6.7 and later, leave XML-RPC Multicall off: requests Jetpack verifies as
+signed by WordPress.com are still allowed. Turning it on also permits other
+multicalls. If Site Health reports that signature verification is unavailable,
+update Jetpack or temporarily allow multicall, then test the connection and the
+WordPress.com features you use. This exception does not restore core publishing
+methods removed by XML-RPC Remote Publishing; test that setting separately.
+
 Two things the replacement server has to get right, both found on a live Jetpack site:
 
 - **Let Jetpack's own requests through.** WordPress.com manages a connected site with
@@ -261,6 +269,24 @@ add_action( 'admin_init', function () {
 > `false` in `wp-config.php` to hard-lock the disabled posture above the plugin layer. Keel
 > additionally fires a `keel_disable_ai_connectors` action as a seam for AI
 > integrations core does not know about (a plugin's own provider, say).
+
+> **The gate reaches further than core's connectors.** Any plugin may read
+> `wp_supports_ai()`, and Jetpack does. On a WordPress.com site on 2026-10-13, one
+> command run with Keel loaded and again with Keel skipped showed the difference:
+> with the gate closed, Jetpack reported every AI extension unavailable with the
+> reason `ai_disabled`, did not register its AI Assistant block, and dropped its
+> `jetpack-ai` REST routes. Core listed no AI providers. With Keel skipped, all of
+> them came back. Where Jetpack is active the settings screen says so beneath this
+> setting. Turn the setting off to use Jetpack's AI features.
+>
+> A second site, with WordPress.com's WordPress Agent plugin active, gave the same
+> result and one more: the host's `/agents-manager` REST routes were absent with the
+> gate closed. The agent plugin's own routes stayed registered either way; whether
+> the agent works with the gate closed was not tested.
+>
+> On that site the Gutenberg plugin was active and kept its own Connectors screen in
+> the Settings menu, listing the connectors that are not AI providers. Keel closes
+> core's `options-connectors.php` only.
 
 > **This is the one default that does not appear on every supported WordPress.** Keel's
 > floor is 6.4 and connectors arrived in 7.0, so on 6.4–6.9 there is no `wp_supports_ai`
@@ -1005,6 +1031,18 @@ client intranet, a partner site, a preview or proofing tool — and it usually f
 blank frame. Bundling it with `nosniff` would mean a site that needs to be embeddable has to
 give up `nosniff` as well. Set it to *leave unchanged* when a host or CDN already sends it.
 
+**WordPress.com previews:** WordPress.com and a site's custom domain are different
+origins. A response with `SAMEORIGIN` cannot be embedded there unless an applicable
+CSP `frame-ancestors` policy supersedes it. A browser test on 2026-10-13 confirmed
+that a live front-end response was refused in an iframe at the WordPress.com
+origin because of this header. That test used a constructed iframe, not the
+logged-in dashboard's actual preview flow, which remains unverified.
+
+Choose **Leave unchanged** when cross-origin previews are required, then check the
+actual preview. This stops Keel adding the header; it does not remove headers
+from the host, CDN, or another plugin. Do not treat a preview query parameter as
+permission to disable framing protection for every request.
+
 ```php
 add_filter( 'wp_headers', function ( $headers ) {
     // Only fill in what nothing else has set — a host or CDN may own these.
@@ -1248,6 +1286,24 @@ Two rules keep the report worth reading.
 registered on it. Keel stands down on several — the session filter is not registered at
 all when the policy matches WordPress's own — and a hook Keel is not on is another plugin
 doing its job, not a conflict.
+
+**A theme is reported as a plugin is.** A callback in the active theme or its parent is
+reported as `theme:<directory>`, under `structural` on an authoritative hook, and named in
+the notice and in Site Health. Somebody chose the theme, and its settings or a child theme
+can change what it does.
+
+**Must-use code is named, and stays out of the notice.** A callback is attributed to a
+must-use plugin when its file is one `wp_get_mu_plugins()` returns, a file that plugin
+included while it loaded, a file in the directory a symlinked must-use plugin really lives
+in, or anything under `WPMU_PLUGIN_DIR`, with symlinks resolved. What a
+loader included is read from the order of `get_included_files()`: WordPress includes each
+must-use plugin in turn and then `wp-includes/vars.php`, so whatever falls between two of
+those was included by the first. It is reported as `mu-plugin:<file>` under `unconfirmed`
+whatever the hook, listed by file name in Site Health, and raises no admin notice, because
+nobody can turn a must-use plugin off from the Plugins screen. This is decided by where the
+code is loaded from, not by which host the site is on. If such code overrides a setting Keel
+can measure, the "not taking effect" warning still appears. Core is recognized through a
+symlinked `ABSPATH` as well.
 
 **Diagnostics never execute foreign callbacks.** Capability direction is never inferred from a
 source mention, and a core helper such as `__return_false` is labelled unattributable rather than
