@@ -270,6 +270,24 @@ add_action( 'admin_init', function () {
 > additionally fires a `keel_disable_ai_connectors` action as a seam for AI
 > integrations core does not know about (a plugin's own provider, say).
 
+> **The gate reaches further than core's connectors.** Any plugin may read
+> `wp_supports_ai()`, and Jetpack does. On a WordPress.com site on 2026-10-13, one
+> command run with Keel loaded and again with Keel skipped showed the difference:
+> with the gate closed, Jetpack reported every AI extension unavailable with the
+> reason `ai_disabled`, did not register its AI Assistant block, and dropped its
+> `jetpack-ai` REST routes. Core listed no AI providers. With Keel skipped, all of
+> them came back. Where Jetpack is active the settings screen says so beneath this
+> setting. Turn the setting off to use Jetpack's AI features.
+>
+> A second site, with WordPress.com's WordPress Agent plugin active, gave the same
+> result and one more: the host's `/agents-manager` REST routes were absent with the
+> gate closed. The agent plugin's own routes stayed registered either way; whether
+> the agent works with the gate closed was not tested.
+>
+> On that site the Gutenberg plugin was active and kept its own Connectors screen in
+> the Settings menu, listing the connectors that are not AI providers. Keel closes
+> core's `options-connectors.php` only.
+
 > **This is the one default that does not appear on every supported WordPress.** Keel's
 > floor is 6.4 and connectors arrived in 7.0, so on 6.4–6.9 there is no `wp_supports_ai`
 > gate to filter and no Connectors screen to close. The schema entry names the core
