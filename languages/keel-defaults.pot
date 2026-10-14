@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T22:14:40+00:00\n"
+"POT-Creation-Date: 2026-10-14T22:50:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -621,31 +621,31 @@ msgid "AI connectors are disabled on this site."
 msgstr ""
 
 #. translators: %s: theme name, such as Twenty Twenty-Five.
-#: includes/conflicts.php:555
+#: includes/conflict-attribution.php:418
 #, php-format
 msgid "%s (theme)"
 msgstr ""
 
 #. translators: %s: file name of a must-use plugin, such as host-loader.php.
-#: includes/conflicts.php:560
+#: includes/conflict-attribution.php:423
 #, php-format
 msgid "must-use plugin %s"
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/conflicts.php:1187
+#: includes/conflict-notices.php:129
 #, php-format
 msgid "A Keel setting is not taking effect on this site: %s"
 msgid_plural "Some Keel settings are not taking effect on this site: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:1202
+#: includes/conflict-notices.php:144
 msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/conflicts.php:1210
+#: includes/conflict-notices.php:152
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
@@ -653,32 +653,32 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: theme name, or a child theme and its parent, comma-separated.
-#: includes/conflicts.php:1231
+#: includes/conflict-notices.php:173
 #, php-format
 msgid "Your theme may influence some of the same settings as Keel: %s"
 msgstr ""
 
-#: includes/conflicts.php:1240
+#: includes/conflict-notices.php:182
 msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflicts.php:1247
+#: includes/conflict-notices.php:189
 #, php-format
 msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
 msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:1261
+#: includes/conflict-notices.php:203
 msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflicts.php:1265
+#: includes/conflict-notices.php:207
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:1269
+#: includes/conflict-notices.php:211
 msgid "Dismiss until this changes"
 msgstr ""
 
