@@ -1,8 +1,8 @@
 # Keel — brand package
 
 Mark: a racing yacht under sail, one fin keel, drawn on a 200×200 grid.
-Tagline: **Keeps your site upright with sensible defaults.**
-(Short alternate: Sensible defaults for steady sites.)
+Tagline: **Keeps your site upright with balanced defaults.**
+(Short alternate: Balanced defaults for steady sites.)
 
 ## Colours
 
@@ -31,3 +31,11 @@ Barlow Condensed, uppercase, ~0.10em tracking for the name. Barlow regular for t
 - Clear space: one mast-width (5 grid units ≈ 2.5% of the mark) on all sides.
 - Never recolour the keel to anything but the steel or the ground colour; it is the namesake.
 - Do not add outlines, gradients or shadows.
+
+## Changing the banner text
+
+The banners have no layered source. The 2026-10-13 tagline change was made by
+covering the old line on the existing PNG and setting the new one over it in
+Barlow regular, colour `#4a4e51`: 34px on the 1544×500 banner and 17px on the
+772×250 one, left-aligned with the rule under the name. Everything outside the
+tagline is unchanged pixel for pixel.
