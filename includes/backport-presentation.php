@@ -21,8 +21,9 @@ defined( 'ABSPATH' ) || exit;
  * underscore — so `keel_backport` gives `health-check-keel-backport`, and a name
  * with two underscores would produce an action nothing is listening on.
  *
- * @param array $tests Registered tests.
- * @return array
+ * @param array<array-key,mixed> $tests Registered tests, including third-party entries.
+ * @return array<array-key,mixed>
+ * @phpstan-return array<array-key,mixed>&array{async:array<array-key,mixed>&array{keel_backport:KeelBackportTestRegistration}}
  */
 function keel_defaults_register_backport_test( $tests ) {
 	$tests['async']['keel_backport'] = array(
@@ -41,7 +42,8 @@ function keel_defaults_register_backport_test( $tests ) {
  * legitimate, deliberate state; being insecure is not. Core's update nag cannot
  * tell the difference and reports both identically.
  *
- * @return array Site Health result.
+ * @return array{label:string,status:string,badge:array{label:string,color:string},description:string,actions:string,test:string} Site Health result.
+ * @phpstan-return KeelBackportHealthResult
  */
 function keel_defaults_backport_test() {
 	$result = keel_defaults_backport_verdict();
@@ -78,7 +80,7 @@ function keel_defaults_backport_test() {
  * @param string|false $selected Result of keel_defaults_ladder_selection().
  * @param string       $tip      The same-line patch.
  * @return string Escaped sentence.
- * @phpstan-param KeelMinorUpdateState $state
+ * @phpstan-param KeelScheduleState $state
  */
 function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
 	if ( ! $state['policy'] || ! $state['operable'] ) {
@@ -118,7 +120,7 @@ function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
  * @param string|false $selected  Result of keel_defaults_ladder_selection().
  * @param array        $state     Result of keel_defaults_minor_update_state().
  * @return string Escaped sentence.
- * @phpstan-param KeelMinorUpdateState $state
+ * @phpstan-param KeelBlockerState $state
  */
 function keel_defaults_ladder_note( $selection, $selected, array $state ) {
 	if ( 'blocked' === $selection ) {
@@ -169,7 +171,8 @@ function keel_defaults_ladder_note( $selection, $selected, array $state ) {
 /**
  * The verdict itself, without the ladder.
  *
- * @return array Site Health result.
+ * @return array{label:string,status:string,badge:array{label:string,color:string},description:string,actions:string,test:string} Site Health result.
+ * @phpstan-return KeelBackportHealthResult
  */
 function keel_defaults_backport_verdict() {
 	$status  = keel_defaults_version_status();
@@ -243,7 +246,7 @@ function keel_defaults_backport_verdict() {
 			// majors core takes the highest offer and steps over this patch. Promising
 			// otherwise contradicted the ladder printed directly below.
 			$result['description'] .= '<p>' . keel_defaults_schedule_statement( $state, keel_defaults_ladder_selection(), $tip ) . '</p>';
-		} elseif ( $state['policy'] && ! $state['operable'] ) {
+		} elseif ( $state['policy'] ) {
 			$result['description'] .= '<p><strong>' . esc_html__( 'The policy permits minor updates, but this patch cannot currently install automatically.', 'keel-defaults' ) . '</strong> '
 				. wp_kses( implode( '; ', keel_defaults_blocker_texts( $state['blockers'] ) ), array( 'code' => array() ) ) . '.</p>';
 		} else {
@@ -540,6 +543,8 @@ function keel_defaults_ladder_rung_mark( $selection, $selected, $version ) {
  * dismissing it on 6.8.7 does not hide it again on 6.8.9. That is the failure
  * mode of most "remind me later" notices: they are dismissed once, during the
  * one incident that mattered, and never seen again.
+ *
+ * @return void
  */
 function keel_defaults_backport_notice() {
 	if ( ! current_user_can( 'update_core' ) ) {
@@ -624,6 +629,8 @@ function keel_defaults_backport_notice() {
 
 /**
  * Make the dismissal stick, rather than only hiding the notice until reload.
+ *
+ * @return void
  */
 function keel_defaults_backport_notice_script() {
 	if ( ! current_user_can( 'update_core' ) ) {

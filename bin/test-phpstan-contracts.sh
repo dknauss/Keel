@@ -19,9 +19,12 @@ php -r '
 $data = json_decode(file_get_contents($argv[1]), true);
 $expected = array(
     "keel_contract_reject_missing_key" => "offsetAccess.notFound",
-    "keel_contract_reject_owner" => "argument.type",
+    "keel_contract_reject_owner" => "return.type",
     "keel_contract_reject_report_key" => "offsetAccess.notFound",
     "keel_contract_reject_install_plan" => "argument.type",
+    "keel_contract_reject_result_key" => "offsetAccess.notFound",
+    "keel_contract_reject_return_target" => "offsetAccess.notFound",
+    "keel_contract_reject_health_status" => "return.type",
 );
 $lines = file("tests/phpstan/invalid.php");
 $function = "";
@@ -38,10 +41,10 @@ foreach (($data["files"] ?? array()) as $file) {
         $found[$owners[$message["line"]] ?? ""] = $message["identifier"];
     }
 }
-if (!is_array($data) || !empty($data["errors"]) || ($data["totals"]["file_errors"] ?? 0) !== 4 || array_diff_assoc($expected, $found)) {
+if (!is_array($data) || !empty($data["errors"]) || ($data["totals"]["file_errors"] ?? 0) !== count($expected) || array_diff_assoc($expected, $found)) {
     fwrite(STDERR, "Contract fixture did not reject every expected case.\n");
     fwrite(STDERR, file_get_contents($argv[1]));
     exit(1);
 }
-echo "Static contracts: four invalid cases rejected.\n";
+echo "Static contracts: ", count($expected), " invalid cases rejected.\n";
 ' "$result"

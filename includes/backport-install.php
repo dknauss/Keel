@@ -31,7 +31,7 @@ function keel_defaults_can_install_backport() {
  * A switched-off automatic updater and an earlier critical failure stop the scheduled
  * updater, not a deliberate install through core's upgrader, so they are not listed.
  *
- * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * @param array<array-key,array{code:string,text?:string}> $blockers Structured blocker codes.
  * @return string[] Refusing blocker codes, in the order found.
  */
 function keel_defaults_installer_refusals( array $blockers ) {
@@ -356,7 +356,8 @@ function keel_defaults_store_backport_result( $user_id, $code, array $messages, 
  * Consume this user's redirect result without exposing another user's result.
  *
  * @param int $user_id User ID.
- * @return array{code:string,messages:array<int,string>,type:string}|null
+ * @return array{code:string,messages:array<array-key,string>,type:string}|null
+ * @phpstan-return KeelBackportResult|null
  */
 function keel_defaults_take_backport_result( $user_id ) {
 	$key    = keel_defaults_backport_result_key( $user_id );
@@ -411,7 +412,7 @@ function keel_defaults_backport_result_markup() {
  * Both screens live under network admin on multisite, and Keel already requires
  * manage_network_options to install there.
  *
- * @return array Screen token to admin-relative path.
+ * @return array{'site-health':'site-health.php',updates:'update-core.php'} Fixed return destinations.
  */
 function keel_defaults_backport_return_map() {
 	return array(
@@ -442,7 +443,7 @@ function keel_defaults_backport_return_url( $token ) {
  * @param string $from    Screen this is rendered on, as a return map key, so the
  *                        result lands where the button was pressed.
  * @return string
- * @phpstan-param KeelMinorUpdateState $state
+ * @phpstan-param KeelBlockerState $state
  */
 function keel_defaults_backport_install_button( $version, $screen, array $state, $from = 'site-health' ) {
 	if ( 'visible' === $screen || ! keel_defaults_can_install_backport() ) {
@@ -478,10 +479,10 @@ function keel_defaults_backport_install_button( $version, $screen, array $state,
 /**
  * Store an install result and return the administrator to where they clicked.
  *
- * @param string|WP_Error|false $result Core upgrader result.
- * @param string                $version Target version.
- * @param string                $from Submitted return token; anything unrecognised falls back.
- * @return void
+ * @param string|WP_Error|false|null $result Core upgrader result, including an inconclusive null.
+ * @param string                     $version Target version.
+ * @param string                     $from Submitted return token; anything unrecognised falls back.
+ * @return never Always redirects and exits.
  */
 function keel_defaults_finish_backport_install( $result, $version, $from = '' ) {
 	if ( is_wp_error( $result ) ) {

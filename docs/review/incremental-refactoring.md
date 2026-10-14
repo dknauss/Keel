@@ -143,6 +143,22 @@ scope, untrusted-data limits, tooling constraints, verification and follow-ups.
 Expansion to other bodies and higher levels remains on the backlog. PHP 8.x floor
 research is separately tracked and does not change this increment's compatibility.
 
+## Seventh increment: installer and presentation analysis
+
+Implemented 2026-10-14. Extend the existing level-6, PHP 7.4-targeted pilot to
+backport-install.php and backport-presentation.php. Add precise stored-result,
+Site Health and fixed-return-map contracts, and replace unnecessarily broad
+full-state consumer requirements with the fields each consumer actually reads.
+Keep raw offers unvalidated until the existing runtime checks. Seven negative
+static cases and valid producer/minimal-consumer examples exercise the contracts.
+
+A single redundant boolean conjunct in the verdict renderer was simplified;
+all four policy/operability combinations render identically in a differential
+run of the existing regression harness. Other runtime executable tokens and
+all native signatures remain unchanged. The [pilot record](data-contracts-phpstan.md)
+contains the findings, checked/scanned scope and verification limits. Diagnostic,
+status and separate action-handler analysis remain future increments.
+
 ## Sequence and acceptance criteria
 
 1. **Separate backport responsibilities (completed second increment).** Split remote stable-check/cache access,
