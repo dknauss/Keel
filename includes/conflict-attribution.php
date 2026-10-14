@@ -430,17 +430,25 @@ function keel_defaults_plugin_name( $slug ) {
 }
 
 /**
- * The directory Keel itself lives in.
+ * Keel's installed plugin identity, with a source-directory fallback.
  *
- * Derived from this file rather than from KEEL_DEFAULTS_FILE. The constant is
+ * Resolved from this function's file rather than from KEEL_DEFAULTS_FILE. The constant is
  * defined by the bootstrap and not by anything that loads this file on its own,
  * and a guard that quietly does nothing when a constant is missing is worse than
  * no guard: it reads as protection. This file is inside the plugin by
  * construction, in every context that can call the function at all.
  *
- * @return string Directory name.
+ * @return string Installed slug, or source-directory basename when unmapped.
  */
 function keel_defaults_own_plugin_dir() {
+	// Reflection resolves symlinks. Use the active-plugin map to recover the
+	// installed slug, which may differ from the source checkout's basename.
+	$installed = keel_defaults_callback_plugin_dir( __FUNCTION__ );
+	if ( '' !== $installed ) {
+		return $installed;
+	}
+
+	// During activation or in partial test registries, keep the path fallback.
 	return basename( dirname( dirname( wp_normalize_path( __FILE__ ) ) ) );
 }
 

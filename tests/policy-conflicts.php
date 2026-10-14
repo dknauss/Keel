@@ -110,6 +110,9 @@ register_shutdown_function(
 		if ( file_exists( $sentinel ) ) {
 			unlink( $sentinel );
 		}
+		if ( is_link( $fixture . '/installed-keel' ) ) {
+			unlink( $fixture . '/installed-keel' );
+		}
 		foreach ( (array) glob( $fixture . '/*/plugin.php' ) as $file ) {
 			unlink( $file );
 			rmdir( dirname( $file ) );
@@ -361,5 +364,23 @@ keel_assert(
 );
 
 $GLOBALS['wp_filter'] = array();
+
+// Installed slug and checkout basename need not match when a plugin is symlinked.
+// Reflection resolves the source path; active-plugin roots provide its installed ID.
+// phpcs:ignore WordPress.WP.AlternativeFunctions -- standalone temporary fixture.
+symlink( dirname( __DIR__ ), $fixture . '/installed-keel' );
+$GLOBALS['keel_options']['active_plugins'][] = 'installed-keel/keel.php';
+keel_assert( 'installed-keel' === keel_defaults_own_plugin_dir(), 'Self identity uses the installed plugin slug rather than the checkout basename.' );
+$GLOBALS['wp_filter'] = array(
+	'auth_cookie_expiration' => new Keel_Test_Hook(
+		array(
+			10 => array( array( 'function' => 'keel_defaults_return_false' ) ),
+			20 => array( array( 'function' => 'keel_test_rival_mutates_and_throws' ) ),
+		)
+	),
+);
+$self_report          = keel_defaults_competing_plugins( true );
+keel_assert( array( 'rival-plugin' ) === $self_report['auth_cookie_expiration'], 'An unrecorded own callback is not a rival under an installed symlink alias, while the actual rival remains visible.' );
+keel_assert( array() === $GLOBALS['keel_foreign_calls'], 'Symlink self-exclusion does not execute foreign callbacks.' );
 
 fwrite( STDOUT, "policy conflicts: OK (foreign callbacks never executed)\n" );

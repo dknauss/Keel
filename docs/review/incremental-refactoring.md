@@ -76,7 +76,35 @@ documents real WordPress roles, profile/reset hooks and REST updates with mocked
 HIBP transport. It is a local single-site test, not a new live multisite or
 external-service compatibility matrix.
 
-## Remaining work, in order
+## Fourth increment: conflict diagnostic boundaries
+
+Implemented 2026-10-14. `conflicts.php` remains the compatibility entry point,
+retaining the three shared identity markers and loading declaration-only modules:
+
+| Module | Responsibility |
+| --- | --- |
+| `conflict-attribution.php` | Reflect callbacks and resolve plugin/theme/must-use provenance and display labels |
+| `conflict-overlap.php` | Register owned policy callbacks, classify shared hooks, cache reports and fingerprint overlap |
+| `conflict-divergence.php` | Observe actual filter runs, persist mismatches, validate fingerprints and invalidate records |
+| `conflict-notices.php` | Compose notice state, render it and process per-user dismissal |
+
+Bootstrap retains observer, notice and invalidation timing. The initial extraction
+preserved all 36 function bodies and signatures. A subsequent, separate commit
+fixes the lab-discovered symlink self-attribution bug: an installed `keel-defaults`
+slug may point at a source folder named `keel`. Resolve self identity through the
+same active-plugin attribution map before falling back to the source basename.
+Otherwise Keel's own passive observers can be reported as rival plugins. This
+changes diagnostics, not the filtered policy value; the other 35 bodies remain
+unchanged. A new regression test failed before this fix and passes afterward.
+
+The facade-loading test verifies all 36 callbacks and unchanged identity markers
+without reads, writes or filter execution on inclusion. Screenshot review follows
+all diagnostic modules, with invalidation tests. Existing tests retain theme,
+mu-plugin, symlink, callback-identity, non-execution, cache and divergence coverage.
+The [conflict lab record](conflict-diagnostics-lab.md) documents the real WordPress
+and browser pass and its limits.
+
+## Sequence and acceptance criteria
 
 1. **Separate backport responsibilities (completed second increment).** Split remote stable-check/cache access,
    version/offer and policy evaluation, notice/ladder presentation, and action
@@ -90,7 +118,7 @@ external-service compatibility matrix.
    and role scoping consistent; preserve breach lookup privacy, response bounds,
    cache behavior and failure policy. Use the existing password and HIBP tests
    plus real WordPress entry-point checks.
-3. **Split conflict diagnostics internally.** Separate callback/plugin attribution,
+3. **Split conflict diagnostics internally (completed fourth increment).** Separate callback/plugin attribution,
    structural overlap classification and observed divergence persistence. Retain
    the distinction between sharing a hook and demonstrated disagreement. Never
    execute foreign callbacks just to identify them. Preserve must-use plugin

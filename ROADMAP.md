@@ -1243,7 +1243,7 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Share site/network control rendering** — first increment, 2026-10-14.
 - [x] **Separate backport responsibilities** — second increment, 2026-10-14.
 - [x] **Extract password and HIBP handling** — third increment, 2026-10-14.
-- [ ] **Split conflict diagnostics internally** — retain evidence-based reporting.
+- [x] **Split conflict diagnostics internally** — fourth increment, 2026-10-14.
 - [ ] **Extract settings policy resolution** — decouple enforcement from UI.
 - [ ] **Strengthen data contracts gradually** — scoped static analysis, no PHP-floor change.
 - [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
