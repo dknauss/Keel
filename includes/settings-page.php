@@ -836,7 +836,7 @@ function keel_defaults_render_settings_page() {
 			</span>
 			<div>
 				<h1 style="margin:0;padding:0;line-height:1.2;"><?php esc_html_e( 'Keel', 'keel-defaults' ); ?></h1>
-				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Sensible defaults for steady sites.', 'keel-defaults' ); ?></p>
+				<p class="description" style="font-size:14px;margin:2px 0 0;"><?php esc_html_e( 'Balanced defaults for steady sites.', 'keel-defaults' ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -848,7 +848,7 @@ function keel_defaults_render_settings_page() {
 		 */
 		?>
 		<hr class="wp-header-end">
-		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — sensible defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
+		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
 
 		<form method="post" action="options.php">
 			<?php settings_fields( 'keel_settings_group' ); ?>
