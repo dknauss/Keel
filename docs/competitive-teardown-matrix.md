@@ -1096,7 +1096,7 @@ caught this; every filter-level assertion still passed.
 **None of the four were Keel-specific.** All three of the plugins in this lineage —
 Keel, Better by Default and Agency Experience — share them, because they
 share the code they came from. A three-way matrix between siblings
-(`~/Code/keel-px-feature-matrix.md`) had already given the comment teardown a
+(kept in Agency Experience's private repository) had already given the comment teardown a
 full read-verdict and found nothing, which is what a sibling comparison does: it
 sees divergence, never common inheritance. These surfaced only against unrelated
 plugins, where Disable Comments and Admin and Site Enhancements turned out to be

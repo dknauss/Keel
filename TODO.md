@@ -3,10 +3,9 @@
 Working checklist — what's in flight right now. Milestones and direction live in
 [ROADMAP.md](ROADMAP.md).
 
-The original scope document is `~/Code/pixel-lite-scope.md`, outside this repository and
-partly stale (it records a GPL-3 decision; the plugin shipped GPL-2.0-or-later). Treat
-the repo as authoritative and retire that file once anything still live in it has moved
-into ROADMAP.md or here.
+The original scope document, `pixel-lite-scope.md`, was kept outside this repository and
+is retired: it was no longer on the maintainer's machine when looked for on 2026-10-13.
+This file and ROADMAP.md are the only record of scope.
 
 ## Now — observe the 0.6 line
 
@@ -22,8 +21,8 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       discharged by running the recording command, and being routinely satisfied without
       looking is the one failure this check cannot survive. Recorded in
       `bin/verify-screenshots.sh`.
-- [x] **Refresh the stable-check cache on release day** — done 2026-09-13, unreleased
-      (release hold). The status map was cached for a day and never invalidated, so a
+- [x] **Refresh the stable-check cache on release day** — done 2026-09-13, released in
+      0.6.6. The status map was cached for a day and never invalidated, so a
       site running the version a new security release had just made insecure read as
       latest for up to 24 hours: the window the check exists for. Keel now fetches it
       again when core stores update offers naming any release the map does not list —
@@ -77,9 +76,40 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       `docs/wordpress-default-settings.md`.
   - Left alone: the widgets screen's snackbar list, which Jetpack places for a 272px
     menu. Core offsets it before 7.0 and centres it after, under one class.
-  - Not yet seen on a live WordPress.com site.
+  - Not yet seen on a live WordPress.com site: it needs 0.6.8 installed on one. Of the
+    nine checked on 2026-10-13, seven leave the width unchanged, which is the state
+    the Jetpack notice is for, and two set their own.
 - [ ] **Observe the field**
-  - Watch the next scheduled live matrix run.
+  - Checked 2026-10-13, read-only, on nine WordPress.com sites the maintainer runs.
+    All nine are on 0.6.7 with WordPress 7.1.3 and a connected Jetpack. None declares
+    a non-production environment, so the 0.6.8 warning for a live site that says it
+    is local would show on none of them.
+  - The scheduled live matrix last ran green on 2026-10-12. No issues are open.
+  - Looked for conflicts with WordPress.com on the same nine, 2026-10-13. Found none
+    that breaks anything: Jetpack has no stored connection errors on any site, no
+    setting is recorded as failing to take effect, no plugin shares an authoritative
+    hook, and one site's PHP error log for the week has no entry from Keel.
+    WordPress.com's plugin screen lists the plugins with multicall refused.
+  - Found: every one of the nine shows the notice that two settings are "affected by
+    code that cannot be traced to any plugin". The code is the host's own must-use
+    plugins, on `wp_revisions_to_keep` (priority 5, so Keel's limit still decides)
+    and `user_has_cap`. Keel should name must-use and host code, not call it
+    untraceable. Not yet done.
+  - Found: the 272px menu belongs to one of the nine. Looked at in a browser on
+    eight: one loads Jetpack's `jetpack-admin-menu` stylesheet, and it is the one
+    with no admin interface style stored. The other seven are set to the classic
+    interface, load `wpcom-admin-menu` instead and have core's 160px menu, so the
+    0.6.8 note will not show on them. The one site has its width set in Keel, so
+    the note will show there only at "Leave unchanged". On another, a different
+    plugin sets the width, which Keel does not report.
+  - Found: AI Connectors, a default, switches off Jetpack's AI features too. Run
+    with Keel loaded and with it skipped, on two sites: Jetpack's AI Assistant block,
+    its `jetpack-ai` routes and every AI extension are gone with the setting on.
+    The setting now says so where Jetpack is active (dknauss/Keel#246). Whether the
+    default should stay on where Jetpack is active is undecided.
+  - Keel sends `X-Frame-Options: SAMEORIGIN` on the front end, which blocks a
+    WordPress.com screen from framing the site. dknauss/Keel#245 documents it. The
+    hosting overview and the plugins screen do not frame the site.
   - Triage early reports before opening another release cycle.
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
@@ -110,6 +140,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   - Corrected: the setting's help text and `docs/wordpress-default-settings.md`, which
     both said refusing multicall was harmless.
 - [ ] **Confirm on the site that found it**
+  - Checked 2026-10-13 on nine connected sites running 0.6.7. Eight refuse multicall,
+    the shipped default, and on each Keel finds Jetpack's signature check available.
+    The ninth allows multicall. For two of the eight, the plugin list loaded live on
+    WordPress.com. That is the first half; what cannot be seen from outside is
+    whether it travelled as a multicall.
+  - Still open: a settings change saved from WordPress.com with multicall off. It is
+    a write to a live site, so it waits for the maintainer.
+  - Not observed: the refusal as a fault on HTTP 200. The host answered an unsigned
+    multicall with 429 before the request reached WordPress.
   - Only WordPress.com can sign a request, so the half that matters cannot be probed
     from outside: with the fix installed and multicall still off, the plugin list
     loads and a settings change saves from WordPress.com.
@@ -284,25 +323,36 @@ active work belongs in **Now** or **Next**, above.
 
 ## Content / docs
 
-- [ ] **Finish the Agency Experience rename in the maintainer's agent instructions.**
-      Their sync section still uses the old name and the old doc paths
-      (`docs/keel-px-sync.md`, `docs/keel-px-feature-matrix.md`). Both repositories
-      already carry the renamed docs: `docs/keel-sync.md` here and in Agency
-      Experience, and `docs/keel-feature-matrix.md` there.
+- [x] **Finish the Agency Experience rename in the maintainer's agent instructions** —
+      done 2026-10-13. The instruction files on the maintainer's main machine no longer
+      name the old sync docs; the last references were in agents' saved notes, which
+      now point at `docs/keel-sync.md` and Agency Experience's
+      `docs/keel-feature-matrix.md`. A second machine keeps its own copies and was not
+      checked.
 
 - [ ] **Review the logo graphics and banner tagline** — candidate: *balanced defaults*.
-      The current line is *Sensible defaults for steady sites.*, and `branding/README.md`
-      records that the waterline in the mark is drawn as the "even keel" cue behind it.
+      The settings screen's line is *Sensible defaults for steady sites.*
       *Balanced defaults* says the same thing in two words and lands the keel metaphor
       without explaining it, which is what a banner has room for.
 
-      **There are already three taglines in circulation, and the shipped banner is the
-      odd one out.** Resolve that first — a new line should replace one tagline, not
-      become a fourth. Current state:
+      **Reviewed 2026-10-13; the choice of line is the maintainer's and is still open.**
+      What the review found:
+      - There are two lines, not three, and the brand package names both:
+        `.wordpress-org/brand/README.md` gives *Keeps your site upright with sensible
+        defaults.* as the tagline and *Sensible defaults for steady sites.* as its
+        short alternate. So the banner and the settings screen are not in conflict;
+        *balanced defaults* would be a third line unless it replaces one of them.
+      - The wordmark and the tagline both read at 772×250, and the mark holds at the
+        128px icon.
+      - `branding/` held the two-sail mark that the racing yacht replaced on
+        2026-08-09, and a README describing banners that no longer exist. Nothing
+        used it, so it is removed from the repository and ignored; history keeps it.
+
+      Where each line appears:
 
       | Surface | Line |
       | --- | --- |
-      | `branding/README.md` | *Sensible defaults for steady sites.* |
+      | `.wordpress-org/brand/README.md` | both; the banner's line is the tagline |
       | `includes/settings-page.php` | *Sensible defaults for steady sites.* |
       | newlocalmedia.github.io preview | *Sensible defaults for steady sites.* |
       | **`.wordpress-org/` banners, live on wordpress.org** | *Keeps your site upright with sensible defaults.* |
@@ -313,9 +363,7 @@ active work belongs in **Now** or **Next**, above.
       Scope, because a tagline change is not only a tagline:
       - `.wordpress-org/banner-1544x500.png` and `banner-772x250.png` — the listing
         banners, where the line actually appears.
-      - `branding/README.md` — states the tagline and the reason the waterline echoes it.
-      - `branding/keel-logo-horizontal.svg`, `keel-logo-stacked.svg`, `keel-mark.svg` —
-        review the marks at banner and 128px icon sizes while the banners are open.
+      - `.wordpress-org/brand/README.md` — names the tagline and its short alternate.
       - `includes/settings-page.php` — the settings-screen header carries it as a
         **translatable string**, so a change is a new msgid and the old one is dropped
         from every existing catalogue. Regenerate the `.pot` in the same commit.
@@ -327,8 +375,6 @@ active work belongs in **Now** or **Next**, above.
         stay a house style for that site. Its alt text in `scripts/site-config.mjs`
         describes the current image accurately and stops being true the moment the
         image changes.
-      - Check whether the wordmark still reads at the 772×250 banner size; the outlined
-        Avenir Next was set for the larger one.
 
       Not release-blocking, and deliberately not in 0.6.0: the listing assets are served
       from SVN `assets/` and can be updated without a plugin release. The settings-screen
@@ -354,7 +400,7 @@ active work belongs in **Now** or **Next**, above.
       says how much of the hash is sent, says what happens when the API is unreachable,
       and links the operator's privacy policy.
 
-## Feature ports (from Agency Experience) — see scope §13
+## Feature ports (from Agency Experience)
 
 - [x] `limit_unfiltered_html_to_admins` — first port; `user_has_cap` filter, default on,
       recursion-safe (is_super_admin guarded by is_multisite). Test: tests/unfiltered-html.php
