@@ -788,20 +788,12 @@ msgstr ""
 msgid "Environments"
 msgstr ""
 
-#: includes/settings-page.php:179
-msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
-msgstr ""
-
 #: includes/settings-page.php:183
 msgid "<strong>Outgoing email stops at the edge of production.</strong> A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived."
 msgstr ""
 
 #: includes/settings-page.php:187
 msgid "WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of <code>wp_mail()</code> then behaves the way it will in production, instead of taking an error path that only ever runs on staging."
-msgstr ""
-
-#: includes/settings-page.php:191
-msgid "<strong>The environment indicator is the colour-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
 msgstr ""
 
 #: includes/settings-page.php:195
@@ -932,12 +924,6 @@ msgstr ""
 
 #: includes/site-health.php:210
 msgid "Requests from WordPress.com to Jetpack are being refused"
-msgstr ""
-
-#. translators: %s: link to the XML-RPC Multicall setting.
-#: includes/site-health.php:213
-#, php-format
-msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognise requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
 msgstr ""
 
 #: includes/site-health.php:214
@@ -1947,4 +1933,18 @@ msgstr ""
 
 #: includes/strings.php:83
 msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> permits framing only by this site and can block previews embedded on WordPress.com, partner sites, or other preview tools. Choose Leave unchanged if cross-origin previews or embeds are needed. This stops Keel adding the header; it does not remove a restriction set by your host, CDN, or another plugin. Test the preview after changing this setting."
+msgstr ""
+
+#: includes/settings-page.php:179
+msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognizes common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
+msgstr ""
+
+#: includes/settings-page.php:191
+msgid "<strong>The environment indicator is the color-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
+msgstr "<strong>The environment indicator is the colour-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
+
+#. translators: %s: link to the XML-RPC Multicall setting.
+#: includes/site-health.php:213
+#, php-format
+msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognize requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
 msgstr ""

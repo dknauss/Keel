@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T03:09:59+00:00\n"
+"POT-Creation-Date: 2026-10-14T21:39:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -903,7 +903,7 @@ msgid "Environments"
 msgstr ""
 
 #: includes/settings-page.php:179
-msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognises common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
+msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognizes common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
 msgstr ""
 
 #: includes/settings-page.php:183
@@ -915,7 +915,7 @@ msgid "WordPress still reports each suppressed message as sent, deliberately. Co
 msgstr ""
 
 #: includes/settings-page.php:191
-msgid "<strong>The environment indicator is the colour-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
+msgid "<strong>The environment indicator is the color-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
 msgstr ""
 
 #: includes/settings-page.php:195
@@ -1101,7 +1101,7 @@ msgstr ""
 #. translators: %s: link to the XML-RPC Multicall setting.
 #: includes/site-health.php:213
 #, php-format
-msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognise requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
+msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognize requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
 msgstr ""
 
 #: includes/site-health.php:214
