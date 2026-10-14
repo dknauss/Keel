@@ -76,7 +76,7 @@ Check the other plugin whenever a change touches one of these:
 - Core version status and the same-line security patch: `includes/backports.php`
   (AX: `includes/classes/CoreUpdates/`).
 - The core auto-update policy, translation updates and `wp-config.php` locks:
-  `includes/settings-page.php`, `includes/bootstrap.php`
+  `includes/settings-policy.php`, `includes/settings-page.php`, `includes/bootstrap.php`
   (AX: `includes/classes/Security/Settings.php`).
 - The admin menu width, saved and previewed: `includes/admin-ux.php`,
   `assets/css/settings.css` (AX: `AdminCustomizations/Operations.php`,

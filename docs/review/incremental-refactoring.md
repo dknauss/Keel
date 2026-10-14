@@ -109,6 +109,28 @@ mu-plugin, symlink, callback-identity, non-execution, cache and divergence cover
 The [conflict lab record](conflict-diagnostics-lab.md) documents the real WordPress
 and browser pass and its limits.
 
+## Fifth increment: settings policy resolution
+
+Implemented 2026-10-14. `settings-policy.php` owns four declaration-only helpers:
+configuration-lock notes, the background-update disable constant, the core policy
+constant mapping, and the locked control value. All four public names, signatures
+and function bodies are unchanged. The main entry point loads policy immediately
+after schema and before site/network consumers. The settings-screen entry point
+also requires it once for direct consumers that previously obtained the helpers
+there. Policy loading does not pull in screen registration.
+
+Network override resolution and the uncached effective getter remain in network.php
+and schema.php. Saved site preferences, network policy, constant precedence and
+hidden form values keep their existing semantics. No settings cache, dependency,
+new hook or enforcement change is introduced. Shared screen controls, sanitization
+and help text remain in their existing modules. Screenshot tracking now follows
+settings-policy.php, including a regression for invalidation when it changes.
+
+The isolated loading test verifies four helpers without option reads, translation
+or hook registration; existing core-policy truth tables, site/network render and
+save tests cover behavior. The [lab record](settings-policy-lab.md) records real
+WordPress checks and the paired performance-budget recheck.
+
 ## Sequence and acceptance criteria
 
 1. **Separate backport responsibilities (completed second increment).** Split remote stable-check/cache access,
@@ -128,7 +150,7 @@ and browser pass and its limits.
    the distinction between sharing a hook and demonstrated disagreement. Never
    execute foreign callbacks just to identify them. Preserve must-use plugin
    attribution, request-local cache behavior and transient invalidation.
-4. **Extract settings policy resolution.** Move configuration lock/value resolution
+4. **Extract settings policy resolution (completed fifth increment).** Move configuration lock/value resolution
    out of settings-page.php into a module shared by site, network and diagnostic
    consumers. Preserve constant precedence, network policy and the stored site
    preference. Do not introduce a second settings cache that becomes stale after
