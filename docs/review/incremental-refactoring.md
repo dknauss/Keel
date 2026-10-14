@@ -23,9 +23,38 @@ behavior. Keep behavioral tests for locks, omitted unsupported fields, escaping,
 role labels and save preservation. The screenshot change detector must include
 this module, because future edits here can change either screen.
 
+## Second increment: backport module boundaries
+
+Implemented 2026-10-14. `backports.php` remains the compatibility entry point and
+registers the hooks after loading the modules:
+
+| Module | Responsibility |
+| --- | --- |
+| `backport-status.php` | Stable-check HTTP/cache constants and operations; version status and branch tips |
+| `backport-policy.php` | Offers, filesystem/update blockers, selection state and core's update ladder |
+| `backport-presentation.php` | Site Health results, notices, action links and ladder markup |
+| `backport-actions.php` | AJAX report, enable-minor-updates and notice-dismissal request handlers |
+| `backport-install.php` | Existing request validation, install planning and explicit upgrader execution |
+
+Consumers continue loading the facade, not individual modules. Function names,
+parameters and bodies are preserved; this increment does not replace WordPress's
+selector, alter cache TTLs, change hook priorities, or weaken installer checks.
+The screenshot detector follows the extracted presentation module. A loading test
+pins all eight hook registrations and verifies that inclusion itself performs no
+option reads, HTTP calls or writes. No installer is invoked by the lab checks.
+
+The 33 moved function bodies matched their pre-extraction hashes. The local
+multisite loaded the new modules, evaluated minor-update state and ladder
+selection with zero attempted mail sends, and retained the install action at
+priority 10. Site Health loaded as Super Admin with HTTP 200 and no JavaScript
+errors or PHP fatal output. The disposable lab was stopped and removed after
+verification. Existing behavioral tests continue to cover outages, offers,
+refusals and explicit install planning. The scheduled update matrix was not
+manually dispatched as part of this extraction.
+
 ## Remaining work, in order
 
-1. **Separate backport responsibilities.** Split remote stable-check/cache access,
+1. **Separate backport responsibilities (completed second increment).** Split remote stable-check/cache access,
    version/offer and policy evaluation, notice/ladder presentation, and action
    handlers into cohesive modules. Preserve public function names first. Keep
    prepare/validate separate from upgrader execution. Verify outage recovery,

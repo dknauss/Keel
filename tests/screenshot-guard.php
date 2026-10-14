@@ -111,6 +111,15 @@ keel_guard_run( 'bash bin/verify-screenshots.sh --record', $root );
 list( $code, $out ) = keel_guard_run( 'bash bin/verify-screenshots.sh', $root );
 keel_guard_assert( 0 === $code, "Re-recording after looking clears it. Got {$code}: {$out}" );
 
+// Every extracted backport module can affect messages or screen state. Keep
+// watching all of them, as the former backports.php watcher did.
+foreach ( array( 'status', 'policy', 'presentation', 'actions' ) as $module ) {
+	file_put_contents( $root . '/includes/backport-' . $module . '.php', "<?php\n// changed UI message\n" );
+	list( $code, $out ) = keel_guard_run( 'bash bin/verify-screenshots.sh', $root );
+	keel_guard_assert( 1 === $code, "A changed backport {$module} module invalidates the screenshot review. Got {$code}: {$out}" );
+	keel_guard_run( 'bash bin/verify-screenshots.sh --record', $root );
+}
+
 // New pictures are also unreviewed pictures.
 file_put_contents( $root . '/.wordpress-org/screenshot-1.png', 'a different picture' );
 

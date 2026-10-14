@@ -1241,7 +1241,7 @@ framework rewrite. The [refactoring plan](docs/review/incremental-refactoring.md
 records boundaries, verification and conditional PSR choices; TODO.md tracks tasks.
 
 - [x] **Share site/network control rendering** — first increment, 2026-10-14.
-- [ ] **Separate backport responsibilities** — next maintenance increment.
+- [x] **Separate backport responsibilities** — second increment, 2026-10-14.
 - [ ] **Extract password and HIBP handling** — then isolate security concerns.
 - [ ] **Split conflict diagnostics internally** — retain evidence-based reporting.
 - [ ] **Extract settings policy resolution** — decouple enforcement from UI.

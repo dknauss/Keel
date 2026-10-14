@@ -50,7 +50,7 @@ SHOT=".wordpress-org/screenshot-1.png"
 # is a screen that can change without anyone being asked whether the screenshots
 # still match — which is how they went stale before (#144, and again with
 # updates-screen.php, added in #168 and unwatched until #170).
-UI="includes/settings-controls.php includes/settings-page.php includes/network.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-install.php includes/updates-screen.php"
+UI="includes/settings-controls.php includes/settings-page.php includes/network.php includes/site-health.php includes/strings.php includes/admin-ux.php includes/backports.php includes/backport-status.php includes/backport-policy.php includes/backport-presentation.php includes/backport-actions.php includes/backport-install.php includes/updates-screen.php"
 
 RECORD=0
 

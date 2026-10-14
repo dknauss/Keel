@@ -403,8 +403,8 @@ These are maintenance increments alongside feature work, not new release promise
       screen-specific layouts, locks, input names and save behavior.
 - [x] **Consolidate duplicate WP_Error test doubles** — reuse the shared stub and
       remove the duplicate-class lint warning; refresh stale lint/compat comments.
-- [ ] **Separate backport responsibilities** — status/cache, policy, presentation,
-      and action handlers; retain the existing public functions initially.
+- [x] **Separate backport responsibilities** — extracted 2026-10-14 into status/cache,
+      policy, presentation, and actions modules; public functions and hooks retained.
 - [ ] **Extract password and HIBP handling** — preserve all entry points and privacy.
 - [ ] **Split conflict diagnostics internally** — attribution, overlaps, divergence.
 - [ ] **Extract settings policy resolution** — configuration locks belong outside UI.
