@@ -1234,15 +1234,33 @@ writes on an anonymous request.
 
 ---
 
+## Architecture maintenance alongside the release roadmap
+
+Proceed in small behavior-preserving increments; no feature release is held for a
+framework rewrite. The [refactoring plan](docs/review/incremental-refactoring.md)
+records boundaries, verification and conditional PSR choices; TODO.md tracks tasks.
+
+- [x] **Share site/network control rendering** — first increment, 2026-10-14.
+- [ ] **Separate backport responsibilities** — next maintenance increment.
+- [ ] **Extract password and HIBP handling** — then isolate security concerns.
+- [ ] **Split conflict diagnostics internally** — retain evidence-based reporting.
+- [ ] **Extract settings policy resolution** — decouple enforcement from UI.
+- [ ] **Strengthen data contracts gradually** — scoped static analysis, no PHP-floor change.
+- [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
+      introduce JS/CSS linting separately.
+- [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.
+
 ## Non-goals
 
 Recording these so they stop being re-litigated:
 
 - **Plugin/theme governance screens.** Dropped deliberately — blocking admin screens is a
   wordpress.org review problem, and it is not what a defaults plugin is for.
-- **Growing past Better by Default scale.** The budget is roughly 2.5–3.5k LOC against
-  the 1,329-LOC base. Agency Experience is ~24k. The smallness is the point: every
-  default is one schema entry plus one bootstrap `if`-block.
+- **Adding architecture for its own sake.** The original 2.5–3.5k-line budget is
+  historical, not an accurate description of the current plugin. Keep runtime
+  dependencies and abstraction costs low; a simple default should still be easy
+  to trace from schema through bootstrap to its callback. Split responsibilities
+  when they become difficult to maintain, rather than pursuing an arbitrary count.
 - **Quiet holes in security toggles.** Rewritten 2026-08-04, after measurement showed the
   absolute version was not supported by the facts. It read: blocking anonymous REST takes
   oEmbed down with it, and that does not get worked around. The rule now is narrower and

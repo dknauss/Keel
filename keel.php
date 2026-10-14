@@ -89,6 +89,7 @@ require_once __DIR__ . '/includes/email.php';
 require_once __DIR__ . '/includes/conflicts.php';
 require_once __DIR__ . '/includes/site-health.php';
 require_once __DIR__ . '/includes/bootstrap.php';
+require_once __DIR__ . '/includes/settings-controls.php';
 require_once __DIR__ . '/includes/settings-page.php';
 
 /*

@@ -13,7 +13,7 @@
 	<!--
 		Everything that ships and has to run on the floor. keel.php and includes
 		are the plugin; uninstall.php is loaded by WordPress on delete and is
-		runtime code like any other, though phpcs.xml does not currently list it.
+		runtime code like any other, and phpcs.xml lists it too.
 		tests/ are CLI scripts the compat job executes on 7.4, so they are held to
 		the same floor as the code they exercise.
 	-->

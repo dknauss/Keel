@@ -719,6 +719,33 @@ keel_assert(
 	'WP_POST_REVISIONS = false shows a limit of 0, not the stored 10.'
 );
 
+// Network controls share the inputs but retain their compact presentation.
+$control_strings = keel_defaults_strings();
+foreach ( keel_defaults_schema() as $key => $field ) {
+	foreach ( array( false, true ) as $locked ) {
+		$copy = $control_strings[ $key ];
+		ob_start();
+		keel_defaults_render_network_control( $key, 'network[' . $key . ']', $field['default'], $field, $copy, isset( $copy['statement'] ) ? $copy['statement'] : $copy['label'], 'network-description', $locked );
+		$control = ob_get_clean();
+		keel_assert( false !== strpos( $control, 'name="network[' . $key . ']' ), "Network input name survives for {$key}." );
+		if ( 'range' === $field['type'] ) {
+			keel_assert( false !== strpos( $control, '<select' ) && false === strpos( $control, 'type="range"' ), 'Network range stays a select, not a preview slider.' );
+		}
+		if ( 'multiselect' !== $field['type'] ) {
+			keel_assert( false !== strpos( $control, 'aria-describedby="network-description"' ), "Network description survives for {$key}." );
+			keel_assert( ( false !== strpos( $control, 'data-keel-locked="1"' ) ) === $locked, "Network lock state survives for {$key}." );
+		}
+	}
+}
+
+// Neither screen's rendering may write settings or normalize stored preferences.
+$control_options = $GLOBALS['keel_options'];
+ob_start();
+keel_defaults_render_control( 'core_update_policy', 'policy', 'minor', keel_defaults_schema()['core_update_policy'], $control_strings['core_update_policy'], '', 'policy-description', true );
+$locked_control = ob_get_clean();
+keel_assert( false !== strpos( $locked_control, 'type="hidden" name="policy" value="minor"' ), 'A locked site select preserves the stored preference in its hidden input.' );
+keel_assert( $control_options === $GLOBALS['keel_options'], 'Rendering controls does not mutate stored preferences.' );
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "settings render: {$fail} failed\n" );
 	exit( 1 );

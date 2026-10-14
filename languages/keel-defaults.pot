@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T21:39:45+00:00\n"
+"POT-Creation-Date: 2026-10-14T21:59:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -802,8 +802,12 @@ msgstr ""
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
+#: includes/settings-controls.php:111
+msgid "No low-privilege roles are available to exempt."
+msgstr ""
+
 #: includes/settings-page.php:21
-#: includes/settings-page.php:838
+#: includes/settings-page.php:707
 #: includes/site-health.php:78
 #: includes/site-health.php:181
 #: includes/site-health.php:557
@@ -971,34 +975,30 @@ msgid "Every default and its current state is listed under <a href=\"%s\">Site H
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
-#: includes/settings-page.php:584
-#: includes/settings-page.php:595
+#: includes/settings-page.php:546
+#: includes/settings-page.php:557
 #, php-format
 msgid "Overridden by <code>%s</code> in <code>wp-config.php</code>: WordPress installs no background updates."
 msgstr ""
 
-#: includes/settings-page.php:587
+#: includes/settings-page.php:549
 msgid "Locked by <code>WP_AUTO_UPDATE_CORE</code> in <code>wp-config.php</code>. Remove that constant to manage core releases here."
 msgstr ""
 
-#: includes/settings-page.php:601
+#: includes/settings-page.php:563
 msgid "<code>DISALLOW_UNFILTERED_HTML</code> in <code>wp-config.php</code> already removes unfiltered HTML from every role, so this restriction has no additional effect."
 msgstr ""
 
-#: includes/settings-page.php:613
+#: includes/settings-page.php:575
 msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
 msgstr ""
 
-#: includes/settings-page.php:839
+#: includes/settings-page.php:708
 msgid "Balanced defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:851
+#: includes/settings-page.php:720
 msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
-msgstr ""
-
-#: includes/settings-page.php:1010
-msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
 #: includes/site-health.php:25

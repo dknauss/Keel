@@ -51,7 +51,7 @@ function is_wp_error( $thing ) {
 }
 
 /** Enough of WP_Error for is_wp_error(). */
-class WP_Error {}
+require_once __DIR__ . '/stubs/wp-error.php';
 
 /** Enough of IXR_Error to read back what was refused. */
 class IXR_Error {

@@ -521,44 +521,6 @@ function keel_defaults_render_help( $help, $id = '' ) {
 }
 
 /**
- * Echo a checkbox + its "true when checked" statement (the <label> only).
- *
- * @param string $name        Field input name.
- * @param mixed  $value       Current value.
- * @param string $statement   The "true when checked" statement (already translated).
- * @param bool   $disabled    Whether to render the checkbox disabled.
- * @param string $describedby Space-separated ids for aria-describedby (help/lock).
- */
-function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = false, $describedby = '' ) {
-	$aria = ( '' !== $describedby ) ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '';
-
-	/*
-	 * aria-disabled, not disabled.
-	 *
-	 * A `disabled` control is removed from the tab sequence, so a screen-reader
-	 * user never lands on it — and the aria-describedby wiring that announces
-	 * *why* it cannot be changed is announced on focus, which never happens. The
-	 * reason was written first in that attribute on purpose and then could not be
-	 * heard. `aria-disabled` keeps the control focusable and announced as
-	 * unavailable, so the explanation reaches the person it was written for.
-	 *
-	 * Safe only because the lock is now enforced on save in
-	 * keel_defaults_sanitize_site(): a focusable control is a submittable one, and
-	 * before that enforcement this would have let a locked value be written.
-	 */
-	$locked_attrs = $disabled ? ' aria-disabled="true" data-keel-locked="1"' : '';
-
-	printf(
-		'<label><input type="checkbox" name="%s" value="yes" %s%s%s /> %s</label>',
-		esc_attr( $name ),
-		checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- checked() returns a fixed literal.
-		$locked_attrs, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-		$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
-		wp_kses( $statement, array( 'code' => array() ) )
-	);
-}
-
-/**
  * If a wp-config.php constant supersedes a setting, return a short inline note
  * explaining it (the note may contain <code>). The control is then disabled and
  * the note shown, so the screen never offers a switch that cannot take effect.
@@ -709,99 +671,6 @@ function keel_defaults_config_locked_value( $key, $value ) {
 	}
 
 	return $value;
-}
-
-/**
- * Render a range (slider) field, with its live admin-menu preview.
- *
- * Extracted from the settings template, where it was 105 of that function's 338
- * lines and the sole reason the file reached thirteen levels of indentation. The
- * other field types run ten to twenty lines each; this one carried a whole
- * feature — the slider, the preview stylesheet it toggles, and the script that
- * drives them — and inlining all of it put CSS at a depth where the surrounding
- * PHP was no longer legible.
- *
- * The stylesheet and the script have since moved out of PHP altogether, into
- * assets/css/settings.css and assets/js/settings.js. What is left here is the
- * markup, and the three data- attributes that carry this field's labels and
- * pixel widths to the script — which is why the script is now static and works
- * for any number of range fields instead of being re-emitted once per field.
- *
- * @param string $key         Schema key, used to build element ids.
- * @param string $name        Input name attribute.
- * @param mixed  $value       Stored value.
- * @param array  $field       Schema field.
- * @param array  $s           Display strings for this field.
- * @param string $label       Field label.
- * @param string $describedby Space-separated ids for aria-describedby.
- * @param bool   $locked      Whether wp-config.php or network policy has settled this.
- * @return void
- */
-function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby, $locked = false ) {
-	$rvalues = array_map( 'strval', array_values( $field['values'] ) );
-	$rlabels = array_values( isset( $s['labels'] ) ? $s['labels'] : array() );
-	$rcur    = array_search( (string) $value, $rvalues, true );
-	$rcur    = ( false === $rcur ) ? 0 : (int) $rcur;
-	$rpx     = array_map(
-		static function ( $v ) {
-			return ( 'default' === $v ) ? 160 : (int) $v;
-		},
-		$rvalues
-	);
-	$rid     = $key; // raw schema slug; escaped per output context below.
-	?>
-	<fieldset>
-		<legend class="screen-reader-text"><?php echo esc_html( $label ); ?></legend>
-		<?php
-		/*
-		 * aria-valuetext, because the value is a position and the meaning is a
-		 * word. Without it a screen reader announces this slider as "2" — the
-		 * index — and the site owner is choosing between Default, Narrow and
-		 * Wide, none of which are numbers. The visible <output> carries the word
-		 * for sighted users; this is the same information for everyone else, and
-		 * it is announced as the *value* rather than as a description.
-		 */
-		?>
-		<input type="range" min="0" max="<?php echo (int) ( count( $rvalues ) - 1 ); ?>" step="1"
-			name="<?php echo esc_attr( $name ); ?>"
-			id="<?php echo esc_attr( $rid ); ?>-range"
-			value="<?php echo (int) $rcur; ?>"
-			list="<?php echo esc_attr( $rid ); ?>-stops"
-			aria-label="<?php echo esc_attr( $label ); ?>"
-			aria-valuetext="<?php echo esc_attr( $rlabels[ $rcur ] ); ?>"
-			<?php
-			/*
-			 * A locked slider has to say so to the script as well as to a reader.
-			 * Selects, numbers and toggles already emitted this; the slider and
-			 * the role checkboxes did not, so a network-locked control announced
-			 * itself as locked and then previewed and accepted edits anyway. The
-			 * server refuses the value either way — this is the screen agreeing
-			 * with what the server will do.
-			 */
-			echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-			?>
-			data-keel-range="<?php echo esc_attr( $rid ); ?>-output"
-			data-keel-range-labels="<?php echo esc_attr( wp_json_encode( $rlabels ) ); ?>"
-			data-keel-range-widths="<?php echo esc_attr( wp_json_encode( array_values( $rpx ) ) ); ?>"
-			<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?> style="vertical-align:middle;max-width:240px;" />
-		<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
-			<?php foreach ( $rlabels as $ri => $rl ) : ?>
-				<option value="<?php echo (int) $ri; ?>" label="<?php echo esc_attr( $rl ); ?>"></option>
-			<?php endforeach; ?>
-		</datalist>
-		<?php
-		/*
-		 * aria-live="off", deliberately, on an element whose implicit live
-		 * politeness is "polite". The word is already announced as the slider's
-		 * own value through aria-valuetext, so leaving this a live region made
-		 * every arrow-key press say it twice — which is the "stream of noise"
-		 * this control was suspected of and the reason to check. It stays a
-		 * visible <output> for sighted users and is silent to a screen reader.
-		 */
-		?>
-		<output for="<?php echo esc_attr( $rid ); ?>-range" id="<?php echo esc_attr( $rid ); ?>-output" aria-live="off" style="margin-inline-start:10px;font-weight:600;"><?php echo esc_html( $rlabels[ $rcur ] ); ?></output>
-	</fieldset>
-	<?php
 }
 
 /** Render the settings page. */
@@ -964,60 +833,7 @@ function keel_defaults_render_settings_page() {
 							<td>
 								<?php // The anchor lives in the control cell, not the heading: tests/settings-heading-case.php reads that heading, and an id is not part of a label. ?>
 								<span class="keel-anchor" id="<?php echo esc_attr( keel_defaults_setting_anchor( $key ) ); ?>"></span>
-								<?php if ( 'toggle' === $field['type'] ) : ?>
-									<fieldset>
-										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
-										<?php // A disabled checkbox is not submitted; carry a 'yes' value so a save under the constant does not silently flip the stored preference to 'no'. ?>
-										<?php if ( $locked && 'yes' === $value ) : ?>
-											<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="yes" />
-										<?php endif; ?>
-										<?php keel_defaults_render_checkbox( $name, $shown, $statement, $locked, $describedby ); ?>
-									</fieldset>
-								<?php elseif ( 'select' === $field['type'] ) : ?>
-									<?php if ( $locked ) : ?>
-										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
-									<?php endif; ?>
-									<select name="<?php echo esc_attr( $name ); ?>" aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?><?php echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; ?>>
-										<?php foreach ( $field['choices'] as $ck ) : ?>
-											<option value="<?php echo esc_attr( $ck ); ?>" <?php selected( $ck, $shown ); ?>>
-												<?php echo esc_html( isset( $s['choices'][ $ck ] ) ? $s['choices'][ $ck ] : $ck ); ?>
-											</option>
-										<?php endforeach; ?>
-									</select>
-								<?php elseif ( 'range' === $field['type'] ) : ?>
-									<?php keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby, $locked ); ?>
-								<?php elseif ( 'number' === $field['type'] ) : ?>
-									<?php if ( $locked ) : ?>
-										<input type="hidden" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
-									<?php endif; ?>
-									<input type="number" min="<?php echo esc_attr( isset( $field['min'] ) ? (int) $field['min'] : 0 ); ?>" step="1"
-										<?php echo isset( $field['max'] ) ? 'max="' . esc_attr( (int) $field['max'] ) . '"' : ''; ?>
-										name="<?php echo esc_attr( $name ); ?>"
-										value="<?php echo esc_attr( $shown ); ?>"
-										aria-label="<?php echo esc_attr( $label ); ?>"<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>
-										<?php echo $locked ? 'aria-disabled="true" data-keel-locked="1"' : ''; ?>
-										<?php echo $locked ? 'readonly' : ''; ?>
-										class="small-text" />
-									<?php if ( ! empty( $s['unit'] ) ) : ?>
-										<span class="keel-unit" id="<?php echo esc_attr( $unit_id ); ?>" style="margin-inline-start:6px;"><?php echo esc_html( $s['unit'] ); ?></span>
-									<?php endif; ?>
-								<?php elseif ( 'multiselect' === $field['type'] ) : ?>
-									<?php $ms_options = keel_defaults_exemptable_roles(); ?>
-									<?php $ms_current = array_map( 'strval', (array) $value ); ?>
-									<fieldset<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; ?>>
-										<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>
-										<?php if ( empty( $ms_options ) ) : ?>
-											<p class="description"><?php esc_html_e( 'No low-privilege roles are available to exempt.', 'keel-defaults' ); ?></p>
-										<?php else : ?>
-											<?php foreach ( $ms_options as $role_slug => $role_name ) : ?>
-												<label style="display:block;margin-bottom:6px;">
-													<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[]" value="<?php echo esc_attr( $role_slug ); ?>" <?php checked( in_array( (string) $role_slug, $ms_current, true ) ); ?><?php echo $locked ? ' aria-disabled="true" data-keel-locked="1"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal. ?> />
-													<?php echo esc_html( $role_name ); ?>
-												</label>
-											<?php endforeach; ?>
-										<?php endif; ?>
-									</fieldset>
-								<?php endif; ?>
+								<?php keel_defaults_render_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked ); ?>
 
 								<?php if ( $locked ) : ?>
 									<p class="description keel-config-lock" id="<?php echo esc_attr( $lock_id ); ?>"><?php echo wp_kses( $lock, array( 'code' => array() ) ); ?></p>

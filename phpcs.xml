@@ -72,10 +72,10 @@
 		<exclude-pattern>tests/*</exclude-pattern>
 	</rule>
 	<!--
-		includes/bootstrap.php defines two tiny drop-in XML-RPC server classes inline
-		inside the wp_xmlrpc_server_class filter (they must be defined where they are
-		conditionally registered), so the class-per-file and class-based-filename
-		rules do not apply to it. Test files likewise define small stub classes.
+		includes/bootstrap.php defines the endpoint-blocking XML-RPC server inline
+		where it is conditionally registered. The multicall server has its own file.
+		Class-per-file and class-based-filename rules do not apply to bootstrap.
+		Test files likewise define small stub classes.
 	-->
 	<rule ref="Generic.Files.OneObjectStructurePerFile">
 		<exclude-pattern>includes/bootstrap.php</exclude-pattern>

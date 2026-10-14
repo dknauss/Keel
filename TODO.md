@@ -394,6 +394,27 @@ active work belongs in **Now** or **Next**, above.
 - [x] AX comment teardown (default-closed/feeds/widget) · AX header logic (strictness/case-insensitive)
       · password role-scoping (keel_weak_roles, subscriber exempt). tests: headers, password-scoping
 
+## Incremental architecture maintenance
+
+Plan and acceptance criteria: [incremental refactoring](docs/review/incremental-refactoring.md).
+These are maintenance increments alongside feature work, not new release promises.
+
+- [x] **Share site/network control rendering** — extracted 2026-10-14; preserve
+      screen-specific layouts, locks, input names and save behavior.
+- [x] **Consolidate duplicate WP_Error test doubles** — reuse the shared stub and
+      remove the duplicate-class lint warning; refresh stale lint/compat comments.
+- [ ] **Separate backport responsibilities** — status/cache, policy, presentation,
+      and action handlers; retain the existing public functions initially.
+- [ ] **Extract password and HIBP handling** — preserve all entry points and privacy.
+- [ ] **Split conflict diagnostics internally** — attribution, overlaps, divergence.
+- [ ] **Extract settings policy resolution** — configuration locks belong outside UI.
+- [ ] **Strengthen data contracts gradually** — array shapes, scoped PHPStan pilot,
+      selective PHP 7.4-compatible types.
+- [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
+      faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.
+- [ ] **Keep comments and tooling contracts current** — shorten historical narratives
+      and audit source-reading tests, packaging and screenshot guards after moves.
+
 ## Rebuild / infra
 
 - [x] Site Health surface — read-only posture (informational; escalates to 'recommended'
