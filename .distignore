@@ -9,6 +9,7 @@
 /.git
 /.github
 /.claude
+/.playwright-mcp
 /bin
 /.wordpress-org
 /branding
