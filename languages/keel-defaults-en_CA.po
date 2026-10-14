@@ -533,46 +533,46 @@ msgid "AI connectors are disabled on this site."
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/conflicts.php:855
+#: includes/conflicts.php:1187
 #, php-format
 msgid "A Keel setting is not taking effect on this site: %s"
 msgid_plural "Some Keel settings are not taking effect on this site: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:870
+#: includes/conflicts.php:1202
 msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/conflicts.php:878
+#: includes/conflicts.php:1210
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:893
+#: includes/conflicts.php:1240
 msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflicts.php:900
+#: includes/conflicts.php:1247
 #, php-format
 msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
 msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflicts.php:914
+#: includes/conflicts.php:1261
 msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflicts.php:918
+#: includes/conflicts.php:1265
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflicts.php:922
+#: includes/conflicts.php:1269
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -1135,31 +1135,31 @@ msgstr ""
 msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:725
+#: includes/site-health.php:729
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:755
+#: includes/site-health.php:759
 msgid "A Keel setting is also affected by code Keel cannot identify"
 msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:769
+#: includes/site-health.php:773
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:786
+#: includes/site-health.php:813
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:788
+#: includes/site-health.php:815
 msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:792
+#: includes/site-health.php:819
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
@@ -1213,10 +1213,6 @@ msgstr ""
 
 #: includes/strings.php:44
 msgid "Allow <code>system.multicall</code>"
-msgstr ""
-
-#: includes/strings.php:45
-msgid "Off by default. <code>system.multicall</code> bundles many XML-RPC calls into one request. WordPress 4.4 prevented it from being abused as a password-guessing multiplier, so refusing it today is minor attack-surface reduction and does not block any live threat. Jetpack does rely on it: WordPress.com manages a connected site through multicall. So while this is off, Keel still lets through the requests Jetpack verifies as signed by WordPress.com, and refuses the rest."
 msgstr ""
 
 #: includes/strings.php:49
@@ -1293,10 +1289,6 @@ msgstr ""
 
 #: includes/strings.php:82
 msgid "Frame Options"
-msgstr ""
-
-#: includes/strings.php:83
-msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> blocks cross-origin framing, which stops clickjacking but also breaks legitimate embeds — a client intranet, a partner site, or a preview/proofing tool — usually as a silent blank frame. Leave unchanged if your host or CDN already sets this header, or if the site is meant to be embedded elsewhere."
 msgstr ""
 
 #: includes/strings.php:85
@@ -1911,4 +1903,48 @@ msgstr ""
 
 #: includes/strings.php:214
 msgid "Automatic (WordPress environment type)"
+msgstr ""
+
+#. translators: %s: theme name, such as Twenty Twenty-Five.
+#: includes/conflicts.php:555
+#, php-format
+msgid "%s (theme)"
+msgstr ""
+
+#. translators: %s: file name of a must-use plugin, such as host-loader.php.
+#: includes/conflicts.php:560
+#, php-format
+msgid "must-use plugin %s"
+msgstr ""
+
+#. translators: %s: theme name, or a child theme and its parent, comma-separated.
+#: includes/conflicts.php:1231
+#, php-format
+msgid "Your theme may influence some of the same settings as Keel: %s"
+msgstr ""
+
+#: includes/site-health.php:710
+msgid "Must-use plugins are installed by a host or a developer and cannot be turned off from the Plugins screen, so Keel lists them here and shows no notice about them."
+msgstr ""
+
+#. translators: %s: theme name, or a child theme and its parent, comma-separated.
+#: includes/site-health.php:797
+#, php-format
+msgid "Your theme may change the same settings as Keel: %s"
+msgstr ""
+
+#: includes/site-health.php:799
+msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
+msgstr ""
+
+#: includes/site-health.php:803
+msgid "Your theme may influence the same settings as Keel"
+msgstr ""
+
+#: includes/strings.php:45
+msgid "Leave off when using Jetpack: Keel still allows requests Jetpack verifies as signed by WordPress.com, which uses multicall to manage connected sites. Turning this on allows other multicalls too. If Site Health reports that Jetpack cannot verify these requests, update Jetpack or allow multicall until compatibility is restored. <code>system.multicall</code> bundles several XML-RPC calls into one request. Refusing unsigned multicalls reduces the available attack surface; WordPress has limited its use for password guessing since 4.4."
+msgstr ""
+
+#: includes/strings.php:83
+msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> permits framing only by this site and can block previews embedded on WordPress.com, partner sites, or other preview tools. Choose Leave unchanged if cross-origin previews or embeds are needed. This stops Keel adding the header; it does not remove a restriction set by your host, CDN, or another plugin. Test the preview after changing this setting."
 msgstr ""
