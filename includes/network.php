@@ -328,8 +328,8 @@ function keel_defaults_render_network_page() {
  *
  * Deliberately simpler than the per-site screen: no dependent-row hiding, no
  * range slider with a live preview. A super admin setting policy for fifty sites
- * is not previewing their own admin menu width, and every one of those
- * affordances is a second implementation to keep in step with the first.
+ * is not previewing their own admin menu width. The shared renderer keeps
+ * these presentation differences explicit without duplicating input logic.
  *
  * @param string $key       Schema key.
  * @param string $name      Form field name.
@@ -341,103 +341,5 @@ function keel_defaults_render_network_page() {
  * @param bool   $locked      Whether wp-config.php supersedes this control.
  */
 function keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked = false ) {
-	$type = isset( $field['type'] ) ? $field['type'] : 'toggle';
-	$aria = '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '';
-	$lock = $locked ? ' aria-disabled="true" data-keel-locked="1"' : '';
-
-	if ( 'toggle' === $type ) {
-		printf(
-			'<label><input type="checkbox" name="%s" value="yes" %s%s%s /> %s</label>',
-			esc_attr( $name ),
-			checked( 'yes', $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
-			$lock, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-			wp_kses( $statement, array( 'code' => array() ) )
-		);
-		return;
-	}
-
-	if ( 'number' === $type ) {
-		printf(
-			'<input type="number" name="%s" value="%s" min="%d" max="%d" class="small-text"%s%s%s /> %s',
-			esc_attr( $name ),
-			esc_attr( (string) $value ),
-			isset( $field['min'] ) ? (int) $field['min'] : 0,
-			isset( $field['max'] ) ? (int) $field['max'] : 3650,
-			$aria, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr().
-			$lock, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-			$locked ? ' readonly' : '',
-			esc_html( isset( $s['unit'] ) ? $s['unit'] : '' )
-		);
-		return;
-	}
-
-	if ( 'multiselect' === $type ) {
-		/*
-		 * The schema carries no `choices` for the one multiselect there is: the
-		 * roles are discovered at runtime, because which roles exist is a
-		 * property of the site rather than of this plugin. The site screen has
-		 * always asked keel_defaults_exemptable_roles() for them; this screen
-		 * read a key that has never existed and emitted a warning per option.
-		 *
-		 * Nothing caught it because nothing had rendered this page in a test.
-		 */
-		$chosen = (array) $value;
-
-		/*
-		 * slug => label, both ways in. A schema-provided list is bare slugs
-		 * labelled from strings.php; the roles arrive already paired with their
-		 * translated names, which `translate_user_role()` has localised. Taking
-		 * only the keys threw those away and printed `subscriber` at a Super
-		 * Admin — correct data, and not what the site screen shows beside it.
-		 */
-		if ( isset( $field['choices'] ) ) {
-			$choices = array();
-
-			foreach ( (array) $field['choices'] as $slug ) {
-				$choices[ $slug ] = isset( $s['choices'][ $slug ] ) ? $s['choices'][ $slug ] : $slug;
-			}
-		} else {
-			$choices = keel_defaults_exemptable_roles();
-		}
-
-		foreach ( $choices as $choice => $label ) {
-			printf(
-				'<label style="margin-inline-end:12px;"><input type="checkbox" name="%s[]" value="%s" %s /> %s</label>',
-				esc_attr( $name ),
-				esc_attr( $choice ),
-				checked( in_array( (string) $choice, array_map( 'strval', $chosen ), true ), true, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-				esc_html( $label )
-			);
-		}
-		return;
-	}
-
-	// select and range both resolve to a list of discrete choices.
-	$choices = array();
-
-	if ( 'range' === $type ) {
-		$values = isset( $field['values'] ) ? array_values( $field['values'] ) : array();
-		$labels = isset( $s['labels'] ) ? array_values( $s['labels'] ) : array();
-		foreach ( $values as $i => $v ) {
-			$choices[ (string) $v ] = isset( $labels[ $i ] ) ? $labels[ $i ] : (string) $v;
-		}
-	} else {
-		foreach ( (array) $field['choices'] as $c ) {
-			$choices[ (string) $c ] = isset( $s['choices'][ $c ] ) ? $s['choices'][ $c ] : (string) $c;
-		}
-	}
-
-	printf( '<select name="%s"%s%s>', esc_attr( $name ), $aria, $lock ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() or fixed.
-
-	foreach ( $choices as $cval => $clabel ) {
-		printf(
-			'<option value="%s" %s>%s</option>',
-			esc_attr( $cval ),
-			selected( (string) $cval, (string) $value, false ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed literal.
-			esc_html( $clabel )
-		);
-	}
-
-	echo '</select>';
+	keel_defaults_render_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked, 'network' );
 }

@@ -22,27 +22,7 @@ function keel_install_assert( $condition, $message ) {
 	}
 }
 
-class WP_Error {
-	private $code;
-	private $messages;
-
-	public function __construct( $code = '', $message = '' ) {
-		$this->code     = $code;
-		$this->messages = '' === $message ? array() : array( $message );
-	}
-
-	public function get_error_code() {
-		return $this->code;
-	}
-
-	public function get_error_message() {
-		return isset( $this->messages[0] ) ? $this->messages[0] : '';
-	}
-
-	public function get_error_messages() {
-		return $this->messages;
-	}
-}
+require_once __DIR__ . '/stubs/wp-error.php';
 
 function is_wp_error( $value ) {
 	return $value instanceof WP_Error;

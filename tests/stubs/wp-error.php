@@ -71,6 +71,19 @@ if ( ! class_exists( 'WP_Error' ) ) {
 		}
 
 		/**
+		 * Messages supplied at construction or through add().
+		 *
+		 * @return string[]
+		 */
+		public function get_error_messages() {
+			$messages = array_values( $this->errors );
+			if ( '' !== $this->message && ! in_array( $this->message, $messages, true ) ) {
+				array_unshift( $messages, $this->message );
+			}
+			return $messages;
+		}
+
+		/**
 		 * Record an error, the way WordPress's own $errors object does.
 		 *
 		 * WordPress hands the validate_password_reset callback a WP_Error to add

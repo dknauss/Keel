@@ -338,34 +338,7 @@ function wp_create_nonce( $action ) {
 /**
  * Minimal error type used by install helpers loaded with this module.
  */
-class WP_Error {
-	/**
-	 * Error code.
-	 *
-	 * @var string
-	 */
-	private $code;
-
-	/**
-	 * Error messages.
-	 *
-	 * @var string[]
-	 */
-	private $messages;
-
-	public function __construct( $code = '', $message = '' ) {
-		$this->code     = $code;
-		$this->messages = '' === $message ? array() : array( $message );
-	}
-
-	public function get_error_code() {
-		return $this->code;
-	}
-
-	public function get_error_messages() {
-		return $this->messages;
-	}
-}
+require_once __DIR__ . '/stubs/wp-error.php';
 
 /** Stub: identify the local error double. */
 function is_wp_error( $value ) {
