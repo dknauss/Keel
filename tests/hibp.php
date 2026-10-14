@@ -180,10 +180,22 @@ unset( $GLOBALS['keel_filters']['keel_password_is_pwned'] );
 // --- Jetpack awareness: warn where it applies, nowhere else ---
 keel_assert( '' === keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ), 'With Jetpack absent, the endpoint block carries no warning.' );
 keel_assert( '' === keel_defaults_jetpack_warning( 'disable_rest' ), 'The warning belongs to one setting, not to every setting.' );
+keel_assert( '' === keel_defaults_jetpack_warning( 'disable_ai_connectors' ), 'With Jetpack absent, AI Connectors carries no warning.' );
 
 define( 'JETPACK__VERSION', '14.0' );
 keel_assert( '' !== keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ), 'With Jetpack active, the endpoint block warns.' );
 keel_assert( '' === keel_defaults_jetpack_warning( 'disable_rest' ), 'Even then the warning stays on its own setting.' );
+
+/*
+ * Jetpack reads the same core gate Keel closes. Compared on a live site with
+ * Keel loaded and with it skipped: with the gate closed, Jetpack reported every
+ * AI extension unavailable with the reason "ai_disabled", did not register its
+ * AI Assistant block, and dropped its jetpack-ai REST routes. The setting is
+ * named for core's connectors, so nothing told the owner it reached Jetpack.
+ */
+$ai_warning = keel_defaults_jetpack_warning( 'disable_ai_connectors' );
+keel_assert( false !== strpos( $ai_warning, 'Jetpack' ) && false !== strpos( $ai_warning, 'AI Assistant' ), 'With Jetpack active, AI Connectors says Jetpack\'s AI features follow it: ' . $ai_warning );
+keel_assert( keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ) !== $ai_warning, 'And it is its own warning, not the XML-RPC one.' );
 
 /*
  * --- what reaches the cache, and what must never ---

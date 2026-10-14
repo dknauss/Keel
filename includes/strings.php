@@ -90,7 +90,7 @@ function keel_defaults_strings() {
 		'disable_ai_connectors'           => array(
 			'label'     => __( 'AI Connectors', 'keel-defaults' ),
 			'statement' => __( 'Disable AI provider connectors', 'keel-defaults' ),
-			'help'      => __( 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.', 'keel-defaults' ),
+			'help'      => __( 'Turns off WordPress 7.0 AI provider connectors via the <code>wp_supports_ai</code> gate and closes the core Connectors screen. Other plugins that read the same gate, Jetpack among them, switch their own AI features off as well. Also fires <code>keel_disable_ai_connectors</code> for AI integrations core does not know about.', 'keel-defaults' ),
 		),
 		'core_update_policy'              => array(
 			'label'   => __( 'Core Auto-Updates', 'keel-defaults' ),
