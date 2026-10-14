@@ -214,6 +214,7 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 	);
 	$mine   = keel_defaults_registered_policy_hooks();
 	$hooks  = keel_defaults_policy_hooks();
+	$own    = keel_defaults_own_plugin_dir();
 
 	// A post-type-specific revision filter runs after the general filter and can
 	// override it. Discover every live one rather than naming only posts/pages.
@@ -270,7 +271,7 @@ function keel_defaults_policy_overlap_report( $refresh = false ) {
 				 * Matching on the directory holds regardless of how a callback
 				 * came to be registered, which the signature match cannot.
 				 */
-				if ( '' !== $plugin && keel_defaults_own_plugin_dir() === $plugin ) {
+				if ( '' !== $plugin && $own === $plugin ) {
 					continue;
 				}
 

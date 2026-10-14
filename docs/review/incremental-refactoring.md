@@ -97,6 +97,11 @@ Otherwise Keel's own passive observers can be reported as rival plugins. This
 changes diagnostics, not the filtered policy value; the other 35 bodies remain
 unchanged. A new regression test failed before this fix and passes afterward.
 
+The subsequent performance pass found repeated filesystem attribution in crowded
+reports. Own identity is now resolved once per report and active-plugin roots are
+memoized against the current site/network plugin lists. The [performance budget](performance-budget.md)
+records paired measurements, the fix and investigation thresholds.
+
 The facade-loading test verifies all 36 callbacks and unchanged identity markers
 without reads, writes or filter execution on inclusion. Screenshot review follows
 all diagnostic modules, with invalidation tests. Existing tests retain theme,

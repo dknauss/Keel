@@ -409,6 +409,10 @@ These are maintenance increments alongside feature work, not new release promise
       and HIBP transport/cache modules; entry points and privacy behavior preserved.
 - [x] **Split conflict diagnostics internally** — extracted 2026-10-14 into attribution,
       overlap, divergence and notice modules; fixed self-reporting under symlink aliases.
+- [x] **Establish performance baseline and budget** — 2026-10-14; paired real-WP
+      cache modes and crowded diagnostics; eliminate repeated root resolution. See
+      [performance record](docs/review/performance-budget.md).
+- [ ] **Port diagnostic root memoization to counterpart** — [#254](https://github.com/dknauss/Keel/issues/254), before release.
 - [ ] **Extract settings policy resolution** — configuration locks belong outside UI.
 - [ ] **Strengthen data contracts gradually** — array shapes, scoped PHPStan pilot,
       selective PHP 7.4-compatible types.

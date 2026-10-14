@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-14T22:30:11+00:00\n"
+"POT-Creation-Date: 2026-10-14T22:50:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -621,13 +621,13 @@ msgid "AI connectors are disabled on this site."
 msgstr ""
 
 #. translators: %s: theme name, such as Twenty Twenty-Five.
-#: includes/conflict-attribution.php:408
+#: includes/conflict-attribution.php:418
 #, php-format
 msgid "%s (theme)"
 msgstr ""
 
 #. translators: %s: file name of a must-use plugin, such as host-loader.php.
-#: includes/conflict-attribution.php:413
+#: includes/conflict-attribution.php:423
 #, php-format
 msgid "must-use plugin %s"
 msgstr ""

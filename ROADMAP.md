@@ -1244,6 +1244,8 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Separate backport responsibilities** — second increment, 2026-10-14.
 - [x] **Extract password and HIBP handling** — third increment, 2026-10-14.
 - [x] **Split conflict diagnostics internally** — fourth increment, 2026-10-14.
+- [x] **Establish a performance budget** — [paired baseline and diagnostic fix](docs/review/performance-budget.md), 2026-10-14.
+- [ ] **Port diagnostic root memoization to counterpart** — tracked in #254 before release.
 - [ ] **Extract settings policy resolution** — decouple enforcement from UI.
 - [ ] **Strengthen data contracts gradually** — scoped static analysis, no PHP-floor change.
 - [ ] **Improve verification at the boundaries** — expand real-WordPress checks and

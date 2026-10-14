@@ -375,8 +375,18 @@ function keel_defaults_active_plugin_roots() {
 		$plugins = array_merge( $plugins, array_keys( (array) get_site_option( 'active_sitewide_plugins', array() ) ) );
 	}
 
-	$roots = array();
-	foreach ( array_unique( array_map( 'strval', $plugins ) ) as $plugin ) {
+	// Read the current option values each time: activation, network policy and
+	// switch_to_blog() can change them within a request. Only filesystem
+	// resolution is memoized, and only for the most recently seen plugin list.
+	static $resolved_plugins = null;
+	static $roots            = array();
+	$plugins                 = array_values( array_unique( array_map( 'strval', $plugins ) ) );
+	if ( $plugins === $resolved_plugins ) {
+		return $roots;
+	}
+	$resolved_plugins = $plugins;
+	$roots            = array();
+	foreach ( $plugins as $plugin ) {
 		$absolute       = trailingslashit( WP_PLUGIN_DIR ) . ltrim( $plugin, '/' );
 		$slug           = false !== strpos( $plugin, '/' ) ? strtok( $plugin, '/' ) : $plugin;
 		$root           = false !== strpos( $plugin, '/' ) ? dirname( $absolute ) : $absolute;
