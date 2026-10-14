@@ -1247,7 +1247,17 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Establish a performance budget** — [paired baseline and diagnostic fix](docs/review/performance-budget.md), 2026-10-14.
 - [x] **Port diagnostic root memoization to counterpart** — AX commit `d62da33`, 2026-10-14 (#254).
 - [x] **Extract settings policy resolution** — fifth increment, 2026-10-14.
-- [ ] **Strengthen data contracts gradually** — scoped static analysis, no PHP-floor change.
+- [ ] **Research a PHP 8.x minimum** — separately evaluate supported-version lifetimes,
+      intended users and WordPress/hosting compatibility, paired runtime benchmarks,
+      removable compatibility code, useful native types/enums, CI/tooling savings,
+      and migration/release impact. Produce an evidence-based recommendation before
+      changing the floor; the current minimum remains PHP 7.4.
+- [x] **Start data-contract and PHPStan pilot** — 2026-10-14; shared array shapes,
+      level-6 backport/configuration-policy checks targeting PHP 7.4, and positive/
+      negative contract examples in CI. See [the pilot record](docs/review/data-contracts-phpstan.md).
+- [ ] **Expand data contracts and static analysis** — analyze installer/presentation
+      and diagnostic bodies next; narrow untrusted values only after validation,
+      then assess higher levels and selective PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
       introduce JS/CSS linting separately.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.

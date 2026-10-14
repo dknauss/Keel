@@ -11,19 +11,22 @@ run everything.
 composer install
 ```
 
-That is the whole setup. `vendor/` is untracked and only holds the linter.
+That is the whole setup. `vendor/` is untracked and holds development-only linters,
+PHPStan and WordPress declarations. None is loaded by the installed plugin.
 
 ## Quality gates
 
-Run all three before opening a pull request. CI runs the same three on every push.
+Run these before opening a pull request. CI runs them on every push and pull request.
 
 ```bash
 composer test
 composer lint
 composer lint:compat
+composer analyse
+composer test:types
 ```
 
-`composer test` runs every file in `tests/` — the glob is deliberate, because an
+`composer test` runs every top-level PHP file in `tests/` — the glob is deliberate, because an
 earlier hand-maintained list left one spec file that never ran from the day it
 merged. `composer lint:fix` fixes most style complaints automatically.
 
@@ -54,6 +57,15 @@ that `composer test` has not already; its job is in CI, where the same script
 runs once per version in the matrix and is the only thing standing between a
 parse error and the PHP the plugin claims to support. Run it locally if you want
 to check a file parses without running anything.
+
+`composer analyse` runs the scoped PHPStan pilot at level 6 against the PHP 7.4
+language target. It checks backport policy and configuration locks; other modules
+are scanned for declarations, not claimed as analyzed. `composer test:types`
+analyzes valid and intentionally invalid examples in `tests/phpstan/` without
+executing them. Those examples stay outside the dependency-free runtime suite.
+See [the contract pilot](docs/review/data-contracts-phpstan.md) for the shapes,
+version constraints, scope, limits and next increments. No baseline or ignored
+errors are used.
 
 There is also an integration script that exercises the teardown behaviour against
 a real site, which CI does not run because it needs one:
@@ -221,15 +233,12 @@ screens between capture and the day somebody looked.
 composer verify:screenshots
 ```
 
-That names every commit touching the admin screens since the screenshots were last
-*reviewed* — `.wordpress-org/.screenshots-reviewed` records that commit. Reviewed
-rather than changed, because a UI change does not always alter the picture: an
-ARIA-only fix, or a new screen these five do not show, leaves the images
-byte-identical, and comparing against the images' own commit made the check
-impossible to satisfy in exactly that case. If the pictures are unchanged,
-confirm you looked and record it with `git rev-parse HEAD > .wordpress-org/.screenshots-reviewed`. It is not part of `composer test` on purpose: it reads git history,
-and CI checks out at depth 1, where the range query would find nothing and pass
-vacuously. Run it before a release or after touching an admin screen.
+The check compares content fingerprints for the watched UI sources and screenshots
+against `.wordpress-org/.screenshots-reviewed`. It does not depend on commit SHAs
+or full Git history, so squash merges do not invalidate a review. After actually
+checking the images, record that review with `composer verify:screenshots -- --record`.
+It remains a manual major-release check, not a CI gate or a prerequisite for every
+admin change; say why a review is deferred when appropriate.
 
 To retake them, against a site running the current code:
 

@@ -51,3 +51,7 @@
 # readme; not something an installed copy needs.
 /changelog.txt
 /docs
+
+# Development-only static-analysis configuration.
+/phpstan.neon.dist
+/phpstan.neon

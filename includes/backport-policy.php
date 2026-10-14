@@ -48,8 +48,12 @@ defined( 'ABSPATH' ) || exit;
  * transient knows what that screen is showing right now.
  *
  * @param string $version Version to look for.
- * @return array{state: string, manual: string} State, and the version the
+ * @return array{state: string, manual: mixed} State, and the version the
  *               screen is offering ('' when it is offering none).
+ * @phpstan-return KeelUpdateScreenOffer
+ *
+ * Core normally supplies a version string; this reader checks only presence,
+ * so the manual value is not guaranteed to be a string in a malformed cache.
  */
 function keel_defaults_updates_screen_offer( $version ) {
 	$update_file = ABSPATH . 'wp-admin/includes/update.php';
@@ -174,7 +178,8 @@ function keel_defaults_offer_for_version( $version ) {
  * copy must not claim otherwise. See Core_Upgrader::should_update_to_version()
  * and WP_Automatic_Updater::should_update().
  *
- * @return array{policy:bool,owner:string,operable:bool,blockers:array<int,array{code:string,text:string}>}
+ * @return array{policy:bool,owner:string,operable:bool,blockers:list<array{code:string,text:string}>}
+ * @phpstan-return KeelMinorUpdateState
  */
 function keel_defaults_minor_update_state() {
 	$blockers = array();
@@ -320,7 +325,7 @@ function keel_defaults_minor_update_state() {
  * prevents callers from reaching into the structure differently, while also
  * making it impossible to recover control flow by matching translated text.
  *
- * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * @param array<array-key,array{code:string,text:string}> $blockers Structured blockers.
  * The descriptions may name a constant or file in <code>, so print them through
  * wp_kses() allowing code. esc_html() turns that markup into visible tags.
  *
@@ -333,7 +338,7 @@ function keel_defaults_blocker_texts( array $blockers ) {
 /**
  * Extract stable blocker codes for control flow.
  *
- * @param array<int,array{code:string,text:string}> $blockers Structured blockers.
+ * @param array<array-key,array{code:string,text:string}> $blockers Structured blockers.
  * @return string[] Stable blocker codes.
  */
 function keel_defaults_blocker_codes( array $blockers ) {
@@ -375,7 +380,8 @@ function keel_defaults_minor_updates_enabled() {
  *
  * @param array        $state    Result of keel_defaults_minor_update_state().
  * @param string|false $selected Result of keel_defaults_ladder_selection().
- * @return string One of blocked, unknown, none, scheduled.
+ * @return 'blocked'|'unknown'|'none'|'scheduled' Selection outcome.
+ * @phpstan-param KeelMinorUpdateState $state
  */
 function keel_defaults_selection_state( array $state, $selected ) {
 	$blocked = empty( $state['operable'] );
@@ -430,6 +436,7 @@ function keel_defaults_selection_state( array $state, $selected ) {
  * @param string|false $selected     Result of keel_defaults_ladder_selection().
  * @param bool         $offer_cached Whether the raw offer for $tip is cached.
  * @return string Escaped sentence.
+ * @phpstan-param KeelMinorUpdateState $state
  */
 function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cached ) {
 	$code = '<code>' . esc_html( $tip ) . '</code>';
@@ -529,7 +536,8 @@ function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cac
  * The delta flag means a partial package is offered, not that core will use
  * it — core falls back to the full package when the partial does not apply.
  *
- * @return array<int,array{version:string,same_line:bool,delta:bool}> Ascending.
+ * @return list<array{version:string,same_line:bool,delta:bool}> Ascending.
+ * @phpstan-return list<KeelLadderRung>
  */
 function keel_defaults_update_ladder() {
 	$updates = get_site_transient( 'update_core' );

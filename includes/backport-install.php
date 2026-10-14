@@ -256,7 +256,8 @@ function keel_defaults_check_install_compatibility( $offer ) {
  * Validate a requested target and assemble the exact upgrader inputs.
  *
  * @param string $version Posted target version.
- * @return array{offer:object,args:array<string,bool>}|WP_Error
+ * @return array{offer:object,args:array{allow_relaxed_file_ownership:bool,attempt_rollback:true}}|WP_Error
+ * @phpstan-return KeelInstallPlan|WP_Error
  */
 function keel_defaults_prepare_backport_install( $version ) {
 	$tip = keel_defaults_branch_tip();
@@ -303,7 +304,8 @@ function keel_defaults_prepare_backport_install( $version ) {
 /**
  * Invoke core's upgrader with a no-output skin.
  *
- * @param array{offer:object,args:array<string,bool>} $plan Validated plan.
+ * @param array{offer:object,args:array{allow_relaxed_file_ownership:bool,attempt_rollback:true}} $plan Validated plan.
+ * @phpstan-param KeelInstallPlan $plan
  * @return string|false|WP_Error
  */
 function keel_defaults_run_backport_install( array $plan ) {
@@ -440,6 +442,7 @@ function keel_defaults_backport_return_url( $token ) {
  * @param string $from    Screen this is rendered on, as a return map key, so the
  *                        result lands where the button was pressed.
  * @return string
+ * @phpstan-param KeelMinorUpdateState $state
  */
 function keel_defaults_backport_install_button( $version, $screen, array $state, $from = 'site-health' ) {
 	if ( 'visible' === $screen || ! keel_defaults_can_install_backport() ) {

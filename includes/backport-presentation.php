@@ -78,6 +78,7 @@ function keel_defaults_backport_test() {
  * @param string|false $selected Result of keel_defaults_ladder_selection().
  * @param string       $tip      The same-line patch.
  * @return string Escaped sentence.
+ * @phpstan-param KeelMinorUpdateState $state
  */
 function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
 	if ( ! $state['policy'] || ! $state['operable'] ) {
@@ -117,6 +118,7 @@ function keel_defaults_schedule_statement( array $state, $selected, $tip ) {
  * @param string|false $selected  Result of keel_defaults_ladder_selection().
  * @param array        $state     Result of keel_defaults_minor_update_state().
  * @return string Escaped sentence.
+ * @phpstan-param KeelMinorUpdateState $state
  */
 function keel_defaults_ladder_note( $selection, $selected, array $state ) {
 	if ( 'blocked' === $selection ) {

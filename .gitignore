@@ -85,3 +85,6 @@ wp-config.php
 # too, so a local copy never lands in the zip. The current mark is in
 # .wordpress-org/brand/.
 /branding/
+
+# Optional local static-analysis overrides. Shared config is phpstan.neon.dist.
+/phpstan.neon
