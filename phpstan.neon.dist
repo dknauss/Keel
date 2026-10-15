@@ -13,6 +13,7 @@ parameters:
         - includes/lifecycle.php
         - includes/email.php
         - includes/assets.php
+        - includes/network.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php

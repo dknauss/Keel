@@ -294,3 +294,18 @@ function keel_contract_reject_style_arguments(): void {
 function keel_contract_reject_style_registry(): string {
 	return keel_defaults_style_providers( 'admin' );
 }
+
+/** Stored network policy is a map, not display text. */
+function keel_contract_reject_network_store(): string {
+	return keel_defaults_network_settings();
+}
+
+/** Sanitized network policy is a map, not a boolean verdict. */
+function keel_contract_reject_network_sanitized(): bool {
+	return keel_defaults_sanitize_network( array(), array() );
+}
+
+/** The network control wrapper retains the shared label-collection contract. */
+function keel_contract_reject_network_labels(): void {
+	keel_defaults_render_network_control( 'sample', 'sample', 'yes', array(), array( 'labels' => 'Yes' ), 'Sample', '' );
+}
