@@ -483,3 +483,37 @@ function keel_contract_style_providers( callable $provider, $raw ): void {
  * @param array<array-key,mixed> $providers Registry entries.
  */
 function keel_contract_accept_style_registry( array $providers ): void {}
+
+/**
+ * Network policy validates raw form boundaries and preserves untyped stored values.
+ *
+ * @param mixed $raw Raw submitted values.
+ * @param mixed $manage Raw managed-key submission.
+ */
+function keel_contract_network_policy( $raw, $manage ): void {
+	keel_contract_accept_network_store( keel_defaults_network_settings() );
+	keel_contract_accept_seed_values( keel_defaults_sanitize_network( $raw, $manage ) );
+	keel_contract_accept_update_decision( keel_defaults_network_manages( 'strong_passwords' ) );
+	keel_contract_accept_update_decision( keel_defaults_can_manage_network() );
+	keel_defaults_render_network_control( 'sample', 'sample', new stdClass(), array(), array(), 'Sample', '' );
+	keel_defaults_render_network_control(
+		'sample',
+		'sample',
+		false,
+		array(
+			'type'    => 'custom-select',
+			'choices' => array( 'x' => 'yes' ),
+		),
+		array( 'choices' => array( 'yes' => 'Yes' ) ),
+		'Sample',
+		'',
+		true
+	);
+}
+
+/**
+ * Cached network policy may contain arbitrary keys and values.
+ *
+ * @param array<array-key,mixed> $settings Raw stored map.
+ */
+function keel_contract_accept_network_store( array $settings ): void {}

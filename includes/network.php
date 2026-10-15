@@ -39,7 +39,7 @@ defined( 'ABSPATH' ) || exit;
  * which is the state every existing install upgrades into, so this feature
  * changes nothing until somebody uses it.
  *
- * @return array
+ * @return array<array-key,mixed> Raw stored values, guarded before use.
  */
 function keel_defaults_network_settings() {
 	if ( ! is_multisite() ) {
@@ -120,9 +120,9 @@ function keel_defaults_can_manage_network() {
  * so a value that would be rejected on a site screen cannot arrive through the
  * network screen instead.
  *
- * @param array $raw   Raw $_POST payload for the network form.
- * @param array $manage Keys the super admin ticked.
- * @return array
+ * @param mixed $raw    Raw $_POST payload, normalized to an array before sanitizing.
+ * @param mixed $manage Raw managed-key payload, normalized to an array before use.
+ * @return array<string,mixed> Managed schema keys and sanitized or preserved values.
  */
 function keel_defaults_sanitize_network( $raw, $manage ) {
 	$schema = keel_defaults_schema();
@@ -179,6 +179,8 @@ function keel_defaults_sanitize_network( $raw, $manage ) {
  * Registered under Network Admin → Settings, and only there. A site
  * administrator never sees it — `manage_network_options` is the capability, and
  * on a network only Super Admins hold it.
+ *
+ * @return void
  */
 function keel_defaults_network_menu() {
 	$hook = add_submenu_page(
@@ -199,6 +201,8 @@ function keel_defaults_network_menu() {
  * Network Admin has no options.php equivalent — `settings.php` does not save for
  * you — so the POST is handled here, nonce and capability checked by hand, and
  * the redirect carries the result rather than leaving the browser on a POST.
+ *
+ * @return void
  */
 function keel_defaults_handle_network_save() {
 	if ( ! isset( $_POST['keel_network_nonce'] ) ) {
@@ -224,6 +228,8 @@ function keel_defaults_handle_network_save() {
 
 /**
  * Render the network policy screen.
+ *
+ * @return void
  */
 function keel_defaults_render_network_page() {
 	if ( ! keel_defaults_can_manage_network() ) {
@@ -331,14 +337,15 @@ function keel_defaults_render_network_page() {
  * is not previewing their own admin menu width. The shared renderer keeps
  * these presentation differences explicit without duplicating input logic.
  *
- * @param string $key       Schema key.
- * @param string $name      Form field name.
- * @param mixed  $value     Current value.
- * @param array  $field     Schema entry.
- * @param array  $s         Display strings.
- * @param string $statement Checkbox statement.
- * @param string $describedby Description ids for aria-describedby.
- * @param bool   $locked      Whether wp-config.php supersedes this control.
+ * @param string           $key       Schema key.
+ * @param string           $name      Form field name.
+ * @param mixed            $value     Current value.
+ * @param KeelControlField $field Schema entry projection.
+ * @param KeelControlCopy  $s Display-copy projection.
+ * @param string           $statement Checkbox statement.
+ * @param string           $describedby Description ids for aria-describedby.
+ * @param bool             $locked      Whether wp-config.php supersedes this control.
+ * @return void
  */
 function keel_defaults_render_network_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked = false ) {
 	keel_defaults_render_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked, 'network' );

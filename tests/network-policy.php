@@ -369,6 +369,26 @@ $GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ] = array( 'post_rev
 $locked_existing = keel_defaults_sanitize_network( array(), array() );
 keel_assert( 30 === $locked_existing['post_revisions_limit'], 'A pre-existing network preference survives beneath the constant lock.' );
 
+// Raw payload guards retain the same result as an empty normalized submission.
+$empty_policy = keel_defaults_sanitize_network( array(), array() );
+foreach ( array( null, false, 7, 'malformed', new stdClass() ) as $invalid ) {
+	keel_assert( keel_defaults_sanitize_network( $invalid, array() ) === $empty_policy, 'Malformed values normalize before sanitizing.' );
+	keel_assert( keel_defaults_sanitize_network( array(), $invalid ) === $empty_policy, 'Malformed management payloads normalize before key checks.' );
+}
+$saved_network = $GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ];
+foreach ( array( null, false, 'malformed', new stdClass() ) as $invalid_store ) {
+	$GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ] = $invalid_store;
+	keel_assert( array() === keel_defaults_network_settings(), 'Malformed stored policy is exposed as an empty map.' );
+}
+$extension = new stdClass();
+$raw_store = array(
+	'extension' => $extension,
+	7           => null,
+);
+$GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ] = $raw_store;
+keel_assert( keel_defaults_network_settings() === $raw_store, 'Raw stored arrays retain extension keys and object identity.' );
+$GLOBALS['keel_site_options'][ KEEL_DEFAULTS_NETWORK_OPTION ] = $saved_network;
+
 /*
  * --- uninstall removes the network option ---
  *

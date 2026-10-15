@@ -460,10 +460,13 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Analyze asset providers** — 2026-10-15; eighteen modules pass level 6;
       zero-argument callable contracts and guarded raw registry; 40 rejection cases /
       43 diagnostics; registration order, deduplication, CSS and PHP 7.4 preserved.
-- [ ] **Plan the next static-analysis scope and level** — select remaining module
-      boundaries explicitly, narrow untrusted values only after validation, then
-      assess higher levels (including partial unions/nullability) and selective
-      PHP 7.4-compatible native types.
+- [x] **Analyze network policy** — 2026-10-15; nineteen modules pass level 6;
+      raw form/store boundaries and shared control projections; 43 rejection cases /
+      46 diagnostics; guards, policy behavior, markup and PHP 7.4 preserved.
+- [ ] **Reassess static analysis by risk, not file count** — pause routine expansion
+      after the network increment. Prioritize release/boundary verification; expand
+      remaining modules or levels only for a concrete defect risk or planned change.
+      Keep PHP 7.4 and validate raw inputs before narrowing.
 - [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
       faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives

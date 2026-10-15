@@ -350,3 +350,20 @@ The new standalone harness verifies registration order, named deduplication,
 repeated closures, invalid entries, context isolation and exact CSS output against
 original and updated source. Executable tokens, PHP 7.4 and memory limits remain
 unchanged. See [data contracts](data-contracts-phpstan.md) for scope and limits.
+
+## Network-policy analysis and priority checkpoint — 2026-10-15
+
+The level-6 pilot now includes `network.php` (nineteen modules). Raw form/store
+contracts, void callbacks and shared control projections resolve twelve diagnostics.
+Contract fixtures reject 43 cases / 46 diagnostics; policy and differential-render
+checks preserve guards, precedence, dormant preferences, markup and executable
+code. PHP 7.4 and existing limits remain unchanged.
+
+The main structural splits and initial targeted contract boundaries are now covered.
+Pause routine file-by-file expansion: recent increments mostly improve annotations
+and regression coverage, not runtime performance. Remaining higher-value work is
+risk-based real-WordPress/multisite/browser verification, separate JS/CSS linting,
+and targeted comment/tooling cleanup. Higher PHPStan levels and remaining modules
+are conditional follow-ups, not a release-completeness target. PHP 8.x-floor
+research remains separate. The performance budget's excluded workloads are stated
+measurement limits, not evidence of regressions or a mandatory benchmark backlog.

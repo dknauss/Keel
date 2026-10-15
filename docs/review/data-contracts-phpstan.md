@@ -17,11 +17,11 @@ annotations and development tooling only.
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
 `password-hibp.php`, `password-policy.php`, `settings-controls.php`,
-`updates-screen.php`, `updates.php`, `lifecycle.php`, `email.php` and `assets.php` at PHPStan level 6,
+`updates-screen.php`, `updates.php`, `lifecycle.php`, `email.php`, `assets.php` and `network.php` at PHPStan level 6,
 with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these eighteen files are not yet claimed clean. WordPress stubs provide
+bodies outside these nineteen files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -78,8 +78,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all eighteen pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; forty
+- `composer analyse`: all nineteen pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; forty-three
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
@@ -92,7 +92,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
   for each of the four update-policy callbacks, an invalid activation flag, a seed
   map consumed as text, three lifecycle booleans consumed as strings, a non-array
   mail payload, incorrect mail result/From/policy consumers, non-callable public
-  style providers, mandatory provider arguments and a registry consumed as CSS. The checker compares exact
+  style providers, mandatory provider arguments, a registry consumed as CSS,
+  incorrect network-map consumers and invalid network control labels. The checker compares exact
   per-case diagnostic multisets, including multiple errors from generic contracts.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
@@ -457,9 +458,32 @@ These are local stub checks, not browser or real-WordPress verification. Existin
 integration assertions remain available separately. PHP 7.4, dependencies,
 baselines, suppressions and 768M/512M caps remain unchanged.
 
+## Network-policy increment — 2026-10-15
+
+Add only `network.php` at level 6 (nineteen modules). Twelve initial diagnostics
+are resolved through PHPDocs: raw form/management inputs remain mixed until the
+existing is_array guards; stored policy is array<array-key,mixed>; sanitized
+policy is array<string,mixed>. Rendering/menu/save callbacks return void. The
+network control wrapper reuses KeelControlField and KeelControlCopy projections.
+No executable tokens, guards, native signatures, capabilities, nonce handling,
+option writes, redirects, dependencies, suppressions or baselines change.
+PHP 7.4 and the 768M/512M caps remain unchanged.
+
+Positive fixtures cover raw submissions/stores, default and custom controls and
+minimal copy. Three negative cases reject map/text/boolean confusion and invalid
+label collections. The runner checks 43 cases / 46 exact diagnostics. Runtime
+checks extend existing network-policy tests with malformed form/store inputs and
+raw stored extension identity. Existing precedence, lock preservation, sanitization
+and unsupported-field tests remain. Before/after rendering compares full site and
+network pages and controls (103 captures, including twelve network-page scenarios);
+executable-token comparison confirms no runtime change.
+These are local stub checks, not new real-WordPress or browser verification.
+
 ## Remaining work
 
-Choose the next remaining module boundary explicitly before expanding analysis. Model actual validation
+Pause routine module-by-module expansion after network policy: the main structural
+and initial targeted contract work is complete. Prioritize boundary/release verification,
+then choose further scope only for a concrete defect risk or planned code change. Model actual validation
 before tightening raw offer/transient fields; keep unknown blocker codes possible
 at general boundaries. Explore higher levels with explicit findings rather than
 broad exclusions. Add native types only after reviewing WordPress hook input

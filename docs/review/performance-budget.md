@@ -113,3 +113,17 @@ identical results, zero report queries/foreign callback execution and unchanged
 allocated peak memory. A real two-site multisite verified activation/deactivation
 and site switching. These are separate counterpart measurements, not a revision
 of the Keel baseline above.
+
+## Refactor checkpoint — 2026-10-15
+
+The planned structural splits, measured attribution fix and counterpart port are
+complete. The PHPStan pilot now covers nineteen modules through network policy.
+Recent annotation increments preserve executable tokens and do not provide new
+runtime speed measurements; this checkpoint does not replace the baseline above.
+Do not infer full performance coverage from static-analysis coverage.
+
+Pause routine static-analysis expansion in favor of release/boundary verification.
+Re-run paired budgets when their triggers apply. Broader real-WP/multisite/browser
+checks, separate JS/CSS linting and targeted tooling/comment cleanup remain open.
+Cold external traffic, production MySQL/Redis, OPcache, browser paint and throughput
+remain unmeasured here; prioritize them only when a release/change needs that evidence.
