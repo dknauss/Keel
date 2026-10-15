@@ -107,3 +107,12 @@ function keel_contract_reject_registration_key() {
 function keel_contract_reject_divergence_marker() {
 	return array( 'comments_open' => false );
 }
+
+/**
+ * Confuse dismissal flags with display strings.
+ *
+ * @return array<string,string> Deliberately incorrect screen contract.
+ */
+function keel_contract_reject_notice_screens() {
+	return keel_defaults_conflict_notice_screens();
+}

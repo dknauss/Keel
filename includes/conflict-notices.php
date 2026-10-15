@@ -55,6 +55,11 @@ function keel_defaults_notice_fingerprint() {
  * @return array<string, bool> Screen id => whether dismissal is offered.
  */
 function keel_defaults_conflict_notice_screens() {
+	/**
+	 * Filters notice placement and dismissal availability.
+	 *
+	 * @param array<string,bool> $screens Screen ID => whether dismissal is offered.
+	 */
 	return apply_filters(
 		'keel_conflict_notice_screens',
 		array(
@@ -66,7 +71,7 @@ function keel_defaults_conflict_notice_screens() {
 }
 
 /**
- * Print the notice, if this screen is one of the three and there is a conflict.
+ * Print the notice when enabled for this screen and a conflict is present.
  *
  * @return void
  */
@@ -77,7 +82,7 @@ function keel_defaults_render_conflicts_notice() {
 
 	$screen  = get_current_screen();
 	$screens = keel_defaults_conflict_notice_screens();
-	$id      = is_object( $screen ) && isset( $screen->id ) ? $screen->id : '';
+	$id      = isset( $screen->id ) ? $screen->id : '';
 
 	if ( ! isset( $screens[ $id ] ) ) {
 		return;

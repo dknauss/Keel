@@ -96,6 +96,9 @@ function wp_json_encode( $v, $f = 0 ) {
 
 /** Stand-in for get_current_screen(), which decides which placement is in play. */
 function get_current_screen() {
+	if ( array_key_exists( 'keel_screen_override', $GLOBALS ) ) {
+		return $GLOBALS['keel_screen_override'];
+	}
 	return (object) array( 'id' => $GLOBALS['keel_screen'] );
 }
 
@@ -257,6 +260,24 @@ foreach ( $screens as $screen => $label ) {
 	);
 	keel_assert( false !== strpos( $html, 'site-health' ), "The notice on {$label} links to Site Health for the detail." );
 }
+
+// Missing or unusable screen IDs stay silent even when a real overlap exists.
+foreach ( array( null, new stdClass(), (object) array( 'id' => null ), false, 42, 'dashboard', array( 'id' => 'dashboard' ) ) as $screen_value ) {
+	$GLOBALS['keel_screen_override'] = $screen_value;
+	keel_assert( '' === trim( keel_notice_on( 'dashboard' ) ), 'An unavailable screen ID must not render a notice.' );
+}
+$GLOBALS['keel_screen_override'] = (object) array( 'id' => 'dashboard' );
+$screen_html                     = keel_notice_on( 'dashboard' );
+unset( $GLOBALS['keel_screen_override'] );
+keel_assert( keel_notice_on( 'dashboard' ) === $screen_html, 'A screen with an ID retains the same rendered notice.' );
+
+// Extension screens retain both dismissible and persistent placement.
+$GLOBALS['keel_filters']['keel_conflict_notice_screens'] = array( 'custom_screen' => true );
+keel_assert( false !== strpos( keel_notice_on( 'custom_screen' ), 'keel-dismiss-conflicts' ), 'A custom screen can offer dismissal.' );
+$GLOBALS['keel_filters']['keel_conflict_notice_screens']['custom_screen'] = false;
+keel_assert( '' !== trim( keel_notice_on( 'custom_screen' ) ), 'False keeps a custom screen visible.' );
+keel_assert( false === strpos( keel_notice_on( 'custom_screen' ), 'keel-dismiss-conflicts' ), 'False disables only dismissal.' );
+unset( $GLOBALS['keel_filters']['keel_conflict_notice_screens'] );
 
 // --- dismissal is a dashboard affordance only -----------------------------
 

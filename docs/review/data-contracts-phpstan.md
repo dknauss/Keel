@@ -4,18 +4,20 @@ Implemented 2026-10-14, preserving the PHP 7.4 floor. The initial pilot changes
 annotations and development tooling only. Its installer/presentation extension
 simplifies one equivalent boolean condition; function signatures, hook registration,
 storage, filtering and configuration precedence remain unchanged. The subsequent
-conflict-diagnostics extension removes one always-true offset check.
+conflict-diagnostics extension removes one always-true offset check. The notices
+extension removes a redundant object check while retaining the screen-ID guard.
 
 ## Checked scope
 
 `composer analyse` analyzes `includes/backport-policy.php` and
 `includes/settings-policy.php`, plus `includes/backport-install.php` and
-`includes/backport-presentation.php`, and the three conflict modules
-`conflict-attribution.php`, `conflict-overlap.php` and `conflict-divergence.php`
+`includes/backport-presentation.php`, and the four conflict modules
+`conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
+`conflict-notices.php`
 at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
-executing them. Scanning is not analysis: conflict notices, status and action-handler
-bodies outside these seven files are not yet claimed clean. WordPress stubs provide
+executing them. Scanning is not analysis: status and action-handler
+bodies outside these eight files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -68,12 +70,13 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all seven pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; ten
+- `composer analyse`: all eight pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; eleven
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
-  non-string attribution paths, missing registration field and false divergence marker.
+  non-string attribution paths, missing registration field, false divergence marker
+  and a notice-screen map incorrectly treated as string values.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
   the new annotations were restored, proving the added constraints were exercised.
@@ -81,7 +84,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 - The package test builds the actual zip and verifies that only runtime files ship.
 - The initial pilot preserved all executable tokens. The extension changes only
   one equivalent boolean condition in the verdict renderer. The diagnostic
-  extension removes one always-true offset check; see both extension records below.
+  extension removes one always-true offset check. The notice extension removes a
+  redundant object check while preserving isset on the screen ID; see the records below.
 - CI runs analysis and contract checks once in the existing lint/unit job, not in
   each dependency-free PHP compatibility job. The release workflow mirrors these
   gates; the existing release-workflow regression test enforces that parity.
@@ -162,9 +166,36 @@ and after the offset simplification; all other runtime executable tokens match.
 Full standalone/packaging, coding standards, PHP compatibility and syntax checks
 remain required. No new real-site, browser or timing claim is made.
 
+## Conflict-notices extension — October 14, 2026
+
+Add conflict-notices.php at level 6 with the same PHP 7.4 target, dependencies
+and no suppressions or baseline. The notice fingerprint, renderer, screen map
+and dismissal handler are now analyzed, bringing the scoped total to eight files.
+
+The existing screen-map contract is array<string,bool>: callers may extend its
+screen IDs; true offers dismissal and false keeps a persistent notice. Document
+the extension hook and replace the stale renderer comment naming exactly three
+screens. No fixed-key shape or new wrapper is needed. Valid fixtures accept
+custom screens and the opaque fingerprint; the eleventh negative fixture rejects
+treating dismissal flags as display strings.
+
+The only initial finding was isset.property after an is_object check narrowed
+core's nullable screen to WP_Screen, whose ID is declared non-null. Remove the
+redundant is_object conjunct, retaining isset on the ID and the empty-string
+fallback. This also preserves behavior for null, missing/null IDs and unusable
+non-object inputs. No native signature, capabilities, nonce verification, user
+metadata, redirects, fingerprints, notice text or dismissibility rules change.
+
+The notice regression harness covers seven unavailable-screen cases, a valid
+screen's identical output and custom dismissible/persistent placement. It passes
+against disposable copies of both the original and updated renderer; all other
+runtime executable tokens match. Full standalone/packaging, static contracts,
+coding standards, compatibility and syntax checks remain required. No new real-site,
+browser or performance claim is made.
+
 ## Remaining work
 
-Analyze conflict notices, status/transport and the separate backport action handlers. Model actual validation
+Analyze status/transport and the separate backport action handlers. Model actual validation
 before tightening raw offer/transient fields; keep unknown blocker codes possible
 at general boundaries. Explore higher levels with explicit findings rather than
 broad exclusions. Add native types only after reviewing WordPress hook input

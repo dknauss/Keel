@@ -10,6 +10,7 @@ parameters:
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php
+        - includes/conflict-notices.php
     scanDirectories:
         - includes
     scanFiles:

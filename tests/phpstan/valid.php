@@ -152,3 +152,27 @@ function keel_contract_accept_observed( array $value ): void {}
  * @phpstan-param KeelPolicyRegistration $record Registered callback metadata.
  */
 function keel_contract_accept_registration( array $record ): void {}
+
+/** Exercise the notice screen contract without fixing its extensible keys. */
+function keel_contract_notice_screens(): void {
+	keel_contract_accept_notice_screens( keel_defaults_conflict_notice_screens() );
+	keel_contract_accept_notice_screens(
+		array(
+			'custom_screen'     => true,
+			'persistent_screen' => false,
+		)
+	);
+	keel_contract_accept_fingerprint( keel_defaults_notice_fingerprint() );
+}
+/**
+ * Accept extensible screen IDs with boolean dismissal flags.
+ *
+ * @param array<string,bool> $screens Screen => dismissal availability.
+ */
+function keel_contract_accept_notice_screens( array $screens ): void {}
+/**
+ * Accept the notice's opaque dismissal identity, including the empty state.
+ *
+ * @param string $fingerprint Notice identity.
+ */
+function keel_contract_accept_fingerprint( $fingerprint ): void {}
