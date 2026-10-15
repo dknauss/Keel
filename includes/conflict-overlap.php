@@ -182,6 +182,7 @@ function keel_defaults_hook_setting_names( array $hooks ) {
  *
  * @param bool $refresh Rebuild the request-local report cache.
  * @return array<string, string[]> Hook => plugin directory names.
+ * @phpstan-return array<string, list<string>>
  */
 function keel_defaults_competing_plugins( $refresh = false ) {
 	$report = keel_defaults_policy_overlap_report( $refresh );
@@ -431,6 +432,7 @@ function keel_defaults_login_header_url() {
  * @param int             $priority      Priority.
  * @param int             $accepted_args Number of arguments.
  * @param string|string[] $setting Schema key(s) whose outcome this callback governs.
+ * @phpstan-param string|array<array-key, string> $setting
  * @return void
  */
 function keel_defaults_add_policy_filter( $hook, $callback, $priority = 10, $accepted_args = 1, $setting = '' ) {
@@ -485,6 +487,7 @@ function keel_defaults_policy_setting_for_hook( $hook ) {
  * @param int             $priority      Registration priority.
  * @param int             $accepted_args Accepted argument count.
  * @param string|string[] $setting Governing schema key(s).
+ * @phpstan-param string|array<array-key, string> $setting
  * @return array<string,list<array{callback:callable|null,priority:int,accepted_args:int,setting:string|array<array-key,string>}>>
  * @phpstan-return array<string, list<KeelPolicyRegistration>> Hook registration records.
  */

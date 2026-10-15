@@ -1258,9 +1258,13 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Analyze installer and presentation bodies** — 2026-10-14; level-6 checks,
       precise Site Health/result/return-map contracts, minimal consumer inputs,
       and seven static rejection cases; PHP 7.4 floor and behavior preserved.
-- [ ] **Expand static analysis to diagnostics** — attribution, overlap and divergence
-      as separate scopes; narrow untrusted values only after validation, then assess
-      higher levels and selective PHP 7.4-compatible native types.
+- [x] **Analyze conflict diagnostics** — 2026-10-14; attribution, overlap and
+      divergence pass level 6; precise public markers, tracked registration inputs
+      and passive observer identity; ten static rejection cases; PHP 7.4 preserved.
+- [ ] **Expand static analysis to remaining boundaries** — conflict notices,
+      status/transport and separate backport action handlers; narrow untrusted
+      values only after validation, then assess higher levels and selective
+      PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
       introduce JS/CSS linting separately.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.

@@ -1,4 +1,4 @@
-# Pilot: analyze policy construction and its consumers, not the whole plugin.
+# Pilot: analyze policy, backports and conflict diagnostics, not the whole plugin.
 parameters:
     level: 6
     phpVersion: 70400
@@ -7,11 +7,17 @@ parameters:
         - includes/backport-install.php
         - includes/backport-presentation.php
         - includes/settings-policy.php
+        - includes/conflict-attribution.php
+        - includes/conflict-overlap.php
+        - includes/conflict-divergence.php
     scanDirectories:
         - includes
     scanFiles:
         - keel.php
         - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+        - tests/phpstan/wordpress-constants.php
+    dynamicConstantNames:
+        - WP_PLUGIN_DIR
     tmpDir: build/phpstan
     reportUnmatchedIgnoredErrors: true
     typeAliases:
@@ -30,3 +36,4 @@ parameters:
         KeelBackportResult: 'array{code: string, messages: array<array-key, string>, type: "success"|"error"}'
         KeelBackportHealthResult: 'array{label: string, status: "good"|"recommended"|"critical", badge: array{label: string, color: "blue"}, description: string, actions: string, test: "keel_backport"}'
         KeelBackportTestRegistration: 'array{label: string, test: "keel_backport", async_direct_test: "keel_defaults_backport_test"}'
+        KeelDivergenceMap: 'array<array-key, true>'

@@ -3,17 +3,20 @@
 Implemented 2026-10-14, preserving the PHP 7.4 floor. The initial pilot changes
 annotations and development tooling only. Its installer/presentation extension
 simplifies one equivalent boolean condition; function signatures, hook registration,
-storage, filtering and configuration precedence remain unchanged.
+storage, filtering and configuration precedence remain unchanged. The subsequent
+conflict-diagnostics extension removes one always-true offset check.
 
 ## Checked scope
 
 `composer analyse` analyzes `includes/backport-policy.php` and
 `includes/settings-policy.php`, plus `includes/backport-install.php` and
-`includes/backport-presentation.php`, at PHPStan level 6, with `phpVersion: 70400`.
+`includes/backport-presentation.php`, and the three conflict modules
+`conflict-attribution.php`, `conflict-overlap.php` and `conflict-divergence.php`
+at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
-executing them. Scanning is not analysis: diagnostic, status and action-handler
-bodies outside these four files are not yet claimed clean. WordPress stubs provide core declarations;
-standalone runtime-test doubles are not used as analyzer stubs.
+executing them. Scanning is not analysis: conflict notices, status and action-handler
+bodies outside these seven files are not yet claimed clean. WordPress stubs provide
+core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
 validation, or inline @var assertion to make analysis green. Level 6 catches
@@ -65,19 +68,20 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all four pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; seven
+- `composer analyse`: all seven pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; ten
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
-  plan, invalid stored-result key, unknown return target and invalid health status.
+  plan, invalid stored-result key, unknown return target, invalid health status,
+  non-string attribution paths, missing registration field and false divergence marker.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
   the new annotations were restored, proving the added constraints were exercised.
 - Existing coding standards, compatibility scan and standalone behavior suite.
 - The package test builds the actual zip and verifies that only runtime files ship.
 - The initial pilot preserved all executable tokens. The extension changes only
-  one equivalent boolean condition in the verdict renderer; all other runtime
-  tokens remain unchanged. See the extension verification below.
+  one equivalent boolean condition in the verdict renderer. The diagnostic
+  extension removes one always-true offset check; see both extension records below.
 - CI runs analysis and contract checks once in the existing lint/unit job, not in
   each dependency-free PHP compatibility job. The release workflow mirrors these
   gates; the existing release-workflow regression test enforces that parity.
@@ -128,10 +132,39 @@ consumer states. Full unit/packaging, coding-standard, compatibility and syntax
 checks remain applicable. This is local/static verification, not a new real-core
 installer run or browser/performance claim.
 
+## Conflict-diagnostics extension — October 14, 2026
+
+Analyze attribution, overlap and divergence bodies separately at the same level
+and PHP target. No new dependencies, baseline or suppressed findings. The initial
+scan found three issues: two missing WordPress constant declarations and an
+always-true isset on element zero of explode's non-empty result.
+
+The scan-only tests/phpstan/wordpress-constants.php declares WP_PLUGIN_DIR and
+HOUR_IN_SECONDS, which the pinned core stubs omit. It is never bootstrapped or
+shipped. The plugin directory is widened to string with dynamicConstantNames;
+its placeholder must not turn site-specific paths into analyzer assumptions.
+
+The public divergence map now records true markers precisely, retaining integer
+or string keys from extension filters. The expectation map remains mixed after
+its existing null removal: filtering does not validate third-party values as
+booleans. Raw transient data likewise remains untrusted until existing checks;
+no full stored-record shape is asserted. The observer's template preserves its
+input type because every return passes the same value through unchanged.
+Registration settings accept keyed arrays as the existing array_map does;
+competing-plugin output is a map of lists. Callback reflection continues accepting
+mixed inputs, including unavailable or incomplete callback forms.
+
+Positive fixtures exercise these boundaries and negative fixtures reject non-string
+plugin paths, a misspelled registration field and false public divergence markers.
+The static runner now checks ten exact expected failures. Runtime verification
+compares the existing attribution/overlap/divergence regression harnesses before
+and after the offset simplification; all other runtime executable tokens match.
+Full standalone/packaging, coding standards, PHP compatibility and syntax checks
+remain required. No new real-site, browser or timing claim is made.
+
 ## Remaining work
 
-Analyze diagnostic attribution/overlap/divergence separately next, followed by
-status/transport and the separate backport action handlers. Model actual validation
+Analyze conflict notices, status/transport and the separate backport action handlers. Model actual validation
 before tightening raw offer/transient fields; keep unknown blocker codes possible
 at general boundaries. Explore higher levels with explicit findings rather than
 broad exclusions. Add native types only after reviewing WordPress hook input

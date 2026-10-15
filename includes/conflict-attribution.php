@@ -47,7 +47,7 @@ function keel_defaults_callback_plugin_dir( $callback ) {
 
 	$parts = explode( '/', substr( $file, strlen( $base ) ) );
 
-	return isset( $parts[0] ) ? $parts[0] : '';
+	return $parts[0];
 }
 
 /**

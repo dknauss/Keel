@@ -77,3 +77,33 @@ function keel_contract_reject_health_status() {
 		'test'        => 'keel_backport',
 	);
 }
+
+/**
+ * Treat normalized plugin paths as integers.
+ *
+ * @return array<string,int> Deliberately incorrect attribution contract.
+ */
+function keel_contract_reject_plugin_paths() {
+	return keel_defaults_active_plugin_roots();
+}
+/**
+ * Read a misspelled registration field.
+ *
+ * @return mixed Deliberately incorrect record access.
+ */
+function keel_contract_reject_registration_key() {
+	foreach ( keel_defaults_registered_policy_hooks() as $records ) {
+		foreach ( $records as $record ) {
+			return $record['accepted_arg'];
+		}
+	}
+	return null;
+}
+/**
+ * Confuse the raw stored expectation with the public divergence marker.
+ *
+ * @phpstan-return KeelDivergenceMap
+ */
+function keel_contract_reject_divergence_marker() {
+	return array( 'comments_open' => false );
+}
