@@ -424,9 +424,12 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Start data-contract and PHPStan pilot** — 2026-10-14; shared array shapes,
       level-6 backport/configuration-policy checks targeting PHP 7.4, and positive/
       negative contract examples in CI. See [the pilot record](docs/review/data-contracts-phpstan.md).
-- [ ] **Expand data contracts and static analysis** — analyze installer/presentation
-      and diagnostic bodies next; narrow untrusted values only after validation,
-      then assess higher levels and selective PHP 7.4-compatible native types.
+- [x] **Analyze installer and presentation bodies** — 2026-10-14; level-6 checks,
+      precise Site Health/result/return-map contracts, minimal consumer inputs,
+      and seven static rejection cases; PHP 7.4 floor and behavior preserved.
+- [ ] **Expand static analysis to diagnostics** — attribution, overlap and divergence
+      as separate scopes; narrow untrusted values only after validation, then assess
+      higher levels and selective PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
       faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives

@@ -9,15 +9,17 @@
 function keel_contract_reject_missing_key() {
 	return keel_defaults_minor_update_state()['operabl'];
 }
-function keel_contract_reject_owner(): void {
-	keel_defaults_selection_state(
-		array(
-			'policy'   => true,
-			'owner'    => 'plugin',
-			'operable' => true,
-			'blockers' => array(),
-		),
-		false
+/**
+ * Return an owner outside the producer's documented domain.
+ *
+ * @phpstan-return KeelMinorUpdateState
+ */
+function keel_contract_reject_owner() {
+	return array(
+		'policy'   => true,
+		'owner'    => 'plugin',
+		'operable' => true,
+		'blockers' => array(),
 	);
 }
 /**
@@ -37,5 +39,41 @@ function keel_contract_reject_install_plan(): void {
 				'attempt_rollback'             => false,
 			),
 		)
+	);
+}
+
+/**
+ * Read a nonexistent validated result field.
+ *
+ * @return mixed Deliberately incorrect result access.
+ */
+function keel_contract_reject_result_key() {
+	$result = keel_defaults_take_backport_result( 1 );
+	return null === $result ? null : $result['messsages'];
+}
+/**
+ * Read a return target that is not in the fixed map.
+ *
+ * @return mixed Deliberately incorrect map access.
+ */
+function keel_contract_reject_return_target() {
+	return keel_defaults_backport_return_map()['external'];
+}
+/**
+ * Produce an invalid Site Health verdict.
+ *
+ * @phpstan-return KeelBackportHealthResult
+ */
+function keel_contract_reject_health_status() {
+	return array(
+		'label'       => 'Test',
+		'status'      => 'failed',
+		'badge'       => array(
+			'label' => 'Security',
+			'color' => 'blue',
+		),
+		'description' => '',
+		'actions'     => '',
+		'test'        => 'keel_backport',
 	);
 }

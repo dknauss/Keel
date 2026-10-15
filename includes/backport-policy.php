@@ -325,7 +325,7 @@ function keel_defaults_minor_update_state() {
  * prevents callers from reaching into the structure differently, while also
  * making it impossible to recover control flow by matching translated text.
  *
- * @param array<array-key,array{code:string,text:string}> $blockers Structured blockers.
+ * @param array<array-key,array{code?:string,text:string}> $blockers Structured blockers.
  * The descriptions may name a constant or file in <code>, so print them through
  * wp_kses() allowing code. esc_html() turns that markup into visible tags.
  *
@@ -338,7 +338,7 @@ function keel_defaults_blocker_texts( array $blockers ) {
 /**
  * Extract stable blocker codes for control flow.
  *
- * @param array<array-key,array{code:string,text:string}> $blockers Structured blockers.
+ * @param array<array-key,array{code:string,text?:string}> $blockers Structured blockers.
  * @return string[] Stable blocker codes.
  */
 function keel_defaults_blocker_codes( array $blockers ) {
@@ -381,7 +381,7 @@ function keel_defaults_minor_updates_enabled() {
  * @param array        $state    Result of keel_defaults_minor_update_state().
  * @param string|false $selected Result of keel_defaults_ladder_selection().
  * @return 'blocked'|'unknown'|'none'|'scheduled' Selection outcome.
- * @phpstan-param KeelMinorUpdateState $state
+ * @phpstan-param KeelSelectionState $state
  */
 function keel_defaults_selection_state( array $state, $selected ) {
 	$blocked = empty( $state['operable'] );
@@ -436,7 +436,7 @@ function keel_defaults_selection_state( array $state, $selected ) {
  * @param string|false $selected     Result of keel_defaults_ladder_selection().
  * @param bool         $offer_cached Whether the raw offer for $tip is cached.
  * @return string Escaped sentence.
- * @phpstan-param KeelMinorUpdateState $state
+ * @phpstan-param KeelRouteState $state
  */
 function keel_defaults_backport_route( $tip, array $state, $selected, $offer_cached ) {
 	$code = '<code>' . esc_html( $tip ) . '</code>';

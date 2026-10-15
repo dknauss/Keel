@@ -4,6 +4,8 @@ parameters:
     phpVersion: 70400
     paths:
         - includes/backport-policy.php
+        - includes/backport-install.php
+        - includes/backport-presentation.php
         - includes/settings-policy.php
     scanDirectories:
         - includes
@@ -20,3 +22,11 @@ parameters:
         KeelInstallPlan: 'array{offer: object, args: array{allow_relaxed_file_ownership: bool, attempt_rollback: true}}'
         KeelOverlapReport: 'array{structural: array<string, list<string>>, unconfirmed: array<string, list<string>>}'
         KeelPolicyRegistration: 'array{callback: callable|null, priority: int, accepted_args: int, setting: string|array<array-key, string>}'
+        KeelBlockerCode: 'array{code: string, text?: string}'
+        KeelSelectionState: 'array{operable: true, blockers?: array<array-key,KeelBlockerCode>}|array{operable: false, blockers: array<array-key,KeelBlockerCode>}'
+        KeelRouteState: 'array{policy: bool, operable: bool, blockers: array<array-key,KeelBlockerCode>}'
+        KeelScheduleState: 'array{policy: bool, operable: bool}'
+        KeelBlockerState: 'array{blockers: array<array-key,KeelBlockerCode>}'
+        KeelBackportResult: 'array{code: string, messages: array<array-key, string>, type: "success"|"error"}'
+        KeelBackportHealthResult: 'array{label: string, status: "good"|"recommended"|"critical", badge: array{label: string, color: "blue"}, description: string, actions: string, test: "keel_backport"}'
+        KeelBackportTestRegistration: 'array{label: string, test: "keel_backport", async_direct_test: "keel_defaults_backport_test"}'
