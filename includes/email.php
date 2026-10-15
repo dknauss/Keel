@@ -47,6 +47,8 @@ function keel_defaults_mail_is_risky() {
 
 /**
  * Warn admins when a non-local site's default From address looks undeliverable.
+ *
+ * @return void
  */
 function keel_defaults_render_mail_config_notice() {
 	/*
@@ -93,6 +95,8 @@ function keel_defaults_is_zero_reset_result() {
 
 /**
  * Show an error when a bulk password reset sent zero emails.
+ *
+ * @return void
  */
 function keel_defaults_render_reset_failure_notice() {
 	if ( ! keel_defaults_is_zero_reset_result() ) {
@@ -220,8 +224,8 @@ function keel_defaults_suppresses_mail() {
  * staging site behave differently from production in the direction that hides
  * bugs: the failure path gets exercised and the success path never does.
  *
- * @param null|bool $pre  Short-circuit value.
- * @param array     $atts Arguments passed to wp_mail().
+ * @param mixed                  $pre  Prior short-circuit value, ignored.
+ * @param array<array-key,mixed> $atts Arguments passed to wp_mail(), including extension data.
  * @return bool
  */
 function keel_defaults_suppress_mail( $pre, $atts ) {
@@ -230,7 +234,7 @@ function keel_defaults_suppress_mail( $pre, $atts ) {
 	/**
 	 * Fires instead of sending, so a mail catcher can still record the message.
 	 *
-	 * @param array $atts The wp_mail() arguments that were suppressed.
+	 * @param array<array-key,mixed> $atts The wp_mail() arguments that were suppressed.
 	 */
 	do_action( 'keel_outgoing_mail_suppressed', $atts );
 

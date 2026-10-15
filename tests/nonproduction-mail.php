@@ -128,6 +128,25 @@ keel_assert( true === $result, 'Suppressed mail reports success, so callers beha
 keel_assert( 'keel_outgoing_mail_suppressed' === $GLOBALS['keel_actions'][0][0], 'An action fires so a mail catcher can still record it.' );
 keel_assert( 'customer@example.ca' === $GLOBALS['keel_actions'][0][1]['to'], 'The suppressed message reaches that action intact.' );
 
+// Filter chains may carry arbitrary prior values and extension metadata.
+$extension = new stdClass();
+$payload   = array(
+	'to'        => array( 'one@example.test' ),
+	'headers'   => array(),
+	'extension' => $extension,
+	7           => null,
+);
+foreach ( array( null, false, true, 'prior-result', new stdClass() ) as $prior ) {
+	$GLOBALS['keel_actions'] = array();
+	keel_assert( true === keel_defaults_suppress_mail( $prior, $payload ), 'The prior short-circuit value remains ignored.' );
+	keel_assert( $payload === $GLOBALS['keel_actions'][0][1], 'Mail argument keys, values and object identity reach observers unchanged.' );
+}
+foreach ( array( 0, '', 'enabled', array( 'enabled' ) ) as $raw_filter ) {
+	$GLOBALS['keel_filters']['keel_suppress_nonproduction_mail'] = $raw_filter;
+	keel_assert( keel_defaults_suppresses_mail() === (bool) $raw_filter, 'Raw suppression-filter results retain their boolean conversion.' );
+}
+unset( $GLOBALS['keel_filters']['keel_suppress_nonproduction_mail'] );
+
 // --- and the risky-config notice stops nagging about mail nothing sends ---
 $GLOBALS['keel_env'] = 'staging';
 ob_start();

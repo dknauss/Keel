@@ -255,3 +255,23 @@ function keel_contract_reject_migration_result(): string {
 function keel_contract_reject_network_active_result(): string {
 	return keel_defaults_is_network_active();
 }
+
+/** Suppressed mail must be an argument collection, not serialized text. */
+function keel_contract_reject_mail_arguments(): void {
+	keel_defaults_suppress_mail( null, 'serialized message' );
+}
+
+/** Suppression success is a boolean, not a message ID. */
+function keel_contract_reject_mail_result(): string {
+	return keel_defaults_suppress_mail( null, array() );
+}
+
+/** Effective From addresses are text, not validity decisions. */
+function keel_contract_reject_mail_from(): bool {
+	return keel_defaults_mail_from_address();
+}
+
+/** The suppression decision is a boolean, not rendered notice text. */
+function keel_contract_reject_mail_policy(): string {
+	return keel_defaults_suppresses_mail();
+}
