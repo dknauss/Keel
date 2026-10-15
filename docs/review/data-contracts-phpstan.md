@@ -16,11 +16,11 @@ annotations and development tooling only.
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
-`password-hibp.php` and `password-policy.php`,
+`password-hibp.php`, `password-policy.php` and `settings-controls.php`,
 at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these twelve files are not yet claimed clean. WordPress stubs provide
+bodies outside these thirteen files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -77,8 +77,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all twelve pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; seventeen
+- `composer analyse`: all thirteen pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; twenty
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
@@ -86,7 +86,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
   a notice-screen map incorrectly treated as string values, invalid produced version
   status, tri-state lookup misread as a record, a raw failure misread as text,
   assumed control-flow fallthrough after the AJAX action, boolean password failure
-  instead of an error, and a scalar prepared user. The checker compares exact
+  instead of an error, a scalar prepared user, missing range values, missing choice
+  type and non-array range labels. The checker compares exact
   per-case diagnostic multisets, including multiple errors from generic contracts.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
@@ -96,7 +97,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 - The initial pilot preserved all executable tokens. The extension changes only
   one equivalent boolean condition in the verdict renderer. The diagnostic
   extension removes one always-true offset check. The notice extension removes a
-  redundant object check while preserving isset on the screen ID; see the records below.
+  redundant object check while preserving isset on the screen ID. Shared-control
+  analysis removes a redundant array_values on an existing list; see the records below.
 - CI runs analysis and contract checks once in the existing lint/unit job, not in
   each dependency-free PHP compatibility job. The release workflow mirrors these
   gates; the existing release-workflow regression test enforces that parity.
@@ -302,6 +304,44 @@ standards, compatibility, syntax and static-contract checks remain the gates.
 No new dependency, baseline, suppression, wrapper, real-site/browser execution or
 runtime performance claim. A fresh twelve-module scan passes at the unchanged
 768M cap; fixture checks retain their 512M cap.
+
+## Shared settings-control extension — October 15, 2026
+
+Add only settings-controls.php at level 6 with the PHP 7.4 target (thirteen
+modules). The initial trial found eight issues: six iterable-value declarations,
+one missing void return and one array_values call on an existing list. No new
+dependency, baseline, suppression, native signature, guard or runtime wrapper.
+
+Six small aliases describe the field and display-copy projections each consumer
+reads. Choice resolution requires type; direct range rendering requires only its
+values collection. The dispatcher retains its optional type and default toggle;
+custom select-like types remain accepted. Copy keys are optional, and the range
+helper does not impose types on unrelated metadata such as unit. Keyed arrays
+stay accepted: existing array_values calls align range values and labels. Stored
+preferences, range value entries and numeric bounds remain mixed until existing
+casts; these annotations do not claim full schema or conditional-field validation.
+
+The only executable change removes array_values($rpx) before JSON encoding.
+$rvalues was already reindexed, and both single-array array_map calls preserve
+its sequential integer keys, so $rpx is already a list. No required normalization
+of input values or labels is removed. All other executable tokens match across
+32 runtime files.
+
+In disposable before/after copies, the original settings-render harness passed
+both versions. Ten full-page renders and 321 control renders matched byte-for-byte:
+all schema fields, site/network contexts, locked/unlocked presentation, default/
+alternate values and a keyed range case. This preserves slider JSON, network
+selects, hidden stored preferences, checkbox attributes and accessibility wiring.
+It is a local regression/differential check, not a new browser or real-site claim.
+
+Positive static fixtures cover minimal/default fields, role-derived choices,
+custom select types, keyed range arrays, numeric strings/floats in raw metadata
+and ignored copy metadata. Three new cases reject missing range values, missing
+choice type and non-array labels. The runner checks twenty invalid cases with
+23 exact diagnostics. Existing compatibility, coding standards, syntax, full
+standalone/packaging and static checks remain required. Analysis and fixture
+memory caps remain 768M and 512M; a fresh thirteen-module scan passes within
+the existing cap. No runtime performance claim is made.
 
 ## Remaining work
 

@@ -306,3 +306,78 @@ function keel_contract_custom_prepared_user( WP_REST_Request $request ): void {
 }
 /** Accept the same concrete custom class after excluding validation errors. */
 function keel_contract_accept_custom_prepared_user( Keel_Contract_Prepared_User $user ): void {}
+
+/** Exercise minimal control projections and keyed range metadata. */
+function keel_contract_settings_controls(): void {
+	keel_defaults_render_control( 'fallback', 'fallback', 'yes', array(), array(), 'Statement', '' );
+	keel_defaults_render_control(
+		'number',
+		'number',
+		5,
+		array(
+			'type' => 'number',
+			'min'  => '1',
+			'max'  => 10.5,
+		),
+		array(
+			'label' => 'Count',
+			'unit'  => 'items',
+		),
+		'',
+		'',
+		true,
+		'network'
+	);
+	keel_contract_accept_control_choices(
+		keel_defaults_control_choices(
+			array(
+				'type'    => 'custom-select',
+				'choices' => array( 'first' => 'a' ),
+			),
+			array( 'choices' => array( 'a' => 'A' ) )
+		)
+	);
+	keel_defaults_control_choices( array( 'type' => 'multiselect' ), array() );
+	keel_defaults_control_choices(
+		array(
+			'type'   => 'range',
+			'values' => array(
+				'narrow' => 160,
+				'wide'   => 240.5,
+			),
+		),
+		array(
+			'labels' => array(
+				'first'  => 'Narrow',
+				'second' => 'Wide',
+			),
+		)
+	);
+	keel_defaults_render_range_field(
+		'width',
+		'width',
+		'default',
+		array(
+			'values' => array(
+				'first'  => 'default',
+				'second' => 240.5,
+			),
+		),
+		array(
+			'labels' => array(
+				'first'  => 'Default',
+				'second' => 'Wide',
+			),
+			'unit'   => new stdClass(),
+		),
+		'Width',
+		'',
+		true
+	);
+}
+/**
+ * Accept the choice map after label fallback and key conversion.
+ *
+ * @param array<array-key,string> $choices Value => display label.
+ */
+function keel_contract_accept_control_choices( array $choices ): void {}

@@ -35,6 +35,9 @@ $expected = array(
     "keel_contract_reject_action_fallthrough" => "deadCode.unreachable",
     "keel_contract_reject_password_false" => array("return.type", "return.unusedType", "return.unusedType"),
     "keel_contract_reject_prepared_user" => array("argument.type", "argument.templateType"),
+    "keel_contract_reject_range_values" => "argument.type",
+    "keel_contract_reject_choice_type" => "argument.type",
+    "keel_contract_reject_range_labels" => "argument.type",
 );
 foreach ($expected as $case => $identifiers) {
     $expected[$case] = (array) $identifiers;
