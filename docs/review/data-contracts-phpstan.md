@@ -17,10 +17,10 @@ annotations and development tooling only.
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
 `password-hibp.php`, `password-policy.php`, `settings-controls.php` and
-`updates-screen.php` at PHPStan level 6, with `phpVersion: 70400`.
+`updates-screen.php` and `updates.php` at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these fourteen files are not yet claimed clean. WordPress stubs provide
+bodies outside these fifteen files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -77,8 +77,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all fourteen pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; twenty
+- `composer analyse`: all fifteen pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; twenty-eight
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
@@ -87,7 +87,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
   status, tri-state lookup misread as a record, a raw failure misread as text,
   assumed control-flow fallthrough after the AJAX action, boolean password failure
   instead of an error, a scalar prepared user, missing range values, missing choice
-  type and non-array range labels. The checker compares exact
+  type, non-array range labels, and non-boolean inputs/string return consumers
+  for each of the four update-policy callbacks. The checker compares exact
   per-case diagnostic multisets, including multiple errors from generic contracts.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
@@ -360,6 +361,21 @@ markup across 2,592 scenarios (5,184 renders), including pending-result
 consumption and capability-denied requests. Executable-token comparison also
 confirms the source change is documentation only. These are local stub checks, not browser or real-WordPress verification.
 The twenty negative fixture cases and 23 exact diagnostics remain unchanged.
+
+## Update-policy callbacks increment — 2026-10-15
+
+Add only `updates.php` at level 6 (fifteen modules). The four core/translation
+callbacks already pass with their existing boolean parameter and return PHPDocs.
+No runtime source, native signature, dependency, suppression or baseline changes;
+PHP 7.4 and the 768M/512M analysis/fixture caps remain unchanged.
+
+Positive examples feed a boolean through each callback into a boolean consumer.
+Eight negative examples reject an array decision input and a version-string
+return consumer for each callback. The runner checks 28 invalid cases with
+31 exact diagnostics. These examples test static contracts, not runtime coercion
+or policy selection. Existing `tests/core-update-policy.php` covers inherit,
+minor/all/manual decisions, development-build refusal and translation toggles.
+The full standalone suite remains required; no real-site verification is claimed.
 
 ## Remaining work
 

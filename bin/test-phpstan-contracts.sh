@@ -38,6 +38,14 @@ $expected = array(
     "keel_contract_reject_range_values" => "argument.type",
     "keel_contract_reject_choice_type" => "argument.type",
     "keel_contract_reject_range_labels" => "argument.type",
+    "keel_contract_reject_minor_core_input" => "argument.type",
+    "keel_contract_reject_minor_core_output" => "return.type",
+    "keel_contract_reject_major_core_input" => "argument.type",
+    "keel_contract_reject_major_core_output" => "return.type",
+    "keel_contract_reject_dev_core_input" => "argument.type",
+    "keel_contract_reject_dev_core_output" => "return.type",
+    "keel_contract_reject_translation_input" => "argument.type",
+    "keel_contract_reject_translation_output" => "return.type",
 );
 foreach ($expected as $case => $identifiers) {
     $expected[$case] = (array) $identifiers;

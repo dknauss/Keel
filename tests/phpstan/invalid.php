@@ -190,3 +190,43 @@ function keel_contract_reject_range_labels(): void {
 		''
 	);
 }
+
+/** WordPress update decisions must be booleans. */
+function keel_contract_reject_minor_core_input(): void {
+	keel_defaults_allow_minor_core_updates( array() );
+}
+
+/** Policy verdicts cannot be consumed as version strings. */
+function keel_contract_reject_minor_core_output(): string {
+	return keel_defaults_allow_minor_core_updates( true );
+}
+
+/** WordPress update decisions must be booleans. */
+function keel_contract_reject_major_core_input(): void {
+	keel_defaults_allow_major_core_updates( array() );
+}
+
+/** Policy verdicts cannot be consumed as version strings. */
+function keel_contract_reject_major_core_output(): string {
+	return keel_defaults_allow_major_core_updates( true );
+}
+
+/** WordPress update decisions must be booleans. */
+function keel_contract_reject_dev_core_input(): void {
+	keel_defaults_allow_dev_core_updates( array() );
+}
+
+/** Policy verdicts cannot be consumed as version strings. */
+function keel_contract_reject_dev_core_output(): string {
+	return keel_defaults_allow_dev_core_updates( true );
+}
+
+/** WordPress update decisions must be booleans. */
+function keel_contract_reject_translation_input(): void {
+	keel_defaults_allow_translation_updates( array() );
+}
+
+/** Policy verdicts cannot be consumed as version strings. */
+function keel_contract_reject_translation_output(): string {
+	return keel_defaults_allow_translation_updates( true );
+}
