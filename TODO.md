@@ -436,9 +436,12 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Analyze status and transport** — 2026-10-14; backport status and HIBP
       transport bring the level-6 scope to ten modules; distinguish validated
       verdicts from raw cache records; fourteen rejection cases; runtime unchanged.
-- [ ] **Expand static analysis to remaining boundaries** — separate backport action
-      handlers and password-policy adapters; narrow untrusted values only after
-      validation, then assess higher levels (including partial unions/nullability)
+- [x] **Analyze backport action handlers** — 2026-10-14; eleven modules pass
+      level 6; request-ending callback contracts and fifteen rejection cases;
+      PHP 7.4, capabilities, nonces, writes and redirects unchanged.
+- [ ] **Expand static analysis to password-policy adapters** — narrow untrusted
+      values only after validation, then assess higher levels (including partial
+      unions/nullability)
       and selective PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
       faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.

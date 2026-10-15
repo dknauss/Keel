@@ -200,7 +200,20 @@ remain a higher-level follow-up.
 All runtime executable tokens and native signatures remain unchanged. Existing
 backport/HIBP suites cover request bounds, padding, malformed responses, unknown
 results, cache behavior and outage diagnostics. See the [pilot record](data-contracts-phpstan.md).
-Backport action handlers and password-policy adapters remain open.
+The next increment covers backport action handlers; password-policy adapters remain open.
+
+## Eleventh increment: backport action-handler analysis
+
+Implemented 2026-10-14. Include backport-actions.php in the level-6, PHP 7.4-targeted
+pilot (eleven modules). Document its three request-ending callbacks with PHPDoc
+never contracts; no PHP 8.1 native signature is introduced. Positive fixtures
+check callable compatibility, and fifteen negative cases include unreachable
+fallthrough after the AJAX action.
+
+All runtime executable tokens, permissions, nonces, writes, JSON responses and
+redirects remain unchanged. No extra shape, wrapper, dependency or suppression
+is introduced. See the [pilot record](data-contracts-phpstan.md) for scope and
+verification. Password-policy adapters remain open.
 
 ## Sequence and acceptance criteria
 

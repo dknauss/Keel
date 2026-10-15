@@ -12,6 +12,7 @@ parameters:
         - includes/conflict-divergence.php
         - includes/conflict-notices.php
         - includes/backport-status.php
+        - includes/backport-actions.php
         - includes/password-hibp.php
     scanDirectories:
         - includes

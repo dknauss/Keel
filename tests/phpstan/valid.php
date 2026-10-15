@@ -213,3 +213,16 @@ function keel_contract_accept_lookup_result( $result ): void {}
  * @param array<array-key,mixed> $record Raw cached record.
  */
 function keel_contract_accept_raw_record( array $record ): void {}
+
+/** Keep request-ending callbacks distinct from data-producing helpers. */
+function keel_contract_action_handlers(): void {
+	keel_contract_accept_request_handler( 'keel_defaults_backport_ajax' );
+	keel_contract_accept_request_handler( 'keel_defaults_handle_enable_minor_updates' );
+	keel_contract_accept_request_handler( 'keel_defaults_dismiss_backport_notice' );
+}
+/**
+ * Accept callbacks that end the request; do not invoke them in static fixtures.
+ *
+ * @param callable():never $handler Request-ending callback.
+ */
+function keel_contract_accept_request_handler( callable $handler ): void {}

@@ -32,6 +32,7 @@ $expected = array(
     "keel_contract_reject_version_status" => "return.type",
     "keel_contract_reject_lookup_record" => "return.type",
     "keel_contract_reject_failure_text" => "return.type",
+    "keel_contract_reject_action_fallthrough" => "deadCode.unreachable",
 );
 $lines = file("tests/phpstan/invalid.php");
 $function = "";

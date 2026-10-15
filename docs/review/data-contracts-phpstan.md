@@ -6,7 +6,8 @@ simplifies one equivalent boolean condition; function signatures, hook registrat
 storage, filtering and configuration precedence remain unchanged. The subsequent
 conflict-diagnostics extension removes one always-true offset check. The notices
 extension removes a redundant object check while retaining the screen-ID guard.
-The status/transport extension changes annotations and development tooling only.
+The status/transport and action-handler extensions change annotations and
+development tooling only.
 
 ## Checked scope
 
@@ -14,11 +15,12 @@ The status/transport extension changes annotations and development tooling only.
 `includes/settings-policy.php`, plus `includes/backport-install.php` and
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
-`conflict-notices.php`, plus `backport-status.php` and `password-hibp.php`,
+`conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
+`password-hibp.php`,
 at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
-executing them. Scanning is not analysis: action handlers, password-policy adapters and other
-bodies outside these ten files are not yet claimed clean. WordPress stubs provide
+executing them. Scanning is not analysis: password-policy adapters, loading facades and other
+bodies outside these eleven files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -74,14 +76,15 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all ten pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; fourteen
+- `composer analyse`: all eleven pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; fifteen
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
   non-string attribution paths, missing registration field, false divergence marker,
   a notice-screen map incorrectly treated as string values, invalid produced version
-  status, tri-state lookup misread as a record, and a raw failure misread as text.
+  status, tri-state lookup misread as a record, a raw failure misread as text,
+  and assumed control-flow fallthrough after the AJAX action.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
   the new annotations were restored, proving the added constraints were exercised.
@@ -236,9 +239,32 @@ Full standalone/packaging, existing HIBP/backport behavior suites, coding standa
 PHP compatibility, syntax and static contracts remain the verification gates.
 No fresh real-site, browser, external-service or runtime performance claim is made.
 
+## Backport action-handler extension — October 14, 2026
+
+Add backport-actions.php to the same level-6, PHP 7.4-targeted scope (eleven
+modules). The initial scan found exactly three missing return annotations.
+Document all three callbacks as never: Site Health responds through the core
+terminating JSON helpers, enabling minor updates redirects and explicitly exits,
+and dismissal ends through wp_die. Core stubs already model those termination
+semantics; no new stub, dependency, baseline or suppression is needed.
+
+These are PHPDoc contracts, not PHP 8.1 native never signatures. Positive static
+fixtures accept all three as callable():never without invoking them. The fifteenth
+rejection case catches an assumed return to the caller after the AJAX handler.
+No new data shape, helper wrapper or request validation is introduced.
+
+All runtime executable tokens match the parent. Capability checks, nonce actions
+and field names, network-option writes, transient invalidation, per-user/version
+dismissals, response codes, JSON payloads and redirect destinations are unchanged.
+Existing loading and backport regressions plus the full standalone/packaging,
+coding standards, compatibility, syntax and static-contract gates remain required.
+This does not claim new real-WordPress handler execution, browser checks or timing.
+A fresh eleven-module scan passes at the unchanged 768M analysis cap; fixture
+checks retain their 512M cap.
+
 ## Remaining work
 
-Analyze separate backport action handlers and password-policy adapters. Model actual validation
+Analyze password-policy adapters. Model actual validation
 before tightening raw offer/transient fields; keep unknown blocker codes possible
 at general boundaries. Explore higher levels with explicit findings rather than
 broad exclusions. Add native types only after reviewing WordPress hook input
