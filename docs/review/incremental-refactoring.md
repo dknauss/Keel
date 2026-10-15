@@ -186,7 +186,21 @@ screens and missing IDs retain their fallback. The extended notice harness passe
 against both renderer versions, including custom dismissible/persistent screens.
 Other runtime tokens, native signatures, permissions, nonces and stored user
 metadata remain unchanged. See the [pilot record](data-contracts-phpstan.md).
-Status/transport and separate action handlers remain open.
+The next increment covers status/transport; separate action handlers remain open.
+
+## Tenth increment: status and transport analysis
+
+Implemented 2026-10-14. Add backport-status.php and password-hibp.php at level 6
+with the PHP 7.4 target (ten modules). Separate the validated version verdict and
+tri-state HIBP result from raw cached maps and failure records. Add missing void
+and iterable-value annotations plus scan-only core constants. Fourteen negative
+static cases exercise the supported constraints; partial union/nullability checks
+remain a higher-level follow-up.
+
+All runtime executable tokens and native signatures remain unchanged. Existing
+backport/HIBP suites cover request bounds, padding, malformed responses, unknown
+results, cache behavior and outage diagnostics. See the [pilot record](data-contracts-phpstan.md).
+Backport action handlers and password-policy adapters remain open.
 
 ## Sequence and acceptance criteria
 

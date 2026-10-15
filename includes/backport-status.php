@@ -28,7 +28,10 @@ const KEEL_DEFAULTS_STABLE_CHECK_TTL = 86400;
  * so a daily cache is generous. A failed request caches nothing, so a network
  * blip does not pin a wrong answer for 24 hours.
  *
- * @return array<string,string> Version => status. Empty array if unavailable.
+ * Cached arrays are returned as stored; only fresh HTTP responses are filtered.
+ * Do not assume cached keys or values have passed that validation.
+ *
+ * @return array<array-key,mixed> Version => status. Empty array if unavailable.
  */
 function keel_defaults_stable_check() {
 	$cached = get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
@@ -102,8 +105,8 @@ function keel_defaults_stable_check() {
  * listed, so they prove nothing and are skipped by the same pattern the map is
  * filtered with.
  *
- * @param array<string,string> $map         Cached version => status.
- * @param mixed                $update_core The update_core transient value.
+ * @param array<array-key,mixed> $map         Cached version => status; only key presence is read.
+ * @param mixed                  $update_core The update_core transient value.
  * @return bool
  */
 function keel_defaults_stable_check_is_stale( array $map, $update_core ) {
@@ -138,6 +141,7 @@ function keel_defaults_stable_check_is_stale( array $map, $update_core ) {
  * full day.
  *
  * @param mixed $update_core The update_core value being stored.
+ * @return void
  */
 function keel_defaults_refresh_stale_stable_check( $update_core ) {
 	$cached = get_site_transient( KEEL_DEFAULTS_STABLE_CHECK_TRANSIENT );
@@ -189,7 +193,8 @@ function keel_defaults_wp_version() {
 /**
  * Status of the version this site is running.
  *
- * @return string 'latest', 'outdated', 'insecure', or 'unknown'.
+ * @return 'latest'|'outdated'|'insecure'|'unknown' Validated running-version status.
+ * @phpstan-return KeelVersionStatus
  */
 function keel_defaults_version_status() {
 	$map = keel_defaults_stable_check();

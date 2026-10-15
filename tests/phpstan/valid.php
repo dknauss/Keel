@@ -176,3 +176,40 @@ function keel_contract_accept_notice_screens( array $screens ): void {}
  * @param string $fingerprint Notice identity.
  */
 function keel_contract_accept_fingerprint( $fingerprint ): void {}
+
+/** Keep validated verdicts separate from raw cached transport data. */
+function keel_contract_status_transport(): void {
+	keel_contract_accept_version_status( keel_defaults_version_status() );
+	keel_contract_accept_lookup_result( keel_hibp_lookup( 'static-only-example' ) );
+	$failure = keel_hibp_last_failure();
+	if ( null !== $failure ) {
+		keel_contract_accept_raw_record( $failure );
+	}
+	keel_contract_accept_raw_record( keel_defaults_stable_check() );
+	keel_defaults_stable_check_is_stale(
+		array(
+			42       => new stdClass(),
+			'6.4.10' => null,
+		),
+		(object) array( 'updates' => array( false, (object) array( 'current' => '6.4.10' ) ) )
+	);
+}
+/**
+ * Accept only the validated running-version verdict.
+ *
+ * @param 'latest'|'outdated'|'insecure'|'unknown' $status Version verdict.
+ * @phpstan-param KeelVersionStatus $status
+ */
+function keel_contract_accept_version_status( $status ): void {}
+/**
+ * Preserve unknown as a distinct lookup outcome.
+ *
+ * @param bool|null $result Breached, clean or unknown.
+ */
+function keel_contract_accept_lookup_result( $result ): void {}
+/**
+ * Accept raw cached records without claiming their optional fields are validated.
+ *
+ * @param array<array-key,mixed> $record Raw cached record.
+ */
+function keel_contract_accept_raw_record( array $record ): void {}

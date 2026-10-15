@@ -167,7 +167,10 @@ function keel_hibp_last_success() {
 /**
  * The last recorded breach-screening failure, if it is still current.
  *
- * @return array|null Record with kind, first, seen and count, or null.
+ * Only array-ness and a non-empty kind are checked. Timestamp/count fields and
+ * third-party cached values remain unvalidated at this boundary.
+ *
+ * @return array<array-key,mixed>|null Raw failure record, or null.
  */
 function keel_hibp_last_failure() {
 	$stored = get_transient( 'keel_hibp_unavailable' );

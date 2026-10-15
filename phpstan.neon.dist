@@ -11,6 +11,8 @@ parameters:
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php
         - includes/conflict-notices.php
+        - includes/backport-status.php
+        - includes/password-hibp.php
     scanDirectories:
         - includes
     scanFiles:
@@ -38,3 +40,4 @@ parameters:
         KeelBackportHealthResult: 'array{label: string, status: "good"|"recommended"|"critical", badge: array{label: string, color: "blue"}, description: string, actions: string, test: "keel_backport"}'
         KeelBackportTestRegistration: 'array{label: string, test: "keel_backport", async_direct_test: "keel_defaults_backport_test"}'
         KeelDivergenceMap: 'array<array-key, true>'
+        KeelVersionStatus: '"latest"|"outdated"|"insecure"|"unknown"'
