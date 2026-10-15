@@ -25,6 +25,9 @@ $expected = array(
     "keel_contract_reject_result_key" => "offsetAccess.notFound",
     "keel_contract_reject_return_target" => "offsetAccess.notFound",
     "keel_contract_reject_health_status" => "return.type",
+    "keel_contract_reject_plugin_paths" => "return.type",
+    "keel_contract_reject_registration_key" => "offsetAccess.notFound",
+    "keel_contract_reject_divergence_marker" => "return.type",
 );
 $lines = file("tests/phpstan/invalid.php");
 $function = "";

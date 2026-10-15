@@ -156,8 +156,22 @@ A single redundant boolean conjunct in the verdict renderer was simplified;
 all four policy/operability combinations render identically in a differential
 run of the existing regression harness. Other runtime executable tokens and
 all native signatures remain unchanged. The [pilot record](data-contracts-phpstan.md)
-contains the findings, checked/scanned scope and verification limits. Diagnostic,
-status and separate action-handler analysis remain future increments.
+contains the findings, checked/scanned scope and verification limits. The next
+increment covers diagnostics; status and separate action-handler analysis remain open.
+
+## Eighth increment: conflict-diagnostics analysis
+
+Implemented 2026-10-14. Add attribution, overlap and divergence to the level-6,
+PHP 7.4-targeted pilot (seven modules total). Describe public true-only divergence
+markers and preserve the observer's input type. Keep filtered expectations and
+raw stored data untrusted; callback reflection still accepts mixed inputs.
+Scan-only core constant declarations fill gaps in the pinned stubs without
+loading WordPress. Ten static rejection cases exercise the contracts.
+
+Remove only an always-true offset check on explode's non-empty result; existing
+diagnostic regression harnesses verify behavior. Other runtime tokens and native
+signatures are unchanged. See the [pilot record](data-contracts-phpstan.md) for
+scope and verification. Notices, status/transport and action handlers remain open.
 
 ## Sequence and acceptance criteria
 

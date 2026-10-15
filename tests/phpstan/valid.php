@@ -109,3 +109,46 @@ function keel_contract_accept_messages( array $messages ): void {}
 function keel_contract_nullable_finish(): void {
 	keel_defaults_finish_backport_install( null, '6.4.10', 'unknown-submitted-token' );
 }
+
+/** Exercise diagnostic maps, permissive callback boundaries and value identity. */
+function keel_contract_diagnostics(): void {
+	keel_contract_accept_paths( keel_defaults_active_plugin_roots() );
+	keel_contract_accept_paths( keel_defaults_mu_plugin_files() );
+	keel_contract_accept_paths( keel_defaults_mu_plugin_package_dirs() );
+	keel_contract_accept_plugins( keel_defaults_competing_plugins() );
+	keel_contract_accept_divergences( keel_defaults_policy_divergences() );
+	keel_contract_accept_observed( keel_defaults_observe_policy_result( 'unknown', array( 'marker' => 'unchanged' ) ) );
+	keel_defaults_callback_file( null );
+	keel_defaults_callback_file( array( 'incomplete' ) );
+	keel_defaults_callable_id( new stdClass() );
+	keel_defaults_add_policy_filter( 'example', '__return_false', 10, 1, array( 'key' => 'disable_comments' ) );
+	foreach ( keel_defaults_registered_policy_hooks() as $records ) {
+		foreach ( $records as $record ) {
+			keel_contract_accept_registration( $record );
+		}
+	}
+}
+/**
+ * Accept normalized attribution maps.
+ *
+ * @param array<string,string> $paths Identity => path or path => identity.
+ */
+function keel_contract_accept_paths( array $paths ): void {}
+/**
+ * Accept only the public divergence markers, not the raw transient.
+ *
+ * @phpstan-param KeelDivergenceMap $hooks Live divergence markers.
+ */
+function keel_contract_accept_divergences( array $hooks ): void {}
+/**
+ * Accept the same value type supplied to the passive observer.
+ *
+ * @param array{marker:string} $value Unchanged observed value.
+ */
+function keel_contract_accept_observed( array $value ): void {}
+/**
+ * Accept the complete tracked registration.
+ *
+ * @phpstan-param KeelPolicyRegistration $record Registered callback metadata.
+ */
+function keel_contract_accept_registration( array $record ): void {}

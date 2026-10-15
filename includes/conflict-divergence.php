@@ -26,7 +26,10 @@ defined( 'ABSPATH' ) || exit;
  * one setting decides it; anything needing interpretation would be a guess
  * wearing a measurement's clothes.
  *
- * @return array<string, bool|null> Hook => expected value, or null for no expectation.
+ * Null entries are removed after filtering. Other third-party values are not
+ * validated here; observers compare their boolean meaning without rewriting them.
+ *
+ * @return array<array-key, mixed> Hook => filtered, non-null expectation.
  */
 function keel_defaults_policy_expectations() {
 	$expectations = array(
@@ -74,6 +77,9 @@ function keel_defaults_policy_expectations() {
  * @param string $hook  Hook name.
  * @param mixed  $value The value the filter chain settled on.
  * @return mixed The value, untouched.
+ * @template TValue
+ * @phpstan-param TValue $value
+ * @phpstan-return TValue
  */
 function keel_defaults_observe_policy_result( $hook, $value ) {
 	$expectations = keel_defaults_policy_expectations();
@@ -159,7 +165,8 @@ function keel_defaults_observe_policy_result( $hook, $value ) {
 /**
  * Settings that were last seen not producing the value they ask for.
  *
- * @return array<string, bool> Hook => true.
+ * @return array<array-key, true> Hook => true; keys follow the filtered expectation map.
+ * @phpstan-return KeelDivergenceMap
  */
 function keel_defaults_policy_divergences() {
 	$stored = get_transient( 'keel_policy_divergence' );

@@ -59,8 +59,9 @@ parse error and the PHP the plugin claims to support. Run it locally if you want
 to check a file parses without running anything.
 
 `composer analyse` runs the scoped PHPStan pilot at level 6 against the PHP 7.4
-language target. It checks backport policy, installer, presentation and configuration locks; other
-modules are scanned for declarations, not claimed as analyzed. `composer test:types`
+language target. It checks backport policy, installer, presentation, configuration
+locks, and conflict attribution/overlap/divergence (seven modules). Other modules
+are scanned for declarations, not claimed as analyzed. `composer test:types`
 analyzes valid and intentionally invalid examples in `tests/phpstan/` without
 executing them. Those examples stay outside the dependency-free runtime suite.
 See [the contract pilot](docs/review/data-contracts-phpstan.md) for the shapes,
