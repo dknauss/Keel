@@ -226,3 +226,83 @@ function keel_contract_action_handlers(): void {
  * @param callable():never $handler Request-ending callback.
  */
 function keel_contract_accept_request_handler( callable $handler ): void {}
+
+/**
+ * Exercise profile, reset and REST adapter boundaries without executing them.
+ *
+ * @param WP_REST_Request<array<string,mixed>> $request Raw REST request parameters.
+ */
+function keel_contract_password_adapters( WP_REST_Request $request, WP_User $user, WP_Error $errors ): void {
+	$result = keel_defaults_validate_password( 'static-only-example', false );
+	keel_contract_accept_password_verdict( $result );
+	keel_defaults_password_enforced_for_user( false );
+	keel_defaults_validate_profile_password( $errors, true, $user );
+	keel_defaults_validate_reset_password( $errors, $user );
+	$prepared = new stdClass();
+	$out      = keel_defaults_validate_rest_password( $prepared, $request );
+	if ( ! is_wp_error( $out ) ) {
+		keel_contract_accept_prepared_user( $out );
+	}
+	keel_contract_accept_password_context( keel_defaults_rest_password_context( $request ) );
+	keel_contract_accept_raw_record(
+		keel_defaults_guard_rest_password_arg(
+			array(
+				'/wp/v2/users' => array(
+					array( 'args' => array( 'password' => array() ) ),
+					'schema' => 'metadata',
+				),
+				'/unrelated'   => false,
+				42             => 'third-party metadata',
+			)
+		)
+	);
+}
+/**
+ * Accept only the validator's success marker or error.
+ *
+ * @phpstan-param KeelPasswordVerdict $result Password verdict.
+ */
+function keel_contract_accept_password_verdict( $result ): void {}
+/** Accept the prepared user's original concrete type after excluding errors. */
+function keel_contract_accept_prepared_user( stdClass $user ): void {}
+/**
+ * Accept existing or submitted REST user context.
+ *
+ * @param WP_User|stdClass $user Resolved context.
+ */
+function keel_contract_accept_password_context( $user ): void {}
+/**
+ * Accept a more precise caller's request without asserting that it is validated.
+ *
+ * @param WP_REST_Request<array{password?:mixed}> $request Partial request parameters.
+ */
+function keel_contract_partial_password_request( WP_REST_Request $request ): void {
+	keel_defaults_validate_rest_password( new stdClass(), $request );
+	keel_defaults_rest_password_context( $request );
+}
+
+/** A prepared user need not be a WordPress class or stdClass. */
+class Keel_Contract_Prepared_User {
+	/**
+	 * Submitted login context.
+	 *
+	 * @var string
+	 */
+	public $user_login = 'static-only-user';
+}
+/**
+ * Preserve a custom prepared object and accept its guarded context fields.
+ *
+ * @param WP_REST_Request<array<string,mixed>> $request Raw REST request.
+ */
+function keel_contract_custom_prepared_user( WP_REST_Request $request ): void {
+	$user = new Keel_Contract_Prepared_User();
+	keel_defaults_password_enforced_for_user( $user );
+	keel_defaults_validate_password( 'static-only-example', $user );
+	$out = keel_defaults_validate_rest_password( $user, $request );
+	if ( ! is_wp_error( $out ) ) {
+		keel_contract_accept_custom_prepared_user( $out );
+	}
+}
+/** Accept the same concrete custom class after excluding validation errors. */
+function keel_contract_accept_custom_prepared_user( Keel_Contract_Prepared_User $user ): void {}

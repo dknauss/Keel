@@ -61,7 +61,7 @@ to check a file parses without running anything.
 `composer analyse` runs the scoped PHPStan pilot at level 6 against the PHP 7.4
 language target. It checks backport policy, installer, presentation, configuration
 locks, conflict attribution/overlap/divergence, conflict notices, backport status,
-backport actions and HIBP transport (eleven modules).
+backport actions, HIBP transport and password-policy adapters (twelve modules).
 Other modules are scanned for declarations, not claimed as analyzed. `composer test:types`
 analyzes valid and intentionally invalid examples in `tests/phpstan/` without
 executing them. Those examples stay outside the dependency-free runtime suite.

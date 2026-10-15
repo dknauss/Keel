@@ -6,8 +6,8 @@ simplifies one equivalent boolean condition; function signatures, hook registrat
 storage, filtering and configuration precedence remain unchanged. The subsequent
 conflict-diagnostics extension removes one always-true offset check. The notices
 extension removes a redundant object check while retaining the screen-ID guard.
-The status/transport and action-handler extensions change annotations and
-development tooling only.
+The status/transport, action-handler and password-policy extensions change
+annotations and development tooling only.
 
 ## Checked scope
 
@@ -16,11 +16,11 @@ development tooling only.
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
-`password-hibp.php`,
+`password-hibp.php` and `password-policy.php`,
 at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
-executing them. Scanning is not analysis: password-policy adapters, loading facades and other
-bodies outside these eleven files are not yet claimed clean. WordPress stubs provide
+executing them. Scanning is not analysis: loading facades and other
+bodies outside these twelve files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -46,6 +46,7 @@ shapes; @phpstan-param / @phpstan-return connect shared contracts across modules
 | KeelLadderRung | version, same-line flag and partial-package flag |
 | KeelInstallPlan | offer object; relaxed-ownership boolean and attempt_rollback always true |
 | KeelOverlapReport | separate structural and unconfirmed hook-to-plugin-list maps |
+| KeelPasswordVerdict | true on acceptance, otherwise WP_Error |
 | KeelVersionStatus | latest, outdated, insecure or unknown after runtime verdict validation |
 | KeelPolicyRegistration | callback (nullable for registry reads), integer priority/argument count, string or keyed-string-array setting |
 
@@ -76,15 +77,17 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all eleven pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; fifteen
+- `composer analyse`: all twelve pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; seventeen
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
   non-string attribution paths, missing registration field, false divergence marker,
   a notice-screen map incorrectly treated as string values, invalid produced version
   status, tri-state lookup misread as a record, a raw failure misread as text,
-  and assumed control-flow fallthrough after the AJAX action.
+  assumed control-flow fallthrough after the AJAX action, boolean password failure
+  instead of an error, and a scalar prepared user. The checker compares exact
+  per-case diagnostic multisets, including multiple errors from generic contracts.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
   the new annotations were restored, proving the added constraints were exercised.
@@ -262,9 +265,47 @@ This does not claim new real-WordPress handler execution, browser checks or timi
 A fresh eleven-module scan passes at the unchanged 768M analysis cap; fixture
 checks retain their 512M cap.
 
+## Password-policy adapter extension — October 14, 2026
+
+Add password-policy.php at level 6 with the same PHP 7.4 target (twelve modules).
+Resolve six initial annotation findings: void returns for the profile/reset hooks,
+generics for the two REST request parameters, and endpoint-map input/output value
+types. No native signatures or runtime statements change.
+
+REST parameters remain mixed rather than claiming that sanitization or authorization
+has run. Use a covariant read projection of WP_REST_Request<array<string,mixed>>
+because these adapters only inspect requests; a caller's narrower optional-password
+shape remains accepted. The endpoint registry is array<array-key,mixed>, preserving
+third-party metadata, sparse handlers and unrelated routes without asserting a
+complete handler/sanitizer schema. No inline assertion or invented validation.
+
+KeelPasswordVerdict is true|WP_Error. The prepared-user adapter's template retains
+the concrete input object on success and adds WP_Error on rejection. User-context
+annotations accept ordinary objects, whose optional context fields are guarded,
+and the existing false result of a failed get_userdata lookup;
+unknown roles still enforce the policy. Profile/reset error mutation, trimming,
+breach-first screening, exemptions, sanitizer ordering, application-password
+exclusion and the pre-authorization context privacy gate are unchanged.
+
+Positive fixtures cover raw and narrower REST requests, failed user lookup,
+prepared-object identity (including a custom class), profile/reset callbacks and
+mixed endpoint metadata.
+The seventeenth rejection case rejects scalar prepared users; the sixteenth rejects
+a false validator result. These produce multiple diagnostics, so the runner now
+checks exact sorted identifier multisets per case and the total diagnostic count
+(seventeen cases, twenty diagnostics), rather than overwriting duplicate messages.
+The existing level-6 union/nullability limits remain explicit.
+
+All runtime executable tokens match the parent. Existing password-entry-point,
+role/exemption, REST-context and HIBP suites plus full standalone/packaging, coding
+standards, compatibility, syntax and static-contract checks remain the gates.
+No new dependency, baseline, suppression, wrapper, real-site/browser execution or
+runtime performance claim. A fresh twelve-module scan passes at the unchanged
+768M cap; fixture checks retain their 512M cap.
+
 ## Remaining work
 
-Analyze password-policy adapters. Model actual validation
+Choose the next remaining module boundary explicitly before expanding analysis. Model actual validation
 before tightening raw offer/transient fields; keep unknown blocker codes possible
 at general boundaries. Explore higher levels with explicit findings rather than
 broad exclusions. Add native types only after reviewing WordPress hook input

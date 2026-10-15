@@ -14,6 +14,7 @@ parameters:
         - includes/backport-status.php
         - includes/backport-actions.php
         - includes/password-hibp.php
+        - includes/password-policy.php
     scanDirectories:
         - includes
     scanFiles:
@@ -42,3 +43,4 @@ parameters:
         KeelBackportTestRegistration: 'array{label: string, test: "keel_backport", async_direct_test: "keel_defaults_backport_test"}'
         KeelDivergenceMap: 'array<array-key, true>'
         KeelVersionStatus: '"latest"|"outdated"|"insecure"|"unknown"'
+        KeelPasswordVerdict: 'true|WP_Error'

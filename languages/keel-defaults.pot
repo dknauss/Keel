@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-15T04:52:10+00:00\n"
+"POT-Creation-Date: 2026-10-15T05:04:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -760,29 +760,29 @@ msgstr ""
 msgid "Save network policy"
 msgstr ""
 
-#: includes/password-policy.php:152
+#: includes/password-policy.php:153
 msgid "<strong>Error:</strong> Enter a password."
 msgstr ""
 
-#: includes/password-policy.php:161
+#: includes/password-policy.php:162
 msgid "<strong>Error:</strong> That password is too long."
 msgstr ""
 
-#: includes/password-policy.php:168
+#: includes/password-policy.php:169
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/password-policy.php:201
+#: includes/password-policy.php:202
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/password-policy.php:222
+#: includes/password-policy.php:223
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/password-policy.php:241
+#: includes/password-policy.php:242
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 

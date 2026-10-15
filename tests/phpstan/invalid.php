@@ -152,3 +152,20 @@ function keel_contract_reject_action_fallthrough() {
 	keel_defaults_backport_ajax();
 	return true;
 }
+
+/**
+ * Produce a boolean failure instead of a structured validation error.
+ *
+ * @phpstan-return KeelPasswordVerdict
+ */
+function keel_contract_reject_password_false() {
+	return false;
+}
+/**
+ * Supply scalar data where the REST adapter must preserve a prepared user object.
+ *
+ * @param WP_REST_Request<array<string,mixed>> $request Raw REST request.
+ */
+function keel_contract_reject_prepared_user( WP_REST_Request $request ): void {
+	keel_defaults_validate_rest_password( 'not-a-user-object', $request );
+}

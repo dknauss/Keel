@@ -33,7 +33,15 @@ $expected = array(
     "keel_contract_reject_lookup_record" => "return.type",
     "keel_contract_reject_failure_text" => "return.type",
     "keel_contract_reject_action_fallthrough" => "deadCode.unreachable",
+    "keel_contract_reject_password_false" => array("return.type", "return.unusedType", "return.unusedType"),
+    "keel_contract_reject_prepared_user" => array("argument.type", "argument.templateType"),
 );
+foreach ($expected as $case => $identifiers) {
+    $expected[$case] = (array) $identifiers;
+    sort($expected[$case]);
+}
+ksort($expected);
+$expected_error_count = array_sum(array_map("count", $expected));
 $lines = file("tests/phpstan/invalid.php");
 $function = "";
 $owners = array();
@@ -46,13 +54,17 @@ foreach ($lines as $number => $line) {
 $found = array();
 foreach (($data["files"] ?? array()) as $file) {
     foreach ($file["messages"] as $message) {
-        $found[$owners[$message["line"]] ?? ""] = $message["identifier"];
+        $found[$owners[$message["line"]] ?? ""][] = $message["identifier"];
     }
 }
-if (!is_array($data) || !empty($data["errors"]) || ($data["totals"]["file_errors"] ?? 0) !== count($expected) || array_diff_assoc($expected, $found)) {
+foreach ($found as $case => $identifiers) {
+    sort($found[$case]);
+}
+ksort($found);
+if (!is_array($data) || !empty($data["errors"]) || ($data["totals"]["file_errors"] ?? 0) !== $expected_error_count || $expected !== $found) {
     fwrite(STDERR, "Contract fixture did not reject every expected case.\n");
     fwrite(STDERR, file_get_contents($argv[1]));
     exit(1);
 }
-echo "Static contracts: ", count($expected), " invalid cases rejected.\n";
+echo "Static contracts: ", count($expected), " invalid cases rejected (", $expected_error_count, " diagnostics).\n";
 ' "$result"
