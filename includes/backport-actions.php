@@ -11,6 +11,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Answer the async Site Health request.
+ *
+ * @return never Sends a JSON response and terminates the request.
  */
 function keel_defaults_backport_ajax() {
 	// One argument, deliberately. Site Health's JS posts the nonce as _wpnonce,
@@ -32,6 +34,8 @@ function keel_defaults_backport_ajax() {
  * Writes the option only. It does not touch constants or filters, so a site
  * whose policy is set in code stays set in code — and the Site Health test says
  * so rather than pretending the click worked.
+ *
+ * @return never Rejects the request or redirects and exits.
  */
 function keel_defaults_handle_enable_minor_updates() {
 	if ( ! current_user_can( 'update_core' ) ) {
@@ -49,6 +53,8 @@ function keel_defaults_handle_enable_minor_updates() {
 
 /**
  * Record a per-user, per-version dismissal.
+ *
+ * @return never Rejects the request or ends the AJAX response.
  */
 function keel_defaults_dismiss_backport_notice() {
 	if ( ! current_user_can( 'update_core' ) ) {

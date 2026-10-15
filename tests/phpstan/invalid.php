@@ -142,3 +142,13 @@ function keel_contract_reject_lookup_record() {
 function keel_contract_reject_failure_text() {
 	return keel_hibp_last_failure();
 }
+
+/**
+ * Assume an AJAX action returns control to its caller.
+ *
+ * @return bool Deliberately unreachable result.
+ */
+function keel_contract_reject_action_fallthrough() {
+	keel_defaults_backport_ajax();
+	return true;
+}
