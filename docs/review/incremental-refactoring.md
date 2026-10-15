@@ -171,7 +171,22 @@ loading WordPress. Ten static rejection cases exercise the contracts.
 Remove only an always-true offset check on explode's non-empty result; existing
 diagnostic regression harnesses verify behavior. Other runtime tokens and native
 signatures are unchanged. See the [pilot record](data-contracts-phpstan.md) for
-scope and verification. Notices, status/transport and action handlers remain open.
+scope and verification. The next increment covers notices; status/transport and
+action handlers remain open.
+
+## Ninth increment: conflict-notices analysis
+
+Implemented 2026-10-14. Include conflict notice rendering, fingerprinting, screen
+placement and dismissal handling in the level-6, PHP 7.4-targeted pilot (eight
+modules). Retain the existing extensible screen-to-boolean contract; eleven
+negative static cases now include misuse of those flags as display strings.
+
+Simplify only the redundant object check before the screen-ID isset; missing
+screens and missing IDs retain their fallback. The extended notice harness passes
+against both renderer versions, including custom dismissible/persistent screens.
+Other runtime tokens, native signatures, permissions, nonces and stored user
+metadata remain unchanged. See the [pilot record](data-contracts-phpstan.md).
+Status/transport and separate action handlers remain open.
 
 ## Sequence and acceptance criteria
 
