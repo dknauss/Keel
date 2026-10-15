@@ -12,6 +12,7 @@ parameters:
         - includes/updates.php
         - includes/lifecycle.php
         - includes/email.php
+        - includes/assets.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php

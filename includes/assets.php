@@ -103,8 +103,8 @@ function keel_defaults_register_inline_style( $handle ) {
  * returning a CSS string; returning '' means "nothing on this request", which
  * is how the per-screen guards inside several of them report a miss.
  *
- * @param string   $context  One of 'admin', 'login', 'front'.
- * @param callable $provider Callable returning a CSS string.
+ * @param string           $context  One of 'admin', 'login', 'front'.
+ * @param callable():mixed $provider Provider whose result is cast to CSS text.
  * @return void
  */
 function keel_defaults_add_style( $context, $provider ) {
@@ -118,9 +118,9 @@ function keel_defaults_add_style( $context, $provider ) {
  * that context's list. One function rather than a global, so nothing outside
  * this file can reach in and rewrite the list.
  *
- * @param string        $context  Context key.
- * @param callable|null $provider Provider to record, or null to read.
- * @return array
+ * @param string $context  Context key.
+ * @param mixed  $provider Raw provider to record, or null to read; validated on use.
+ * @return array<array-key,mixed> Raw registry entries, narrowed by the callable guard.
  */
 function keel_defaults_style_providers( $context, $provider = null ) {
 	static $providers = array(

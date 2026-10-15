@@ -275,3 +275,22 @@ function keel_contract_reject_mail_from(): bool {
 function keel_contract_reject_mail_policy(): string {
 	return keel_defaults_suppresses_mail();
 }
+
+/** Public style registration requires a callable provider. */
+function keel_contract_reject_style_provider(): void {
+	keel_defaults_add_style( 'admin', 42 );
+}
+
+/** Providers must be invocable without mandatory arguments. */
+function keel_contract_reject_style_arguments(): void {
+	keel_defaults_add_style(
+		'admin',
+		static function ( string $required ): string { return $required;
+		}
+	);
+}
+
+/** Registry reads return a map, not rendered CSS. */
+function keel_contract_reject_style_registry(): string {
+	return keel_defaults_style_providers( 'admin' );
+}

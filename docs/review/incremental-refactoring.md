@@ -340,3 +340,13 @@ identity. Contract fixtures reject 37 cases / 40 diagnostics. Mail behavior test
 before/after notice capture and executable-token comparison preserve behavior
 and markup. PHP 7.4 and current analysis limits remain unchanged. See
 [data contracts](data-contracts-phpstan.md) for scope and verification limits.
+
+## Asset-provider analysis — 2026-10-15
+
+The level-6 pilot now includes `assets.php` (eighteen modules). Public providers
+have zero-argument callable contracts; raw registry entries remain mixed until
+the existing callable guard. Static fixtures reject 40 cases / 43 diagnostics.
+The new standalone harness verifies registration order, named deduplication,
+repeated closures, invalid entries, context isolation and exact CSS output against
+original and updated source. Executable tokens, PHP 7.4 and memory limits remain
+unchanged. See [data contracts](data-contracts-phpstan.md) for scope and limits.

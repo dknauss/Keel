@@ -454,3 +454,32 @@ function keel_contract_email( $pre, array $atts ): void {
 
 /** Consume normalized mail text. */
 function keel_contract_accept_mail_text( string $text ): void {}
+
+/**
+ * Public registration accepts zero-argument providers with castable raw results.
+ *
+ * @param callable():mixed $provider Provider.
+ * @param mixed           $raw      Unvalidated registry input.
+ */
+function keel_contract_style_providers( callable $provider, $raw ): void {
+	keel_defaults_add_style( 'admin', $provider );
+	keel_defaults_add_style(
+		'login',
+		static function (): string { return '';
+		}
+	);
+	keel_defaults_add_style(
+		'front',
+		static function (): int { return 0;
+		}
+	);
+	keel_contract_accept_style_registry( keel_defaults_style_providers( 'admin', $raw ) );
+	keel_contract_accept_style_registry( keel_defaults_style_providers( 'unknown' ) );
+}
+
+/**
+ * Raw registry contents must remain guarded before invocation.
+ *
+ * @param array<array-key,mixed> $providers Registry entries.
+ */
+function keel_contract_accept_style_registry( array $providers ): void {}
