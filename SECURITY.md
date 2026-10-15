@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The current release candidate is `0.6.9`, not yet tagged or published.
+The current version is `0.6.9`.
 Keel is published on wordpress.org as `keel-defaults`; install the published
 stable version from the plugin directory. GitHub releases and the rolling
 `latest` build remain available for anyone who prefers them.
