@@ -6,6 +6,7 @@ simplifies one equivalent boolean condition; function signatures, hook registrat
 storage, filtering and configuration precedence remain unchanged. The subsequent
 conflict-diagnostics extension removes one always-true offset check. The notices
 extension removes a redundant object check while retaining the screen-ID guard.
+The status/transport extension changes annotations and development tooling only.
 
 ## Checked scope
 
@@ -13,11 +14,11 @@ extension removes a redundant object check while retaining the screen-ID guard.
 `includes/settings-policy.php`, plus `includes/backport-install.php` and
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
-`conflict-notices.php`
+`conflict-notices.php`, plus `backport-status.php` and `password-hibp.php`,
 at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
-executing them. Scanning is not analysis: status and action-handler
-bodies outside these eight files are not yet claimed clean. WordPress stubs provide
+executing them. Scanning is not analysis: action handlers, password-policy adapters and other
+bodies outside these ten files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -26,7 +27,9 @@ missing iterable value contracts and checks shaped producer/consumer boundaries.
 Higher levels are separate work: they expose additional uncertainty around raw
 Core offers, possibly-false regex splitting, and correlations between selection
 state and selected version. Do not remove defensive branches just because a
-normal-data annotation makes them appear unnecessary.
+normal-data annotation makes them appear unnecessary. Level 6 also permits some
+partially incorrect unions, nullable results and mixed-field assumptions; the
+fixtures must not imply those are fully enforced.
 
 ## Shared contracts
 
@@ -41,6 +44,7 @@ shapes; @phpstan-param / @phpstan-return connect shared contracts across modules
 | KeelLadderRung | version, same-line flag and partial-package flag |
 | KeelInstallPlan | offer object; relaxed-ownership boolean and attempt_rollback always true |
 | KeelOverlapReport | separate structural and unconfirmed hook-to-plugin-list maps |
+| KeelVersionStatus | latest, outdated, insecure or unknown after runtime verdict validation |
 | KeelPolicyRegistration | callback (nullable for registry reads), integer priority/argument count, string or keyed-string-array setting |
 
 A Core update offer remains an object until the existing installer validates it;
@@ -70,13 +74,14 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all eight pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; eleven
+- `composer analyse`: all ten pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; fourteen
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
-  non-string attribution paths, missing registration field, false divergence marker
-  and a notice-screen map incorrectly treated as string values.
+  non-string attribution paths, missing registration field, false divergence marker,
+  a notice-screen map incorrectly treated as string values, invalid produced version
+  status, tri-state lookup misread as a record, and a raw failure misread as text.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
   the new annotations were restored, proving the added constraints were exercised.
@@ -193,9 +198,47 @@ runtime executable tokens match. Full standalone/packaging, static contracts,
 coding standards, compatibility and syntax checks remain required. No new real-site,
 browser or performance claim is made.
 
+## Status and transport extension — October 14, 2026
+
+Add backport-status.php (stable-check HTTP/cache and version status) and
+password-hibp.php (bounded breach lookup, caching and diagnostics) at the same
+level and PHP target. Ten modules are now analyzed. No runtime statements,
+native signatures, requests, timeouts, privacy boundaries, caching, invalidation
+or fail-open policy change; executable tokens match the parent in all runtime files.
+
+Resolve four initial declaration findings: add the stale-refresh callback's void
+return annotation, specify HIBP failure array values, and declare WPINC and
+MINUTE_IN_SECONDS in the existing scan-only constant file. No new dependency,
+bootstrap execution, baseline or suppression is introduced.
+
+KeelVersionStatus describes the validated latest/outdated/insecure/unknown verdict.
+The stable-check reader's old string-to-string annotation was too strong: cached
+arrays bypass the fresh HTTP validation. Return array<array-key,mixed>, and let
+the stale-map checker accept those raw records because it only tests key presence.
+The HIBP failure reader similarly checks only array-ness and non-empty kind; do
+not promise first/seen/count fields or numeric timestamps. The tri-state lookup
+continues to return bool|null, distinct from the public fail-open boolean wrapper.
+
+Valid fixtures cover verdicts, unknown lookup results, raw caches and malformed
+update offers. Three additional negative cases reject an out-of-domain produced
+status, lookup misread as a record and failure record misread as text (fourteen
+cases total). At level 6, omitted union members and assumed raw field shapes may
+still pass; higher-level checking is a separate increment, not a claimed guarantee.
+
+A fresh ten-module scan exceeded the old 512M worker cap. Smaller batches did
+not resolve it, so retain the original batching and set only composer analyse to
+768M. A fresh scan passed in 9.20 seconds with PHPStan reporting 541.42 MB used
+on this machine. Contract fixtures retain their 512M cap. CI and release checks
+already use the Composer script; installed WordPress has no analyzer or new
+memory requirement. These are development-tool measurements, not runtime metrics.
+
+Full standalone/packaging, existing HIBP/backport behavior suites, coding standards,
+PHP compatibility, syntax and static contracts remain the verification gates.
+No fresh real-site, browser, external-service or runtime performance claim is made.
+
 ## Remaining work
 
-Analyze status/transport and the separate backport action handlers. Model actual validation
+Analyze separate backport action handlers and password-policy adapters. Model actual validation
 before tightening raw offer/transient fields; keep unknown blocker codes possible
 at general boundaries. Explore higher levels with explicit findings rather than
 broad exclusions. Add native types only after reviewing WordPress hook input

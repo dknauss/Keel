@@ -23,7 +23,7 @@
         "test": "for f in tests/*.php; do php \"$f\" || exit 1; done",
         "test:integration": "bash tests/integration/verify-behaviors.sh",
         "verify:screenshots": "bash bin/verify-screenshots.sh",
-        "analyse": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=512M",
+        "analyse": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=768M",
         "test:types": "bash bin/test-phpstan-contracts.sh"
     },
     "config": {

@@ -1264,10 +1264,13 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Analyze conflict notices** — 2026-10-14; eight modules pass level 6,
       eleven static rejection cases, extensible screen-map contract and missing-ID
       fallback verified; PHP 7.4, rendering and dismissal behavior preserved.
-- [ ] **Expand static analysis to remaining boundaries** — status/transport and
-      separate backport action handlers; narrow untrusted values only after
-      validation, then assess higher levels and selective
-      PHP 7.4-compatible native types.
+- [x] **Analyze status and transport** — 2026-10-14; backport status and HIBP
+      transport bring the level-6 scope to ten modules; distinguish validated
+      verdicts from raw cache records; fourteen rejection cases; runtime unchanged.
+- [ ] **Expand static analysis to remaining boundaries** — separate backport action
+      handlers and password-policy adapters; narrow untrusted values only after
+      validation, then assess higher levels (including partial unions/nullability)
+      and selective PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
       introduce JS/CSS linting separately.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.

@@ -116,3 +116,29 @@ function keel_contract_reject_divergence_marker() {
 function keel_contract_reject_notice_screens() {
 	return keel_defaults_conflict_notice_screens();
 }
+
+/**
+ * Produce a status outside the validated verdict domain.
+ *
+ * @return 'latest'|'outdated'|'insecure'|'unknown' Deliberately incorrect status.
+ * @phpstan-return KeelVersionStatus
+ */
+function keel_contract_reject_version_status() {
+	return 'supported';
+}
+/**
+ * Treat the tri-state lookup as a structured record.
+ *
+ * @return array{breached:bool} Deliberately incorrect lookup contract.
+ */
+function keel_contract_reject_lookup_record() {
+	return keel_hibp_lookup( 'static-only-example' );
+}
+/**
+ * Treat the raw diagnostic record as display text.
+ *
+ * @return string Deliberately incorrect diagnostic contract.
+ */
+function keel_contract_reject_failure_text() {
+	return keel_hibp_last_failure();
+}
