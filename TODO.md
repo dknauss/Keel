@@ -439,10 +439,13 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Analyze backport action handlers** — 2026-10-14; eleven modules pass
       level 6; request-ending callback contracts and fifteen rejection cases;
       PHP 7.4, capabilities, nonces, writes and redirects unchanged.
-- [ ] **Expand static analysis to password-policy adapters** — narrow untrusted
-      values only after validation, then assess higher levels (including partial
-      unions/nullability)
-      and selective PHP 7.4-compatible native types.
+- [x] **Analyze password-policy adapters** — 2026-10-14; twelve modules pass
+      level 6; raw REST/endpoint boundaries, prepared-user identity and true/error
+      verdicts; seventeen rejection cases; PHP 7.4 and runtime behavior unchanged.
+- [ ] **Plan the next static-analysis scope and level** — select remaining module
+      boundaries explicitly, narrow untrusted values only after validation, then
+      assess higher levels (including partial unions/nullability) and selective
+      PHP 7.4-compatible native types.
 - [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
       faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives

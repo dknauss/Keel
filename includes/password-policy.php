@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * "Password policy exemptions" setting (limited to low-privilege roles) and can
  * be overridden in code with the keel_weak_roles filter.
  *
- * @param WP_User|stdClass|null $user User context, when available.
+ * @param WP_User|stdClass|false|null $user User context, or a failed user lookup.
  * @return bool
  */
 function keel_defaults_password_enforced_for_user( $user ) {
@@ -109,9 +109,10 @@ function keel_defaults_exemptable_roles() {
  * reset, and the REST users controller — so a password cannot get in through a
  * door the policy does not watch.
  *
- * @param string                $password Proposed password.
- * @param WP_User|stdClass|null $user     User context, when available.
+ * @param string                      $password Proposed password.
+ * @param WP_User|stdClass|false|null $user User context, or a failed user lookup.
  * @return true|WP_Error True when acceptable, WP_Error describing the failure.
+ * @phpstan-return KeelPasswordVerdict
  */
 function keel_defaults_validate_password( $password, $user = null ) {
 	/*
@@ -253,6 +254,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
  * @param WP_Error         $errors Validation errors.
  * @param bool             $update Whether this is an update.
  * @param WP_User|stdClass $user   User context.
+ * @return void
  */
 function keel_defaults_validate_profile_password( $errors, $update, $user ) {
 	unset( $update );
@@ -280,6 +282,7 @@ function keel_defaults_validate_profile_password( $errors, $update, $user ) {
  *
  * @param WP_Error $errors Validation errors.
  * @param WP_User  $user   User context.
+ * @return void
  */
 function keel_defaults_validate_reset_password( $errors, $user ) {
 	// wp-login.php already trims $_POST['pass1'] in place before firing this
@@ -306,6 +309,10 @@ function keel_defaults_validate_reset_password( $errors, $user ) {
  * @param object          $prepared_user Prepared user object.
  * @param WP_REST_Request $request       REST request.
  * @return object|WP_Error
+ * @template TPrepared of object
+ * @phpstan-param TPrepared $prepared_user
+ * @phpstan-param WP_REST_Request<covariant array<string,mixed>> $request
+ * @phpstan-return TPrepared|WP_Error
  */
 function keel_defaults_validate_rest_password( $prepared_user, $request ) {
 	$password = $request->get_param( 'password' );
@@ -333,8 +340,11 @@ function keel_defaults_validate_rest_password( $prepared_user, $request ) {
  * turns it into rest_invalid_param, which dispatch() returns as a 400 before
  * the callback runs, so the caller sees the actual reason.
  *
- * @param array $endpoints Registered REST endpoints, keyed by route.
- * @return array
+ * Endpoint handlers and metadata are not validated as a full registry schema.
+ * Only matching password arguments are wrapped; all other entries pass through.
+ *
+ * @param array<array-key,mixed> $endpoints Registered REST endpoints and metadata.
+ * @return array<array-key,mixed>
  */
 function keel_defaults_guard_rest_password_arg( $endpoints ) {
 	foreach ( $endpoints as $route => $handlers ) {
@@ -396,6 +406,7 @@ function keel_defaults_guard_rest_password_arg( $endpoints ) {
  * has no stored user at all, so the submitted fields are the only context.
  *
  * @param WP_REST_Request $request REST request.
+ * @phpstan-param WP_REST_Request<covariant array<string,mixed>> $request
  * @return WP_User|stdClass
  */
 function keel_defaults_rest_password_context( $request ) {

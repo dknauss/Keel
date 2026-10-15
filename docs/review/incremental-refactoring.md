@@ -213,7 +213,21 @@ fallthrough after the AJAX action.
 All runtime executable tokens, permissions, nonces, writes, JSON responses and
 redirects remain unchanged. No extra shape, wrapper, dependency or suppression
 is introduced. See the [pilot record](data-contracts-phpstan.md) for scope and
-verification. Password-policy adapters remain open.
+verification. The next increment covers password-policy adapters.
+
+## Twelfth increment: password-policy adapter analysis
+
+Implemented 2026-10-14. Include password-policy.php at level 6 with the PHP 7.4
+target (twelve modules). Describe the shared true/error verdict, prepared-object
+identity, raw REST parameters, read-only request projection and mixed endpoint
+registry. Profile/reset callbacks return void; user context includes failed lookups.
+Seventeen negative cases produce twenty precisely checked diagnostics.
+
+All runtime executable tokens, signatures, policy ordering, role exemptions,
+profile/reset trimming, REST sanitizer behavior and context privacy remain unchanged.
+No runtime wrapper, validation or dependency is introduced. See the
+[pilot record](data-contracts-phpstan.md) for contracts and verification limits.
+Select further modules and higher-level analysis as separate increments.
 
 ## Sequence and acceptance criteria
 
