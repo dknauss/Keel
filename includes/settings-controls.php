@@ -17,6 +17,8 @@ defined( 'ABSPATH' ) || exit;
  * @param array $field Schema field.
  * @param array $s     Display strings.
  * @return array<string|int,string>
+ * @phpstan-param KeelChoiceField $field
+ * @phpstan-param KeelChoiceCopy $s
  */
 function keel_defaults_control_choices( array $field, array $s ) {
 	if ( 'multiselect' === $field['type'] && ! isset( $field['choices'] ) ) {
@@ -53,6 +55,8 @@ function keel_defaults_control_choices( array $field, array $s ) {
  * @param bool   $locked      Whether the control is locked.
  * @param string $context     Site or network presentation.
  * @return void
+ * @phpstan-param KeelControlField $field
+ * @phpstan-param KeelControlCopy $s
  */
 function keel_defaults_render_control( $key, $name, $value, $field, $s, $statement, $describedby, $locked = false, $context = 'site' ) {
 	$site  = 'network' !== $context;
@@ -147,6 +151,7 @@ function keel_defaults_render_control( $key, $name, $value, $field, $s, $stateme
  * @param string $statement   The "true when checked" statement (already translated).
  * @param bool   $disabled    Whether to mark the checkbox as locked (focusable).
  * @param string $describedby Space-separated ids for aria-describedby (help/lock).
+ * @return void
  */
 function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = false, $describedby = '' ) {
 	$aria = ( '' !== $describedby ) ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : '';
@@ -202,6 +207,8 @@ function keel_defaults_render_checkbox( $name, $value, $statement, $disabled = f
  * @param string $describedby Space-separated ids for aria-describedby.
  * @param bool   $locked      Whether wp-config.php or network policy has settled this.
  * @return void
+ * @phpstan-param KeelRangeField $field
+ * @phpstan-param KeelRangeCopy $s
  */
 function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $label, $describedby, $locked = false ) {
 	$rvalues = array_map( 'strval', array_values( $field['values'] ) );
@@ -248,7 +255,7 @@ function keel_defaults_render_range_field( $key, $name, $value, $field, $s, $lab
 			?>
 			data-keel-range="<?php echo esc_attr( $rid ); ?>-output"
 			data-keel-range-labels="<?php echo esc_attr( wp_json_encode( $rlabels ) ); ?>"
-			data-keel-range-widths="<?php echo esc_attr( wp_json_encode( array_values( $rpx ) ) ); ?>"
+			data-keel-range-widths="<?php echo esc_attr( wp_json_encode( $rpx ) ); ?>"
 			<?php echo '' !== $describedby ? ' aria-describedby="' . esc_attr( $describedby ) . '"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?> style="vertical-align:middle;max-width:240px;" />
 		<datalist id="<?php echo esc_attr( $rid ); ?>-stops">
 			<?php foreach ( $rlabels as $ri => $rl ) : ?>

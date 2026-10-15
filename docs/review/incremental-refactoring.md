@@ -228,7 +228,22 @@ All runtime executable tokens, signatures, policy ordering, role exemptions,
 profile/reset trimming, REST sanitizer behavior and context privacy remain unchanged.
 No runtime wrapper, validation or dependency is introduced. See the
 [pilot record](data-contracts-phpstan.md) for contracts and verification limits.
-Select further modules and higher-level analysis as separate increments.
+The next increment covers shared settings controls; higher-level analysis remains
+separate.
+
+## Thirteenth increment: shared settings-control analysis
+
+Implemented 2026-10-15. Add settings-controls.php at level 6 with the PHP 7.4
+target (thirteen modules). Minimal field/copy projections retain optional defaults,
+keyed arrays, arbitrary select-like types and raw range/bound values. Twenty
+negative cases produce 23 checked diagnostics.
+
+Remove only array_values on the already sequential width list before JSON output.
+Ten full-page renders and 321 site/network control renders match byte-for-byte
+before/after, including locks, alternate values and keyed range metadata. Other
+runtime tokens, native signatures, accessibility attributes, hidden preferences
+and save behavior are unchanged. See the [pilot record](data-contracts-phpstan.md).
+The large settings pages and a global level increase remain outside this scope.
 
 ## Sequence and acceptance criteria
 

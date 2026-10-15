@@ -169,3 +169,24 @@ function keel_contract_reject_password_false() {
 function keel_contract_reject_prepared_user( WP_REST_Request $request ): void {
 	keel_defaults_validate_rest_password( 'not-a-user-object', $request );
 }
+
+/** A range renderer requires its value collection. */
+function keel_contract_reject_range_values(): void {
+	keel_defaults_render_range_field( 'width', 'width', 'default', array(), array(), 'Width', '' );
+}
+/** Choice resolution reads the field's type directly. */
+function keel_contract_reject_choice_type(): void {
+	keel_defaults_control_choices( array( 'choices' => array( 'a' ) ), array() );
+}
+/** Labels must be a collection, not a single display string. */
+function keel_contract_reject_range_labels(): void {
+	keel_defaults_render_range_field(
+		'width',
+		'width',
+		'default',
+		array( 'values' => array( 'default' ) ),
+		array( 'labels' => 'Default' ),
+		'Width',
+		''
+	);
+}

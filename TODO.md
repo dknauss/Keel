@@ -442,6 +442,9 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Analyze password-policy adapters** — 2026-10-14; twelve modules pass
       level 6; raw REST/endpoint boundaries, prepared-user identity and true/error
       verdicts; seventeen rejection cases; PHP 7.4 and runtime behavior unchanged.
+- [x] **Analyze shared settings controls** — 2026-10-15; thirteen modules pass
+      level 6; minimal field/copy projections and twenty rejection cases; ten page
+      renders and 321 control renders match before/after; PHP 7.4 preserved.
 - [ ] **Plan the next static-analysis scope and level** — select remaining module
       boundaries explicitly, narrow untrusted values only after validation, then
       assess higher levels (including partial unions/nullability) and selective

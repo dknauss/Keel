@@ -1,4 +1,4 @@
-# Pilot: analyze policy, backports and conflict diagnostics, not the whole plugin.
+# Pilot: analyze the listed modules, not the whole plugin.
 parameters:
     level: 6
     phpVersion: 70400
@@ -7,6 +7,7 @@ parameters:
         - includes/backport-install.php
         - includes/backport-presentation.php
         - includes/settings-policy.php
+        - includes/settings-controls.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php
@@ -44,3 +45,9 @@ parameters:
         KeelDivergenceMap: 'array<array-key, true>'
         KeelVersionStatus: '"latest"|"outdated"|"insecure"|"unknown"'
         KeelPasswordVerdict: 'true|WP_Error'
+        KeelChoiceField: 'array{type: string, values?: array<array-key, mixed>, choices?: array<array-key, int|string>}'
+        KeelChoiceCopy: 'array{labels?: array<array-key, string>, choices?: array<array-key, string>}'
+        KeelControlField: 'array{type?: string, min?: mixed, max?: mixed, values?: array<array-key, mixed>, choices?: array<array-key, int|string>}'
+        KeelControlCopy: 'array{label?: string, unit?: string, labels?: array<array-key, string>, choices?: array<array-key, string>}'
+        KeelRangeField: 'array{values: array<array-key, mixed>}'
+        KeelRangeCopy: 'array{labels?: array<array-key, string>}'

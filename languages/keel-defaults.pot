@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-15T05:04:30+00:00\n"
+"POT-Creation-Date: 2026-10-15T13:27:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -802,7 +802,7 @@ msgstr ""
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
-#: includes/settings-controls.php:111
+#: includes/settings-controls.php:115
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
