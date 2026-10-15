@@ -9,6 +9,7 @@ parameters:
         - includes/settings-policy.php
         - includes/settings-controls.php
         - includes/updates-screen.php
+        - includes/updates.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php

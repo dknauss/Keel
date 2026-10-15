@@ -62,7 +62,7 @@ to check a file parses without running anything.
 language target. It checks backport policy, installer, presentation, configuration
 locks, conflict attribution/overlap/divergence, conflict notices, backport status,
 backport actions, HIBP transport, password-policy adapters and shared settings
-controls and Updates-screen presentation (fourteen modules).
+controls, Updates-screen presentation and update-policy callbacks (fifteen modules).
 Other modules are scanned for declarations, not claimed as analyzed. `composer test:types`
 analyzes valid and intentionally invalid examples in `tests/phpstan/` without
 executing them. Those examples stay outside the dependency-free runtime suite.

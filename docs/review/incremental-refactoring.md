@@ -310,3 +310,12 @@ unchanged. Static examples and runtime invalid-input checks supplement the exist
 Updates-screen offer/result tests and before/after markup comparison. See
 [data contracts](data-contracts-phpstan.md) for scope and verification limits.
 Remaining module boundaries and higher levels require separate focused increments.
+
+## Update-policy callback analysis — 2026-10-15
+
+The level-6 pilot now includes `updates.php` (fifteen modules). Existing boolean
+contracts need no source changes. Positive and negative static fixtures exercise
+all four callbacks; 28 invalid cases produce 31 exact diagnostics. Existing
+core-update-policy and full standalone tests verify policy behavior. PHP 7.4,
+all runtime source and analysis memory caps remain unchanged. Remaining modules
+and higher levels stay separate increments; see [data contracts](data-contracts-phpstan.md).

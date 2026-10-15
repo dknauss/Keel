@@ -448,6 +448,9 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Analyze the Updates screen** — 2026-10-15; fourteen modules pass level 6;
       raw branch-tip contracts preserve defensive checks, capability gating and
       offer/result markup; PHP 7.4 and executable code unchanged.
+- [x] **Analyze update-policy callbacks** — 2026-10-15; fifteen modules pass
+      level 6; boolean input/output fixtures bring rejection coverage to 28 cases
+      (31 diagnostics); PHP 7.4 and all runtime source unchanged.
 - [ ] **Plan the next static-analysis scope and level** — select remaining module
       boundaries explicitly, narrow untrusted values only after validation, then
       assess higher levels (including partial unions/nullability) and selective

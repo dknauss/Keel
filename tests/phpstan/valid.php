@@ -392,3 +392,14 @@ function keel_contract_accept_updates_screen_tip( $tip ): void {
 	keel_defaults_updates_screen_content( 'insecure', $tip, '7.1', false );
 	keel_defaults_render_updates_screen_markup( 'insecure', $tip, '7.1', false );
 }
+
+/** Boolean WordPress decisions produce boolean policy decisions. */
+function keel_contract_update_policy_decisions( bool $enabled ): void {
+	keel_contract_accept_update_decision( keel_defaults_allow_minor_core_updates( $enabled ) );
+	keel_contract_accept_update_decision( keel_defaults_allow_major_core_updates( $enabled ) );
+	keel_contract_accept_update_decision( keel_defaults_allow_dev_core_updates( $enabled ) );
+	keel_contract_accept_update_decision( keel_defaults_allow_translation_updates( $enabled ) );
+}
+
+/** Consume a policy verdict without requiring a narrower true/false literal. */
+function keel_contract_accept_update_decision( bool $enabled ): void {}
