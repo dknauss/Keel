@@ -17,11 +17,11 @@ annotations and development tooling only.
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
 `password-hibp.php`, `password-policy.php`, `settings-controls.php`,
-`updates-screen.php`, `updates.php` and `lifecycle.php` at PHPStan level 6,
+`updates-screen.php`, `updates.php`, `lifecycle.php` and `email.php` at PHPStan level 6,
 with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these sixteen files are not yet claimed clean. WordPress stubs provide
+bodies outside these seventeen files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -78,8 +78,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all sixteen pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; thirty-three
+- `composer analyse`: all seventeen pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; thirty-seven
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
@@ -90,7 +90,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
   instead of an error, a scalar prepared user, missing range values, missing choice
   type, non-array range labels, and non-boolean inputs/string return consumers
   for each of the four update-policy callbacks, an invalid activation flag, a seed
-  map consumed as text and three lifecycle booleans consumed as strings. The checker compares exact
+  map consumed as text, three lifecycle booleans consumed as strings, a non-array
+  mail payload and incorrect mail result/From/policy consumers. The checker compares exact
   per-case diagnostic multisets, including multiple errors from generic contracts.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
@@ -407,6 +408,28 @@ numeric-string IDs and restoration to a non-main originating site. Existing
 The strengthened harness passes against both original and updated source; runtime
 source token comparison is identical. These are local stub checks, not real-site
 or browser verification. Full standalone/packaging checks remain required.
+
+## Email increment — 2026-10-15
+
+Add only `email.php` at level 6 (seventeen modules). The three initial diagnostics
+require void return annotations on two notice renderers and a value type for
+suppressed mail arguments. Use array<array-key,mixed> for the message and observer
+payload: extension keys, numeric keys and arbitrary values remain allowed. The
+ignored prior pre_wp_mail result is documented as mixed, preserving filter-chain
+flexibility; no runtime validation, casts or native signatures are introduced.
+
+Positive static examples cover open maps, empty payloads, recipient arrays,
+extension objects and arbitrary prior filter results, plus text/boolean consumers
+and notice calls. Four negative examples reject serialized message arguments and
+incorrect boolean/text consumers. The runner checks 37 cases / 40 exact diagnostics.
+Runtime tests preserve payload keys, values and object identity at the observer,
+ignore prior results as before and retain raw suppression-filter boolean coercion.
+
+Existing mail-failure and nonproduction-mail harnesses cover environment gates,
+From filtering, custom recommendations, reset detection, suppression and notices.
+Before/after capture verifies seven byte-identical notice outputs; executable PHP tokens are
+unchanged. PHP 7.4, dependencies, baselines, suppressions and the 768M/512M caps
+remain unchanged. These are local stub checks, not real-site or browser validation.
 
 ## Remaining work
 

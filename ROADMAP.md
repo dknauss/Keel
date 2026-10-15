@@ -1285,6 +1285,9 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Analyze activation and migrations** — 2026-10-15; sixteen modules pass
       level 6; raw new-site hook input and evolving data-version analysis preserve
       defensive guards; 33 rejection cases / 36 diagnostics; PHP 7.4 preserved.
+- [x] **Analyze email policies and notices** — 2026-10-15; seventeen modules
+      pass level 6; open mail/filter contracts, 37 rejection cases / 40 diagnostics;
+      notice markup, PHP 7.4 and executable code preserved.
 - [ ] **Plan the next static-analysis scope and level** — select remaining module
       boundaries explicitly, narrow untrusted values only after validation, then
       assess higher levels (including partial unions/nullability) and selective

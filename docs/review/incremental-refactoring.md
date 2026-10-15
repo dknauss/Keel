@@ -330,3 +330,13 @@ multisite context-stack harness passes original and updated code, including
 migration/no-op cases, malformed input and non-main-site restoration. PHP 7.4
 and current memory caps remain unchanged. See [data contracts](data-contracts-phpstan.md)
 for scope, constant-model rationale and verification limits.
+
+## Email analysis — 2026-10-15
+
+The level-6 pilot now includes `email.php` (seventeen modules). Notice void
+annotations and open mail argument maps fix the three findings. Prior filter
+results remain raw and ignored; observer payloads retain extension data and
+identity. Contract fixtures reject 37 cases / 40 diagnostics. Mail behavior tests,
+before/after notice capture and executable-token comparison preserve behavior
+and markup. PHP 7.4 and current analysis limits remain unchanged. See
+[data contracts](data-contracts-phpstan.md) for scope and verification limits.

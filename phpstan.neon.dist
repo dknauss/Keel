@@ -11,6 +11,7 @@ parameters:
         - includes/updates-screen.php
         - includes/updates.php
         - includes/lifecycle.php
+        - includes/email.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php

@@ -424,3 +424,33 @@ function keel_contract_lifecycle( $site, bool $network_wide ): void {
  * @param array<string,mixed> $values Option-shaped defaults.
  */
 function keel_contract_accept_seed_values( array $values ): void {}
+
+/**
+ * Mail filters retain raw prior results and open argument maps.
+ *
+ * @param mixed                  $pre  Prior filter result.
+ * @param array<array-key,mixed> $atts Message and extension data.
+ */
+function keel_contract_email( $pre, array $atts ): void {
+	keel_contract_accept_update_decision( keel_defaults_suppress_mail( $pre, $atts ) );
+	keel_defaults_suppress_mail( new WP_Error(), array() );
+	keel_defaults_suppress_mail(
+		false,
+		array(
+			'to'        => array( 'one@example.test' ),
+			'extension' => new stdClass(),
+			7           => null,
+		)
+	);
+	keel_contract_accept_update_decision( keel_defaults_mail_is_risky() );
+	keel_contract_accept_update_decision( keel_defaults_is_zero_reset_result() );
+	keel_contract_accept_update_decision( keel_defaults_suppresses_mail() );
+	keel_contract_accept_mail_text( keel_defaults_mail_from_address() );
+	keel_contract_accept_mail_text( keel_defaults_hide_zero_reset_css() );
+	keel_defaults_render_mail_config_notice();
+	keel_defaults_render_reset_failure_notice();
+	keel_defaults_render_mail_suppressed_notice();
+}
+
+/** Consume normalized mail text. */
+function keel_contract_accept_mail_text( string $text ): void {}
