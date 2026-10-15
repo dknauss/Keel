@@ -381,3 +381,14 @@ function keel_contract_settings_controls(): void {
  * @param array<array-key,string> $choices Value => display label.
  */
 function keel_contract_accept_control_choices( array $choices ): void {}
+
+/**
+ * Raw branch tips are validated by the offer renderer, including through wrappers.
+ *
+ * @param mixed $tip Unvalidated branch tip.
+ */
+function keel_contract_accept_updates_screen_tip( $tip ): void {
+	keel_defaults_updates_screen_markup( 'insecure', $tip, '7.1', false );
+	keel_defaults_updates_screen_content( 'insecure', $tip, '7.1', false );
+	keel_defaults_render_updates_screen_markup( 'insecure', $tip, '7.1', false );
+}

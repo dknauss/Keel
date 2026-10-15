@@ -1276,6 +1276,9 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Analyze shared settings controls** — 2026-10-15; thirteen modules pass
       level 6; minimal field/copy projections and twenty rejection cases; ten page
       renders and 321 control renders match before/after; PHP 7.4 preserved.
+- [x] **Analyze the Updates screen** — 2026-10-15; fourteen modules pass level 6;
+      raw branch-tip contracts preserve defensive checks, capability gating and
+      offer/result markup; PHP 7.4 and executable code unchanged.
 - [ ] **Plan the next static-analysis scope and level** — select remaining module
       boundaries explicitly, narrow untrusted values only after validation, then
       assess higher levels (including partial unions/nullability) and selective

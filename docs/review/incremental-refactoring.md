@@ -300,3 +300,13 @@ present need to wrap WordPress HTTP/REST APIs in PSR-7/15/18 interfaces or repla
 WordPress formatting with PSR-12/PER. These are conditional choices, not backlog
 commitments. No container, autoloading migration, or blanket OOP conversion is
 planned.
+
+## Updates-screen static analysis — 2026-10-15
+
+The level-6 pilot now includes `updates-screen.php` (fourteen modules). Raw
+branch-tip PHPDocs match the existing string guard through all three rendering
+helpers. Executable code, PHP 7.4 compatibility, capability checks and markup stay
+unchanged. Static examples and runtime invalid-input checks supplement the existing
+Updates-screen offer/result tests and before/after markup comparison. See
+[data contracts](data-contracts-phpstan.md) for scope and verification limits.
+Remaining module boundaries and higher levels require separate focused increments.

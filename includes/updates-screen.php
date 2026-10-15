@@ -59,7 +59,7 @@ function keel_defaults_render_updates_screen() {
  * result waited in its transient for their next visit to Site Health.
  *
  * @param string       $status   Result of keel_defaults_version_status().
- * @param string       $tip      Patched release on this line, or ''.
+ * @param mixed        $tip      Raw branch tip; only non-empty strings produce an offer.
  * @param string       $latest   Newest release WordPress.org lists.
  * @param string|false $selected Result of keel_defaults_ladder_selection().
  * @return string
@@ -76,7 +76,7 @@ function keel_defaults_updates_screen_content( $status, $tip, $latest, $selected
  * The offer, gated on capability.
  *
  * @param string       $status   Result of keel_defaults_version_status().
- * @param string       $tip      Patched release on this line, or ''.
+ * @param mixed        $tip      Raw branch tip; only non-empty strings produce an offer.
  * @param string       $latest   Newest release WordPress.org lists.
  * @param string|false $selected Result of keel_defaults_ladder_selection().
  * @return string Markup, or '' when there is nothing to offer.
@@ -99,7 +99,7 @@ function keel_defaults_render_updates_screen_markup( $status, $tip, $latest, $se
  * speculate.
  *
  * @param string       $status   Result of keel_defaults_version_status().
- * @param string       $tip      Patched release on this line, or ''.
+ * @param mixed        $tip      Raw branch tip; only non-empty strings produce an offer.
  * @param string       $latest   Newest release WordPress.org lists.
  * @param string|false $selected Result of keel_defaults_ladder_selection().
  * @return string Markup, or '' when there is nothing to offer.

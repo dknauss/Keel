@@ -16,11 +16,11 @@ annotations and development tooling only.
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
-`password-hibp.php`, `password-policy.php` and `settings-controls.php`,
-at PHPStan level 6, with `phpVersion: 70400`.
+`password-hibp.php`, `password-policy.php`, `settings-controls.php` and
+`updates-screen.php` at PHPStan level 6, with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these thirteen files are not yet claimed clean. WordPress stubs provide
+bodies outside these fourteen files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -77,7 +77,7 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all thirteen pilot modules must pass without suppressed errors.
+- `composer analyse`: all fourteen pilot modules must pass without suppressed errors.
 - `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; twenty
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
@@ -342,6 +342,24 @@ choice type and non-array labels. The runner checks twenty invalid cases with
 standalone/packaging and static checks remain required. Analysis and fixture
 memory caps remain 768M and 512M; a fresh thirteen-module scan passes within
 the existing cap. No runtime performance claim is made.
+
+## Updates-screen increment — 2026-10-15
+
+Add only `updates-screen.php` at level 6 (fourteen modules), retaining the PHP
+7.4 target and existing analysis/fixture memory caps. The single initial finding
+was a PHPDoc string declaration making the defensive `is_string($tip)` check
+appear redundant. All three rendering boundaries now document the raw tip as
+mixed; narrowing remains at the existing non-empty-string guard. No executable
+code, native signatures, dependencies, suppressions or baselines change.
+
+Positive static examples pass an unvalidated tip through all three helpers.
+Runtime checks cover null, booleans, integers, floats, arrays and objects through
+the same helpers, alongside the existing capability, comparison, installer and
+consumed-result checks. Before/after differential rendering verifies identical
+markup across 2,592 scenarios (5,184 renders), including pending-result
+consumption and capability-denied requests. Executable-token comparison also
+confirms the source change is documentation only. These are local stub checks, not browser or real-WordPress verification.
+The twenty negative fixture cases and 23 exact diagnostics remain unchanged.
 
 ## Remaining work
 

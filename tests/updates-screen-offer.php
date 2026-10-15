@@ -95,6 +95,13 @@ keel_assert( '' === keel_defaults_updates_screen_markup( 'latest', '', '7.1', '7
 keel_assert( '' === keel_defaults_updates_screen_markup( 'unknown', '', '', false ), 'an undetermined status produces nothing here — Site Health says so, this screen does not guess' );
 keel_assert( '' === keel_defaults_updates_screen_markup( 'insecure', '', '7.1', '7.1' ), 'an insecure release with no patch on its line produces nothing: there is nothing to offer' );
 
+// Invalid branch-tip inputs must be rejected before escaping or installer calls.
+foreach ( array( null, false, true, 60410, 6.4, array(), new stdClass() ) as $invalid_tip ) {
+	keel_assert( '' === keel_defaults_updates_screen_markup( 'insecure', $invalid_tip, '7.1', false ), 'a non-string tip produces no offer' );
+	keel_assert( '' === keel_defaults_updates_screen_content( 'insecure', $invalid_tip, '7.1', false ), 'the content wrapper preserves the tip guard' );
+	keel_assert( '' === keel_defaults_render_updates_screen_markup( 'insecure', $invalid_tip, '7.1', false ), 'the capability wrapper preserves the tip guard' );
+}
+
 // What it says. This is the comparison the administrator is actually making.
 
 $m = keel_defaults_updates_screen_markup( 'insecure', '6.4.10', '7.1', '7.1' );
