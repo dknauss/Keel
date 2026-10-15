@@ -242,7 +242,7 @@ Security: with comments off, the REST API no longer serves a comment by ID. Lock
 The admin menu width slider previews again while you drag it. On any site with a width saved, Keel's own saved rule had been overriding its own preview, so the slider moved nothing on screen. No setting changes.
 
 = 0.6.4 =
-Two reporting fixes. The menu width slider's first stop claimed to set WordPress's 160px and set nothing; there is now a real 160px stop, and the first reads "Leave unchanged". The conflict notice no longer sends you to a Site Health page reporting nothing found. No setting changes.
+Fixes two misleading reports: the menu slider now has a real 160px stop and labels its first stop "Leave unchanged". Conflict notices no longer point to an empty Site Health report. No setting changes.
 
 = 0.6.3 =
 The security release on your own version line is now offered on the Updates screen, not only in Site Health — WordPress omits it there, and that is the screen people go to. Installing from it now returns you there and tells you what happened. No setting changes.

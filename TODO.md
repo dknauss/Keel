@@ -9,7 +9,10 @@ This file and ROADMAP.md are the only record of scope.
 
 ## Now — observe the 0.6 line
 
-Each 0.6 release is published only after the release checklist runs in full; 0.6.0 through 0.6.7 are out.
+Each 0.6 release is published only after the release checklist runs in full.
+GitHub release v0.6.8 is published and its release/deploy workflow succeeded;
+WordPress.org also reports 0.6.8 (verified 2026-10-15).
+The post-release refactors on main require a new version before the next tag.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -34,7 +37,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       where stable-check and the release it names are shown drifting apart by hours.
       Pinned in `tests/backport-status.php`; staged live on every row of the backport
       matrix by `tests/integration/stable-check-refresh-probe.php`.
-- [x] **Environment override and mislabelled-site warning** — in 0.6.8, not yet tagged. The schema
+- [x] **Environment override and mislabelled-site warning** — shipped in tagged 0.6.8. The schema
       goes to 40 defaults with `environment_override` (Automatic, or a fixed environment
       Keel uses instead of `WP_ENVIRONMENT_TYPE`). Found on WordPress.com sites whose
       live `wp-config.php` had been replaced by a WordPress Studio copy declaring
@@ -42,7 +45,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       screen saying why. Keel now warns administrators, without a toggle, when a site
       declares local or development but is served from a public host or runs on
       WordPress.com (`IS_ATOMIC`). Pinned in `tests/environment-indicator.php`.
-- [x] **Keep warning while the Environment override covers for a wrong label** — in 0.6.8, not yet tagged.
+- [x] **Keep warning while the Environment override covers for a wrong label** — shipped in tagged 0.6.8.
       Found 2026-10-13 reviewing the override in use: choosing Production cleared the
       mislabelled-site warning, but WordPress, Jetpack and WordPress.com went on reading
       `local`, so the stopgap hid the fault. A second warning now replaces the first until
@@ -52,7 +55,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       on WordPress.com) and `wp config set WP_ENVIRONMENT_TYPE production --type=constant`.
       Site Health gains an Environment type check, and the Network Admin shows the label
       warning. No new settings. Pinned in `tests/environment-indicator.php`.
-- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — in 0.6.8, not yet tagged. Found
+- [x] **Say when Jetpack, not Keel, is setting the admin menu width** — shipped in tagged 0.6.8. Found
       2026-10-12 on a WordPress.com Atomic site (Jetpack 16.3): the menu was 272px with
       Admin Menu Width at "Leave unchanged". Jetpack's masterbar package enqueues
       `jetpack-admin-menu`, which sets 272px, and Keel emits nothing at that setting.
@@ -63,7 +66,7 @@ Each 0.6 release is published only after the release checklist runs in full; 0.6
       and `tests/settings-render.php`; documented under Admin Menu Width in
       `docs/wordpress-default-settings.md`.
   - Not yet seen on a real site: the note itself.
-- [x] **The block editor follows the admin menu width** — in 0.6.8, not yet tagged. Checked 2026-10-12
+- [x] **The block editor follows the admin menu width** — shipped in tagged 0.6.8. Checked 2026-10-12
       on a disposable local site (Jetpack 16.3, its masterbar package started by hand).
       Outside fullscreen mode the editor's frame is `position: fixed` with its own
       `left`, 160px from core and 272px from Jetpack, and Keel never set it. At 240px
@@ -463,12 +466,18 @@ These are maintenance increments alongside feature work, not new release promise
 - [x] **Analyze network policy** — 2026-10-15; nineteen modules pass level 6;
       raw form/store boundaries and shared control projections; 43 rejection cases /
       46 diagnostics; guards, policy behavior, markup and PHP 7.4 preserved.
-- [ ] **Reassess static analysis by risk, not file count** — pause routine expansion
+- [x] **Reassess static analysis by risk, not file count** — decided 2026-10-15; pause routine expansion
       after the network increment. Prioritize release/boundary verification; expand
       remaining modules or levels only for a concrete defect risk or planned change.
       Keep PHP 7.4 and validate raw inputs before narrowing.
-- [ ] **Improve verification at the boundaries** — real-WP/multisite/browser checks,
-      faithful shared stubs, and a separate JS/CSS linting increment; assess coverage.
+- [x] **Complete the refactor release checks** — 2026-10-15; 48 real-WP probes,
+      47 boundary assertions, browser flows on both network sites, six live installer
+      rows and packaged-install smoke pass. See the [verification record](docs/review/release-verification-2026-10-15.md).
+- [x] **Trim the historical upgrade notice** — 2026-10-15; shorten 0.6.4 copy
+      below the directory limit while preserving both reporting fixes.
+- [ ] **Extend verification when risk warrants it** — add JS/CSS linting separately;
+      assess broader accessibility, browser coverage and faithful shared test stubs.
+      These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives
       and audit source-reading tests, packaging and screenshot guards after moves.
 
