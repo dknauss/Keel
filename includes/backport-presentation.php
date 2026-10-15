@@ -581,6 +581,7 @@ function keel_defaults_backport_notice() {
 
 	$tip   = keel_defaults_branch_tip();
 	$state = keel_defaults_minor_update_state();
+	$link  = __( 'See what is preventing it — Site Health', 'keel-defaults' );
 
 	if ( '' === $tip ) {
 		$body = sprintf(
@@ -588,6 +589,7 @@ function keel_defaults_backport_notice() {
 			esc_html__( 'WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
+		$link = __( 'Review upgrade options — Site Health', 'keel-defaults' );
 	} elseif ( $state['policy'] && $state['operable'] ) {
 		/*
 		 * Deliberately no schedule promise. This renders on every admin screen, so it
@@ -597,10 +599,11 @@ function keel_defaults_backport_notice() {
 		 */
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version. */
-			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install.', 'keel-defaults' ),
+			esc_html__( 'WordPress %1$s has known vulnerabilities. The nearest release without them is %2$s, on this same line. Automatic updates are on, so a fix should install on its own, possibly a newer release than %2$s, depending on your update settings.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>',
 			'<strong>' . esc_html( $tip ) . '</strong>'
 		);
+		$link = __( 'Check which release will install — Site Health', 'keel-defaults' );
 	} elseif ( ! $state['operable'] ) {
 		$body = sprintf(
 			/* translators: 1: current version, 2: patched version, 3: reasons. */
@@ -623,7 +626,7 @@ function keel_defaults_backport_notice() {
 		esc_attr( $version ),
 		wp_kses_post( $body ),
 		esc_url( admin_url( 'site-health.php' ) ),
-		esc_html__( 'See what is preventing it — Site Health', 'keel-defaults' )
+		esc_html( $link )
 	);
 }
 

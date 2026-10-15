@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-15T13:27:46+00:00\n"
+"POT-Creation-Date: 2026-10-15T21:44:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -566,52 +566,60 @@ msgstr ""
 msgid "WordPress installs this"
 msgstr ""
 
+#: includes/backport-presentation.php:584
+msgid "See what is preventing it — Site Health"
+msgstr ""
+
 #. translators: %s: WordPress version.
-#: includes/backport-presentation.php:588
+#: includes/backport-presentation.php:589
 #, php-format
 msgid "WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy."
 msgstr ""
 
+#: includes/backport-presentation.php:592
+msgid "Review upgrade options — Site Health"
+msgstr ""
+
 #. translators: 1: current version, 2: patched version.
-#: includes/backport-presentation.php:600
+#: includes/backport-presentation.php:602
 #, php-format
-msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line. Automatic updating appears to be available; Site Health shows which release WordPress would actually install."
+msgid "WordPress %1$s has known vulnerabilities. The nearest release without them is %2$s, on this same line. Automatic updates are on, so a fix should install on its own, possibly a newer release than %2$s, depending on your update settings."
+msgstr ""
+
+#: includes/backport-presentation.php:606
+msgid "Check which release will install — Site Health"
 msgstr ""
 
 #. translators: 1: current version, 2: patched version, 3: reasons.
-#: includes/backport-presentation.php:607
+#: includes/backport-presentation.php:610
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but it cannot currently install automatically: %3$s."
 msgstr ""
 
 #. translators: 1: current version, 2: patched version.
-#: includes/backport-presentation.php:615
+#: includes/backport-presentation.php:618
 #, php-format
 msgid "WordPress %1$s has known vulnerabilities. The nearest release without known vulnerabilities is %2$s, on this same line, but minor updates are switched off on this site, so it will not arrive on its own."
 msgstr ""
 
-#: includes/backport-presentation.php:626
-msgid "See what is preventing it — Site Health"
-msgstr ""
-
-#: includes/backport-presentation.php:680
+#: includes/backport-presentation.php:683
 msgid "security and maintenance, same release line"
 msgstr ""
 
-#: includes/backport-presentation.php:681
+#: includes/backport-presentation.php:684
 msgid "new release line"
 msgstr ""
 
-#: includes/backport-presentation.php:684
+#: includes/backport-presentation.php:687
 msgid " — a delta package is available"
 msgstr ""
 
-#: includes/backport-presentation.php:703
+#: includes/backport-presentation.php:706
 msgid "security fix"
 msgstr ""
 
 #. translators: %d: number of releases offered.
-#: includes/backport-presentation.php:732
+#: includes/backport-presentation.php:735
 #, php-format
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
