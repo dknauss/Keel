@@ -589,6 +589,7 @@ function keel_defaults_backport_notice() {
 			esc_html__( 'WordPress %s has known vulnerabilities, and every release on this line is flagged the same way. Moving to a maintained line is the only remedy.', 'keel-defaults' ),
 			'<strong>' . esc_html( $version ) . '</strong>'
 		);
+		$link = __( 'Review upgrade options — Site Health', 'keel-defaults' );
 	} elseif ( $state['policy'] && $state['operable'] ) {
 		/*
 		 * Deliberately no schedule promise. This renders on every admin screen, so it
