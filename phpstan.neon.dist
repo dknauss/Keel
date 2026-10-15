@@ -8,6 +8,7 @@ parameters:
         - includes/backport-presentation.php
         - includes/settings-policy.php
         - includes/settings-controls.php
+        - includes/updates-screen.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php
