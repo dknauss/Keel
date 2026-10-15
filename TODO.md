@@ -12,7 +12,14 @@ This file and ROADMAP.md are the only record of scope.
 Each 0.6 release is published only after the release checklist runs in full.
 GitHub release v0.6.8 is published and its release/deploy workflow succeeded;
 WordPress.org also reports 0.6.8 (verified 2026-10-15).
-The post-release refactors on main require a new version before the next tag.
+The post-release refactors are prepared as the 0.6.9 candidate; final checks and
+merge precede tagging.
+
+
+- [x] **Prepare the 0.6.9 candidate** — version metadata, cache-busting constant,
+      changelog and upgrade notice synchronized; no new defaults or PHP floor change.
+- [ ] **Release 0.6.9** — finish candidate CI/live matrix and counterpart sweep,
+      merge, tag, approve the protected WordPress.org deploy and verify artifacts.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.

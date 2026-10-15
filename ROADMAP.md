@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.6.8`**. Keel was first published on wordpress.org as
+**Current version: `0.6.9` (release candidate; not yet tagged)**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -81,10 +81,11 @@ warning is addressed in the follow-up. The intentional updater-detection warning
 remains documented. See [the verification record](docs/review/release-verification-2026-10-15.md).
 
 `v0.6.8` is already tagged and its GitHub release/deploy workflow succeeded.
-Do not reuse that tag for these later refactors. Before another release, select a
-new version (0.6.9 fits the current maintenance scope), synchronize metadata and
-changelog/upgrade notes, let final CI pass, clear the counterpart sweep, merge,
-then tag. The WordPress.org environment retains its required-reviewer gate.
+Do not reuse that tag for these later refactors. The 0.6.9 candidate now
+synchronizes version metadata and release notes.
+Before tagging, finish candidate CI and the live installer matrix, clear the
+counterpart sweep, and merge the candidate PR. The WordPress.org environment
+retains its required-reviewer gate.
 Validate the published GitHub zip and directory/SVN artifacts after deployment.
 No new tag or deployment is authorized by this readiness record.
 
