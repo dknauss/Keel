@@ -48,7 +48,7 @@ alongside it.
 
 ## Now — observe the 0.6 line in the field
 
-0.6.0 through 0.6.7 are all published; `readme.txt` carries the changelog for each.
+0.6.0 through 0.6.8 are all published; `readme.txt` carries the changelog for each.
 The four that opened the line: 0.6.0 introduced the vulnerability check
 and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
 security review; 0.6.2 stopped the panel promising a scheduled install that the
@@ -63,12 +63,30 @@ the same-line patch, so that screen had never shown it.
       SVN tag and the directory version, plus screenshots, upgrade notice and
       Playground links.
 - [ ] **Observe the field** — watch the scheduled live matrix and early reports
-      before opening another release. Checked 2026-10-13: the matrix last ran green
-      on 2026-10-12, no issues are open, and nine WordPress.com sites the maintainer
-      runs are all on 0.6.7 with Jetpack connected. The install path has been
+      before opening another release. The six-row matrix passed on 2026-10-15 at
+      `25feb03`; the release verification record covers the latest local checks.
+      The separate 2026-10-13 field snapshot found nine maintainer WordPress.com
+      sites on 0.6.7 with Jetpack connected; those production sites were not
+      rechecked during the local release pass. The install path has been
       exercised on real sites in `en_US` and `fr_FR`, but by its authors rather than
       by anyone who did not already know how it works. The fix in 0.6.7 for sites
       Jetpack connects to WordPress.com is half confirmed; TODO.md has the detail.
+
+## Release readiness checkpoint — 2026-10-15
+
+The refactor candidate at `25feb03` passed the real-WordPress, two-site network,
+browser and six-row live installer checks. A fresh packaged install seeded all
+40 defaults. No functional blocker was found; the historical upgrade-notice
+warning is addressed in the follow-up. The intentional updater-detection warning
+remains documented. See [the verification record](docs/review/release-verification-2026-10-15.md).
+
+`v0.6.8` is already tagged and its GitHub release/deploy workflow succeeded.
+Do not reuse that tag for these later refactors. Before another release, select a
+new version (0.6.9 fits the current maintenance scope), synchronize metadata and
+changelog/upgrade notes, let final CI pass, clear the counterpart sweep, merge,
+then tag. The WordPress.org environment retains its required-reviewer gate.
+Validate the published GitHub zip and directory/SVN artifacts after deployment.
+No new tag or deployment is authorized by this readiness record.
 
 ## Next — 0.7.0 privacy and content integrity
 
@@ -1294,12 +1312,18 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 - [x] **Analyze network policy** — 2026-10-15; nineteen modules pass level 6;
       raw form/store boundaries and shared control projections; 43 rejection cases /
       46 diagnostics; guards, policy behavior, markup and PHP 7.4 preserved.
-- [ ] **Reassess static analysis by risk, not file count** — pause routine expansion
+- [x] **Reassess static analysis by risk, not file count** — decided 2026-10-15; pause routine expansion
       after the network increment. Prioritize release/boundary verification; expand
       remaining modules or levels only for a concrete defect risk or planned change.
       Keep PHP 7.4 and validate raw inputs before narrowing.
-- [ ] **Improve verification at the boundaries** — expand real-WordPress checks and
-      introduce JS/CSS linting separately.
+- [x] **Complete the refactor release checks** — 2026-10-15; 48 real-WP probes,
+      47 boundary assertions, browser flows on both network sites, six live installer
+      rows and packaged-install smoke pass. See the [verification record](docs/review/release-verification-2026-10-15.md).
+- [x] **Trim the historical upgrade notice** — 2026-10-15; shorten 0.6.4 copy
+      below the directory limit while preserving both reporting fixes.
+- [ ] **Extend verification when risk warrants it** — add JS/CSS linting separately;
+      assess broader accessibility, browser coverage and faithful shared test stubs.
+      These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.
 
 ## Non-goals
