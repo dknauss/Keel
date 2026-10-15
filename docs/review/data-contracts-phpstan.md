@@ -16,11 +16,12 @@ annotations and development tooling only.
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
 `conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
-`password-hibp.php`, `password-policy.php`, `settings-controls.php` and
-`updates-screen.php` and `updates.php` at PHPStan level 6, with `phpVersion: 70400`.
+`password-hibp.php`, `password-policy.php`, `settings-controls.php`,
+`updates-screen.php`, `updates.php` and `lifecycle.php` at PHPStan level 6,
+with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these fifteen files are not yet claimed clean. WordPress stubs provide
+bodies outside these sixteen files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -77,8 +78,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all fifteen pilot modules must pass without suppressed errors.
-- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; twenty-eight
+- `composer analyse`: all sixteen pilot modules must pass without suppressed errors.
+- `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; thirty-three
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
   plan, invalid stored-result key, unknown return target, invalid health status,
@@ -88,7 +89,8 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
   assumed control-flow fallthrough after the AJAX action, boolean password failure
   instead of an error, a scalar prepared user, missing range values, missing choice
   type, non-array range labels, and non-boolean inputs/string return consumers
-  for each of the four update-policy callbacks. The checker compares exact
+  for each of the four update-policy callbacks, an invalid activation flag, a seed
+  map consumed as text and three lifecycle booleans consumed as strings. The checker compares exact
   per-case diagnostic multisets, including multiple errors from generic contracts.
   PHPStan analyzes these functions but never executes their WordPress calls. The
   initial contract check failed with the pre-pilot annotations and passed when
@@ -376,6 +378,35 @@ return consumer for each callback. The runner checks 28 invalid cases with
 or policy selection. Existing `tests/core-update-policy.php` covers inherit,
 minor/all/manual decisions, development-build refusal and translation toggles.
 The full standalone suite remains required; no real-site verification is claimed.
+
+## Lifecycle increment — 2026-10-15
+
+Add only `lifecycle.php` at level 6 (sixteen modules). Four initial diagnostics
+came from the current data-version literal narrowing the migration comparison,
+and the WP_Site annotation making three defensive new-site checks appear redundant.
+The public hook input is now documented as mixed; normal WordPress calls still
+supply WP_Site. The existing object/property/ID checks remain intact.
+
+`dynamicConstantNames` now includes KEEL_DEFAULTS_DATA_VERSION, widening its
+literal to int during analysis. This is an evolving migration target, not a
+permanent invariant of 1: the version-specific `$version < 1` guard must remain
+when later migrations advance the target. Its runtime value remains 1, and no
+executable tokens, native signatures, dependencies, baselines or suppressions change.
+PHP 7.4 and the 768M/512M analysis/fixture caps remain unchanged.
+
+Positive fixtures cover raw new-site inputs, boolean activation and lifecycle
+results, and the existing array<string,mixed> seed map. Five negative examples
+reject array activation flags and incorrect seed-map/boolean result consumers.
+The runner checks 33 invalid cases with 36 exact diagnostics.
+
+The multisite harness now models the context stack instead of always restoring
+site 1. Checks cover explicit revision keys (including null), malformed stores,
+current/future version no-ops, invalid hook inputs, exact-page network activation,
+numeric-string IDs and restoration to a non-main originating site. Existing
+250-site paging, reactivation and per-site/network activation cases remain.
+The strengthened harness passes against both original and updated source; runtime
+source token comparison is identical. These are local stub checks, not real-site
+or browser verification. Full standalone/packaging checks remain required.
 
 ## Remaining work
 

@@ -21,6 +21,7 @@ $GLOBALS['keel_current_site']   = 1;
 $GLOBALS['keel_is_multisite']   = false;
 $GLOBALS['keel_network_active'] = false;
 $GLOBALS['keel_switch_log']     = array();
+$GLOBALS['keel_blog_stack']     = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -78,12 +79,13 @@ function get_sites( $args = array() ) {
 }
 
 function switch_to_blog( $id ) {
+	$GLOBALS['keel_blog_stack'][] = $GLOBALS['keel_current_site'];
 	$GLOBALS['keel_switch_log'][] = (int) $id;
 	$GLOBALS['keel_current_site'] = (int) $id;
 }
 
 function restore_current_blog() {
-	$GLOBALS['keel_current_site'] = 1;
+	$GLOBALS['keel_current_site'] = array_pop( $GLOBALS['keel_blog_stack'] );
 }
 
 define( 'ABSPATH', __DIR__ . '/' );
@@ -105,6 +107,7 @@ function keel_assert( $cond, $msg ) {
 function keel_reset_network( $site_ids ) {
 	$GLOBALS['keel_sites']        = array();
 	$GLOBALS['keel_switch_log']   = array();
+	$GLOBALS['keel_blog_stack']   = array();
 	$GLOBALS['keel_current_site'] = 1;
 	foreach ( $site_ids as $id ) {
 		$GLOBALS['keel_sites'][ $id ] = array();
@@ -211,5 +214,42 @@ keel_reset_network( array( 1 ) );
 keel_defaults_seed_new_site( null );
 keel_defaults_seed_new_site( (object) array() );
 keel_assert( 1 === $GLOBALS['keel_current_site'], 'A malformed site object leaves the current site unchanged.' );
+
+// Preserve explicit revision choices, including null, and normalize malformed stores.
+foreach ( array( -1, 0, 5, null ) as $choice ) {
+	$GLOBALS['keel_sites'][1] = array( 'keel_settings' => array( 'post_revisions_limit' => $choice ) );
+	keel_assert( true === keel_defaults_maybe_upgrade(), 'Old data versions advance with explicit choices.' );
+	keel_assert( $choice === $GLOBALS['keel_sites'][1]['keel_settings']['post_revisions_limit'], 'Migration never replaces an existing revision key.' );
+}
+$GLOBALS['keel_sites'][1] = array( 'keel_settings' => 'malformed' );
+keel_defaults_maybe_upgrade();
+keel_assert( array( 'post_revisions_limit' => -1 ) === $GLOBALS['keel_sites'][1]['keel_settings'], 'Malformed stored settings follow the existing normalization path.' );
+foreach ( array( KEEL_DEFAULTS_DATA_VERSION, KEEL_DEFAULTS_DATA_VERSION + 1 ) as $version ) {
+	$GLOBALS['keel_sites'][1] = array(
+		'keel_settings'                   => array(),
+		KEEL_DEFAULTS_DATA_VERSION_OPTION => $version,
+	);
+	$before                   = $GLOBALS['keel_sites'];
+	keel_assert( false === keel_defaults_maybe_upgrade(), 'Current and future versions are not migrated.' );
+	keel_assert( $before === $GLOBALS['keel_sites'], 'Current and future versions produce no writes.' );
+}
+
+// Reject malformed public-hook inputs without switching or writing.
+keel_reset_network( array( 1 ) );
+foreach ( array( false, true, 7, '7', array( 'blog_id' => 7 ), new stdClass(), (object) array( 'blog_id' => null ), (object) array( 'blog_id' => 0 ) ) as $invalid_site ) {
+	$before = $GLOBALS['keel_sites'];
+	keel_defaults_seed_new_site( $invalid_site );
+	keel_assert( $before === $GLOBALS['keel_sites'] && array() === $GLOBALS['keel_switch_log'], 'Malformed site inputs cause no writes or context switches.' );
+}
+
+// Model WordPress's context stack, including a non-main originating site.
+keel_reset_network( range( 1, 100 ) );
+$GLOBALS['keel_current_site'] = 42;
+keel_defaults_activate( true );
+keel_assert( 42 === $GLOBALS['keel_current_site'] && array() === $GLOBALS['keel_blog_stack'], 'Exact-page network activation restores the originating context.' );
+$GLOBALS['keel_sites'][101] = array();
+keel_defaults_seed_new_site( (object) array( 'blog_id' => '101' ) );
+keel_assert( isset( $GLOBALS['keel_sites'][101]['keel_settings'] ), 'Numeric-string site IDs retain their existing conversion.' );
+keel_assert( 42 === $GLOBALS['keel_current_site'] && array() === $GLOBALS['keel_blog_stack'], 'New-site seeding restores the non-main originating context.' );
 
 fwrite( STDOUT, "multisite seeding: OK\n" );

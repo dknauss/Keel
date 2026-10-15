@@ -319,3 +319,14 @@ all four callbacks; 28 invalid cases produce 31 exact diagnostics. Existing
 core-update-policy and full standalone tests verify policy behavior. PHP 7.4,
 all runtime source and analysis memory caps remain unchanged. Remaining modules
 and higher levels stay separate increments; see [data contracts](data-contracts-phpstan.md).
+
+## Lifecycle analysis — 2026-10-15
+
+The level-6 pilot now includes `lifecycle.php` (sixteen modules). Raw public-hook
+input annotations and analysis of the evolving migration target preserve all
+runtime guards and executable tokens. Static fixtures cover seed maps, boolean
+results and activation flags (33 rejected cases / 36 diagnostics). The strengthened
+multisite context-stack harness passes original and updated code, including
+migration/no-op cases, malformed input and non-main-site restoration. PHP 7.4
+and current memory caps remain unchanged. See [data contracts](data-contracts-phpstan.md)
+for scope, constant-model rationale and verification limits.

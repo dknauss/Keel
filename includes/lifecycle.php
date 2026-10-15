@@ -160,7 +160,7 @@ function keel_defaults_activate( $network_wide = false ) {
  * then the schema changes in a later release and that subsite silently moves
  * with it while every other site keeps what it was given.
  *
- * @param \WP_Site $new_site The site that was just created.
+ * @param mixed $new_site Raw hook input; normally WP_Site, validated before use.
  * @return void
  */
 function keel_defaults_seed_new_site( $new_site ) {

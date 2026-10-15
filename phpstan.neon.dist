@@ -10,6 +10,7 @@ parameters:
         - includes/settings-controls.php
         - includes/updates-screen.php
         - includes/updates.php
+        - includes/lifecycle.php
         - includes/conflict-attribution.php
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php
@@ -26,6 +27,8 @@ parameters:
         - tests/phpstan/wordpress-constants.php
     dynamicConstantNames:
         - WP_PLUGIN_DIR
+        # The migration target advances; retain version-specific migration guards.
+        - KEEL_DEFAULTS_DATA_VERSION
     tmpDir: build/phpstan
     reportUnmatchedIgnoredErrors: true
     typeAliases:
