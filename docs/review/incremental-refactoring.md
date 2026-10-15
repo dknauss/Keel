@@ -220,7 +220,8 @@ verification. The next increment covers password-policy adapters.
 Implemented 2026-10-14. Include password-policy.php at level 6 with the PHP 7.4
 target (twelve modules). Describe the shared true/error verdict, prepared-object
 identity, raw REST parameters, read-only request projection and mixed endpoint
-registry. Profile/reset callbacks return void; user context includes failed lookups.
+registry. Profile/reset callbacks return void; user context accepts ordinary objects
+and failed lookups.
 Seventeen negative cases produce twenty precisely checked diagnostics.
 
 All runtime executable tokens, signatures, policy ordering, role exemptions,

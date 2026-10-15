@@ -280,3 +280,29 @@ function keel_contract_partial_password_request( WP_REST_Request $request ): voi
 	keel_defaults_validate_rest_password( new stdClass(), $request );
 	keel_defaults_rest_password_context( $request );
 }
+
+/** A prepared user need not be a WordPress class or stdClass. */
+class Keel_Contract_Prepared_User {
+	/**
+	 * Submitted login context.
+	 *
+	 * @var string
+	 */
+	public $user_login = 'static-only-user';
+}
+/**
+ * Preserve a custom prepared object and accept its guarded context fields.
+ *
+ * @param WP_REST_Request<array<string,mixed>> $request Raw REST request.
+ */
+function keel_contract_custom_prepared_user( WP_REST_Request $request ): void {
+	$user = new Keel_Contract_Prepared_User();
+	keel_defaults_password_enforced_for_user( $user );
+	keel_defaults_validate_password( 'static-only-example', $user );
+	$out = keel_defaults_validate_rest_password( $user, $request );
+	if ( ! is_wp_error( $out ) ) {
+		keel_contract_accept_custom_prepared_user( $out );
+	}
+}
+/** Accept the same concrete custom class after excluding validation errors. */
+function keel_contract_accept_custom_prepared_user( Keel_Contract_Prepared_User $user ): void {}

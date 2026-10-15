@@ -281,13 +281,15 @@ complete handler/sanitizer schema. No inline assertion or invented validation.
 
 KeelPasswordVerdict is true|WP_Error. The prepared-user adapter's template retains
 the concrete input object on success and adds WP_Error on rejection. User-context
-annotations include the existing false result of a failed get_userdata lookup;
+annotations accept ordinary objects, whose optional context fields are guarded,
+and the existing false result of a failed get_userdata lookup;
 unknown roles still enforce the policy. Profile/reset error mutation, trimming,
 breach-first screening, exemptions, sanitizer ordering, application-password
 exclusion and the pre-authorization context privacy gate are unchanged.
 
 Positive fixtures cover raw and narrower REST requests, failed user lookup,
-prepared-object identity, profile/reset callbacks and mixed endpoint metadata.
+prepared-object identity (including a custom class), profile/reset callbacks and
+mixed endpoint metadata.
 The seventeenth rejection case rejects scalar prepared users; the sixteenth rejects
 a false validator result. These produce multiple diagnostics, so the runner now
 checks exact sorted identifier multisets per case and the total diagnostic count

@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * "Password policy exemptions" setting (limited to low-privilege roles) and can
  * be overridden in code with the keel_weak_roles filter.
  *
- * @param WP_User|stdClass|false|null $user User context, or a failed user lookup.
+ * @param object|false|null $user User context, or a failed user lookup.
  * @return bool
  */
 function keel_defaults_password_enforced_for_user( $user ) {
@@ -109,8 +109,8 @@ function keel_defaults_exemptable_roles() {
  * reset, and the REST users controller — so a password cannot get in through a
  * door the policy does not watch.
  *
- * @param string                      $password Proposed password.
- * @param WP_User|stdClass|false|null $user User context, or a failed user lookup.
+ * @param string            $password Proposed password.
+ * @param object|false|null $user User context, or a failed user lookup.
  * @return true|WP_Error True when acceptable, WP_Error describing the failure.
  * @phpstan-return KeelPasswordVerdict
  */
