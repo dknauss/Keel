@@ -230,3 +230,28 @@ function keel_contract_reject_translation_input(): void {
 function keel_contract_reject_translation_output(): string {
 	return keel_defaults_allow_translation_updates( true );
 }
+
+/** Seed defaults are a map, not a serialized string. */
+function keel_contract_reject_seed_values(): string {
+	return keel_defaults_seed_values();
+}
+
+/** Activation receives WordPress's boolean network flag. */
+function keel_contract_reject_activation_flag(): void {
+	keel_defaults_activate( array() );
+}
+
+/** Lifecycle decisions are booleans, not version strings. */
+function keel_contract_reject_seed_result(): string {
+	return keel_defaults_seed_site();
+}
+
+/** Lifecycle decisions are booleans, not version strings. */
+function keel_contract_reject_migration_result(): string {
+	return keel_defaults_maybe_upgrade();
+}
+
+/** Lifecycle decisions are booleans, not version strings. */
+function keel_contract_reject_network_active_result(): string {
+	return keel_defaults_is_network_active();
+}

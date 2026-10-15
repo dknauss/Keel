@@ -46,6 +46,11 @@ $expected = array(
     "keel_contract_reject_dev_core_output" => "return.type",
     "keel_contract_reject_translation_input" => "argument.type",
     "keel_contract_reject_translation_output" => "return.type",
+    "keel_contract_reject_seed_values" => "return.type",
+    "keel_contract_reject_activation_flag" => "argument.type",
+    "keel_contract_reject_seed_result" => "return.type",
+    "keel_contract_reject_migration_result" => "return.type",
+    "keel_contract_reject_network_active_result" => "return.type",
 );
 foreach ($expected as $case => $identifiers) {
     $expected[$case] = (array) $identifiers;

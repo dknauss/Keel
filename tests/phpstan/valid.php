@@ -403,3 +403,24 @@ function keel_contract_update_policy_decisions( bool $enabled ): void {
 
 /** Consume a policy verdict without requiring a narrower true/false literal. */
 function keel_contract_accept_update_decision( bool $enabled ): void {}
+
+/**
+ * Public site-creation hooks may carry malformed inputs; the callback validates them.
+ *
+ * @param mixed $site Raw hook input.
+ */
+function keel_contract_lifecycle( $site, bool $network_wide ): void {
+	keel_defaults_seed_new_site( $site );
+	keel_defaults_activate( $network_wide );
+	keel_contract_accept_seed_values( keel_defaults_seed_values() );
+	keel_contract_accept_update_decision( keel_defaults_seed_site() );
+	keel_contract_accept_update_decision( keel_defaults_maybe_upgrade() );
+	keel_contract_accept_update_decision( keel_defaults_is_network_active() );
+}
+
+/**
+ * Seed values retain arbitrary schema defaults, rather than a fabricated scalar map.
+ *
+ * @param array<string,mixed> $values Option-shaped defaults.
+ */
+function keel_contract_accept_seed_values( array $values ): void {}
