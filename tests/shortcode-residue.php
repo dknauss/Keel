@@ -84,6 +84,14 @@ echo "shortcode residue: OK\n";
 $tags  = array();
 $large = str_repeat( '[lost /]', 101 );
 check( 0 === strcmp( $large, keel_defaults_strip_shortcode_residue( $large, $tags ) ) && ! $tags, 'Over-budget candidate counts fail open without evidence.' );
+// The parser budget must bound temporary match allocation, not just its output.
+$memory_limit = ini_get( 'memory_limit' );
+ini_set( 'memory_limit', '16M' ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Disallowed -- CLI regression deliberately lowers memory; no WordPress runtime.
+$oversized = str_repeat( '[lost /]', 100000 );
+$tags      = array();
+check( 0 === strcmp( $oversized, keel_defaults_strip_shortcode_residue( $oversized, $tags ) ) && ! $tags, 'Large candidate input fails open within a 16 MiB memory limit.' );
+unset( $oversized );
+ini_set( 'memory_limit', $memory_limit ); // phpcs:ignore WordPress.PHP.IniSet.memory_limit_Disallowed -- Restore the CLI test process's original limit.
 $tags       = array();
 $empty_pair = '[lost][/lost]';
 check( '' === keel_defaults_strip_shortcode_residue( $empty_pair, $tags ), 'Empty pairs count as strong syntax.' );

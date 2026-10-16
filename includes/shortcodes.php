@@ -54,6 +54,11 @@ function keel_defaults_strip_shortcode_residue( $content, &$tags, $depth = 0 ) {
 	if ( ! $confirmed && ! preg_match( '~\[/[A-Za-z_][A-Za-z0-9_-]{0,63}\]|\[[^\[\]]*(?:/\]|\s[A-Za-z_][A-Za-z0-9_-]*\s*=)~', $masked ) ) {
 		return $content;
 	}
+	// At most two opening brackets per candidate (escaped syntax). Check before
+	// collecting matches, so rejected workloads cannot allocate an unbounded array.
+	if ( substr_count( $masked, '[' ) > 200 ) {
+		return $content;
+	}
 	if ( ! preg_match_all( '/\[\[?([A-Za-z_][A-Za-z0-9_-]{0,63})(?=[\s\]\/])([^\[\]]*)\]/', $masked, $captures, PREG_SET_ORDER )
 		|| count( $captures ) > 100 ) {
 		return $content;

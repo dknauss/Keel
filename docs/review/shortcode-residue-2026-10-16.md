@@ -104,3 +104,13 @@ Site Health explanation on the real settings screen.
 
 The disposable lab and its authentication/mail fixtures were stopped and deleted
 after verification; no credentials were retained in the public record.
+
+## PR review hardening
+
+Review found that the candidate-count check followed `preg_match_all()`, allowing
+large temporary allocations before refusing an oversized workload. A 100,000-tag
+fixture exhausted a 16 MiB process limit before the fix. Count opening brackets in
+the masked text before collecting matches (at most 200 for 100 escaped candidates);
+the same fixture now preserves its input and records nothing within that limit.
+This bounds candidate-array allocation, not arbitrary HTML input size. Excessively
+bracketed malformed text also fails open. No new strings, settings or hooks.
