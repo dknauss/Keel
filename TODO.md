@@ -499,6 +499,13 @@ These are maintenance increments alongside feature work, not new release promise
       rows and packaged-install smoke pass. See the [verification record](docs/review/release-verification-2026-10-15.md).
 - [x] **Trim the historical upgrade notice** — 2026-10-15; shorten 0.6.4 copy
       below the directory limit while preserving both reporting fixes.
+- [x] **Test Notifications feature-plugin compatibility** — 2026-10-16; released
+      Keel and development runtime pass the exercised hub/REST/mail-policy checks;
+      client-store, PHP deprecation and new-site schema evidence reported upstream.
+      This prototype has no complete delivery path yet. See the
+      [compatibility record](docs/review/notifications-compatibility-2026-10-16.md).
+- [ ] **Recheck Notifications when delivery lands** — persistent delivery, client
+      store hydration/dismissal, new-site migrations and cross-site recipient isolation.
 - [ ] **Extend verification when risk warrants it** — add JS/CSS linting separately;
       assess broader accessibility, browser coverage and faithful shared test stubs.
       These remain maintenance work, not failures of the completed release pass.
