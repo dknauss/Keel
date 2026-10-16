@@ -2,8 +2,8 @@
 
 Result: no functional release blocker found in the exercised paths. The initial
 package had two Plugin Check warnings. The upgrade-notice warning is fixed in
-the follow-up below; the intentional update-modification warning remains. This verifies a release candidate; it does
-not publish, tag or deploy a release.
+the follow-up below; the intentional update-modification warning remains. The candidate verification is followed by the completed 0.6.9 publication
+record below.
 
 ## Revision and review
 
@@ -168,7 +168,7 @@ the WordPress.org plugin-information API reports 0.6.8 too. The wordpress-org
 GitHub environment has a required-reviewer protection rule. Stale untagged
 0.6.8 notes in TODO/ROADMAP were corrected without changing runtime versions.
 
-Before the next release:
+Historical readiness checklist (completed by the publication follow-up below):
 
 1. Merge this record/readme follow-up after its checks pass.
 2. Select a fresh version (0.6.9 is appropriate for the present maintenance scope)
@@ -181,3 +181,49 @@ Before the next release:
 
 JS/CSS linting and broader coverage remain separate maintenance work. The
 completed functional release checks are no longer an open generic backlog item.
+
+## 0.6.9 publication follow-up — 2026-10-15
+
+Reviewed [#274](https://github.com/dknauss/Keel/pull/274) with no findings or
+automated review comments; merged as `08ce56850263f212c7dd47e6971670c4c8b3d2aa`.
+The annotated `v0.6.9` tag points to that merge. Metadata, translations and release
+notes were synchronized without changing the PHP 7.4 floor or the 40 defaults.
+
+- [Candidate CI](https://github.com/dknauss/Keel/actions/runs/38822422350)
+  passed, including PHP 7.4–8.5; local analysis, compatibility, contracts, syntax,
+  packaging and documentation checks passed.
+- [Final candidate live matrix](https://github.com/dknauss/Keel/actions/runs/38822422201)
+  passed all six rows at `2260976654506471c8d2438fdaca7d19df0f6003`.
+  The counterpart sweep was clear. Fresh candidate package installation seeded
+  all 40 defaults; browser assets carried version 0.6.9.
+- [Merged main CI](https://github.com/dknauss/Keel/actions/runs/38831182280) passed.
+- [WordPress.org dry run](https://github.com/dknauss/Keel/actions/runs/38831223050)
+  passed before the protected deployment was approved.
+- [Release/deploy workflow](https://github.com/dknauss/Keel/actions/runs/38831223147)
+  succeeded. [GitHub release](https://github.com/dknauss/Keel/releases/tag/v0.6.9)
+  published at 18:45 MDT on October 15 (00:45 UTC October 16).
+  WordPress.org committed SVN revision **3749515**.
+
+Published artifacts were downloaded and compared by archive path and SHA-256 to
+the expected tagged runtime tree. Both contain exactly 41 matching files; differing
+zip hashes reflect archive packaging, not differing runtime contents. Development
+dependencies and tests are excluded.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| GitHub keel.zip | 230635 | `5307b9ef02e072eaba36cf2158220a7d0052e8baf4ff380b57900d36b75841a0` |
+| WordPress.org keel-defaults.0.6.9.zip | 228191 | `8921bb901887e2949a26ea3256bd9966e5a2e2427251fcebd6e9971ca3ca435b` |
+
+The WordPress.org plugin-information API reports 0.6.9, WordPress minimum 6.4
+and PHP minimum 7.4. The default download also matches all 41 tagged files.
+SVN trunk and tags/0.6.9 keel.php/readme.txt match the release; all five deployed
+screenshots and assets/blueprints/blueprint.json match repository sources.
+This is asset integrity verification, not a fresh visual screenshot review or
+an end-to-end Playground session. The API's empty preview_link field is not
+claimed as a tested preview launch.
+
+Release complete, with no blockers. The intentional Plugin Check
+update_modification_detected warning remains. Earlier runtime-check scope and
+limitations above still apply; no production WordPress site was modified by
+these verification checks. Field observation and the live WordPress.com
+settings-save confirmation remain open in TODO.md.
