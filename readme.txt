@@ -9,7 +9,7 @@ Stable tag: 0.6.9
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-41 sane WordPress defaults, a warning when your version is vulnerable, and a button to install the secure fix.
+41 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
 
 == Description ==
 
