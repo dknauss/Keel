@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.8
+Stable tag: 0.6.9
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -140,6 +140,14 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 Versions before 0.5.9 were not published to the directory. Their entries, the development history that led to the first release, are in `changelog.txt` in the plugin's repository: [https://github.com/dknauss/keel/blob/main/changelog.txt](https://github.com/dknauss/keel/blob/main/changelog.txt).
 
+= 0.6.9 =
+* Fixed: conflict diagnostics no longer mistake Keel for another plugin when its installation folder is a symlink to a differently named source directory.
+* Improved: crowded conflict reports reuse plugin-root attribution work instead of repeating filesystem resolution for every callback. Site and network plugin changes still invalidate the mapping immediately.
+* Changed: the vulnerable-core notice now explains when a fix should install automatically, why it may be a newer release than the same-line patch, and where to review the actual selection or upgrade options. It does not promise an installation time.
+* Refactored: shared site/network controls, backport handling, password and breach screening, conflict diagnostics and configuration-policy helpers now have clearer module boundaries. Defaults, saved preferences, permissions and PHP 7.4 compatibility are preserved.
+* Developer: precise data contracts and scoped PHPStan level-6 analysis cover nineteen modules, with contract regression fixtures and expanded real-WordPress, multisite, browser and installer verification. Development tooling is excluded from the installable package.
+* Changed: translatable source strings use US English; translations remain available through WordPress.org language packs.
+
 = 0.6.8 =
 * Added: an Environment setting under Admin and Front-End UX. Automatic, the default, works as before. Choosing Production, Staging, Development or Local makes Keel use that instead, for the environment label and for holding back email on non-production sites. It applies only on the site where it was chosen, so a copy of the database on a laptop or staging site ignores it and never sends real email as the live site.
 * Added: a warning when a live site says it is local. If WP_ENVIRONMENT_TYPE says local on a public address or on WordPress.com, Keel says so on every admin screen, because that label can hold back the site's email and make other plugins switch features off. A local wp-config.php copied to a live server, as a WordPress Studio push can do, is the usual cause. The warning names where the label comes from, the wp-config.php file Keel found and the WP-CLI command that fixes it. Keel never edits wp-config.php itself.
@@ -228,6 +236,9 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 == Upgrade Notice ==
+
+= 0.6.9 =
+Fixes symlink-related conflict reports, reduces repeated diagnostic work, and clarifies core-update notices. Internal refactors preserve settings and saved preferences. No new settings; PHP 7.4 remains supported.
 
 = 0.6.8 =
 Adds one setting, Environment, and warns when a live site says it is local, which can hold back its email. Also clearer notes for Jetpack sites, a new Site Health check and a block editor that follows the admin menu width.

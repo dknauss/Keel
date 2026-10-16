@@ -2,9 +2,10 @@
 
 ## Supported versions
 
-The current release is `0.6.8`, published on wordpress.org as `keel-defaults`.
-Install it from the plugin directory; GitHub releases and the rolling `latest`
-build remain available for anyone who prefers them.
+The current version is `0.6.9`.
+Keel is published on wordpress.org as `keel-defaults`; install the published
+stable version from the plugin directory. GitHub releases and the rolling
+`latest` build remain available for anyone who prefers them.
 
 Note that the plugin folder changed from `keel` to `keel-defaults`, and WordPress
 identifies a plugin by its folder. A site installed from a GitHub release made
@@ -13,8 +14,7 @@ update it — so check which copy is active before reporting against a version. 
 changelog says which release moved it.
 
 Security fixes target the latest release and land on `main`. Older releases may
-receive them when the issue is severe and a safe backport is practical; with two
-releases out, that has not come up yet.
+receive them when the issue is severe and a safe backport is practical; a backport requires a separate compatibility and security review.
 
 ## Reporting a vulnerability
 
