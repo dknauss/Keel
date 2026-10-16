@@ -48,7 +48,7 @@ alongside it.
 
 ## Now — observe the 0.6 line in the field
 
-0.6.0 through 0.6.8 are all published; `readme.txt` carries the changelog for each.
+0.6.0 through 0.6.9 are all published; `readme.txt` carries the changelog for each.
 The four that opened the line: 0.6.0 introduced the vulnerability check
 and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
 security review; 0.6.2 stopped the panel promising a scheduled install that the
@@ -63,8 +63,8 @@ the same-line patch, so that screen had never shown it.
       SVN tag and the directory version, plus screenshots, upgrade notice and
       Playground links.
 - [ ] **Observe the field** — watch the scheduled live matrix and early reports
-      before opening another release. The six-row matrix passed on 2026-10-15 at
-      `25feb03`; the release verification record covers the latest local checks.
+      before opening another release. The six-row candidate matrix passed on 2026-10-15 at
+      `2260976`; the release verification record covers the latest local checks.
       The separate 2026-10-13 field snapshot found nine maintainer WordPress.com
       sites on 0.6.7 with Jetpack connected; those production sites were not
       rechecked during the local release pass. The install path has been
@@ -72,22 +72,24 @@ the same-line patch, so that screen had never shown it.
       by anyone who did not already know how it works. The fix in 0.6.7 for sites
       Jetpack connects to WordPress.com is half confirmed; TODO.md has the detail.
 
-## Release readiness checkpoint — 2026-10-15
+## Release completion — 2026-10-15
 
-The refactor candidate at `25feb03` passed the real-WordPress, two-site network,
-browser and six-row live installer checks. A fresh packaged install seeded all
-40 defaults. No functional blocker was found; the historical upgrade-notice
-warning is addressed in the follow-up. The intentional updater-detection warning
-remains documented. See [the verification record](docs/review/release-verification-2026-10-15.md).
+0.6.9 is published on [GitHub](https://github.com/dknauss/Keel/releases/tag/v0.6.9)
+and [WordPress.org](https://wordpress.org/plugins/keel-defaults/).
+#274 merged as `08ce568` after green candidate CI, all six live installer rows
+and a clear counterpart sweep. The tagged release/deploy workflow succeeded;
+WordPress.org SVN revision is 3749515. Both published packages and the default
+directory download match all 41 tagged runtime files. SVN metadata, screenshots
+and preview blueprint match their sources. No release blocker remains.
 
-`v0.6.8` is already tagged and its GitHub release/deploy workflow succeeded.
-Do not reuse that tag for these later refactors. The 0.6.9 candidate now
-synchronizes version metadata and release notes.
-Before tagging, finish candidate CI and the live installer matrix, clear the
-counterpart sweep, and merge the candidate PR. The WordPress.org environment
-retains its required-reviewer gate.
-Validate the published GitHub zip and directory/SVN artifacts after deployment.
-No new tag or deployment is authorized by this readiness record.
+The real-WordPress, two-site network, browser and fresh-install checks are recorded
+in [the verification record](docs/review/release-verification-2026-10-15.md), along
+with publication evidence. Plugin Check has no errors; its intentional updater
+warning remains documented. PHP 7.4 and all 40 defaults are preserved.
+
+Next implementation is the protected-post search disclosure below. Continue field
+observation separately; broader accessibility, JS/CSS linting and PHP-floor research
+remain scoped follow-ups rather than reasons to reopen the completed release.
 
 ## Next — 0.7.0 privacy and content integrity
 

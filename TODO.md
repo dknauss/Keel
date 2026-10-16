@@ -10,16 +10,20 @@ This file and ROADMAP.md are the only record of scope.
 ## Now — observe the 0.6 line
 
 Each 0.6 release is published only after the release checklist runs in full.
-GitHub release v0.6.8 is published and its release/deploy workflow succeeded;
-WordPress.org also reports 0.6.8 (verified 2026-10-15).
-The post-release refactors are prepared as the 0.6.9 candidate; final checks and
-merge precede tagging.
-
+GitHub and WordPress.org 0.6.9 are published (verified 2026-10-15).
+The release/deploy workflow passed; both published packages and the default
+WordPress.org download match all 41 tagged runtime files. See the
+[verification record](docs/review/release-verification-2026-10-15.md).
 
 - [x] **Prepare the 0.6.9 candidate** — version metadata, cache-busting constant,
       changelog and upgrade notice synchronized; no new defaults or PHP floor change.
-- [ ] **Release 0.6.9** — finish candidate CI/live matrix and counterpart sweep,
-      merge, tag, approve the protected WordPress.org deploy and verify artifacts.
+- [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
+      counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
+      3749515 and published packages/assets verified.
+- **Next focused implementation:** keep password-protected posts out of site
+  search, as scoped below for 0.7.0. Field observation and the maintainer's
+  WordPress.com settings-save confirmation remain open; routine PHPStan expansion
+  stays paused unless a concrete change warrants it.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
