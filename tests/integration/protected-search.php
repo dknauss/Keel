@@ -55,7 +55,8 @@ try {
 		$id = wp_insert_post(
 			array(
 				'post_title'    => 'keelprivacyprobe ' . $name,
-				'post_content'  => 'Search fixture.',
+				'post_content'  => in_array( $name, array( 'own', 'other' ), true ) ? 'keelprivateterm' : 'Public fixture.',
+				'post_excerpt'  => 'keelprivatesummary',
 				'post_status'   => 'publish',
 				'post_author'   => 'own' === $name ? $keel_search_users['author'] : $keel_search_users['editor'],
 				'post_password' => in_array( $name, array( 'own', 'other' ), true ) ? 'probe-password' : '',
@@ -72,6 +73,9 @@ try {
 	$keel_search_assert( $public === $keel_search_ids( $keel_search_query() ), 'Anonymous search excludes protected posts.' );
 	wp_set_current_user( $keel_search_users['subscriber'] );
 	$keel_search_assert( $public === $keel_search_ids( $keel_search_query() ), 'Subscriber search must not disclose protected posts.' );
+	$keel_search_assert( current_user_can( 'read_post', $keel_search_posts['own'] ), 'Core generic read_post grants published-post access to Subscribers; it is insufficient for this policy.' );
+	$keel_search_assert( array() === $keel_search_query( array( 's' => 'keelprivateterm' ) )->posts, 'Protected-body-only terms cannot reveal matching posts to a Subscriber.' );
+	$keel_search_assert( false === strpos( get_the_excerpt( $keel_search_posts['own'] ), 'keelprivatesummary' ), 'Standard core excerpt rendering masks the stored protected excerpt.' );
 	$paged = $keel_search_query( array( 'posts_per_page' => 1 ) );
 	$keel_search_assert( 2 === (int) $paged->found_posts && 2 === (int) $paged->max_num_pages, 'Counts and pagination exclude hidden posts.' );
 	$keel_search_assert(
@@ -164,6 +168,7 @@ try {
 	$keel_search_assert( 4 === count( $keel_search_query( array( 'suppress_filters' => true ) )->posts ), 'Explicitly suppressed filters retain WordPress behavior.' );
 	remove_filter( 'posts_clauses', 'keel_defaults_protect_search', 100 );
 	$keel_search_assert( 4 === count( $keel_search_query()->posts ), 'Disabling the policy restores the baseline disclosure.' );
+	$keel_search_assert( 2 === count( $keel_search_query( array( 's' => 'keelprivateterm' ) )->posts ), 'Without the policy, body-only terms reveal matching protected posts.' );
 	add_filter( 'posts_clauses', 'keel_defaults_protect_search', 100, 2 );
 	echo 'Protected search: ' . $keel_search_checks . " real-WordPress assertions passed.\n";
 } finally {

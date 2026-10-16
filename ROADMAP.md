@@ -908,7 +908,8 @@ re-argued.
       of the four that closes a real leak rather than adding a convenience. One
       filter on the search query. Now implemented as `protect_search`; see the
       [verification and core-policy context](docs/review/protected-search-privacy.md). Prior art: coffee2code's Omit Passworded Posts
-      From Search.
+      From Search (retired after core 2.8 incorporated the anonymous restriction;
+      historical prior art, not a maintained alternative for this logged-in case).
 
       **The original justification here was wrong, and the corrected one is
       narrower.** This entry used to say a protected post "still surfaces its title,

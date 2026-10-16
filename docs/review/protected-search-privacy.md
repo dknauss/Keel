@@ -14,6 +14,10 @@ or a claim that WordPress promises to hide the existence of protected posts.
 The candidate entered the roadmap on August 11 (`ede79b7`); the August 25 decision
 (`c3d3199`) corrected an overly broad anonymous-exposure claim after measurement.
 It was subsequently queued first for 0.7.0 and remained unimplemented in 0.6.9.
+[Scott Reilly's historical plugin](https://coffee2code.com/wp-plugins/omit-passworded-posts-from-search/)
+explains the search-term inference risk and notes its retirement after core 2.8
+incorporated the anonymous restriction. It is historical prior art, not a current
+maintained alternative for the logged-in exception.
 
 [Core r11106](https://core.trac.wordpress.org/changeset/11106), April 2009,
 explicitly fixed #9559 by excluding protected results only for logged-out searches.
@@ -24,7 +28,8 @@ not a claim that no such ticket exists.
 
 An ordinary Subscriber can receive a protected result's title and stored excerpt
 data. Standard `get_the_excerpt()` masks a locked excerpt; actual excerpt exposure
-depends on the consumer. This does not reveal passwords, bypass the body password
+depends on the consumer. The policy also prevents body-only search terms revealing
+which protected posts match. This does not reveal passwords, bypass the body password
 form or disclose user-account information. Direct links and other archives remain
 outside this policy.
 
@@ -49,12 +54,13 @@ SQL, external indexes and plugins that replace queries are outside this filter.
 
 On a disposable Studio WordPress 7.1.3 / PHP 8.4.26 / SQLite site, the integration
 fixture first failed on the Subscriber assertion against unmodified 0.6.9 code.
-After implementation, `tests/integration/protected-search.php` passed 20 assertions:
+After implementation, `tests/integration/protected-search.php` passed 24 assertions:
 
 - Anonymous/Subscriber exclusion, author own-post access and editor access.
 - Per-post meta-cap grant and denial, including denial to an editor.
 - Custom post type edit capabilities; authorship alone grants no exception.
 - Valid/invalid password cookies and plugin password-access grants.
+- Body-only search-term inference and the standard excerpt masking behavior.
 - Result counts, filled second page, ID-only queries, explicit protected queries
   and core negative-term parsing.
 - Unchanged admin/non-search queries and explicit filter suppression.
@@ -62,7 +68,9 @@ After implementation, `tests/integration/protected-search.php` passed 20 asserti
 
 A separate fresh WordPress load with the saved setting off confirmed no callback
 was registered. Missing-key default-on behavior was exercised before adding the
-new key to the lab's stored settings. The standalone test covers clause guards,
+new key to the lab's stored settings. The fixture also passed on a network-activated
+local multisite. Across fresh loads, a network `no` overrode saved site `yes`, and
+removing that override restored the site policy. The standalone test covers clause guards,
 bulk priming, failure behavior and preservation of unrelated clauses. The real
 fixture is also wired into every live matrix row, including MySQL/PHP 7.4.
 
