@@ -26,7 +26,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "40 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
+msgid "41 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
 msgstr ""
 
 #. Author of the plugin

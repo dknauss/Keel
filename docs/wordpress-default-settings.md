@@ -522,6 +522,41 @@ add_action( 'admin_print_footer_scripts', function () {
 } );
 ```
 
+### Protected Search Results
+- **Key:** `protect_search`
+- **Default:** `yes`
+- **Why:** Optional stricter search privacy: core excludes protected posts from anonymous searches, but a logged-in
+  Subscriber can receive their titles and stored excerpt data. Display of excerpts depends
+  on the theme or API. Being logged in alone does not establish password access.
+
+Keel narrows non-admin `WP_Query` searches before pagination. Logged-in visitors retain
+protected results when `current_user_can( 'edit_post', $post_id )` passes, or
+`post_password_required( $post )` is false. This preserves authors' own editable posts,
+editors, custom per-post/CPT edit capabilities, valid password cookies and plugin password
+access filters. A generic `read_post` check is insufficient: core grants it for published
+posts to ordinary Subscribers too. Anonymous search retains core's exclusion.
+
+```php
+add_filter( 'posts_clauses', 'keel_defaults_protect_search', 100, 2 );
+```
+
+The callback inspects only protected rows matching the query's existing constraints,
+primes post objects together, and appends a per-query ID allowlist. Counts, pagination,
+ordering and ID-only results remain consistent. Logged-in searches incur one extra SQL
+read and access checks proportional to matching protected posts; anonymous searches and
+non-search requests do not incur that read. There is no persistent permission cache.
+A failed candidate read excludes protected results.
+
+This is an optional search-privacy policy, not a claim that core promises to hide post
+existence. [Core r11106](https://core.trac.wordpress.org/changeset/11106) intentionally
+added only the anonymous search exclusion; [#38276](https://core.trac.wordpress.org/ticket/38276)
+discusses passwords protecting content rather than post visibility. This is not general
+content access control: direct links, archives,
+admin searches and stored posts are unchanged. Queries explicitly using
+`suppress_filters` and external search indexes bypass this filter. It is independent
+of `disable_post_passwords`, which only hides the editor control. Turning this switch
+off restores WordPress's search behavior, and network policy can manage it normally.
+
 ### Limit Post Revisions
 - **Key:** `post_revisions_limit`
 - **Default:** `10` on a new activation; existing installations migrate to `-1`
@@ -1228,6 +1263,7 @@ covering only some, which reads as a full inventory when it is not.
 | Attachment Pages | `redirect_attachment_pages` | `yes` | Content |
 | Emoji Script | `disable_emojis` | `yes` | Content |
 | Post Passwords | `disable_post_passwords` | `no` | Content |
+| Protected Search Results | `protect_search` | `yes` | Content |
 | Post Revision Retention | `post_revisions_limit` | `10` | Content |
 | Classic Editor | `force_classic_editor` | `no` | Editor |
 | Upload Filenames | `lowercase_upload_filenames` | `yes` | Media |

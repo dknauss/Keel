@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-15T23:11:50+00:00\n"
+"POT-Creation-Date: 2026-10-16T01:38:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -28,7 +28,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "40 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
+msgid "41 sane WordPress defaults, each one a switch you can see and turn off — security, updates, privacy, UX, and performance."
 msgstr ""
 
 #. Author of the plugin
@@ -90,22 +90,22 @@ msgid "Unknown"
 msgstr ""
 
 #: includes/admin-ux.php:568
-#: includes/strings.php:215
+#: includes/strings.php:220
 msgid "Production"
 msgstr ""
 
 #: includes/admin-ux.php:574
-#: includes/strings.php:216
+#: includes/strings.php:221
 msgid "Staging"
 msgstr ""
 
 #: includes/admin-ux.php:580
-#: includes/strings.php:217
+#: includes/strings.php:222
 msgid "Development"
 msgstr ""
 
 #: includes/admin-ux.php:586
-#: includes/strings.php:218
+#: includes/strings.php:223
 msgid "Local"
 msgstr ""
 
@@ -127,7 +127,7 @@ msgstr ""
 
 #: includes/admin-ux.php:1119
 #: includes/site-health.php:62
-#: includes/strings.php:211
+#: includes/strings.php:216
 msgid "Environment"
 msgstr ""
 
@@ -727,7 +727,7 @@ msgid "Turn off %s to send from here anyway."
 msgstr ""
 
 #: includes/email.php:166
-#: includes/strings.php:176
+#: includes/strings.php:181
 msgid "Non-Production Email"
 msgstr ""
 
@@ -886,7 +886,7 @@ msgid "On multisite, this setting is stored per site but does not act per site. 
 msgstr ""
 
 #: includes/settings-page.php:160
-#: includes/strings.php:284
+#: includes/strings.php:289
 msgid "XML-RPC"
 msgstr ""
 
@@ -1640,300 +1640,312 @@ msgid "Hides the \"Password protected\" visibility option in the editor. WordPre
 msgstr ""
 
 #: includes/strings.php:146
-msgid "Post Revision Retention"
+msgid "Protected Search Results"
 msgstr ""
 
 #: includes/strings.php:147
-msgid "revisions"
+msgid "Hide password-protected posts from searches without access"
 msgstr ""
 
 #: includes/strings.php:148
-msgid "revision"
-msgstr ""
-
-#: includes/strings.php:150
-msgid "Unlimited"
+msgid "Keeps protected titles and excerpts out of site search unless the logged-in visitor can edit that post or has unlocked its password. Honors custom per-post capabilities and password-access filters. Does not change admin searches, direct links or stored content."
 msgstr ""
 
 #: includes/strings.php:151
-msgid "Disabled"
+msgid "Post Revision Retention"
+msgstr ""
+
+#: includes/strings.php:152
+msgid "revisions"
 msgstr ""
 
 #: includes/strings.php:153
-msgid "Maximum revisions WordPress keeps for each post. Enter <code>-1</code> for unlimited or <code>0</code> to disable revisions. Changing this governs future saves; it does not immediately delete revisions already stored. A numeric or false <code>WP_POST_REVISIONS</code> value in <code>wp-config.php</code> takes precedence."
+msgid "revision"
+msgstr ""
+
+#: includes/strings.php:155
+msgid "Unlimited"
 msgstr ""
 
 #: includes/strings.php:156
-msgid "Classic Editor"
-msgstr ""
-
-#: includes/strings.php:157
-msgid "Use the Classic editor instead of the block editor"
+msgid "Disabled"
 msgstr ""
 
 #: includes/strings.php:158
-msgid "Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default."
+msgid "Maximum revisions WordPress keeps for each post. Enter <code>-1</code> for unlimited or <code>0</code> to disable revisions. Changing this governs future saves; it does not immediately delete revisions already stored. A numeric or false <code>WP_POST_REVISIONS</code> value in <code>wp-config.php</code> takes precedence."
 msgstr ""
 
 #: includes/strings.php:161
-msgid "Upload Filenames"
+msgid "Classic Editor"
 msgstr ""
 
 #: includes/strings.php:162
-msgid "Lowercase new upload filenames"
+msgid "Use the Classic editor instead of the block editor"
 msgstr ""
 
 #: includes/strings.php:163
-msgid "Avoids case-sensitivity surprises when files move between case-insensitive local/staging and case-sensitive Linux production. On by default; only affects new uploads."
+msgid "Restores the pre-block editing experience for posts, pages, and custom post types, plus the classic Widgets screen. Front-end display of existing block content is unaffected, and on a block theme the Site Editor stays available. Off by default."
 msgstr ""
 
 #: includes/strings.php:166
-msgid "Image Sizes"
+msgid "Upload Filenames"
 msgstr ""
 
 #: includes/strings.php:167
-msgid "Show generated image sizes on attachments"
+msgid "Lowercase new upload filenames"
 msgstr ""
 
 #: includes/strings.php:168
-msgid "Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default."
+msgid "Avoids case-sensitivity surprises when files move between case-insensitive local/staging and case-sensitive Linux production. On by default; only affects new uploads."
 msgstr ""
 
 #: includes/strings.php:171
-msgid "Email Deliverability"
+msgid "Image Sizes"
 msgstr ""
 
 #: includes/strings.php:172
-msgid "Warn when site email looks broken"
+msgid "Show generated image sizes on attachments"
 msgstr ""
 
 #: includes/strings.php:173
-msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
+msgid "Adds a read-only panel to the attachment edit screen listing each generated image size with its dimensions, file size, and URL — a quick way to confirm what WordPress produced. On by default."
+msgstr ""
+
+#: includes/strings.php:176
+msgid "Email Deliverability"
 msgstr ""
 
 #: includes/strings.php:177
-msgid "Stop outgoing email unless this is the production site"
+msgid "Warn when site email looks broken"
 msgstr ""
 
 #: includes/strings.php:178
-msgid "A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Override per site with <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> in <code>wp-config.php</code> or the <code>keel_suppress_nonproduction_mail</code> filter."
-msgstr ""
-
-#: includes/strings.php:181
-msgid "Admin Search"
+msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
 msgstr ""
 
 #: includes/strings.php:182
-msgid "Search titles only in admin list tables"
+msgid "Stop outgoing email unless this is the production site"
 msgstr ""
 
 #: includes/strings.php:183
-msgid "Speeds up admin list-table search on big sites by matching titles only."
+msgid "A database copied from production brings real addresses and whatever mail service production used. A cron run or a bulk action then emails real people from a staging site or a laptop. Does nothing on production, so it cannot be left on by mistake. Override per site with <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> in <code>wp-config.php</code> or the <code>keel_suppress_nonproduction_mail</code> filter."
 msgstr ""
 
 #: includes/strings.php:186
-msgid "Front-End Admin Bar"
+msgid "Admin Search"
 msgstr ""
 
 #: includes/strings.php:187
-msgid "The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins or everyone, or auto-hide it so it slides out of the way and returns on hover or keyboard focus (desktop only)."
+msgid "Search titles only in admin list tables"
 msgstr ""
 
-#: includes/strings.php:189
-msgid "Leave unchanged (WordPress default)"
-msgstr ""
-
-#: includes/strings.php:190
-msgid "Hide for non-admins"
+#: includes/strings.php:188
+msgid "Speeds up admin list-table search on big sites by matching titles only."
 msgstr ""
 
 #: includes/strings.php:191
-msgid "Hide for everyone"
+msgid "Front-End Admin Bar"
 msgstr ""
 
 #: includes/strings.php:192
-msgid "Auto-hide, reveal on hover or keyboard focus (desktop)"
+msgid "The WordPress toolbar shown across the top of the site for logged-in users. Hide it for non-admins or everyone, or auto-hide it so it slides out of the way and returns on hover or keyboard focus (desktop only)."
+msgstr ""
+
+#: includes/strings.php:194
+msgid "Leave unchanged (WordPress default)"
+msgstr ""
+
+#: includes/strings.php:195
+msgid "Hide for non-admins"
 msgstr ""
 
 #: includes/strings.php:196
-msgid "Admin Menu Width"
+msgid "Hide for everyone"
 msgstr ""
 
 #: includes/strings.php:197
-msgid "Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core's width over a theme, host, or plugin that has widened the menu."
-msgstr ""
-
-#: includes/strings.php:198
-msgid "Leave unchanged"
-msgstr ""
-
-#: includes/strings.php:198
-msgid "160px (WordPress default)"
-msgstr ""
-
-#: includes/strings.php:198
-msgid "200px"
-msgstr ""
-
-#: includes/strings.php:198
-msgid "240px"
-msgstr ""
-
-#: includes/strings.php:198
-msgid "280px"
-msgstr ""
-
-#: includes/strings.php:198
-msgid "300px"
+msgid "Auto-hide, reveal on hover or keyboard focus (desktop)"
 msgstr ""
 
 #: includes/strings.php:201
-msgid "Admin List Columns"
+msgid "Admin Menu Width"
 msgstr ""
 
 #: includes/strings.php:202
-msgid "Add helper columns to admin list tables"
+msgid "Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core's width over a theme, host, or plugin that has widened the menu."
 msgstr ""
 
 #: includes/strings.php:203
-msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
+msgid "Leave unchanged"
+msgstr ""
+
+#: includes/strings.php:203
+msgid "160px (WordPress default)"
+msgstr ""
+
+#: includes/strings.php:203
+msgid "200px"
+msgstr ""
+
+#: includes/strings.php:203
+msgid "240px"
+msgstr ""
+
+#: includes/strings.php:203
+msgid "280px"
+msgstr ""
+
+#: includes/strings.php:203
+msgid "300px"
 msgstr ""
 
 #: includes/strings.php:206
-msgid "Environment Indicator"
+msgid "Admin List Columns"
 msgstr ""
 
 #: includes/strings.php:207
-msgid "Show the current environment in the admin bar"
+msgid "Add helper columns to admin list tables"
 msgstr ""
 
 #: includes/strings.php:208
-msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
+msgstr ""
+
+#: includes/strings.php:211
+msgid "Environment Indicator"
 msgstr ""
 
 #: includes/strings.php:212
+msgid "Show the current environment in the admin bar"
+msgstr ""
+
+#: includes/strings.php:213
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgstr ""
+
+#: includes/strings.php:217
 msgid "What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabeled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too."
 msgstr ""
 
-#: includes/strings.php:214
+#: includes/strings.php:219
 msgid "Automatic (WordPress environment type)"
 msgstr ""
 
-#: includes/strings.php:222
+#: includes/strings.php:227
 msgid "Remember Me"
 msgstr ""
 
-#: includes/strings.php:223
+#: includes/strings.php:228
 msgid "Disable Remember Me and remove the login checkbox"
 msgstr ""
 
-#: includes/strings.php:224
+#: includes/strings.php:229
 msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
 msgstr ""
 
-#: includes/strings.php:227
+#: includes/strings.php:232
 msgid "Regular Session Length"
 msgstr ""
 
-#: includes/strings.php:228
-#: includes/strings.php:234
+#: includes/strings.php:233
+#: includes/strings.php:239
 msgid "days"
 msgstr ""
 
-#: includes/strings.php:229
-#: includes/strings.php:235
+#: includes/strings.php:234
+#: includes/strings.php:240
 msgid "day"
 msgstr ""
 
-#: includes/strings.php:230
+#: includes/strings.php:235
 msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
 msgstr ""
 
-#: includes/strings.php:233
+#: includes/strings.php:238
 msgid "Remember Me Length"
 msgstr ""
 
-#: includes/strings.php:236
+#: includes/strings.php:241
 msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
 msgstr ""
 
-#: includes/strings.php:239
+#: includes/strings.php:244
 msgid "Login Logo"
 msgstr ""
 
-#: includes/strings.php:240
+#: includes/strings.php:245
 msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
 msgstr ""
 
-#: includes/strings.php:242
+#: includes/strings.php:247
 msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
 msgstr ""
 
-#: includes/strings.php:243
+#: includes/strings.php:248
 msgid "Remove the logo and the wordpress.org link"
 msgstr ""
 
-#: includes/strings.php:244
+#: includes/strings.php:249
 msgid "Keep the logo, drop the wordpress.org link"
 msgstr ""
 
-#: includes/strings.php:245
+#: includes/strings.php:250
 msgid "Replace the logo with your site logo"
 msgstr ""
 
-#: includes/strings.php:249
+#: includes/strings.php:254
 msgid "Heartbeat API"
 msgstr ""
 
-#: includes/strings.php:250
+#: includes/strings.php:255
 msgid "Slow background admin polling"
 msgstr ""
 
-#: includes/strings.php:251
+#: includes/strings.php:256
 msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
 msgstr ""
 
-#: includes/strings.php:263
+#: includes/strings.php:268
 msgid "Security and Attack Surface"
 msgstr ""
 
-#: includes/strings.php:264
+#: includes/strings.php:269
 msgid "Updates"
 msgstr ""
 
-#: includes/strings.php:265
+#: includes/strings.php:270
 msgid "Content and Public Surfaces"
 msgstr ""
 
-#: includes/strings.php:266
+#: includes/strings.php:271
 msgid "Editor"
 msgstr ""
 
-#: includes/strings.php:267
+#: includes/strings.php:272
 msgid "Media"
 msgstr ""
 
-#: includes/strings.php:268
+#: includes/strings.php:273
 msgid "Email"
 msgstr ""
 
-#: includes/strings.php:269
+#: includes/strings.php:274
 msgid "Admin and Front-End UX"
 msgstr ""
 
-#: includes/strings.php:270
+#: includes/strings.php:275
 msgid "Login and Sessions"
 msgstr ""
 
-#: includes/strings.php:271
+#: includes/strings.php:276
 msgid "Branding"
 msgstr ""
 
-#: includes/strings.php:272
+#: includes/strings.php:277
 msgid "Performance"
 msgstr ""
 
-#: includes/strings.php:283
+#: includes/strings.php:288
 msgid "REST API"
 msgstr ""
 

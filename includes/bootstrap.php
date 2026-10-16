@@ -495,6 +495,10 @@ function keel_defaults_bootstrap() {
 		keel_defaults_add_style( 'admin', 'keel_defaults_hide_post_password_css' );
 	}
 
+	if ( keel_defaults_enabled( 'protect_search' ) ) {
+		add_filter( 'posts_clauses', 'keel_defaults_protect_search', 100, 2 );
+	}
+
 	/* ----- Editor ----- */
 
 	if ( keel_defaults_enabled( 'force_classic_editor' ) ) {

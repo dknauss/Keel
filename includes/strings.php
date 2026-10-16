@@ -142,6 +142,11 @@ function keel_defaults_strings() {
 			'statement' => __( 'Hide post password protection in the editor', 'keel-defaults' ),
 			'help'      => __( 'Hides the "Password protected" visibility option in the editor. WordPress post passwords are weak and are bypassed by full-page caching, which serves the same cached page regardless. Existing password-protected posts keep their field so they stay editable. Off by default.', 'keel-defaults' ),
 		),
+		'protect_search'                  => array(
+			'label'     => __( 'Protected Search Results', 'keel-defaults' ),
+			'statement' => __( 'Hide password-protected posts from searches without access', 'keel-defaults' ),
+			'help'      => __( 'Keeps protected titles and excerpts out of site search unless the logged-in visitor can edit that post or has unlocked its password. Honors custom per-post capabilities and password-access filters. Does not change admin searches, direct links or stored content.', 'keel-defaults' ),
+		),
 		'post_revisions_limit'            => array(
 			'label'         => __( 'Post Revision Retention', 'keel-defaults' ),
 			'unit'          => __( 'revisions', 'keel-defaults' ),
