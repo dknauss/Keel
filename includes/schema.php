@@ -183,6 +183,11 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'content',
 		),
+		'protect_search'                  => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'content',
+		),
 		'post_revisions_limit'            => array(
 			'default' => 10,
 			'type'    => 'number',

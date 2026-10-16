@@ -1,6 +1,6 @@
 <?php
 /**
- * Content defaults: the parts of the comment teardown that need real logic.
+ * Content defaults: search privacy, comments, revisions and author discovery.
  *
  * @package Keel
  */
@@ -427,4 +427,60 @@ function keel_defaults_strip_oembed_author( $data ) {
  */
 function keel_defaults_drop_users_sitemap( $provider, $name ) {
 	return ( 'users' === $name ) ? false : $provider;
+}
+
+/**
+ * Keep protected search results only when the current visitor has access.
+ *
+ * Core excludes passwords from anonymous searches, but its read_post capability
+ * accepts any published post for a Subscriber. edit_post is the per-object
+ * editorial capability; post_password_required also honors cookies and plugin
+ * access filters. Never infer access from a role or the post's author ID alone.
+ *
+ * Inspect only protected rows matching the existing joins/where/grouping, before
+ * LIMIT. Adding the allowlist to SQL keeps counts, pagination and ID-only queries
+ * correct, and makes WordPress's query-cache key reflect the visible result set.
+ * The extra read is limited to logged-in searches, not ordinary page requests.
+ *
+ * @param array     $clauses WordPress query clauses.
+ * @param \WP_Query $query   Current query, including secondary search queries.
+ * @return array
+ */
+function keel_defaults_protect_search( $clauses, $query ) {
+	if ( ! $query->is_search() || $query->is_admin ) {
+		return $clauses;
+	}
+
+	global $wpdb;
+
+	$allowed = array();
+	if ( is_user_logged_in() ) {
+		// These are WordPress's already-built clauses, not request parameters.
+		$sql = "SELECT DISTINCT {$wpdb->posts}.* FROM {$wpdb->posts} {$clauses['join']} WHERE 1=1 {$clauses['where']} AND {$wpdb->posts}.post_password <> ''";
+		if ( '' !== $clauses['groupby'] ) {
+			$sql .= ' GROUP BY ' . $clauses['groupby'];
+		}
+
+		// No persistent allowlist: capability/password filters can change within a request.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- trusted WP_Query clauses; dynamic access must be checked before pagination.
+		$protected = $wpdb->get_results( $sql );
+		if ( is_array( $protected ) ) {
+			// Prime in bulk so per-object capability resolution does not fetch each post.
+			update_post_cache( $protected );
+			foreach ( $protected as $post ) {
+				if ( current_user_can( 'edit_post', (int) $post->ID ) || ! post_password_required( $post ) ) {
+					$allowed[] = (int) $post->ID;
+				}
+			}
+		}
+	}
+
+	$condition = "{$wpdb->posts}.post_password = ''";
+	if ( $allowed ) {
+		// IDs come from database rows and are cast to integers above.
+		$condition .= " OR {$wpdb->posts}.ID IN (" . implode( ',', $allowed ) . ')';
+	}
+	$clauses['where'] .= ' AND (' . $condition . ')';
+
+	return $clauses;
 }

@@ -85,24 +85,32 @@ and preview blueprint match their sources. No release blocker remains.
 The real-WordPress, two-site network, browser and fresh-install checks are recorded
 in [the verification record](docs/review/release-verification-2026-10-15.md), along
 with publication evidence. Plugin Check has no errors; its intentional updater
-warning remains documented. PHP 7.4 and all 40 defaults are preserved.
+warning remains documented. The released 40-setting schema and PHP 7.4 floor are preserved.
 
-Next implementation is the protected-post search disclosure below. Continue field
+The development tree adds the search privacy toggle below (41 defaults); it is
+not yet released. Next implementation is shortcode hiding paired with Site Health
+reporting. Continue field
 observation separately; broader accessibility, JS/CSS linting and PHP-floor research
 remain scoped follow-ups rather than reasons to reopen the completed release.
 
+The only open GitHub issue at this review, [#265](https://github.com/dknauss/Keel/issues/265),
+requests optional list-table compaction. Its affected helper code predates 0.6.9;
+no reported release regression is established. Keep it as a later UX increment.
+
 ## Next — 0.7.0 privacy and content integrity
 
-Build in this order. The first closes a measured disclosure. The shortcode work
+Build in this order. Search privacy is implemented, pending review and release. The shortcode work
 comes next because it pairs a reader-facing correction with evidence in Site Health;
 the typography control is useful but strategically smaller.
 
-- [ ] **Keep password-protected posts out of site search** — a logged-in Subscriber
-   can currently receive the title and excerpt of protected posts in search because
+- [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
+   could receive protected titles and stored excerpt data in search because
    core's `post_password = ''` search guard applies only to logged-out visitors.
    Preserve access for authors, editors and plugin-granted roles that may legitimately
-   read the post. This composes with `disable_post_passwords`, which prevents new
-   protected posts but does not address existing ones.
+   edit the post, plus valid password access. Implemented as `protect_search`,
+   default on, with per-object/CPT capability and query-pagination verification;
+   see [the search record](docs/review/protected-search-privacy.md).
+   `disable_post_passwords` remains a separate editor-UI control.
 - [ ] **Hide broken-shortcode residue and report it in Site Health** — ship these as
    a pair: readers should not see raw shortcode debris, while administrators retain
    evidence that a plugin or shortcode handler is missing.
@@ -891,14 +899,15 @@ a site that wants exactly one of them, installing that plugin is a legitimate
 answer — Keel absorbing it mainly saves a plugin from the list.
 
 **Outcome: three accepted, one rejected.** Marked in the house convention
-below — `[x]` is built, `[~]` is not taken, and an accepted item stays `[ ]` until
-it ships. The reasoning is kept in full, including where the original justification turned out to
+below — `[x]` is implemented (release status is stated separately), `[~]` is not taken,
+and an unbuilt accepted item stays `[ ]`. The reasoning is kept in full, including where the original justification turned out to
 be wrong on measurement, because a decision recorded without its evidence gets
 re-argued.
 
-- [ ] **Keep password-protected posts out of site search — accepted.** The only one
+- [x] **Keep password-protected posts out of site search — accepted.** The only one
       of the four that closes a real leak rather than adding a convenience. One
-      filter on the search query. Prior art: coffee2code's Omit Passworded Posts
+      filter on the search query. Now implemented as `protect_search`; see the
+      [verification and core-policy context](docs/review/protected-search-privacy.md). Prior art: coffee2code's Omit Passworded Posts
       From Search.
 
       **The original justification here was wrong, and the corrected one is
@@ -919,6 +928,12 @@ re-argued.
       communities, where "any subscriber can read the titles and excerpts of every
       protected post" is a real disclosure. The probe leaked the excerpt *"Summary:
       layoffs planned for Q3."* to a Subscriber account.
+
+      The historical probe measured returned excerpt data. Standard
+      `get_the_excerpt()` masks locked excerpts; theme/API rendering determines
+      whether stored excerpts are exposed. Core intentionally leaves post existence
+      visible outside anonymous search; this toggle is stricter optional privacy,
+      not a claim of an upstream security commitment.
 
       **Related to `disable_post_passwords`, and not made redundant by it.** That
       hides the password control *in the editor*, so it stops new protected posts
@@ -1139,7 +1154,7 @@ what they claim, do any of them do Keel's own features better, and is anything
 missing here that belongs.
 
 The answer to the second was no. Measured by files actually loaded on an admin
-request, Keel now does 40 defaults in 14 files and roughly 250 KB; Disabler pulls in 212 files
+request, the historical 40-setting Keel build used 14 files and roughly 250 KB; Disabler pulled in 212 files
 and 1.4 MB to reach a comparable feature set, shipping Action Scheduler and
 monolog to switch things off. The comment claim in `readme.txt` was re-verified
 the hard way — a comment written straight to the table with `$wpdb`, then queried

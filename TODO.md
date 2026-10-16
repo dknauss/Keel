@@ -20,8 +20,8 @@ WordPress.org download match all 41 tagged runtime files. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused implementation:** keep password-protected posts out of site
-  search, as scoped below for 0.7.0. Field observation and the maintainer's
+- **Next focused implementation:** hide orphaned shortcode output together with
+  Site Health reporting, as scoped below for 0.7.0. Field observation and the maintainer's
   WordPress.com settings-save confirmation remain open; routine PHPStan expansion
   stays paused unless a concrete change warrants it.
 
@@ -49,7 +49,7 @@ WordPress.org download match all 41 tagged runtime files. See the
       Pinned in `tests/backport-status.php`; staged live on every row of the backport
       matrix by `tests/integration/stable-check-refresh-probe.php`.
 - [x] **Environment override and mislabelled-site warning** — shipped in tagged 0.6.8. The schema
-      goes to 40 defaults with `environment_override` (Automatic, or a fixed environment
+      gained `environment_override` (Automatic, or a fixed environment
       Keel uses instead of `WP_ENVIRONMENT_TYPE`). Found on WordPress.com sites whose
       live `wp-config.php` had been replaced by a WordPress Studio copy declaring
       `local`: Keel held back their email and Jetpack went offline, with nothing on
@@ -173,12 +173,25 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     off also removes the `wp.*` methods and keeps `xmlrpc_enabled` false; if any
     WordPress.com call needs those, it still fails.
 
+## Issue triage — 2026-10-15
+
+- [ ] **Compact list-table columns** — [#265](https://github.com/dknauss/Keel/issues/265),
+      optional compact labels/default-hidden columns. This enhancement predates 0.6.9;
+      the helper-column code is unchanged from 0.6.8. Keep separate from search privacy.
+      No open issue reports a newly introduced 0.6.9 defect at this review; that is
+      not evidence that unreported regressions are impossible.
+
 ## Next — 0.7.0 privacy and content integrity
 
-- [ ] **Keep password-protected posts out of site search**
-  - Hide protected titles and excerpts from logged-in users who cannot read the post.
+- [x] **Keep password-protected posts out of site search**
+  - Exclude protected search results for logged-in users without per-post editing
+    or unlocked-password access; excerpt display otherwise depends on the consumer.
   - Preserve results for authors, editors and capabilities granted by other plugins.
-  - Cover logged-out, Subscriber, author/editor and custom-capability cases.
+  - Verified logged-out, Subscriber, author/editor, custom per-post/CPT capabilities,
+    password access, counts/pagination and unchanged admin/non-search queries.
+  - Implemented as `protect_search` (default on), independently of the editor UI
+    switch; 41 defaults in the development tree. See the
+    [search verification record](docs/review/protected-search-privacy.md).
 - [ ] **Hide broken-shortcode residue and report it in Site Health**
   - Hide orphaned shortcode markup from public output without deleting stored content.
   - Report enough evidence in Site Health for an administrator to identify the gap.

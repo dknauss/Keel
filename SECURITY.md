@@ -35,8 +35,8 @@ A useful first report includes:
 - which Keel defaults were switched on, since almost everything here is a toggle
   and most of the code does not run unless something enabled it.
 
-That last point matters more for this plugin than for most. Keel ships 40
-independent defaults — 16 toggles on out of the box, 14 off and opt-in, and 10
+That last point matters more for this plugin than for most. Keel ships 41
+independent defaults — 17 toggles on out of the box, 14 off and opt-in, and 10
 settings that are not toggles at all — so "with default settings" and "with this
 default enabled" are very different reports. The ones most likely to matter here,
 including the REST gate and the Classic editor, are among the opt-in ones.

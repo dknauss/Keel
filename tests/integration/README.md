@@ -2,6 +2,11 @@
 
 Several scripts, asking different questions.
 
+**`protected-search.php`** — run with `wp eval-file` on a disposable site with Keel
+active. Creates and removes fixture posts/users; exercises actual query SQL,
+pagination, roles, custom meta-cap grants/denials and password-access filters/cookies.
+This mutates its target during the test: do not run against production.
+
 **`verify-behaviors.sh`** — does each setting register the filters it should, and
 do they answer correctly? Runs against a real WordPress load, so the
 schema-driven bootstrap re-wires with each value, but it stops at the filter.

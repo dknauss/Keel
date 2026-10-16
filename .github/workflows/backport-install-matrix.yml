@@ -145,6 +145,9 @@ jobs:
           ln -s "$GITHUB_WORKSPACE" /tmp/keel-wp/wp-content/plugins/keel
           wp plugin activate keel --path=/tmp/keel-wp --allow-root
 
+      - name: Protected search access contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
+
       - name: Report the effective update policy
         env:
           ROW: ${{ matrix.id }}
