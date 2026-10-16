@@ -4,7 +4,7 @@
 
 [![WordPress.org](https://img.shields.io/wordpress/plugin/v/keel-defaults?label=WordPress.org&logo=wordpress&logoColor=white&color=21759b)](https://wordpress.org/plugins/keel-defaults/) [![CI](https://github.com/dknauss/Keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/Keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/Keel?include_prereleases)](https://github.com/dknauss/Keel/tags) [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE)
 
-**A clear, maintainable baseline for secure WordPress sites.** Keel provides 41 independent defaults for security, updates, privacy, content, email, media, and wp-admin. It is designed for people responsible for many sites, or for sites where predictable operations matter.
+**A clear, maintainable baseline for secure WordPress sites.** Keel provides 42 independent defaults for security, updates, privacy, content, email, media, and wp-admin. It is designed for people responsible for many sites, or for sites where predictable operations matter.
 
 **Current version: `0.6.9`.**
 
@@ -52,6 +52,10 @@ This is intentionally distinct from asking whether a newer major release exists.
 `keel_defaults_schema()` is the configuration source of truth. It drives the settings UI, validation, Site Health, and the bootstrap hooks that apply enabled defaults. Settings are per-site; network policy and selected `wp-config.php` constants are evaluated as higher-priority effective values, without overwriting the stored site configuration.
 
 Keel avoids cosmetic-only controls. For example, disabling comments also closes query and feed surfaces, while a closed REST API stops advertising itself but retains oEmbed so other sites can still embed posts. The [per-setting reference](docs/wordpress-default-settings.md) documents the behavior, scope, tradeoffs, constants, and filters for every setting.
+
+The development tree also pairs conservative broken-shortcode cleanup with recent
+Site Health evidence. It preserves enclosed text, editable-post visibility and
+literal examples; see [scope and limits](docs/wordpress-default-settings.md#broken-shortcodes).
 
 ### Integration and operations
 

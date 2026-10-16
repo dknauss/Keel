@@ -87,10 +87,9 @@ in [the verification record](docs/review/release-verification-2026-10-15.md), al
 with publication evidence. Plugin Check has no errors; its intentional updater
 warning remains documented. The released 40-setting schema and PHP 7.4 floor are preserved.
 
-The development tree adds the search privacy toggle below (41 defaults); it is
-not yet released. Next implementation is shortcode hiding paired with Site Health
-reporting. Continue field
-observation separately; broader accessibility, JS/CSS linting and PHP-floor research
+The development tree adds search privacy and paired shortcode cleanup/Site Health
+reporting (42 defaults); neither is released yet. Next is the scoped typographic-
+punctuation control. Continue field observation separately; broader accessibility, JS/CSS linting and PHP-floor research
 remain scoped follow-ups rather than reasons to reopen the completed release.
 
 The only open GitHub issue at this review, [#265](https://github.com/dknauss/Keel/issues/265),
@@ -99,9 +98,8 @@ no reported release regression is established. Keep it as a later UX increment.
 
 ## Next — 0.7.0 privacy and content integrity
 
-Build in this order. Search privacy is implemented, pending review and release. The shortcode work
-comes next because it pairs a reader-facing correction with evidence in Site Health;
-the typography control is useful but strategically smaller.
+Search privacy is merged and shortcode cleanup/reporting is implemented together,
+pending review and release. The typography control is the next focused increment.
 
 - [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
    could receive protected titles and stored excerpt data in search because
@@ -111,9 +109,11 @@ the typography control is useful but strategically smaller.
    default on, with per-object/CPT capability and query-pagination verification;
    see [the search record](docs/review/protected-search-privacy.md).
    `disable_post_passwords` remains a separate editor-UI control.
-- [ ] **Hide broken-shortcode residue and report it in Site Health** — ship these as
-   a pair: readers should not see raw shortcode debris, while administrators retain
-   evidence that a plugin or shortcode handler is missing.
+- [x] **Hide broken-shortcode residue and report it in Site Health** — implemented
+   together, pending review/release. Conservative strong-syntax cleanup keeps enclosed
+   text and editors' evidence; Site Health reads bounded recent observations without
+   scanning posts. Bare bracketed words, examples and REST stay unchanged. See the
+   [verification and limits](docs/review/shortcode-residue-2026-10-16.md).
 - [ ] **Leave typographic punctuation as typed** — add a focused toggle around
    `wptexturize`, with editor, feed and front-end coverage so the label does not
    promise more surfaces than the implementation controls.
@@ -1030,7 +1030,7 @@ re-argued.
       people who can apply it argues against Keel's own update defaults, so neither
       half of that prior art belongs here.
 
-- [ ] **Hide broken shortcodes — accepted, with the report.** Stripping the residue
+- [x] **Hide broken shortcodes — implemented with the report, pending review/release.** Stripping the residue
       of shortcodes whose plugin is gone, rather than printing `[some_shortcode]` to
       visitors — *and* telling an administrator which posts they are in. Prior art:
       Hide Broken Shortcodes, which does the first half only.
@@ -1066,7 +1066,7 @@ re-argued.
       front-end filter is already reading every rendered post: the residue is found as
       a by-product of work being done anyway.
 
-      So it takes the same shape as the divergence observer in `conflicts.php`, for the
+      So it takes the same shape as the divergence observer in `conflict-divergence.php`, for the
       same reasons and with the same properties: record only when there is something to
       record, write only when the answer changes, cap what is stored, and let the record
       expire rather than having anything clear it. A site with no broken shortcodes

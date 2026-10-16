@@ -9,11 +9,11 @@ Stable tag: 0.6.9
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-41 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
+42 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
 
 == Description ==
 
-A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 41 defaults on one screen, in plain language, where you can change any of them.
+A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 42 defaults on one screen, in plain language, where you can change any of them.
 
 **[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already switched on. No hosting, installation, or account required.
 
@@ -139,6 +139,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = Unreleased =
+* Content: hide recognizable missing-shortcode markup from readers while keeping enclosed text and editors’ evidence. A paired Site Health report lists recently affected posts and missing tag names, without scanning posts or storing content. Bare bracketed words, examples and REST output stay unchanged. Independently toggleable.
 * Privacy: hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable; does not change direct links or stored content.
 
 

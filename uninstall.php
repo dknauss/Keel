@@ -39,6 +39,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_conflicts_dismissed` — user meta, the fingerprint of the competing
  *   plugins a person last dismissed the notice for. Network-wide for the same
  *   reason as the above: it belongs to the user, not the site.
+ * - `keel_shortcode_residue` — bounded, recent post IDs and missing tag names.
  * - `keel_policy_divergence` — which governed settings were last seen not
  *   producing the value they ask for. An observation about this site, and
  *   meaningless once the plugin making it is gone.
@@ -62,6 +63,7 @@ function keel_defaults_uninstall_site() {
 	delete_option( 'keel_settings_data_version' );
 	delete_option( 'keel_environment_override_host' );
 	delete_transient( 'keel_policy_divergence' );
+	delete_transient( 'keel_shortcode_residue' );
 
 	/*
 	 * The pre-rename settings option.

@@ -147,6 +147,11 @@ function keel_defaults_strings() {
 			'statement' => __( 'Hide password-protected posts from searches without access', 'keel-defaults' ),
 			'help'      => __( 'Keeps protected titles and excerpts out of site search unless the logged-in visitor can edit that post or has unlocked its password. Honors custom per-post capabilities and password-access filters. Does not change admin searches, direct links or stored content.', 'keel-defaults' ),
 		),
+		'hide_shortcode_residue'          => array(
+			'label'     => __( 'Broken Shortcodes', 'keel-defaults' ),
+			'statement' => __( 'Hide recognizable missing-shortcode markup from readers', 'keel-defaults' ),
+			'help'      => __( 'Keeps enclosed text and stored content. People who can edit the post still see the residue. Site Health reports recent affected posts and tag names without scanning posts. Bare bracketed words, code examples, registered shortcodes and REST output stay unchanged. Does not restore missing plugin output.', 'keel-defaults' ),
+		),
 		'post_revisions_limit'            => array(
 			'label'         => __( 'Post Revision Retention', 'keel-defaults' ),
 			'unit'          => __( 'revisions', 'keel-defaults' ),
