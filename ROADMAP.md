@@ -88,8 +88,8 @@ with publication evidence. Plugin Check has no errors; its intentional updater
 warning remains documented. The released 40-setting schema and PHP 7.4 floor are preserved.
 
 The development tree adds search privacy and paired shortcode cleanup/Site Health
-reporting (42 defaults); neither is released yet. Next is the scoped typographic-
-punctuation control. Continue field observation separately; broader accessibility, JS/CSS linting and PHP-floor research
+reporting (42 defaults); both are merged and neither is released yet. Next is
+review of typography policy and submitted core fixes, before implementation. Continue field observation separately; broader accessibility, JS/CSS linting and PHP-floor research
 remain scoped follow-ups rather than reasons to reopen the completed release.
 
 The only open GitHub issue at this review, [#265](https://github.com/dknauss/Keel/issues/265),
@@ -98,8 +98,8 @@ no reported release regression is established. Keep it as a later UX increment.
 
 ## Next — 0.7.0 privacy and content integrity
 
-Search privacy is merged and shortcode cleanup/reporting is implemented together,
-pending review and release. The typography control is the next focused increment.
+Search privacy and paired shortcode cleanup/reporting are merged, pending release.
+Typography needs plan review first, including the maintainer’s submitted core fixes.
 
 - [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
    could receive protected titles and stored excerpt data in search because
@@ -110,10 +110,15 @@ pending review and release. The typography control is the next focused increment
    see [the search record](docs/review/protected-search-privacy.md).
    `disable_post_passwords` remains a separate editor-UI control.
 - [x] **Hide broken-shortcode residue and report it in Site Health** — implemented
-   together, pending review/release. Conservative strong-syntax cleanup keeps enclosed
+   together in #279, pending release. Conservative strong-syntax cleanup keeps enclosed
    text and editors' evidence; Site Health reads bounded recent observations without
    scanning posts. Bare bracketed words, examples and REST stay unchanged. See the
    [verification and limits](docs/review/shortcode-residue-2026-10-16.md).
+- [ ] **Review typography policy and submitted core fixes** — review the
+   [draft plan](docs/plans/typography-policy-review.md) before coding. Compare
+   the comprehensive #18549 submission with narrower bridges; decide parity,
+   locale handling, scope, defaults and retirement. Other submitted tickets and
+   the opening-tag/prime investigations need their own explicit inventory.
 - [ ] **Leave typographic punctuation as typed** — add a focused toggle around
    `wptexturize`, with editor, feed and front-end coverage so the label does not
    promise more surfaces than the implementation controls.
@@ -969,7 +974,7 @@ re-argued.
       The shape that survives all four is "exclude posts the current user cannot
       read", not "exclude posts with a password".
 
-- [ ] **Straight quotes — accepted.** `add_filter( 'run_wptexturize', '__return_false' )`,
+- [ ] **Straight quotes — accepted as opt-in; implementation held for plan review.** `add_filter( 'run_wptexturize', '__return_false' )`,
       so punctuation is left as typed. Structurally the shape of `disable_emojis`:
       one core filter, one toggle, nothing left behind when it is off. Wanted by
       sites publishing code, technical documentation, or anything where a curly
@@ -997,6 +1002,17 @@ re-argued.
       ([wordpress-develop #12249](https://github.com/WordPress/wordpress-develop/pull/12249),
       green on trunk) with a standalone stopgap plugin at
       [dknauss/wp-texturize-inline-quote-fix](https://github.com/dknauss/wp-texturize-inline-quote-fix).
+
+      **2026-10-16 review update:** do not implement the earlier one-filter sketch
+      yet. The comprehensive submission restores a family of historical inline-tag
+      quote cases, not just the modern apostrophe example. Evaluate its inclusion
+      separately from the preference to disable typography. The standalone output
+      workaround is not locale-equivalent to the submitted in-engine patch; a
+      faithful bridge would require a maintained function fork. Also review the
+      request-cached `run_wptexturize` hook and multisite blog switching. See the
+      [review draft](docs/plans/typography-policy-review.md); no typography runtime
+      change is authorized by that draft. The historical rationale below predates
+      this broader evaluation.
 
       That matters here in two ways. It is the argument for **not** making this a
       default-on setting: most people hitting the bug want the one case fixed, not
@@ -1030,7 +1046,7 @@ re-argued.
       people who can apply it argues against Keel's own update defaults, so neither
       half of that prior art belongs here.
 
-- [x] **Hide broken shortcodes — implemented with the report, pending review/release.** Stripping the residue
+- [x] **Hide broken shortcodes — merged in #279 with the report, pending release.** Stripping the residue
       of shortcodes whose plugin is gone, rather than printing `[some_shortcode]` to
       visitors — *and* telling an administrator which posts they are in. Prior art:
       Hide Broken Shortcodes, which does the first half only.
