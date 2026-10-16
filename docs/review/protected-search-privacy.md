@@ -111,3 +111,23 @@ The helper-column code is unchanged between v0.6.8 and v0.6.9. No issue establis
 a newly shipped regression; this does not rule out unreported faults. The search
 policy is separate work. Next implementation is shortcode hiding paired with
 Site Health evidence, as scoped in TODO and ROADMAP.
+
+## Final CI evidence and upstream classification
+
+[CI on f0c1a17](https://github.com/dknauss/Keel/actions/runs/38836801058)
+passed lint/unit and PHP 7.4–8.5. The [final live matrix](https://github.com/dknauss/Keel/actions/runs/38836840613)
+passed all six rows, each reporting all 24 search assertions, including the
+PHP 7.4 / WordPress 6.4 branch and the real MySQL multisite row. The same runtime
+also passed the earlier 20-assertion matrix. The local package contains 41 runtime
+files, is 232031 bytes, and excludes tests, dependencies and review docs. The
+disposable Studio site was stopped and deleted after verification.
+
+The historical plugin code excluded protected results in all front-end searches
+and disabled itself once core incorporated the anonymous restriction. Its author
+explicitly documented search-term inference; no evidence was found establishing
+his awareness of the remaining logged-in exception. Authenticated inference about
+password-protected body text could warrant an information-disclosure classification;
+no core security-team determination or severity rating is claimed here.
+Following [WordPress's reporting policy](https://make.wordpress.org/core/handbook/testing/reporting-security-vulnerabilities/),
+the recommendation is private security-team assessment before filing a new public
+Trac report on that concern. No upstream report or message has been sent.
