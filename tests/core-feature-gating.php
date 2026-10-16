@@ -9,7 +9,7 @@
  * anything and Site Health reported a posture the site did not have.
  *
  * Raising `Requires at least` to 7.0 would have fixed it by locking out every
- * site below 7.0 to serve one setting out of 41; the other 40 work on 6.4. So
+ * site below 7.0 to serve one setting out of 42; the other 41 work on 6.4. So
  * the schema entry names the core function it needs and the screens skip it
  * when that function is absent. It is a capability probe, not a version
  * compare: core's own `wp_supports_ai()` is the exact thing being extended, so
@@ -183,7 +183,7 @@ keel_assert(
 );
 
 keel_assert(
-	41 === count( $schema ),
+	42 === count( $schema ),
 	"[{$state}] The schema is the same size on either core (" . count( $schema ) . ')."'
 );
 

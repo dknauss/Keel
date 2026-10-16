@@ -20,8 +20,8 @@ WordPress.org download match all 41 tagged runtime files. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused implementation:** hide orphaned shortcode output together with
-  Site Health reporting, as scoped below for 0.7.0. Field observation and the maintainer's
+- **Next focused implementation:** the scoped typographic-punctuation control for
+  0.7.0. Search privacy and paired shortcode cleanup/reporting are implemented, pending release. Field observation and the maintainer's
   WordPress.com settings-save confirmation remain open; routine PHPStan expansion
   stays paused unless a concrete change warrants it.
 
@@ -190,12 +190,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   - Verified logged-out, Subscriber, author/editor, custom per-post/CPT capabilities,
     password access, counts/pagination and unchanged admin/non-search queries.
   - Implemented as `protect_search` (default on), independently of the editor UI
-    switch; 41 defaults in the development tree. See the
+    switch; 42 defaults in the development tree. See the
     [search verification record](docs/review/protected-search-privacy.md).
-- [ ] **Hide broken-shortcode residue and report it in Site Health**
-  - Hide orphaned shortcode markup from public output without deleting stored content.
-  - Report enough evidence in Site Health for an administrator to identify the gap.
-  - Do not ship the hiding half without the reporting half.
+- [x] **Hide broken-shortcode residue and report it in Site Health**
+  - Implemented together as `hide_shortcode_residue` (default on), pending review/release.
+  - Conservative strong-syntax cleanup of front-end post content; enclosed text,
+    editors' evidence, registered handlers, examples and stored content are preserved.
+  - Site Health reads capped, per-site, one-hour observations; no post scan or raw content.
+  - Bare bracketed words, REST and excessive parser workloads stay unchanged. See the
+    [verification and scope record](docs/review/shortcode-residue-2026-10-16.md).
 - [ ] **Leave typographic punctuation as typed**
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.

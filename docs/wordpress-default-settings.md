@@ -557,6 +557,50 @@ admin searches and stored posts are unchanged. Queries explicitly using
 of `disable_post_passwords`, which only hides the editor control. Turning this switch
 off restores WordPress's search behavior, and network policy can manage it normally.
 
+### Broken Shortcodes
+- **Key:** `hide_shortcode_residue`
+- **Default:** `yes`
+- **Why:** Missing plugins can leave shortcode markup visible to readers. Hiding it
+  must keep the evidence available to people who can repair the content.
+
+Keel filters `the_content` at priority 10, after block/text formatting and before
+core's `do_shortcode`. Unregistered paired tags, self-closing tags and tags with
+named attributes are recognizable candidates. It removes markup, keeping enclosed
+text. It does not execute or register callbacks. Registered shortcode inputs,
+escaped `[[tag]]` examples, HTML attributes/comments, code/pre/script/style/textarea
+regions and backtick examples are preserved. People who can `edit_post` for that
+post see the residue. Stored content is never rewritten.
+
+Strong syntax can still be an intentional raw example: use escaped double brackets
+or code markup for those examples, or disable this policy. Bare `[word]` text stays
+because its intent is ambiguous. A site can explicitly
+identify a missing bare tag; registered handlers always win:
+
+```php
+add_filter( 'keel_shortcode_residue_tags', function ( $tags ) {
+    $tags[] = 'old_plugin_tag';
+    return $tags;
+} );
+```
+
+Scope is front-end post content, including feeds that render it. Admin/REST output,
+standalone excerpts, widgets, raw template output, unattributable content and locked
+password content stay unchanged. This is presentation cleanup, not access control;
+it does not repair missing output. Full-page caches must handle authenticated
+editors normally to preserve their different presentation.
+
+Site Health reports visited affected posts and tag names through edit links,
+checking per-post edit access. It never scans posts or renders callbacks. Evidence
+is a per-site transient, capped at 20 post IDs and 10 tag names each. Each entry
+expires after an hour independently, so repaired content can remain listed briefly.
+Repeated identical observations do not write or extend expiry; healthy renders do
+not read or write diagnostic storage. At capacity, additional posts wait for expiry.
+No content, attributes or user identities are stored. Parser work is limited to 100
+opening candidates and eight nested levels; excessive or failed parses keep the
+remaining markup rather than guessing. Network policy manages this toggle normally.
+
+See the [verification record](review/shortcode-residue-2026-10-16.md).
+
 ### Limit Post Revisions
 - **Key:** `post_revisions_limit`
 - **Default:** `10` on a new activation; existing installations migrate to `-1`
@@ -1264,6 +1308,7 @@ covering only some, which reads as a full inventory when it is not.
 | Emoji Script | `disable_emojis` | `yes` | Content |
 | Post Passwords | `disable_post_passwords` | `no` | Content |
 | Protected Search Results | `protect_search` | `yes` | Content |
+| Broken Shortcodes | `hide_shortcode_residue` | `yes` | Content |
 | Post Revision Retention | `post_revisions_limit` | `10` | Content |
 | Classic Editor | `force_classic_editor` | `no` | Editor |
 | Upload Filenames | `lowercase_upload_filenames` | `yes` | Media |

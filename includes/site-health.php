@@ -34,6 +34,13 @@ function keel_defaults_site_health_tests( $tests ) {
 		'test'  => 'keel_defaults_site_health_environment',
 	);
 
+	if ( keel_defaults_enabled( 'hide_shortcode_residue' ) ) {
+		$tests['direct']['keel_defaults_shortcodes'] = array(
+			'label' => __( 'Broken shortcodes', 'keel-defaults' ),
+			'test'  => 'keel_defaults_site_health_shortcodes',
+		);
+	}
+
 	// Only where there is a Jetpack connection to say something about. A check
 	// that passes on every site without Jetpack is noise in the passed list.
 	if ( '' !== keel_defaults_jetpack_xmlrpc_state() ) {
