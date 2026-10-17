@@ -1,6 +1,6 @@
 # Shortcode residue and Site Health — 2026-10-16
 
-Implemented together for 0.7.0, pending review and release. `hide_shortcode_residue`
+Merged together in #279 for 0.7.0, pending release. `hide_shortcode_residue`
 is an independent, default-on Content toggle. Development has 42 settings; the
 released 0.6.9 package is unchanged. PHP 7.4 remains the floor.
 

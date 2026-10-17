@@ -20,10 +20,12 @@ WordPress.org download match all 41 tagged runtime files. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused implementation:** the scoped typographic-punctuation control for
-  0.7.0. Search privacy and paired shortcode cleanup/reporting are implemented, pending release. Field observation and the maintainer's
-  WordPress.com settings-save confirmation remain open; routine PHPStan expansion
-  stays paused unless a concrete change warrants it.
+- **Next focused review:** typography policy and the maintainer's submitted core
+  fixes. Review the [draft plan](docs/plans/typography-policy-review.md) before any
+  typography implementation. Search privacy and paired shortcode cleanup/reporting
+  are merged, pending release. Field observation and the maintainer's WordPress.com
+  settings-save confirmation remain open; routine PHPStan expansion stays paused
+  unless a concrete change warrants it.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -193,12 +195,20 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     switch; 42 defaults in the development tree. See the
     [search verification record](docs/review/protected-search-privacy.md).
 - [x] **Hide broken-shortcode residue and report it in Site Health**
-  - Implemented together as `hide_shortcode_residue` (default on), pending review/release.
+  - Merged together in #279 as `hide_shortcode_residue` (default on), pending release.
   - Conservative strong-syntax cleanup of front-end post content; enclosed text,
     editors' evidence, registered handlers, examples and stored content are preserved.
   - Site Health reads capped, per-site, one-hour observations; no post scan or raw content.
   - Bare bracketed words, REST and excessive parser workloads stay unchanged. See the
     [verification and scope record](docs/review/shortcode-residue-2026-10-16.md).
+- [ ] **Review typography policy and submitted core fixes**
+  - Review the [draft plan](docs/plans/typography-policy-review.md) before coding.
+  - Use the [expanded Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md),
+    including fresh locale/boundary findings; no existing patch is presumed final.
+  - Compare the comprehensive #18549 submission with the narrower standalone
+    bridges; decide scope, parity, locales, defaults and retirement behavior.
+  - Keep the other contributor’s opening-tag submission, local prime investigation
+    and nested-quote proposals distinct; decide outputs independently of authorship.
 - [ ] **Leave typographic punctuation as typed**
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
