@@ -136,8 +136,9 @@ Proposed initial scope to evaluate, rather than a committed scope:
 ## Decisions for the maintainer
 
 - Prioritize the targeted correctness bridge, the raw-punctuation option, or both?
-- Is exact comprehensive-patch parity required, or is a documented narrower,
-  locale-correct bridge acceptable?
+- After correcting the identified gaps, is in-engine coverage required, or is a
+  documented narrower, locale-correct bridge acceptable? Existing bugs are not
+  parity targets.
 - Should a validated correction be default on, or opt-in until field experience?
 - Which rendered surfaces should the preference cover? A global request switch
   and selected display filters are different policies.
