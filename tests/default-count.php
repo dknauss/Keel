@@ -108,6 +108,7 @@ keel_count_assert(
  */
 $claim_patterns = array(
 	'/\b(\d+)\s+independent\s+defaults\b/',
+	'/\bcurrently\s+(\d+)\)\s+independent\s+defaults\b/',
 	'/\b(\d+)\s+defaults\b/',
 	// readme.txt's short description states the count as "39 sane WordPress
 	// defaults", which the adjacent-word pattern above cannot see. The claim is
