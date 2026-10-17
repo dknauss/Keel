@@ -203,10 +203,12 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     [verification and scope record](docs/review/shortcode-residue-2026-10-16.md).
 - [ ] **Review typography policy and submitted core fixes**
   - Review the [draft plan](docs/plans/typography-policy-review.md) before coding.
+  - Use the [expanded Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md),
+    including fresh locale/boundary findings; no existing patch is presumed final.
   - Compare the comprehensive #18549 submission with the narrower standalone
     bridges; decide scope, parity, locales, defaults and retirement behavior.
-  - Keep opening-tag/prime investigations and other tickets distinct from the
-    submitted patch; include further submissions supplied by the maintainer.
+  - Keep the other contributor’s opening-tag submission, local prime investigation
+    and nested-quote proposals distinct; decide outputs independently of authorship.
 - [ ] **Leave typographic punctuation as typed**
   - Decide and document the exact `wptexturize` surfaces before naming the toggle.
   - Cover front-end content, excerpts and feeds; verify editor behaviour separately.

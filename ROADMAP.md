@@ -118,7 +118,8 @@ Typography needs plan review first, including the maintainer’s submitted core 
    [draft plan](docs/plans/typography-policy-review.md) before coding. Compare
    the comprehensive #18549 submission with narrower bridges; decide parity,
    locale handling, scope, defaults and retirement. Other submitted tickets and
-   the opening-tag/prime investigations need their own explicit inventory.
+   opening-tag/prime work need an explicit specification. See the
+   [Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md).
 - [ ] **Leave typographic punctuation as typed** — add a focused toggle around
    `wptexturize`, with editor, feed and front-end coverage so the label does not
    promise more surfaces than the implementation controls.
@@ -1006,7 +1007,10 @@ re-argued.
       **2026-10-16 review update:** do not implement the earlier one-filter sketch
       yet. The comprehensive submission restores a family of historical inline-tag
       quote cases, not just the modern apostrophe example. Evaluate its inclusion
-      separately from the preference to disable typography. The standalone output
+      separately from the preference to disable typography. The 2026-10-17
+      [comparison](docs/review/texturize-trac-comparison-2026-10-17.md) found locale
+      gaps in that patch and in another contributor’s opening-tag proposal; neither
+      is a final solution. The standalone output
       workaround is not locale-equivalent to the submitted in-engine patch; a
       faithful bridge would require a maintained function fork. Also review the
       request-cached `run_wptexturize` hook and multisite blog switching. See the

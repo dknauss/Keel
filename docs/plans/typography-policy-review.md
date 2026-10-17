@@ -1,44 +1,54 @@
 # Typography policy and core fixes — review draft
 
-Prepared 2026-10-16. No typography behavior is being implemented by this document.
+Prepared 2026-10-16; research updated 2026-10-17. This document makes no
+typography behavior change.
 The maintainer asked to review the plan and the submitted core fixes first.
 
 ## Recommendation for discussion
 
-Evaluate the comprehensive, locale-aware core fix as the correctness baseline.
-Keep the preference to disable automatic punctuation separate. Most sites wanting
-correct quotes should not have to surrender the rest of WordPress typography.
+Use a strengthened incremental cross-token design as the leading candidate for
+inline quote correctness, rather than treating any submitted patch as final.
+The [Trac comparison and fresh source probes](../review/texturize-trac-comparison-2026-10-17.md)
+found a locale-context gap in Dan's patch and separate gaps in the opening-tag
+proposal. Reconcile their behavior and share context classification; do not merge
+two state machines blindly. Keep HTML boundary/source preservation and nested
+quotation policies separate.
 
-Before choosing a Keel implementation, run a differential compatibility spike:
-compare native core, the submitted patch and the two standalone builds on identical
-fixtures. Bring back the parity, coverage, performance and maintenance results.
-Do not import an engine fork or enable a workaround by default before that review.
-A small correction can be preferable, but only if its narrower behavior is explicit.
+The strongest long-term core direction is standards-aware HTML tokenization plus
+locale-aware quote context. That is not a finished patch or a ready Keel backport.
+For Keel, review the corpus and maintenance tradeoffs before choosing a bridge.
+Do not copy a whole engine or enable a repair bundle by default at this stage.
+The optional preference to leave punctuation as entered remains a separate decision.
 
 ## Submitted work and related investigations
 
 | Work | Evidence and status | Decision relevance |
 | --- | --- | --- |
-| Comprehensive closing-inline-tag fix | [Trac #18549](https://core.trac.wordpress.org/ticket/18549#comment:37), [core PR #12249](https://github.com/WordPress/wordpress-develop/pull/12249), open when checked; head `0efc177c44d39f2f13a9f3a40ee1e18097545583` | Corrects the historical quote-around-inline-markup family, not just one apostrophe example. |
+| Comprehensive closing-inline-tag fix | [Trac #18549](https://core.trac.wordpress.org/ticket/18549#comment:37), [core PR #12249](https://github.com/WordPress/wordpress-develop/pull/12249), open when checked; head `0efc177c44d39f2f13a9f3a40ee1e18097545583` | Corrects historical inline cases; fresh probes found English-specific closing-entity context, so it needs locale hardening. |
 | Minimal apostrophe patch | Local Dirtbag research retains a narrower fallback | Compare for understanding; do not substitute it silently for the submitted comprehensive patch. |
 | Standalone builds | [Inline Quote Fix repository](https://github.com/dknauss/wp-texturize-inline-quote-fix) | Lightweight output repair and a faithful WordPress-7.0-based engine fork have different contracts. |
-| Opening-inline-tag context | [Trac #43810](https://core.trac.wordpress.org/ticket/43810); local prototype notes | Candidate extension requiring separate full-suite validation; do not label the local prototype submitted or accepted. |
+| Opening-inline-tag context | [Trac #43810](https://core.trac.wordpress.org/ticket/43810), [irozum’s PR #12645](https://github.com/WordPress/wordpress-develop/pull/12645), plus local prototype notes | Another contributor has submitted an opening-tag fix. Reconcile Unicode, apostrophe kind, tag parsing and allowlists; do not treat the local prototype as final. |
 | Feet/inches without a space | Local `wptexturize_primes()` investigation | Separate behavior change needing an agreed specification and upstream status; preserve quoted numbers and apostrophes. |
 | Nested quotation marks | [Trac #29882](https://core.trac.wordpress.org/ticket/29882) | Explicitly outside the submitted closing-tag patch. Do not claim every longstanding texturize issue is solved. |
 
-This inventory is provisional pending any additional submitted ticket/patch links.
-GitHub author search found one texturize PR; it cannot establish that there are no
-other Trac attachments or submissions under another account.
+The earlier author-only search missed complementary submissions. The expanded
+[comparison](../review/texturize-trac-comparison-2026-10-17.md) covers the historical
+#18549 engine, #29882, #12403/#63997 and related HTML-split tickets, #43785/#12694,
+#61817/#7134, #66153 MathML proposals and #63192 granular controls. Already-landed
+prime-ordering and locale changes are regression constraints, not new patches.
+No current proposal should be presumed best or final because of its authorship.
 
-The checked trunk revision was `b036c94744c63fb58772f2e27627070bd80c75c4`;
-its formatting source did not contain the submitted patch's cross-token helpers.
+The renewed source comparison used trunk
+`8ce87974d83c72d62d338852d55a86b91874de15`; its formatting source did not
+contain the submitted patch's cross-token helpers. Seven proposal diffs applied
+individually to that baseline for isolated probes; this is not a combined patch.
 The earlier local research records a passing 361-test/469-assertion core class,
 not a new test run against today's trunk. Repeat it before porting.
 
 ## Two separate product decisions
 
-**Correct typography.** Preserve normal texturization while carrying selected fixes
-until core supplies them. Determine the exact supported cases and a retirement
+**Correct typography.** A possible policy preserves normal texturization while
+carrying selected fixes until core supplies them. Determine the exact supported cases and a retirement
 mechanism before promising parity. Proposed copy: “Correct quotes across inline
 formatting.” Final name, default and eligibility remain for review.
 
@@ -95,7 +105,11 @@ Proposed initial scope to evaluate, rather than a committed scope:
 
 ## Acceptance evidence before implementation approval
 
-1. Freeze the desired outputs from the submitted comprehensive fixtures and ordinary
+1. Agree on outputs independently of any candidate patch. Require the newly found
+   German-style quote-tail, Unicode opening-tag, tag-casing/whitespace, script-with-
+   following-prose and granular dash-preservation regressions from the comparison.
+   Include numeric grouping (`10'000`) when evaluating a feet/inches rule.
+   Freeze the desired outputs from the submitted comprehensive fixtures and ordinary
    parity corpus. Include quotes around links, quote-wrapped names plus possessives,
    punctuation/entities, whitespace, Unicode letters, nested inline tags and closing
    block boundaries. State which opening-tag, prime and nested-quote cases are excluded.
@@ -128,5 +142,6 @@ Proposed initial scope to evaluate, rather than a committed scope:
 - Which rendered surfaces should the preference cover? A global request switch
   and selected display filters are different policies.
 
-The next authorized step is review and refinement of this plan, including additional
-submitted patches. Runtime implementation waits for the maintainer's direction.
+The next step is review and refinement of this plan using the expanded comparison
+and proposed behavior corpus. Runtime implementation waits for the maintainer's
+direction.
