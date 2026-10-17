@@ -4,7 +4,7 @@
 
 [![WordPress.org](https://img.shields.io/wordpress/plugin/v/keel-defaults?label=WordPress.org&logo=wordpress&logoColor=white&color=21759b)](https://wordpress.org/plugins/keel-defaults/) [![CI](https://github.com/dknauss/Keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/Keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/Keel?include_prereleases)](https://github.com/dknauss/Keel/tags) [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE)
 
-**A clear, maintainable baseline for secure WordPress sites.** Keel provides 42 independent defaults for security, updates, privacy, content, email, media, and wp-admin. It is designed for people responsible for many sites, or for sites where predictable operations matter.
+**A clear, maintainable baseline for secure WordPress sites.** Keel provides ovver 40 (currently 42) independent defaults for security, updates, privacy, content, email, media, and wp-admin. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
 
 **Current version: `0.6.9`.**
 
@@ -19,17 +19,19 @@ The stable demo follows each release; the rolling demo is rebuilt after successf
 
 ## What it does
 
-Keel exposes each choice under **Settings → Site Defaults**, explains it in place, and reports the effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and each default can be switched off independently.
+Keel has as single configuration screen, **Settings → Site Defaults**, which explains each setting in place. Keel reports its current effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and each default can be switched off independently.
 
-- Reduce accidental exposure: anonymous user discovery, author archives, comments, pingbacks, attachment pages, raw HTML, security headers, AI connectors, and more.
-- Make routine maintenance safer: conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
-- Protect non-production copies: outgoing mail is suppressed outside production by default, preventing a staging or local copy from sending to real recipients.
-- Make operations legible: Site Health lists the active state of every default and flags attributable policy overlaps with other plugins.
-- Run a network without flattening every site: a Super Admin can decide selected defaults for the whole network, while each site keeps its own choices underneath. Enforced settings are visibly locked, and lifting the policy restores every saved local choice.
+Keel's setting are intended to: 
+
+- **Reduce accidental exposure:** anonymous user discovery, author archives, comments, pingbacks, attachment pages, raw HTML, security headers, AI connectors, and more.
+- **Make routine maintenance safer:** conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
+- **Protect non-production sites:** outgoing mail is suppressed outside production by default, preventing a staging or local copy from sending to real recipients.
+- **Make operations legible:** Site Health lists the active state of every default and flags attributable policy overlaps with other plugins.
+- **Run a network without flattening every site**: a Super Admin can decide selected defaults for the whole network, while each site keeps its own choices underneath. Enforced settings are visibly locked, and lifting the policy restores every saved local choice.
 
 ### See all available WordPress core updates
 
-Keel independently checks WordPress.org's stable-check status for the installed core version. If a release line has a known vulnerability and a same-line fix exists, Keel names that exact patch, explains what WordPress's Updates screen is offering, and lets an authorized administrator deliberately install only that patch through WordPress's upgrader with rollback enabled.
+Keel independently checks WordPress.org's `stable-check` status for the installed core version. If a release line has a known vulnerability and a same-line fix exists, Keel names that exact patch, explains what WordPress's Updates screen is offering, and lets an authorized administrator deliberately install only that same-line patch through WordPress's upgrader with rollback enabled.
 
 This is intentionally distinct from asking whether a newer major release exists. A secure same-line patch may be hidden as an automatic-update offer, absent from the Updates screen, or unavailable because WordPress.org has not published one. Keel reports the uncertainty or blocker rather than implying that an update is available when it is not. Details: [core update and stable-check behavior](docs/wordpress-default-settings.md#5-update-policy).
 
@@ -53,8 +55,7 @@ This is intentionally distinct from asking whether a newer major release exists.
 
 Keel avoids cosmetic-only controls. For example, disabling comments also closes query and feed surfaces, while a closed REST API stops advertising itself but retains oEmbed so other sites can still embed posts. The [per-setting reference](docs/wordpress-default-settings.md) documents the behavior, scope, tradeoffs, constants, and filters for every setting.
 
-The development tree also pairs conservative broken-shortcode cleanup with recent
-Site Health evidence. It preserves enclosed text, editable-post visibility and
+The development tree also pairs conservative broken-shortcode cleanup with recent Site Health evidence. It preserves enclosed text, editable-post visibility and
 literal examples; see [scope and limits](docs/wordpress-default-settings.md#broken-shortcodes).
 
 ### Integration and operations
