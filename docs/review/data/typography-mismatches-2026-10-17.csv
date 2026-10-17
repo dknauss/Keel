@@ -1,0 +1,459 @@
+locale,surface,name,input,native,bridge,reference
+en_US,direct_postprocess,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+en_US,direct_postprocess,unicode_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+en_US,direct_postprocess,combining_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+en_US,direct_postprocess,uppercase_opening,I<STRONG>'ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8217;ve</STRONG>
+en_US,direct_postprocess,tab_opening,"I<strong	class=""x"">'ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8217;ve</strong>"
+en_US,direct_postprocess,newline_opening,"I<em
+class=""x"">'ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8217;ve</em>"
+en_US,direct_postprocess,whitespace_closing,<strong>He</strong >'s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8217;s
+en_US,direct_postprocess,nested_opening,I<em><strong>'ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8217;ve</strong></em>
+en_US,direct_postprocess,contraction_in_quote,'He<em>'s</em> here',&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8217;s</em> here&#8217;
+en_US,direct_postprocess,no_word_empty,<em></em>'Hello',<em></em>&#8216;Hello&#8217;,<em></em>&#8217;Hello&#8217;,<em></em>&#8216;Hello&#8217;
+en_US,direct_postprocess,no_word_punctuation,<em>:</em>'Hello',<em>:</em>&#8216;Hello&#8217;,<em>:</em>&#8217;Hello&#8217;,<em>:</em>&#8216;Hello&#8217;
+en_US,direct_postprocess,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+en_US,direct_postprocess,opaque_script,"<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8217;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>"
+en_US,direct_postprocess,french_word,l<em>'ami</em>,l<em>&#8216;ami</em>,l<em>&#8216;ami</em>,l<em>&#8217;ami</em>
+en_US,direct_postprocess,authored_opening_entity,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8217;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;
+en_US,direct_postprocess,authored_double_entity,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8221;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;
+en_US,the_title,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+en_US,the_title,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+en_US,the_content,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+en_US,the_content,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+en_US,the_content,generated_shortcode,[labquote],"<em>x</em>&#8216;s
+","<em>x</em>&#8217;s
+","<em>x</em>&#8216;s
+"
+en_US,the_excerpt,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+en_US,the_excerpt,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+en_US,the_excerpt_embed,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+en_US,the_excerpt_embed,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+en_US,comment_text,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+en_US,comment_text,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+en_US,term_description,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+en_US,term_description,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+en_US,single_post_title,closing_apostrophe,<strong>He</strong>'s here.,He&#8216;s here.,He&#8216;s here.,He&#8217;s here.
+en_US,single_post_title,opening_apostrophe,I<strong>'ve been</strong>,I&#8216;ve been,I&#8216;ve been,I&#8217;ve been
+en_US,widget_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+en_US,widget_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+en_US,wp_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+en_US,wp_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+de_DE,direct_postprocess,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8218;ve been</strong>,I<strong>&#8218;ve been</strong>,I<strong>&#8217;ve been</strong>
+de_DE,direct_postprocess,uppercase_opening,I<STRONG>'ve</STRONG>,I<STRONG>&#8218;ve</STRONG>,I<STRONG>&#8218;ve</STRONG>,I<STRONG>&#8217;ve</STRONG>
+de_DE,direct_postprocess,tab_opening,"I<strong	class=""x"">'ve</strong>","I<strong	class=""x"">&#8218;ve</strong>","I<strong	class=""x"">&#8218;ve</strong>","I<strong	class=""x"">&#8217;ve</strong>"
+de_DE,direct_postprocess,newline_opening,"I<em
+class=""x"">'ve</em>","I<em
+class=""x"">&#8218;ve</em>","I<em
+class=""x"">&#8218;ve</em>","I<em
+class=""x"">&#8217;ve</em>"
+de_DE,direct_postprocess,nested_opening,I<em><strong>'ve</strong></em>,I<em><strong>&#8218;ve</strong></em>,I<em><strong>&#8218;ve</strong></em>,I<em><strong>&#8217;ve</strong></em>
+de_DE,direct_postprocess,closing_double,"""<em>John</em>""",&#8222;<em>John</em>&#8222;,&#8222;<em>John</em>&#8222;,&#8222;<em>John</em>&#8220;
+de_DE,direct_postprocess,closing_single,'<em>John</em>',&#8218;<em>John</em>&#8218;,&#8218;<em>John</em>&#8218;,&#8218;<em>John</em>&#8216;
+de_DE,direct_postprocess,plural_possessive,<em>James</em>' book,<em>James</em>&#8218; book,<em>James</em>&#8218; book,<em>James</em>&#8217; book
+de_DE,direct_postprocess,earlier_contraction,'Don't <em>go</em>',&#8218;Don&#8217;t <em>go</em>&#8218;,&#8218;Don&#8217;t <em>go</em>&#8218;,&#8218;Don&#8217;t <em>go</em>&#8216;
+de_DE,direct_postprocess,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+de_DE,direct_postprocess,opaque_script,"<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8217;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>"
+de_DE,direct_postprocess,french_word,l<em>'ami</em>,l<em>&#8218;ami</em>,l<em>&#8218;ami</em>,l<em>&#8217;ami</em>
+de_DE,direct_postprocess,authored_opening_entity,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8217;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;
+de_DE,direct_postprocess,authored_double_entity,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8221;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;
+de_DE,the_title,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8218;ve been</strong>,I<strong>&#8218;ve been</strong>,I<strong>&#8217;ve been</strong>
+de_DE,the_title,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+de_DE,the_content,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+de_DE,the_content,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+de_DE,the_content,generated_shortcode,[labquote],"<em>x</em>&#8216;s
+","<em>x</em>&#8217;s
+","<em>x</em>&#8216;s
+"
+de_DE,the_excerpt,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+de_DE,the_excerpt,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+de_DE,the_excerpt_embed,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+de_DE,the_excerpt_embed,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+de_DE,comment_text,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+de_DE,comment_text,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+de_DE,term_description,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8218;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+de_DE,term_description,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+de_DE,single_post_title,opening_apostrophe,I<strong>'ve been</strong>,I&#8218;ve been,I&#8218;ve been,I&#8217;ve been
+de_DE,widget_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8218;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8218;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+de_DE,wp_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8218;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8218;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+fr_FR,direct_postprocess,closing_apostrophe,<strong>He</strong>'s here.,<strong>He</strong>&lsquo;s here.,<strong>He</strong>&lsquo;s here.,<strong>He</strong>&rsquo;s here.
+fr_FR,direct_postprocess,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&lsquo;ve been</strong>,I<strong>&lsquo;ve been</strong>,I<strong>&rsquo;ve been</strong>
+fr_FR,direct_postprocess,unicode_opening,café<em>'s</em>,café<em>&lsquo;s</em>,café<em>&lsquo;s</em>,café<em>&rsquo;s</em>
+fr_FR,direct_postprocess,combining_opening,café<em>'s</em>,café<em>&lsquo;s</em>,café<em>&lsquo;s</em>,café<em>&rsquo;s</em>
+fr_FR,direct_postprocess,uppercase_opening,I<STRONG>'ve</STRONG>,I<STRONG>&lsquo;ve</STRONG>,I<STRONG>&lsquo;ve</STRONG>,I<STRONG>&rsquo;ve</STRONG>
+fr_FR,direct_postprocess,tab_opening,"I<strong	class=""x"">'ve</strong>","I<strong	class=""x"">&lsquo;ve</strong>","I<strong	class=""x"">&lsquo;ve</strong>","I<strong	class=""x"">&rsquo;ve</strong>"
+fr_FR,direct_postprocess,newline_opening,"I<em
+class=""x"">'ve</em>","I<em
+class=""x"">&lsquo;ve</em>","I<em
+class=""x"">&lsquo;ve</em>","I<em
+class=""x"">&rsquo;ve</em>"
+fr_FR,direct_postprocess,uppercase_closing,<STRONG>He</STRONG>'s,<STRONG>He</STRONG>&lsquo;s,<STRONG>He</STRONG>&lsquo;s,<STRONG>He</STRONG>&rsquo;s
+fr_FR,direct_postprocess,whitespace_closing,<strong>He</strong >'s,<strong>He</strong >&lsquo;s,<strong>He</strong >&lsquo;s,<strong>He</strong >&rsquo;s
+fr_FR,direct_postprocess,nested_closing,<em><strong>He</strong></em>'s,<em><strong>He</strong></em>&lsquo;s,<em><strong>He</strong></em>&lsquo;s,<em><strong>He</strong></em>&rsquo;s
+fr_FR,direct_postprocess,nested_opening,I<em><strong>'ve</strong></em>,I<em><strong>&lsquo;ve</strong></em>,I<em><strong>&lsquo;ve</strong></em>,I<em><strong>&rsquo;ve</strong></em>
+fr_FR,direct_postprocess,quoted_name,"<em>""John""</em>'s book.",<em>« John »</em>&lsquo;s book.,<em>« John »</em>&lsquo;s book.,<em>« John »</em>&rsquo;s book.
+fr_FR,direct_postprocess,closing_double,"""<em>John</em>""",« <em>John</em>« ,« <em>John</em>« ,« <em>John</em> »
+fr_FR,direct_postprocess,closing_single,'<em>John</em>',&lsquo;<em>John</em>&lsquo;,&lsquo;<em>John</em>&lsquo;,&lsquo;<em>John</em>&rsquo;
+fr_FR,direct_postprocess,plural_possessive,<em>James</em>' book,<em>James</em>&lsquo; book,<em>James</em>&lsquo; book,<em>James</em>&rsquo; book
+fr_FR,direct_postprocess,contraction_in_quote,'He<em>'s</em> here',&lsquo;He<em>&lsquo;s</em> here&rsquo;,&lsquo;He<em>&lsquo;s</em> here&rsquo;,&lsquo;He<em>&rsquo;s</em> here&rsquo;
+fr_FR,direct_postprocess,earlier_contraction,'Don't <em>go</em>',&lsquo;Don&rsquo;t <em>go</em>&lsquo;,&lsquo;Don&rsquo;t <em>go</em>&lsquo;,&lsquo;Don&rsquo;t <em>go</em>&rsquo;
+fr_FR,direct_postprocess,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+fr_FR,direct_postprocess,opaque_script,"<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8217;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>"
+fr_FR,direct_postprocess,french_word,l<em>'ami</em>,l<em>&lsquo;ami</em>,l<em>&lsquo;ami</em>,l<em>&rsquo;ami</em>
+fr_FR,direct_postprocess,cyrillic_word,<em>слово</em>'s,<em>слово</em>&lsquo;s,<em>слово</em>&lsquo;s,<em>слово</em>&rsquo;s
+fr_FR,direct_postprocess,arabic_word,<em>كتاب</em>'s,<em>كتاب</em>&lsquo;s,<em>كتاب</em>&lsquo;s,<em>كتاب</em>&rsquo;s
+fr_FR,direct_postprocess,japanese_word,<em>日本語</em>'s,<em>日本語</em>&lsquo;s,<em>日本語</em>&lsquo;s,<em>日本語</em>&rsquo;s
+fr_FR,direct_postprocess,authored_opening_entity,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8217;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;
+fr_FR,direct_postprocess,authored_double_entity,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8221;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;
+fr_FR,the_title,closing_apostrophe,<strong>He</strong>'s here.,<strong>He</strong>&lsquo;s here.,<strong>He</strong>&lsquo;s here.,<strong>He</strong>&rsquo;s here.
+fr_FR,the_title,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&lsquo;ve been</strong>,I<strong>&lsquo;ve been</strong>,I<strong>&rsquo;ve been</strong>
+fr_FR,the_title,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+fr_FR,the_content,closing_apostrophe,<strong>He</strong>'s here.,"<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&rsquo;s here.</p>
+"
+fr_FR,the_content,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&rsquo;ve been</strong></p>
+"
+fr_FR,the_content,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+fr_FR,the_content,generated_shortcode,[labquote],"<em>x</em>&#8216;s
+","<em>x</em>&#8217;s
+","<em>x</em>&#8216;s
+"
+fr_FR,the_excerpt,closing_apostrophe,<strong>He</strong>'s here.,"<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&rsquo;s here.</p>
+"
+fr_FR,the_excerpt,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&rsquo;ve been</strong></p>
+"
+fr_FR,the_excerpt,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+fr_FR,the_excerpt_embed,closing_apostrophe,<strong>He</strong>'s here.,"<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&rsquo;s here.</p>
+"
+fr_FR,the_excerpt_embed,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&rsquo;ve been</strong></p>
+"
+fr_FR,the_excerpt_embed,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+fr_FR,comment_text,closing_apostrophe,<strong>He</strong>'s here.,"<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&rsquo;s here.</p>
+"
+fr_FR,comment_text,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&rsquo;ve been</strong></p>
+"
+fr_FR,comment_text,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+fr_FR,term_description,closing_apostrophe,<strong>He</strong>'s here.,"<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&lsquo;s here.</p>
+","<p><strong>He</strong>&rsquo;s here.</p>
+"
+fr_FR,term_description,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&lsquo;ve been</strong></p>
+","<p>I<strong>&rsquo;ve been</strong></p>
+"
+fr_FR,term_description,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+fr_FR,single_post_title,closing_apostrophe,<strong>He</strong>'s here.,He&lsquo;s here.,He&lsquo;s here.,He&rsquo;s here.
+fr_FR,single_post_title,opening_apostrophe,I<strong>'ve been</strong>,I&lsquo;ve been,I&lsquo;ve been,I&rsquo;ve been
+fr_FR,widget_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&lsquo;s here.,&lt;strong&gt;He&lt;/strong&gt;&lsquo;s here.,&lt;strong&gt;He&lt;/strong&gt;&rsquo;s here.
+fr_FR,widget_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&lsquo;ve been&lt;/strong&gt;,I&lt;strong&gt;&lsquo;ve been&lt;/strong&gt;,I&lt;strong&gt;&rsquo;ve been&lt;/strong&gt;
+fr_FR,wp_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&lsquo;s here.,&lt;strong&gt;He&lt;/strong&gt;&lsquo;s here.,&lt;strong&gt;He&lt;/strong&gt;&rsquo;s here.
+fr_FR,wp_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&lsquo;ve been&lt;/strong&gt;,I&lt;strong&gt;&lsquo;ve been&lt;/strong&gt;,I&lt;strong&gt;&rsquo;ve been&lt;/strong&gt;
+ru_RU,direct_postprocess,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+ru_RU,direct_postprocess,unicode_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+ru_RU,direct_postprocess,combining_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+ru_RU,direct_postprocess,uppercase_opening,I<STRONG>'ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8217;ve</STRONG>
+ru_RU,direct_postprocess,tab_opening,"I<strong	class=""x"">'ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8217;ve</strong>"
+ru_RU,direct_postprocess,newline_opening,"I<em
+class=""x"">'ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8217;ve</em>"
+ru_RU,direct_postprocess,whitespace_closing,<strong>He</strong >'s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8217;s
+ru_RU,direct_postprocess,nested_opening,I<em><strong>'ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8217;ve</strong></em>
+ru_RU,direct_postprocess,closing_double,"""<em>John</em>""",&#171;<em>John</em>&#171;,&#171;<em>John</em>&#171;,&#171;<em>John</em>&#187;
+ru_RU,direct_postprocess,contraction_in_quote,'He<em>'s</em> here',&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8217;s</em> here&#8217;
+ru_RU,direct_postprocess,no_word_empty,<em></em>'Hello',<em></em>&#8216;Hello&#8217;,<em></em>&#8217;Hello&#8217;,<em></em>&#8216;Hello&#8217;
+ru_RU,direct_postprocess,no_word_punctuation,<em>:</em>'Hello',<em>:</em>&#8216;Hello&#8217;,<em>:</em>&#8217;Hello&#8217;,<em>:</em>&#8216;Hello&#8217;
+ru_RU,direct_postprocess,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+ru_RU,direct_postprocess,opaque_script,"<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8217;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>"
+ru_RU,direct_postprocess,french_word,l<em>'ami</em>,l<em>&#8216;ami</em>,l<em>&#8216;ami</em>,l<em>&#8217;ami</em>
+ru_RU,direct_postprocess,authored_opening_entity,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8217;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;
+ru_RU,direct_postprocess,authored_double_entity,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8221;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;
+ru_RU,the_title,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+ru_RU,the_title,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+ru_RU,the_content,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ru_RU,the_content,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ru_RU,the_content,generated_shortcode,[labquote],"<em>x</em>&#8216;s
+","<em>x</em>&#8217;s
+","<em>x</em>&#8216;s
+"
+ru_RU,the_excerpt,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ru_RU,the_excerpt,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ru_RU,the_excerpt_embed,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ru_RU,the_excerpt_embed,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ru_RU,comment_text,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ru_RU,comment_text,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ru_RU,term_description,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ru_RU,term_description,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ru_RU,single_post_title,closing_apostrophe,<strong>He</strong>'s here.,He&#8216;s here.,He&#8216;s here.,He&#8217;s here.
+ru_RU,single_post_title,opening_apostrophe,I<strong>'ve been</strong>,I&#8216;ve been,I&#8216;ve been,I&#8217;ve been
+ru_RU,widget_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+ru_RU,widget_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+ru_RU,wp_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+ru_RU,wp_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+ar,direct_postprocess,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+ar,direct_postprocess,unicode_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+ar,direct_postprocess,combining_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+ar,direct_postprocess,uppercase_opening,I<STRONG>'ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8217;ve</STRONG>
+ar,direct_postprocess,tab_opening,"I<strong	class=""x"">'ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8217;ve</strong>"
+ar,direct_postprocess,newline_opening,"I<em
+class=""x"">'ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8217;ve</em>"
+ar,direct_postprocess,whitespace_closing,<strong>He</strong >'s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8217;s
+ar,direct_postprocess,nested_opening,I<em><strong>'ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8217;ve</strong></em>
+ar,direct_postprocess,contraction_in_quote,'He<em>'s</em> here',&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8217;s</em> here&#8217;
+ar,direct_postprocess,no_word_empty,<em></em>'Hello',<em></em>&#8216;Hello&#8217;,<em></em>&#8217;Hello&#8217;,<em></em>&#8216;Hello&#8217;
+ar,direct_postprocess,no_word_punctuation,<em>:</em>'Hello',<em>:</em>&#8216;Hello&#8217;,<em>:</em>&#8217;Hello&#8217;,<em>:</em>&#8216;Hello&#8217;
+ar,direct_postprocess,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+ar,direct_postprocess,opaque_script,"<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8217;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>"
+ar,direct_postprocess,french_word,l<em>'ami</em>,l<em>&#8216;ami</em>,l<em>&#8216;ami</em>,l<em>&#8217;ami</em>
+ar,direct_postprocess,authored_opening_entity,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8217;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;
+ar,direct_postprocess,authored_double_entity,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8221;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;
+ar,the_title,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+ar,the_title,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+ar,the_content,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ar,the_content,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ar,the_content,generated_shortcode,[labquote],"<em>x</em>&#8216;s
+","<em>x</em>&#8217;s
+","<em>x</em>&#8216;s
+"
+ar,the_excerpt,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ar,the_excerpt,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ar,the_excerpt_embed,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ar,the_excerpt_embed,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ar,comment_text,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ar,comment_text,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ar,term_description,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ar,term_description,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ar,single_post_title,closing_apostrophe,<strong>He</strong>'s here.,He&#8216;s here.,He&#8216;s here.,He&#8217;s here.
+ar,single_post_title,opening_apostrophe,I<strong>'ve been</strong>,I&#8216;ve been,I&#8216;ve been,I&#8217;ve been
+ar,widget_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+ar,widget_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+ar,wp_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+ar,wp_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+ja,direct_postprocess,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+ja,direct_postprocess,unicode_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+ja,direct_postprocess,combining_opening,café<em>'s</em>,café<em>&#8216;s</em>,café<em>&#8216;s</em>,café<em>&#8217;s</em>
+ja,direct_postprocess,uppercase_opening,I<STRONG>'ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8216;ve</STRONG>,I<STRONG>&#8217;ve</STRONG>
+ja,direct_postprocess,tab_opening,"I<strong	class=""x"">'ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8216;ve</strong>","I<strong	class=""x"">&#8217;ve</strong>"
+ja,direct_postprocess,newline_opening,"I<em
+class=""x"">'ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8216;ve</em>","I<em
+class=""x"">&#8217;ve</em>"
+ja,direct_postprocess,whitespace_closing,<strong>He</strong >'s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8216;s,<strong>He</strong >&#8217;s
+ja,direct_postprocess,nested_opening,I<em><strong>'ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8216;ve</strong></em>,I<em><strong>&#8217;ve</strong></em>
+ja,direct_postprocess,contraction_in_quote,'He<em>'s</em> here',&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8216;s</em> here&#8217;,&#8216;He<em>&#8217;s</em> here&#8217;
+ja,direct_postprocess,no_word_empty,<em></em>'Hello',<em></em>&#8216;Hello&#8217;,<em></em>&#8217;Hello&#8217;,<em></em>&#8216;Hello&#8217;
+ja,direct_postprocess,no_word_punctuation,<em>:</em>'Hello',<em>:</em>&#8216;Hello&#8217;,<em>:</em>&#8217;Hello&#8217;,<em>:</em>&#8216;Hello&#8217;
+ja,direct_postprocess,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+ja,direct_postprocess,opaque_script,"<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>","<script>var s = ""<em>x</em>&#8217;s"";</script>","<script>var s = ""<em>x</em>&#8216;s"";</script>"
+ja,direct_postprocess,french_word,l<em>'ami</em>,l<em>&#8216;ami</em>,l<em>&#8216;ami</em>,l<em>&#8217;ami</em>
+ja,direct_postprocess,authored_opening_entity,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;,<em>x</em>&#8217;Hello&#8217;,<em>x</em>&#8216;Hello&#8217;
+ja,direct_postprocess,authored_double_entity,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;,<em>x</em>&#8221;Hello&#8221;,<em>x</em>&#8220;Hello&#8221;
+ja,the_title,opening_apostrophe,I<strong>'ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8216;ve been</strong>,I<strong>&#8217;ve been</strong>
+ja,the_title,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8216;s</code>,<code><em>x</em>&#8217;s</code>,<code><em>x</em>&#8216;s</code>
+ja,the_content,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ja,the_content,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ja,the_content,generated_shortcode,[labquote],"<em>x</em>&#8216;s
+","<em>x</em>&#8217;s
+","<em>x</em>&#8216;s
+"
+ja,the_excerpt,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ja,the_excerpt,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ja,the_excerpt_embed,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ja,the_excerpt_embed,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ja,comment_text,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ja,comment_text,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ja,term_description,opening_apostrophe,I<strong>'ve been</strong>,"<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8216;ve been</strong></p>
+","<p>I<strong>&#8217;ve been</strong></p>
+"
+ja,term_description,opaque_literal_entity,<code><em>x</em>&#8216;s</code>,"<p><code><em>x</em>&#8216;s</code></p>
+","<p><code><em>x</em>&#8217;s</code></p>
+","<p><code><em>x</em>&#8216;s</code></p>
+"
+ja,single_post_title,closing_apostrophe,<strong>He</strong>'s here.,He&#8216;s here.,He&#8216;s here.,He&#8217;s here.
+ja,single_post_title,opening_apostrophe,I<strong>'ve been</strong>,I&#8216;ve been,I&#8216;ve been,I&#8217;ve been
+ja,widget_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+ja,widget_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
+ja,wp_title,closing_apostrophe,<strong>He</strong>'s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8216;s here.,&lt;strong&gt;He&lt;/strong&gt;&#8217;s here.
+ja,wp_title,opening_apostrophe,I<strong>'ve been</strong>,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8216;ve been&lt;/strong&gt;,I&lt;strong&gt;&#8217;ve been&lt;/strong&gt;
