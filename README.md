@@ -19,9 +19,9 @@ The stable demo follows each release; the rolling demo is rebuilt after successf
 
 ## What it does
 
-Keel has as single configuration screen, **Settings → Site Defaults**, which explains each setting in place. Keel reports its current effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and each default can be switched off independently.
+Keel explains each setting under **Settings → Site Defaults**, with a separate Network Admin policy screen for multisite. Keel reports its current effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and each default can be switched off independently.
 
-Keel's setting are intended to: 
+Keel's settings are intended to:
 
 - **Reduce accidental exposure:** anonymous user discovery, author archives, comments, pingbacks, attachment pages, raw HTML, security headers, AI connectors, and more.
 - **Make routine maintenance safer:** conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
