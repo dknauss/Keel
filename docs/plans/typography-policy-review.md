@@ -6,28 +6,48 @@ The maintainer asked to review the plan and the submitted core fixes first.
 
 ## Recommendation for discussion
 
-Use a strengthened incremental cross-token design as the leading candidate for
-inline quote correctness, rather than treating any submitted patch as final.
-The [Trac comparison and fresh source probes](../review/texturize-trac-comparison-2026-10-17.md)
-found a locale-context gap in Dan's patch and separate gaps in the opening-tag
-proposal. Reconcile their behavior and share context classification; do not merge
-two state machines blindly. Keep HTML boundary/source preservation and nested
-quotation policies separate.
+**Implementation follow-up — 2026-10-19.** The maintainer authorized a separate
+feature plugin, implemented in [PR #2](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2). Core #12249 at `b290bb5f1b` now
+refreshes quote tables on locale entry/restoration while preserving the request
+opt-out gate. Lazy context classification and a classified-apostrophe fast path
+reduce added formatting cost by about 66% / 55% on the ~40 KB HTML/quote-heavy
+fixtures. The repeated 10,260-row matrix has zero differences from the patched
+reference and frozen outputs. The plugin's filtered-call scope, 6.4–7.1 release
+gates and retirement/conflict behavior are documented there. No Keel typography
+runtime changes, release or deployment are part of this work. The sections below
+retain the rationale and product decisions that preceded this implementation.
 
-The strongest long-term core direction is standards-aware HTML tokenization plus
-locale-aware quote context. That is not a finished patch or a ready Keel backport.
-For Keel, review the corpus and maintenance tradeoffs before choosing a bridge.
-Do not copy a whole engine or enable a repair bundle by default at this stage.
-The optional preference to leave punctuation as entered remains a separate decision.
+The reconciled core patch now includes locale-derived quote context, shared
+opening/closing inline-tag classification and regression tests. Core PR #12249
+at `1f07246ffe33a9d288c17070c856fd56989cbb62` has 122 successful CI checks and
+21 skips. The older comparison below records findings against the earlier head;
+it is historical evidence, not the current patch status.
+
+The [compatibility validation](../review/typography-compatibility-2026-10-17.md)
+compares the pre-optimization patch with the narrow standalone bridge across nine released
+core versions, six installed locales and single-site/multisite. Its 10,260 rows
+show stable results but substantial bridge gaps, including opaque/authored-entity
+changes. Locale switching also exposes core's existing request-static quote cache.
+The long quote-heavy benchmark adds about 2.5 ms per 40 KB formatting call; profile
+that context bookkeeping before adoption rather than treating the earlier
+incremental benchmark as the total cost against native released core.
+
+Prefer upstream adoption and a separately maintained, explicitly enabled plugin
+if a stopgap is needed. The current narrow bridge is not ready to promise locale
+or core-patch parity. Review its language/surface contract, locale-switch handling,
+performance and retirement plan before implementing changes in either plugin.
+Keep Keel's typography unchanged. A punctuation-preservation preference remains
+an independent opt-in product decision; no engine fork or default-on repair is
+approved by this plan.
 
 ## Submitted work and related investigations
 
 | Work | Evidence and status | Decision relevance |
 | --- | --- | --- |
-| Comprehensive closing-inline-tag fix | [Trac #18549](https://core.trac.wordpress.org/ticket/18549#comment:37), [core PR #12249](https://github.com/WordPress/wordpress-develop/pull/12249), open when checked; head `0efc177c44d39f2f13a9f3a40ee1e18097545583` | Corrects historical inline cases; fresh probes found English-specific closing-entity context, so it needs locale hardening. |
+| Comprehensive closing-inline-tag fix | [Trac #18549](https://core.trac.wordpress.org/ticket/18549#comment:37), [core PR #12249](https://github.com/WordPress/wordpress-develop/pull/12249), current head `b290bb5f1bd8dc29607571e48d7565cca68e76ed` | Locale hardening and shared opening-tag handling implemented upstream; the follow-up closes the cache gap and reduces overhead; filtered-call and language-scope limits remain. |
 | Minimal apostrophe patch | Local Dirtbag research retains a narrower fallback | Compare for understanding; do not substitute it silently for the submitted comprehensive patch. |
 | Standalone builds | [Inline Quote Fix repository](https://github.com/dknauss/wp-texturize-inline-quote-fix) | Lightweight output repair and a faithful WordPress-7.0-based engine fork have different contracts. |
-| Opening-inline-tag context | [Trac #43810](https://core.trac.wordpress.org/ticket/43810), [irozum’s PR #12645](https://github.com/WordPress/wordpress-develop/pull/12645), plus local prototype notes | Another contributor has submitted an opening-tag fix. Reconcile Unicode, apostrophe kind, tag parsing and allowlists; do not treat the local prototype as final. |
+| Opening-inline-tag context | [Trac #43810](https://core.trac.wordpress.org/ticket/43810), [irozum’s PR #12645](https://github.com/WordPress/wordpress-develop/pull/12645), plus local prototype notes | The strengthened #12249 reconciles this proposal’s opening-tag behavior with Unicode, apostrophe-kind and shared tag classification tests; broader linguistic ambiguity remains out of scope. |
 | Feet/inches without a space | Local `wptexturize_primes()` investigation | Separate behavior change needing an agreed specification and upstream status; preserve quoted numbers and apostrophes. |
 | Nested quotation marks | [Trac #29882](https://core.trac.wordpress.org/ticket/29882) | Explicitly outside the submitted closing-tag patch. Do not claim every longstanding texturize issue is solved. |
 
@@ -143,6 +163,6 @@ Proposed initial scope to evaluate, rather than a committed scope:
 - Which rendered surfaces should the preference cover? A global request switch
   and selected display filters are different policies.
 
-The next step is review and refinement of this plan using the expanded comparison
-and proposed behavior corpus. Runtime implementation waits for the maintainer's
-direction.
+The standalone feature-plugin PR #2 is reviewed and merged. The updated core
+patch remains open for upstream review. Locale-cache integration and the targeted optimization are implemented and
+retested; a feature-plugin release and any Keel integration remain separate decisions.

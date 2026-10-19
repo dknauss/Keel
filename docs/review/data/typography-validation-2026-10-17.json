@@ -1,0 +1,3223 @@
+{
+  "versions": [
+    "6.4",
+    "6.4.13",
+    "6.5.13",
+    "6.6.10",
+    "6.7.10",
+    "6.8.11",
+    "6.9.10",
+    "7.0.7",
+    "7.1.3"
+  ],
+  "locales": [
+    "en_US",
+    "de_DE",
+    "fr_FR",
+    "ru_RU",
+    "ar",
+    "ja"
+  ],
+  "core_patch": "1f07246ffe33a9d288c17070c856fd56989cbb62",
+  "bridge": "1c8af5d524c406afc33c936b05c029ea35ce8c53",
+  "environments": 108,
+  "rows": 10260,
+  "identical_across_versions_and_modes": true,
+  "distinct_mismatch_rows": 221,
+  "matrix_mismatch_rows": 3978,
+  "keel_additional_rows": 1140,
+  "sources": [
+    {
+      "version": "6.4",
+      "archive_sha256": "91b2ea1843541e58baca15fa0545f098c8cc5496572e1fa08c0b5f2a630a59ed",
+      "formatting_sha256": "b1b89ab2d08b5a691e01007d56cd0637d08c9901ffcb7eafc9c907351d6be2f7",
+      "patch_applied": true
+    },
+    {
+      "version": "6.4.13",
+      "archive_sha256": "7128ce72cb4b060a05bb073b1395bb10400bb6c1526fd4b9313f1ef56b4b583a",
+      "formatting_sha256": "49a9cef6a352a4440b869e8f042899ae1d6fbe237b3d5ab938493eba1dd56248",
+      "patch_applied": true
+    },
+    {
+      "version": "6.5.13",
+      "archive_sha256": "6ddf1043354c43ae9cafe84834824f04ae72c57d06f4aaee6278fe9c34e2829c",
+      "formatting_sha256": "fc7a233a5883e16c6e243279a83f68d1a55cae6bbddd8ee8595e1d17a9f43775",
+      "patch_applied": true
+    },
+    {
+      "version": "6.6.10",
+      "archive_sha256": "6d5309d542175f7aebea6d7d933364bfa1c2db24c681ac9f55634297a4e8dd83",
+      "formatting_sha256": "894b42c1b6f7275d55cceb91a4e2db6283446d7194e4ba38f517bdd4e4f93558",
+      "patch_applied": true
+    },
+    {
+      "version": "6.7.10",
+      "archive_sha256": "a0bb667f07bcbfd8595d355a82d2a4cd488cbc7c2fe9b29c6476d97d985c6d44",
+      "formatting_sha256": "6608213460734b5c67af67b938a6c5f8cc3103254944471b32211fad93bcbf07",
+      "patch_applied": true
+    },
+    {
+      "version": "6.8.11",
+      "archive_sha256": "51917d013a574d20199869d7cd387840c7f790667dbc5588b4ec824152bc7abb",
+      "formatting_sha256": "543de9b67a84dd9c6782483eebfd1b62cfc263b2425d709b38163c7f9a93783e",
+      "patch_applied": true
+    },
+    {
+      "version": "6.9.10",
+      "archive_sha256": "4f18b9e25bd253b0c39009eafb651911e8de29465d6f62397369ff75a36fdb0e",
+      "formatting_sha256": "cb068819d324e0c15c22f1813fbd9ce58831bba89e5ba9a5399979b3dcd9ca68",
+      "patch_applied": true
+    },
+    {
+      "version": "7.0.7",
+      "archive_sha256": "e476db676a2688d62fcc2c2828f4888d45877972459dbf84086e92614d317c0e",
+      "formatting_sha256": "7c7d79a4f7456846051bab3d883a74f8bf9fede6175c88c547c4b98ad221747d",
+      "patch_applied": true
+    },
+    {
+      "version": "7.1.3",
+      "archive_sha256": "eb58a90ed55147f90f7bd55d0d3334960a69b7e8a4cc142c8ddfea8965218227",
+      "formatting_sha256": "350f6b32303915df970bb0e3ea360fcd54bb0b8a7ecc3d504c3d860ab9468d32",
+      "patch_applied": true
+    }
+  ],
+  "per_locale": {
+    "en_US": {
+      "different": 16,
+      "reference_changes": 21,
+      "contracts": {
+        "closing_apostrophe": true,
+        "opening_apostrophe": true,
+        "opaque_entity": true
+      }
+    },
+    "de_DE": {
+      "different": 14,
+      "reference_changes": 10,
+      "contracts": {
+        "closing_apostrophe": true,
+        "opening_apostrophe": true,
+        "opaque_entity": true
+      }
+    },
+    "fr_FR": {
+      "different": 25,
+      "reference_changes": 21,
+      "contracts": {
+        "closing_apostrophe": true,
+        "opening_apostrophe": true,
+        "opaque_entity": true
+      }
+    },
+    "ru_RU": {
+      "different": 17,
+      "reference_changes": 21,
+      "contracts": {
+        "closing_apostrophe": true,
+        "opening_apostrophe": true,
+        "opaque_entity": true
+      }
+    },
+    "ar": {
+      "different": 16,
+      "reference_changes": 21,
+      "contracts": {
+        "closing_apostrophe": true,
+        "opening_apostrophe": true,
+        "opaque_entity": true
+      }
+    },
+    "ja": {
+      "different": 16,
+      "reference_changes": 21,
+      "contracts": {
+        "closing_apostrophe": true,
+        "opening_apostrophe": true,
+        "opaque_entity": true
+      }
+    }
+  },
+  "effective_quote_mappings": {
+    "en_US": {
+      "_catalog_sha256": null,
+      "opening curly double quote": "&#8220;",
+      "closing curly double quote": "&#8221;",
+      "opening curly single quote": "&#8216;",
+      "closing curly single quote": "&#8217;",
+      "apostrophe": "&#8217;"
+    },
+    "de_DE": {
+      "_catalog_sha256": "c028be6b33d1cc025340dc3e0a41df56d0650d9c8e3a8c85696a9e50cb9ee72b",
+      "opening curly double quote": "&#8222;",
+      "closing curly double quote": "&#8220;",
+      "opening curly single quote": "&#8218;",
+      "closing curly single quote": "&#8216;",
+      "apostrophe": "&#8217;"
+    },
+    "fr_FR": {
+      "_catalog_sha256": "015932c09beca5dccb69aa01d923bc634465f610bf98a9ab21ae7ad44d43719f",
+      "opening curly double quote": "« ",
+      "closing curly double quote": " »",
+      "opening curly single quote": "&lsquo;",
+      "closing curly single quote": "&rsquo;",
+      "apostrophe": "&rsquo;"
+    },
+    "ru_RU": {
+      "_catalog_sha256": "cbec320efc86f25626ceca90113ec1cdc4d2f78ebe99cd729dbf5f8e1910f614",
+      "opening curly double quote": "&#171;",
+      "closing curly double quote": "&#187;",
+      "opening curly single quote": "&#8216;",
+      "closing curly single quote": "&#8217;",
+      "apostrophe": "&#8217;"
+    },
+    "ar": {
+      "_catalog_sha256": "6ebe9c173b1d2df10a30d53e45614dc67a2737880222f8b37352072792478dfe",
+      "opening curly double quote": "&#8220;",
+      "closing curly double quote": "&#8221;",
+      "opening curly single quote": "&#8216;",
+      "closing curly single quote": "&#8217;",
+      "apostrophe": "&#8217;"
+    },
+    "ja": {
+      "_catalog_sha256": "8592ad8b0d5dd9d9f2f341aec559b390b35f124d5cff64d59c8cd242a9c437a3",
+      "opening curly double quote": "&#8220;",
+      "closing curly double quote": "&#8221;",
+      "opening curly single quote": "&#8216;",
+      "closing curly single quote": "&#8217;",
+      "apostrophe": "&#8217;"
+    }
+  },
+  "benchmarks": [
+    {
+      "file": "bench-large-multisite-6.4.json",
+      "rows": [
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09651383333333333,
+              "p95_ms": 0.09876366666666668,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.13543766666666668,
+              "p95_ms": 0.14365266666666668,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09668750000000001,
+              "p95_ms": 0.10459733333333333,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.7262500000000003,
+              "p95_ms": 2.8554443333333333,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.807208333333333,
+              "p95_ms": 2.9014443333333335,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.401097166666666,
+              "p95_ms": 4.610305333333334,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.3955416666666665,
+              "p95_ms": 7.730250000000001,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.643757,
+              "p95_ms": 7.552097333333333,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.035215333333333,
+              "p95_ms": 9.863680666666667,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.08590966666666666,
+              "p95_ms": 0.08706933333333333,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.12436816666666667,
+              "p95_ms": 0.13175,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0860835,
+              "p95_ms": 0.08793066666666667,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.4338819999999997,
+              "p95_ms": 2.507375,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.506125,
+              "p95_ms": 2.5503886666666666,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.077159833333333,
+              "p95_ms": 4.183375,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 5.499243166666666,
+              "p95_ms": 5.8107359999999995,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 5.717590333333334,
+              "p95_ms": 6.086319666666667,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 8.082597166666666,
+              "p95_ms": 8.625916666666667,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.0961805,
+              "p95_ms": 0.09919466666666667,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.1350695,
+              "p95_ms": 0.14531933333333333,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09647233333333333,
+              "p95_ms": 0.10144433333333334,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.6908054999999997,
+              "p95_ms": 2.761139,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.7707430000000004,
+              "p95_ms": 2.811014,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.332444499999999,
+              "p95_ms": 4.398430333333333,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.450347166666667,
+              "p95_ms": 9.314833333333334,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.647104166666667,
+              "p95_ms": 9.437055666666668,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 8.865110999999999,
+              "p95_ms": 11.674611,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09595816666666666,
+              "p95_ms": 0.10502766666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.135,
+              "p95_ms": 0.16973633333333335,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09637500000000002,
+              "p95_ms": 0.10305533333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.7063125,
+              "p95_ms": 2.7556666666666665,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.7782501666666666,
+              "p95_ms": 2.827097,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.332361166666667,
+              "p95_ms": 4.403027666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.5572083333333335,
+              "p95_ms": 6.930180666666666,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.8634235,
+              "p95_ms": 7.190569666666666,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.336569333333333,
+              "p95_ms": 9.986097333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09602766666666668,
+              "p95_ms": 0.10293033333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.13522916666666668,
+              "p95_ms": 0.15472233333333332,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09645133333333333,
+              "p95_ms": 0.10481933333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.727152666666667,
+              "p95_ms": 2.9076806666666664,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.8572013333333333,
+              "p95_ms": 3.006652666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.4991875,
+              "p95_ms": 4.690458333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.5248333333333335,
+              "p95_ms": 6.969444333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.8199165,
+              "p95_ms": 7.603430666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.217632,
+              "p95_ms": 9.653666666666666,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09909716666666665,
+              "p95_ms": 0.10247233333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.13738899999999998,
+              "p95_ms": 0.14695833333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.099139,
+              "p95_ms": 0.10584733333333333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.702069333333333,
+              "p95_ms": 3.098444666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.779020833333333,
+              "p95_ms": 3.0452779999999997,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.3461805,
+              "p95_ms": 4.918236,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.310874999999999,
+              "p95_ms": 6.466361,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.547597333333334,
+              "p95_ms": 6.6392500000000005,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 8.903187666666668,
+              "p95_ms": 8.966319666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        }
+      ],
+      "http": 0,
+      "writes": 0
+    },
+    {
+      "file": "bench-large-multisite-7.1.3.json",
+      "rows": [
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09605550000000002,
+              "p95_ms": 0.09686133333333334,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.134771,
+              "p95_ms": 0.135486,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09629166666666666,
+              "p95_ms": 0.09779166666666667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.6816596666666666,
+              "p95_ms": 3.022722,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.766493166666667,
+              "p95_ms": 3.0520556666666665,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.323132,
+              "p95_ms": 4.7789443333333335,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.806534666666666,
+              "p95_ms": 11.387805333333333,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.9210278333333335,
+              "p95_ms": 16.255958333333332,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.321965333333335,
+              "p95_ms": 20.467264,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.08589566666666668,
+              "p95_ms": 0.10011133333333333,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.12984716666666665,
+              "p95_ms": 0.14333333333333334,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.08540983333333332,
+              "p95_ms": 0.08908333333333333,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 3.115874833333333,
+              "p95_ms": 7.223069333333334,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 3.1953195,
+              "p95_ms": 9.442416666666666,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.888819666666667,
+              "p95_ms": 13.991527666666668,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 5.825645833333334,
+              "p95_ms": 8.315986333333333,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.223902833333334,
+              "p95_ms": 8.005291666666666,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 8.555409666666666,
+              "p95_ms": 11.892902666666666,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09614566666666666,
+              "p95_ms": 0.09920833333333333,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.1349513333333333,
+              "p95_ms": 0.13933333333333334,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09661116666666666,
+              "p95_ms": 0.10431933333333333,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.709111166666667,
+              "p95_ms": 6.631125,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.7921249999999995,
+              "p95_ms": 5.150764,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.378368166666666,
+              "p95_ms": 7.073360999999999,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.596354166666666,
+              "p95_ms": 6.957194666666666,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.7783750000000005,
+              "p95_ms": 8.490375,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.0889515,
+              "p95_ms": 10.016208333333333,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09611116666666666,
+              "p95_ms": 0.10205566666666667,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.13507633333333335,
+              "p95_ms": 0.14061133333333334,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09638200000000001,
+              "p95_ms": 0.09895833333333333,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.696791666666667,
+              "p95_ms": 2.7668886666666666,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.7785973333333334,
+              "p95_ms": 2.8726943333333335,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.365958333333333,
+              "p95_ms": 4.576486,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.408284666666666,
+              "p95_ms": 7.439666666666667,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.615124999999999,
+              "p95_ms": 10.233208333333334,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.057763833333333,
+              "p95_ms": 11.538833333333335,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09709033333333333,
+              "p95_ms": 0.11158333333333333,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.13544433333333333,
+              "p95_ms": 0.16379166666666667,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09698633333333334,
+              "p95_ms": 0.12697233333333333,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 2.7068331666666667,
+              "p95_ms": 2.85,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 2.784389,
+              "p95_ms": 2.9588889999999997,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.3531596666666665,
+              "p95_ms": 4.547777666666667,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.5989165,
+              "p95_ms": 14.203000000000001,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.775507166666667,
+              "p95_ms": 10.419569333333333,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.438020833333333,
+              "p95_ms": 13.827764,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "prose",
+          "bytes": 36000,
+          "arms": {
+            "native": {
+              "median_ms": 0.09936816666666667,
+              "p95_ms": 0.12809733333333334,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.13951366666666667,
+              "p95_ms": 0.18129166666666666,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.09938183333333332,
+              "p95_ms": 0.121375,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "html",
+          "bytes": 40400,
+          "arms": {
+            "native": {
+              "median_ms": 3.0979723333333338,
+              "p95_ms": 5.1241943333333335,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 3.2144515,
+              "p95_ms": 4.3079860000000005,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 4.9580486666666665,
+              "p95_ms": 8.695416666666667,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "quotes",
+          "bytes": 39500,
+          "arms": {
+            "native": {
+              "median_ms": 6.537791666666667,
+              "p95_ms": 7.330861333333334,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 6.861986166666666,
+              "p95_ms": 9.170361,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 9.4265,
+              "p95_ms": 11.587055333333334,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            }
+          }
+        }
+      ],
+      "http": 0,
+      "writes": 0
+    },
+    {
+      "file": "bench-multisite-6.4.json",
+      "rows": [
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01199375,
+              "p95_ms": 0.012837499999999998,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01654375,
+              "p95_ms": 0.0168125,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012125,
+              "p95_ms": 0.0124417,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.27233125,
+              "p95_ms": 0.2770125,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27965005,
+              "p95_ms": 0.2851333,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43605835000000004,
+              "p95_ms": 0.44434589999999996,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.63963755,
+              "p95_ms": 0.6829417,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.66539165,
+              "p95_ms": 0.6888584,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8982709,
+              "p95_ms": 0.9485832999999999,
+              "peak_allocated_bytes": 55902208,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0106791,
+              "p95_ms": 0.0110833,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.015229200000000002,
+              "p95_ms": 0.0197166,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01080205,
+              "p95_ms": 0.011075,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.24200205000000002,
+              "p95_ms": 0.2484708,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.25063545,
+              "p95_ms": 0.25605829999999996,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.40598749999999995,
+              "p95_ms": 0.4114916,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.54431255,
+              "p95_ms": 0.5553916,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.5684854,
+              "p95_ms": 0.5760917,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8008500000000001,
+              "p95_ms": 0.8129,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0119667,
+              "p95_ms": 0.0122708,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.016525,
+              "p95_ms": 0.0174666,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0121125,
+              "p95_ms": 0.0121583,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.2699729,
+              "p95_ms": 0.27490420000000004,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27821245,
+              "p95_ms": 0.2897459,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43379375,
+              "p95_ms": 0.442125,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.63318335,
+              "p95_ms": 0.6409542,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.65859165,
+              "p95_ms": 0.6664875,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8743707999999999,
+              "p95_ms": 0.8926333,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.012016599999999999,
+              "p95_ms": 0.012133399999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01659375,
+              "p95_ms": 0.017937500000000002,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01215,
+              "p95_ms": 0.0124417,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.27166250000000003,
+              "p95_ms": 0.27850410000000003,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.28003754999999997,
+              "p95_ms": 0.29920420000000003,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43826665,
+              "p95_ms": 0.4464209,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6445520499999999,
+              "p95_ms": 0.8615334000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.66996045,
+              "p95_ms": 0.8004208,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.89988335,
+              "p95_ms": 1.0420875,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01243125,
+              "p95_ms": 0.020425,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.018547849999999998,
+              "p95_ms": 0.0248709,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012808299999999998,
+              "p95_ms": 0.0191792,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.28296455,
+              "p95_ms": 0.4010916,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.30257085,
+              "p95_ms": 0.4284167,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.4746979,
+              "p95_ms": 0.7466999999999999,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6627666999999999,
+              "p95_ms": 0.7013541,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6881667,
+              "p95_ms": 0.7401708,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.9415083500000001,
+              "p95_ms": 0.9929500000000001,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0125417,
+              "p95_ms": 0.0140209,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.017079200000000003,
+              "p95_ms": 0.0197667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01269375,
+              "p95_ms": 0.015875,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.27154164999999997,
+              "p95_ms": 0.2885917,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.28019995,
+              "p95_ms": 0.3180917,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43942915000000005,
+              "p95_ms": 0.4881334,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6322499500000001,
+              "p95_ms": 0.675975,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6594249999999999,
+              "p95_ms": 0.6961667,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8971312,
+              "p95_ms": 0.9275333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        }
+      ],
+      "http": 0,
+      "writes": 0
+    },
+    {
+      "file": "bench-multisite-7.1.3.json",
+      "rows": [
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0118979,
+              "p95_ms": 0.0120459,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0164375,
+              "p95_ms": 0.0166875,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012043749999999999,
+              "p95_ms": 0.0135375,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26659789999999994,
+              "p95_ms": 0.2710666,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27483124999999997,
+              "p95_ms": 0.279075,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.4328729,
+              "p95_ms": 0.4373959,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "en_US",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.63243125,
+              "p95_ms": 0.6675375,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6601353999999999,
+              "p95_ms": 0.6758957999999999,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.9002770499999999,
+              "p95_ms": 0.9366625000000001,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01065,
+              "p95_ms": 0.0135417,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01520415,
+              "p95_ms": 0.0191959,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0107896,
+              "p95_ms": 0.015712499999999997,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.23848745,
+              "p95_ms": 0.2444916,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.24781874999999998,
+              "p95_ms": 0.2538083,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.40381455,
+              "p95_ms": 0.4197667,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "de_DE",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.54047505,
+              "p95_ms": 0.5496417,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.56369585,
+              "p95_ms": 0.5748459,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8036729499999999,
+              "p95_ms": 0.8187833,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01194375,
+              "p95_ms": 0.0130125,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0164563,
+              "p95_ms": 0.0184667,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01208545,
+              "p95_ms": 0.015995799999999998,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26689375000000004,
+              "p95_ms": 0.2755292,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27583545,
+              "p95_ms": 0.3020084,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.4318292,
+              "p95_ms": 0.43902080000000004,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "fr_FR",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6295625,
+              "p95_ms": 0.9174540999999999,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6539854,
+              "p95_ms": 0.9653208,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8797854,
+              "p95_ms": 1.1856291,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01189165,
+              "p95_ms": 0.0124333,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0164125,
+              "p95_ms": 0.0195667,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012043749999999999,
+              "p95_ms": 0.0123292,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26759375,
+              "p95_ms": 0.2727208,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27709585,
+              "p95_ms": 0.2819042,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.4316396,
+              "p95_ms": 0.4377541,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ru_RU",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.62730625,
+              "p95_ms": 0.645925,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6510771,
+              "p95_ms": 0.6581125,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8907917000000001,
+              "p95_ms": 0.9050917,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01189795,
+              "p95_ms": 0.0121583,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0164542,
+              "p95_ms": 0.0171292,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01205625,
+              "p95_ms": 0.0123292,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26603750000000004,
+              "p95_ms": 0.2770792,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27531039999999996,
+              "p95_ms": 0.2821209,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43125209999999997,
+              "p95_ms": 0.440925,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ar",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6266396000000001,
+              "p95_ms": 0.6419625,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6530104000000001,
+              "p95_ms": 0.6715291999999999,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8923729,
+              "p95_ms": 0.9072042,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.012564599999999999,
+              "p95_ms": 0.0140042,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0170979,
+              "p95_ms": 0.0179125,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0127625,
+              "p95_ms": 0.013408300000000001,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26549375,
+              "p95_ms": 0.2686791,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2746458,
+              "p95_ms": 0.2815958,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43171665,
+              "p95_ms": 0.44061659999999997,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "multisite",
+          "locale": "ja",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.62464795,
+              "p95_ms": 0.6343208,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.65066665,
+              "p95_ms": 0.670325,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.89050835,
+              "p95_ms": 0.9011583,
+              "peak_allocated_bytes": 68485120,
+              "max_queries": 0
+            }
+          }
+        }
+      ],
+      "http": 0,
+      "writes": 0
+    },
+    {
+      "file": "bench-single-6.4.json",
+      "rows": [
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "en_US",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0119417,
+              "p95_ms": 0.012725,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.016462499999999998,
+              "p95_ms": 0.0172625,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01209795,
+              "p95_ms": 0.0123667,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "en_US",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26853335,
+              "p95_ms": 0.2726667,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27722290000000005,
+              "p95_ms": 0.2961292,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43237915000000005,
+              "p95_ms": 0.4516084,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "en_US",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6380542,
+              "p95_ms": 0.66135,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6622229500000001,
+              "p95_ms": 0.69185,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8936375000000001,
+              "p95_ms": 0.9435958,
+              "peak_allocated_bytes": 53805056,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "de_DE",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01063125,
+              "p95_ms": 0.01235,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.015160400000000001,
+              "p95_ms": 0.0162833,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0107646,
+              "p95_ms": 0.0119625,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "de_DE",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.23964375,
+              "p95_ms": 0.2437917,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.24829375,
+              "p95_ms": 0.2670834,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.40507505000000005,
+              "p95_ms": 0.4167375,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "de_DE",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.5421354,
+              "p95_ms": 0.5714416,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.56749375,
+              "p95_ms": 0.5800208,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.79508125,
+              "p95_ms": 0.8096125000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "fr_FR",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.011925,
+              "p95_ms": 0.012537499999999998,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01648755,
+              "p95_ms": 0.0173042,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0120854,
+              "p95_ms": 0.012862499999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "fr_FR",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.2680875,
+              "p95_ms": 0.2706,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2768604,
+              "p95_ms": 0.2821,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43366875,
+              "p95_ms": 0.43940419999999997,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "fr_FR",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6355479500000001,
+              "p95_ms": 0.6570625,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6593479500000001,
+              "p95_ms": 0.6662334000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.87126875,
+              "p95_ms": 0.8971833,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ru_RU",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.011933299999999999,
+              "p95_ms": 0.012166699999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.016475,
+              "p95_ms": 0.017525,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01208955,
+              "p95_ms": 0.0124666,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ru_RU",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26742085,
+              "p95_ms": 0.2740708,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2754042,
+              "p95_ms": 0.2897333,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43028334999999995,
+              "p95_ms": 0.44534589999999996,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ru_RU",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.63474375,
+              "p95_ms": 0.6429541000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.66227085,
+              "p95_ms": 0.6674709,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8853188,
+              "p95_ms": 0.9070792000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ar",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.011899999999999999,
+              "p95_ms": 0.012612499999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0164375,
+              "p95_ms": 0.0171209,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01205625,
+              "p95_ms": 0.012375,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ar",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.2686479,
+              "p95_ms": 0.2844417,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27703334999999996,
+              "p95_ms": 0.2811208,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43373545,
+              "p95_ms": 0.4479583,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ar",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6364542,
+              "p95_ms": 0.6851,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6626813,
+              "p95_ms": 0.6825416,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8917999999999999,
+              "p95_ms": 0.9375541000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ja",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01243545,
+              "p95_ms": 0.012750000000000001,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01697705,
+              "p95_ms": 0.017441699999999997,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012624999999999997,
+              "p95_ms": 0.013462499999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ja",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26818545,
+              "p95_ms": 0.2712292,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27681255,
+              "p95_ms": 0.28376670000000004,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.42975625000000006,
+              "p95_ms": 0.43701249999999997,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "6.4",
+          "mode": "single",
+          "locale": "ja",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.62832705,
+              "p95_ms": 0.6397416,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6533854,
+              "p95_ms": 0.6738999999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.88986045,
+              "p95_ms": 0.9270208999999999,
+              "peak_allocated_bytes": 57999360,
+              "max_queries": 0
+            }
+          }
+        }
+      ],
+      "http": 0,
+      "writes": 0
+    },
+    {
+      "file": "bench-single-7.1.3.json",
+      "rows": [
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "en_US",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0119083,
+              "p95_ms": 0.0127625,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01646665,
+              "p95_ms": 0.0174375,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012074999999999999,
+              "p95_ms": 0.0127334,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "en_US",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.28788125,
+              "p95_ms": 0.3299083,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2915917,
+              "p95_ms": 0.339725,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.4547063,
+              "p95_ms": 0.5607292,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "en_US",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.7053229000000001,
+              "p95_ms": 1.3037667000000002,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.78590625,
+              "p95_ms": 1.6167124999999998,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 1.0833103999999998,
+              "p95_ms": 1.9563333,
+              "peak_allocated_bytes": 60096512,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "de_DE",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0106458,
+              "p95_ms": 0.0130792,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0155312,
+              "p95_ms": 0.0204125,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01073955,
+              "p95_ms": 0.0143291,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "de_DE",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.2602875,
+              "p95_ms": 0.3011625,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2685292,
+              "p95_ms": 0.3905916,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.42431040000000003,
+              "p95_ms": 0.541175,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "de_DE",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.56276045,
+              "p95_ms": 0.7167583,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.62004375,
+              "p95_ms": 0.7896416,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8449833500000001,
+              "p95_ms": 1.0116458,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "fr_FR",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.0119542,
+              "p95_ms": 0.016020899999999998,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.0165104,
+              "p95_ms": 0.025816699999999998,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.0120938,
+              "p95_ms": 0.0162916,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "fr_FR",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.2679354,
+              "p95_ms": 0.28013340000000003,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.27699795000000005,
+              "p95_ms": 0.2936208,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43113959999999996,
+              "p95_ms": 0.45895830000000004,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "fr_FR",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6353521,
+              "p95_ms": 0.7288208,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6603021,
+              "p95_ms": 0.8061833,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8794937500000001,
+              "p95_ms": 1.0097834,
+              "peak_allocated_bytes": 62193664,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ru_RU",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.011997899999999999,
+              "p95_ms": 0.0123792,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.016520800000000002,
+              "p95_ms": 0.0201291,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01214165,
+              "p95_ms": 0.0144875,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ru_RU",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.27043965000000003,
+              "p95_ms": 0.2757708,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2777771,
+              "p95_ms": 0.2866917,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43194994999999997,
+              "p95_ms": 0.44154590000000005,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ru_RU",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.69448125,
+              "p95_ms": 1.8571917,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.71703755,
+              "p95_ms": 2.3709042,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.9943541499999999,
+              "p95_ms": 1.8508417000000001,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ar",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.01196455,
+              "p95_ms": 0.015420900000000001,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.01652915,
+              "p95_ms": 0.019858300000000002,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.012150049999999999,
+              "p95_ms": 0.016241600000000002,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ar",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.2869104,
+              "p95_ms": 0.342425,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.29555205,
+              "p95_ms": 0.3406,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.45668960000000003,
+              "p95_ms": 0.5599792,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ar",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6346333,
+              "p95_ms": 0.6716166,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.66243545,
+              "p95_ms": 0.7324542,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.89341665,
+              "p95_ms": 0.9390917,
+              "peak_allocated_bytes": 64290816,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ja",
+          "name": "prose",
+          "bytes": 3600,
+          "arms": {
+            "native": {
+              "median_ms": 0.012537499999999998,
+              "p95_ms": 0.012729099999999998,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.017,
+              "p95_ms": 0.0171291,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.01264795,
+              "p95_ms": 0.0127792,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ja",
+          "name": "html",
+          "bytes": 4040,
+          "arms": {
+            "native": {
+              "median_ms": 0.26919375,
+              "p95_ms": 0.2922459,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.2768062,
+              "p95_ms": 0.3028166,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.43282505000000004,
+              "p95_ms": 0.4723041,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        },
+        {
+          "version": "7.1.3",
+          "mode": "single",
+          "locale": "ja",
+          "name": "quotes",
+          "bytes": 3950,
+          "arms": {
+            "native": {
+              "median_ms": 0.6281479,
+              "p95_ms": 1.1879292,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "bridge": {
+              "median_ms": 0.6516854,
+              "p95_ms": 2.6405415999999997,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            },
+            "patch": {
+              "median_ms": 0.8846978999999999,
+              "p95_ms": 1.9946791999999998,
+              "peak_allocated_bytes": 66387968,
+              "max_queries": 0
+            }
+          }
+        }
+      ],
+      "http": 0,
+      "writes": 0
+    }
+  ],
+  "cleanup_interactions": [
+    {
+      "version": "6.4",
+      "rows": 144,
+      "cleanup_priority": 10,
+      "assertions_passed": true
+    },
+    {
+      "version": "7.1.3",
+      "rows": 144,
+      "cleanup_priority": 10,
+      "assertions_passed": true
+    }
+  ],
+  "harness_sha256": {
+    "bench-large.php": "3282e4e47f2e7c9956e6b5a1295f1d8f808097a7a2406436491d4eeaac9a7608",
+    "reference-6.4.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "run-keel.php": "4431bf8672f92bd27d82276e6cf35f57c5f95d7ecade4332ae27ec73644bfd3d",
+    "surfaces.php": "4a0ef9ecfbab3795416dda6c7f5f9d1ab1ed32e41eabed813ebbf37dbd462ee3",
+    "bench.php": "aa86d5156e54b14823736e8b11e3f97cb9766beb90e8d327014d19b1003e5d87",
+    "bridge.php": "044b03e972cead68861fd61500bff6dfcbab48840ab6056c0f78e48ad734abe8",
+    "reference-6.7.10.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "cleanup.php": "66c1ec893a56e9f669c4e4b4601bbe9f70ce0ed9f9731f1528c3aa0ac4cc7812",
+    "reference-6.5.13.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "reference-6.9.10.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "run.php": "6f9175ea3ca0d055f662d0ae7fda8715552a8df9921a34cb528e67bdc51f98a0",
+    "surfaces-keel.php": "fd3ce0886608f01eea1af83ea7e6954f48723cc585a45de97d59ffef11ec2b57",
+    "reference-7.0.7.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "network.php": "a2a48bf2b93595c8c5325a0615415f0762150befa3795380eff607c382dce257",
+    "reference-6.6.10.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "reference-7.1.3.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "reference-6.8.11.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f",
+    "reference-6.4.13.php": "8aff4f37642447c569cb8148aba3ffbdba98afa3d5a204bbf6b57856222d891f"
+  },
+  "surface_probes": [
+    {
+      "file": "surfaces-multisite-6.4-keel.json",
+      "arm_locale_rows": 18,
+      "rest_status": 200,
+      "stored_content_unchanged": true
+    },
+    {
+      "file": "surfaces-multisite-6.4.json",
+      "arm_locale_rows": 18,
+      "rest_status": 200,
+      "stored_content_unchanged": true
+    },
+    {
+      "file": "surfaces-multisite-7.1.3-keel.json",
+      "arm_locale_rows": 18,
+      "rest_status": 200,
+      "stored_content_unchanged": true
+    },
+    {
+      "file": "surfaces-multisite-7.1.3.json",
+      "arm_locale_rows": 18,
+      "rest_status": 200,
+      "stored_content_unchanged": true
+    },
+    {
+      "file": "surfaces-single-6.4.json",
+      "arm_locale_rows": 18,
+      "rest_status": 200,
+      "stored_content_unchanged": true
+    },
+    {
+      "file": "surfaces-single-7.1.3.json",
+      "arm_locale_rows": 18,
+      "rest_status": 200,
+      "stored_content_unchanged": true
+    }
+  ]
+}

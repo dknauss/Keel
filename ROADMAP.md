@@ -114,11 +114,26 @@ Typography needs plan review first, including the maintainer’s submitted core 
    text and editors' evidence; Site Health reads bounded recent observations without
    scanning posts. Bare bracketed words, examples and REST stay unchanged. See the
    [verification and limits](docs/review/shortcode-residue-2026-10-16.md).
+- [x] **Validate typography compatibility across core versions and locales** —
+  completed 2026-10-17: nine core versions, six real catalogs, single-site/multisite,
+  10,260 comparisons plus Keel/shortcode and REST/feed probes. The narrow bridge
+  has locale, boundary and surface gaps; the original core cache and performance
+  concerns were addressed in the follow-up below. See the
+  [validation record](docs/review/typography-compatibility-2026-10-17.md).
+- [x] **Develop the standalone typography feature plugin** — implemented 2026-10-19
+  in [feature-plugin #2](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2); core #12249 now refreshes locale tables automatically
+  and reduces added ~40 KB formatting cost by about 66% (HTML) / 55% (quote-heavy).
+  All 10,260 real-locale/version/site-mode comparisons match the patched reference;
+  Keel runtime stays unchanged. Feature-plugin review is complete and #2 is merged;
+  a release remains a separate step.
 - [ ] **Review typography policy and submitted core fixes** — review the
    [draft plan](docs/plans/typography-policy-review.md) before coding. Compare
    the comprehensive #18549 submission with narrower bridges; decide parity,
-   locale handling, scope, defaults and retirement. Other submitted tickets and
-   opening-tag/prime work need an explicit specification. See the
+   locale handling, scope, defaults and retirement. The core opening-tag/locale
+   revision is complete; the compatibility record recommends a separate opt-in
+   plugin. That locale-cache/performance work and feature implementation are now
+   complete in the follow-up above; feature-plugin #2 is merged and release is pending. Prime/nesting policies remain
+   separate; no Keel typography implementation is approved. See the
    [Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md).
 - [ ] **Leave typographic punctuation as typed** — add a focused toggle around
    `wptexturize`, with editor, feed and front-end coverage so the label does not
@@ -1009,8 +1024,10 @@ re-argued.
       quote cases, not just the modern apostrophe example. Evaluate its inclusion
       separately from the preference to disable typography. The 2026-10-17
       [comparison](docs/review/texturize-trac-comparison-2026-10-17.md) found locale
-      gaps in that patch and in another contributor’s opening-tag proposal; neither
-      is a final solution. The standalone output
+      gaps in the earlier core patch and another contributor’s opening-tag proposal.
+      These are reconciled in the strengthened #12249; the subsequent
+      [compatibility pass](docs/review/typography-compatibility-2026-10-17.md)
+      documents remaining locale-cache, CPU and scope limits. The standalone output
       workaround is not locale-equivalent to the submitted in-engine patch; a
       faithful bridge would require a maintained function fork. Also review the
       request-cached `run_wptexturize` hook and multisite blog switching. See the

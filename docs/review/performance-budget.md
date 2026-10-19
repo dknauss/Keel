@@ -127,3 +127,25 @@ Re-run paired budgets when their triggers apply. Broader real-WP/multisite/brows
 checks, separate JS/CSS linting and targeted tooling/comment cleanup remain open.
 Cold external traffic, production MySQL/Redis, OPcache, browser paint and throughput
 remain unmeasured here; prioritize them only when a release/change needs that evidence.
+
+## Typography investigation — 2026-10-17
+
+The [compatibility pass](typography-compatibility-2026-10-17.md) measures the
+candidate core patch against native released core, not against its previous patch
+revision. A roughly 40 KB quote-heavy function call adds 2.5–2.6 ms at both 6.4
+and 7.1.3. This warrants profiling before adoption. These function benchmarks do
+not replace the route budget above, prove a page-budget breach/pass or authorize
+a new Keel feature. Plain prose is effectively unchanged; all formatting batches
+add zero SQL queries, writes or attempted HTTP calls. Runtime remains unchanged.
+
+### Follow-up — 2026-10-19
+
+The [separate feature plugin](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2) and core revision `b290bb5f1b` close the
+locale-cache gap and implement the profiling follow-up. Paired WordPress 7.1.3
+~40 KB HTML timings are native 2.708 ms, previous patch 4.310 ms, optimized patch
+3.252 ms; quote-heavy timings are 6.415 / 8.967 / 7.552 ms. This reduces added
+function cost about 66% / 55%; 6.4 confirms the result. The feature renderer
+measures essentially the same as optimized core. Zero batch queries/writes/HTTP,
+unchanged coarse allocation; route budgets, bootstrap and throughput remain
+unmeasured here. The repeated 10,260-row matrix matches all frozen outputs.
+Keel's runtime and its accepted route budget are unchanged.
