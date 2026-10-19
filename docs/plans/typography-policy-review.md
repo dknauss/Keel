@@ -24,7 +24,7 @@ at `1f07246ffe33a9d288c17070c856fd56989cbb62` has 122 successful CI checks and
 it is historical evidence, not the current patch status.
 
 The [compatibility validation](../review/typography-compatibility-2026-10-17.md)
-compares the current patch with the narrow standalone bridge across nine released
+compares the pre-optimization patch with the narrow standalone bridge across nine released
 core versions, six installed locales and single-site/multisite. Its 10,260 rows
 show stable results but substantial bridge gaps, including opaque/authored-entity
 changes. Locale switching also exposes core's existing request-static quote cache.
@@ -44,7 +44,7 @@ approved by this plan.
 
 | Work | Evidence and status | Decision relevance |
 | --- | --- | --- |
-| Comprehensive closing-inline-tag fix | [Trac #18549](https://core.trac.wordpress.org/ticket/18549#comment:37), [core PR #12249](https://github.com/WordPress/wordpress-develop/pull/12249), current head `1f07246ffe33a9d288c17070c856fd56989cbb62` | Locale hardening and shared opening-tag handling implemented upstream; see validation for the remaining cache, performance and language-scope limits. |
+| Comprehensive closing-inline-tag fix | [Trac #18549](https://core.trac.wordpress.org/ticket/18549#comment:37), [core PR #12249](https://github.com/WordPress/wordpress-develop/pull/12249), current head `b290bb5f1bd8dc29607571e48d7565cca68e76ed` | Locale hardening and shared opening-tag handling implemented upstream; the follow-up closes the cache gap and reduces overhead; filtered-call and language-scope limits remain. |
 | Minimal apostrophe patch | Local Dirtbag research retains a narrower fallback | Compare for understanding; do not substitute it silently for the submitted comprehensive patch. |
 | Standalone builds | [Inline Quote Fix repository](https://github.com/dknauss/wp-texturize-inline-quote-fix) | Lightweight output repair and a faithful WordPress-7.0-based engine fork have different contracts. |
 | Opening-inline-tag context | [Trac #43810](https://core.trac.wordpress.org/ticket/43810), [irozum’s PR #12645](https://github.com/WordPress/wordpress-develop/pull/12645), plus local prototype notes | The strengthened #12249 reconciles this proposal’s opening-tag behavior with Unicode, apostrophe-kind and shared tag classification tests; broader linguistic ambiguity remains out of scope. |
@@ -163,6 +163,6 @@ Proposed initial scope to evaluate, rather than a committed scope:
 - Which rendered surfaces should the preference cover? A global request switch
   and selected display filters are different policies.
 
-The next step is review of the standalone feature-plugin PR and the updated core
-patch. Locale-cache integration and the targeted optimization are implemented and
+The standalone feature-plugin PR #2 is reviewed and merged. The updated core
+patch remains open for upstream review. Locale-cache integration and the targeted optimization are implemented and
 retested; a feature-plugin release and any Keel integration remain separate decisions.

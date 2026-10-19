@@ -204,14 +204,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 - [x] **Validate typography compatibility across core versions and locales** —
   completed 2026-10-17: nine core versions, six real catalogs, single-site/multisite,
   10,260 comparisons plus Keel/shortcode and REST/feed probes. The narrow bridge
-  has locale, boundary and surface gaps; core locale-cache switching and a roughly
-  2.5 ms long-content increment remain adoption concerns. See the
+  has locale, boundary and surface gaps; the original core cache and performance
+  concerns were addressed in the follow-up below. See the
   [validation record](docs/review/typography-compatibility-2026-10-17.md).
 - [x] **Develop the standalone typography feature plugin** — implemented 2026-10-19
   in [feature-plugin #2](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2); core #12249 now refreshes locale tables automatically
   and reduces added ~40 KB formatting cost by about 66% (HTML) / 55% (quote-heavy).
   All 10,260 real-locale/version/site-mode comparisons match the patched reference;
-  Keel runtime stays unchanged. Review and release remain separate steps.
+  Keel runtime stays unchanged. Feature-plugin review is complete and #2 is merged;
+  a release remains a separate step.
 - [ ] **Review typography policy and submitted core fixes**
   - Review the [draft plan](docs/plans/typography-policy-review.md) before coding.
   - Use the [expanded Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md),

@@ -9,7 +9,8 @@ including actual network locale restoration. Added ~40 KB function costs now fal
 about 66% for HTML and 55% for quote-heavy HTML versus the previous patch; plugin
 and core implementations measure essentially alike. The earlier gaps and timings
 below describe the old narrow bridge and pre-optimization revision, not the new
-feature build. Keel typography remains unchanged. Review/release are still pending.
+feature build. Feature-plugin #2 is reviewed and merged; release remains pending.
+Keel typography remains unchanged.
 
 ## Decision for review
 
