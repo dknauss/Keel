@@ -95,8 +95,11 @@ function keel_defaults_render_control( $key, $name, $value, $field, $s, $stateme
 			printf( ' max="%d"', isset( $field['max'] ) ? (int) $field['max'] : 3650 );
 		}
 		if ( $site ) {
-			printf( ' step="1" aria-label="%s"', esc_attr( $label ) );
+			echo ' step="1"';
 		}
+		// Both screens: on the network screen the fieldset legend also covers the
+		// "Decide this for the whole network" checkbox, so it does not name this input.
+		printf( ' aria-label="%s"', esc_attr( $label ) );
 		printf( ' class="small-text"%s%s%s />', $aria, $lock, $locked ? ' readonly' : '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped attributes or fixed literals.
 		if ( $site && ! empty( $s['unit'] ) ) {
 			printf( '<span class="keel-unit" id="%s" style="margin-inline-start:6px;">%s</span>', esc_attr( 'keel-' . $key . '-unit' ), esc_html( $s['unit'] ) );
@@ -132,10 +135,7 @@ function keel_defaults_render_control( $key, $name, $value, $field, $s, $stateme
 		return;
 	}
 
-	printf( '<select name="%s"', esc_attr( $name ) );
-	if ( $site ) {
-		printf( ' aria-label="%s"', esc_attr( $label ) );
-	}
+	printf( '<select name="%s" aria-label="%s"', esc_attr( $name ), esc_attr( $label ) );
 	echo $aria . $lock . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped attributes or fixed literals.
 	foreach ( $choices as $choice => $choice_label ) {
 		printf( '<option value="%s" %s>%s</option>', esc_attr( $choice ), selected( (string) $choice, (string) $shown, false ), esc_html( $choice_label ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- selected() returns a fixed literal.

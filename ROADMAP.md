@@ -99,7 +99,9 @@ no reported release regression is established. Keep it as a later UX increment.
 ## Next — 0.7.0 privacy and content integrity
 
 Search privacy and paired shortcode cleanup/reporting are merged, pending release.
-Typography needs plan review first, including the maintainer’s submitted core fixes.
+Typography is out of Keel's scope (decided 2026-10-19): the texturize fixes ship in
+a separate feature plugin. The settings accessibility sweep is done. What remains is
+the release itself.
 
 - [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
    could receive protected titles and stored excerpt data in search because
@@ -126,32 +128,21 @@ Typography needs plan review first, including the maintainer’s submitted core 
   All 10,260 real-locale/version/site-mode comparisons match the patched reference;
   Keel runtime stays unchanged. Feature-plugin review is complete and #2 is merged;
   a release remains a separate step.
-- [ ] **Review typography policy and submitted core fixes** — review the
-   [draft plan](docs/plans/typography-policy-review.md) before coding. Compare
-   the comprehensive #18549 submission with narrower bridges; decide parity,
-   locale handling, scope, defaults and retirement. The core opening-tag/locale
-   revision is complete; the compatibility record recommends a separate opt-in
-   plugin. That locale-cache/performance work and feature implementation are now
-   complete in the follow-up above; feature-plugin #2 is merged and release is pending. Prime/nesting policies remain
-   separate; no Keel typography implementation is approved. See the
-   [Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md).
-- [ ] **Leave typographic punctuation as typed** — add a focused toggle around
-   `wptexturize`, with editor, feed and front-end coverage so the label does not
-   promise more surfaces than the implementation controls.
+- [x] **Typography stays out of Keel** — decided 2026-10-19. The texturize fixes,
+   and any control to leave punctuation as typed, belong to the separate
+   [feature plugin](https://github.com/dknauss/wp-texturize-inline-quote-fix) and its
+   core tickets. Keel adds no typography setting and hooks no `wptexturize` filter.
+   The records above remain as evidence; the
+   [draft plan](docs/plans/typography-policy-review.md) is superseded for Keel.
 - [x] **Check the settings screens in a right-to-left admin** — done 2026-09-14 in a
    `he_IL` admin. The highlight bar, the lock note, and the saved and folded menu width
    were correct. The live menu-width preview pushed the content from the wrong side, and
    is fixed. Details in `TODO.md`.
-- [ ] **Run a UI/UX/accessibility sweep across the settings screens** — review
-   visual hierarchy, clarity of labels and help text, responsive layout, keyboard
-   use, focus visibility, screen-reader names and descriptions, contrast, and
-   single-site versus network-level controls. Capture representative site and
-   network screens before and after fixes. One confirmed example is the introductory
-   copy at the top of the multisite network settings screen: it is confined to
-   roughly half the available content width while the settings below use the full
-   width, making the opening explanation wrap into a cramped column. Let that copy
-   use the available content width and verify it at narrow and wide admin
-   viewports.
+- [x] **Run a UI/UX/accessibility sweep across the settings screens** — done
+   2026-10-19, single site and network, at 1280px, 200% zoom and 390px. Nine
+   Network Policy value controls had no accessible name and now do; nothing else
+   failed. The half-width network intro was already fixed in #217. See the
+   [audit record](docs/review/settings-a11y-2026-10-19.md).
 
 ## Then — 0.8.0 performance observability
 
@@ -1393,6 +1384,11 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
 
 Recording these so they stop being re-litigated:
 
+- **Typography.** Decided 2026-10-19. Keel does not change `wptexturize` output
+  or offer a "leave punctuation as typed" setting. The texturize fixes belong in
+  core and, until then, in the separate
+  [feature plugin](https://github.com/dknauss/wp-texturize-inline-quote-fix), which
+  sites can use with or without Keel.
 - **Plugin/theme governance screens.** Dropped deliberately — blocking admin screens is a
   wordpress.org review problem, and it is not what a defaults plugin is for.
 - **Adding architecture for its own sake.** The original 2.5–3.5k-line budget is

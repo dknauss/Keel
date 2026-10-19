@@ -735,6 +735,15 @@ foreach ( keel_defaults_schema() as $key => $field ) {
 			keel_assert( false !== strpos( $control, 'aria-describedby="network-description"' ), "Network description survives for {$key}." );
 			keel_assert( ( false !== strpos( $control, 'data-keel-locked="1"' ) ) === $locked, "Network lock state survives for {$key}." );
 		}
+
+		/*
+		 * A select or number field sits beside the "Decide this for the whole network"
+		 * checkbox inside the fieldset, so the legend does not name it on its own.
+		 * Without aria-label it was announced as an unnamed combo box or spin button.
+		 */
+		if ( in_array( $field['type'], array( 'select', 'number', 'range' ), true ) ) {
+			keel_assert( false !== strpos( $control, 'aria-label="' . $copy['label'] . '"' ), "Network value control for {$key} has an accessible name." );
+		}
 	}
 }
 

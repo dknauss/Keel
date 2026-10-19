@@ -1,5 +1,5 @@
 # Written by bin/verify-screenshots.sh --record. Not a commit id: see that file.
 # ui      — the admin sources these pictures depict
 # pictures — the pictures themselves
-ui=bc5dbd309df97252f9a49e8a281e5adccfca50782042a8bee906f6573c578e90
-pictures=9424dd9d27277471aae017998815b67acc310ab65829a77f6630b683d877d528
+ui=b4b0c824ae7d336d66a5927b9fa89bf7be108cef0c157a983c9eb14ea90dc180
+pictures=06b00b508e193ec87513ff864c359ce8d72c8088e0a6dd7682a4e0f454ecb0f4
