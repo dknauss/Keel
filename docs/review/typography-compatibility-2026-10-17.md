@@ -1,5 +1,16 @@
 # Typography compatibility validation — 2026-10-17
 
+## Follow-up — 2026-10-19
+
+The maintainer authorized the [standalone feature-plugin implementation](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2).
+Core revision `b290bb5f1b` adds automatic locale table refresh and lazy context /
+classified-apostrophe fast paths. The repeated 10,260 comparisons still match,
+including actual network locale restoration. Added ~40 KB function costs now fall
+about 66% for HTML and 55% for quote-heavy HTML versus the previous patch; plugin
+and core implementations measure essentially alike. The earlier gaps and timings
+below describe the old narrow bridge and pre-optimization revision, not the new
+feature build. Keel typography remains unchanged. Review/release are still pending.
+
 ## Decision for review
 
 Keep Keel's typography unchanged. Advance the corrected inline-context work in

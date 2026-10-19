@@ -207,13 +207,19 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   has locale, boundary and surface gaps; core locale-cache switching and a roughly
   2.5 ms long-content increment remain adoption concerns. See the
   [validation record](docs/review/typography-compatibility-2026-10-17.md).
+- [x] **Develop the standalone typography feature plugin** — implemented 2026-10-19
+  in [feature-plugin #2](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2); core #12249 now refreshes locale tables automatically
+  and reduces added ~40 KB formatting cost by about 66% (HTML) / 55% (quote-heavy).
+  All 10,260 real-locale/version/site-mode comparisons match the patched reference;
+  Keel runtime stays unchanged. Review and release remain separate steps.
 - [ ] **Review typography policy and submitted core fixes**
   - Review the [draft plan](docs/plans/typography-policy-review.md) before coding.
   - Use the [expanded Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md),
     including fresh locale/boundary findings; no existing patch is presumed final.
   - Comparison results are recorded in the completed validation above. Review the
-    recommendation to harden a dedicated opt-in plugin before any Keel integration;
-    settle locale-cache entry/restore, surface scope, CPU cost and retirement.
+    separate feature-plugin implementation and its documented filtered-call scope,
+    automatic locale refresh, conservative gates and retirement behavior. No Keel
+    typography runtime integration is requested.
   - Opening-tag behavior is reconciled in core #12249; keep prime investigation
     and nested-quote proposals separate. Keel typography remains unchanged.
 - [ ] **Leave typographic punctuation as typed**

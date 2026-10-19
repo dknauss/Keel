@@ -6,6 +6,17 @@ The maintainer asked to review the plan and the submitted core fixes first.
 
 ## Recommendation for discussion
 
+**Implementation follow-up — 2026-10-19.** The maintainer authorized a separate
+feature plugin, implemented in [PR #2](https://github.com/dknauss/wp-texturize-inline-quote-fix/pull/2). Core #12249 at `b290bb5f1b` now
+refreshes quote tables on locale entry/restoration while preserving the request
+opt-out gate. Lazy context classification and a classified-apostrophe fast path
+reduce added formatting cost by about 66% / 55% on the ~40 KB HTML/quote-heavy
+fixtures. The repeated 10,260-row matrix has zero differences from the patched
+reference and frozen outputs. The plugin's filtered-call scope, 6.4–7.1 release
+gates and retirement/conflict behavior are documented there. No Keel typography
+runtime changes, release or deployment are part of this work. The sections below
+retain the rationale and product decisions that preceded this implementation.
+
 The reconciled core patch now includes locale-derived quote context, shared
 opening/closing inline-tag classification and regression tests. Core PR #12249
 at `1f07246ffe33a9d288c17070c856fd56989cbb62` has 122 successful CI checks and
@@ -152,7 +163,6 @@ Proposed initial scope to evaluate, rather than a committed scope:
 - Which rendered surfaces should the preference cover? A global request switch
   and selected display filters are different policies.
 
-The next step is maintainer review of the completed compatibility evidence and
-the standalone-plugin recommendation. Locale-cache integration and the measured
-long-content CPU cost need focused design/profiling before a release. Runtime
-implementation waits for the maintainer's direction.
+The next step is review of the standalone feature-plugin PR and the updated core
+patch. Locale-cache integration and the targeted optimization are implemented and
+retested; a feature-plugin release and any Keel integration remain separate decisions.
