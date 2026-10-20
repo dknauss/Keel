@@ -193,8 +193,9 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
   > Two new settings are on by default, including on sites that update. Protected Search Results keeps password-protected posts out of searches by people who cannot open them. Broken Shortcodes hides leftover shortcode tags from readers. Content is unchanged; turn either off in Site Defaults.
 
-  Also before tagging: retake or re-review the screenshots (`composer verify:screenshots`),
-  since the settings screen gained two rows.
+  All five screenshots were retaken and reviewed in #283 on 2026-10-19, including
+  the two new settings. Re-run `composer verify:screenshots` after any further UI
+  changes and before tagging.
 
 - [x] **Keep password-protected posts out of site search**
   - Exclude protected search results for logged-in users without per-post editing
