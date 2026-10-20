@@ -1,5 +1,10 @@
 # Typography policy and core fixes — review draft
 
+**Superseded for Keel — 2026-10-19.** The maintainer decided typography stays out
+of Keel. The core fixes and any typography control ship in the separate
+[feature plugin](https://github.com/dknauss/wp-texturize-inline-quote-fix). This
+draft is kept as the record of how that decision was reached.
+
 Prepared 2026-10-16; research updated 2026-10-17. This document makes no
 typography behavior change.
 The maintainer asked to review the plan and the submitted core fixes first.

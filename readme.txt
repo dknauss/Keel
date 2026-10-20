@@ -139,9 +139,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = Unreleased =
-* Content: hide recognizable missing-shortcode markup from readers while keeping enclosed text and editors’ evidence. A paired Site Health report lists recently affected posts and missing tag names, without scanning posts or storing content. Bare bracketed words, examples and REST output stay unchanged. Independently toggleable.
-* Privacy: hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable; does not change direct links or stored content.
-
+* Privacy (new default, also on for existing sites): hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable under Protected Search Results; does not change direct links or stored content.
+* Content (new default, also on for existing sites): hide recognizable missing-shortcode markup from readers while keeping enclosed text and editors’ evidence. A paired Site Health report lists recently affected posts and missing tag names, without scanning posts or storing content. Bare bracketed words, examples and REST output stay unchanged. Independently toggleable under Broken Shortcodes.
+* Accessibility: the drop-downs and number fields on the Network Policy screen now have names that screen readers announce. They were read out as unnamed controls.
 
 Versions before 0.5.9 were not published to the directory. Their entries, the development history that led to the first release, are in `changelog.txt` in the plugin's repository: [https://github.com/dknauss/keel/blob/main/changelog.txt](https://github.com/dknauss/keel/blob/main/changelog.txt).
 

@@ -185,6 +185,18 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Next — 0.7.0 privacy and content integrity
 
+- [ ] **Release 0.7.0** — held until the 0.7.0 list below is done (decided 2026-10-19).
+  Both new settings default to on, and an update applies them to every site that has
+  not saved a value for them, so the upgrade notice must say so. Staged text
+  (289 characters; the directory truncates over 300). It goes under `= 0.7.0 =` at the
+  top of the Upgrade Notice when the version is bumped:
+
+  > Two new settings are on by default, including on sites that update. Protected Search Results keeps password-protected posts out of searches by people who cannot open them. Broken Shortcodes hides leftover shortcode tags from readers. Content is unchanged; turn either off in Site Defaults.
+
+  All five screenshots were retaken and reviewed in #283 on 2026-10-19, including
+  the two new settings. Re-run `composer verify:screenshots` after any further UI
+  changes and before tagging.
+
 - [x] **Keep password-protected posts out of site search**
   - Exclude protected search results for logged-in users without per-post editing
     or unlocked-password access; excerpt display otherwise depends on the consumer.
@@ -213,19 +225,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   All 10,260 real-locale/version/site-mode comparisons match the patched reference;
   Keel runtime stays unchanged. Feature-plugin review is complete and #2 is merged;
   a release remains a separate step.
-- [ ] **Review typography policy and submitted core fixes**
-  - Review the [draft plan](docs/plans/typography-policy-review.md) before coding.
-  - Use the [expanded Trac comparison](docs/review/texturize-trac-comparison-2026-10-17.md),
-    including fresh locale/boundary findings; no existing patch is presumed final.
-  - Comparison results are recorded in the completed validation above. Review the
-    separate feature-plugin implementation and its documented filtered-call scope,
-    automatic locale refresh, conservative gates and retirement behavior. No Keel
-    typography runtime integration is requested.
-  - Opening-tag behavior is reconciled in core #12249; keep prime investigation
-    and nested-quote proposals separate. Keel typography remains unchanged.
-- [ ] **Leave typographic punctuation as typed**
-  - Decide and document the exact `wptexturize` surfaces before naming the toggle.
-  - Cover front-end content, excerpts and feeds; verify editor behaviour separately.
+- [x] **Typography is out of Keel's scope** — decided 2026-10-19. The texturize
+  fixes and any "leave punctuation as typed" control belong to the separate feature
+  plugin ([wp-texturize-inline-quote-fix](https://github.com/dknauss/wp-texturize-inline-quote-fix))
+  and its core tickets. Keel registers nothing on `wptexturize`, `run_wptexturize`
+  or the `no_texturize_*` filters, and adds no typography setting. The review
+  records above stay as evidence; the [draft plan](docs/plans/typography-policy-review.md)
+  is superseded for Keel. Coexistence with the feature plugin was lab-verified on
+  2026-10-17 (1,140 rows matching the no-Keel results, with Keel's shortcode
+  cleanup toggled).
 - [ ] **Mark locked settings in the row, not only in the note** — considered while
       fixing the lock note's visibility and deliberately left out of that change. The
       note only helps once you are already reading the row it belongs to; on a
@@ -258,17 +266,20 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     the `.rtl` body with `!important`, and the right-to-left rule had none. Both of its
     margins are now `!important`, and `tests/settings-render.php` asserts it.
 
-- [ ] **Run a UI/UX/accessibility sweep across the settings screens** — the
-      right-to-left check above looked at one locale and three surfaces; this is the
-      whole screen, at both levels.
-  - Visual hierarchy, label and help-text clarity, responsive layout.
-  - Keyboard use, focus visibility, screen-reader names and descriptions, contrast.
-  - Single-site versus network-level controls, which differ in more than wording.
-  - Capture representative site and network screens before and after.
+- [x] **Run a UI/UX/accessibility sweep across the settings screens** — done
+      2026-10-19 on a disposable WordPress 7.1.3 / PHP 8.4 lab, single site and
+      network. See the [audit record](docs/review/settings-a11y-2026-10-19.md).
+  - axe (WCAG 2.0/2.1 A and AA plus best practice), a keyboard walk of every control,
+    heading/fieldset/label structure, and 1280px, 200%-zoom and 390px layouts.
+  - **Fixed:** nine Network Policy value controls (selects, numbers and the menu
+    width) had no accessible name, because the fieldset legend also covers the
+    "Decide this for the whole network" checkbox. They now carry `aria-label` on
+    both screens; `tests/settings-render.php` asserts it for every such field.
   - [x] The network settings screen's intro was confined to half the width — done in
     #217. The inline `max-width:46em` is gone, so the intro follows the admin
     column like the settings below it, and `tests/network-screen-prose.php` keeps
-    a cap from coming back inline or in a stylesheet the screen loads.
+    a cap from coming back inline or in a stylesheet the screen loads. Re-measured
+    2026-10-19: intro and table share the 1078px column at 1280px.
 
 - [x] **Trim the security-review credit to a permanent line** — done in 0.6.1, earlier
       than queued. `tests/docs-consistency.php` bans a released version outside the
