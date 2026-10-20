@@ -100,10 +100,10 @@ no reported release regression is established. Keep it as a later UX increment.
 
 Search privacy and paired shortcode cleanup/reporting are merged, pending release.
 Typography is out of Keel's scope (decided 2026-10-19): the texturize fixes ship in
-a separate feature plugin. The settings accessibility sweep is done. Two settings
-lock improvements remain in `TODO.md`: mark locked rows and summarize locks with
-links at the top of the screen. These still sit in the 0.7.0 scope; finish them or
-explicitly defer them before lifting the release hold. Release preparation follows.
+a separate feature plugin. The settings accessibility sweep and both settings
+lock improvements are complete. Release preparation remains: merge the lock UX
+changes, bump the version, finalize the changelog and upgrade notice, and validate
+the release candidate before tagging.
 
 - [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
    could receive protected titles and stored excerpt data in search because
@@ -145,6 +145,12 @@ explicitly defer them before lifting the release hold. Release preparation follo
    Network Policy value controls had no accessible name and now do; nothing else
    failed. The half-width network intro was already fixed in #217. See the
    [audit record](docs/review/settings-a11y-2026-10-19.md).
+
+- [x] **Make settings locks scannable** — implemented 2026-10-20. Both screens
+   mark locked rows; a linked summary separates configuration locks from network
+   policy, respecting configuration precedence. Links reveal hidden dependent
+   controls and move keyboard focus. See the
+   [verification record](docs/review/settings-lock-ux-2026-10-20.md).
 
 ## Then — 0.8.0 performance observability
 

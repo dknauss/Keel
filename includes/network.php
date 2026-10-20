@@ -257,6 +257,7 @@ function keel_defaults_render_network_page() {
 			<?php esc_html_e( 'The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there.', 'keel-defaults' ); ?>
 		</p>
 
+		<?php keel_defaults_render_lock_summary( true ); ?>
 		<form method="post" action="<?php echo esc_url( network_admin_url( 'settings.php?page=keel-network' ) ); ?>">
 			<?php wp_nonce_field( 'keel-network-save', 'keel_network_nonce' ); ?>
 
@@ -293,8 +294,13 @@ function keel_defaults_render_network_page() {
 						$lock_id   = $locked ? 'keel-net-' . $key . '-lock' : '';
 						$described = trim( implode( ' ', array_filter( array( $lock_id, ! empty( $s['help'] ) ? $desc_id : '' ) ) ) );
 						?>
-						<tr>
-							<th scope="row"><?php echo esc_html( $label ); ?></th>
+						<tr class="keel-network-row" id="<?php echo esc_attr( keel_defaults_setting_anchor( $key ) ); ?>">
+							<th scope="row"><?php echo esc_html( $label ); ?>
+							<?php
+							if ( $locked ) {
+								keel_defaults_render_lock_marker(); }
+							?>
+							</th>
 							<td>
 								<fieldset>
 									<legend class="screen-reader-text"><span><?php echo esc_html( $label ); ?></span></legend>

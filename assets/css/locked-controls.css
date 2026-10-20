@@ -21,6 +21,49 @@
  * which beats a lone class at (0,1,0). The border, background and icon applied
  * and the text stayed core's grey — the one property this rule existed to change.
  */
+.keel-lock-marker {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	margin-inline-start: 8px;
+	font-size: 12px;
+	font-weight: normal;
+	color: #50575e;
+	white-space: nowrap;
+}
+
+.keel-lock-marker .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.keel-lock-summary {
+	border-inline-start: 4px solid #8c8f94;
+	background: #f6f7f7;
+	padding: 4px 16px;
+	margin-block: 16px;
+}
+
+.keel-lock-summary ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 20px;
+}
+
+.keel-lock-summary a {
+	display: inline-block;
+	padding-block: 4px;
+}
+
+.keel-network-row {
+	scroll-margin-top: 46px;
+}
+
+.keel-network-row:target {
+	background: #f0f6fc;
+}
+
 p.description.keel-config-lock {
 	background: #f6f7f7;
 	border-left: 4px solid #8c8f94;
