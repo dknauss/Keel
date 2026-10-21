@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-21T19:18:57+00:00\n"
+"POT-Creation-Date: 2026-10-21T21:27:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -86,8 +86,8 @@ msgid "URL"
 msgstr ""
 
 #: includes/admin-ux.php:518
-#: includes/autoload-diagnostics.php:238
-#: includes/autoload-diagnostics.php:369
+#: includes/autoload-diagnostics.php:243
+#: includes/autoload-diagnostics.php:397
 #: includes/cron-diagnostics.php:140
 #: includes/cron-presentation.php:31
 msgid "Unknown"
@@ -200,102 +200,121 @@ msgid "WP_ENVIRONMENT_TYPE is set to %1$s for every site in the network, but the
 msgstr ""
 
 #: includes/autoload-diagnostics.php:24
-#: includes/autoload-diagnostics.php:290
+#: includes/autoload-diagnostics.php:318
 msgid "Largest autoloaded options"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:240
+#: includes/autoload-diagnostics.php:245
 msgid "No unambiguous name-based attribution."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:244
+#: includes/autoload-diagnostics.php:260
+#: includes/settings-page.php:24
+#: includes/settings-page.php:610
+#: includes/shortcodes.php:229
+#: includes/site-health.php:85
+#: includes/site-health.php:188
+#: includes/site-health.php:564
+#: includes/site-health.php:687
+msgid "Keel"
+msgstr ""
+
+#: includes/autoload-diagnostics.php:262
+msgid "A name Keel stores and removes on uninstall; other code can still modify it."
+msgstr ""
+
+#: includes/autoload-diagnostics.php:272
 #: includes/cron-diagnostics.php:122
 msgid "WordPress core"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:246
+#: includes/autoload-diagnostics.php:274
 msgid "Known core option name; other code can still modify it."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:255
+#: includes/autoload-diagnostics.php:274
+msgid "Known core transient name; other code can still modify it."
+msgstr ""
+
+#: includes/autoload-diagnostics.php:283
 msgid "Core theme-mods naming identifies an installed theme."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:279
+#: includes/autoload-diagnostics.php:307
 msgid "Name matches an installed plugin slug, not a verified writer. At most 200 plugins are considered."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:293
+#: includes/autoload-diagnostics.php:321
 #: includes/cron-presentation.php:48
 #: includes/strings.php:282
 msgid "Performance"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:332
+#: includes/autoload-diagnostics.php:360
 msgid "Another collector is starting. Recheck Site Health shortly."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:337
+#: includes/autoload-diagnostics.php:365
 msgid "Autoload attribution is being collected"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:339
+#: includes/autoload-diagnostics.php:367
 msgid "Autoload attribution could not be collected"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:342
+#: includes/autoload-diagnostics.php:370
 msgid "Autoload attribution is partial"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:344
+#: includes/autoload-diagnostics.php:372
 msgid "Metadata only: option names and byte sizes, never values. Size alone does not prove waste. These are the largest observed entries, not a list of options safe to delete."
 msgstr ""
 
 #. translators: 1: option rows examined, 2: autoloaded rows seen, 3: snapshot timestamp in UTC.
-#: includes/autoload-diagnostics.php:347
+#: includes/autoload-diagnostics.php:375
 #, php-format
 msgid "Examined %1$d option rows; observed %2$d autoloaded options. Snapshot: %3$s UTC."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:353
+#: includes/autoload-diagnostics.php:381
 msgid "This is a partial scan, not a whole-database ranking. Each job processes up to 250 rows plus one lookahead; a scan stops at 10,000 rows or ten minutes. Background scheduling may delay collection; a pending scan does not prove cron is broken. Recheck Site Health for progress."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:356
+#: includes/autoload-diagnostics.php:384
 msgid "The metadata query failed. No option values were changed. Try again after the five-minute error cache expires."
 msgstr ""
 
-#: includes/autoload-diagnostics.php:359
+#: includes/autoload-diagnostics.php:387
 msgid "Largest observed autoloaded options"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:360
+#: includes/autoload-diagnostics.php:388
 msgid "Option"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:360
+#: includes/autoload-diagnostics.php:388
 msgid "Bytes"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:360
+#: includes/autoload-diagnostics.php:388
 msgid "Probable owner"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:360
+#: includes/autoload-diagnostics.php:388
 msgid "Confidence and evidence"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:367
+#: includes/autoload-diagnostics.php:395
 #: includes/cron-presentation.php:29
 msgid "High"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:368
+#: includes/autoload-diagnostics.php:396
 #: includes/cron-presentation.php:30
 msgid "Low"
 msgstr ""
 
-#: includes/autoload-diagnostics.php:375
+#: includes/autoload-diagnostics.php:403
 msgid "Review the probable component’s settings or ask its maintainer before changing autoload behavior. Confirm ownership and purpose first. This report never deletes options or changes their autoload flags. Completed snapshots are cached for up to one hour; collection is not transactional, so concurrent writes can change the result."
 msgstr ""
 
@@ -1042,16 +1061,6 @@ msgstr ""
 
 #: includes/settings-controls.php:118
 msgid "No low-privilege roles are available to exempt."
-msgstr ""
-
-#: includes/settings-page.php:24
-#: includes/settings-page.php:610
-#: includes/shortcodes.php:229
-#: includes/site-health.php:85
-#: includes/site-health.php:188
-#: includes/site-health.php:564
-#: includes/site-health.php:687
-msgid "Keel"
 msgstr ""
 
 #: includes/settings-page.php:25

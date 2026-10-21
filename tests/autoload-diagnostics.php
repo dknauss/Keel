@@ -172,6 +172,20 @@ check( 'unknown' === $unknown['confidence'], 'Ambiguous plugin prefixes remain u
 check( 'high' === keel_defaults_autoload_owner( 'theme_mods_test-theme' )['confidence'], 'A verified theme-mods name identifies its installed theme.' );
 check( 'unknown' === keel_defaults_autoload_owner( 'some_random_key' )['confidence'], 'Unrecognized names do not acquire invented owners.' );
 check( 'high' === keel_defaults_autoload_owner( 'rewrite_rules' )['confidence'], 'Known core options are distinguished from inferred plugin names.' );
+foreach ( array( 'keel_settings', 'keel_defaults', '_transient_keel_cron_report', '_transient_timeout_keel_shortcode_residue', '_transient_keel_hibp_0123456789abcdef0123456789abcdef_5BAA6', '_transient_keel_backport_install_result_12', 'keel_defaults_cron_collect' ) as $own ) {
+	$owner = keel_defaults_autoload_owner( $own );
+	check( 'Keel' === $owner['owner'] && 'high' === $owner['confidence'], "Keel attributes its own stored name {$own}." );
+}
+foreach ( array( 'keel_unrelated', '_transient_keel_hibp_short_5BAA6', '_transient_keel_backport_install_result_x', 'keel_settings_extra' ) as $other ) {
+	check( 'Keel' !== keel_defaults_autoload_owner( $other )['owner'], "A name Keel does not write is not claimed: {$other}." );
+}
+foreach ( array( '_transient_wp_core_block_css_files', '_transient_wp_styles_for_blocks', '_transient_health-check-site-status-result', '_transient_doing_cron', '_transient_timeout_plugin_slugs', '_site_transient_update_plugins', '_site_transient_wp_plugin_dependencies_plugin_data' ) as $core ) {
+	$owner = keel_defaults_autoload_owner( $core );
+	check( 'WordPress core' === $owner['owner'] && 'high' === $owner['confidence'], "Core transient {$core} is attributed to core." );
+}
+check( 'unknown' === keel_defaults_autoload_owner( '_transient_some_random_key' )['confidence'], 'Unrecognized transients stay unknown.' );
+check( 'Shop <script>' === keel_defaults_autoload_owner( '_transient_shop_cart' )['owner'], 'A transient prefix does not hide a plugin-slug match.' );
+check( 'unknown' === keel_defaults_autoload_owner( '_transient_rewrite_rules' )['confidence'], 'A transient sharing a core option name is not treated as that option.' );
 $GLOBALS['blog'] = 2;
 keel_defaults_autoload_health();
 check( 0 === get_transient( 'keel_autoload_report' )['scanned'], 'A second site starts independently.' );
