@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.7.0
+Stable tag: 0.8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,10 +138,11 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
-= Unreleased =
-* Performance: add cached cron-pressure and core-update delivery observations to Site Health. Identify overdue and frequent hooks with probable owners, show offer-cache age and retained failure codes, and distinguish unknown external scheduling from a proven failure. Arguments and error data are never retained; schedules and update policy remain unchanged.
-* Performance: Site Health attributes the ten largest observed autoloaded options using names and byte sizes only. Background collection is cached and bounded; probable owners include confidence and evidence. The report never shows values, deletes options or changes autoload flags.
-* Documentation: describe the 42 controls as configurable settings; some have dependencies or are centrally managed.
+= 0.8.0 =
+* Performance: Site Health identifies the ten largest observed autoloaded options, their byte sizes and probable owners with confidence and evidence. Collection runs in bounded, cached background batches. Option values are never exposed or cached; no options are deleted or given different autoload flags.
+* Performance: Site Health identifies overdue and frequent stored cron events with probable owners, and relates core-update hooks to offer-cache age and retained failure codes. Arguments and error data are never retained; jobs, schedules and update policy are unchanged. External scheduling and incomplete coverage stay explicit; no update installation time is promised.
+* Accessibility: cron report tables scroll in named, keyboard-focusable regions on narrow screens.
+* Documentation: describe the 42 controls as configurable settings; some have dependencies or are centrally managed. Correct the release record: the update hook refreshes Keel's status cache without rewriting core update offers.
 
 = 0.7.0 =
 * Privacy (new default, also on for existing sites): hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable under Protected Search Results; does not change direct links or stored content.
@@ -247,6 +248,9 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 == Upgrade Notice ==
+
+= 0.8.0 =
+Adds two cached Site Health reports: largest autoloaded options, and cron pressure with core-update delivery evidence. Saved settings and defaults stay unchanged. Reports omit option values, event arguments and failure data, and never delete options, run jobs or change update policy.
 
 = 0.7.0 =
 Two new settings are on by default, including on sites that update. Protected Search Results keeps password-protected posts out of searches by people who cannot open them. Broken Shortcodes hides leftover shortcode tags from readers. Stored content is unchanged; turn either off in Site Defaults.

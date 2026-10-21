@@ -3,7 +3,7 @@
  * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
  * Description:       42 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
- * Version:           0.7.0
+ * Version:           0.8.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
  * Author:            Dan Knauss
@@ -71,7 +71,7 @@ define( 'KEEL_DEFAULTS_FILE', __FILE__ );
  * both and fails when they disagree — an asset version that lags the plugin is a
  * stylesheet a browser goes on serving from cache after it changed.
  */
-const KEEL_DEFAULTS_VERSION = '0.7.0';
+const KEEL_DEFAULTS_VERSION = '0.8.0';
 
 // Load the plugin's modules.
 require_once __DIR__ . '/includes/schema.php';

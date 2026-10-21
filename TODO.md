@@ -7,7 +7,7 @@ The original scope document, `pixel-lite-scope.md`, was kept outside this reposi
 is retired: it was no longer on the maintainer's machine when looked for on 2026-10-13.
 This file and ROADMAP.md are the only record of scope.
 
-## Now — observe 0.7.0 in the field
+## Now — prepare 0.8.0 for review
 
 Keel 0.7.0 is published on GitHub and WordPress.org (verified 2026-10-21).
 The protected WordPress.org dry run passed before publication. SVN revision is
@@ -20,10 +20,11 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused work:** observe the two new defaults and settings lock UX in
-  the field. Typography belongs to the separate feature plugin and remains outside
-  Keel's scope. The maintainer's WordPress.com settings-save confirmation remains
-  open; routine PHPStan expansion stays paused unless a concrete change warrants it.
+- **Next focused work:** review the 0.8.0 release candidate after its final checks.
+  Autoload and cron/update attribution are implemented in #287 and #288. Saved
+  settings, the 42-setting schema and version floors are unchanged. Do not tag
+  or publish before the release PR is reviewed. The maintainer's WordPress.com
+  settings-save confirmation remains open; routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -293,7 +294,11 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     reported nothing, because a successful install removes the panel that would have
     shown the result. Fixed in the same release.
 
-## Then — 0.8.0 performance observability
+## 0.8.0 performance observability — release candidate
+
+- [x] **Prepare 0.8.0** — version metadata, changelog and upgrade notice finalized.
+- [ ] **Review release PR, tag and publish** — final evidence in the
+  [verification record](docs/review/release-verification-0.8.0-2026-10-21.md).
 
 - [x] **Attribute oversized autoloaded options**
   - Add size and probable-owner detail to core's aggregate autoload diagnosis.
