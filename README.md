@@ -4,7 +4,7 @@
 
 [![WordPress.org](https://img.shields.io/wordpress/plugin/v/keel-defaults?label=WordPress.org&logo=wordpress&logoColor=white&color=21759b)](https://wordpress.org/plugins/keel-defaults/) [![CI](https://github.com/dknauss/Keel/actions/workflows/ci.yml/badge.svg)](https://github.com/dknauss/Keel/actions/workflows/ci.yml) [![Latest Tag](https://img.shields.io/github/v/tag/dknauss/Keel?include_prereleases)](https://github.com/dknauss/Keel/tags) [![License: GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue.svg)](LICENSE)
 
-**A clear, maintainable baseline for secure WordPress sites.** Keel provides over 40 (currently 42) independent defaults for security, updates, privacy, content, email, media, and wp-admin. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
+**A clear, maintainable baseline for secure WordPress sites.** Keel provides 42 individually configurable settings for security, updates, privacy, content, email, media, and wp-admin. Some depend on other settings, and configuration or network policy can manage them centrally. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
 
 **Current version: `0.7.0`.**
 
@@ -19,7 +19,7 @@ The stable demo follows each release; the rolling demo is rebuilt after successf
 
 ## What it does
 
-Keel explains each setting under **Settings → Site Defaults**, with a separate Network Admin policy screen for multisite. Keel reports its current effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and each default can be switched off independently.
+Keel explains each setting under **Settings → Site Defaults**, with a separate Network Admin policy screen for multisite. Keel reports its current effective posture in **Tools → Site Health**. It does not edit or delete existing content (new uploads do get lowercase filenames), and settings can be adjusted unless configuration or network policy manages them. Some controls appear only when their related feature is enabled.
 
 Keel's settings are intended to:
 
@@ -87,3 +87,11 @@ Install from the [WordPress.org directory](https://wordpress.org/plugins/keel-de
 ## License and credits
 
 [GPL-2.0-or-later](LICENSE). Keel is a de-branded evolution of [Better by Default](https://github.com/WPYEG/Better-by-Default), with additional defaults adapted from the Agency Experience plugin, itself a fork of [10up Experience](https://github.com/10up/10up-experience). See the WordPress.org readme for complete attribution.
+
+### Autoload attribution (unreleased)
+
+Site Health reports the ten largest observed autoloaded options, their byte sizes,
+and probable owners with confidence and evidence. It collects names and sizes in
+cached background batches, never values. Partial scans are labelled explicitly;
+size alone does not prove waste. The report never deletes options or changes their
+autoload flags. See the [limits and verification](docs/review/autoload-attribution-2026-10-21.md).

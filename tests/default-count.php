@@ -107,6 +107,7 @@ keel_count_assert(
  * passed that file vacuously because the pattern stopped at the line end.
  */
 $claim_patterns = array(
+	'/\b(\d+)\s+individually\s+configurable\s+settings\b/',
 	'/\b(\d+)\s+independent\s+defaults\b/',
 	'/\bcurrently\s+(\d+)\)\s+independent\s+defaults\b/',
 	'/\b(\d+)\s+defaults\b/',

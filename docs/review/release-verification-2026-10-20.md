@@ -80,8 +80,8 @@ and run directly on the packaged plugin in the disposable Studio site.
 
 Direct Plugin Check reports **zero errors and two warnings**:
 
-1. `update_modification_detected` in `includes/backports.php`: intentional. Keel's
-   same-branch security-backport feature adjusts the core-update transient.
+1. `update_modification_detected` in `includes/backports.php`: reviewed. The hook observes WordPress
+   saving core update offers and refreshes Keel's own security-status cache. It does not rewrite the core-update offers transient.
 2. `PluginCheck.Security.DirectDB.UnescapedDBParameter` at `includes/content.php:466`:
    reviewed. The protected-search preflight combines WordPress's already-built
    `posts_clauses` query fragments and its table name, not raw request parameters.

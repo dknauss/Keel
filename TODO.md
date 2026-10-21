@@ -295,10 +295,12 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Then — 0.8.0 performance observability
 
-- [ ] **Attribute oversized autoloaded options**
+- [x] **Attribute oversized autoloaded options**
   - Add size and probable-owner detail to core's aggregate autoload diagnosis.
   - Never expose values, auto-delete rows or state inferred ownership as fact.
   - Make collection asynchronous, cached, bounded and multisite-aware.
+   Implementation and limits: [verification record](docs/review/autoload-attribution-2026-10-21.md).
+
 - [ ] **Attribute cron pressure and update-delivery delays**
   - Report overdue and unusually frequent hooks, schedules and probable owners.
   - Add offer freshness, next scheduled core check and recent update failures.

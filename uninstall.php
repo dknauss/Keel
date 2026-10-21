@@ -64,6 +64,9 @@ function keel_defaults_uninstall_site() {
 	delete_option( 'keel_environment_override_host' );
 	delete_transient( 'keel_policy_divergence' );
 	delete_transient( 'keel_shortcode_residue' );
+	delete_transient( 'keel_autoload_report' );
+	delete_option( 'keel_autoload_scan_lock' );
+	wp_clear_scheduled_hook( 'keel_defaults_autoload_collect' );
 
 	/*
 	 * The pre-rename settings option.
