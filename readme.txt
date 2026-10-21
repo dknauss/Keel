@@ -139,6 +139,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = Unreleased =
+* Performance: add cached cron-pressure and core-update delivery observations to Site Health. Identify overdue and frequent hooks with probable owners, show offer-cache age and retained failure codes, and distinguish unknown external scheduling from a proven failure. Arguments and error data are never retained; schedules and update policy remain unchanged.
 * Performance: Site Health attributes the ten largest observed autoloaded options using names and byte sizes only. Background collection is cached and bounded; probable owners include confidence and evidence. The report never shows values, deletes options or changes autoload flags.
 * Documentation: describe the 42 controls as configurable settings; some have dependencies or are centrally managed.
 

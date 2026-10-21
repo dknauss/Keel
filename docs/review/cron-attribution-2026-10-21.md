@@ -1,0 +1,108 @@
+# Cron pressure and update delivery attribution — 2026-10-21
+
+Unreleased 0.8.0 work after #287, merged as
+`9f83f314d0a8bf62368799aa33f993b629949c87`. The 42 settings and 0.7.0 version
+metadata are unchanged. This is a reporting feature, with no release or deployment.
+
+## Evidence and limits
+
+Authenticated Site Health requests background collection; the AJAX endpoint checks
+core's Site Health nonce and `view_site_health_checks`. No collector runs at plugin
+load, frontend rendering or activation. Per-site reports cache for an hour; query,
+decode and size failures cache for five minutes. Pending work becomes explicitly
+unavailable after ten minutes, without declaring externally managed cron broken.
+
+The collector's single keyed SQL read returns cron's byte length and its serialized
+payload only when it is at most 1 MiB. The SQL CASE guards size and payload in the
+same statement. Cron arguments are read internally because they are part of core's
+serialized format, but never enter the report, cached metadata or HTML. Decode
+disables classes and limits nesting to 32. At most 2,000 event instances / 6,000
+traversal steps are examined, retaining five most-overdue and five most-frequent
+observations. Malformed entries and reached caps are flagged as partial coverage;
+oversized/undecodable data is unavailable, never a reassuring empty schedule.
+
+These limits bound the collector's input and work, not database statement duration,
+PHP's expanded-memory size, or WordPress's own cron APIs. Core's scheduling APIs
+still read/write the cron option normally when scheduling Keel's own job. The
+report does not inspect runtime filters, externally stored queues, CPU time or job
+durations, and cannot prove which component caused an update delay. Snapshots are
+nontransactional and clock changes/concurrent scheduling can alter observations.
+
+The review thresholds (>15 minutes late, recurring intervals <5 minutes, and offer
+markers older than 24 hours) are observational heuristics, not failures or proof
+of unnecessary work. Hook attribution uses known core/Keel names or low-confidence
+installed-plugin slug prefixes; ambiguous names remain unknown. Core option-name
+and theme-mods rules are deliberately excluded from hook attribution. No callback
+source scans or paths are exposed. An interval of zero means no positive stored
+recurrence interval was observed, not a promise about actual execution frequency.
+
+The core subset records observed `wp_version_check` and `wp_maybe_auto_update`
+timestamps, without claiming missing hooks are absent from an incomplete snapshot.
+Core offer age comes from existing `update_core.last_checked`, which core can stamp
+before a successful response. Future/missing timestamps remain unknown. The
+existing `auto_core_update_failed` record supplies only a safe code, timestamp and
+critical flag; no error messages/data or update URLs are retained. This record may
+be historical and is not a log of all transient failures. Offers/failures are
+network-wide on multisite; events and report caches are per-site. Keel initiates
+no offer fetch, update installation or observed job execution for this report.
+
+Collection shares the existing insert-only diagnostic lease: authoritative token
+checks and fresh post-lease cache reads prevent stale workers sharing ownership.
+Deactivation/uninstall clear only Keel's report and pending collector. No observed
+jobs, autoload flags, update offers or update policy are changed.
+
+## Validation
+
+- Standalone tests exercise timing/interval thresholds, event cap, core timestamps,
+  unknown attribution, offer-age/failure privacy, permissions and nonce, async cold
+  reads, cached reads, site isolation, oversized/query/decode errors, malformed
+  report caches, delayed scheduling and classless decoding (no object wakeup).
+- Real Studio WordPress 7.1.3/PHP 8.4/SQLite: hostile hook name escaped; overdue and
+  30-second events identified; 90,000-second offer age and safe failure code shown;
+  no argument/error-data secret in cached state; cached snapshot caused no SQL;
+  oversized payload was rejected by SQL CASE. Second-site isolation passed.
+  All fixture cron/offers/failure state was restored.
+- Full standalone suite, WPCS, PHP compatibility, existing PHPStan scope and its
+  negative contracts pass locally. PHPStan's selected-path scope remains unchanged.
+- Browser, package, Plugin Check and live matrix evidence follows after completion.
+
+## Browser and first matrix results
+
+Browser fixture capture: [desktop](cron-attribution-2026-10-21.png),
+[mobile](cron-attribution-mobile-2026-10-21.png). Authenticated valid-nonce AJAX
+returned 200, invalid nonce 403, unauthenticated request 400; no metadata was
+returned for denied requests. Axe reported zero violations in the report panel.
+Desktop and 390px mobile panels had no horizontal overflow. Tables scroll within
+named keyboard-focusable regions on narrow screens, preserving readable columns.
+The screenshots use the integration fixture (explicitly synthetic hook/failure),
+whose underlying cron and network update state is restored after collection.
+
+[First live MySQL matrix](https://github.com/dknauss/Keel/actions/runs/39657894701)
+passed all six rows: WP 6.4/PHP 7.4 floor, French, Redis-backed multisite and the
+existing backward/forward update-installer checks. It exercised the new real SQL,
+oversized exclusion, external-cron configuration and second-site isolation.
+The subsequent changes correct formatting, add optional fixture capture and make
+tables scroll on narrow screens. A final-head matrix is run after those changes.
+
+Independent review found one hook/option attribution mismatch, fixed by accepting
+only low-confidence plugin-prefix matches from the shared option helper. Regression
+coverage verifies that an option name cannot acquire a high-confidence hook owner.
+No important findings remained in the final review. Plugin Check 2.1.0 on the built
+package reported zero errors and the same two reviewed 0.7.0 warnings; no new
+cron-module finding. The normal PHPStan selected-path scope remains unchanged.
+
+## Final implementation checks
+
+Implementation commit `4d1089b8a6672322283f7be3c57893ffa0ec4625`:
+
+- [CI 39658300874](https://github.com/dknauss/Keel/actions/runs/39658300874):
+  lint/unit/static checks and PHP 7.4, 8.0–8.5 passed.
+- [Final matrix 39658255396](https://github.com/dknauss/Keel/actions/runs/39658255396):
+  all six MySQL rows passed, including Redis multisite and localized/floor installs.
+- Final rebuilt package: Plugin Check 2.1.0 again returned zero errors, the same
+  two reviewed warnings, and no new cron-module findings. Temporary Plugin Check
+  activation and synthetic cached report were removed from the disposable lab.
+- Independent final review of the scrolling-table change found no actionable issue.
+  GitHub review summaries and inline threads were empty when checked.
+
+PR: https://github.com/dknauss/Keel/pull/288. No release tag or publication.

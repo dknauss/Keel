@@ -411,6 +411,8 @@ function keel_defaults_autoload_deactivated( $plugin, $network_wide ) {
 			$found = count( $sites );
 			foreach ( $sites as $site ) {
 				switch_to_blog( $site );
+				wp_clear_scheduled_hook( 'keel_defaults_cron_collect' );
+				delete_transient( 'keel_cron_report' );
 				wp_clear_scheduled_hook( 'keel_defaults_autoload_collect' );
 				delete_transient( 'keel_autoload_report' );
 				delete_option( 'keel_autoload_scan_lock' );
@@ -418,7 +420,9 @@ function keel_defaults_autoload_deactivated( $plugin, $network_wide ) {
 			}
 		} while ( 100 === $found );
 	} else {
-		wp_clear_scheduled_hook( 'keel_defaults_autoload_collect' );
+		wp_clear_scheduled_hook( 'keel_defaults_cron_collect' );
+				delete_transient( 'keel_cron_report' );
+				wp_clear_scheduled_hook( 'keel_defaults_autoload_collect' );
 		delete_transient( 'keel_autoload_report' );
 		delete_option( 'keel_autoload_scan_lock' );
 	}
