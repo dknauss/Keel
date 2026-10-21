@@ -14,6 +14,7 @@ function __( $s, $domain = '' ) { return $s; }
 function esc_html__( $s, $domain = '' ) { return htmlspecialchars( $s, ENT_QUOTES ); }
 function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function current_user_can( $cap ) { return $GLOBALS['allowed']; }
+function is_multisite() { return ! empty( $GLOBALS['test_multisite'] ); }
 function get_current_blog_id() { return $GLOBALS['blog']; }
 function get_transient( $key ) {
 	if ( ! empty( $GLOBALS['negative_snapshot'] ) ) {
@@ -273,4 +274,15 @@ check( 260 === keel_defaults_autoload_snapshot()['scanned'], 'A negative cache c
 $GLOBALS['external_cache'] = true;
 check( 260 === keel_defaults_autoload_snapshot( true )['scanned'], 'Persistent cache snapshots retain current progress.' );
 $GLOBALS['external_cache'] = false;
+require_once dirname( __DIR__ ) . '/includes/cron-diagnostics.php';
+check( 'low' === keel_defaults_cron_owner( 'shop_cart' )['confidence'], 'Raw hook prefixes still identify probable plugins.' );
+check( 'unknown' === keel_defaults_cron_owner( '_transient_shop_cart' )['confidence'], 'Cron hook names are not decoded as transient option names.' );
+check( 'unknown' === keel_defaults_autoload_owner( '_transient_wporg_theme_feature_list' )['confidence'], 'A site transient name is not claimed as an ordinary transient.' );
+check( 'WordPress core' === keel_defaults_autoload_owner( '_site_transient_wporg_theme_feature_list' )['owner'], 'The actual core site transient keeps its attribution.' );
+check( 'Keel' !== keel_defaults_autoload_owner( 'keel_network_settings' )['owner'], 'Per-site rows cannot claim the network policy storage key.' );
+$GLOBALS['test_multisite'] = true;
+check( 'unknown' === keel_defaults_autoload_owner( '_site_transient_update_core' )['confidence'], 'Network core transients cannot be claimed from per-site option rows.' );
+check( 'unknown' === keel_defaults_autoload_owner( '_site_transient_keel_stable_check' )['confidence'], 'Network Keel transients cannot be claimed from per-site option rows.' );
+check( 'Keel' === keel_defaults_autoload_owner( '_transient_keel_cron_report' )['owner'], 'Ordinary per-site transients still identify Keel on a network.' );
+$GLOBALS['test_multisite'] = false;
 echo "autoload diagnostics: OK\n";
