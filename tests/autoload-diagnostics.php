@@ -72,7 +72,9 @@ function check_ajax_referer( $action ) { if ( ! $GLOBALS['nonce'] ) {
 function wp_send_json_error( $data, $status ) { throw new RuntimeException( 'denied:' . $status ); }
 function wp_send_json_success( $data ) { throw new RuntimeException( 'success' ); }
 class Keel_Autoload_DB {
-	public $options    = 'wp_options';
+	public $options = 'wp_options';
+	public $prefix  = 'hgnm_';
+	public function get_blog_prefix() { return $this->prefix; }
 	public $queries    = array();
 	public $rows       = array();
 	public $fail       = false;
@@ -186,6 +188,8 @@ foreach ( array( '_transient_wp_core_block_css_files', '_transient_wp_styles_for
 check( 'unknown' === keel_defaults_autoload_owner( '_transient_some_random_key' )['confidence'], 'Unrecognized transients stay unknown.' );
 check( 'Shop <script>' === keel_defaults_autoload_owner( '_transient_shop_cart' )['owner'], 'A transient prefix does not hide a plugin-slug match.' );
 check( 'unknown' === keel_defaults_autoload_owner( '_transient_rewrite_rules' )['confidence'], 'A transient sharing a core option name is not treated as that option.' );
+check( 'WordPress core' === keel_defaults_autoload_owner( 'hgnm_user_roles' )['owner'], 'The roles option follows the site table prefix.' );
+check( 'unknown' === keel_defaults_autoload_owner( 'wp_user_roles' )['confidence'], 'Another prefix\'s roles option is not claimed for core.' );
 $GLOBALS['blog'] = 2;
 keel_defaults_autoload_health();
 check( 0 === get_transient( 'keel_autoload_report' )['scanned'], 'A second site starts independently.' );

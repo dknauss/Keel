@@ -262,8 +262,11 @@ function keel_defaults_autoload_owner( $name ) {
 			'evidence'   => __( 'A name Keel stores and removes on uninstall; other code can still modify it.', 'keel-defaults' ),
 		);
 	}
-	$core = array(
-		'option'         => array( 'siteurl', 'home', 'blogname', 'blogdescription', 'rewrite_rules', 'cron', 'active_plugins', 'sidebars_widgets', 'widget_block', 'wp_user_roles' ),
+	global $wpdb;
+	// Core names the roles option after this site's table prefix (blog-specific on multisite).
+	$roles = ( is_object( $wpdb ) && method_exists( $wpdb, 'get_blog_prefix' ) ? $wpdb->get_blog_prefix() : 'wp_' ) . 'user_roles';
+	$core  = array(
+		'option'         => array( 'siteurl', 'home', 'blogname', 'blogdescription', 'rewrite_rules', 'cron', 'active_plugins', 'sidebars_widgets', 'widget_block', $roles ),
 		'transient'      => array( 'doing_cron', 'health-check-site-status-result', 'is_multi_author', 'random_seed', 'dirsize_cache', 'plugin_slugs', 'settings_errors', 'wporg_theme_feature_list', 'wp_core_block_css_files', 'wp_styles_for_blocks' ),
 		'site_transient' => array( 'update_core', 'update_plugins', 'update_themes', 'theme_roots', 'available_translations', 'wp_plugin_dependencies_plugin_data', 'wporg_theme_feature_list' ),
 	);
