@@ -5,18 +5,13 @@ function wp_json_encode( $value ) { return json_encode( $value ); } // phpcs:ign
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function __( $text, $domain = '' ) { return $text; }
-function keel_defaults_autoload_owner( $name ) {
-	if ( 'rewrite_rules' === $name ) {
-		return array(
-			'owner'      => 'WordPress core',
-			'confidence' => 'high',
-			'evidence'   => 'Known core OPTION.',
-		); }
+function keel_defaults_plugin_prefix_owner( $name ) {
 	return array(
 		'owner'      => 'Unknown',
 		'confidence' => 'unknown',
 		'evidence'   => 'Unrecognized name.',
-	); }
+	);
+}
 function keel_cron_assert( $condition, $message ) {
 	if ( ! $condition ) {
 		throw new RuntimeException( $message );

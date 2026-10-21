@@ -31,7 +31,7 @@ read. Deactivation and uninstall remove Keel's own report, lock and scheduled jo
 Discovered options are never deleted, updated or assigned different autoload flags.
 
 Known core names and verified installed theme-mods names get high confidence.
-Keel's own stored names (the inventory `uninstall.php` removes) are attributed to
+Keel's own per-site stored names (the per-site inventory `uninstall.php` removes) are attributed to
 Keel with high confidence. Transient rows (`_transient_`, `_site_transient_` and
 their timeouts) are matched by key and kind: core transient names checked against
 core's literal keys are attributed to core, and a transient sharing a core option's
@@ -94,3 +94,18 @@ Direct Plugin Check 2.1.0 on the final built package returned zero errors and th
 same two reviewed warnings as 0.7.0: update-hook detection in `backports.php` and
 the protected-search query in `content.php`. No new autoload-module finding.
 The temporary Plugin Check installation was deactivated after the check.
+
+
+## PR #292 review follow-up
+
+Plugin-prefix matching is shared as a literal-name helper. Autoload normalizes
+transient row syntax first; cron passes the raw hook name, so an option-like
+prefix cannot introduce a plugin match for a hook. Network policy storage is not
+claimed from a same-named per-site option. On multisite, `_site_transient_*`
+rows in a per-site options table also stay unknown: their real storage is network
+metadata, outside this scan. Core's `wporg_theme_feature_list` is
+recognized only as a site transient, matching the core writer's storage kind.
+Regressions cover all three boundaries; the real database probe also verifies
+roles attribution after switching sites, including rejection of another site's
+roles key. Collection bounds, permissions, caching and report-only behavior are
+unchanged. Live matrix evidence is recorded after the final revision is tested.

@@ -131,8 +131,8 @@ function keel_defaults_cron_owner( $hook ) {
 			'evidence'   => __( 'Known Keel diagnostic hook.', 'keel-defaults' ),
 		);
 	}
-	$owner = keel_defaults_autoload_owner( $hook );
-	// Reuse only plugin-prefix evidence, never core-option/theme-mods rules.
+	$owner = keel_defaults_plugin_prefix_owner( $hook );
+	// Match the raw hook name; option and transient syntax does not apply here.
 	if ( 'low' === $owner['confidence'] ) {
 		return $owner;
 	}
