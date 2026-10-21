@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.6.9`**. Keel was first published on wordpress.org as
+**Current version: `0.7.0`**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -88,22 +88,24 @@ with publication evidence. Plugin Check has no errors; its intentional updater
 warning remains documented. The released 40-setting schema and PHP 7.4 floor are preserved.
 
 The development tree adds search privacy and paired shortcode cleanup/Site Health
-reporting (42 defaults); both are merged and neither is released yet. Next is
-review of typography policy and submitted core fixes, before implementation. Continue field observation separately; broader accessibility, JS/CSS linting and PHP-floor research
-remain scoped follow-ups rather than reasons to reopen the completed release.
+reporting (42 defaults); both are merged and neither is released yet. The
+subsequent 0.7.0 scope decision, accessibility work and release preparation are
+recorded below. Continue field observation separately.
 
 The only open GitHub issue at this review, [#265](https://github.com/dknauss/Keel/issues/265),
 requests optional list-table compaction. Its affected helper code predates 0.6.9;
 no reported release regression is established. Keep it as a later UX increment.
 
-## Next — 0.7.0 privacy and content integrity
+## 0.7.0 privacy and content integrity — release candidate
 
-Search privacy and paired shortcode cleanup/reporting are merged, pending release.
+The 0.7.0 candidate is prepared; publication is pending release PR approval and tagging.
+Search privacy and paired shortcode cleanup/reporting are included.
 Typography is out of Keel's scope (decided 2026-10-19): the texturize fixes ship in
 a separate feature plugin. The settings accessibility sweep and both settings
-lock improvements are complete. Release preparation remains: merge the lock UX
-changes, bump the version, finalize the changelog and upgrade notice, and validate
-the release candidate before tagging.
+lock improvements are complete. Version metadata, changelog and the two-default upgrade notice are synchronized.
+Final checks are recorded in [the candidate verification record](docs/review/release-verification-2026-10-20.md).
+Merge the release PR after green CI and matrix checks, then tag; publication has
+not happened yet.
 
 - [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
    could receive protected titles and stored excerpt data in search because
