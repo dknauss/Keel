@@ -63,3 +63,30 @@ Names and plugin/theme labels are escaped. No source-file or option-value search
 The separate [Playground investigation](../../playground/hosted-investigation-2026-10-21.md)
 records seven successful fresh-context boots and the reproduction limits. It does
 not establish whether the reported intermittent failure belongs to Keel or Playground.
+
+## Final candidate evidence
+
+Implementation commit: `e96ec591067742ab97f76b19d91db2400a959891`.
+
+- [CI run 39653866227](https://github.com/dknauss/Keel/actions/runs/39653866227):
+  WPCS/unit/static checks and PHP 7.4, 8.0–8.5 all passed.
+- [Live matrix run 39653859859](https://github.com/dknauss/Keel/actions/runs/39653859859):
+  all six rows passed, including the WP 6.4/PHP 7.4 floor, French install and
+  multisite. Every row logged `autoload real-database contracts: OK` before the
+  existing backward/forward installer checks. Multisite confirmed separate site
+  reports with connected Redis 7.4.11 / PhpRedis 6.3.0.
+- Independent review identified and verified fixes for `add_option()`'s race,
+  stale request-local progress and negative option caches; no important findings
+  remained. The second-site fixture restores the installation flag left enabled
+  by core's `wpmu_create_blog()` helper before checking ordinary runtime behavior.
+- All five existing listing screenshots were inspected and remain representative;
+  the new report is captured separately above. The screenshot guard now watches
+  the new renderer and its review stamp was refreshed.
+
+These checks do not establish transactional rankings, exact writer attribution or
+reproduction of the intermittent hosted Playground failure.
+
+Direct Plugin Check 2.1.0 on the final built package returned zero errors and the
+same two reviewed warnings as 0.7.0: update-hook detection in `backports.php` and
+the protected-search query in `content.php`. No new autoload-module finding.
+The temporary Plugin Check installation was deactivated after the check.
