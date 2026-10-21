@@ -96,16 +96,18 @@ The only open GitHub issue at this review, [#265](https://github.com/dknauss/Kee
 requests optional list-table compaction. Its affected helper code predates 0.6.9;
 no reported release regression is established. Keep it as a later UX increment.
 
-## 0.7.0 privacy and content integrity — release candidate
+## 0.7.0 privacy and content integrity — released 2026-10-21
 
-The 0.7.0 candidate is prepared; publication is pending release PR approval and tagging.
-Search privacy and paired shortcode cleanup/reporting are included.
-Typography is out of Keel's scope (decided 2026-10-19): the texturize fixes ship in
-a separate feature plugin. The settings accessibility sweep and both settings
-lock improvements are complete. Version metadata, changelog and the two-default upgrade notice are synchronized.
-Final checks are recorded in [the candidate verification record](docs/review/release-verification-2026-10-20.md).
-Merge the release PR after green CI and matrix checks, then tag; publication has
-not happened yet.
+0.7.0 is published on GitHub and WordPress.org. Release PR #285 merged with green
+CI and live-matrix checks; `v0.7.0` points to its merge. The protected WordPress.org
+dry run passed before publication; SVN revision is 3758838. Published ZIPs and all
+listing assets match the tagged sources. See the
+[publication verification record](docs/review/release-verification-2026-10-20.md).
+
+Search privacy and paired shortcode cleanup/reporting are included, both default
+on for existing sites without saved choices. The upgrade notice says so.
+Typography is out of Keel's scope: the texturize fixes belong to a separate feature
+plugin. The settings accessibility sweep and both lock improvements are complete.
 
 - [x] **Keep password-protected posts out of site search** — a logged-in Subscriber
    could receive protected titles and stored excerpt data in search because
@@ -116,7 +118,7 @@ not happened yet.
    see [the search record](docs/review/protected-search-privacy.md).
    `disable_post_passwords` remains a separate editor-UI control.
 - [x] **Hide broken-shortcode residue and report it in Site Health** — implemented
-   together in #279, pending release. Conservative strong-syntax cleanup keeps enclosed
+   together in #279, released in 0.7.0. Conservative strong-syntax cleanup keeps enclosed
    text and editors' evidence; Site Health reads bounded recent observations without
    scanning posts. Bare bracketed words, examples and REST stay unchanged. See the
    [verification and limits](docs/review/shortcode-residue-2026-10-16.md).

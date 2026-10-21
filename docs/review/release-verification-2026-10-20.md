@@ -1,7 +1,7 @@
-# Keel 0.7.0 candidate verification — 2026-10-20
+# Keel 0.7.0 verification — candidate 2026-10-20, published 2026-10-21
 
-Candidate preparation only. No release tag, GitHub Release, WordPress.org SVN
-commit or production deployment has been made.
+The candidate preparation below preceded publication. The completed publication
+and artifact checks are recorded in the 2026-10-21 follow-up at the end.
 
 ## Scope and notes
 
@@ -102,14 +102,82 @@ are present; development dependencies, tests, docs and listing images are absent
 SHA-256: `951646aac6621e9fc071a162484c17eabd1a690b2c3b32e1c68de62b89f20b11`
 
 This is a candidate artifact check, not a claim about a future published download.
-No publish/SVN dry run was performed: the protected deploy workflow requires a
-release tag, and tagging is deliberately deferred until this PR is reviewed and
-merged. Verification was not bypassed.
+At the candidate checkpoint no publish/SVN dry run had been performed: the
+protected deploy workflow requires a release tag. The completed dry run and
+publication are recorded below. Verification was not bypassed.
 
-## Remaining publication steps
+## Planned publication sequence (candidate checkpoint)
 
 Review and merge the release PR only after its checks pass. Run the counterpart
 sweep again before tagging. Then create the release tag and use the protected
 release/deployment workflow. Verify the published GitHub ZIP, WordPress.org
 version, SVN tag and listing assets afterwards. This record does not authorize or
 claim publication.
+
+## Publication and artifact verification — 2026-10-21
+
+[Release PR #285](https://github.com/dknauss/Keel/pull/285) was reviewed with no
+findings, no automated comments and no unresolved review threads. It merged as
+`80b5edee3754707d646453b571c083fcc4a22f10`; the annotated `v0.7.0` tag points
+at that commit. The final PR CI and
+[merged-main CI](https://github.com/dknauss/Keel/actions/runs/39648200215) passed.
+The merged distribution was byte-identical to the six-row matrix-tested tree.
+The counterpart sweep was clear and screenshot review remained current.
+
+### Publication order
+
+1. Pushed `v0.7.0` only after merge and green checks. Created the GitHub release
+   as a draft so the tag-triggered builder could upload the ZIP without making
+   it public yet.
+2. The protected
+   [WordPress.org dry run](https://github.com/dknauss/Keel/actions/runs/39648399430)
+   succeeded. It confirmed **0.7.0 was not yet in SVN**, staged the runtime and
+   listing assets, and explicitly reported “Dry run: Files not committed.” This
+   was a new-version rehearsal, not an already-published-version no-op. As with
+   every SVN rehearsal, it could not prove the commit credential worked.
+3. Downloaded the draft ZIP, matched all 42 files to the tested distribution and
+   uploaded `SHA256SUMS`. Published the stable
+   [GitHub release](https://github.com/dknauss/Keel/releases/tag/v0.7.0) only after
+   the dry run passed, at **11:59 MDT on October 21** (17:59:22 UTC).
+4. Approved the actual protected deployment afterwards. The
+   [release/deploy workflow](https://github.com/dknauss/Keel/actions/runs/39648385375)
+   succeeded and committed **WordPress.org SVN revision 3758838**.
+
+No beta was published. A separate GitHub prerelease would be useful for an
+intentional tester-feedback window, especially for the two new defaults, but
+there was no such window in this release request. Stable publication followed
+the already-completed integration, browser, upgrade and live-matrix checks.
+Both the stable ZIP and a checksum are available with user-facing release notes.
+
+### Published artifacts
+
+The ZIP and checksum were downloaded again through their public GitHub URLs;
+`shasum -a 256 -c SHA256SUMS` passes. GitHub's asset digest agrees. WordPress.org's
+versioned ZIP and the unversioned `keel-defaults.zip` download were also fetched.
+All three ZIPs contain exactly **42 files** with identical decompressed paths and
+bytes matching the tagged distribution. Differences in archive hashes are
+packaging differences, not runtime differences. Development dependencies and
+tests are excluded; all runtime assets are present.
+
+| Public artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| GitHub `keel.zip` | 238689 | `6c0543444e7c95455c8bf23cfe7d6031e8b6ae9dcf9e1d78a842c2cc8f1758a9` |
+| WordPress.org `keel-defaults.0.7.0.zip` | 236193 | `d00cee1a4b9ad70090da1efc71e9c2825e2e6bfaf3bdedfbb314c8e36239bc31` |
+| WordPress.org default `keel-defaults.zip` | 236193 | `d00cee1a4b9ad70090da1efc71e9c2825e2e6bfaf3bdedfbb314c8e36239bc31` |
+
+The WordPress.org API now reports **0.7.0**, WordPress minimum **6.4**, PHP
+minimum **7.4**, and tested **7.1.3** (the source readme declares the 7.1 branch).
+It initially returned 0.6.9 after SVN committed; verification waited for propagation
+and then checked the normal API endpoint and public downloads again.
+
+SVN `trunk` and `tags/0.7.0` plugin headers/readmes match the tagged source.
+All **11 deployed assets** match byte-for-byte: five screenshots, two banners,
+three icons and `assets/blueprints/blueprint.json`. This is integrity verification,
+not a fresh browser launch of the published preview. The API's `preview_link`
+remains empty, as in the previous release record; no functional Live Preview
+launch is claimed here.
+
+Release complete. Plugin Check's two reviewed warnings remain disclosed above;
+no checks were bypassed. No production WordPress installation was changed by
+artifact verification. Field observation, the maintainer's WordPress.com settings-save
+confirmation and broader manual assistive-technology testing remain separate work.
