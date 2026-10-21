@@ -235,7 +235,7 @@ function keel_defaults_autoload_collect() {
  * ones uninstall.php removes; core transient names were checked against the
  * literal keys core writes.
  *
- * @param string $name Option name, or a cron hook name from the cron report.
+ * @param string $name Option name. The cron report reuses only low-confidence plugin matches.
  * @return array Owner label, confidence and evidence (never option values).
  */
 function keel_defaults_autoload_owner( $name ) {
@@ -251,7 +251,7 @@ function keel_defaults_autoload_owner( $name ) {
 		$key  = $match[2];
 	}
 	$keel = array(
-		'option'         => array( 'keel_settings', 'keel_defaults', 'keel_settings_data_version', 'keel_network_settings', 'keel_environment_override_host', 'keel_hibp_cache_generation', 'keel_hibp_last_success', 'keel_autoload_scan_lock', 'keel_defaults_autoload_collect', 'keel_defaults_cron_collect' ),
+		'option'         => array( 'keel_settings', 'keel_defaults', 'keel_settings_data_version', 'keel_network_settings', 'keel_environment_override_host', 'keel_hibp_cache_generation', 'keel_hibp_last_success', 'keel_autoload_scan_lock' ),
 		'transient'      => array( 'keel_autoload_report', 'keel_cron_report', 'keel_shortcode_residue', 'keel_policy_divergence', 'keel_hibp_unavailable' ),
 		'site_transient' => array( 'keel_stable_check', 'keel_stable_check_failed' ),
 	);

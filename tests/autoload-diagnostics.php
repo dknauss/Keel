@@ -172,7 +172,7 @@ check( 'unknown' === $unknown['confidence'], 'Ambiguous plugin prefixes remain u
 check( 'high' === keel_defaults_autoload_owner( 'theme_mods_test-theme' )['confidence'], 'A verified theme-mods name identifies its installed theme.' );
 check( 'unknown' === keel_defaults_autoload_owner( 'some_random_key' )['confidence'], 'Unrecognized names do not acquire invented owners.' );
 check( 'high' === keel_defaults_autoload_owner( 'rewrite_rules' )['confidence'], 'Known core options are distinguished from inferred plugin names.' );
-foreach ( array( 'keel_settings', 'keel_defaults', '_transient_keel_cron_report', '_transient_timeout_keel_shortcode_residue', '_transient_keel_hibp_0123456789abcdef0123456789abcdef_5BAA6', '_transient_keel_backport_install_result_12', 'keel_defaults_cron_collect' ) as $own ) {
+foreach ( array( 'keel_settings', 'keel_defaults', '_transient_keel_cron_report', '_transient_timeout_keel_shortcode_residue', '_transient_keel_hibp_0123456789abcdef0123456789abcdef_5BAA6', '_transient_keel_backport_install_result_12' ) as $own ) {
 	$owner = keel_defaults_autoload_owner( $own );
 	check( 'Keel' === $owner['owner'] && 'high' === $owner['confidence'], "Keel attributes its own stored name {$own}." );
 }
