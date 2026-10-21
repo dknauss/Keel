@@ -31,7 +31,11 @@ read. Deactivation and uninstall remove Keel's own report, lock and scheduled jo
 Discovered options are never deleted, updated or assigned different autoload flags.
 
 Known core names and verified installed theme-mods names get high confidence.
-Installed plugin slug prefixes get low confidence with explicit evidence; ambiguous
+Keel's own stored names (the inventory `uninstall.php` removes) are attributed to
+Keel with high confidence. Transient rows (`_transient_`, `_site_transient_` and
+their timeouts) are matched by key and kind: core transient names checked against
+core's literal keys are attributed to core, and a transient sharing a core option's
+name is not treated as that option. Installed plugin slug prefixes get low confidence with explicit evidence; ambiguous
 or unrecognized names stay unknown. Only the first 200 installed-plugin entries
 are considered for prefix matching. This does not identify the actual writer.
 Names and plugin/theme labels are escaped. No source-file or option-value search.

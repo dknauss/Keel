@@ -117,7 +117,7 @@ function keel_defaults_cron_extract( array $cron, $now ) {
  * @return array Owner, confidence, evidence.
  */
 function keel_defaults_cron_owner( $hook ) {
-	if ( in_array( $hook, array( 'wp_version_check', 'wp_maybe_auto_update', 'wp_update_plugins', 'wp_update_themes', 'wp_scheduled_delete', 'delete_expired_transients' ), true ) ) {
+	if ( in_array( $hook, array( 'wp_version_check', 'wp_maybe_auto_update', 'wp_update_plugins', 'wp_update_themes', 'wp_scheduled_delete', 'delete_expired_transients', 'wp_scheduled_auto_draft_delete', 'wp_site_health_scheduled_check', 'wp_update_user_counts', 'wp_privacy_delete_old_export_files', 'wp_privacy_personal_data_cleanup_requests', 'recovery_mode_clean_expired_keys', 'wp_delete_temp_updater_backups', 'update_network_counts', 'publish_future_post', 'do_pings', 'wp_split_shared_term_batch', 'wp_update_comment_type_batch' ), true ) ) {
 		return array(
 			'owner'      => __( 'WordPress core', 'keel-defaults' ),
 			'confidence' => 'high',

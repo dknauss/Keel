@@ -230,7 +230,12 @@ function keel_defaults_autoload_collect() {
 /**
  * Attribute a name with explicit evidence; prefixes are not proof of ownership.
  *
- * @param string $name Option name only.
+ * Transient rows are matched by their key and kind, so a transient that shares
+ * a core option's name is not mistaken for that option. Keel's own names are the
+ * ones uninstall.php removes; core transient names were checked against the
+ * literal keys core writes.
+ *
+ * @param string $name Option name. The cron report reuses only low-confidence plugin matches.
  * @return array Owner label, confidence and evidence (never option values).
  */
 function keel_defaults_autoload_owner( $name ) {
@@ -239,14 +244,40 @@ function keel_defaults_autoload_owner( $name ) {
 		'confidence' => 'unknown',
 		'evidence'   => __( 'No unambiguous name-based attribution.', 'keel-defaults' ),
 	);
-	if ( in_array( $name, array( 'siteurl', 'home', 'blogname', 'blogdescription', 'rewrite_rules', 'cron', 'active_plugins', 'sidebars_widgets', 'widget_block', 'wp_user_roles' ), true ) ) {
+	$kind    = 'option';
+	$key     = $name;
+	if ( preg_match( '/^_(site_)?transient_(?:timeout_)?(.+)$/', $name, $match ) ) {
+		$kind = '' === $match[1] ? 'transient' : 'site_transient';
+		$key  = $match[2];
+	}
+	$keel = array(
+		'option'         => array( 'keel_settings', 'keel_defaults', 'keel_settings_data_version', 'keel_network_settings', 'keel_environment_override_host', 'keel_hibp_cache_generation', 'keel_hibp_last_success', 'keel_autoload_scan_lock' ),
+		'transient'      => array( 'keel_autoload_report', 'keel_cron_report', 'keel_shortcode_residue', 'keel_policy_divergence', 'keel_hibp_unavailable' ),
+		'site_transient' => array( 'keel_stable_check', 'keel_stable_check_failed' ),
+	);
+	if ( in_array( $key, $keel[ $kind ], true ) || ( 'transient' === $kind && preg_match( '/^keel_(?:hibp_[0-9a-f]{32}_[0-9a-f]{5}|backport_install_result_[0-9]+)$/i', $key ) ) ) {
+		return array(
+			'owner'      => __( 'Keel', 'keel-defaults' ),
+			'confidence' => 'high',
+			'evidence'   => __( 'A name Keel stores and removes on uninstall; other code can still modify it.', 'keel-defaults' ),
+		);
+	}
+	global $wpdb;
+	// Core names the roles option after this site's table prefix (blog-specific on multisite).
+	$roles = ( is_object( $wpdb ) && method_exists( $wpdb, 'get_blog_prefix' ) ? $wpdb->get_blog_prefix() : 'wp_' ) . 'user_roles';
+	$core  = array(
+		'option'         => array( 'siteurl', 'home', 'blogname', 'blogdescription', 'rewrite_rules', 'cron', 'active_plugins', 'sidebars_widgets', 'widget_block', $roles ),
+		'transient'      => array( 'doing_cron', 'health-check-site-status-result', 'is_multi_author', 'random_seed', 'dirsize_cache', 'plugin_slugs', 'settings_errors', 'wporg_theme_feature_list', 'wp_core_block_css_files', 'wp_styles_for_blocks' ),
+		'site_transient' => array( 'update_core', 'update_plugins', 'update_themes', 'theme_roots', 'available_translations', 'wp_plugin_dependencies_plugin_data', 'wporg_theme_feature_list' ),
+	);
+	if ( in_array( $key, $core[ $kind ], true ) ) {
 		return array(
 			'owner'      => __( 'WordPress core', 'keel-defaults' ),
 			'confidence' => 'high',
-			'evidence'   => __( 'Known core option name; other code can still modify it.', 'keel-defaults' ),
+			'evidence'   => 'option' === $kind ? __( 'Known core option name; other code can still modify it.', 'keel-defaults' ) : __( 'Known core transient name; other code can still modify it.', 'keel-defaults' ),
 		);
 	}
-	if ( preg_match( '/^theme_mods_([a-z0-9_-]{1,100})$/i', $name, $match ) ) {
+	if ( 'option' === $kind && preg_match( '/^theme_mods_([a-z0-9_-]{1,100})$/i', $name, $match ) ) {
 		$theme = wp_get_theme( $match[1] );
 		if ( $theme->exists() ) {
 			return array(
@@ -266,7 +297,7 @@ function keel_defaults_autoload_owner( $name ) {
 		if ( strlen( $prefix ) < 3 || in_array( $prefix, array( 'wordpress', 'plugin', 'theme', 'options' ), true ) ) {
 			continue;
 		}
-		if ( 0 === strpos( $name, $prefix . '_' ) || $name === $prefix ) {
+		if ( 0 === strpos( $key, $prefix . '_' ) || $key === $prefix ) {
 			$matches[] = $plugin['Name'];
 		}
 	}

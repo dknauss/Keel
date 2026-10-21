@@ -67,6 +67,9 @@ keel_cron_assert( $partial['limited'] && 2000 === $partial['examined'], 'Event c
 keel_cron_assert( count( $partial['overdue'] ) <= 5 && count( $partial['frequent'] ) <= 5, 'Output remains bounded.' );
 keel_cron_assert( 'high' === keel_defaults_cron_owner( 'wp_maybe_auto_update' )['confidence'], 'Known core hooks have explicit attribution.' );
 keel_cron_assert( 'unknown' === keel_defaults_cron_owner( 'mystery' )['confidence'], 'Unrecognized hook remains unknown.' );
+foreach ( array( 'wp_site_health_scheduled_check', 'wp_scheduled_auto_draft_delete', 'recovery_mode_clean_expired_keys', 'wp_delete_temp_updater_backups', 'publish_future_post' ) as $core_hook ) {
+	keel_cron_assert( 'WordPress core' === keel_defaults_cron_owner( $core_hook )['owner'], "Core-scheduled hook {$core_hook} is attributed to core." );
+}
 $update = keel_defaults_cron_updates(
 	(object) array( 'last_checked' => $now - 50000 ),
 	array(
