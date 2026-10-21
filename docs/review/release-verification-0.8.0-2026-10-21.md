@@ -87,3 +87,35 @@ This checksum identifies the local candidate artifact, not a published download.
 Independent release review found the missing draft-hold step in the publication
 sequence; it is corrected above. The final review has no outstanding findings.
 Candidate CI and a versioned six-row MySQL/Redis live matrix are recorded below.
+
+## Pre-tag dry run and cleanup
+
+`npx pressship release <staged-package> --slug keel-defaults --dry-run` completed
+successfully. It printed the 0.8.0 SVN checkout/add/tag-copy/update/status/commit
+**command plan only**; it did not execute those SVN operations, verify credentials
+or rehearse the protected deployment workflow. No validation bypass flags were
+used; the separate `verify` run above supplies the actual validation evidence.
+The protected, tagged deployment dry run remains a mandatory publication gate.
+
+The disposable Studio release QA site was deleted after checks. The local
+candidate ZIP and checksum remain available for review; no remote site was changed.
+
+## Versioned candidate CI and live matrix
+
+Candidate `cb5930e7f373189ecc504f44968118d441139d5a`:
+
+- [CI 39661173904](https://github.com/dknauss/Keel/actions/runs/39661173904):
+  lint/unit/static checks and PHP 7.4, 8.0–8.5 passed.
+- [Live matrix 39661115607](https://github.com/dknauss/Keel/actions/runs/39661115607):
+  all six rows passed: WordPress 6.4/PHP 7.4, French, Redis-backed multisite,
+  WordPress 7.0, and operable-updater minor/major policy cases. These exercise
+  real MySQL diagnostic probes plus backward/forward core installer paths.
+
+The follow-up commit adds results to this excluded record only; packaged files
+are identical to the candidate checked above. Final CI is visible on
+[release PR #289](https://github.com/dknauss/Keel/pull/289). GitHub review threads
+and review summaries were empty when checked; independent review is clear.
+
+Release preparation is complete. The release PR still requires review and merge;
+no tag, GitHub publication, WordPress.org upload or SVN commit was performed.
+The tagged protected deployment rehearsal remains a publication gate.
