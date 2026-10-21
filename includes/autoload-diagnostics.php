@@ -98,10 +98,20 @@ function keel_defaults_autoload_unlock( $token ) {
 /**
  * Read a snapshot only for the current site and diagnostic schema.
  *
+ * @param bool $fresh Bypass request-local caches after acquiring the lease.
  * @return array|false Cached metadata, or false when unavailable.
  */
-function keel_defaults_autoload_snapshot() {
-	$state = get_transient( 'keel_autoload_report' );
+function keel_defaults_autoload_snapshot( $fresh = false ) {
+	if ( $fresh && wp_using_ext_object_cache() ) {
+		$state = wp_cache_get( 'keel_autoload_report', 'transient', true );
+	} else {
+		if ( $fresh ) {
+			wp_cache_delete( 'notoptions', 'options' );
+			wp_cache_delete( '_transient_keel_autoload_report', 'options' );
+			wp_cache_delete( '_transient_timeout_keel_autoload_report', 'options' );
+		}
+		$state = get_transient( 'keel_autoload_report' );
+	}
 	if ( ! is_array( $state ) || 1 !== ( $state['schema'] ?? null ) || get_current_blog_id() !== ( $state['site'] ?? null )
 		|| ! is_int( $state['started'] ?? null ) || $state['started'] > time() || $state['started'] < time() - 3600 ) {
 		return false;
@@ -155,17 +165,13 @@ function keel_defaults_autoload_schedule() {
  */
 function keel_defaults_autoload_collect() {
 	global $wpdb;
-	$state = keel_defaults_autoload_snapshot();
-	if ( false === $state || $state['done'] ) {
-		return;
-	}
 	$token = keel_defaults_autoload_lock();
 	if ( false === $token ) {
 		keel_defaults_autoload_schedule();
 		return;
 	}
 	try {
-		$state = keel_defaults_autoload_snapshot();
+		$state = keel_defaults_autoload_snapshot( true );
 		if ( false === $state || $state['done'] ) {
 			return;
 		}
@@ -299,7 +305,7 @@ function keel_defaults_autoload_health() {
 		$token = keel_defaults_autoload_lock();
 		if ( false !== $token ) {
 			try {
-				$state = keel_defaults_autoload_snapshot();
+				$state = keel_defaults_autoload_snapshot( true );
 				if ( false === $state ) {
 					$state = array(
 						'schema'     => 1,

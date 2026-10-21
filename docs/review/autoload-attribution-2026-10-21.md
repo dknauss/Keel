@@ -41,7 +41,7 @@ Names and plugin/theme labels are escaped. No source-file or option-value search
 - Standalone contracts cover cold/cached reads, pagination, a later-page large
   entry, modern flags, scan cap, query errors, permissions/nonce, site isolation,
   escaped labels, ambiguous owners, malformed caches, delayed external cron and
-  expired/replacement leases.
+  expired/replacement leases, stale request-local cursors and forced backend reads.
 - Real Studio WordPress 7.1.3 / PHP 8.4 / SQLite: UTF-8 fixture values measured as
   1,200,000 and 1,000,000 bytes; a 1,500,000-byte non-autoloaded fixture excluded;
   Unicode option name preserved; cached snapshot caused no SQL; values absent
@@ -49,6 +49,9 @@ Names and plugin/theme labels are escaped. No source-file or option-value search
 - Real browser: core registered the async test; authenticated valid-nonce AJAX
   returned 200 with a Site Health result; invalid nonce returned 403. Background
   cron completed and the report returned observed options and sizes.
+- Browser panel accessibility: axe reported zero violations in the new report.
+  Caption, column headers and wrapped option names were visually inspected.
+  [Panel capture](autoload-attribution-2026-10-21.png).
 - Full standalone suite, coding standards, PHP compatibility, syntax, existing
   PHPStan scope and its negative contracts passed locally. PHPStan's existing
   selected-path scope has not been expanded to this module.

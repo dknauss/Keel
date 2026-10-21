@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) || ! function_exists( 'keel_defaults_autoload_health
 	throw new RuntimeException( 'Load WordPress with Keel active.' );
 }
 global $wpdb;
+$keel_autoload_site   = 0;
 $keel_autoload_user   = get_current_user_id();
 $keel_autoload_keys   = array( 'keel_probe_large', 'keel_probe_disabled', 'keel_probe_é' );
 $keel_autoload_assert = static function ( $condition, $message ) {
@@ -46,10 +47,29 @@ try {
 	keel_defaults_autoload_snapshot();
 	$keel_autoload_assert( $queries === $wpdb->num_queries, 'Cached snapshot must avoid SQL.' );
 	$keel_autoload_assert( false === strpos( wp_json_encode( $state, JSON_UNESCAPED_UNICODE ), str_repeat( 'é', 100 ) ), 'No values in cached report.' );
+	if ( is_multisite() ) {
+		$installing         = wp_installing();
+		$keel_autoload_site = wpmu_create_blog( get_network()->domain, '/keel-autoload-' . wp_rand() . '/', 'Autoload probe', $admins[0]->ID );
+		wp_installing( $installing );
+		$keel_autoload_assert( ! is_wp_error( $keel_autoload_site ), 'Disposable second site must exist.' );
+		switch_to_blog( $keel_autoload_site );
+		try {
+			$keel_autoload_assert( false === keel_defaults_autoload_snapshot(), 'A second site must not see the first report.' );
+			keel_defaults_autoload_health();
+			$keel_autoload_assert( 0 === keel_defaults_autoload_snapshot()['scanned'], 'Second site starts independently.' );
+		} finally {
+			restore_current_blog();
+		}
+		$keel_autoload_assert( keel_defaults_autoload_snapshot()['scanned'] === $state['scanned'], 'Switching back preserves first-site progress.' );
+	}
 	wp_set_current_user( 0 );
 	$keel_autoload_assert( '' === keel_defaults_autoload_health()['description'], 'No diagnostic metadata for unauthenticated callers.' );
 	echo "autoload real-database contracts: OK\n";
 } finally {
+	if ( is_int( $keel_autoload_site ) && $keel_autoload_site > 0 ) {
+		require_once ABSPATH . 'wp-admin/includes/ms.php';
+		wpmu_delete_blog( $keel_autoload_site, true );
+	}
 	foreach ( $keel_autoload_keys as $key ) {
 		delete_option( $key );
 	}

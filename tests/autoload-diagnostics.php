@@ -15,7 +15,15 @@ function esc_html__( $s, $domain = '' ) { return htmlspecialchars( $s, ENT_QUOTE
 function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 function current_user_can( $cap ) { return $GLOBALS['allowed']; }
 function get_current_blog_id() { return $GLOBALS['blog']; }
-function get_transient( $key ) { return $GLOBALS['cache'][ $GLOBALS['blog'] ][ $key ] ?? false; }
+function get_transient( $key ) {
+	if ( ! empty( $GLOBALS['negative_snapshot'] ) ) {
+		return false;
+	}
+	if ( isset( $GLOBALS['stale_snapshot'] ) ) {
+		return $GLOBALS['stale_snapshot'];
+	}
+	return $GLOBALS['cache'][ $GLOBALS['blog'] ][ $key ] ?? false;
+}
 function set_transient( $key, $value, $ttl ) { $GLOBALS['cache'][ $GLOBALS['blog'] ][ $key ] = $value; }
 function delete_transient( $key ) { unset( $GLOBALS['cache'][ $GLOBALS['blog'] ][ $key ] ); }
 function get_option( $key, $default = false ) { return $GLOBALS['options'][ $GLOBALS['blog'] ][ $key ] ?? $default; }
@@ -27,7 +35,19 @@ function add_option( $key, $value, $unused = '', $autoload = true ) {
 	$GLOBALS['options'][ $GLOBALS['blog'] ][ $key ] = $value;
 	return true;
 }
-function wp_cache_delete( ...$args ) {}
+function wp_using_ext_object_cache() { return ! empty( $GLOBALS['external_cache'] ); }
+function wp_cache_delete( ...$args ) {
+	if ( 'notoptions' === $args[0] ) {
+		unset( $GLOBALS['negative_snapshot'] );
+	}
+	if ( '_transient_keel_autoload_report' === $args[0] ) {
+		unset( $GLOBALS['stale_snapshot'] );
+	}
+}
+function wp_cache_get( $key, $group, $force = false ) {
+	check( $force && 'transient' === $group, 'Persistent snapshot reads force a fresh backend value.' );
+	return $GLOBALS['cache'][ $GLOBALS['blog'] ][ $key ] ?? false;
+}
 function wp_generate_uuid4() { static $id = 0;
 	return 'test-' . ( ++$id ); }
 function wp_next_scheduled( $hook ) { return $GLOBALS['scheduled'][ $GLOBALS['blog'] ][ $hook ] ?? false; }
@@ -209,4 +229,30 @@ $report['done']    = false;
 set_transient( 'keel_autoload_report', $report, 3600 );
 $stopped = keel_defaults_autoload_snapshot();
 check( $stopped['done'] && $stopped['limited'], 'An external scheduler delay cannot leave an endless pending report.' );
+// A request-local old cursor must not overwrite a newer worker's progress.
+$report['started']    = time();
+$report['cursor']     = 250;
+$report['scanned']    = 250;
+$report['autoloaded'] = 250;
+$report['done']       = false;
+$report['limited']    = false;
+set_transient( 'keel_autoload_report', $report, 3600 );
+$GLOBALS['stale_snapshot'] = array_merge(
+	$report,
+	array(
+		'cursor'     => 0,
+		'scanned'    => 0,
+		'autoloaded' => 0,
+	)
+);
+unset( $GLOBALS['options'][1]['keel_autoload_scan_lock'] );
+run_batch();
+check( 260 === keel_defaults_autoload_snapshot()['scanned'], 'Lease acquisition bypasses stale request-local progress.' );
+
+$GLOBALS['negative_snapshot'] = true;
+keel_defaults_autoload_health();
+check( 260 === keel_defaults_autoload_snapshot()['scanned'], 'A negative cache cannot replace a concurrently created report.' );
+$GLOBALS['external_cache'] = true;
+check( 260 === keel_defaults_autoload_snapshot( true )['scanned'], 'Persistent cache snapshots retain current progress.' );
+$GLOBALS['external_cache'] = false;
 echo "autoload diagnostics: OK\n";
