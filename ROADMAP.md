@@ -164,10 +164,12 @@ tests. It should supply the attribution and next action that the aggregate resul
 cannot: what is responsible, how confident that attribution is, and what an
 administrator can safely inspect next.
 
-- [ ] **Attribute oversized autoloaded options** — report the largest autoloaded
+- [x] **Attribute oversized autoloaded options** — report the largest autoloaded
    option rows, their sizes and a probable plugin or theme owner where the name gives
    defensible evidence. Never expose option values, present an inferred owner as
    certain, delete an option, or claim that size alone proves waste.
+   Implementation and limits: [verification record](docs/review/autoload-attribution-2026-10-21.md).
+
 - [ ] **Attribute cron pressure and update-delivery delays** — identify overdue and
    unusually frequent hooks, their schedules and probable owners, then connect the
    core-update subset to offer-cache age, the next scheduled check and the last known

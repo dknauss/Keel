@@ -31,7 +31,7 @@ Keel is especially useful if you build or look after many sites, as a freelancer
 
 = Safe to try, easy to undo =
 
-Every setting is one switch with the reason for it written beside it, under **Settings → Site Defaults**. Keel does not edit or delete your existing posts, pages, media, or comments. The one change it makes to files by default is giving new uploads lowercase filenames. Turn a setting off and that behavior returns to WordPress; uninstall Keel and its settings are removed.
+Each setting has a control and an explanation under **Settings → Site Defaults**. Some settings depend on others or are managed by configuration or network policy. Keel does not edit or delete your existing posts, pages, media, or comments. The one change it makes to files by default is giving new uploads lowercase filenames. Turn a setting off and that behavior returns to WordPress; uninstall Keel and its settings are removed.
 
 = Good to know before you activate =
 
@@ -137,6 +137,10 @@ Keel is free and will stay free. If it saves you an afternoon of securing a new 
 Bug reports and feature requests are welcome on the issue tracker: [https://github.com/dknauss/keel/issues](https://github.com/dknauss/keel/issues). If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how.
 
 == Changelog ==
+
+= Unreleased =
+* Performance: Site Health attributes the ten largest observed autoloaded options using names and byte sizes only. Background collection is cached and bounded; probable owners include confidence and evidence. The report never shows values, deletes options or changes autoload flags.
+* Documentation: describe the 42 controls as configurable settings; some have dependencies or are centrally managed.
 
 = 0.7.0 =
 * Privacy (new default, also on for existing sites): hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable under Protected Search Results; does not change direct links or stored content.
