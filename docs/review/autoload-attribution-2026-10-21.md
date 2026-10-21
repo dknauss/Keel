@@ -108,4 +108,14 @@ recognized only as a site transient, matching the core writer's storage kind.
 Regressions cover all three boundaries; the real database probe also verifies
 roles attribution after switching sites, including rejection of another site's
 roles key. Collection bounds, permissions, caching and report-only behavior are
-unchanged. Live matrix evidence is recorded after the final revision is tested.
+unchanged.
+
+Validation: unit suite, WPCS, PHP compatibility and syntax checks, scoped PHPStan,
+and type contracts passed. Both attribution integration probes passed on the local
+multisite Studio lab. Independent review found no remaining actionable issues.
+The [live matrix](https://github.com/dknauss/Keel/actions/runs/39695673227)
+passed all six jobs, including the PHP 7.4 / WordPress 6.4 floor, French locale,
+multisite with persistent object cache, and real backward/forward installs.
+It tested `ebae82aca4d3d4c18cdd1a64423e7b41c6aceec3`; cherry-picking the fix
+onto merged #292 produced an identical tree at `2f4444f` before this evidence-only
+update. No version bump or publication is included.
