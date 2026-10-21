@@ -7,25 +7,23 @@ The original scope document, `pixel-lite-scope.md`, was kept outside this reposi
 is retired: it was no longer on the maintainer's machine when looked for on 2026-10-13.
 This file and ROADMAP.md are the only record of scope.
 
-## Now — observe the 0.6 line
+## Now — observe 0.7.0 in the field
 
-Each 0.6 release is published only after the release checklist runs in full.
-GitHub and WordPress.org 0.6.9 are published (verified 2026-10-15).
-The release/deploy workflow passed; both published packages and the default
-WordPress.org download match all 41 tagged runtime files. See the
-[verification record](docs/review/release-verification-2026-10-15.md).
+Keel 0.7.0 is published on GitHub and WordPress.org (verified 2026-10-21).
+The protected WordPress.org dry run passed before publication. SVN revision is
+3758838; both public packages, the default download and all listing assets match
+the tagged sources. See the
+[verification record](docs/review/release-verification-2026-10-20.md).
 
 - [x] **Prepare the 0.6.9 candidate** — version metadata, cache-busting constant,
       changelog and upgrade notice synchronized; no new defaults or PHP floor change.
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused work:** finish candidate verification and review for 0.7.0.
-  The two new defaults and both lock UX improvements are merged. Typography
-  belongs to the separate feature plugin and is outside Keel's scope.
-  Field observation and the maintainer's WordPress.com settings-save confirmation
-  remain open; routine PHPStan expansion stays paused unless a concrete change
-  warrants it.
+- **Next focused work:** observe the two new defaults and settings lock UX in
+  the field. Typography belongs to the separate feature plugin and remains outside
+  Keel's scope. The maintainer's WordPress.com settings-save confirmation remains
+  open; routine PHPStan expansion stays paused unless a concrete change warrants it.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -183,17 +181,17 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
       No open issue reports a newly introduced 0.6.9 defect at this review; that is
       not evidence that unreported regressions are impossible.
 
-## 0.7.0 privacy and content integrity — release candidate
+## 0.7.0 privacy and content integrity — released
 
 - [x] **Prepare the 0.7.0 candidate** — version metadata and asset cache-buster,
   changelog and upgrade notice synchronized. Both new default-on settings are
   called out for existing sites; the notice is under the directory's 300-character
   limit. Both remaining lock UX items are complete and #284 is merged.
-- [ ] **Release 0.7.0** — final verification and release PR review, then merge
-  before tagging. No tag or publication yet. See the
-  [candidate verification record](docs/review/release-verification-2026-10-20.md).
-  All five screenshots have been reviewed; screenshots 4 and 5 were retaken in
-  #284. Re-run `composer verify:screenshots` before tagging.
+- [x] **Release 0.7.0** — #285 merged after green CI and six-row live matrix;
+  v0.7.0 tagged on the merge. GitHub release with ZIP/checksum and WordPress.org
+  publication completed only after the new-version dry run passed. SVN revision
+  3758838; package contents, metadata and all 11 listing assets verified. See the
+  [publication record](docs/review/release-verification-2026-10-20.md).
 
 - [x] **Keep password-protected posts out of site search**
   - Exclude protected search results for logged-in users without per-post editing
@@ -205,7 +203,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     switch; 42 defaults in the development tree. See the
     [search verification record](docs/review/protected-search-privacy.md).
 - [x] **Hide broken-shortcode residue and report it in Site Health**
-  - Merged together in #279 as `hide_shortcode_residue` (default on), pending release.
+  - Merged together in #279 as `hide_shortcode_residue` (default on), released in 0.7.0.
   - Conservative strong-syntax cleanup of front-end post content; enclosed text,
     editors' evidence, registered handlers, examples and stored content are preserved.
   - Site Health reads capped, per-site, one-hour observations; no post scan or raw content.
