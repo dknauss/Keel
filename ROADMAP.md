@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.7.0`**. Keel was first published on wordpress.org as
+**Current version: `0.8.0` (release candidate; not yet published)**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -156,7 +156,11 @@ plugin. The settings accessibility sweep and both lock improvements are complete
    controls and move keyboard focus. See the
    [verification record](docs/review/settings-lock-ux-2026-10-20.md).
 
-## Then — 0.8.0 performance observability
+## 0.8.0 performance observability — release candidate
+
+Both observability tasks are implemented in #287 and #288. Version metadata,
+changelog and upgrade notice are prepared for 0.8.0; release PR review precedes
+tagging and publication. See the [release checks](docs/review/release-verification-0.8.0-2026-10-21.md).
 
 WordPress already reports page-cache, persistent-object-cache, opcode-cache,
 scheduled-event and aggregate autoload problems. Keel should not restate those

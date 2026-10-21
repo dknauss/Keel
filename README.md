@@ -6,7 +6,7 @@
 
 **A clear, maintainable baseline for secure WordPress sites.** Keel provides 42 individually configurable settings for security, updates, privacy, content, email, media, and wp-admin. Some depend on other settings, and configuration or network policy can manage them centrally. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
 
-**Current version: `0.7.0`.**
+**Current version: `0.8.0` (release candidate; not yet published).**
 
 ## Try it first
 
@@ -88,7 +88,7 @@ Install from the [WordPress.org directory](https://wordpress.org/plugins/keel-de
 
 [GPL-2.0-or-later](LICENSE). Keel is a de-branded evolution of [Better by Default](https://github.com/WPYEG/Better-by-Default), with additional defaults adapted from the Agency Experience plugin, itself a fork of [10up Experience](https://github.com/10up/10up-experience). See the WordPress.org readme for complete attribution.
 
-### Autoload attribution (unreleased)
+### Autoload attribution (0.8.0)
 
 Site Health reports the ten largest observed autoloaded options, their byte sizes,
 and probable owners with confidence and evidence. It collects names and sizes in
@@ -96,7 +96,7 @@ cached background batches, never values. Partial scans are labelled explicitly;
 size alone does not prove waste. The report never deletes options or changes their
 autoload flags. See the [limits and verification](docs/review/autoload-attribution-2026-10-21.md).
 
-### Cron pressure and update delivery (unreleased)
+### Cron pressure and update delivery (0.8.0)
 
 Site Health adds cached observations of overdue and frequent stored cron events,
 probable owners with explicit confidence, core offer-cache age and retained
