@@ -264,9 +264,9 @@ function keel_defaults_enqueue_settings_assets() {
  *
  * The locked-control script and stylesheet, and nothing else. The network screen is
  * deliberately simpler than the per-site one — no dependent-row hiding, no
- * range slider, no setting anchors — so every rule in settings.css and every
- * line of settings.js would be inert there, and a screen that loads assets it
- * cannot use is how a stylesheet ends up being "needed" by accident later.
+ * range slider — so it does not need settings.css or settings.js. Lock markers,
+ * summary navigation and network anchor styling travel with the shared locked
+ * controls assets.
  *
  * @return void
  */

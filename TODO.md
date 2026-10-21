@@ -234,20 +234,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   is superseded for Keel. Coexistence with the feature plugin was lab-verified on
   2026-10-17 (1,140 rows matching the no-Keel results, with Keel's shortcode
   cleanup toggled).
-- [ ] **Mark locked settings in the row, not only in the note** — considered while
-      fixing the lock note's visibility and deliberately left out of that change. The
-      note only helps once you are already reading the row it belongs to; on a
-      thirty-nine setting screen the question a host-managed site actually has is
-      "which of these are not mine?", and answering it currently means reading every
-      row. A lock glyph beside the label would make that scannable. Bigger than a CSS
-      rule: it touches label rendering for every field type, so it wants its own pass.
-- [ ] **Summarise locks at the top of the settings screen** — "3 settings are locked by
-      `wp-config.php`", each linking to its anchor. `keel_defaults_setting_anchor()`
-      already generates the targets, so the linking is free; the work is deciding
-      whether it belongs on the settings screen, in Site Health, or both, and whether
-      network policy locks count in the same sentence as constant locks. They are
-      different authorities and probably should not be summed into one number without
-      saying so.
+- [x] **Mark locked settings in the row, not only in the note** — implemented
+  2026-10-20. A lock icon and visible “Locked” text accompany each locked row
+  heading, or each affected statement in grouped controls, on both screens.
+- [x] **Summarise locks at the top of the settings screen** — implemented
+  2026-10-20. Separate configuration and network-policy counts link to each
+  setting. Configuration wins when both apply. Network Policy lists only
+  configuration locks, since its own policy remains editable there. Summary
+  links reveal hidden dependent settings and focus their locked controls.
+  See the [verification record](docs/review/settings-lock-ux-2026-10-20.md).
 - [x] **Check the settings screens in a right-to-left admin** — done 2026-09-14, on
       disposable `he_IL` copies of the `keel-latest` and `keel-network` labs, measured with
       Playwright at 1280px and 390px. Keel ships no `-rtl` stylesheet, so every directional

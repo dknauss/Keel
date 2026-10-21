@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-16T23:36:03+00:00\n"
+"POT-Creation-Date: 2026-10-20T23:48:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -760,11 +760,11 @@ msgstr ""
 msgid "The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there."
 msgstr ""
 
-#: includes/network.php:304
+#: includes/network.php:305
 msgid "Decide this for the whole network"
 msgstr ""
 
-#: includes/network.php:326
+#: includes/network.php:327
 msgid "Save network policy"
 msgstr ""
 
@@ -810,13 +810,13 @@ msgstr ""
 msgid "REST API restricted to authenticated users."
 msgstr ""
 
-#: includes/settings-controls.php:115
+#: includes/settings-controls.php:118
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
 #: includes/settings-page.php:24
-#: includes/settings-page.php:558
-#: includes/shortcodes.php:224
+#: includes/settings-page.php:607
+#: includes/shortcodes.php:229
 #: includes/site-health.php:85
 #: includes/site-health.php:188
 #: includes/site-health.php:564
@@ -983,11 +983,31 @@ msgstr ""
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:559
+#: includes/settings-page.php:529
+msgid "Locked"
+msgstr ""
+
+#: includes/settings-page.php:558
+msgid "Locked settings"
+msgstr ""
+
+#. translators: %d: number of settings locked by configuration.
+#: includes/settings-page.php:564
+#, php-format
+msgid "Locked by wp-config.php (%d)"
+msgstr ""
+
+#. translators: %d: number of settings locked by network policy.
+#: includes/settings-page.php:566
+#, php-format
+msgid "Locked by network policy (%d)"
+msgstr ""
+
+#: includes/settings-page.php:608
 msgid "Balanced defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:571
+#: includes/settings-page.php:620
 msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
@@ -1010,29 +1030,29 @@ msgstr ""
 msgid "Locked by <code>WP_POST_REVISIONS</code> in <code>wp-config.php</code>. Remove that constant to manage revision retention here."
 msgstr ""
 
-#: includes/shortcodes.php:221
+#: includes/shortcodes.php:226
 msgid "No recent shortcode residue observed by Keel"
 msgstr ""
 
-#: includes/shortcodes.php:227
+#: includes/shortcodes.php:232
 msgid "Keel observes visited front-end post content, not every stored post. It keeps up to 20 post IDs and 10 missing tag names per post for an hour. Fixed pages can remain listed until that observation expires. Bare bracketed words, code examples and REST content are left unchanged."
 msgstr ""
 
-#: includes/shortcodes.php:231
+#: includes/shortcodes.php:236
 msgid "Keel shortcode cleanup is disabled"
 msgstr ""
 
 #. translators: %d: affected post ID.
-#: includes/shortcodes.php:242
+#: includes/shortcodes.php:247
 #, php-format
 msgid "Post #%d"
 msgstr ""
 
-#: includes/shortcodes.php:247
+#: includes/shortcodes.php:252
 msgid "Recent pages contain missing shortcode handlers"
 msgstr ""
 
-#: includes/shortcodes.php:248
+#: includes/shortcodes.php:253
 msgid "Keel hides recognizable residue from readers while keeping enclosed text. People who can edit a post still see its residue. Restore the missing plugin or update the content; hiding markup does not restore the missing output. These are observations, not proof that a plugin supplied each tag."
 msgstr ""
 

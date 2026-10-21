@@ -524,6 +524,58 @@ function keel_defaults_render_help( $help, $id = '' ) {
 }
 
 
+/** Render a visible, text-labelled lock beside a setting's heading or statement. */
+function keel_defaults_render_lock_marker() {
+	echo '<span class="keel-lock-marker"><span class="dashicons dashicons-lock" aria-hidden="true"></span> ' . esc_html__( 'Locked', 'keel-defaults' ) . '</span>';
+}
+
+/**
+ * Summarize locks with local links, keeping the deciding authorities separate.
+ *
+ * Configuration takes precedence, just as it does when the controls render.
+ * Network policy is editable on its own screen, so only configuration locks
+ * belong in that screen's summary. Unsupported settings have no link target.
+ *
+ * @param bool $network_screen Whether this is Network Policy.
+ * @return void
+ */
+function keel_defaults_render_lock_summary( $network_screen = false ) {
+	$groups  = array(
+		'config'  => array(),
+		'network' => array(),
+	);
+	$strings = keel_defaults_strings();
+	foreach ( keel_defaults_schema() as $key => $field ) {
+		if ( ! keel_defaults_key_supported( $key ) ) {
+			continue;
+		}
+		if ( null !== keel_defaults_config_lock( $key ) ) {
+			$groups['config'][] = $key;
+		} elseif ( ! $network_screen && null !== keel_defaults_network_lock( $key ) ) {
+			$groups['network'][] = $key;
+		}
+	}
+	if ( ! $groups['config'] && ! $groups['network'] ) {
+		return;
+	}
+	echo '<div class="keel-lock-summary" role="region" aria-label="' . esc_attr( __( 'Locked settings', 'keel-defaults' ) ) . '">';
+	foreach ( $groups as $source => $keys ) {
+		if ( ! $keys ) {
+			continue;
+		}
+		/* translators: %d: number of settings locked by configuration. */
+		$title = 'config' === $source ? __( 'Locked by wp-config.php (%d)', 'keel-defaults' ) :
+			/* translators: %d: number of settings locked by network policy. */
+			__( 'Locked by network policy (%d)', 'keel-defaults' );
+		echo '<p><strong>' . esc_html( sprintf( $title, count( $keys ) ) ) . '</strong></p><ul>';
+		foreach ( $keys as $key ) {
+			printf( '<li><a href="#%s">%s</a></li>', esc_attr( keel_defaults_setting_anchor( $key ) ), esc_html( $strings[ $key ]['label'] ) );
+		}
+		echo '</ul>';
+	}
+	echo '</div>';
+}
+
 /** Render the settings page. */
 function keel_defaults_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -570,6 +622,7 @@ function keel_defaults_render_settings_page() {
 		<hr class="wp-header-end">
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
 
+		<?php keel_defaults_render_lock_summary(); ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'keel_settings_group' ); ?>
 
@@ -665,6 +718,9 @@ function keel_defaults_render_settings_page() {
 							}
 							keel_defaults_render_checkbox( $name, $shown, $statement, $locked, $describedby );
 							if ( $locked ) {
+								keel_defaults_render_lock_marker();
+							}
+							if ( $locked ) {
 								printf(
 									'<p class="description keel-config-lock" id="%s">%s</p>',
 									esc_attr( $lock_id ),
@@ -680,7 +736,12 @@ function keel_defaults_render_settings_page() {
 						list( $dep_attr, $dep_hidden ) = keel_defaults_dep_state( $field, $key );
 						?>
 						<tr<?php echo $dep_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr(). ?><?php echo $dep_hidden ? ' style="display:none;"' : ''; ?>>
-							<th scope="row"><?php echo esc_html( $label ); ?></th>
+							<th scope="row"><?php echo esc_html( $label ); ?>
+							<?php
+							if ( $locked ) {
+								keel_defaults_render_lock_marker(); }
+							?>
+							</th>
 							<td>
 								<?php // The anchor lives in the control cell, not the heading: tests/settings-heading-case.php reads that heading, and an id is not part of a label. ?>
 								<span class="keel-anchor" id="<?php echo esc_attr( keel_defaults_setting_anchor( $key ) ); ?>"></span>

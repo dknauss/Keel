@@ -13,6 +13,36 @@
 ( function () {
 	'use strict';
 
+	// A policy may lock a dependent setting hidden by its controller. Summary
+	// links must still reveal that setting and move keyboard focus to its control.
+	document.querySelectorAll( '.keel-lock-summary a' ).forEach( function ( link ) {
+		link.addEventListener( 'click', function ( event ) {
+			if ( event.ctrlKey || event.metaKey || event.shiftKey || event.altKey ) {
+				return;
+			}
+			var target = document.getElementById( link.hash.slice( 1 ) );
+			var row = target && target.closest( '.keel-dep-item, tr' );
+			if ( ! row ) {
+				return;
+			}
+			row.style.display = '';
+			document.querySelectorAll( '[aria-controls]' ).forEach( function ( controller ) {
+				if ( row.id && controller.getAttribute( 'aria-controls' ).split( ' ' ).indexOf( row.id ) !== -1 ) {
+					controller.setAttribute( 'aria-expanded', 'true' );
+				}
+			} );
+			var control = row.querySelector( '[data-keel-locked]' );
+			if ( control ) {
+				event.preventDefault();
+				window.location.hash = link.hash;
+				target.scrollIntoView();
+				window.requestAnimationFrame( function () {
+					control.focus( { preventScroll: true } );
+				} );
+			}
+		} );
+	} );
+
 	document.querySelectorAll( '[data-keel-locked]' ).forEach( function ( control ) {
 		var initialValue   = control.value;
 		var initialChecked = control.checked;

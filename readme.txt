@@ -139,6 +139,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = Unreleased =
+* Admin: locked settings now carry a lock marker beside their label. A summary links to each locked setting and separates configuration locks from network policy. Links reveal hidden dependent controls and move keyboard focus.
 * Privacy (new default, also on for existing sites): hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable under Protected Search Results; does not change direct links or stored content.
 * Content (new default, also on for existing sites): hide recognizable missing-shortcode markup from readers while keeping enclosed text and editors’ evidence. A paired Site Health report lists recently affected posts and missing tag names, without scanning posts or storing content. Bare bracketed words, examples and REST output stay unchanged. Independently toggleable under Broken Shortcodes.
 * Accessibility: the drop-downs and number fields on the Network Policy screen now have names that screen readers announce. They were read out as unnamed controls.

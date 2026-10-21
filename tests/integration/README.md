@@ -2,6 +2,11 @@
 
 Several scripts, asking different questions.
 
+**`settings-lock-ux.mjs`** — Playwright/axe regression pass on a disposable Studio
+network. Checks lock summaries, keyboard navigation to hidden dependents, slider
+locks, accessibility and reflow. Fixture and commands are in the
+[verification record](../../docs/review/settings-lock-ux-2026-10-20.md).
+
 **`protected-search.php`** — run with `wp eval-file` on a disposable site with Keel
 active. Creates and removes fixture posts/users; exercises actual query SQL,
 pagination, roles, custom meta-cap grants/denials and password-access filters/cookies.
