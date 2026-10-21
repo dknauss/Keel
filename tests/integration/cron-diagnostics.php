@@ -109,12 +109,20 @@ try {
 	}
 	update_option( 'cron', $keel_cron_original );
 	if ( false === $keel_cron_offers ) {
-		delete_site_transient( 'update_core' ); } else {
-		set_site_transient( 'update_core', $keel_cron_offers ); }
-		if ( false === $keel_cron_failure ) {
-			delete_site_option( 'auto_core_update_failed' ); } else {
-				update_site_option( 'auto_core_update_failed', $keel_cron_failure ); }
-			delete_transient( 'keel_cron_report' );
-			delete_option( 'keel_autoload_scan_lock' );
-			wp_set_current_user( $keel_cron_user );
+		delete_site_transient( 'update_core' );
+	} else {
+		set_site_transient( 'update_core', $keel_cron_offers );
+	}
+	if ( false === $keel_cron_failure ) {
+		delete_site_option( 'auto_core_update_failed' );
+	} else {
+		update_site_option( 'auto_core_update_failed', $keel_cron_failure );
+	}
+	if ( isset( $args[0] ) && 'capture' === $args[0] ) {
+		set_transient( 'keel_cron_report', $state, 3600 );
+	} else {
+		delete_transient( 'keel_cron_report' );
+	}
+	delete_option( 'keel_autoload_scan_lock' );
+	wp_set_current_user( $keel_cron_user );
 }

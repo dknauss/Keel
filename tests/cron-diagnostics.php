@@ -93,6 +93,7 @@ function set_transient( $key, $value, $ttl ) { $GLOBALS['cron_cache'][ get_curre
 function wp_using_ext_object_cache() { return false; }
 function wp_cache_delete( ...$args ) {}
 function current_user_can( $cap ) { return $GLOBALS['cron_cap']; }
+function esc_attr( $text ) { return esc_html( $text ); }
 function esc_html( $text ) { return htmlspecialchars( (string) $text, ENT_QUOTES ); }
 function esc_html__( $text, $domain = '' ) { return esc_html( $text ); }
 function keel_defaults_autoload_lock() { return 'token:' . ( time() + 30 ); }

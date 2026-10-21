@@ -18,7 +18,7 @@ function keel_defaults_cron_table( $rows, $caption ) {
 	if ( empty( $rows ) ) {
 		return '';
 	}
-	$html = '<table class="widefat striped" style="table-layout:fixed"><caption>' . esc_html( $caption ) . '</caption><thead><tr>';
+	$html = '<div role="region" tabindex="0" aria-label="' . esc_attr( $caption ) . '" style="max-width:100%;overflow-x:auto"><table class="widefat striped" style="table-layout:fixed;min-width:640px"><caption>' . esc_html( $caption ) . '</caption><thead><tr>';
 	foreach ( array( __( 'Hook', 'keel-defaults' ), __( 'Schedule / interval (seconds)', 'keel-defaults' ), __( 'Late by (seconds)', 'keel-defaults' ), __( 'Probable owner and confidence', 'keel-defaults' ) ) as $heading ) {
 		$html .= '<th scope="col">' . esc_html( $heading ) . '</th>';
 	}
@@ -32,7 +32,7 @@ function keel_defaults_cron_table( $rows, $caption ) {
 		);
 		$html      .= '<tr><td style="overflow-wrap:anywhere"><code>' . esc_html( $row['hook'] ) . '</code></td><td style="overflow-wrap:anywhere">' . esc_html( $row['schedule'] ) . ' / ' . (int) $row['interval'] . '</td><td>' . (int) $row['delay'] . '</td><td style="overflow-wrap:anywhere">' . esc_html( $owner['owner'] ) . ' — ' . esc_html( $confidence[ $owner['confidence'] ] ) . ': ' . esc_html( $owner['evidence'] ) . '</td></tr>';
 	}
-	return $html . '</tbody></table>';
+	return $html . '</tbody></table></div>';
 }
 
 /**

@@ -278,12 +278,12 @@ function keel_defaults_cron_collect() {
 			// Never instantiate classes from serialized event arguments.
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize, WordPress.PHP.NoSilencedErrors.Discouraged -- core cron format, bounded payload, classes disabled.
 			$cron = is_string( $row['payload'] ) ? @unserialize(
-					$row['payload'],
-					array(
-						'allowed_classes' => false,
-						'max_depth'       => 32,
-					)
-				) : false;
+				$row['payload'],
+				array(
+					'allowed_classes' => false,
+					'max_depth'       => 32,
+				)
+			) : false;
 			if ( ! is_array( $cron ) ) {
 				$state['error'] = 'malformed_cron';
 			} else {

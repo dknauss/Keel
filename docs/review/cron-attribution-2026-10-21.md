@@ -65,3 +65,28 @@ jobs, autoload flags, update offers or update policy are changed.
 - Full standalone suite, WPCS, PHP compatibility, existing PHPStan scope and its
   negative contracts pass locally. PHPStan's selected-path scope remains unchanged.
 - Browser, package, Plugin Check and live matrix evidence follows after completion.
+
+## Browser and first matrix results
+
+Browser fixture capture: [desktop](cron-attribution-2026-10-21.png),
+[mobile](cron-attribution-mobile-2026-10-21.png). Authenticated valid-nonce AJAX
+returned 200, invalid nonce 403, unauthenticated request 400; no metadata was
+returned for denied requests. Axe reported zero violations in the report panel.
+Desktop and 390px mobile panels had no horizontal overflow. Tables scroll within
+named keyboard-focusable regions on narrow screens, preserving readable columns.
+The screenshots use the integration fixture (explicitly synthetic hook/failure),
+whose underlying cron and network update state is restored after collection.
+
+[First live MySQL matrix](https://github.com/dknauss/Keel/actions/runs/39657894701)
+passed all six rows: WP 6.4/PHP 7.4 floor, French, Redis-backed multisite and the
+existing backward/forward update-installer checks. It exercised the new real SQL,
+oversized exclusion, external-cron configuration and second-site isolation.
+The subsequent changes correct formatting, add optional fixture capture and make
+tables scroll on narrow screens. A final-head matrix is run after those changes.
+
+Independent review found one hook/option attribution mismatch, fixed by accepting
+only low-confidence plugin-prefix matches from the shared option helper. Regression
+coverage verifies that an option name cannot acquire a high-confidence hook owner.
+No important findings remained in the final review. Plugin Check 2.1.0 on the built
+package reported zero errors and the same two reviewed 0.7.0 warnings; no new
+cron-module finding. The normal PHPStan selected-path scope remains unchanged.
