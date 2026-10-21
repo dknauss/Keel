@@ -164,6 +164,9 @@ jobs:
       - name: Autoload attribution database contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/autoload-diagnostics.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Cron and update attribution database contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/cron-diagnostics.php" --path=/tmp/keel-wp --allow-root
+
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 

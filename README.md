@@ -95,3 +95,12 @@ and probable owners with confidence and evidence. It collects names and sizes in
 cached background batches, never values. Partial scans are labelled explicitly;
 size alone does not prove waste. The report never deletes options or changes their
 autoload flags. See the [limits and verification](docs/review/autoload-attribution-2026-10-21.md).
+
+### Cron pressure and update delivery (unreleased)
+
+Site Health adds cached observations of overdue and frequent stored cron events,
+probable owners with explicit confidence, core offer-cache age and retained
+core-update failure codes. Event arguments and error data never enter the report.
+External scheduling, missing timestamps and incomplete coverage remain explicit;
+no jobs, schedules or update policy are changed and no installation time is promised.
+See the [limits and verification](docs/review/cron-attribution-2026-10-21.md).

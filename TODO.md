@@ -301,7 +301,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   - Make collection asynchronous, cached, bounded and multisite-aware.
    Implementation and limits: [verification record](docs/review/autoload-attribution-2026-10-21.md).
 
-- [ ] **Attribute cron pressure and update-delivery delays**
+- [x] **Attribute cron pressure and update-delivery delays**
   - Report overdue and unusually frequent hooks, schedules and probable owners.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.

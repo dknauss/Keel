@@ -170,7 +170,7 @@ administrator can safely inspect next.
    certain, delete an option, or claim that size alone proves waste.
    Implementation and limits: [verification record](docs/review/autoload-attribution-2026-10-21.md).
 
-- [ ] **Attribute cron pressure and update-delivery delays** — identify overdue and
+- [x] **Attribute cron pressure and update-delivery delays** — identify overdue and
    unusually frequent hooks, their schedules and probable owners, then connect the
    core-update subset to offer-cache age, the next scheduled check and the last known
    failure. Do not treat `DISABLE_WP_CRON` as failure when an external scheduler may
