@@ -7,24 +7,23 @@ The original scope document, `pixel-lite-scope.md`, was kept outside this reposi
 is retired: it was no longer on the maintainer's machine when looked for on 2026-10-13.
 This file and ROADMAP.md are the only record of scope.
 
-## Now — prepare 0.8.0 for review
+## Now — observe 0.8.0 in the field
 
-Keel 0.7.0 is published on GitHub and WordPress.org (verified 2026-10-21).
+Keel 0.8.0 is published on GitHub and WordPress.org (verified 2026-10-21).
 The protected WordPress.org dry run passed before publication. SVN revision is
-3758838; both public packages, the default download and all listing assets match
+3759061; both public packages, the default download and all listing assets match
 the tagged sources. See the
-[verification record](docs/review/release-verification-2026-10-20.md).
+[verification record](docs/review/release-verification-0.8.0-2026-10-21.md).
 
 - [x] **Prepare the 0.6.9 candidate** — version metadata, cache-busting constant,
       changelog and upgrade notice synchronized; no new defaults or PHP floor change.
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused work:** review the 0.8.0 release candidate after its final checks.
-  Autoload and cron/update attribution are implemented in #287 and #288. Saved
-  settings, the 42-setting schema and version floors are unchanged. Do not tag
-  or publish before the release PR is reviewed. The maintainer's WordPress.com
-  settings-save confirmation remains open; routine PHPStan expansion stays paused.
+- **Next focused work:** observe the autoload and cron/update attribution reports
+  in the field. Saved settings, the 42-setting schema and version floors are
+  unchanged. The maintainer's WordPress.com settings-save confirmation remains
+  open; routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -294,10 +293,11 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     reported nothing, because a successful install removes the panel that would have
     shown the result. Fixed in the same release.
 
-## 0.8.0 performance observability — release candidate
+## 0.8.0 performance observability — released
 
 - [x] **Prepare 0.8.0** — version metadata, changelog and upgrade notice finalized.
-- [ ] **Review release PR, tag and publish** — final evidence in the
+- [x] **Review release PR, tag and publish** — #289 and #290 merged; v0.8.0 tagged,
+  dry run passed, GitHub release published and SVN revision 3759061 verified in the
   [verification record](docs/review/release-verification-0.8.0-2026-10-21.md).
 
 - [x] **Attribute oversized autoloaded options**

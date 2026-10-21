@@ -1,7 +1,7 @@
-# Keel 0.8.0 release candidate — 2026-10-21
+# Keel 0.8.0 verification — candidate and publication, 2026-10-21
 
-Candidate preparation only. No v0.8.0 tag, GitHub release, WordPress.org upload
-or SVN commit has been made.
+The candidate preparation below preceded publication. The completed publication
+and artifact checks are recorded in the follow-up at the end.
 
 ## Scope
 
@@ -23,7 +23,7 @@ or new default is introduced.
 
 Results are recorded below as checks finish. Validation is not bypassed.
 
-## Publication sequence
+## Planned publication sequence (candidate checkpoint)
 
 Review and merge the release PR after its checks pass. Recheck the counterpart
 sweep. Before an authorized tag push, create a GitHub draft release for that tag
@@ -83,6 +83,7 @@ SECURITY are present. Tests, docs, dependencies and listing assets are excluded.
 
 SHA-256: `96412ab1b5e3cee5cba20832ed31e3b093cdeda8d08e72ed29a61728c81bc669`.
 This checksum identifies the local candidate artifact, not a published download.
+It predates #290 (SECURITY.md wording); the published checksums are recorded below.
 
 Independent release review found the missing draft-hold step in the publication
 sequence; it is corrected above. The final review has no outstanding findings.
@@ -119,3 +120,66 @@ and review summaries were empty when checked; independent review is clear.
 Release preparation is complete. The release PR still requires review and merge;
 no tag, GitHub publication, WordPress.org upload or SVN commit was performed.
 The tagged protected deployment rehearsal remains a publication gate.
+
+## Publication and artifact verification — 2026-10-21
+
+[Release PR #289](https://github.com/dknauss/Keel/pull/289) merged as
+`a44bcb9`. A final packaging check then found the shipped `SECURITY.md` still
+called 0.8.0 an unpublished candidate;
+[#290](https://github.com/dknauss/Keel/pull/290) removed that wording and merged
+as `3681221232d0db193241ce8330c6a9fdeb1181e2` with green PR CI and no review
+comments. [Merged-main CI](https://github.com/dknauss/Keel/actions/runs/39662947104)
+passed on that commit. The annotated `v0.8.0` tag points at it.
+
+### Publication order
+
+1. Created the GitHub release as a draft before tagging, then pinned its target
+   to `3681221` so publishing the draft could not tag a later `main`. Pushed
+   `v0.8.0`. The [tag-triggered workflow](https://github.com/dknauss/Keel/actions/runs/39663749966)
+   reran every CI gate, built the ZIP and uploaded it into the unpublished draft.
+2. That workflow's own deploy job then waited at the protected `wordpress-org`
+   environment. It shares the per-tag deploy concurrency group, so a dry run
+   dispatched behind it could not start. The waiting deployment was **rejected,
+   not approved**: it ran zero steps, so GitHub records the run as failed while
+   its release job succeeded. Nothing reached WordPress.org from it.
+3. The protected [WordPress.org dry run](https://github.com/dknauss/Keel/actions/runs/39665779673)
+   was dispatched from `v0.8.0` with `dry_run=true` and approved separately. Its
+   log records `DRY_RUN: true`, confirms **0.8.0 was not yet in SVN**, rehearsed the
+   full trunk copy, adds, tag copy and asset staging, and reported "Dry run: Files
+   not committed." As with every SVN rehearsal, it could not prove the commit
+   credential.
+4. Downloaded the draft ZIP; a local rebuild from the tag decompresses to the same
+   45 files byte-for-byte. Generated and uploaded `SHA256SUMS` from that ZIP.
+   Published the [GitHub release](https://github.com/dknauss/Keel/releases/tag/v0.8.0)
+   as Latest at **14:14 MDT** (20:14:09 UTC), after the dry run passed.
+5. Dispatched the real [WordPress.org deployment](https://github.com/dknauss/Keel/actions/runs/39673063116)
+   from `v0.8.0` with `dry_run=false`; the maintainer approved its gate. The log
+   records `DRY_RUN: false` and committed **WordPress.org SVN revision 3759061**,
+   which also proves the SVN credential.
+
+### Published artifacts
+
+The GitHub ZIP and checksum were downloaded again through the release;
+`shasum -a 256 -c SHA256SUMS` passes and GitHub's asset digest agrees. WordPress.org's
+versioned ZIP and the unversioned `keel-defaults.zip` were also fetched. All three
+contain exactly **45 files** with identical decompressed paths and bytes; archive
+hash differences are packaging differences, not runtime differences.
+
+| Public artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| GitHub `keel.zip` | 253973 | `71e11a171874b9a0747cad7ebafec4b89b403191bbfa6958907dfeee4520ed16` |
+| WordPress.org `keel-defaults.0.8.0.zip` | 251321 | `48ed51c264b17991d10ac70180b28a426b439ac8a2638a00684cdeec960f49ad` |
+| WordPress.org default `keel-defaults.zip` | 251321 | `48ed51c264b17991d10ac70180b28a426b439ac8a2638a00684cdeec960f49ad` |
+
+The WordPress.org API reports **0.8.0**, WordPress minimum **6.4**, PHP minimum
+**7.4** and tested **7.1.3** (the source readme declares the 7.1 branch).
+
+SVN `trunk` and `tags/0.8.0` plugin headers and readmes match the tagged source.
+All **11 deployed assets** match byte-for-byte: five screenshots, two banners,
+three icons and `assets/blueprints/blueprint.json`. This is integrity verification,
+not a fresh browser launch of the published preview; the API's `preview_link`
+remains empty, and no Live Preview launch is claimed.
+
+Release complete. Plugin Check's two reviewed warnings remain disclosed above;
+no checks were bypassed. No production WordPress installation was changed by
+artifact verification. Field observation of the two new reports remains separate work.

@@ -156,11 +156,14 @@ plugin. The settings accessibility sweep and both lock improvements are complete
    controls and move keyboard focus. See the
    [verification record](docs/review/settings-lock-ux-2026-10-20.md).
 
-## 0.8.0 performance observability — released
+## 0.8.0 performance observability — released 2026-10-21
 
-Both observability tasks are implemented in #287 and #288. Version metadata,
-changelog and upgrade notice are prepared for 0.8.0; release PR review precedes
-tagging and publication. See the [release checks](docs/review/release-verification-0.8.0-2026-10-21.md).
+0.8.0 is published on GitHub and WordPress.org. Both observability tasks shipped
+from #287 and #288; release PR #289 and the #290 packaging fix merged with green
+CI, and `v0.8.0` points to `3681221`. The protected WordPress.org dry run passed
+before publication; SVN revision is 3759061. Published ZIPs and all listing assets
+match the tagged sources. See the
+[publication verification record](docs/review/release-verification-0.8.0-2026-10-21.md).
 
 WordPress already reports page-cache, persistent-object-cache, opcode-cache,
 scheduled-event and aggregate autoload problems. Keel should not restate those
