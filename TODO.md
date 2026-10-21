@@ -20,12 +20,12 @@ WordPress.org download match all 41 tagged runtime files. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused review:** typography policy and the maintainer's submitted core
-  fixes. Review the [draft plan](docs/plans/typography-policy-review.md) before any
-  typography implementation. Search privacy and paired shortcode cleanup/reporting
-  are merged, pending release. Field observation and the maintainer's WordPress.com
-  settings-save confirmation remain open; routine PHPStan expansion stays paused
-  unless a concrete change warrants it.
+- **Next focused work:** finish candidate verification and review for 0.7.0.
+  The two new defaults and both lock UX improvements are merged. Typography
+  belongs to the separate feature plugin and is outside Keel's scope.
+  Field observation and the maintainer's WordPress.com settings-save confirmation
+  remain open; routine PHPStan expansion stays paused unless a concrete change
+  warrants it.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -183,19 +183,17 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
       No open issue reports a newly introduced 0.6.9 defect at this review; that is
       not evidence that unreported regressions are impossible.
 
-## Next — 0.7.0 privacy and content integrity
+## 0.7.0 privacy and content integrity — release candidate
 
-- [ ] **Release 0.7.0** — held until the 0.7.0 list below is done (decided 2026-10-19).
-  Both new settings default to on, and an update applies them to every site that has
-  not saved a value for them, so the upgrade notice must say so. Staged text
-  (289 characters; the directory truncates over 300). It goes under `= 0.7.0 =` at the
-  top of the Upgrade Notice when the version is bumped:
-
-  > Two new settings are on by default, including on sites that update. Protected Search Results keeps password-protected posts out of searches by people who cannot open them. Broken Shortcodes hides leftover shortcode tags from readers. Content is unchanged; turn either off in Site Defaults.
-
-  All five screenshots were retaken and reviewed in #283 on 2026-10-19, including
-  the two new settings. Re-run `composer verify:screenshots` after any further UI
-  changes and before tagging.
+- [x] **Prepare the 0.7.0 candidate** — version metadata and asset cache-buster,
+  changelog and upgrade notice synchronized. Both new default-on settings are
+  called out for existing sites; the notice is under the directory's 300-character
+  limit. Both remaining lock UX items are complete and #284 is merged.
+- [ ] **Release 0.7.0** — final verification and release PR review, then merge
+  before tagging. No tag or publication yet. See the
+  [candidate verification record](docs/review/release-verification-2026-10-20.md).
+  All five screenshots have been reviewed; screenshots 4 and 5 were retaken in
+  #284. Re-run `composer verify:screenshots` before tagging.
 
 - [x] **Keep password-protected posts out of site search**
   - Exclude protected search results for logged-in users without per-post editing

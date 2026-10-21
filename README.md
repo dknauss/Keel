@@ -6,7 +6,7 @@
 
 **A clear, maintainable baseline for secure WordPress sites.** Keel provides over 40 (currently 42) independent defaults for security, updates, privacy, content, email, media, and wp-admin. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
 
-**Current version: `0.6.9`.**
+**Current version: `0.7.0`.**
 
 ## Try it first
 

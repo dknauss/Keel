@@ -20,6 +20,12 @@ features and the matrix scores them separately.
 
 ## Method
 
+**0.7.0 release preparation (2026-10-20):** the Keel version labels below track
+this candidate, but the competitor comparison has not been re-measured. Existing
+staleness disclosures still apply. The new search/shortcode defaults and settings
+lock UX are verified separately in the release record; those checks are not a
+fresh run of this competitive matrix. Do not cite the old results as 0.7.0 measurements.
+
 - **Lab:** a throwaway WordPress 7.0.2 install (SQLite, PHP 8.5, `php -S`), block
   theme, one seeded comment on post 1, pretty permalinks, `ping_status=open`.
   Keel was additionally re-measured on a **classic** theme (Twenty Twenty-One) —
@@ -236,7 +242,7 @@ Probed on the 7.0.2 lab.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.6.9 | — | live |
+| **Keel** 0.7.0 | — | legacy results; see Method |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
@@ -258,7 +264,7 @@ the day of the run.
 | [Disable WordPress Update Notifications](https://wordpress.org/plugins/disable-update-notifications/) 2.4.3 | 10,000+ | live |
 | [WP Auto Updater](https://wordpress.org/plugins/wp-auto-updater/) 1.7.4 | 7,000+ | live |
 | [Update Control](https://wordpress.org/plugins/update-control/) 1.5.1 | 4,000+ | live |
-| **Keel** 0.6.9 | — | live |
+| **Keel** 0.7.0 | — | legacy results; see Method |
 
 **[WP Rollback](https://wordpress.org/plugins/wp-rollback/) (300,000+) is not in
 this field**, and it is the first name anyone will look for. It rolls back

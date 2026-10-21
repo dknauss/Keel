@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.6.9
+Stable tag: 0.7.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -138,10 +138,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
-= Unreleased =
-* Admin: locked settings now carry a lock marker beside their label. A summary links to each locked setting and separates configuration locks from network policy. Links reveal hidden dependent controls and move keyboard focus.
+= 0.7.0 =
 * Privacy (new default, also on for existing sites): hide password-protected posts from non-admin searches without access, while preserving per-post editing capabilities and unlocked-password access. Independently toggleable under Protected Search Results; does not change direct links or stored content.
 * Content (new default, also on for existing sites): hide recognizable missing-shortcode markup from readers while keeping enclosed text and editors’ evidence. A paired Site Health report lists recently affected posts and missing tag names, without scanning posts or storing content. Bare bracketed words, examples and REST output stay unchanged. Independently toggleable under Broken Shortcodes.
+* Admin: locked settings now carry a lock marker beside their label. A summary links to each locked setting and separates configuration locks from network policy. Links reveal hidden dependent controls and move keyboard focus.
 * Accessibility: the drop-downs and number fields on the Network Policy screen now have names that screen readers announce. They were read out as unnamed controls.
 
 Versions before 0.5.9 were not published to the directory. Their entries, the development history that led to the first release, are in `changelog.txt` in the plugin's repository: [https://github.com/dknauss/keel/blob/main/changelog.txt](https://github.com/dknauss/keel/blob/main/changelog.txt).
@@ -242,6 +242,9 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 == Upgrade Notice ==
+
+= 0.7.0 =
+Two new settings are on by default, including on sites that update. Protected Search Results keeps password-protected posts out of searches by people who cannot open them. Broken Shortcodes hides leftover shortcode tags from readers. Stored content is unchanged; turn either off in Site Defaults.
 
 = 0.6.9 =
 Fixes symlink-related conflict reports, reduces repeated diagnostic work, and clarifies core-update notices. Internal refactors preserve settings and saved preferences. No new settings; PHP 7.4 remains supported.
