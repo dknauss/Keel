@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.8.0` (release candidate; not yet published)**. Keel was first published on wordpress.org as
+**Current version: `0.8.0`**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -87,8 +87,8 @@ in [the verification record](docs/review/release-verification-2026-10-15.md), al
 with publication evidence. Plugin Check has no errors; its intentional updater
 warning remains documented. The released 40-setting schema and PHP 7.4 floor are preserved.
 
-The development tree adds search privacy and paired shortcode cleanup/Site Health
-reporting (42 defaults); both are merged and neither is released yet. The
+0.7.0 then added search privacy and paired shortcode cleanup/Site Health
+reporting (42 defaults). The
 subsequent 0.7.0 scope decision, accessibility work and release preparation are
 recorded below. Continue field observation separately.
 
@@ -156,11 +156,14 @@ plugin. The settings accessibility sweep and both lock improvements are complete
    controls and move keyboard focus. See the
    [verification record](docs/review/settings-lock-ux-2026-10-20.md).
 
-## 0.8.0 performance observability — release candidate
+## 0.8.0 performance observability — released 2026-10-21
 
-Both observability tasks are implemented in #287 and #288. Version metadata,
-changelog and upgrade notice are prepared for 0.8.0; release PR review precedes
-tagging and publication. See the [release checks](docs/review/release-verification-0.8.0-2026-10-21.md).
+0.8.0 is published on GitHub and WordPress.org. Both observability tasks shipped
+from #287 and #288; release PR #289 and the #290 packaging fix merged with green
+CI, and `v0.8.0` points to `3681221`. The protected WordPress.org dry run passed
+before publication; SVN revision is 3759061. Published ZIPs and all listing assets
+match the tagged sources. See the
+[publication verification record](docs/review/release-verification-0.8.0-2026-10-21.md).
 
 WordPress already reports page-cache, persistent-object-cache, opcode-cache,
 scheduled-event and aggregate autoload problems. Keel should not restate those
