@@ -56,8 +56,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** plugin/theme auto-update policies and decision reporting.
-  The core delivery timeline is merged in #294 and unreleased. The development
+- **Current focused work:** sanitized posture export for support.
+  The core delivery timeline (#294) and extension policies (#295) are merged and unreleased. The development
   tree has 44 independent defaults. Both new policies default to Leave unchanged;
   no version bump or release.
 
@@ -185,8 +185,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
    failure evidence into one view. Durable success history remains unknown; no
    result collector is added. Reuse core's answers and Keel's stable
    blocker codes; do not infer a guaranteed schedule from policy alone.
-- [x] **Toggle plugin and theme auto-updates** — implemented on the development
-   branch, pending PR review; unreleased. Three states, `enabled`, `disabled`
+- [x] **Toggle plugin and theme auto-updates** — merged in #295 and unreleased. Three states, `enabled`, `disabled`
    and `unset`, applied through the `auto_update_plugin` and `auto_update_theme`
    filters. `unset` is the default and must stay it: the per-item checkboxes on the
    Plugins screen are a deliberate choice, and a defaults plugin silently overriding
@@ -203,25 +202,22 @@ installs. Site Health must not become the performance problem it is diagnosing.
    plugins, and it would fail selectively — auto-installing precisely the breaking
    releases whose authors do not use semver.
 
-   Report instead of guessing: how many items have auto-updates on, whether the
-   option or a filter is deciding, and **which items a filter is overriding**, which
-   nothing surfaces today. If risk-tiering is wanted later, the honest inputs are a
+   The new Updates-screen report shows enabled decisions, whether filters changed
+   the baseline, and which items those filters override. If risk-tiering is wanted later, the honest inputs are a
    moved `requires`/`requires_php` or the author's own `upgrade_notice`, not the
    version number.
-- [ ] **Export a sanitized Keel posture report** — make settings, effective state,
+- [x] **Export a sanitized Keel posture report** — implemented on the development
+  branch, pending PR review; unreleased. Make settings, effective state,
    conflicts, update operability and diagnostic evidence easy to share for support.
    Exclude secrets, option values, user data and unnecessary site identifiers.
 
-   Prior art: [VerCheck API](https://wordpress.org/plugins/vercheck-api/) and
-   [Updawa](https://wordpress.org/plugins/updawa/) both serve this inventory over
-   bearer-token REST rather than as an export — the genre is settled, and neither has
-   found an audience yet (20 and 0 installs). Worth reading for payload shape, and
-   worth departing from twice. It reports that an update exists;
-   Keel can report that a version is *known vulnerable*, which is the distinction
-   0.6.0 was built on. And a complete list of installed plugins and versions is
-   reconnaissance material — it sits against Keel's own `remove_version` default and
-   its anonymous-REST gate, so any such surface must be authenticated, opt-in, and
-   argued for rather than assumed useful.
+   The first implementation is an administrator-triggered JSON download, with
+   network-management authority required on multisite. It exports validated policy
+   choices, lock-source categories, cached core vulnerability status and numeric
+   diagnostic summaries. Free-form values, identifiers, inventories and payloads
+   are withheld. No probes or refreshes run: full operability and unmeasured cache
+   freshness remain unknown. See the
+   [verification record](docs/review/posture-export-2026-10-21.md).
 
 ## Later
 

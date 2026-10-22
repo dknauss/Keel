@@ -93,6 +93,7 @@ require_once __DIR__ . '/includes/conflicts.php';
 require_once __DIR__ . '/includes/site-health.php';
 require_once __DIR__ . '/includes/autoload-diagnostics.php';
 require_once __DIR__ . '/includes/cron-diagnostics.php';
+require_once __DIR__ . '/includes/posture-export.php';
 require_once __DIR__ . '/includes/update-timeline.php';
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/settings-controls.php';

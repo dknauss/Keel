@@ -56,6 +56,7 @@ function apply_filters( $hook, $value ) {
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function is_main_site() { return true; }
+function get_current_blog_id() { return 1; }
 function is_multisite() {
 	return ! empty( $GLOBALS['keel_test_multisite'] ); }
 function get_site_option( $key, $default = false ) {

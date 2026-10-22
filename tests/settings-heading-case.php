@@ -56,11 +56,13 @@ function apply_filters( $hook, $value ) {
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function is_main_site() { return true; }
+function get_current_blog_id() { return 1; }
 function is_multisite() {
 	return false; }
 function current_user_can( $cap ) {
 	return true; }
 function settings_fields( $g ) {}
+function wp_nonce_field( ...$args ) {}
 function submit_button( ...$a ) {}
 function checked( $a, $b = true, $echo = true ) {
 	return ( (string) $a === (string) $b ) ? ' checked' : ''; }

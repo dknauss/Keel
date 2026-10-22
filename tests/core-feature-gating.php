@@ -76,6 +76,7 @@ function apply_filters( $hook, $value ) {
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function is_main_site() { return true; }
+function get_current_blog_id() { return 1; }
 function is_multisite() {
 	return ! empty( $GLOBALS['keel_is_multisite'] ); }
 // Multisite doubles. Absent until now because the harness never took that path,

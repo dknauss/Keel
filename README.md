@@ -8,6 +8,8 @@
 
 **Current version: `0.8.0`.**
 
+An administrator can download a sanitized JSON posture report from Site Defaults for support. It contains validated policy choices and cached summaries, with unknown evidence marked explicitly. It omits site/user identifiers, raw option records, callback paths and full plugin/theme inventories. On multisite, export requires network-management authority.
+
 ## Try it first
 
 No install or hosting required: WordPress Playground opens a disposable WordPress site with Keel enabled and a sample post ready to inspect.
