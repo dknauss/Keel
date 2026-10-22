@@ -70,3 +70,12 @@ results can vary with context. It reports policy, never installation guarantees.
 The WordPress.org listing screenshots were not re-recorded as a release review;
 there is no release in this change. The next release pass should review them
 against the two additional controls and report.
+
+All six [live matrix jobs](https://github.com/dknauss/Keel/actions/runs/39699264892)
+passed on `1321acb`, including the PHP 7.4 / WordPress 6.4 floor, French locale,
+persistent-cache multisite and the existing real backward/forward installer flows.
+PR CI passed across PHP 7.4–8.5. The initial matrix probe incorrectly expected an
+explicit Enabled policy to bypass the globally disabled updater in four fixtures;
+the runtime correctly preserved core's decision. The probe now asserts both locked
+and operable expectations. Both variants also passed separately in the local lab.
+This final follow-up only records evidence; runtime and test sources are unchanged.
