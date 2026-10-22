@@ -147,6 +147,7 @@ function update_site_option( $key, $value ) {
  *
  * @return bool
  */
+function is_main_site() { return true; }
 function is_multisite() {
 	return (bool) $GLOBALS['keel_is_multisite'];
 }

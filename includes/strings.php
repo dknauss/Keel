@@ -102,10 +102,28 @@ function keel_defaults_strings() {
 				'inherit' => __( 'Leave unchanged (WordPress, host, or another plugin decides)', 'keel-defaults' ),
 			),
 		),
+		'plugin_auto_update_policy'       => array(
+			'label'   => __( 'Plugin Auto-Updates', 'keel-defaults' ),
+			'help'    => __( 'Applies to all eligible code updates, without a minor-only channel. Leave unchanged preserves WordPress’s per-item choices and other filters. Enabled or Disabled overrides those choices at Keel’s filter priority; later filters may still decide differently. Stored per-item choices are never rewritten. On multisite, network policy wins; otherwise the main site’s setting decides for the shared files. Global update restrictions still apply. Review effective decisions on the Updates screen.', 'keel-defaults' ),
+			'choices' => array(
+				'enabled'  => __( 'Enabled', 'keel-defaults' ),
+				'disabled' => __( 'Disabled', 'keel-defaults' ),
+				'unset'    => __( 'Leave unchanged (WordPress per-item choices and other filters decide)', 'keel-defaults' ),
+			),
+		),
+		'theme_auto_update_policy'        => array(
+			'label'   => __( 'Theme Auto-Updates', 'keel-defaults' ),
+			'help'    => __( 'Applies to all eligible code updates, without a minor-only channel. Leave unchanged preserves WordPress’s per-item choices and other filters. Enabled or Disabled overrides those choices at Keel’s filter priority; later filters may still decide differently. Stored per-item choices are never rewritten. On multisite, network policy wins; otherwise the main site’s setting decides for the shared files. Global update restrictions still apply. Review effective decisions on the Updates screen.', 'keel-defaults' ),
+			'choices' => array(
+				'enabled'  => __( 'Enabled', 'keel-defaults' ),
+				'disabled' => __( 'Disabled', 'keel-defaults' ),
+				'unset'    => __( 'Leave unchanged (WordPress per-item choices and other filters decide)', 'keel-defaults' ),
+			),
+		),
 		'auto_update_translations'        => array(
 			'label'     => __( 'Translations', 'keel-defaults' ),
 			'statement' => __( 'Automatically update translation files', 'keel-defaults' ),
-			'help'      => __( 'Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress\'s individual per-item choices.', 'keel-defaults' ),
+			'help'      => __( 'Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates use the separate policies above; Leave unchanged preserves WordPress’s per-item choices.', 'keel-defaults' ),
 		),
 		'disable_comments'                => array(
 			'label'     => __( 'Comments', 'keel-defaults' ),

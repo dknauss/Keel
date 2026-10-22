@@ -102,6 +102,7 @@ function esc_url( $url ) {
 function admin_url( $path = '' ) {
 	return 'https://example.test/wp-admin/' . $path;
 }
+function is_main_site() { return true; }
 function is_multisite() {
 	return false;
 }

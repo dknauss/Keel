@@ -1054,6 +1054,27 @@ References:
 - [`Core_Upgrader::should_update_to_version()`](https://developer.wordpress.org/reference/classes/core_upgrader/should_update_to_version/)
 - [Supported WordPress versions](https://wordpress.org/documentation/article/supported-versions/)
 
+### Plugin and theme auto-updates
+
+*(`plugin_auto_update_policy`, `theme_auto_update_policy`; both default `unset`)*
+
+Separate Enabled, Disabled and Leave unchanged controls use `auto_update_plugin`
+and `auto_update_theme` at priority 10. Leave unchanged passes the incoming value
+through, including core’s null sentinel, and preserves existing per-item choices.
+Explicit policies apply to all eligible code updates; there is no reliable minor-only
+channel. Later filters can still override Keel. No per-item options are rewritten.
+
+On multisite these shared files use network policy, falling back to the main site's
+setting. Subsite controls show that effective policy and are locked. Configuration
+constants disabling background updates lock the controls and take precedence; core
+filesystem, compatibility and scheduling gates still apply.
+
+The Updates screen reports policy decisions for up to 200 installed items of each
+type using cached metadata. Missing metadata stays unknown. It counts enabled and
+filter-changed decisions and lists up to ten changed item IDs, without attributing
+a filter to a component or promising installation. Matching the baseline does not
+prove no filter enforces it. Reports require update and network-management permissions.
+
 ### Automatically update translations
 
 *(`auto_update_translations`, default `yes`)*
@@ -1065,8 +1086,8 @@ setting off explicitly refuses translation auto-updates.
 add_filter( 'auto_update_translation', '__return_true' );
 ```
 
-Plugin and theme **code** updates are intentionally left to WordPress's individual per-item
-choices. The plugin ecosystem has no enforceable semantic-versioning or security-release
+Plugin and theme **code** updates use the controls above; their Leave unchanged
+default preserves WordPress’s individual per-item choices. The plugin ecosystem has no enforceable semantic-versioning or security-release
 metadata, so a generic defaults plugin cannot safely infer that `2.4` is harmless while `3.0`
 is risky. Agencies can maintain a reviewed allowlist in their fleet-management tooling.
 
@@ -1299,6 +1320,8 @@ covering only some, which reads as a full inventory when it is not.
 | Frame Options | `frame_options` | `SAMEORIGIN` | Security |
 | AI Connectors | `disable_ai_connectors` | `yes` | Security |
 | Core Auto-Updates | `core_update_policy` | `minor` | Updates |
+| Plugin Auto-Updates | `plugin_auto_update_policy` | `unset` | Updates |
+| Theme Auto-Updates | `theme_auto_update_policy` | `unset` | Updates |
 | Translations | `auto_update_translations` | `yes` | Updates |
 | Comments | `disable_comments` | `yes` | Content |
 | Pingbacks On New Posts | `disable_pingbacks` | `yes` | Content |

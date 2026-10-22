@@ -9,11 +9,11 @@ Stable tag: 0.8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-42 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
+44 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
 
 == Description ==
 
-A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 42 defaults on one screen, in plain language, where you can change any of them.
+A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 44 defaults on one screen, in plain language, where you can change any of them.
 
 **[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already switched on. No hosting, installation, or account required.
 
@@ -102,7 +102,7 @@ Usually, yes, but choose one plugin to own any particular setting. Keel helps by
 
 = Does Keel control plugin and theme auto-updates? =
 
-No. Keel's update settings cover WordPress itself and translations only. Plugin and theme auto-updates stay under WordPress's own controls; on a network, that is the Automatic Updates column under **Network Admin → Plugins**.
+Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave unchanged. Both default to Leave unchanged, preserving WordPress's per-item choices and other filters. Explicit choices do not rewrite those per-item settings; later filters and global update restrictions still apply. There is no minor-only channel for plugin or theme releases. On multisite, network policy wins, otherwise the main site's Keel setting decides for the shared files. The Updates screen reports cached filter decisions, not installation guarantees.
 
 = Why is there no password strength meter? =
 

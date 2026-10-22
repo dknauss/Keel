@@ -55,6 +55,7 @@ function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value; }
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
+function is_main_site() { return true; }
 function is_multisite() {
 	return ! empty( $GLOBALS['keel_test_multisite'] ); }
 function get_site_option( $key, $default = false ) {
@@ -343,8 +344,8 @@ define( 'DISALLOW_FILE_MODS', true );
 $locked_html = keel_render( array() );
 
 keel_assert( false === strpos( $stock, 'class="keel-lock-summary"' ), 'An unlocked site has no lock summary.' );
-keel_assert( 2 === substr_count( $locked_html, 'class="keel-lock-marker"' ), 'Both configuration-locked rows carry a visible marker.' );
-keel_assert( false !== strpos( $locked_html, 'Locked by wp-config.php (2)' ), 'The summary counts configuration locks.' );
+keel_assert( 4 === substr_count( $locked_html, 'class="keel-lock-marker"' ), 'All four update-policy configuration locks carry visible markers.' );
+keel_assert( false !== strpos( $locked_html, 'Locked by wp-config.php (4)' ), 'The summary counts configuration locks.' );
 keel_assert( false !== strpos( $locked_html, 'href="#keel-setting-core-update-policy"' ), 'The summary links to the locked setting.' );
 
 $GLOBALS['keel_test_multisite'] = true;
@@ -359,12 +360,12 @@ $GLOBALS['keel_test_network']   = array(
 $mixed_locks                    = keel_render( array() );
 keel_assert( false !== strpos( $mixed_locks, 'Locked by network policy (2)' ), 'Network locks are counted separately, excluding configuration overlaps and unsupported settings.' );
 keel_assert( 1 === substr_count( $mixed_locks, 'href="#keel-setting-core-update-policy"' ), 'A setting locked by both authorities appears only under configuration.' );
-keel_assert( 4 === substr_count( $mixed_locks, 'class="keel-lock-marker"' ), 'Markers cover grouped toggles and sliders as well as configuration controls.' );
+keel_assert( 6 === substr_count( $mixed_locks, 'class="keel-lock-marker"' ), 'Markers cover grouped toggles and sliders as well as configuration controls.' );
 ob_start();
 keel_defaults_render_network_page();
 $network_html = ob_get_clean();
 keel_assert( false === strpos( $network_html, 'Locked by network policy (' ), 'The network screen does not describe its own editable policy as locked.' );
-keel_assert( 2 === substr_count( $network_html, 'class="keel-lock-marker"' ), 'The network screen marks configuration locks.' );
+keel_assert( 4 === substr_count( $network_html, 'class="keel-lock-marker"' ), 'The network screen marks configuration locks.' );
 keel_assert( false !== strpos( $network_html, 'id="keel-setting-core-update-policy"' ), 'Network summary links have local targets.' );
 $GLOBALS['keel_test_multisite'] = false;
 
@@ -785,6 +786,12 @@ keel_defaults_render_control( 'core_update_policy', 'policy', 'minor', keel_defa
 $locked_control = ob_get_clean();
 keel_assert( false !== strpos( $locked_control, 'type="hidden" name="policy" value="minor"' ), 'A locked site select preserves the stored preference in its hidden input.' );
 keel_assert( $control_options === $GLOBALS['keel_options'], 'Rendering controls does not mutate stored preferences.' );
+
+
+foreach ( array( 'plugin_auto_update_policy', 'theme_auto_update_policy' ) as $key ) {
+	keel_assert( null !== keel_defaults_config_lock( $key ), 'Global update restriction locks ' . $key );
+	keel_assert( 'disabled' === keel_defaults_config_locked_value( $key, 'enabled' ), 'Global restriction displays Disabled for ' . $key );
+}
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "settings render: {$fail} failed\n" );

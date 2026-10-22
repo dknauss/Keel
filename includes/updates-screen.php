@@ -54,6 +54,7 @@ function keel_defaults_render_updates_screen() {
 		$selected
 	);
 	keel_defaults_render_update_timeline( $selected, $tip );
+	keel_defaults_render_extension_updates();
 }
 
 /**

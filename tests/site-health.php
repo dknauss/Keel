@@ -36,6 +36,7 @@ function admin_url( $path = '' ) { return 'https://example.test/wp-admin/' . $pa
  * keel_defaults_get() needs this. Single site is the honest default here: the
  * multisite path has its own coverage in tests/network-policy.php.
  */
+function is_main_site() { return true; }
 function is_multisite() {
 	return false;
 }

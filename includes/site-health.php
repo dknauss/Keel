@@ -312,7 +312,12 @@ function keel_defaults_posture_by_group() {
 
 		$group = isset( $field['group'] ) ? $field['group'] : 'other';
 		$s     = isset( $strings[ $key ] ) ? $strings[ $key ] : array();
-		$state = keel_defaults_state_label( $field, keel_defaults_get( $key ), $s );
+		$value = keel_defaults_get( $key );
+		if ( in_array( $key, array( 'plugin_auto_update_policy', 'theme_auto_update_policy' ), true ) ) {
+			$value = keel_defaults_extension_update_policy( 'plugin_auto_update_policy' === $key ? 'plugin' : 'theme' );
+			$value = keel_defaults_config_locked_value( $key, $value );
+		}
+		$state = keel_defaults_state_label( $field, $value, $s );
 
 		// "Leave unchanged" is true of Keel and misleading about the site when
 		// Jetpack is the one setting the width. Say so on the row itself; this is

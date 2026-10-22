@@ -196,6 +196,8 @@ keel_assert(
 	'A setting no constant locks shows its stored value.'
 );
 
+keel_assert( null === keel_defaults_config_lock( 'plugin_auto_update_policy' ) && null === keel_defaults_config_lock( 'theme_auto_update_policy' ), 'WP_AUTO_UPDATE_CORE does not lock plugin/theme updates.' );
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "core update policy: {$fail} failed\n" );
 	exit( 1 );

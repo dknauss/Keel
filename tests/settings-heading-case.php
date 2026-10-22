@@ -55,6 +55,7 @@ function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value; }
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
+function is_main_site() { return true; }
 function is_multisite() {
 	return false; }
 function current_user_can( $cap ) {
