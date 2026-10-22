@@ -36,6 +36,10 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_last_login` — user meta, written on each login by the Last login
  *   column. On multisite the user table is shared across the network, so this
  *   is deleted once for the whole network rather than per site.
+ * - `keel_id_column_backfilled` — user meta, the list screens on which the ID
+ *   column was hidden once for that user. Network-wide, like the above. The
+ *   `keel_id` entry it may have added to a user's core Screen Options list is
+ *   left alone: it is the user's own setting, and an unknown key does nothing.
  * - `keel_conflicts_dismissed` — user meta, the fingerprint of the competing
  *   plugins a person last dismissed the notice for. Network-wide for the same
  *   reason as the above: it belongs to the user, not the site.
@@ -219,11 +223,13 @@ if ( is_multisite() ) {
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
+	delete_metadata( 'user', 0, 'keel_id_column_backfilled', '', true );
 } else {
 	keel_defaults_uninstall_site();
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
+	delete_metadata( 'user', 0, 'keel_id_column_backfilled', '', true );
 }
 
 /*

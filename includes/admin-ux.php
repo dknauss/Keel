@@ -366,6 +366,47 @@ function keel_defaults_hide_helper_id_column( $hidden, $screen = null ) {
 }
 
 /**
+ * Hide the ID column once for a user who saved Screen Options before it existed.
+ *
+ * `default_hidden_columns` only reaches users with no saved Screen Options for
+ * the screen. Anyone who ever ticked a column box there would otherwise see ID
+ * without having chosen it. So, the first time each user opens each post-type
+ * list with helper columns on, ID is added to their saved hidden list once, and
+ * the screen is recorded so it is never hidden again after they tick it back
+ * on. A user with nothing saved is only recorded: the default already applies.
+ *
+ * @param \WP_Screen $screen Current screen.
+ * @return void
+ */
+function keel_defaults_backfill_hidden_id_column( $screen ) {
+	if ( ! is_object( $screen ) || empty( $screen->id ) || ! isset( $screen->base ) || 'edit' !== $screen->base ) {
+		return;
+	}
+
+	$user_id = get_current_user_id();
+	if ( ! $user_id ) {
+		return;
+	}
+
+	$done = get_user_meta( $user_id, 'keel_id_column_backfilled', true );
+	$done = is_array( $done ) ? $done : array();
+	if ( in_array( $screen->id, $done, true ) ) {
+		return;
+	}
+
+	// The same key core reads in get_hidden_columns() and writes from Screen Options.
+	$option = 'manage' . $screen->id . 'columnshidden';
+	$hidden = get_user_option( $option, $user_id );
+	if ( is_array( $hidden ) && ! in_array( 'keel_id', $hidden, true ) ) {
+		$hidden[] = 'keel_id';
+		update_user_meta( $user_id, $option, $hidden );
+	}
+
+	$done[] = $screen->id;
+	update_user_meta( $user_id, 'keel_id_column_backfilled', $done );
+}
+
+/**
  * Render a helper post column.
  *
  * @param string $column  Column key.
