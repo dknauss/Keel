@@ -9,6 +9,7 @@ $opt_plugins = get_site_option( 'auto_update_plugins' );
 $opt_themes  = get_site_option( 'auto_update_themes' );
 $user        = get_current_user_id();
 $second      = 0;
+$locked      = null !== keel_defaults_background_updates_off();
 $assert      = static function ( $ok, $message ) { if ( ! $ok ) {
 		throw new RuntimeException( $message );
 } };
@@ -32,10 +33,11 @@ try {
 	$settings['plugin_auto_update_policy'] = 'enabled';
 	$settings['theme_auto_update_policy']  = 'disabled';
 	update_option( KEEL_DEFAULTS_OPTION, $settings );
-	$assert( true === apply_filters( 'auto_update_plugin', false, (object) array() ), 'Explicit enable participates in real filter chain.' );
-	$assert( false === apply_filters( 'auto_update_theme', true, (object) array() ), 'Separate theme policy refuses.' );
+	$assert( 'enabled' === keel_defaults_extension_update_policy( 'plugin' ), 'Configured policy is known independently of updater operability.' );
+	$assert( apply_filters( 'auto_update_plugin', false, (object) array() ) === ! $locked, 'Explicit enable participates in real filter chain.' );
+	$assert( apply_filters( 'auto_update_theme', true, (object) array() ) === $locked, 'Separate theme policy refuses.' );
 	add_filter( 'auto_update_plugin', $later, 5 );
-	$assert( true === apply_filters( 'auto_update_plugin', false, (object) array() ), 'Explicit Keel policy overrides an earlier filter.' );
+	$assert( apply_filters( 'auto_update_plugin', false, (object) array() ) === ! $locked, 'Explicit Keel policy overrides an earlier filter.' );
 	remove_filter( 'auto_update_plugin', $later, 5 );
 	add_filter( 'auto_update_plugin', $later, 99 );
 	$assert( false === apply_filters( 'auto_update_plugin', true, (object) array() ), 'Later third-party filter wins.' );
@@ -49,7 +51,7 @@ try {
 		),
 	);
 	$report = keel_defaults_extension_update_report( 'plugin', array( 'fixture/fixture.php', 'missing' ), $cache, array(), true );
-	$assert( 1 === $report['on'] && 1 === $report['changed_count'] && 1 === $report['unknown'], 'Report follows real filters; missing metadata unknown.' );
+	$assert( ( $locked ? 0 : 1 ) === $report['on'] && ( $locked ? 0 : 1 ) === $report['changed_count'] && 1 === $report['unknown'], 'Report follows real filters; missing metadata unknown.' );
 	$assert( false === strpos( wp_json_encode( $report ), 'SECRET_URL' ), 'Offer payload never enters report.' );
 	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- turn malformed-input warnings into regression failures.
 	set_error_handler(
@@ -68,7 +70,7 @@ try {
 	$assert( 'unset' === $clean['plugin_auto_update_policy'] && 'unset' === $clean['theme_auto_update_policy'], 'Malformed and unsupported policies sanitize to unchanged.' );
 	if ( is_multisite() ) {
 		update_site_option( KEEL_DEFAULTS_NETWORK_OPTION, array( 'plugin_auto_update_policy' => 'disabled' ) );
-		$assert( false === apply_filters( 'auto_update_plugin', true, (object) array() ), 'Network policy wins over main site.' );
+		$assert( apply_filters( 'auto_update_plugin', true, (object) array() ) === $locked, 'Network policy wins over main site.' );
 		$installing = wp_installing();
 		$second     = wpmu_create_blog( get_network()->domain, '/keel-updates-' . wp_rand() . '/', 'Update probe', $admins[0]->ID );
 		wp_installing( $installing );
@@ -82,8 +84,9 @@ try {
 					'theme_auto_update_policy'  => 'enabled',
 				)
 			);
-			$assert( false === apply_filters( 'auto_update_plugin', true, (object) array() ), 'Subsite choice cannot override network.' );
-			$assert( false === apply_filters( 'auto_update_theme', true, (object) array() ), 'Main site decides unmanaged shared theme updates.' );
+			$assert( apply_filters( 'auto_update_plugin', true, (object) array() ) === $locked, 'Subsite choice cannot override network.' );
+			$assert( 'disabled' === keel_defaults_extension_update_policy( 'theme' ), 'Main-site policy resolves even when execution is globally locked.' );
+			$assert( apply_filters( 'auto_update_theme', true, (object) array() ) === $locked, 'Main site decides unmanaged shared theme updates.' );
 			$assert( null !== keel_defaults_network_lock( 'theme_auto_update_policy' ), 'Subsite shared-code control is locked.' );
 			$assert( 'disabled' === keel_defaults_config_locked_value( 'theme_auto_update_policy', 'enabled' ), 'Subsite shows effective main-site policy.' );
 			$rows = array_column( keel_defaults_posture_by_group()['updates'], 'state', 'key' );
@@ -91,7 +94,7 @@ try {
 			$clean = keel_defaults_sanitize_site( array( 'theme_auto_update_policy' => 'disabled' ) );
 			$assert( 'enabled' === $clean['theme_auto_update_policy'], 'Forged subsite POST preserves stored preference.' );
 			$clean = keel_defaults_sanitize_network( array( 'theme_auto_update_policy' => 'enabled' ), array( 'theme_auto_update_policy' => '1' ) );
-			$assert( 'enabled' === $clean['theme_auto_update_policy'], 'Network governance remains editable from subsite context.' );
+			$assert( $locked ? ! array_key_exists( 'theme_auto_update_policy', $clean ) : 'enabled' === $clean['theme_auto_update_policy'], 'Network governance remains editable from subsite context unless globally locked.' );
 		} finally {
 			restore_current_blog(); }
 	}
