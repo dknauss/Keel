@@ -15,13 +15,14 @@ annotations and development tooling only.
 `includes/settings-policy.php`, plus `includes/backport-install.php` and
 `includes/backport-presentation.php`, and the four conflict modules
 `conflict-attribution.php`, `conflict-overlap.php`, `conflict-divergence.php` and
-`conflict-notices.php`, plus `backport-status.php`, `backport-actions.php` and
+`conflict-notices.php`, the abilities authorization inventory
+`abilities-authorization.php`, plus `backport-status.php`, `backport-actions.php` and
 `password-hibp.php`, `password-policy.php`, `settings-controls.php`,
 `updates-screen.php`, `updates.php`, `lifecycle.php`, `email.php`, `assets.php` and `network.php` at PHPStan level 6,
 with `phpVersion: 70400`.
 It scans other includes and keel.php to discover declarations/constants without
 executing them. Scanning is not analysis: loading facades and other
-bodies outside these nineteen files are not yet claimed clean. WordPress stubs provide
+bodies outside these twenty files are not yet claimed clean. WordPress stubs provide
 core declarations; standalone runtime-test doubles are not used as analyzer stubs.
 
 There is no baseline, ignoreErrors list, inline suppression, invented runtime
@@ -78,7 +79,7 @@ when expanding analysis. Both dev dependencies support the existing PHP floor.
 
 ## Verification
 
-- `composer analyse`: all nineteen pilot modules must pass without suppressed errors.
+- `composer analyse`: all twenty pilot modules must pass without suppressed errors.
 - `composer test:types`: valid producer-to-consumer and minimal-input fixtures must pass; forty-three
   deliberately invalid examples must fail with the expected identifiers: a missing
   update-state key, invalid produced owner, missing diagnostic tier, rollback=false
