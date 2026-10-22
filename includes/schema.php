@@ -294,6 +294,20 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'ux',
 		),
+		'tidy_date_columns'               => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'ux',
+		),
+		'date_columns_show_time'          => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'ux',
+			'depends' => array(
+				'field'     => 'tidy_date_columns',
+				'hide_when' => 'no',
+			),
+		),
 		'environment_indicator'           => array(
 			'default' => 'no',
 			'type'    => 'toggle',

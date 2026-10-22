@@ -735,6 +735,25 @@ add_action( 'wp_login', function ( $login, $user ) {
 }, 10, 2 );
 ```
 
+### Date columns
+
+Core's post-list Date column ignores Settings → General. It formats dates with
+its own translatable `'Y/m/d'` and `'g:i a'` strings and puts a status line
+(Published, Scheduled, Missed schedule, Last Modified) above each one. There is
+no core setting to change either, only the `post_date_column_status` and
+`post_date_column_time` filters.
+
+`tidy_date_columns` (default `no`) uses those filters. The Date heading becomes
+Published and the status line goes, except Scheduled and Missed schedule, which
+keep theirs because a bare future date reads as a mistake. Published and
+private posts show their date; drafts, pending and other unpublished statuses
+show a dash with "Not published" for screen readers. Published and Keel's
+Modified helper column share the site's date format, with its time format after
+it while `date_columns_show_time` (default `yes`) is on.
+
+Modified is sortable whenever `helper_list_columns` is on, newest first on the
+first click; WordPress orders by `post_modified` natively.
+
 ### Optional list-table compaction
 
 `compact_column_labels` and `fewer_list_columns` are independent toggles, both
@@ -1388,6 +1407,8 @@ covering only some, which reads as a full inventory when it is not.
 | Admin List Columns | `helper_list_columns` | `no` | UX |
 | Compact Column Labels | `compact_column_labels` | `no` | UX |
 | Fewer List Columns | `fewer_list_columns` | `no` | UX |
+| Date Columns | `tidy_date_columns` | `no` | UX |
+| Date Column Times | `date_columns_show_time` | `yes` | UX |
 | Environment Indicator | `environment_indicator` | `no` | UX |
 | Remember Me | `disable_remember_me` | `no` | Login |
 | Regular Session Length | `session_regular_days` | `2` | Login |

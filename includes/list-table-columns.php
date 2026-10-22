@@ -33,10 +33,14 @@ function keel_defaults_register_list_table_columns( $screen ) {
 		return;
 	}
 	add_action( 'admin_enqueue_scripts', 'keel_defaults_enqueue_compact_column_style' );
+	add_filter( "manage_{$screen->post_type}_posts_columns", 'keel_defaults_published_column_label', 1000 );
 	add_filter( "manage_{$screen->post_type}_posts_columns", 'keel_defaults_compact_column_labels', 1000 );
 	if ( 'page' === $screen->post_type ) {
+		add_filter( 'manage_pages_columns', 'keel_defaults_published_column_label', 1000 );
 		add_filter( 'manage_pages_columns', 'keel_defaults_compact_column_labels', 1000 );
 	}
+	add_filter( 'post_date_column_status', 'keel_defaults_date_column_status', 1000, 3 );
+	add_filter( 'post_date_column_time', 'keel_defaults_date_column_time', 1000, 3 );
 	add_filter( 'default_hidden_columns', 'keel_defaults_fewer_list_columns', 1000, 2 );
 }
 
@@ -119,4 +123,86 @@ function keel_defaults_fewer_list_columns( $hidden, $screen ) {
 		}
 	}
 	return $hidden;
+}
+
+/**
+ * Date and time for a post-list cell, in the site's own formats.
+ *
+ * Core's Date column uses its translatable 'Y/m/d' and 'g:i a', not the
+ * Settings → General formats. Published and Modified share this one so the
+ * two columns read alike.
+ *
+ * @param int|WP_Post $post  Post.
+ * @param string      $field 'date' for the publish date, 'modified' for the last edit.
+ * @return string Unescaped; empty when the post has no such date.
+ */
+function keel_defaults_list_date( $post, $field = 'date' ) {
+	$read = 'modified' === $field ? 'get_post_modified_time' : 'get_post_time';
+	$date = $read( (string) get_option( 'date_format' ), false, $post, true );
+	if ( ! is_string( $date ) || '' === $date ) {
+		return '';
+	}
+	if ( ! keel_defaults_enabled( 'date_columns_show_time' ) ) {
+		return $date;
+	}
+	return sprintf(
+		/* translators: 1: Post date, 2: Post time. */
+		__( '%1$s at %2$s', 'keel-defaults' ),
+		$date,
+		$read( (string) get_option( 'time_format' ), false, $post, true )
+	);
+}
+
+/**
+ * Head core's Date column "Published" while tidy date columns are on.
+ *
+ * @param array $columns Column keys and labels.
+ * @return array
+ */
+function keel_defaults_published_column_label( $columns ) {
+	if ( keel_defaults_enabled( 'tidy_date_columns' ) && is_array( $columns ) && isset( $columns['date'] ) ) {
+		$columns['date'] = __( 'Published', 'keel-defaults' );
+	}
+	return $columns;
+}
+
+/**
+ * Drop the status line the "Published" heading now carries.
+ *
+ * Scheduled and Missed schedule stay: a future date with no label reads as a
+ * mistake. Everything else is either published (the heading says so) or has
+ * no publish date at all, which the time cell shows.
+ *
+ * @param string  $status Status line, possibly markup.
+ * @param WP_Post $post   Post.
+ * @param string  $column Column key.
+ * @return string
+ */
+function keel_defaults_date_column_status( $status, $post, $column = 'date' ) {
+	if ( ! keel_defaults_enabled( 'tidy_date_columns' ) || 'date' !== $column || ! $post instanceof WP_Post || 'future' === $post->post_status ) {
+		return $status;
+	}
+	return '';
+}
+
+/**
+ * Show the publish date in the site's formats, or a dash when there is none.
+ *
+ * Core echoes this filter's value unescaped, so everything returned is escaped
+ * here.
+ *
+ * @param string  $t_time Core's date and time markup.
+ * @param WP_Post $post   Post.
+ * @param string  $column Column key.
+ * @return string
+ */
+function keel_defaults_date_column_time( $t_time, $post, $column = 'date' ) {
+	if ( ! keel_defaults_enabled( 'tidy_date_columns' ) || 'date' !== $column || ! $post instanceof WP_Post ) {
+		return $t_time;
+	}
+	if ( in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) {
+		$date = keel_defaults_list_date( $post );
+		return '' === $date ? $t_time : esc_html( $date );
+	}
+	return '<span aria-hidden="true">&mdash;</span><span class="screen-reader-text">' . esc_html__( 'Not published', 'keel-defaults' ) . '</span>';
 }

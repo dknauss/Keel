@@ -9,7 +9,22 @@ define( 'KEEL_DEFAULTS_VERSION', 'test' );
 function keel_defaults_asset_url( $file ) { return '/assets/' . $file; }
 function wp_enqueue_style( ...$args ) { $GLOBALS['enqueued'][] = $args; }
 function is_multisite() { return false; }
-function get_option( $key, $default = false ) { return $GLOBALS['settings']; }
+function get_option( $key, $default = false ) {
+	$formats = array(
+		'date_format' => 'F j, Y',
+		'time_format' => 'g:i a',
+	);
+	return $formats[ $key ] ?? $GLOBALS['settings'];
+}
+function esc_html__( $text, $domain = '' ) { return esc_html( $text ); }
+function get_post_time( $format, $gmt, $post, $translate ) { return 'F j, Y' === $format ? 'October 22, 2026' : '7:49 pm'; }
+function get_post_modified_time( $format, $gmt, $post, $translate ) { return 'F j, Y' === $format ? 'October 23, 2026' : '9:05 am'; }
+// Aliased rather than declared: another test declares its own WP_Post stand-in.
+class Keel_List_Table_Test_Post {
+	public $post_status;
+	public function __construct( $status ) { $this->post_status = $status; }
+}
+class_alias( 'Keel_List_Table_Test_Post', 'WP_Post' );
 function __( $text, $domain = '' ) { return $text; }
 function esc_html( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
 function esc_attr( $text ) { return esc_html( $text ); }
@@ -40,7 +55,7 @@ function check( $condition, $message ) {
 }
 require dirname( __DIR__ ) . '/includes/schema.php';
 $schema = keel_defaults_schema();
-foreach ( array( 'compact_column_labels', 'fewer_list_columns' ) as $key ) {
+foreach ( array( 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' ) as $key ) {
 	check( isset( $schema[ $key ] ) && 'no' === $schema[ $key ]['default'] && 'ux' === $schema[ $key ]['group'], "$key is independently opt-in in UX" );
 }
 require dirname( __DIR__ ) . '/includes/list-table-columns.php';
@@ -123,4 +138,26 @@ $GLOBALS['screen']->post_type = 'page';
 $GLOBALS['screen']->id        = 'edit-page';
 keel_defaults_register_list_table_columns( $GLOBALS['screen'] );
 check( isset( $GLOBALS['hooks']['manage_pages_columns'], $GLOBALS['hooks']['manage_page_posts_columns'], $GLOBALS['hooks']['default_hidden_columns'] ), 'Page and defaults hooks registered' );
+check( 'yes' === $schema['date_columns_show_time']['default'] && 'tidy_date_columns' === $schema['date_columns_show_time']['depends']['field'], 'Time defaults on and hides with tidy dates off' );
+check( isset( $GLOBALS['hooks']['post_date_column_status'], $GLOBALS['hooks']['post_date_column_time'] ) && 3 === $GLOBALS['hooks']['post_date_column_time'][2], 'Date column filters registered' );
+$published = new WP_Post( 'publish' );
+$draft     = new WP_Post( 'draft' );
+$scheduled = new WP_Post( 'future' );
+$date_cols = array(
+	'title' => 'Title',
+	'date'  => 'Date',
+);
+check( keel_defaults_published_column_label( $date_cols ) === $date_cols, 'Disabled tidy dates keep the Date heading' );
+check( 'Published' === keel_defaults_date_column_status( 'Published', $published ) && 'core' === keel_defaults_date_column_time( 'core', $published ), 'Disabled tidy dates leave core cells alone' );
+$GLOBALS['settings']['tidy_date_columns']      = 'yes';
+$GLOBALS['settings']['date_columns_show_time'] = 'yes';
+check( 'Published' === keel_defaults_published_column_label( $date_cols )['date'] && array( 'title' => 'Title' ) === keel_defaults_published_column_label( array( 'title' => 'Title' ) ), 'Date heading relabeled only when present' );
+check( '' === keel_defaults_date_column_status( 'Published', $published ) && '' === keel_defaults_date_column_status( 'Last Modified', $draft ), 'Published and draft status lines dropped' );
+check( 'Scheduled' === keel_defaults_date_column_status( 'Scheduled', $scheduled ), 'Scheduled keeps its label' );
+check( 'Published' === keel_defaults_date_column_status( 'Published', $published, 'other' ), 'Other columns untouched' );
+check( 'October 22, 2026 at 7:49 pm' === keel_defaults_date_column_time( 'core', $published ), 'Publish date uses site formats with time' );
+check( 'October 23, 2026 at 9:05 am' === keel_defaults_list_date( $published, 'modified' ), 'Modified shares the format' );
+check( false !== strpos( keel_defaults_date_column_time( 'core', $draft ), 'Not published' ) && 0 === strpos( keel_defaults_date_column_time( 'core', $draft ), '<span aria-hidden="true">&mdash;</span>' ), 'Drafts show a dash with a screen-reader label' );
+$GLOBALS['settings']['date_columns_show_time'] = 'no';
+check( 'October 22, 2026' === keel_defaults_date_column_time( 'core', $scheduled ) && 'October 23, 2026' === keel_defaults_list_date( $published, 'modified' ), 'Time toggle hides the time in both columns' );
 echo "list table columns: OK\n";

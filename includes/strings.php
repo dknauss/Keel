@@ -240,6 +240,16 @@ function keel_defaults_strings() {
 			'statement' => __( 'Add helper columns to admin list tables', 'keel-defaults' ),
 			'help'      => __( 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.', 'keel-defaults' ),
 		),
+		'tidy_date_columns'               => array(
+			'label'     => __( 'Date Columns', 'keel-defaults' ),
+			'statement' => __( 'Show Published and Modified dates in the site\'s date format', 'keel-defaults' ),
+			'help'      => __( 'Renames the post-list Date column to Published and drops the Published line above each date. Scheduled and Missed schedule keep their label; drafts and pending posts show a dash, because they have no publish date yet. Published and Keel\'s Modified column both follow the date and time formats in Settings → General. Modified becomes sortable whenever Admin List Columns is on. Off by default.', 'keel-defaults' ),
+		),
+		'date_columns_show_time'          => array(
+			'label'     => __( 'Date Column Times', 'keel-defaults' ),
+			'statement' => __( 'Show the time after the date', 'keel-defaults' ),
+			'help'      => __( 'Adds the time, in the Settings → General time format, to the Published and Modified columns. On by default when Date Columns is on.', 'keel-defaults' ),
+		),
 		'environment_indicator'           => array(
 			'label'     => __( 'Environment Indicator', 'keel-defaults' ),
 			'statement' => __( 'Show the current environment in the admin bar', 'keel-defaults' ),

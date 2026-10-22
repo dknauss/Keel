@@ -69,5 +69,6 @@ keel_assert( 'yes' === $schema['media_sizes_panel']['default'], 'media_sizes_pan
 keel_assert( 'media' === $schema['media_sizes_panel']['group'], 'media_sizes_panel is in the Media group.' );
 keel_assert( 'no' === $schema['helper_list_columns']['default'], 'helper_list_columns defaults off.' );
 keel_assert( 'ux' === $schema['helper_list_columns']['group'], 'helper_list_columns is in the UX group.' );
+keel_assert( array( 'modified', true ) === keel_defaults_sortable_post_columns( array() )['keel_modified'], 'Modified sorts by post_modified, newest first on first click.' );
 
 fwrite( STDOUT, "helper columns tests passed.\n" );
