@@ -46,3 +46,10 @@ escaped text and no interactive controls or color-dependent status.
   ordinary desktop and 390px layouts have no horizontal overflow. Pending evidence
   is readable without initiating collection.
 - The real WordPress probe is included in every live installer-matrix row.
+
+All six [live matrix jobs](https://github.com/dknauss/Keel/actions/runs/39697678143)
+passed on `977669d`, including the new timeline probe, persistent-cache multisite,
+French locale, PHP 7.4 / WordPress 6.4 floor and backward/forward installer flows.
+PR CI also passed across PHP 7.4–8.5. Independent review found no remaining issues
+after the cached timing regression was fixed. Subsequent changes only clarify
+historical TODO wording and record this evidence.

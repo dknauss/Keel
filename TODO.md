@@ -100,7 +100,9 @@ the tagged sources. See the
     All nine are on 0.6.7 with WordPress 7.1.3 and a connected Jetpack. None declares
     a non-production environment, so the 0.6.8 warning for a live site that says it
     is local would show on none of them.
-  - The scheduled live matrix last ran green on 2026-10-12. No issues are open.
+  - At the 2026-10-13 field snapshot, the scheduled live matrix had last run
+    green on 2026-10-12 and no issues were open. This is historical context, not
+    the current CI or issue status.
   - Looked for conflicts with WordPress.com on the same nine, 2026-10-13. Found none
     that breaks anything: Jetpack has no stored connection errors on any site, no
     setting is recorded as failing to take effect, no plugin shares an authoritative
