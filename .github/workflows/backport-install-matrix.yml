@@ -176,6 +176,9 @@ jobs:
       - name: Sanitized posture export contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/posture-export.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Runtime registration audit contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/registration-audit.php" --path=/tmp/keel-wp --allow-root
+
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 

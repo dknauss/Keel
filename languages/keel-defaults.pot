@@ -9,15 +9,15 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T00:35:19+00:00\n"
+"POT-Creation-Date: 2026-10-22T13:41:42+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
 
 #. Plugin Name of the plugin
 #: keel.php
-#: includes/site-health.php:21
-#: includes/site-health.php:392
+#: includes/site-health.php:25
+#: includes/site-health.php:396
 msgid "Keel Defaults"
 msgstr ""
 
@@ -131,19 +131,19 @@ msgid "If this is the live site, change the WP_ENVIRONMENT_TYPE line in %1$s to 
 msgstr ""
 
 #: includes/admin-ux.php:1119
-#: includes/site-health.php:69
+#: includes/site-health.php:73
 #: includes/strings.php:239
 msgid "Environment"
 msgstr ""
 
 #: includes/admin-ux.php:1126
-#: includes/site-health.php:105
+#: includes/site-health.php:109
 msgid "Keel’s environment override is being ignored on this site."
 msgstr ""
 
 #. translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting.
 #: includes/admin-ux.php:1130
-#: includes/site-health.php:74
+#: includes/site-health.php:78
 #, php-format
 msgid "It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one."
 msgstr ""
@@ -154,7 +154,7 @@ msgstr ""
 
 #. translators: 1: environment name, such as local. 2: the site's address.
 #: includes/admin-ux.php:1150
-#: includes/site-health.php:98
+#: includes/site-health.php:102
 #, php-format
 msgid "WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local."
 msgstr ""
@@ -171,21 +171,21 @@ msgstr ""
 
 #. translators: 1: environment Keel uses, such as production. 2: environment WordPress reports, such as local.
 #: includes/admin-ux.php:1179
-#: includes/site-health.php:116
+#: includes/site-health.php:120
 #, php-format
 msgid "Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labeled local stops accepting pingbacks."
 msgstr ""
 
 #. translators: %s: link to the Environment setting.
 #: includes/admin-ux.php:1190
-#: includes/site-health.php:121
+#: includes/site-health.php:125
 #, php-format
 msgid "Once it is fixed, set Keel’s %s back to Automatic."
 msgstr ""
 
 #. translators: 1: environment name, such as production. 2: link to the Environment setting.
 #: includes/admin-ux.php:1207
-#: includes/site-health.php:139
+#: includes/site-health.php:143
 #, php-format
 msgid "Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production, for example, would go on sending mail from a copy that is meant to be staging."
 msgstr ""
@@ -214,10 +214,10 @@ msgstr ""
 #: includes/settings-page.php:24
 #: includes/settings-page.php:610
 #: includes/shortcodes.php:229
-#: includes/site-health.php:85
-#: includes/site-health.php:188
-#: includes/site-health.php:569
-#: includes/site-health.php:692
+#: includes/site-health.php:89
+#: includes/site-health.php:192
+#: includes/site-health.php:573
+#: includes/site-health.php:696
 msgid "Keel"
 msgstr ""
 
@@ -520,7 +520,8 @@ msgid "This version of WordPress core is not currently flagged as insecure"
 msgstr ""
 
 #: includes/backport-presentation.php:186
-#: includes/site-health.php:451
+#: includes/registration-audit.php:205
+#: includes/site-health.php:455
 msgid "Security"
 msgstr ""
 
@@ -749,7 +750,7 @@ msgstr ""
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
 
-#: includes/bootstrap.php:271
+#: includes/bootstrap.php:272
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
@@ -1093,28 +1094,95 @@ msgstr ""
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
-#: includes/posture-export.php:195
+#: includes/posture-export.php:200
 msgid "Use the posture export download button."
 msgstr ""
 
-#: includes/posture-export.php:199
+#: includes/posture-export.php:204
 msgid "You do not have permission to export this posture report."
 msgstr ""
 
-#: includes/posture-export.php:205
+#: includes/posture-export.php:210
 msgid "The posture report could not be encoded."
 msgstr ""
 
-#: includes/posture-export.php:223
+#: includes/posture-export.php:228
 msgid "Support posture export"
 msgstr ""
 
-#: includes/posture-export.php:224
+#: includes/posture-export.php:229
 msgid "Download validated policy choices and cached diagnostic summaries. No site URL, user data, plugin inventory, raw option records, callback paths, or failure payloads are included. Unknown evidence remains unknown. Review the JSON before sharing it."
 msgstr ""
 
-#: includes/posture-export.php:228
+#: includes/posture-export.php:233
 msgid "Download posture JSON"
+msgstr ""
+
+#: includes/registration-audit.php:202
+#: includes/site-health.php:21
+msgid "Keel registration audit"
+msgstr ""
+
+#: includes/registration-audit.php:216
+msgid "This audit inspects four redirect registrations and the session-length clamp declared during this request’s bootstrap. It executes no callbacks and makes no repairs. It does not prove runtime outcomes or coverage of other hooks, routes or requests."
+msgstr ""
+
+#: includes/registration-audit.php:219
+msgid "Registration coverage is unavailable: bootstrap has not supplied a baseline, or the current site differs from the site whose callbacks were registered. Check Site Health in a fresh request for this site."
+msgstr ""
+
+#: includes/registration-audit.php:223
+msgid "Comment feeds"
+msgstr ""
+
+#: includes/registration-audit.php:224
+msgid "Author feeds"
+msgstr ""
+
+#: includes/registration-audit.php:225
+msgid "Author archives"
+msgstr ""
+
+#: includes/registration-audit.php:226
+msgid "Attachment pages"
+msgstr ""
+
+#: includes/registration-audit.php:227
+msgid "Session length"
+msgstr ""
+
+#: includes/registration-audit.php:230
+msgid "Not registered by Keel in this bootstrap (policy inactive)."
+msgstr ""
+
+#: includes/registration-audit.php:231
+msgid "Registered with the declared precedence."
+msgstr ""
+
+#: includes/registration-audit.php:232
+msgid "Registered; core’s canonical redirect comparator is absent in this request."
+msgstr ""
+
+#: includes/registration-audit.php:233
+msgid "Expected registration is missing."
+msgstr ""
+
+#: includes/registration-audit.php:234
+msgid "The current priority loses the declared precedence."
+msgstr ""
+
+#: includes/registration-audit.php:235
+msgid "Unknown: the hook registry is malformed or exceeds the 1,000-entry inspection limit."
+msgstr ""
+
+#. translators: %d: current hook priority.
+#: includes/registration-audit.php:244
+#, php-format
+msgid "Observed priority: %d."
+msgstr ""
+
+#: includes/registration-audit.php:248
+msgid "Redirects are compared with the earliest registered core canonical redirect; the session clamp must follow default priority 10. Later callbacks can still change outcomes. This is current-request evidence, not a persistent or network-wide verdict. Investigate intentional overrides before changing code; the audit does not identify who changed a registration."
 msgstr ""
 
 #: includes/security.php:343
@@ -1369,357 +1437,357 @@ msgstr ""
 msgid "Keel hides recognizable residue from readers while keeping enclosed text. People who can edit a post still see its residue. Restore the missing plugin or update the content; hiding markup does not restore the missing output. These are observations, not proof that a plugin supplied each tag."
 msgstr ""
 
-#: includes/site-health.php:25
+#: includes/site-health.php:29
 msgid "Overlapping defaults plugins"
 msgstr ""
 
-#: includes/site-health.php:29
+#: includes/site-health.php:33
 msgid "Password breach screening"
 msgstr ""
 
-#: includes/site-health.php:33
+#: includes/site-health.php:37
 msgid "Environment type"
 msgstr ""
 
-#: includes/site-health.php:39
+#: includes/site-health.php:43
 msgid "Broken shortcodes"
 msgstr ""
 
-#: includes/site-health.php:48
+#: includes/site-health.php:52
 msgid "Jetpack and XML-RPC"
 msgstr ""
 
 #. translators: %s: environment name, such as production.
-#: includes/site-health.php:82
+#: includes/site-health.php:86
 #, php-format
 msgid "WordPress and Keel agree that this is a %s site"
 msgstr ""
 
-#: includes/site-health.php:88
+#: includes/site-health.php:92
 msgid "Keel’s environment indicator and its non-production email handling use the same environment WordPress reports, so the label you see and what Keel does with email match what other plugins see."
 msgstr ""
 
 #. translators: %s: environment name, such as local.
-#: includes/site-health.php:95
+#: includes/site-health.php:99
 #, php-format
 msgid "This site looks live, but WordPress says it is %s"
 msgstr ""
 
-#: includes/site-health.php:113
+#: includes/site-health.php:117
 msgid "Keel’s Environment setting is covering for a wrong WordPress label"
 msgstr ""
 
-#: includes/site-health.php:130
+#: includes/site-health.php:134
 msgid "Keel’s environment override is being ignored on this site"
 msgstr ""
 
 #. translators: %s: environment Keel uses, such as staging.
-#: includes/site-health.php:151
+#: includes/site-health.php:155
 #, php-format
 msgid "Keel treats this production site as %s and is holding back its email"
 msgstr ""
 
 #. translators: 1: environment Keel uses, such as staging. 2: link to the Environment setting.
-#: includes/site-health.php:154
+#: includes/site-health.php:158
 #, php-format
 msgid "WordPress reports this site as production, but Keel’s %2$s is set to %1$s, and Keel holds back outgoing email on non-production sites. If this is the live site, its password resets, notifications and other email are not being sent. Set the Environment to Automatic or Production if that is not intended."
 msgstr ""
 
 #. translators: 1: environment WordPress reports. 2: environment Keel uses.
-#: includes/site-health.php:164
+#: includes/site-health.php:168
 #, php-format
 msgid "Keel treats this %1$s site as %2$s"
 msgstr ""
 
-#: includes/site-health.php:165
+#: includes/site-health.php:169
 msgid "Keel’s environment indicator and non-production email handling follow Keel’s environment, either because of the Environment setting or because the site is served from a local development address and declares no environment of its own. WordPress core and other plugins still see the environment WordPress reports."
 msgstr ""
 
-#: includes/site-health.php:185
+#: includes/site-health.php:189
 msgid "Jetpack can reach this site over XML-RPC"
 msgstr ""
 
-#: includes/site-health.php:191
+#: includes/site-health.php:195
 msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. Requests that Jetpack verifies as signed by WordPress.com are let through, so the connection keeps working. Every other multicall is still refused."
 msgstr ""
 
-#: includes/site-health.php:196
+#: includes/site-health.php:200
 msgid "Batched XML-RPC requests (system.multicall) are allowed on this site, so the requests WordPress.com sends through Jetpack are not affected."
 msgstr ""
 
-#: includes/site-health.php:201
+#: includes/site-health.php:205
 msgid "Jetpack can still report itself as connected while this is happening, because it checks the connection from this site outwards. On WordPress.com, the plugin list, settings changes and other actions on this site will fail."
 msgstr ""
 
-#: includes/site-health.php:205
+#: includes/site-health.php:209
 msgid "Jetpack is connected, but the XML-RPC endpoint is blocked"
 msgstr ""
 
 #. translators: %s: link to the XML-RPC Endpoint setting.
-#: includes/site-health.php:208
+#: includes/site-health.php:212
 #, php-format
 msgid "WordPress.com reaches this site through XML-RPC, and Keel is set to refuse every XML-RPC request. Turn off the block under %s, or disconnect Jetpack if it is not needed."
 msgstr ""
 
-#: includes/site-health.php:209
+#: includes/site-health.php:213
 #: includes/strings.php:48
 msgid "XML-RPC Endpoint"
 msgstr ""
 
-#: includes/site-health.php:217
+#: includes/site-health.php:221
 msgid "Requests from WordPress.com to Jetpack are being refused"
 msgstr ""
 
 #. translators: %s: link to the XML-RPC Multicall setting.
-#: includes/site-health.php:220
+#: includes/site-health.php:224
 #, php-format
 msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognize requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
 msgstr ""
 
-#: includes/site-health.php:221
+#: includes/site-health.php:225
 #: includes/strings.php:43
 msgid "XML-RPC Multicall"
 msgstr ""
 
-#: includes/site-health.php:240
+#: includes/site-health.php:244
 msgid "On"
 msgstr ""
 
-#: includes/site-health.php:240
+#: includes/site-health.php:244
 msgid "Off"
 msgstr ""
 
-#: includes/site-health.php:244
+#: includes/site-health.php:248
 msgid "Unchanged"
 msgstr ""
 
-#: includes/site-health.php:250
+#: includes/site-health.php:254
 msgid "None"
 msgstr ""
 
 #. translators: %s: the setting's current state, such as "Leave unchanged".
-#: includes/site-health.php:327
+#: includes/site-health.php:331
 #, php-format
 msgid "%s (Jetpack's WordPress.com menu styling sets 272px)"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:395
+#: includes/site-health.php:399
 #, php-format
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
 msgstr ""
 
-#: includes/site-health.php:396
-#: includes/site-health.php:420
+#: includes/site-health.php:400
+#: includes/site-health.php:424
 msgid "Settings → Site Defaults"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:419
+#: includes/site-health.php:423
 #, php-format
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning."
 msgstr ""
 
-#: includes/site-health.php:437
+#: includes/site-health.php:441
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:440
+#: includes/site-health.php:444
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:442
+#: includes/site-health.php:446
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:447
+#: includes/site-health.php:451
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:448
+#: includes/site-health.php:452
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:458
+#: includes/site-health.php:462
 msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:520
+#: includes/site-health.php:524
 #, php-format
 msgid "used by %s, and by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:526
+#: includes/site-health.php:530
 #, php-format
 msgid "used by %s"
 msgstr ""
 
-#: includes/site-health.php:530
+#: includes/site-health.php:534
 msgid "used by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms".
-#: includes/site-health.php:538
+#: includes/site-health.php:542
 #, php-format
 msgid "Keel setting: %1$s; also %2$s"
 msgstr ""
 
-#: includes/site-health.php:566
+#: includes/site-health.php:570
 msgid "No breach-screening failures recorded"
 msgstr ""
 
-#: includes/site-health.php:572
+#: includes/site-health.php:576
 msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
 msgstr ""
 
-#: includes/site-health.php:579
+#: includes/site-health.php:583
 msgid "Password breach screening is switched off"
 msgstr ""
 
 #. translators: %s: link to the Password Strength setting.
-#: includes/site-health.php:582
+#: includes/site-health.php:586
 #, php-format
 msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
 msgstr ""
 
-#: includes/site-health.php:583
+#: includes/site-health.php:587
 #: includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
-#: includes/site-health.php:601
+#: includes/site-health.php:605
 msgid "Password breach screening is switched off in code"
 msgstr ""
 
-#: includes/site-health.php:603
+#: includes/site-health.php:607
 msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
 msgstr ""
 
-#: includes/site-health.php:622
+#: includes/site-health.php:626
 msgid "Password breach screening is working"
 msgstr ""
 
 #. translators: %s: human-readable time difference, e.g. "2 hours".
-#: includes/site-health.php:625
+#: includes/site-health.php:629
 #, php-format
 msgid "New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago."
 msgstr ""
 
-#: includes/site-health.php:632
+#: includes/site-health.php:636
 msgid "New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password."
 msgstr ""
 
-#: includes/site-health.php:638
+#: includes/site-health.php:642
 msgid "the service could not be reached"
 msgstr ""
 
-#: includes/site-health.php:639
+#: includes/site-health.php:643
 msgid "the reply was cut short before it could be read"
 msgstr ""
 
-#: includes/site-health.php:640
+#: includes/site-health.php:644
 msgid "the reply was not the list of hashes it should have been, which usually means something answered on the service's behalf — a captive portal, or a filtering proxy"
 msgstr ""
 
 #. translators: %s: HTTP status code.
-#: includes/site-health.php:650
+#: includes/site-health.php:654
 #, php-format
 msgid "the service answered with HTTP %s"
 msgstr ""
 
-#: includes/site-health.php:654
+#: includes/site-health.php:658
 msgid "the lookup did not complete"
 msgstr ""
 
-#: includes/site-health.php:658
+#: includes/site-health.php:662
 msgid "Passwords are not being screened against known breaches"
 msgstr ""
 
 #. translators: %s: short reason the lookup failed.
-#: includes/site-health.php:662
+#: includes/site-health.php:666
 #, php-format
 msgid "The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check."
 msgstr ""
 
-#: includes/site-health.php:666
+#: includes/site-health.php:670
 msgid "This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person's own name and email — is unaffected and still applies."
 msgstr ""
 
-#: includes/site-health.php:668
+#: includes/site-health.php:672
 msgid "If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds."
 msgstr ""
 
-#: includes/site-health.php:695
+#: includes/site-health.php:699
 msgid "Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there's a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose."
 msgstr ""
 
-#: includes/site-health.php:695
+#: includes/site-health.php:699
 msgid "Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too."
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/site-health.php:711
+#: includes/site-health.php:715
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:713
+#: includes/site-health.php:717
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:718
+#: includes/site-health.php:722
 msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:718
+#: includes/site-health.php:722
 msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:722
+#: includes/site-health.php:726
 msgid "Must-use plugins are installed by a host or a developer and cannot be turned off from the Plugins screen, so Keel lists them here and shows no notice about them."
 msgstr ""
 
-#: includes/site-health.php:741
+#: includes/site-health.php:745
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:771
+#: includes/site-health.php:775
 msgid "A Keel setting is also affected by code Keel cannot identify"
 msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:785
+#: includes/site-health.php:789
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
 #. translators: %s: theme name, or a child theme and its parent, comma-separated.
-#: includes/site-health.php:809
+#: includes/site-health.php:813
 #, php-format
 msgid "Your theme may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:811
+#: includes/site-health.php:815
 msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:815
+#: includes/site-health.php:819
 msgid "Your theme may influence the same settings as Keel"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:825
+#: includes/site-health.php:829
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:827
+#: includes/site-health.php:831
 msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:831
+#: includes/site-health.php:835
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 

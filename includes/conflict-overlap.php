@@ -441,6 +441,9 @@ function keel_defaults_add_policy_filter( $hook, $callback, $priority = 10, $acc
 	}
 	keel_defaults_registered_policy_hooks( $hook, $callback, $priority, $accepted_args, $setting );
 	add_filter( $hook, $callback, $priority, $accepted_args );
+	if ( 'auth_cookie_expiration' === $hook && 'keel_defaults_session_length' === $callback ) {
+		keel_defaults_record_registration( 'session_length', $callback, $priority );
+	}
 }
 
 /**
