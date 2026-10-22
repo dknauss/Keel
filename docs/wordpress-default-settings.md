@@ -1043,6 +1043,14 @@ Keel does not register those filters when `WP_AUTO_UPDATE_CORE` is defined in
 the control is locked. `AUTOMATIC_UPDATER_DISABLED` and `DISALLOW_FILE_MODS` can prevent the
 updater from running at all, so the screen warns about those overrides too.
 
+The Updates screen preserves WordPress’s own policy text and adds a persistent
+**Keel update policy** notice immediately below it. The notice names the current
+release branch, explains the configured policy and its source, and links directly
+to the site or network setting when the reader can manage it. Configuration
+restrictions take precedence. If core’s already-filtered settings differ, the
+notice says so without rerunning filters. Policy is not a delivery guarantee: cron,
+hosting and other components can affect installation.
+
 Major releases should be tested on staging and deployed within 30 days, not frozen
 indefinitely. Expedite the rollout when a security fix is unavailable on the installed branch.
 Only the latest WordPress major release is officially supported; security backports to older

@@ -179,6 +179,9 @@ jobs:
       - name: Runtime registration audit contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/registration-audit.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Persistent update-policy notice contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/update-policy-notice.php" --path=/tmp/keel-wp --allow-root
+
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 

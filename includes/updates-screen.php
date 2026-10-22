@@ -33,6 +33,7 @@ defined( 'ABSPATH' ) || exit;
  * @return void
  */
 function keel_defaults_register_updates_screen() {
+	add_action( 'after_core_auto_updates_settings', 'keel_defaults_render_update_policy_notice', 9 );
 	add_action( 'after_core_auto_updates_settings', 'keel_defaults_render_updates_screen' );
 }
 
