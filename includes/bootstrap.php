@@ -565,6 +565,7 @@ function keel_defaults_bootstrap() {
 		add_filter( 'manage_users_columns', 'keel_defaults_filter_user_columns' );
 		add_filter( 'manage_users_custom_column', 'keel_defaults_render_user_column', 10, 3 );
 		add_action( 'wp_login', 'keel_defaults_record_last_login', 10, 2 );
+		add_filter( 'default_hidden_columns', 'keel_defaults_hide_helper_id_column', 10, 2 );
 	}
 
 	if ( keel_defaults_enabled( 'environment_indicator' ) ) {

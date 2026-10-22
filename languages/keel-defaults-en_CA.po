@@ -1568,7 +1568,7 @@ msgid "Add helper columns to admin list tables"
 msgstr ""
 
 #: includes/strings.php:203
-msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
+msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. The ID column starts hidden; turn it on in Screen Options. Last login is recorded from when this is enabled onward. Off by default."
 msgstr ""
 
 #: includes/strings.php:206

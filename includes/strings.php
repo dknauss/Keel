@@ -238,7 +238,7 @@ function keel_defaults_strings() {
 		'helper_list_columns'             => array(
 			'label'     => __( 'Admin List Columns', 'keel-defaults' ),
 			'statement' => __( 'Add helper columns to admin list tables', 'keel-defaults' ),
-			'help'      => __( 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.', 'keel-defaults' ),
+			'help'      => __( 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. The ID column starts hidden; turn it on in Screen Options. Last login is recorded from when this is enabled onward. Off by default.', 'keel-defaults' ),
 		),
 		'environment_indicator'           => array(
 			'label'     => __( 'Environment Indicator', 'keel-defaults' ),

@@ -50,6 +50,27 @@ keel_assert( isset( $cols['keel_file_size'] ), 'Media columns include file size.
 $cols = keel_defaults_filter_user_columns( array( 'username' => 'Username' ) );
 keel_assert( isset( $cols['keel_registered'] ) && isset( $cols['keel_last_login'] ), 'User columns include registered + last login.' );
 
+// ID starts hidden on post-type lists, and only there.
+$edit = (object) array( 'base' => 'edit' );
+keel_assert( array( 'keel_id' ) === keel_defaults_hide_helper_id_column( array(), $edit ), 'ID starts hidden on post lists.' );
+keel_assert( array( 'core', 'keel_id' ) === keel_defaults_hide_helper_id_column( array( 'core' ), $edit ), "Core's defaults are kept, ID added after them." );
+keel_assert( array( 'keel_id' ) === keel_defaults_hide_helper_id_column( array( 'keel_id' ), $edit ), 'ID is not listed twice.' );
+keel_assert( array( 'keel_id' ) === keel_defaults_hide_helper_id_column( null, $edit ), 'A non-array from core is treated as empty.' );
+foreach ( array( 'users', 'upload', 'edit-tags' ) as $base ) {
+	keel_assert( array() === keel_defaults_hide_helper_id_column( array(), (object) array( 'base' => $base ) ), "Nothing is hidden on '{$base}'." );
+}
+keel_assert( array() === keel_defaults_hide_helper_id_column( array() ), 'Nothing is hidden without a screen.' );
+foreach ( array( 'keel_thumb', 'keel_modified' ) as $k ) {
+	keel_assert( ! in_array( $k, keel_defaults_hide_helper_id_column( array(), $edit ), true ), "'{$k}' still shows by default." );
+}
+
+// Registered with the helper columns, both arguments, only when enabled.
+$bootstrap = (string) file_get_contents( dirname( __DIR__ ) . '/includes/bootstrap.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading plugin source in a CLI test.
+keel_assert(
+	1 === preg_match( "/keel_defaults_enabled\\( 'helper_list_columns' \\) \\) \\{[^}]*add_filter\\( 'default_hidden_columns', 'keel_defaults_hide_helper_id_column', 10, 2 \\);/", $bootstrap ),
+	'The ID default is hooked inside the helper-columns block with both arguments.'
+);
+
 // Last-login: unknown is 0; record then read round-trips.
 keel_assert( 0 === keel_defaults_last_login_timestamp( 7 ), 'Unknown last login is 0.' );
 keel_defaults_record_last_login( 'bob', new WP_User( 7 ) );
