@@ -46,31 +46,18 @@ screen it came from, as a key into a fixed map rather than anything the form sup
 and rendered the result outside the offer. AX had inherited both halves and was fixed
 alongside it.
 
-## Now — observe the 0.6 line in the field
+## Now — observe 0.8.0 and improve update evidence
 
-0.6.0 through 0.6.9 are all published; `readme.txt` carries the changelog for each.
-The four that opened the line: 0.6.0 introduced the vulnerability check
-and the same-line installer; 0.6.1 carried the four fixes from Anchor Hosting's
-security review; 0.6.2 stopped the panel promising a scheduled install that the
-ladder beneath it contradicted; 0.6.3 put the offer on the Updates screen, which
-is the screen the whole feature exists because of — `get_core_updates()` drops
-the same-line patch, so that screen had never shown it.
+0.8.0 is published on GitHub and WordPress.org; its verification record is below.
+#292 and #293 subsequently hardened attribution across transient kinds, raw cron
+hook names and multisite storage scopes. Those fixes are merged, not released.
 
-- [x] **Release 0.6.0 through 0.6.3** — each tagged on a commit carrying its own
-      green CI and live matrix, and deployed to wordpress.org through the reviewed
-      SVN path.
-- [x] **Validate the published artifacts** — done per release: the GitHub ZIP, the
-      SVN tag and the directory version, plus screenshots, upgrade notice and
-      Playground links.
-- [ ] **Observe the field** — watch the scheduled live matrix and early reports
-      before opening another release. The six-row candidate matrix passed on 2026-10-15 at
-      `2260976`; the release verification record covers the latest local checks.
-      The separate 2026-10-13 field snapshot found nine maintainer WordPress.com
-      sites on 0.6.7 with Jetpack connected; those production sites were not
-      rechecked during the local release pass. The install path has been
-      exercised on real sites in `en_US` and `fr_FR`, but by its authors rather than
-      by anyone who did not already know how it works. The fix in 0.6.7 for sites
-      Jetpack connects to WordPress.com is half confirmed; TODO.md has the detail.
+- [ ] **Observe the field** — watch the scheduled live matrix and attribution
+  reports before opening another release. Historical production observations in
+  TODO.md are dated evidence, not a current inventory. The maintainer's
+  WordPress.com settings-save confirmation remains open.
+- **Current focused work:** combine existing core selection, blocker and delivery
+  evidence on the Updates screen. No new defaults, version bump or release.
 
 ## Release completion — 2026-10-15
 
@@ -191,9 +178,11 @@ installs. Site Health must not become the performance problem it is diagnosing.
 
 ## Then — 0.9.0 update operations and support
 
-- [ ] **Show the core-update delivery timeline** — bring the selected release,
+- [x] **Show the core-update delivery timeline** — implemented on the development
+   branch, pending PR review; no release. Bring the selected release,
    branch-tip status, offer freshness, next scheduled check and recent success or
-   failure into one evidence-based view. Reuse core's answers and Keel's stable
+   failure evidence into one view. Durable success history remains unknown; no
+   result collector is added. Reuse core's answers and Keel's stable
    blocker codes; do not infer a guaranteed schedule from policy alone.
 - [ ] **Toggle plugin and theme auto-updates** — three states, `enabled`, `disabled`
    and `unset`, applied through the `auto_update_plugin` and `auto_update_theme`
@@ -1002,59 +991,12 @@ re-argued.
       The shape that survives all four is "exclude posts the current user cannot
       read", not "exclude posts with a password".
 
-- [ ] **Straight quotes — accepted as opt-in; implementation held for plan review.** `add_filter( 'run_wptexturize', '__return_false' )`,
-      so punctuation is left as typed. Structurally the shape of `disable_emojis`:
-      one core filter, one toggle, nothing left behind when it is off. Wanted by
-      sites publishing code, technical documentation, or anything where a curly
-      apostrophe corrupts a copied string. Prior art: wpuntexturize.
-
-      **The name undersells the blast radius, and the setting copy must not.**
-      `wptexturize()` is not a smart-quotes filter; quotes are one of its jobs.
-      Turning it off also reverts `...` to three periods instead of an ellipsis,
-      ` (tm)` to literal text instead of `™`, en and em dashes back to hyphens,
-      the multiplication sign back to `x`, prime marks for feet and inches, and
-      the cockney contractions (`'twas`, `'tis`, `'twere`) core special-cases.
-      A toggle labelled "straight quotes" that silently changes six other things
-      is the kind of surprise Keel exists not to spring, so this one is labelled
-      for what it does: leave typographic punctuation as typed.
-
-      **Prior work, from the Dirtbag research** (`docs/wordpress-contributions.md`
-      in dknauss/Dirtbag). The complaint that usually sends people looking for this
-      toggle is narrower than the toggle: core
-      [Trac #18549](https://core.trac.wordpress.org/ticket/18549), resurfaced as
-      [Gutenberg #42345](https://github.com/WordPress/gutenberg/issues/42345). An
-      apostrophe immediately after a closing inline tag — `<strong>He</strong>'s` —
-      curls the wrong way, into U+2018 LEFT single quote instead of U+2019, because
-      `wptexturize()` splits content into text runs at HTML boundaries and the
-      run beginning `'s` looks like an opening quote. A patch is submitted upstream
-      ([wordpress-develop #12249](https://github.com/WordPress/wordpress-develop/pull/12249),
-      green on trunk) with a standalone stopgap plugin at
-      [dknauss/wp-texturize-inline-quote-fix](https://github.com/dknauss/wp-texturize-inline-quote-fix).
-
-      **2026-10-16 review update:** do not implement the earlier one-filter sketch
-      yet. The comprehensive submission restores a family of historical inline-tag
-      quote cases, not just the modern apostrophe example. Evaluate its inclusion
-      separately from the preference to disable typography. The 2026-10-17
-      [comparison](docs/review/texturize-trac-comparison-2026-10-17.md) found locale
-      gaps in the earlier core patch and another contributor’s opening-tag proposal.
-      These are reconciled in the strengthened #12249; the subsequent
-      [compatibility pass](docs/review/typography-compatibility-2026-10-17.md)
-      documents remaining locale-cache, CPU and scope limits. The standalone output
-      workaround is not locale-equivalent to the submitted in-engine patch; a
-      faithful bridge would require a maintained function fork. Also review the
-      request-cached `run_wptexturize` hook and multisite blog switching. See the
-      [review draft](docs/plans/typography-policy-review.md); no typography runtime
-      change is authorized by that draft. The historical rationale below predates
-      this broader evaluation.
-
-      That matters here in two ways. It is the argument for **not** making this a
-      default-on setting: most people hitting the bug want the one case fixed, not
-      typography switched off site-wide, and the targeted fix already exists. And it
-      is the argument for Keel being the right layer for the blunt switch anyway —
-      the Dirtbag analysis concludes a *theme* must not disable texturization for
-      every site, but that "a plugin or mu-plugin can", which is precisely this
-      toggle. Off by default, opt-in, and the help text should point at the
-      narrower fix for anyone whose actual problem is #18549.
+- [~] **Typography — excluded from Keel** (decided 2026-10-19). The earlier
+      opt-in punctuation proposal is superseded. Both texturize fixes and any
+      "leave punctuation as typed" control belong to the separate
+      [feature plugin](https://github.com/dknauss/wp-texturize-inline-quote-fix)
+      and its core tickets. Keel adds no typography filters or setting. Historical
+      research remains in the linked review records and the Non-goals section.
 
 - [~] **Drop the browser nag — rejected.** Removing the "your browser is out of
       date" dashboard widget. Not deferred: decided against, and not to be

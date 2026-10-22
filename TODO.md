@@ -20,8 +20,10 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused work:** observe the autoload and cron/update attribution reports
-  in the field. Saved settings, the 42-setting schema and version floors are
+- **Current focused work:** implement the core-update delivery timeline below;
+  continue observing the autoload and cron/update attribution reports in the field.
+  #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
+  Saved settings, the 42-setting schema and version floors are
   unchanged. The maintainer's WordPress.com settings-save confirmation remains
   open; routine PHPStan expansion stays paused.
 
@@ -98,7 +100,9 @@ the tagged sources. See the
     All nine are on 0.6.7 with WordPress 7.1.3 and a connected Jetpack. None declares
     a non-production environment, so the 0.6.8 warning for a live site that says it
     is local would show on none of them.
-  - The scheduled live matrix last ran green on 2026-10-12. No issues are open.
+  - At the 2026-10-13 field snapshot, the scheduled live matrix had last run
+    green on 2026-10-12 and no issues were open. This is historical context, not
+    the current CI or issue status.
   - Looked for conflicts with WordPress.com on the same nine, 2026-10-13. Found none
     that breaks anything: Jetpack has no stored connection errors on any site, no
     setting is recorded as failing to take effect, no plugin shares an authoritative
@@ -313,9 +317,13 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Then — 0.9.0 update operations and support
 
-- [ ] **Show the core-update delivery timeline**
+- [x] **Show the core-update delivery timeline** — implemented on the development
+  branch, pending PR review; no version bump or release.
   - Combine selected release, branch tip, offer freshness, next check and recent result.
   - Reuse core's decisions and stable blocker codes; never promise an execution time.
+  - Missing success history stays unknown; no new collector or update controls.
+  - Preserve site-local cached cron versus network-wide offer/failure scope.
+  - Verification: [timeline record](docs/review/core-update-timeline-2026-10-21.md).
 - [ ] **Toggle plugin and theme auto-updates**
   - Three states — `enabled`, `disabled`, `unset` — through the `auto_update_plugin`
     and `auto_update_theme` filters. `unset` stays the default: the per-item
