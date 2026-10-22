@@ -145,7 +145,7 @@ $date_cols = array(
 	'title' => 'Title',
 	'date'  => 'Date',
 );
-check( $date_cols === keel_defaults_published_column_label( $date_cols ), 'Disabled tidy dates keep the Date heading' );
+check( keel_defaults_published_column_label( $date_cols ) === $date_cols, 'Disabled tidy dates keep the Date heading' );
 check( 'Published' === keel_defaults_date_column_status( 'Published', $published ) && 'core' === keel_defaults_date_column_time( 'core', $published ), 'Disabled tidy dates leave core cells alone' );
 $GLOBALS['settings']['tidy_date_columns']      = 'yes';
 $GLOBALS['settings']['date_columns_show_time'] = 'yes';
