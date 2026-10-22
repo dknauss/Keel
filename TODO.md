@@ -23,7 +23,7 @@ the tagged sources. See the
 - **Current focused work:** read-only WordPress.org update-check disclosure and optional list-table compaction (#265);
   continue observing the autoload and cron/update attribution reports in the field.
   #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
-  The development schema now has 46 individually configurable settings; the two extension policies default to Leave unchanged and the two list-table controls default off. Existing per-item choices and version floors are unchanged.
+  The development schema now has 48 individually configurable settings; the two extension policies default to Leave unchanged and the list-table and date-column controls default off. Existing per-item choices and version floors are unchanged.
   The maintainer's WordPress.com settings-save confirmation remains
   open; routine PHPStan expansion stays paused.
 

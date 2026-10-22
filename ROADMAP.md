@@ -59,8 +59,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
 - **Current focused work:** read-only WordPress.org update-check disclosure and optional list-table compaction (#265).
   The core delivery timeline (#294), extension policies (#295), sanitized export
   (#296), runtime audit (#297) and policy notice (#298) are merged and unreleased.
-  The development tree has 46 individually configurable settings. Extension policies
-  default to Leave unchanged; the two list-table controls default off;
+  The development tree has 48 individually configurable settings. Extension policies
+  default to Leave unchanged; the list-table and date-column controls default off;
   no version bump or release.
 
 ## Release completion — 2026-10-15
