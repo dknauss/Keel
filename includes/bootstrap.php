@@ -57,6 +57,9 @@ function keel_defaults_bootstrap() {
 		add_filter( 'allow_dev_auto_core_updates', 'keel_defaults_allow_dev_core_updates' );
 	}
 
+	add_filter( 'auto_update_plugin', 'keel_defaults_allow_plugin_updates' );
+	add_filter( 'auto_update_theme', 'keel_defaults_allow_theme_updates' );
+
 	add_filter( 'auto_update_translation', 'keel_defaults_allow_translation_updates' );
 
 	/* ----- Security ----- */

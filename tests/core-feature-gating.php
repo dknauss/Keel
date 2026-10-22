@@ -75,6 +75,7 @@ function apply_filters( $hook, $value ) {
 	return array_key_exists( $hook, $GLOBALS['keel_filters'] ) ? $GLOBALS['keel_filters'][ $hook ] : $value; }
 function get_option( $k, $d = false ) {
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
+function is_main_site() { return true; }
 function is_multisite() {
 	return ! empty( $GLOBALS['keel_is_multisite'] ); }
 // Multisite doubles. Absent until now because the harness never took that path,
@@ -183,7 +184,7 @@ keel_assert(
 );
 
 keel_assert(
-	42 === count( $schema ),
+	44 === count( $schema ),
 	"[{$state}] The schema is the same size on either core (" . count( $schema ) . ')."'
 );
 

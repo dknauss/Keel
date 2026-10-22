@@ -39,6 +39,9 @@ function keel_defaults_config_lock( $key ) {
 			}
 			break;
 
+		case 'plugin_auto_update_policy':
+		case 'theme_auto_update_policy':
+			// Fall through: global configuration disables every background update.
 		case 'auto_update_translations':
 			if ( $updates_off ) {
 
@@ -142,6 +145,16 @@ function keel_defaults_config_locked_value( $key, $value ) {
 			}
 			if ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
 				return keel_defaults_core_policy_for_constant( WP_AUTO_UPDATE_CORE );
+			}
+			break;
+
+		case 'plugin_auto_update_policy':
+		case 'theme_auto_update_policy':
+			if ( $updates_off ) {
+				return 'disabled';
+			}
+			if ( is_multisite() && ! is_main_site() ) {
+				return keel_defaults_extension_update_policy( 'plugin_auto_update_policy' === $key ? 'plugin' : 'theme' );
 			}
 			break;
 

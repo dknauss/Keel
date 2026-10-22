@@ -56,8 +56,10 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** combine existing core selection, blocker and delivery
-  evidence on the Updates screen. No new defaults, version bump or release.
+- **Current focused work:** plugin/theme auto-update policies and decision reporting.
+  The core delivery timeline is merged in #294 and unreleased. The development
+  tree has 44 independent defaults. Both new policies default to Leave unchanged;
+  no version bump or release.
 
 ## Release completion — 2026-10-15
 
@@ -75,7 +77,7 @@ with publication evidence. Plugin Check has no errors; its intentional updater
 warning remains documented. The released 40-setting schema and PHP 7.4 floor are preserved.
 
 0.7.0 then added search privacy and paired shortcode cleanup/Site Health
-reporting (42 defaults). The
+reporting (42 settings at release). The
 subsequent 0.7.0 scope decision, accessibility work and release preparation are
 recorded below. Continue field observation separately.
 
@@ -178,13 +180,13 @@ installs. Site Health must not become the performance problem it is diagnosing.
 
 ## Then — 0.9.0 update operations and support
 
-- [x] **Show the core-update delivery timeline** — implemented on the development
-   branch, pending PR review; no release. Bring the selected release,
+- [x] **Show the core-update delivery timeline** — merged in #294 and unreleased. Bring the selected release,
    branch-tip status, offer freshness, next scheduled check and recent success or
    failure evidence into one view. Durable success history remains unknown; no
    result collector is added. Reuse core's answers and Keel's stable
    blocker codes; do not infer a guaranteed schedule from policy alone.
-- [ ] **Toggle plugin and theme auto-updates** — three states, `enabled`, `disabled`
+- [x] **Toggle plugin and theme auto-updates** — implemented on the development
+   branch, pending PR review; unreleased. Three states, `enabled`, `disabled`
    and `unset`, applied through the `auto_update_plugin` and `auto_update_theme`
    filters. `unset` is the default and must stay it: the per-item checkboxes on the
    Plugins screen are a deliberate choice, and a defaults plugin silently overriding

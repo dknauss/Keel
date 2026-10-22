@@ -364,7 +364,7 @@ function keel_defaults_sanitize( $input ) {
 				// compare against the posted (string) value so numeric-string keys
 				// (e.g. '300') do not silently fail validation and revert to default.
 				$choices       = isset( $field['choices'] ) ? array_map( 'strval', $field['choices'] ) : array();
-				$value         = isset( $input[ $key ] ) ? (string) $input[ $key ] : (string) $field['default'];
+				$value         = isset( $input[ $key ] ) && is_scalar( $input[ $key ] ) ? (string) $input[ $key ] : (string) $field['default'];
 				$clean[ $key ] = in_array( $value, $choices, true ) ? $value : (string) $field['default'];
 				break;
 

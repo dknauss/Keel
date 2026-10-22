@@ -170,6 +170,9 @@ jobs:
       - name: Core delivery timeline evidence contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/update-timeline.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Plugin and theme update policy contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/extension-updates.php" --path=/tmp/keel-wp --allow-root
+
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 

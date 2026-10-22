@@ -141,6 +141,18 @@ function keel_defaults_schema() {
 				'inherit',
 			),
 		),
+		'plugin_auto_update_policy'       => array(
+			'default' => 'unset',
+			'type'    => 'select',
+			'group'   => 'updates',
+			'choices' => array( 'enabled', 'disabled', 'unset' ),
+		),
+		'theme_auto_update_policy'        => array(
+			'default' => 'unset',
+			'type'    => 'select',
+			'group'   => 'updates',
+			'choices' => array( 'enabled', 'disabled', 'unset' ),
+		),
 		'auto_update_translations'        => array(
 			'default' => 'yes',
 			'type'    => 'toggle',

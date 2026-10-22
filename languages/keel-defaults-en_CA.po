@@ -26,7 +26,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "42 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
+msgid "44 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
 msgstr ""
 
 #. Author of the plugin
@@ -1324,7 +1324,7 @@ msgid "Automatically update translation files"
 msgstr ""
 
 #: includes/strings.php:108
-msgid "Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates remain controlled by WordPress's individual per-item choices."
+msgid "Installs available WordPress, plugin, and theme language updates. Plugin and theme code updates use the separate policies above; Leave unchanged preserves WordPress’s per-item choices."
 msgstr ""
 
 #: includes/strings.php:111

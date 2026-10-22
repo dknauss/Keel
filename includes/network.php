@@ -92,6 +92,10 @@ function keel_defaults_network_value( $key ) {
  * @return string|null
  */
 function keel_defaults_network_lock( $key ) {
+	if ( in_array( $key, array( 'plugin_auto_update_policy', 'theme_auto_update_policy' ), true ) && is_multisite() && ! is_main_site() ) {
+		return __( 'Shared plugin and theme updates use network policy or the main site’s setting. Manage this policy in Network Admin or on the main site.', 'keel-defaults' );
+	}
+
 	if ( ! keel_defaults_network_manages( $key ) ) {
 		return null;
 	}
