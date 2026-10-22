@@ -173,6 +173,9 @@ jobs:
       - name: Plugin and theme update policy contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/extension-updates.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Sanitized posture export contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/posture-export.php" --path=/tmp/keel-wp --allow-root
+
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 

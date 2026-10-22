@@ -108,6 +108,10 @@ Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave uncha
 
 WordPress's strength meter advises the person typing but cannot refuse a password, and passwords set through the REST API, WP-CLI, or a form without scripts never meet it. Keel instead checks length, known breaches, a blocklist, and personal details such as your own name on the server, where the checks cannot be bypassed.
 
+= Can I download a report for support? =
+
+Yes. Use Download posture JSON under Site Defaults. The authenticated download includes validated policy choices and cached diagnostic summaries, with unknown evidence marked explicitly. It excludes site/user identifiers, raw option records, callback paths and full plugin/theme inventories. On multisite, network-management authority is required. Review the file before sharing it; downloading does not refresh diagnostics or run update checks.
+
 = Can I set these in code instead? =
 
 Yes. Many defaults can be set with a `wp-config.php` constant or a filter, for example `KEEL_DISABLE_HIBP` or `KEEL_ALLOW_NONPRODUCTION_MAIL`. A constant wins over the settings screen, and the screen shows when a setting is being overridden. The full list is in the plugin's documentation on GitHub.

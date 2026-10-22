@@ -769,6 +769,8 @@ function keel_defaults_render_settings_page() {
 			<?php submit_button(); ?>
 		</form>
 
+		<?php keel_defaults_render_posture_export(); ?>
+
 	</div>
 	<?php
 }
