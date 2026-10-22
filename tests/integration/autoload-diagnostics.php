@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) || ! function_exists( 'keel_defaults_autoload_health
 }
 global $wpdb;
 $keel_autoload_site   = 0;
+$keel_autoload_roles  = $wpdb->get_blog_prefix() . 'user_roles';
 $keel_autoload_user   = get_current_user_id();
 $keel_autoload_keys   = array( 'keel_probe_large', 'keel_probe_disabled', 'keel_probe_é' );
 $keel_autoload_assert = static function ( $condition, $message ) {
@@ -48,6 +49,7 @@ try {
 	$keel_autoload_assert( $queries === $wpdb->num_queries, 'Cached snapshot must avoid SQL.' );
 	$keel_autoload_assert( false === strpos( wp_json_encode( $state, JSON_UNESCAPED_UNICODE ), str_repeat( 'é', 100 ) ), 'No values in cached report.' );
 	if ( is_multisite() ) {
+		$keel_autoload_assert( 'unknown' === keel_defaults_autoload_owner( '_site_transient_update_core' )['confidence'], 'Per-site rows cannot impersonate network core transients.' );
 		$installing         = wp_installing();
 		$keel_autoload_site = wpmu_create_blog( get_network()->domain, '/keel-autoload-' . wp_rand() . '/', 'Autoload probe', $admins[0]->ID );
 		wp_installing( $installing );
@@ -55,6 +57,8 @@ try {
 		switch_to_blog( $keel_autoload_site );
 		try {
 			$keel_autoload_assert( false === keel_defaults_autoload_snapshot(), 'A second site must not see the first report.' );
+			$keel_autoload_assert( 'WordPress core' === keel_defaults_autoload_owner( $wpdb->get_blog_prefix() . 'user_roles' )['owner'], 'Roles attribution follows the current site prefix.' );
+			$keel_autoload_assert( 'unknown' === keel_defaults_autoload_owner( $keel_autoload_roles )['confidence'], 'Another site roles key is not attributed to this site.' );
 			keel_defaults_autoload_health();
 			$keel_autoload_assert( 0 === keel_defaults_autoload_snapshot()['scanned'], 'Second site starts independently.' );
 		} finally {
@@ -62,6 +66,7 @@ try {
 		}
 		$keel_autoload_assert( keel_defaults_autoload_snapshot()['scanned'] === $state['scanned'], 'Switching back preserves first-site progress.' );
 	}
+	$keel_autoload_assert( 'Keel' !== keel_defaults_autoload_owner( 'keel_network_settings' )['owner'], 'Per-site metadata does not claim a network storage key.' );
 	wp_set_current_user( 0 );
 	$keel_autoload_assert( '' === keel_defaults_autoload_health()['description'], 'No diagnostic metadata for unauthenticated callers.' );
 	echo "autoload real-database contracts: OK\n";
