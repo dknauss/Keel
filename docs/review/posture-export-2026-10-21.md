@@ -71,3 +71,12 @@ cleanup and installed plugins' generic option/cache filters remain WordPress beh
   contracts pass. Independent review's conflict provenance/callback findings were
   fixed; final review found no remaining issues.
 - The real WordPress export probe is wired into every live installer-matrix row.
+
+## PR #296 final review
+
+All six [live matrix jobs](https://github.com/dknauss/Keel/actions/runs/39700808655)
+passed on `d89569d`, including the new export contracts, PHP 7.4 / WordPress 6.4
+floor, French locale, persistent-cache multisite and real backward/forward installer
+flows. PR CI passed across PHP 7.4–8.5. Final review found no remaining issues or
+unresolved GitHub review threads. This follow-up only records evidence; runtime
+and test sources are unchanged.
