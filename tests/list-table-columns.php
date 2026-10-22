@@ -60,6 +60,8 @@ $columns            = array(
 $GLOBALS['columns'] = $columns;
 check( keel_defaults_compact_column_labels( $columns ) === $columns, 'Disabled labels unchanged' );
 check( array( 'date' ) === keel_defaults_fewer_list_columns( array( 'date' ), $GLOBALS['screen'] ), 'Disabled defaults unchanged' );
+keel_defaults_enqueue_fewer_columns_style();
+check( empty( $GLOBALS['enqueued'] ), 'Disabled fewer columns enqueues nothing' );
 keel_defaults_enqueue_compact_column_style();
 check( empty( $GLOBALS['enqueued'] ), 'Disabled compact labels enqueue nothing' );
 $GLOBALS['settings']['compact_column_labels'] = 'yes';
@@ -96,6 +98,18 @@ $GLOBALS['map_filter']                        = null;
 $GLOBALS['settings']['compact_column_labels'] = 'no';
 $GLOBALS['settings']['fewer_list_columns']    = 'yes';
 check( array( 'date', 'jetpack_seo_description', 'shortlink', 'keel_id', 'keel_modified' ) === keel_defaults_fewer_list_columns( array( 'date' ), $GLOBALS['screen'] ), 'Only present allowlisted defaults hidden, independently of compaction' );
+$GLOBALS['enqueued'] = array();
+keel_defaults_enqueue_fewer_columns_style();
+check( array( 'keel-defaults-list-table-fewer-columns', '/assets/list-table-fewer-columns.css' ) === array_slice( $GLOBALS['enqueued'][0], 0, 2 ), 'Fewer columns enqueues its static asset' );
+$fewer_css = (string) file_get_contents( dirname( __DIR__ ) . '/assets/list-table-fewer-columns.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a plugin asset in a CLI test.
+$fewer_css = (string) preg_replace( '#/\*.*?\*/#s', '', $fewer_css );
+preg_match_all( '/(?<![-\w])width\s*:\s*([^;}]+)/', $fewer_css, $declared );
+check( array( 'auto' ) === array_values( array_unique( array_map( 'trim', $declared[1] ) ) ), 'Fewer columns CSS only removes widths, never sets one' );
+check( false !== strpos( $fewer_css, '.column-categories' ) && false !== strpos( $fewer_css, '.column-tags' ), 'Categories and Tags targeted' );
+check( 1 === preg_match( '/@media screen and \(min-width: 783px\)/', $fewer_css ), 'Desktop layout only' );
+foreach ( array( 'title', 'author', 'date', 'shortlink', 'keel_' ) as $col ) {
+	check( false === strpos( $fewer_css, '.column-' . $col ), "Column $col untouched" );
+}
 $GLOBALS['columns']['jetpack_seo_schema'] = 'Schema';
 $GLOBALS['columns']['jetpack_seo_search'] = 'Search';
 check( 6 === count( keel_defaults_fewer_list_columns( array(), $GLOBALS['screen'] ) ), 'All six exact optional keys can be hidden' );
@@ -107,6 +121,7 @@ foreach ( array( 'users', 'upload', 'dashboard', 'post' ) as $base ) {
 	$GLOBALS['screen']->base = $base;
 	$GLOBALS['enqueued']     = array();
 	keel_defaults_enqueue_compact_column_style();
+	keel_defaults_enqueue_fewer_columns_style();
 	check( array() === $GLOBALS['enqueued'], 'Unrelated screen enqueues nothing' );
 	check( keel_defaults_compact_column_labels( $columns ) === $columns && array() === keel_defaults_fewer_list_columns( array(), $GLOBALS['screen'] ), 'Unrelated screens unchanged' );
 }

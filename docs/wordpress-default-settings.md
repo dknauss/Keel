@@ -719,6 +719,14 @@ add_action( 'add_meta_boxes_attachment', function () {
 - **Why:** Adds the columns you end up wanting: ID, featured image and modified date on posts
   and pages; file size on the Media library; registration date and last login on Users.
 
+**The ID column starts hidden** on every post-type list, through core's
+`default_hidden_columns`, and shows only once a user ticks it on in Screen Options. Core applies
+those defaults only to users with no saved Screen Options for the screen, so for everyone else
+Keel adds `keel_id` to their saved hidden list **once**, the first time they open each
+post-type list with this setting on, and records the screen in `keel_id_column_backfilled`
+user meta. A user who ticks ID back on keeps it: that screen is never processed again. Jetpack
+does the same for its SEO columns.
+
 **Last login is recorded from when this is switched on, not retroactively** — WordPress does
 not store it, so there is no history to backfill. Existing accounts show blank until their
 next sign-in.
@@ -759,6 +767,32 @@ and Modified columns to core’s default-hidden list. It does not remove columns
 rewrite user options. Saved Screen Options—including a saved empty hidden list—
 always win. Title, selection, primary and unknown columns are not hidden by Keel.
 Changed or absent third-party keys are left alone.
+
+Fewer List Columns also removes core's 15% widths from the Categories and Tags columns on
+post lists, above core's 783px responsive breakpoint, so they share the leftover width with
+Title. It only removes widths and never sets one.
+
+**What actually gives Title room.** The list table is `table-layout: fixed`. Core gives
+Author, Categories, Tags and Date set percentages (about 54% of a post list), and every column
+without a width, Title included, splits what is left equally. Measured on a site running
+Jetpack 16.3.1, Hum 1.4.0, ActivityPub 9.3.1 and Keel's helper columns, Posts list:
+
+| Change (every column showing unless noted) | Title at 1440px | Title at 1024px |
+|---|---|---|
+| Nothing | 66px | 27px |
+| Compact labels | 66px | 27px |
+| Fixed widths on the small columns | 0px | 0px |
+| Percentage widths on the small columns | 41px | 0px |
+| Categories and Tags at `width: auto` | 106px | 60px |
+| Tags hidden | 107px | 56px |
+| Tags and Categories hidden | 148px | 85px |
+| Fewer List Columns, user without saved Screen Options | 221–393px | 142–222px |
+
+Header text does not size a column in a fixed layout, so compact labels are a visual tidy-up
+only. Set widths just move the remainder around, with each column's padding on top of its
+share; every attempt made Title narrower. Hiding columns is what gives Title room. (Pages has
+no Categories or Tags; its Title measured 452px and 248px.) ActivityPub 9.3.1 adds its column
+to the Users list only, so the Fedi label has nothing to act on there today.
 
 ### Admin Menu Width
 - **Key:** `admin_menu_width`

@@ -233,7 +233,7 @@ function keel_defaults_strings() {
 		'fewer_list_columns'              => array(
 			'label'     => __( 'Fewer List Columns', 'keel-defaults' ),
 			'statement' => __( 'Hide optional columns by default in post lists', 'keel-defaults' ),
-			'help'      => __( 'Hides known Jetpack SEO, shortlink, and Keel ID and modified-date columns when present on posts, pages, and custom post types. Saved Screen Options preferences always win; columns remain available there. Does not affect Media or Users. Off by default.', 'keel-defaults' ),
+			'help'      => __( 'Hides known Jetpack SEO, shortlink, and Keel ID and modified-date columns when present on posts, pages, and custom post types. Saved Screen Options preferences always win; columns remain available there. Also lets the Categories and Tags columns share width with Title instead of keeping 15% each. Does not affect Media or Users. Off by default.', 'keel-defaults' ),
 		),
 		'helper_list_columns'             => array(
 			'label'     => __( 'Admin List Columns', 'keel-defaults' ),
