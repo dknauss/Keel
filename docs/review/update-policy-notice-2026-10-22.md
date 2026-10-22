@@ -46,3 +46,9 @@ change multisite policy resolution or grant settings-management authority.
   Captures retained locally under `.playwright-mcp/keel-update-policy-notice-*.png`;
   WordPress.org listing screenshots are unchanged.
 - Independent code review: no findings.
+
+## Merge verification
+
+#298 merged as `67767de` on 2026-10-22 after green CI (PHP 7.4 and 8.0–8.5),
+clean independent review and all six [live matrix rows](https://github.com/dknauss/Keel/actions/runs/39790499987)
+on head `b7f0208`. No GitHub review findings were posted. Still unreleased.

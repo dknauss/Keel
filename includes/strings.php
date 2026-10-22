@@ -225,6 +225,16 @@ function keel_defaults_strings() {
 			'help'   => __( 'Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core\'s width over a theme, host, or plugin that has widened the menu.', 'keel-defaults' ),
 			'labels' => array( __( 'Leave unchanged', 'keel-defaults' ), __( '160px (WordPress default)', 'keel-defaults' ), __( '200px', 'keel-defaults' ), __( '240px', 'keel-defaults' ), __( '280px', 'keel-defaults' ), __( '300px', 'keel-defaults' ) ),
 		),
+		'compact_column_labels'           => array(
+			'label'     => __( 'Compact Column Labels', 'keel-defaults' ),
+			'statement' => __( 'Shorten known plugin column headings in post lists', 'keel-defaults' ),
+			'help'      => __( 'Uses Meta, Link, and Fedi for known Jetpack description, shortlink, and ActivityPub columns. Full headings remain in tooltips and screen-reader text. Does not change column contents or sorting. Off by default.', 'keel-defaults' ),
+		),
+		'fewer_list_columns'              => array(
+			'label'     => __( 'Fewer List Columns', 'keel-defaults' ),
+			'statement' => __( 'Hide optional columns by default in post lists', 'keel-defaults' ),
+			'help'      => __( 'Hides known Jetpack SEO, shortlink, and Keel ID and modified-date columns when present on posts, pages, and custom post types. Saved Screen Options preferences always win; columns remain available there. Does not affect Media or Users. Off by default.', 'keel-defaults' ),
+		),
 		'helper_list_columns'             => array(
 			'label'     => __( 'Admin List Columns', 'keel-defaults' ),
 			'statement' => __( 'Add helper columns to admin list tables', 'keel-defaults' ),

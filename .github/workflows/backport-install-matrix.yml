@@ -182,6 +182,12 @@ jobs:
       - name: Persistent update-policy notice contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/update-policy-notice.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Read-only update disclosure contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/update-disclosure.php" --path=/tmp/keel-wp --allow-root
+
+      - name: Optional list-table column contracts
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/list-table-columns.php" --path=/tmp/keel-wp --allow-root
+
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 

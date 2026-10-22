@@ -56,9 +56,11 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** persistent Keel update policy notice.
-  The core delivery timeline (#294), extension policies (#295) and sanitized export (#296) are merged and unreleased. The development
-  tree has 44 independent defaults. Both new policies default to Leave unchanged;
+- **Current focused work:** read-only WordPress.org update-check disclosure and optional list-table compaction (#265).
+  The core delivery timeline (#294), extension policies (#295), sanitized export
+  (#296), runtime audit (#297) and policy notice (#298) are merged and unreleased.
+  The development tree has 46 individually configurable settings. Extension policies
+  default to Leave unchanged; the two list-table controls default off;
   no version bump or release.
 
 ## Release completion — 2026-10-15
@@ -224,10 +226,15 @@ installs. Site Health must not become the performance problem it is diagnosing.
     in Site Health. No callback execution, probes, repairs or persistent verdicts.
   - Verification: [registration audit record](docs/review/runtime-registration-audit-2026-10-22.md).
 
-- [x] **Clarify core update policy on the Updates screen** — implemented on the development branch; pending PR review and unreleased.
+- [x] **Clarify core update policy on the Updates screen** — merged in #298 (`67767de`); unreleased.
   - Preserve core’s text and add a persistent Keel notice with branch scope,
     policy provenance and a direct link to the relevant setting. No delivery guarantee.
   - Verification: [notice record](docs/review/update-policy-notice-2026-10-22.md).
+
+- [x] **Compact list-table columns** — implemented for #265 on the development branch, pending PR review; unreleased.
+  - Two independent controls default off. Preserve full accessible labels, keys,
+    sorting and saved Screen Options. Only site-admin post-type lists are in scope.
+  - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
 ## Later
 
@@ -310,23 +317,16 @@ installs. Site Health must not become the performance problem it is diagnosing.
   per IP punishes NAT, global punishes everyone during an attack. Decide the key
   before writing the code.
 
-- [ ] **Report what this site already sends to WordPress.org** — undecided, and the
-  most Keel-shaped idea to come out of the 0.6.0 work. Duane Storey's
-  [deep look at the WordPress API](https://duanestorey.com/posts/down-the-rabbit-hole-a-deep-look-at-the-wordpress-api)
-  documents what `core/version-check`, `plugins/update-check` and `themes/update-check`
-  actually transmit: the site URL and WordPress version in the user-agent, `wp_install`
-  and `wp_blog` headers, PHP and MySQL versions, enabled extensions, multisite status,
-  user counts, and metadata for every installed plugin and theme whether active or not.
+- [x] **Report what this site normally sends to WordPress.org** — implemented on the development branch, pending PR review; unreleased.
+  Core’s update requests include site identity, environment categories and installed
+  plugin/theme metadata. The category summary is checked against core source for
+  stable WordPress 6.4–7.1, rather than observing this site’s traffic.
 
-  None of it is disclosed in wp-admin, and there is no opt-out — while wordpress.org's
-  own plugin guidelines require exactly that disclosure from plugins. Keel discloses
-  its single stable-check call in detail in readme.txt; core's far larger transmission
-  is invisible. Surfacing an invisible default is the whole premise of this plugin, and
-  this is the largest one nobody has surfaced.
-
-  Report-only, and probably nothing more: these requests are how updates arrive at all,
-  so a switch would be a foot-gun of the kind 0.6.0 exists to warn about. Decide the
-  scope before promoting it.
+  The accepted scope is static Site Health Info documentation for the three core
+  update-check endpoints. It describes categories, not actual site values or verified
+  traffic. No extra requests, inventory reads, payload capture, storage or blocking
+  switch. Unsupported/development versions remain unverified; multisite requires
+  network-management authority. See the [verification record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
 - [ ] **Register Keel's settings as Abilities** — undecided; wait for the MCP Adapter
   to settle. `keel/get-settings`, `keel/update-setting` and `keel/site-posture`, private

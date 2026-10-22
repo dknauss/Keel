@@ -20,11 +20,10 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Current focused work:** persistent Keel update policy notice;
+- **Current focused work:** read-only WordPress.org update-check disclosure and optional list-table compaction (#265);
   continue observing the autoload and cron/update attribution reports in the field.
   #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
-  The development schema now has 44 independent defaults; the two new controls default to
-  Leave unchanged. Existing per-item choices and version floors are unchanged.
+  The development schema now has 46 individually configurable settings; the two extension policies default to Leave unchanged and the two list-table controls default off. Existing per-item choices and version floors are unchanged.
   The maintainer's WordPress.com settings-save confirmation remains
   open; routine PHPStan expansion stays paused.
 
@@ -180,11 +179,10 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Issue triage — 2026-10-15
 
-- [ ] **Compact list-table columns** — [#265](https://github.com/dknauss/Keel/issues/265),
-      optional compact labels/default-hidden columns. This enhancement predates 0.6.9;
-      the helper-column code is unchanged from 0.6.8. Keep separate from search privacy.
-      No open issue reports a newly introduced 0.6.9 defect at this review; that is
-      not evidence that unreported regressions are impossible.
+- [x] **Compact list-table columns** — implemented for [#265](https://github.com/dknauss/Keel/issues/265) on the development branch, pending PR review; unreleased.
+  - Two independent controls default off. Preserve full accessible labels, keys,
+    sorting and saved Screen Options. Only site-admin post-type lists are in scope.
+  - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
 ## 0.7.0 privacy and content integrity — released
 
@@ -352,10 +350,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     in Site Health. No callback execution, probes, repairs or persistent verdicts.
   - Verification: [registration audit record](docs/review/runtime-registration-audit-2026-10-22.md).
 
-- [x] **Clarify core update policy on the Updates screen** — implemented on the development branch; pending PR review and unreleased.
+- [x] **Clarify core update policy on the Updates screen** — merged in #298 (`67767de`); unreleased.
   - Preserve core’s text and add a persistent Keel notice with branch scope,
     policy provenance and a direct link to the relevant setting. No delivery guarantee.
   - Verification: [notice record](docs/review/update-policy-notice-2026-10-22.md).
+
+- [x] **Report what this site normally sends to WordPress.org** — implemented on the development branch, pending PR review; unreleased.
+  - Static Site Health Info documentation, with no actual site values, request
+    capture, inventory reads, extra HTTP, storage or blocking controls.
+  - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
 ## Completed in v0.6.0
 
