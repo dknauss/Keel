@@ -335,6 +335,31 @@ installs. Site Health must not become the performance problem it is diagnosing.
   or changed only through the settings screen. Design, exposure rules and the
   conditions for revisiting are in [AI integrations](docs/ai-integrations.md).
 
+- [x] **Inventory the Abilities authorization filters** — implemented on the
+  development branch 2026-10-22; pending PR review and unreleased. On core 7.1+,
+  a Site Health test lists every callback on `wp_ability_permission_result` and
+  `wp_pre_execute_ability`. Any one of them can change who may run an ability, or
+  skip the check, so a single registration is a finding (`recommended`, never
+  `critical`). Keel sets no policy on either filter, so this is an inventory built
+  on the attribution layer, not an overlap report. It states the effect of core
+  helpers such as `__return_true` without running them, and names other core
+  functions found there. It reads the registry within the registration audit's
+  1,000-entry bound and runs no callbacks. The posture export is unchanged. The
+  design is option A in the
+  [scoping note](docs/plans/abilities-authorization-inventory.md).
+
+- [ ] **Measure permission flips and name helper owners — possibly as a separate
+  plugin.** Options B (an opt-in passive observer that records real
+  deny→grant, grant→deny and short-circuit events) and C (attributing
+  `__return_*` registrations by comparing the registry after each plugin loads)
+  from the [scoping note](docs/plans/abilities-authorization-inventory.md).
+  Decide where they live before building either. Both reach past Keel's
+  settings: B adds work to every ability invocation, and C wants a must-use shim
+  to see plugins that load before Keel. That is the same reason typography moved
+  to its own plugin. If they fork, extract the attribution layer as a shared
+  library rather than copying it. Revisit after option A has run against real
+  sites.
+
 Explore database-growth reporting (revision volume, expired transients and unusually
 large rows), media-storage amplification and richer multisite/network diagnostics
 only after the 0.8 framework proves that the measurements can be cheap and honest.

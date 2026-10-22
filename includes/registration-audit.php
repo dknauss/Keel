@@ -94,7 +94,9 @@ function keel_defaults_add_audited_action( $hook, $callback, $priority, $accepte
 }
 
 /**
- * Read at most 1,000 registration entries from one of the two audited hooks.
+ * Read at most 1,000 registration entries from one audited hook.
+ *
+ * Also used by the abilities authorization inventory, which needs the same bound.
  *
  * @param string $hook Known hook name.
  * @return array|false Flattened priorities and callback identities, or unknown.

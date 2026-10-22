@@ -18,6 +18,7 @@ parameters:
         - includes/conflict-overlap.php
         - includes/conflict-divergence.php
         - includes/conflict-notices.php
+        - includes/abilities-authorization.php
         - includes/backport-status.php
         - includes/backport-actions.php
         - includes/password-hibp.php
