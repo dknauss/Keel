@@ -23,6 +23,7 @@ function keel_defaults_bootstrap() {
 
 	// Read-only Site Health posture surface — always registered (not a toggle).
 	add_filter( 'site_status_tests', 'keel_defaults_site_health_tests' );
+	add_filter( 'site_status_tests', 'keel_defaults_register_ability_authorization_test' );
 
 	/*
 	 * The same summary in Site Health → Info, which is where it belongs. A

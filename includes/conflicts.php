@@ -72,3 +72,4 @@ require_once __DIR__ . '/conflict-divergence.php';
 require_once __DIR__ . '/conflict-notices.php';
 
 require_once __DIR__ . '/registration-audit.php';
+require_once __DIR__ . '/abilities-authorization.php';

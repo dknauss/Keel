@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T13:47:47+00:00\n"
+"POT-Creation-Date: 2026-10-22T20:12:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -34,6 +34,99 @@ msgstr ""
 #. Author of the plugin
 #: keel.php
 msgid "Dan Knauss"
+msgstr ""
+
+#: includes/abilities-authorization.php:194
+msgid "Ability permission overrides"
+msgstr ""
+
+#: includes/abilities-authorization.php:211
+msgid "No plugin is overriding ability permissions"
+msgstr ""
+
+#: includes/abilities-authorization.php:214
+#: includes/backport-presentation.php:186
+#: includes/registration-audit.php:207
+#: includes/site-health.php:455
+msgid "Security"
+msgstr ""
+
+#: includes/abilities-authorization.php:227
+msgid "Abilities are actions that AI tools, the REST API and WP-CLI can run on this site. Each one checks permission before it runs. WordPress lets plugins change that answer, or skip the check entirely."
+msgstr ""
+
+#: includes/abilities-authorization.php:228
+msgid "Keel reads what is registered in this request. It does not run any plugin's code, so it cannot say what the result is for a particular ability, user, input or channel."
+msgstr ""
+
+#: includes/abilities-authorization.php:231
+msgid "Nothing on this site is registered to do either."
+msgstr ""
+
+#: includes/abilities-authorization.php:235
+msgid "Plugins can change who may run abilities on this site"
+msgstr ""
+
+#: includes/abilities-authorization.php:239
+msgid "Overrides permission results"
+msgstr ""
+
+#: includes/abilities-authorization.php:240
+msgid "Can skip the permission check entirely"
+msgstr ""
+
+#: includes/abilities-authorization.php:243
+msgid "grants every permission check that reaches it, for every ability, user and channel, including logged-out requests to abilities exposed over REST"
+msgstr ""
+
+#: includes/abilities-authorization.php:244
+msgid "denies every permission check that reaches it, for every ability"
+msgstr ""
+
+#: includes/abilities-authorization.php:245
+msgid "skips the permission check for every ability, including WP-CLI and other direct calls, and returns its own value instead"
+msgstr ""
+
+#. translators: %s: comma-separated WordPress function names.
+#: includes/abilities-authorization.php:258
+#, php-format
+msgid "the WordPress function %s, registered by code that cannot be traced"
+msgstr ""
+
+#. translators: %s: comma-separated helper function names, such as __return_true.
+#: includes/abilities-authorization.php:262
+#, php-format
+msgid "one or more registrations of %s"
+msgstr ""
+
+#. translators: %s: number of callbacks.
+#: includes/abilities-authorization.php:266
+#, php-format
+msgid "%s callback that cannot be traced to any plugin"
+msgid_plural "%s callbacks that cannot be traced to any plugin"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/abilities-authorization.php:269
+msgid "unknown: the hook registry is malformed or exceeds the 1,000-entry inspection limit"
+msgstr ""
+
+#. translators: 1: helper function name, 2: hook name, 3: what the helper does there.
+#: includes/abilities-authorization.php:280
+#, php-format
+msgid "One or more plugins or themes registered WordPress's %1$s helper on %2$s. That %3$s."
+msgstr ""
+
+#: includes/abilities-authorization.php:289
+msgid "The code below can change that answer, or skip the check. One registration is enough, so each is worth understanding even when no other plugin is involved. Many are intentional, for example a two-factor gate or a cache."
+msgstr ""
+
+#: includes/abilities-authorization.php:294
+msgid "A plugin that uses one of WordPress's own functions here leaves nothing behind to identify it: the function belongs to WordPress, not to whoever registered it. Your active plugins, theme and must-use plugins are the place to look."
+msgstr ""
+
+#: includes/abilities-authorization.php:297
+msgid "Check each plugin's documentation for why it uses these filters."
 msgstr ""
 
 #: includes/admin-ux.php:341
@@ -519,12 +612,6 @@ msgstr ""
 msgid "This version of WordPress core is not currently flagged as insecure"
 msgstr ""
 
-#: includes/backport-presentation.php:186
-#: includes/registration-audit.php:205
-#: includes/site-health.php:455
-msgid "Security"
-msgstr ""
-
 #: includes/backport-presentation.php:196
 msgid "Patch status could not be determined"
 msgstr ""
@@ -750,7 +837,7 @@ msgstr ""
 msgid "WordPress.org is offering this site %d releases. It will install at most one of them, and it picks the highest your settings allow rather than the nearest:"
 msgstr ""
 
-#: includes/bootstrap.php:272
+#: includes/bootstrap.php:273
 msgid "AI connectors are disabled on this site."
 msgstr ""
 
@@ -1118,70 +1205,70 @@ msgstr ""
 msgid "Download posture JSON"
 msgstr ""
 
-#: includes/registration-audit.php:202
+#: includes/registration-audit.php:204
 #: includes/site-health.php:21
 msgid "Keel registration audit"
 msgstr ""
 
-#: includes/registration-audit.php:216
+#: includes/registration-audit.php:218
 msgid "This audit inspects four redirect registrations and the session-length clamp declared during this request’s bootstrap. It executes no callbacks and makes no repairs. It does not prove runtime outcomes or coverage of other hooks, routes or requests."
 msgstr ""
 
-#: includes/registration-audit.php:219
+#: includes/registration-audit.php:221
 msgid "Registration coverage is unavailable: bootstrap has not supplied a baseline, or the current site differs from the site whose callbacks were registered. Check Site Health in a fresh request for this site."
 msgstr ""
 
-#: includes/registration-audit.php:223
+#: includes/registration-audit.php:225
 msgid "Comment feeds"
 msgstr ""
 
-#: includes/registration-audit.php:224
+#: includes/registration-audit.php:226
 msgid "Author feeds"
 msgstr ""
 
-#: includes/registration-audit.php:225
+#: includes/registration-audit.php:227
 msgid "Author archives"
 msgstr ""
 
-#: includes/registration-audit.php:226
+#: includes/registration-audit.php:228
 msgid "Attachment pages"
 msgstr ""
 
-#: includes/registration-audit.php:227
+#: includes/registration-audit.php:229
 msgid "Session length"
 msgstr ""
 
-#: includes/registration-audit.php:230
+#: includes/registration-audit.php:232
 msgid "Not registered by Keel in this bootstrap (policy inactive)."
 msgstr ""
 
-#: includes/registration-audit.php:231
+#: includes/registration-audit.php:233
 msgid "Registered with the declared precedence."
 msgstr ""
 
-#: includes/registration-audit.php:232
+#: includes/registration-audit.php:234
 msgid "Registered; core’s canonical redirect comparator is absent in this request."
 msgstr ""
 
-#: includes/registration-audit.php:233
+#: includes/registration-audit.php:235
 msgid "Expected registration is missing."
 msgstr ""
 
-#: includes/registration-audit.php:234
+#: includes/registration-audit.php:236
 msgid "The current priority loses the declared precedence."
 msgstr ""
 
-#: includes/registration-audit.php:235
+#: includes/registration-audit.php:237
 msgid "Unknown: the hook registry is malformed or exceeds the 1,000-entry inspection limit."
 msgstr ""
 
 #. translators: %d: current hook priority.
-#: includes/registration-audit.php:244
+#: includes/registration-audit.php:246
 #, php-format
 msgid "Observed priority: %d."
 msgstr ""
 
-#: includes/registration-audit.php:248
+#: includes/registration-audit.php:250
 msgid "Redirects are compared with the earliest registered core canonical redirect; the session clamp must follow default priority 10. Later callbacks can still change outcomes. This is current-request evidence, not a persistent or network-wide verdict. Investigate intentional overrides before changing code; the audit does not identify who changed a registration."
 msgstr ""
 
