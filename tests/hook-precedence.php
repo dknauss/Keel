@@ -118,8 +118,8 @@ foreach ( $files as $file ) {
 
 			// Walk back to the registering call, if this occurrence is one.
 			$head = substr( $text, max( 0, $at - 200 ), min( 200, $at ) );
-			if ( ! preg_match( '/(add_action|add_filter|keel_defaults_add_policy_filter)\s*\($/', preg_replace( '/\s+/', '', $head ) . '(' ) ) {
-				if ( ! preg_match( '/(add_action|add_filter|keel_defaults_add_policy_filter)\s*\(\s*$/s', $head ) ) {
+			if ( ! preg_match( '/(add_action|add_filter|keel_defaults_add_policy_filter|keel_defaults_add_audited_action)\s*\($/', preg_replace( '/\s+/', '', $head ) . '(' ) ) {
+				if ( ! preg_match( '/(add_action|add_filter|keel_defaults_add_policy_filter|keel_defaults_add_audited_action)\s*\(\s*$/s', $head ) ) {
 					continue;
 				}
 			}

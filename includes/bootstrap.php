@@ -19,6 +19,7 @@ add_action( 'plugins_loaded', 'keel_defaults_bootstrap' );
  * Wire every enabled default to its WordPress hook. Runs on plugins_loaded.
  */
 function keel_defaults_bootstrap() {
+	keel_defaults_registration_baseline( true );
 
 	// Read-only Site Health posture surface — always registered (not a toggle).
 	add_filter( 'site_status_tests', 'keel_defaults_site_health_tests' );
@@ -338,7 +339,7 @@ function keel_defaults_bootstrap() {
 		// /comments/feed/ answering 200 for anyone who guesses the URL.
 		add_filter( 'feed_links_show_comments_feed', '__return_false' );
 		add_filter( 'feed_links_extra_show_post_comments_feed', '__return_false' );
-		add_action( 'template_redirect', 'keel_defaults_block_comment_feeds', 9 );
+		keel_defaults_add_audited_action( 'template_redirect', 'keel_defaults_block_comment_feeds', 9, 1, 'comment_feeds' );
 
 		// Remove the "Recent Comments" dashboard widget.
 		add_action(
@@ -394,13 +395,13 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'disable_author_archives' ) ) {
-		add_action( 'template_redirect', 'keel_defaults_block_author_feeds', 9 );
+		keel_defaults_add_audited_action( 'template_redirect', 'keel_defaults_block_author_feeds', 9, 1, 'author_feeds' );
 		// Priority 9, like the feed block above it. Core registers
 		// redirect_canonical on template_redirect at the default 10 during
 		// load, before any plugin, so an equal priority loses the tie on
 		// registration order and core answers /?author=N first — which is
 		// the one form of the URL that discloses the author nicename.
-		add_action( 'template_redirect', 'keel_defaults_redirect_author_archive', 9 );
+		keel_defaults_add_audited_action( 'template_redirect', 'keel_defaults_redirect_author_archive', 9, 1, 'author_archives' );
 
 		/*
 		 * Feeds publish author names too, and the redirect above never touches
@@ -436,7 +437,7 @@ function keel_defaults_bootstrap() {
 	}
 
 	if ( keel_defaults_enabled( 'redirect_attachment_pages' ) ) {
-		add_action(
+		keel_defaults_add_audited_action(
 			'template_redirect',
 			function () {
 				if ( ! is_attachment() ) {
@@ -468,7 +469,9 @@ function keel_defaults_bootstrap() {
 			},
 			// Before core's redirect_canonical, which is registered on this hook
 			// at the default 10 during load and would otherwise answer first.
-			9
+			9,
+			1,
+			'attachment_pages'
 		);
 	}
 

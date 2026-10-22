@@ -20,7 +20,7 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Current focused work:** sanitized posture export for support;
+- **Current focused work:** runtime registration audit;
   continue observing the autoload and cron/update attribution reports in the field.
   #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
   The development schema now has 44 independent defaults; the two new controls default to
@@ -336,8 +336,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   - Report enabled decisions, unknown metadata and filter changes, with bounded
     installed-item coverage and no installation guarantee.
   - Verification: [extension policy record](docs/review/extension-auto-updates-2026-10-21.md).
-- [x] **Export a sanitized Keel posture report** — implemented on the development
-  branch, pending PR review; unreleased.
+- [x] **Export a sanitized Keel posture report** — merged in #296 (`ab299e8`); unreleased.
   - Include effective settings, conflicts, update operability and diagnostic evidence.
   - Exclude secrets, option values, user data and unnecessary site identifiers.
   - Explicit administrator download; multisite requires network-management authority.
@@ -346,6 +345,12 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   - No refreshes, scans, update selectors or installation probes; unavailable evidence
     and unmeasured freshness stay unknown.
   - Verification: [export record](docs/review/posture-export-2026-10-21.md).
+
+- [x] **Audit runtime registrations** — implemented on the development branch; pending PR review and unreleased.
+  - Inspect four redirect callbacks and the session clamp against their bootstrap baseline.
+  - Report missing registrations, lost precedence, inactive policies and unknown coverage
+    in Site Health. No callback execution, probes, repairs or persistent verdicts.
+  - Verification: [registration audit record](docs/review/runtime-registration-audit-2026-10-22.md).
 
 ## Completed in v0.6.0
 

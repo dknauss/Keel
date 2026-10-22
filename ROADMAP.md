@@ -56,8 +56,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** sanitized posture export for support.
-  The core delivery timeline (#294) and extension policies (#295) are merged and unreleased. The development
+- **Current focused work:** runtime registration audit.
+  The core delivery timeline (#294), extension policies (#295) and sanitized export (#296) are merged and unreleased. The development
   tree has 44 independent defaults. Both new policies default to Leave unchanged;
   no version bump or release.
 
@@ -206,8 +206,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
    the baseline, and which items those filters override. If risk-tiering is wanted later, the honest inputs are a
    moved `requires`/`requires_php` or the author's own `upgrade_notice`, not the
    version number.
-- [x] **Export a sanitized Keel posture report** — implemented on the development
-  branch, pending PR review; unreleased. Make settings, effective state,
+- [x] **Export a sanitized Keel posture report** — merged in #296 (`ab299e8`); unreleased. Make settings, effective state,
    conflicts, update operability and diagnostic evidence easy to share for support.
    Exclude secrets, option values, user data and unnecessary site identifiers.
 
@@ -218,6 +217,12 @@ installs. Site Health must not become the performance problem it is diagnosing.
    are withheld. No probes or refreshes run: full operability and unmeasured cache
    freshness remain unknown. See the
    [verification record](docs/review/posture-export-2026-10-21.md).
+
+- [x] **Audit runtime registrations** — implemented on the development branch; pending PR review and unreleased.
+  - Inspect four redirect callbacks and the session clamp against their bootstrap baseline.
+  - Report missing registrations, lost precedence, inactive policies and unknown coverage
+    in Site Health. No callback execution, probes, repairs or persistent verdicts.
+  - Verification: [registration audit record](docs/review/runtime-registration-audit-2026-10-22.md).
 
 ## Later
 
@@ -271,7 +276,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
        probe that cannot run in the right context and has nothing valid to ask
        about would not be worth building at any price.
 
-  3a. **Registration audit.** What static tests genuinely cannot see is runtime
+  3a. **Registration audit — implemented, unreleased.** What static tests genuinely cannot see is runtime
      interference: another plugin unhooking a Keel callback, or registering ahead
      of one, on a site whose plugin set no test knows about. That needs no probe.
      `has_filter( $hook, $callback )` returns the registered priority or `false`,

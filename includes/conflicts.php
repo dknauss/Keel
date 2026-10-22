@@ -70,3 +70,5 @@ require_once __DIR__ . '/conflict-attribution.php';
 require_once __DIR__ . '/conflict-overlap.php';
 require_once __DIR__ . '/conflict-divergence.php';
 require_once __DIR__ . '/conflict-notices.php';
+
+require_once __DIR__ . '/registration-audit.php';
