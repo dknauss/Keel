@@ -19,10 +19,12 @@ function get_option( $key, $default = false ) {
 function esc_html__( $text, $domain = '' ) { return esc_html( $text ); }
 function get_post_time( $format, $gmt, $post, $translate ) { return 'F j, Y' === $format ? 'October 22, 2026' : '7:49 pm'; }
 function get_post_modified_time( $format, $gmt, $post, $translate ) { return 'F j, Y' === $format ? 'October 23, 2026' : '9:05 am'; }
-class WP_Post {
+// Aliased rather than declared: another test declares its own WP_Post stand-in.
+class Keel_List_Table_Test_Post {
 	public $post_status;
 	public function __construct( $status ) { $this->post_status = $status; }
 }
+class_alias( 'Keel_List_Table_Test_Post', 'WP_Post' );
 function __( $text, $domain = '' ) { return $text; }
 function esc_html( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
 function esc_attr( $text ) { return esc_html( $text ); }
