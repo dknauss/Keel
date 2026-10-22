@@ -34,3 +34,9 @@ unknown until a fresh request establishes that site's registrations.
   and syntax checks pass. Independent review found one traversal-bound gap;
   fixed with a failing-first regression covering empty priority buckets.
 - The real WordPress probe is included in every live installer matrix row.
+
+## Merge verification
+
+#297 merged as `b4eb1e9` on 2026-10-22 after green CI (PHP 7.4 and 8.0–8.5),
+a clean independent review and all six [live installer matrix rows](https://github.com/dknauss/Keel/actions/runs/39789161465)
+on head `0c59361`. No GitHub review findings were posted. Still unreleased.

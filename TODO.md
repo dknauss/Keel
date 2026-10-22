@@ -20,7 +20,7 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Current focused work:** runtime registration audit;
+- **Current focused work:** persistent Keel update policy notice;
   continue observing the autoload and cron/update attribution reports in the field.
   #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
   The development schema now has 44 independent defaults; the two new controls default to
@@ -346,11 +346,16 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     and unmeasured freshness stay unknown.
   - Verification: [export record](docs/review/posture-export-2026-10-21.md).
 
-- [x] **Audit runtime registrations** — implemented on the development branch; pending PR review and unreleased.
+- [x] **Audit runtime registrations** — merged in #297 (`b4eb1e9`); unreleased.
   - Inspect four redirect callbacks and the session clamp against their bootstrap baseline.
   - Report missing registrations, lost precedence, inactive policies and unknown coverage
     in Site Health. No callback execution, probes, repairs or persistent verdicts.
   - Verification: [registration audit record](docs/review/runtime-registration-audit-2026-10-22.md).
+
+- [x] **Clarify core update policy on the Updates screen** — implemented on the development branch; pending PR review and unreleased.
+  - Preserve core’s text and add a persistent Keel notice with branch scope,
+    policy provenance and a direct link to the relevant setting. No delivery guarantee.
+  - Verification: [notice record](docs/review/update-policy-notice-2026-10-22.md).
 
 ## Completed in v0.6.0
 

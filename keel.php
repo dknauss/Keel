@@ -83,6 +83,7 @@ require_once __DIR__ . '/includes/strings.php';
 require_once __DIR__ . '/includes/updates.php';
 require_once __DIR__ . '/includes/extension-updates.php';
 require_once __DIR__ . '/includes/backports.php';
+require_once __DIR__ . '/includes/update-policy-notice.php';
 require_once __DIR__ . '/includes/updates-screen.php';
 require_once __DIR__ . '/includes/security.php';
 require_once __DIR__ . '/includes/content.php';
