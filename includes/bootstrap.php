@@ -32,6 +32,7 @@ function keel_defaults_bootstrap() {
 	 * support thread actually needs.
 	 */
 	add_filter( 'debug_information', 'keel_defaults_debug_information' );
+	add_filter( 'debug_information', 'keel_defaults_update_disclosure_info' );
 
 	/*
 	 * Network policy, on multisite only. The screen lives in Network Admin and is
@@ -553,6 +554,8 @@ function keel_defaults_bootstrap() {
 	if ( 'default' !== keel_defaults_get( 'admin_menu_width' ) ) {
 		keel_defaults_add_style( 'admin', 'keel_defaults_admin_menu_width_css' );
 	}
+
+	add_action( 'current_screen', 'keel_defaults_register_list_table_columns' );
 
 	if ( keel_defaults_enabled( 'helper_list_columns' ) ) {
 		add_action( 'current_screen', 'keel_defaults_register_helper_post_columns' );

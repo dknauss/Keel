@@ -1,0 +1,4 @@
+/* Keep abbreviations decorative: core strips tags for Screen Options and cell labels. */
+.keel-compact-column-label > [data-keel-column-label]::before {
+	content: attr(data-keel-column-label);
+}

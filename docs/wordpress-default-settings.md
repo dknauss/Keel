@@ -735,6 +735,31 @@ add_action( 'wp_login', function ( $login, $user ) {
 }, 10, 2 );
 ```
 
+### Optional list-table compaction
+
+`compact_column_labels` and `fewer_list_columns` are independent toggles, both
+`no` by default. They apply to site-admin Posts, Pages and custom post-type lists,
+not Users, Media or Network Admin tables. Existing helper columns remain a
+separate option.
+
+Compact labels shorten only known column keys: Jetpack SEO description to Meta,
+Hum Shortlink to Link, and ActivityPub to Fedi. The original label remains
+available to assistive technology and on hover. Keys, cells, sorting, primary
+columns and user preferences are unchanged. Sites can extend or replace the map:
+
+```php
+add_filter( 'keel_defaults_column_labels', function ( $labels, $post_type ) {
+    $labels['my_optional_column'] = __( 'Short', 'my-site' );
+    return $labels;
+}, 10, 2 );
+```
+
+Fewer List Columns adds present SEO description/schema/search, Shortlink, Keel ID
+and Modified columns to core’s default-hidden list. It does not remove columns or
+rewrite user options. Saved Screen Options—including a saved empty hidden list—
+always win. Title, selection, primary and unknown columns are not hidden by Keel.
+Changed or absent third-party keys are left alone.
+
 ### Admin Menu Width
 - **Key:** `admin_menu_width`
 - **Default:** `default`
@@ -1062,6 +1087,17 @@ References:
 - [`Core_Upgrader::should_update_to_version()`](https://developer.wordpress.org/reference/classes/core_upgrader/should_update_to_version/)
 - [Supported WordPress versions](https://wordpress.org/documentation/article/supported-versions/)
 
+### WordPress.org update-check disclosure
+
+Site Health → Info documents the three normal core update-check endpoints and
+their data categories. This is static documentation for stable WordPress 6.4–7.1,
+not proof that a request was sent or an exhaustive payload schema. Newer and
+development versions are explicitly unverified. It displays no site values or
+inventory and makes no extra requests, intercepts no traffic, stores nothing and
+changes no update behavior. It requires Site Health access and, on multisite,
+network-management authority. Plugins and hosts can modify or prevent requests.
+Package downloads and third-party update services are outside its scope.
+
 ### Plugin and theme auto-updates
 
 *(`plugin_auto_update_policy`, `theme_auto_update_policy`; both default `unset`)*
@@ -1350,6 +1386,8 @@ covering only some, which reads as a full inventory when it is not.
 | Front-End Admin Bar | `frontend_admin_bar_behavior` | `''` | UX |
 | Admin Menu Width | `admin_menu_width` | `default` | UX |
 | Admin List Columns | `helper_list_columns` | `no` | UX |
+| Compact Column Labels | `compact_column_labels` | `no` | UX |
+| Fewer List Columns | `fewer_list_columns` | `no` | UX |
 | Environment Indicator | `environment_indicator` | `no` | UX |
 | Remember Me | `disable_remember_me` | `no` | Login |
 | Regular Session Length | `session_regular_days` | `2` | Login |

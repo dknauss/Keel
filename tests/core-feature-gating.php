@@ -185,7 +185,7 @@ keel_assert(
 );
 
 keel_assert(
-	44 === count( $schema ),
+	46 === count( $schema ),
 	"[{$state}] The schema is the same size on either core (" . count( $schema ) . ')."'
 );
 

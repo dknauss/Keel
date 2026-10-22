@@ -279,6 +279,16 @@ function keel_defaults_schema() {
 			 */
 			'values'  => array( 'default', '160', '200', '240', '280', '300' ),
 		),
+		'compact_column_labels'           => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'ux',
+		),
+		'fewer_list_columns'              => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'ux',
+		),
 		'helper_list_columns'             => array(
 			'default' => 'no',
 			'type'    => 'toggle',
