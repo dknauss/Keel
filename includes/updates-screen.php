@@ -42,12 +42,18 @@ function keel_defaults_register_updates_screen() {
  * @return void
  */
 function keel_defaults_render_updates_screen() {
+	if ( ! current_user_can( 'update_core' ) ) {
+		return;
+	}
+	$tip      = keel_defaults_branch_tip();
+	$selected = keel_defaults_ladder_selection();
 	echo keel_defaults_render_updates_screen_markup( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped at construction; this screen applies no kses.
 		keel_defaults_version_status(),
-		keel_defaults_branch_tip(),
+		$tip,
 		keel_defaults_latest_version(),
-		keel_defaults_ladder_selection()
+		$selected
 	);
+	keel_defaults_render_update_timeline( $selected, $tip );
 }
 
 /**

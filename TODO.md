@@ -20,8 +20,10 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Next focused work:** observe the autoload and cron/update attribution reports
-  in the field. Saved settings, the 42-setting schema and version floors are
+- **Current focused work:** implement the core-update delivery timeline below;
+  continue observing the autoload and cron/update attribution reports in the field.
+  #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
+  Saved settings, the 42-setting schema and version floors are
   unchanged. The maintainer's WordPress.com settings-save confirmation remains
   open; routine PHPStan expansion stays paused.
 
@@ -313,9 +315,13 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Then — 0.9.0 update operations and support
 
-- [ ] **Show the core-update delivery timeline**
+- [x] **Show the core-update delivery timeline** — implemented on the development
+  branch, pending PR review; no version bump or release.
   - Combine selected release, branch tip, offer freshness, next check and recent result.
   - Reuse core's decisions and stable blocker codes; never promise an execution time.
+  - Missing success history stays unknown; no new collector or update controls.
+  - Preserve site-local cached cron versus network-wide offer/failure scope.
+  - Verification: [timeline record](docs/review/core-update-timeline-2026-10-21.md).
 - [ ] **Toggle plugin and theme auto-updates**
   - Three states — `enabled`, `disabled`, `unset` — through the `auto_update_plugin`
     and `auto_update_theme` filters. `unset` stays the default: the per-item
