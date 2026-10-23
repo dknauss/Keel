@@ -72,10 +72,20 @@ $update['failure'] = array(
 $html              = keel_defaults_update_timeline_markup( '7.1.4', '7.1.4', $state, $update, $snapshot, 1000, false );
 check( false !== strpos( $html, 'Blocked' ) && false !== strpos( $html, 'file changes are turned off (<code>file_mods</code>)' ), 'Global blocker wins over a selected release, in plain words.' );
 check( false === strpos( $html, 'private' ) && false !== strpos( $html, 'download_failed' ), 'Only safe failure and blocker codes are rendered.' );
-$snapshot['data']['limited'] = true;
-$snapshot['data']['core']    = array();
-$html                        = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
-check( false !== strpos( $html, 'Nothing is queued' ) && false !== strpos( $html, 'partial coverage' ) && false !== strpos( $html, 'Not scheduled' ), 'No selection, incomplete coverage and absent hooks stay distinct.' );
+foreach ( array( 'limited', 'malformed' ) as $coverage ) {
+	$snapshot['data']['limited']   = 'limited' === $coverage;
+	$snapshot['data']['malformed'] = 'malformed' === $coverage;
+	$snapshot['data']['core']      = array( 'wp_version_check' => 1200 );
+	$html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
+	check( false !== strpos( $html, 'Next automatic update run</th><td>Unknown</td>' ) && false === strpos( $html, 'Not scheduled' ), 'Missing hook stays unknown under ' . $coverage . ' coverage.' );
+	check( false !== strpos( $html, 'partial coverage' ) && false !== strpos( $html, 'Nothing is queued' ), 'Partial coverage and no selected release remain distinct.' );
+	check( false !== strpos( $html, 'Next update check</th><td>1970-01-01 00:20 UTC</td>' ), 'Observed hook remains visible under partial coverage.' );
+}
+$snapshot['data']['limited']   = false;
+$snapshot['data']['malformed'] = false;
+$html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
+check( false !== strpos( $html, 'Next automatic update run</th><td>Not scheduled</td>' ), 'Complete scan supports an absent hook.' );
+check( false !== strpos( $html, 'Not found when Keel last read this site’s schedule.' ) && false !== strpos( $html, 'up to an hour old' ), 'Absent hook is qualified as cached evidence.' );
 $GLOBALS['allowed'] = false;
 $GLOBALS['network'] = false;
 ob_start();

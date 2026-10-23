@@ -117,8 +117,8 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 		foreach ( $hooks as $hook => $label ) {
 			$at = $snapshot['data']['core'][ $hook ] ?? null;
 			if ( null === $at ) {
-				$status = esc_html__( 'Not scheduled', 'keel-defaults' );
-				$note   = $partial ? esc_html__( 'Keel read only part of the schedule (partial coverage), so it may exist.', 'keel-defaults' ) : esc_html__( 'Not found in this site’s schedule.', 'keel-defaults' );
+				$status = $partial ? esc_html__( 'Unknown', 'keel-defaults' ) : esc_html__( 'Not scheduled', 'keel-defaults' );
+				$note   = $partial ? esc_html__( 'Keel read only part of the schedule (partial coverage), so it may exist.', 'keel-defaults' ) : esc_html__( 'Not found when Keel last read this site’s schedule.', 'keel-defaults' );
 			} else {
 				$status = esc_html( gmdate( 'Y-m-d H:i', $at ) ) . ' UTC';
 				$note   = '';

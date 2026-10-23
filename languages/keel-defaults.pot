@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T05:37:59+00:00\n"
+"POT-Creation-Date: 2026-10-23T06:15:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -187,6 +187,7 @@ msgstr ""
 #: includes/extension-updates.php:158
 #: includes/update-timeline.php:94
 #: includes/update-timeline.php:102
+#: includes/update-timeline.php:120
 msgid "Unknown"
 msgstr ""
 
@@ -2810,7 +2811,7 @@ msgid "Keel read only part of the schedule (partial coverage), so it may exist."
 msgstr ""
 
 #: includes/update-timeline.php:121
-msgid "Not found in this site’s schedule."
+msgid "Not found when Keel last read this site’s schedule."
 msgstr ""
 
 #: includes/update-timeline.php:126
