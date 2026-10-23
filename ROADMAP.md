@@ -59,8 +59,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Admin List Tables and the accepted update/support work are merged and unreleased;
-  the verification fixes are in a separate PR. The development schema remains 44
-  settings. Extension policies and Admin List Tables default to Leave unchanged;
+  the verification fixes are in a separate PR. The development schema has 44
+  individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation; no
   version bump or release is authorized. Routine PHPStan expansion stays paused.
