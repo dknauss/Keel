@@ -41,6 +41,7 @@ check( false !== strpos( $html, '<strong>Keel update policy</strong>' ), 'Clear 
 check( false !== strpos( $html, '7.1 release branch' ) && false !== strpos( $html, 'Major-version upgrades are not enabled by this policy.' ), 'Minor scope includes current branch without manual-only promise.' );
 check( false !== strpos( $html, 'options-general.php?page=keel#keel-setting-core-update-policy' ), 'Link directly to policy.' );
 check( false !== strpos( $html, 'not a guarantee' ), 'Policy does not promise delivery.' );
+check( 1 === preg_match( '#<p>Configured policy source: Keel Site Defaults\. This describes policy, not a guarantee[^<]*<a href=[^>]*>Review the core update policy in Site Defaults</a></p></div>$#', $html ), 'Source, caveat and link share one paragraph.' );
 check( false === strpos( $html, 'settings differ' ), 'Matching core flags are not called divergent.' );
 check(
 	false !== strpos(

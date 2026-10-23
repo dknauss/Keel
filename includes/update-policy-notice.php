@@ -84,9 +84,11 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 	return '<div class="notice notice-info inline keel-update-policy-notice">'
 		. '<p><strong>' . esc_html__( 'Keel update policy', 'keel-defaults' ) . '</strong></p>'
 		. '<p>' . $branch_text . ' ' . esc_html( $message ) . '</p>'
-		. '<p>' . $source . '</p>'
-		. ( '' !== $detail ? '<p>' . $detail . '</p>' : '' )
-		. '<p>' . esc_html__( 'This describes policy, not a guarantee that an update will install. Cron, hosting restrictions and other filters can affect delivery.', 'keel-defaults' ) . '</p>'
-		. ( '' !== $link ? '<p>' . $link . '</p>' : '' )
+		// Source, caveat and link share one paragraph to keep the notice short.
+		. '<p>' . $source
+		. ( '' !== $detail ? ' ' . $detail : '' )
+		. ' ' . esc_html__( 'This describes policy, not a guarantee that an update will install. Cron, hosting restrictions and other filters can affect delivery.', 'keel-defaults' )
+		. ( '' !== $link ? ' ' . $link : '' )
+		. '</p>'
 		. '</div>';
 }
