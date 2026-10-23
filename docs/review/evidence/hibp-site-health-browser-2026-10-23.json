@@ -1,0 +1,1730 @@
+{
+  "schema": 1,
+  "summary": {
+    "panels": 81,
+    "refused": 9,
+    "width_checks": 324,
+    "setting_links": 9,
+    "engines": {
+      "chromium": "156.0.8078.4",
+      "firefox": "157.0",
+      "webkit": "27.2"
+    },
+    "requests": 1011,
+    "hibp_http": 0,
+    "budget_writes": 0,
+    "authority_unchanged": true
+  },
+  "reports": [
+    {
+      "site": "multisite",
+      "case": "busy",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 66,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared lookup slots were busy. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared lookup slots were busy. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared lookup slots were busy. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "exhausted",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 67,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared allowance for fresh lookups was exhausted. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared allowance for fresh lookups was exhausted. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared allowance for fresh lookups was exhausted. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "later_success",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 105,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 6 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nThe last recorded validated live response completed 2 minutes ago. This is historical transport evidence, not a guarantee of current availability.\n\nA later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 6 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nThe last recorded validated live response completed 2 minutes ago. This is historical transport evidence, not a guarantee of current availability.\n\nA later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 6 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nThe last recorded validated live response completed 2 minutes ago. This is historical transport evidence, not a guarantee of current availability.\n\nA later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "none",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 91,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "chromium",
+          "role": "site",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "chromium",
+          "role": "anonymous",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "role": "site",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "firefox",
+          "role": "anonymous",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "role": "site",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "webkit",
+          "role": "anonymous",
+          "case": "none",
+          "refused": true
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "optout",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 74,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "setting_off",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 86,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "success",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 74,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "transport",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 68,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        }
+      ]
+    },
+    {
+      "site": "multisite",
+      "case": "unavailable",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 74,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening transport evidence is unavailable\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nThe shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "delegated",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening transport evidence is unavailable\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nThe shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "delegated",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening transport evidence is unavailable\nKeel This is network-shared screening transport evidence, not proof that a particular site\u2019s last password was checked.\n\nThe shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "delegated",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening coverage is unknown\nKeel Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "busy",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 31,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared lookup slots were busy. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared lookup slots were busy. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "busy",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared lookup slots were busy. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "exhausted",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 32,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared allowance for fresh lookups was exhausted. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared allowance for fresh lookups was exhausted. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "exhausted",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the shared allowance for fresh lookups was exhausted. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "later_success",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 32,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nA later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nA later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "later_success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nA later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "none",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 42,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is screening transport evidence, not proof that every password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "chromium",
+          "role": "anonymous",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is screening transport evidence, not proof that every password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "role": "anonymous",
+          "case": "none",
+          "refused": true
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "none",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is screening transport evidence, not proof that every password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "role": "anonymous",
+          "case": "none",
+          "refused": true
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "optout",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 34,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "optout",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off in code\nKeel Length and the other password rules still apply, but the KEEL_DISABLE_HIBP constant or the keel_disable_hibp filter is stopping the breach lookup. This is deliberate configuration, not a fault."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "setting_off",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 37,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "setting_off",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": true,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening is switched off\nKeel Strong passwords are not being required, so nothing is screened against known breaches. Turn on Password Strength to enable it."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "success",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 34,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is screening transport evidence, not proof that every password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is screening transport evidence, not proof that every password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "success",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "good",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has no sampled failures\nKeel This is screening transport evidence, not proof that every password was checked.\n\nNo unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.\n\nThe last recorded validated live response completed 1 minute ago. This is historical transport evidence, not a guarantee of current availability.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "transport",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 30,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "transport",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach screening has sampled unavailability\nKeel This is screening transport evidence, not proof that every password was checked.\n\nA sampled fresh lookup was skipped or could not complete: the service answered with HTTP 429. The sample was recorded 5 minutes ago. Samples are rate-limited, not counts of all skipped or failed checks.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        }
+      ]
+    },
+    {
+      "site": "standalone",
+      "case": "unavailable",
+      "transport": "synthetic evidence; external HTTP blocked",
+      "requests": 34,
+      "http": 0,
+      "writes": 0,
+      "authorityUnchanged": true,
+      "rows": [
+        {
+          "engine": "chromium",
+          "version": "156.0.8078.4",
+          "role": "manager",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening transport evidence is unavailable\nKeel This is screening transport evidence, not proof that every password was checked.\n\nThe shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "firefox",
+          "version": "157.0",
+          "role": "manager",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening transport evidence is unavailable\nKeel This is screening transport evidence, not proof that every password was checked.\n\nThe shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        },
+        {
+          "engine": "webkit",
+          "version": "27.2",
+          "role": "manager",
+          "case": "unavailable",
+          "widths": [
+            1280,
+            782,
+            390,
+            320
+          ],
+          "settingLink": false,
+          "status": "recommended",
+          "keyboard": "Enter/Space toggle aria-expanded",
+          "axe": [],
+          "errors": [],
+          "text": "Password breach-screening transport evidence is unavailable\nKeel This is screening transport evidence, not proof that every password was checked.\n\nThe shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.\n\nNo validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.\n\nCached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+        }
+      ]
+    }
+  ]
+}

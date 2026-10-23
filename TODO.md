@@ -20,14 +20,15 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- [ ] **Verify bounded HIBP Site Health presentation** — recommended next focused task.
-  Use disposable standalone and multisite labs with synthetic evidence: no recorded
-  checks, local exhaustion/busy slots, transport failure, later live success and
-  explicit opt-out. Check network-manager details and site-admin redaction,
-  keyboard access, narrow layouts and scoped accessibility results. Confirm that
-  viewing the screen performs no HIBP requests or authority writes. Record browser
-  evidence separately from the completed concurrency/storage proof; no new setting,
-  version bump or release.
+- [x] **Verify bounded HIBP Site Health presentation** — completed 2026-10-23;
+  unreleased. Chromium, Firefox and Playwright WebKit pass nine synthetic states
+  across standalone, network-manager and delegated site-admin views: 81 panels,
+  nine access denials, 324 width checks and nine settings-link checks. Keyboard,
+  status grouping, privacy and scoped axe checks pass; no runtime defect found.
+  Viewing caused no HIBP requests or authority writes. See the
+  [browser verification record](docs/review/hibp-site-health-browser-2026-10-23.md)
+  for evidence, cleanup and manual-screen-reader/native-Safari limits. #317 merged
+  as `c2c967c`; no new setting, version bump or release.
 
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
