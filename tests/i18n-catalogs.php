@@ -55,16 +55,11 @@ function keel_assert( $cond, $msg ) {
  */
 function keel_msgids( $path ) {
 	$out = array();
-
-	/*
-	 * `msgid_plural` counts too. A plural entry carries two translatable strings
-	 * and only the singular is on a `msgid` line, so reading one of them left the
-	 * plural unverified in both directions: a missing one never failed, and once
-	 * the obsolete-entry check existed the source copy read as unused.
-	 */
-	foreach ( file( $path ) as $line ) {
-		if ( preg_match( '/^msgid(?:_plural)? "(.+)"$/', rtrim( $line, "\r\n" ), $m ) ) {
-			$out[] = $m[1];
+	foreach ( keel_po_entries( $path ) as $entry ) {
+		foreach ( array( 'msgid', 'msgid_plural' ) as $field ) {
+			if ( isset( $entry[ $field ] ) && '' !== $entry[ $field ] ) {
+				$out[] = $entry[ $field ];
+			}
 		}
 	}
 
@@ -316,48 +311,164 @@ foreach ( $source as $string ) {
  */
 function keel_po_translations( $path ) {
 	$out = array();
-
-	// Reading a catalog off disk in a CLI test; wp_remote_get() is for HTTP.
-	foreach ( preg_split( '/\n\s*\n/', (string) file_get_contents( $path ) ) as $block ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		if ( ! preg_match( '/^msgid "(.+)"$/m', $block, $id ) ) {
+	foreach ( keel_po_entries( $path ) as $entry ) {
+		if ( ! isset( $entry['msgid'] ) || '' === $entry['msgid'] ) {
 			continue;
 		}
-
-		preg_match_all( '/^msgstr(?:\[\d+\])? "(.*)"$/m', $block, $str );
-		$forms = array_filter( $str[1], 'strlen' );
-
-		if ( array() !== $forms ) {
-			$out[ keel_msgid_to_source( $id[1] ) ] = keel_msgid_to_source( implode( "\0", $str[1] ) );
+		$forms = array();
+		foreach ( $entry as $field => $value ) {
+			if ( preg_match( '/^msgstr(?:\[(\d+)\])?$/', $field, $match ) ) {
+				$forms[ isset( $match[1] ) ? (int) $match[1] : 0 ] = $value;
+			}
+		}
+		ksort( $forms );
+		if ( array() !== array_filter( $forms, 'strlen' ) ) {
+			$out[ keel_msgid_to_source( $entry['msgid'] ) ] = keel_msgid_to_source( implode( "\0", $forms ) );
 		}
 	}
-
 	return $out;
+}
+
+/**
+ * Read PO fields with their quoted continuation lines, keeping escapes raw.
+ *
+ * @param string $path Catalog path.
+ * @return array[]
+ */
+function keel_po_entries( $path ) {
+	$entries = array();
+	$entry   = array();
+	$field   = null;
+	foreach ( file( $path ) as $line ) {
+		$line = rtrim( $line, "\r\n" );
+		if ( preg_match( '/^(msgctxt|msgid|msgid_plural|msgstr(?:\[\d+\])?) "(.*)"$/', $line, $match ) ) {
+			// A new entry need not have a blank line before it.
+			if ( ( 'msgid' === $match[1] && isset( $entry['msgid'] ) ) || ( 'msgctxt' === $match[1] && isset( $entry['msgid'] ) ) ) {
+				$entries[] = $entry;
+				$entry     = array();
+			}
+			$field           = $match[1];
+			$entry[ $field ] = $match[2];
+		} elseif ( null !== $field && preg_match( '/^"(.*)"$/', $line, $match ) ) {
+			$entry[ $field ] .= $match[1];
+		} else {
+			$field = null;
+			if ( '' === trim( $line ) && array() !== $entry ) {
+				$entries[] = $entry;
+				$entry     = array();
+			}
+		}
+	}
+	if ( array() !== $entry ) {
+		$entries[] = $entry;
+	}
+	return $entries;
 }
 
 /**
  * Translated entries in a compiled .mo file, msgid => msgstr.
  *
  * @param string $path File path.
- * @return array<string, string>
+ * @return array<string, string>|false False for malformed catalogs.
  */
 function keel_mo_translations( $path ) {
 	$data = (string) file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-	$head = unpack( 'Vmagic/Vrevision/Vcount/Vids/Vstrs', substr( $data, 0, 20 ) );
-	$out  = array();
-
+	$size = strlen( $data );
+	if ( $size < 28 ) {
+		return false;
+	}
+	$magic = substr( $data, 0, 4 );
+	if ( "\xde\x12\x04\x95" === $magic ) {
+		$endian = 'V';
+	} elseif ( "\x95\x04\x12\xde" === $magic ) {
+		$endian = 'N';
+	} else {
+		return false;
+	}
+	$head = unpack( $endian . 'magic/' . $endian . 'revision/' . $endian . 'count/' . $endian . 'ids/' . $endian . 'strs', substr( $data, 0, 20 ) );
+	foreach ( array( 'ids', 'strs' ) as $table ) {
+		if ( $head[ $table ] > $size || $head['count'] > intdiv( $size - $head[ $table ], 8 ) ) {
+			return false;
+		}
+	}
+	$out = array();
 	for ( $i = 0; $i < $head['count']; $i++ ) {
-		$id  = unpack( 'Vlen/Voffset', substr( $data, $head['ids'] + 8 * $i, 8 ) );
-		$str = unpack( 'Vlen/Voffset', substr( $data, $head['strs'] + 8 * $i, 8 ) );
-		$key = substr( $data, $id['offset'], $id['len'] );
-
-		// The header entry has an empty msgid, and a plural's msgid carries both
-		// source forms; the singular is what the PO side is keyed by.
-		if ( '' !== $key ) {
-			$out[ explode( "\0", $key )[0] ] = substr( $data, $str['offset'], $str['len'] );
+		$strings = array();
+		foreach ( array( 'ids', 'strs' ) as $table ) {
+			$item = unpack( $endian . 'len/' . $endian . 'offset', substr( $data, $head[ $table ] + 8 * $i, 8 ) );
+			// Length excludes the required trailing NUL. Subtraction avoids overflow.
+			if ( $item['offset'] >= $size || $item['len'] >= $size - $item['offset'] || "\0" !== $data[ $item['offset'] + $item['len'] ] ) {
+				return false;
+			}
+			$strings[ $table ] = substr( $data, $item['offset'], $item['len'] );
+		}
+		// Skip metadata; plural keys use their singular source form.
+		if ( '' !== $strings['ids'] ) {
+			$out[ explode( "\0", $strings['ids'] )[0] ] = $strings['strs'];
 		}
 	}
 
 	return $out;
+}
+
+// Parser regressions use scratch files, never the shipped catalogs.
+$fixture = tempnam( sys_get_temp_dir(), 'keel-i18n-' );
+try {
+	$continued = <<<'PO'
+msgid ""
+msgstr ""
+"Language: en_CA\n"
+
+msgid ""
+"Color "
+"label"
+msgstr ""
+"Colour "
+"label"
+
+msgid "One "
+"color"
+msgid_plural "Many "
+"colors"
+msgstr[0] "One "
+"colour"
+msgstr[1] ""
+"Many colours"
+PO;
+	file_put_contents( $fixture, $continued );
+	keel_assert( array( 'Color label', 'One color', 'Many colors' ) === keel_msgids( $fixture ), 'PO msgids include continuations and exclude the metadata header.' );
+	keel_assert(
+		array(
+			'Color label' => 'Colour label',
+			'One color'   => "One colour\0Many colours",
+		) === keel_po_translations( $fixture ),
+		'PO translations join continued singular and plural fields.'
+	);
+
+	foreach ( array( 'V', 'N' ) as $endian ) {
+		// One entry: header (28 bytes), two descriptors, then NUL-terminated strings.
+		$valid = pack( $endian . '*', 0x950412de, 0, 1, 28, 36, 0, 0, 5, 44, 6, 50 ) . "Color\0Colour\0";
+		file_put_contents( $fixture, $valid );
+		keel_assert( array( 'Color' => 'Colour' ) === keel_mo_translations( $fixture ), "MO reads {$endian}-endian catalogs." );
+		$invalid = array(
+			'magic'              => 'BAD!' . substr( $valid, 4 ),
+			'truncated header'   => substr( $valid, 0, 27 ),
+			'truncated tables'   => substr( $valid, 0, 40 ),
+			'count overflow'     => substr_replace( $valid, pack( $endian, 0xffffffff ), 8, 4 ),
+			'table offset'       => substr_replace( $valid, pack( $endian, 0xffffffff ), 12, 4 ),
+			'string offset'      => substr_replace( $valid, pack( $endian, 0xffffffff ), 32, 4 ),
+			'string length'      => substr_replace( $valid, pack( $endian, 0xffffffff ), 36, 4 ),
+			'missing terminator' => substr( $valid, 0, -1 ),
+		);
+		file_put_contents( $fixture, pack( $endian . '*', 0x950412de, 0, 0, 28, 28, 0, 0 ) );
+		keel_assert( array() === keel_mo_translations( $fixture ), "MO accepts a valid empty {$endian}-endian catalog." );
+		foreach ( $invalid as $case => $bytes ) {
+			file_put_contents( $fixture, $bytes );
+			keel_assert( false === keel_mo_translations( $fixture ), "MO rejects {$endian}-endian {$case}." );
+		}
+	}
+} finally {
+	unlink( $fixture ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- Remove the CLI scratch fixture; WordPress is not loaded.
 }
 
 // --- every compiled catalog says what its source catalog says ---
@@ -368,8 +479,9 @@ foreach ( glob( $root . '/languages/*.po' ) as $po ) {
 		continue;
 	}
 
+	$compiled = keel_mo_translations( $mo );
 	keel_assert(
-		keel_po_translations( $po ) == keel_mo_translations( $mo ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- key order differs; contents must not.
+		false !== $compiled && keel_po_translations( $po ) == $compiled, // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- key order differs; contents must not.
 		basename( $mo ) . ' is out of date with ' . basename( $po ) . '. WordPress reads only the .mo, so edits to the .po do nothing until it is recompiled. Run: wp i18n make-mo languages/'
 	);
 }
