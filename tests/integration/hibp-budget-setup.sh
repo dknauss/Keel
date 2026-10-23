@@ -61,6 +61,9 @@ if ( ! defined( 'KEEL_HIBP_BUDGET_LAB' ) || true !== KEEL_HIBP_BUDGET_LAB || ! i
 }
 global $wpdb;
 function keel_lab_site( $network, $domain, $path ) {
+    if ( get_network_option( $network, 'ms_files_rewriting', true ) ) {
+        throw new RuntimeException( 'Fixture network must use modern upload paths before creating sites.' );
+    }
     $id = wp_insert_site( array( 'network_id' => $network, 'domain' => $domain, 'path' => $path, 'public' => 1 ) );
     if ( is_wp_error( $id ) ) {
         throw new RuntimeException( $id->get_error_message() );
@@ -74,6 +77,10 @@ function keel_lab_site( $network, $domain, $path ) {
     return (int) $id;
 }
 $first = get_current_network_id();
+// Match modern core multisite installation defaults on every fixture network.
+// Absent metadata defaults to legacy blogs.dir rewriting during site creation,
+// but this modern installation intentionally has no UPLOADBLOGSDIR constant.
+update_network_option( $first, 'ms_files_rewriting', 0 );
 $child = keel_lab_site( $first, 'hibp-budget.test', '/child/' );
 if ( ! $wpdb->insert( $wpdb->site, array( 'domain' => 'hibp-network-two.test', 'path' => '/' ), array( '%s', '%s' ) ) ) {
     throw new RuntimeException( 'Could not create second network.' );
@@ -83,6 +90,7 @@ clean_network_cache( $second );
 update_network_option( $second, 'site_name', 'HIBP second network' );
 update_network_option( $second, 'admin_email', 'admin@example.test' );
 update_network_option( $second, 'site_admins', array( 'admin' ) );
+update_network_option( $second, 'ms_files_rewriting', 0 );
 $main = keel_lab_site( $second, 'hibp-network-two.test', '/' );
 update_network_option( $second, 'main_site', $main );
 clean_network_cache( $second );

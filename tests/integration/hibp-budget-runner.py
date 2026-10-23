@@ -10,6 +10,7 @@ Only the sanitized report is retained; job files/tickets/logs are temporary.
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -126,10 +127,17 @@ class Lab:
         data = self.call('finish', ticket=ticket, body=body)
         require(data['result']['finish'] is True, 'owned completion failed')
 
-    def record_performance(self, name, data):
+    def record_performance(self, name, data, operations=1, unit='operation'):
         self.report['performance'][name] = {
             'milliseconds': data['milliseconds'], 'peak_bytes': data['peak_bytes'],
             'metrics': data['metrics'], 'bootstrap': data['bootstrap'],
+            'operations': operations, 'operation_unit': unit,
+            'per_operation': {
+                'milliseconds': round(data['milliseconds'] / operations, 6),
+                **{key: round(value / operations, 6) for key, value in data['metrics'].items()},
+            },
+            'timing_scope': 'operation only; excludes WordPress bootstrap and process startup',
+            'memory_scope': 'whole-worker peak, not incremental operation allocation',
         }
 
     def adapter(self):
@@ -159,6 +167,54 @@ class Lab:
             self.finish(data['ticket'])
         require(admitted <= 10, 'initialization race created extra burst allowance')
         require(self.probe()['state']['credit'] < 60, 'initialization drain did not exhaust allowance')
+
+    def exact_burst(self):
+        self.reset(600)
+        initial = self.probe()['state']
+        require(initial['policy'] == {'capacity': 10, 'interval': 60},
+                'exact burst requires the approved default policy')
+        cap = 600
+        cost = 60
+        credited = 0
+        attempts = 0
+        for i in range(10):
+            before = self.probe()['state']
+            started = time.monotonic()
+            admission = self.call('admit', prefix=f'{i + 32:02X}070')
+            attempts += 1
+            require('ticket' in admission['result'], 'uncontended initial burst lost a credit/admission')
+            require(admission['metrics']['http'] == 0, 'admission-only burst reached HTTP')
+            after = self.probe()['state']
+            elapsed = after['last'] - before['last']
+            require(0 <= elapsed <= math.ceil(time.monotonic() - started) + 2,
+                    'admission refill elapsed beyond the measured wall-clock bound')
+            refilled = min(cap, before['credit'] + elapsed)
+            require(after['credit'] == refilled - cost,
+                    'uncontended admission did not conserve one-second credit units')
+            credited += refilled - before['credit']
+            self.finish(admission['result']['ticket'])
+            released = self.probe()['state']
+            require(released['credit'] == after['credit'] and released['last'] == after['last'],
+                    'completion refunded credit or persisted an unearned refill')
+            require(not released['leases'], 'uncontended completion left a live lease')
+        final = self.probe()['state']
+        require(final['last'] - initial['last'] < cost,
+                'burst lab exceeded one refill interval; eleventh-denial precondition not met')
+        require(final['credit'] == initial['credit'] + credited - attempts * cost,
+                'aggregate uncontended burst did not conserve credit')
+        denied = self.call('admit', prefix='3F071')
+        attempts += 1
+        require(denied['result'].get('error') == 'budget_exhausted',
+                'eleventh uncontended request was not denied')
+        require(denied['metrics']['http'] == 0, 'exhausted admission reached HTTP')
+        after_denial = self.probe()['state']
+        require(after_denial['credit'] == final['credit'] and after_denial['last'] == final['last'],
+                'denied admission mutated authority/refilled persistently')
+        self.report['burst_conservation'] = {
+            'attempts': attempts, 'admitted': 10, 'denied': 1,
+            'initial_credit_units': initial['credit'], 'refilled_credit_units': credited,
+            'spent_credit_units': 10 * cost, 'remaining_credit_units': final['credit'],
+        }
 
     def last_credit(self):
         self.reset(60)
@@ -207,6 +263,25 @@ class Lab:
         require(any(lease['owner'] == replacement['ticket']['owner'] for lease in after['state']['leases']),
                 'old worker released replacement lease')
         if phase == 'after_http':
+            require(after['state']['success'] == before['state']['success'],
+                    'stale HTTP completion fabricated live success evidence')
+            sample = after['state']['sample']
+            require(isinstance(sample, dict) and sample.get('kind') == 'budget_unavailable',
+                    'stale HTTP completion failed to sample budget_unavailable')
+            require(isinstance(sample.get('first'), int) and isinstance(sample.get('seen'), int)
+                    and sample['first'] <= sample['seen'] <= int(time.time()) + 1,
+                    'stale HTTP unavailability sample has invalid timestamps')
+            passive = self.call('evidence')
+            evidence = passive['result']['evidence']
+            require(evidence['success'] == before['state']['success']
+                    and evidence['failure'] == sample,
+                    'passive diagnostics lost the stale HTTP unknown/sample contract')
+            require(passive['metrics']['store_writes'] == 0 and passive['metrics']['http'] == 0,
+                    'reading stale HTTP evidence mutated authority or reached HTTP')
+            self.report['stale_http_diagnostic'] = {
+                'success_unchanged': True, 'sampled_reason': 'budget_unavailable',
+                'verdict': 'unknown',
+            }
             self.finish(replacement['ticket'])
 
     def stale_claim(self):
@@ -257,7 +332,7 @@ class Lab:
         password = 'synthetic-cache-hit-fixture'
         miss = self.call('lookup', password=password)
         require(miss['result']['verdicts'] == [True] and miss['metrics']['http'] == 1, 'cold lookup did not validate synthetic breach response')
-        self.record_performance('cold_miss', miss)
+        self.record_performance('cold_miss', miss, unit='lookup')
         self.call('seed', credit=0)
         before = self.probe()
         self.call('flush')
@@ -266,11 +341,11 @@ class Lab:
         hit = self.call('lookup', password=password, count=100)
         require(all(value is True for value in hit['result']['verdicts']), 'cached breach was lost under exhaustion/eviction')
         require(hit['metrics']['http'] == 0 and hit['metrics']['store_writes'] == 0, 'cache hits opened transport or mutated store')
-        self.record_performance('cached_hit_100', hit)
+        self.record_performance('cached_hit_100', hit, operations=100, unit='lookup')
         denied = self.call('lookup', password='synthetic-unrelated-denial-fixture', count=100, alternate=True)
         require(all(value is None for value in denied['result']['verdicts']), 'denial became a clean verdict')
         require(denied['metrics']['http'] == 0 and denied['metrics']['store_writes'] <= 1, 'denials caused HTTP or per-attempt evidence writes')
-        self.record_performance('exhausted_100', denied)
+        self.record_performance('exhausted_100', denied, operations=100, unit='lookup')
         self.report['persistent_cache'] = before['persistent_cache']
         passive = self.call('evidence')
         require(passive['metrics']['http'] == 0 and passive['metrics']['store_writes'] == 0, 'passive evidence mutated store or called HTTP')
@@ -285,12 +360,21 @@ class Lab:
         rows = data['result']['rows']
         require(len(rows) == 65, 'storage exercise did not cover all 64 slots plus control')
         require(sum(row['bytes'] for row in rows) <= 64 * 132096 + 4096, 'aggregate encoded bound exceeded')
-        self.record_performance('storage_' + str(count), data)
+        self.record_performance('storage_' + str(count), data, operations=count, unit='storage_iteration')
 
     def scope(self):
         self.reset(0)
         data = self.call('scope')
         self.report['multisite'] = data['result']['multisite']
+
+    def uninstall(self):
+        require(os.environ.get('GITHUB_ACTIONS') == 'true',
+                'full uninstall case is prohibited outside disposable CI')
+        data = self.call('uninstall')
+        require(data['result'].get('fixed_rows_removed') is True,
+                'CI uninstall did not confirm fixed rows removed in all networks')
+        require(data['metrics']['http'] == 0, 'uninstall proof reached HTTP')
+        self.report['uninstall'] = 'CI-only full uninstall: stale option-miss cache and all-network fixed rows checked'
 
     def close(self):
         for child in self.children:
@@ -316,6 +400,7 @@ def main():
         cases = {
             'adapter': lab.adapter,
             'initialization': lab.initialization,
+            'exact_burst': lab.exact_burst,
             'last_credit': lab.last_credit,
             'cap_two': lab.cap_two,
             'same_slot': lab.same_slot,
@@ -329,7 +414,12 @@ def main():
             'storage': lambda: lab.storage(args.storage_count),
             'scope': lab.scope,
         }
+        if os.environ.get('GITHUB_ACTIONS') == 'true':
+            cases['uninstall'] = lab.uninstall
         selected = list(cases) if args.cases == 'all' else args.cases.split(',')
+        # Destructive full uninstall is CI-only and always follows all other cases.
+        if 'uninstall' in selected:
+            selected = [name for name in selected if name != 'uninstall'] + ['uninstall']
         if any(name not in cases for name in selected):
             parser.error('unknown case name')
         failed = False
@@ -353,8 +443,8 @@ def main():
                 output.write_text(json.dumps(lab.report, indent=2) + '\n')
         finally:
             lab.close()
-            # Fixed-key cleanup only. Never invoke WordPress/plugin uninstall:
-            # other plugin options and unrelated data belong to the lab owner.
+            # Final cleanup itself uses fixed keys only. The separate full uninstall
+            # case above is exposed exclusively to disposable GitHub Actions jobs.
             try:
                 lab.call('reset')
                 require(lab.probe()['rows'] == [], 'final fixed-key cleanup left rows behind')

@@ -283,6 +283,63 @@ try {
 			}
 			hibp_lab_assert( ! keel_hibp_budget_write( $scope, $state_key, keel_hibp_budget_read( $scope, $state_key ), array( 'oversize' => str_repeat( 'x', 4096 ) ) ), 'state encoded cap ignored' );
 			hibp_lab_assert( false === keel_hibp_budget_read( $scope, $state_key, 1 ), 'bounded read ignored' );
+			$slot_key = keel_hibp_budget_key( $scope, 'slot_63' );
+			hibp_lab_assert( ! keel_hibp_budget_write( $scope, $slot_key, keel_hibp_budget_read( $scope, $slot_key, 132096 ), array( 'oversize' => str_repeat( 'x', 132096 ) ), 132096 ), 'slot encoded cap ignored' );
+			hibp_lab_seed();
+			$large = implode( "\n", array_fill( 0, 3449, str_repeat( '0', 35 ) . ':0' ) );
+			hibp_lab_assert( strlen( $large ) <= 131072 && strlen( wp_json_encode( $large ) ) > 132096, 'encoded expansion fixture is not at boundary' );
+			$admission = keel_hibp_budget_admit( $scope, 'FFABC' );
+			hibp_lab_assert( isset( $admission['ticket'] ) && keel_hibp_budget_finish( $admission['ticket'], $large ), 'valid live response lost on encoded retention rejection' );
+			hibp_lab_assert( false === keel_hibp_budget_cache( $scope, 'FFABC', time() ), 'encoded expansion exceeded fixed slot cap' );
+			hibp_lab_seed();
+			$oversized = $large . "\n" . str_repeat( '0', 35 ) . ':12345678901234567890123456789012345678901234567890';
+			hibp_lab_assert( strlen( $oversized ) > 131072, 'raw oversize fixture too short' );
+			$admission = keel_hibp_budget_admit( $scope, 'FEABC' );
+			hibp_lab_assert( isset( $admission['ticket'] ) && keel_hibp_budget_finish( $admission['ticket'], $oversized ), 'raw oversize live result lost' );
+			hibp_lab_assert( false === keel_hibp_budget_cache( $scope, 'FEABC', time() ), 'raw body cap ignored' );
+
+			break;
+		case 'uninstall':
+			if ( 'true' !== getenv( 'GITHUB_ACTIONS' ) ) {
+				throw new RuntimeException( 'Full uninstall proof requires the disposable CI fixture.' );
+			}
+			hibp_lab_seed();
+			// Simulate another caller's stale option-miss cache for every direct SQL key.
+			$owners = is_multisite() ? get_networks( array( 'number' => 10 ) ) : array( (object) array( 'id' => 0 ) );
+			foreach ( $owners as $network ) {
+				if ( is_multisite() ) {
+					switch_to_blog( get_main_site_id( (int) $network->id ) ); }
+				$owner_scope = array(
+					'table' => $wpdb->options,
+					'id'    => (int) $network->id,
+				);
+				$negative    = array();
+				for ( $i = -1; $i < 64; ++$i ) {
+					$key   = 'keel_hibp_v2_' . $owner_scope['id'] . '_' . ( -1 === $i ? 'state' : sprintf( 'slot_%02d', $i ) );
+					$value = -1 === $i ? keel_hibp_budget_initial( keel_hibp_budget_policy(), time() ) : array(
+						'v'     => 2,
+						'owner' => str_repeat( '0', 32 ),
+						'data'  => null,
+					);
+					$old   = keel_hibp_budget_read( $owner_scope, $key );
+					hibp_lab_assert( keel_hibp_budget_write( $owner_scope, $key, $old, $value ), 'uninstall fixture creation failed' );
+					$negative[ $key ] = true;
+				}
+				wp_cache_set( 'notoptions', $negative, 'options' );
+				if ( is_multisite() ) {
+					restore_current_blog(); }
+			}
+			define( 'WP_UNINSTALL_PLUGIN', true );
+			require dirname( __DIR__, 2 ) . '/uninstall.php';
+			hibp_lab_assert( array() === hibp_lab_rows(), 'uninstall left rows behind a stale option cache' );
+			if ( is_multisite() ) {
+				foreach ( get_networks( array( 'number' => 10 ) ) as $network ) {
+					$table  = $wpdb->get_blog_prefix( get_main_site_id( (int) $network->id ) ) . 'options';
+					$prefix = 'keel_hibp_v2_' . (int) $network->id . '_';
+					hibp_lab_assert( 0 === (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM `$table` WHERE option_name LIKE %s", $wpdb->esc_like( $prefix ) . '%' ) ), 'network fixed rows survived uninstall' );
+				}
+			}
+			$result['fixed_rows_removed'] = true;
 			break;
 		case 'scope':
 			if ( ! is_multisite() ) {
@@ -318,6 +375,10 @@ try {
 				$admission = keel_hibp_budget_admit( $second, '01000' );
 				hibp_lab_assert( isset( $admission['ticket'] ), 'other network did not have independent allowance' );
 				keel_hibp_budget_finish( $admission['ticket'] );
+				for ( $i = -1; $i < 64; ++$i ) {
+					$key = keel_hibp_budget_key( $second, -1 === $i ? 'state' : sprintf( 'slot_%02d', $i ) );
+					$wpdb->query( $wpdb->prepare( "DELETE FROM `{$second['table']}` WHERE option_name = %s", $key ) );
+				}
 				restore_current_blog();
 				$GLOBALS['current_site'] = $original;
 			}
