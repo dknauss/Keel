@@ -27,4 +27,27 @@
 	body.edit-php table.wp-list-table.fixed td:not(.column-title) {
 		overflow-wrap: break-word;
 	}
+
+	/*
+	 * Keep sort arrows beside their label. Core floats the label and the
+	 * arrows, so auto layout measures the header at the wider of the two and
+	 * the arrows drop below "Published" and "Modified". As flex items they
+	 * count side by side. Date labels never wrap, even translated into
+	 * several words; any other long label may still wrap beside its arrows.
+	 */
+	body.edit-php table.wp-list-table.fixed th.sortable > a,
+	body.edit-php table.wp-list-table.fixed th.sorted > a {
+		display: flex;
+		align-items: flex-start;
+	}
+
+	body.edit-php table.wp-list-table.fixed th.sortable > a > .sorting-indicators,
+	body.edit-php table.wp-list-table.fixed th.sorted > a > .sorting-indicators {
+		flex-shrink: 0;
+	}
+
+	body.edit-php table.wp-list-table.fixed th.column-date > a > span:first-child,
+	body.edit-php table.wp-list-table.fixed th.column-keel_modified > a > span:first-child {
+		white-space: nowrap;
+	}
 }
