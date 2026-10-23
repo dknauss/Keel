@@ -56,12 +56,14 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** #299 single three-mode Admin List Tables control.
-  The core delivery timeline (#294), extension policies (#295), sanitized export
-  (#296), runtime audit (#297) and policy notice (#298) are merged and unreleased.
-  The development tree has 44 individually configurable settings. Extension policies
-  default to Leave unchanged; Admin List Tables defaults to Leave unchanged; Tidy consistently includes date and time without a separate control;
-  no version bump or release.
+- **Current state (2026-10-23):** the focused Updates-screen verification pass is
+  complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
+  Admin List Tables and the accepted update/support work are merged and unreleased;
+  the verification fixes are in a separate PR. The development schema has 44
+  individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
+  Tidy includes date and time without a separate control. Saved Screen Options and
+  per-item update choices are preserved. Continue dated field observation; no
+  version bump or release is authorized. Routine PHPStan expansion stays paused.
 
 ## Release completion — 2026-10-15
 
@@ -183,9 +185,9 @@ installs. Site Health must not become the performance problem it is diagnosing.
 ## Then — 0.9.0 update operations and support
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased. Bring the selected release,
-   branch-tip status, offer freshness, next scheduled check and recent success or
-   failure evidence into one view. Durable success history remains unknown; no
-   result collector is added. Reuse core's answers and Keel's stable
+   branch-tip status, attempted-check age, cached scheduled checks and retained
+   failure evidence into one view; #309 now renders the evidence in tables. Durable
+   success history remains unknown; no result collector is added. Reuse core's answers and Keel's stable
    blocker codes; do not infer a guaranteed schedule from policy alone.
 - [x] **Toggle plugin and theme auto-updates** — merged in #295 and unreleased. Three states, `enabled`, `disabled`
    and `unset`, applied through the `auto_update_plugin` and `auto_update_theme`
@@ -232,15 +234,38 @@ installs. Site Health must not become the performance problem it is diagnosing.
   - Verification: [notice record](docs/review/update-policy-notice-2026-10-22.md).
 
 - [x] **Compact list-table columns** — merged in #300 (`3a19720`); #265 closed; unreleased.
-  - Original #300 implementation used two opt-in controls; #299 consolidates them. Preserve accessible labels, keys,
+  - Original #300 implementation used two opt-in controls; merged #299 consolidated them. Preserve accessible labels, keys,
     sorting and saved Screen Options. Only site-admin post-type lists are in scope.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
-- **#299 follow-up:** one three-mode Admin List Tables control replaces five controls; Tidy always includes times. ID starts hidden only without saved Screen Options.
-  Existing saved lists, including empty arrays, are never backfilled or marked.
-  Verification: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
-  Both Tidy modes preserve the latest auto-sized desktop columns and full original labels.
-  #302 date-column work is merged (`dd893b4`), as are #303 Playground badges (`525e939`); no version bump or release.
+- [x] **Consolidate Admin List Tables** — #299 merged as `87cbfe8`; unreleased.
+  One three-mode control replaces five controls; Tidy includes times. Saved Screen
+  Options remain untouched. #302's date work, #305's sort arrows and #310's wrapping
+  refinements are also merged, with combined real-WordPress/browser verification.
+  See the [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md)
+  and the current verification summary in [TODO.md](TODO.md).
+
+- [x] **Reconcile the October follow-ups** — #303–#304 and #306–#309 are merged;
+  unreleased. Playground links, overview/help wording, the narrow-screen environment
+  indicator, the compact policy notice, Canadian catalogs and update-evidence tables
+  are reconciled. #309 preserves uncertainty about check attempts, partial schedules
+  and effective filter decisions; catalog parsing and compilation are guarded.
+
+- [x] **Keep callback attribution passive** — #312 merged as `bb1d8ea`; unreleased.
+  Class-name inspection no longer autoloads code; loaded class and trait attribution
+  is preserved. AX commit `668d326` completes the port, #311 is closed and the
+  counterpart record is updated. AX PR CI and single-site/multisite canaries passed.
+
+- [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+  PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
+  and shortens the synthetic demo notice; no new setting or release.
+  [verification record](docs/review/updates-screen-verification-2026-10-23.md).
+  Single-site/multisite probes, Chromium/Firefox layouts and keyboard behavior,
+  locale checks and all six live installer rows pass. The verification PR fixes
+  narrow-page overflow, scroll-region focus, failed-collection wording and a cold
+  timeline lookup that could issue HTTP. The record distinguishes automated
+  accessibility evidence from unperformed manual speech/WebKit/RTL testing and
+  includes a synthetic Playground review demo. No version bump or release.
 
 ## Later
 
@@ -341,8 +366,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
   or changed only through the settings screen. Design, exposure rules and the
   conditions for revisiting are in [AI integrations](docs/ai-integrations.md).
 
-- [x] **Inventory the Abilities authorization filters** — implemented on the
-  merged in #301 (`68a877b`) on 2026-10-22; unreleased. On core 7.1+,
+- [x] **Inventory the Abilities authorization filters** — merged in #301 (`68a877b`) on 2026-10-22; unreleased. On core 7.1+,
   a Site Health test lists every callback on `wp_ability_permission_result` and
   `wp_pre_execute_ability`. Any one of them can change who may run an ability, or
   skip the check, so a single registration is a finding (`recommended`, never
@@ -350,7 +374,9 @@ installs. Site Health must not become the performance problem it is diagnosing.
   on the attribution layer, not an overlap report. It states the effect of core
   helpers such as `__return_true` without running them, and names other core
   functions found there. It reads the registry within the registration audit's
-  1,000-entry bound and runs no callbacks. The posture export is unchanged. The
+  1,000-entry bound and runs no callbacks. The posture export is unchanged.
+  #312 prevents attribution from triggering autoloaders while preserving loaded
+  trait callbacks; AX commit `668d326` ports the fix and #311 is closed. The
   design is option A in the
   [scoping note](docs/plans/abilities-authorization-inventory.md).
 

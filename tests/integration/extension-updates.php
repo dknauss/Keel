@@ -53,6 +53,90 @@ try {
 	$report = keel_defaults_extension_update_report( 'plugin', array( 'fixture/fixture.php', 'missing' ), $cache, array(), true );
 	$assert( ( $locked ? 0 : 1 ) === $report['on'] && ( $locked ? 0 : 1 ) === $report['changed_count'] && 1 === $report['unknown'], 'Report follows real filters; missing metadata unknown.' );
 	$assert( false === strpos( wp_json_encode( $report ), 'SECRET_URL' ), 'Offer payload never enters report.' );
+	// Render real installed inventory using controlled cached offers and final filters.
+	if ( ! function_exists( 'get_plugins' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+	$offers = array();
+	foreach ( array(
+		'plugin' => array_keys( get_plugins() ),
+		'theme'  => array_keys( wp_get_themes() ),
+	) as $type => $ids ) {
+		$offers[ $type ] = (object) array( 'response' => array() );
+		foreach ( $ids as $id ) {
+			$offers[ $type ]->response[ $id ] = (object) array(
+				$type     => $id,
+				'package' => 'SECRET_RENDER_PACKAGE',
+			);
+		}
+	}
+	$plugin_cache = static function () use ( $offers ) { return $offers['plugin'];
+	};
+	$theme_cache  = static function () use ( $offers ) { return $offers['theme'];
+	};
+	$force_on     = static function () { return true;
+	};
+	$force_off    = static function () { return false;
+	};
+	$guard        = static function () { throw new RuntimeException( 'Extension render attempted HTTP, cron access/scheduling or a write.' );
+	};
+	$query_guard  = static function ( $sql ) use ( $guard ) {
+		if ( preg_match( '/^\s*(INSERT|UPDATE|DELETE|REPLACE|ALTER|CREATE|DROP|TRUNCATE)\b/i', $sql ) || preg_match( "/option_name\s*=\s*'cron'/i", $sql ) ) {
+			$guard();
+		}
+		return $sql;
+	};
+	$hooks        = array( 'pre_http_request', 'pre_option_cron', 'pre_schedule_event', 'pre_reschedule_event', 'pre_update_option', 'pre_update_site_option' );
+	add_filter( 'pre_site_transient_update_plugins', $plugin_cache );
+	add_filter( 'pre_site_transient_update_themes', $theme_cache );
+	add_filter( 'auto_update_plugin', $force_on, 999 );
+	add_filter( 'auto_update_theme', $force_off, 999 );
+	foreach ( $hooks as $hook ) {
+		add_filter( $hook, $guard, -999 );
+	}
+	add_filter( 'query', $query_guard, -999 );
+	$render = static function () {
+		$level = ob_get_level();
+		ob_start();
+		try {
+			keel_defaults_render_extension_updates();
+			return ob_get_contents();
+		} finally {
+			while ( ob_get_level() > $level ) {
+				ob_end_clean();
+			}
+		}
+	};
+	try {
+		$html = $render();
+		$assert( false !== strpos( $html, '<table class="widefat striped"' ), 'Authorized extension decisions render as a table.' );
+		$assert( false !== strpos( $html, 'Plugins</th><td>' . count( $offers['plugin']->response ) . '</td><td>0</td><td>0</td>' ), 'Plugin counts reflect final forced-on filter decisions.' );
+		$assert( false !== strpos( $html, 'Themes</th><td>0</td><td>' . count( $offers['theme']->response ) . '</td><td>0</td>' ), 'Theme counts reflect final forced-off filter decisions.' );
+		$assert( false === strpos( $html, 'SECRET_RENDER_PACKAGE' ), 'Rendered decisions omit cached package URLs.' );
+		foreach ( is_multisite() ? array( 'update_plugins', 'update_themes', 'manage_network_options' ) : array( 'update_plugins', 'update_themes' ) as $denied ) {
+			$deny = static function ( $caps, $cap ) use ( $denied ) { return $cap === $denied ? array( 'do_not_allow' ) : $caps;
+			};
+			add_filter( 'map_meta_cap', $deny, 999, 2 );
+			add_filter( 'pre_site_transient_update_plugins', $guard, -999 );
+			add_filter( 'pre_site_transient_update_themes', $guard, -999 );
+			try {
+				$assert( '' === $render(), 'Denied ' . $denied . ' reads no inventory cache and renders nothing.' );
+			} finally {
+				remove_filter( 'map_meta_cap', $deny, 999 );
+				remove_filter( 'pre_site_transient_update_plugins', $guard, -999 );
+				remove_filter( 'pre_site_transient_update_themes', $guard, -999 );
+			}
+		}
+	} finally {
+		foreach ( $hooks as $hook ) {
+			remove_filter( $hook, $guard, -999 );
+		}
+		remove_filter( 'query', $query_guard, -999 );
+		remove_filter( 'pre_site_transient_update_plugins', $plugin_cache );
+		remove_filter( 'pre_site_transient_update_themes', $theme_cache );
+		remove_filter( 'auto_update_plugin', $force_on, 999 );
+		remove_filter( 'auto_update_theme', $force_off, 999 );
+	}
 	// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- turn malformed-input warnings into regression failures.
 	set_error_handler(
 		static function ( $severity, $message ) { throw new RuntimeException( $message );

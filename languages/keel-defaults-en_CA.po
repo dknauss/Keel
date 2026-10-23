@@ -85,9 +85,9 @@ msgstr ""
 #: includes/cron-diagnostics.php:140
 #: includes/cron-presentation.php:31
 #: includes/extension-updates.php:158
-#: includes/update-timeline.php:94
-#: includes/update-timeline.php:102
-#: includes/update-timeline.php:124
+#: includes/update-timeline.php:101
+#: includes/update-timeline.php:109
+#: includes/update-timeline.php:132
 msgid "Unknown"
 msgstr ""
 
@@ -181,31 +181,31 @@ msgstr ""
 msgid "WordPress %s was installed successfully."
 msgstr ""
 
-#: includes/backport-policy.php:190
+#: includes/backport-policy.php:192
 msgid "file changes are blocked, normally because the <code>DISALLOW_FILE_MODS</code> constant is set in <code>wp-config.php</code>"
 msgstr ""
 
-#: includes/backport-policy.php:222
+#: includes/backport-policy.php:224
 msgid "automatic updates are switched off by the <code>AUTOMATIC_UPDATER_DISABLED</code> constant, normally set in <code>wp-config.php</code>"
 msgstr ""
 
-#: includes/backport-policy.php:236
+#: includes/backport-policy.php:238
 msgid "a plugin or theme on this site switches automatic updates off, using the <code>automatic_updater_disabled</code> filter"
 msgstr ""
 
-#: includes/backport-policy.php:241
+#: includes/backport-policy.php:243
 msgid "automatic updates are switched off, but not by a constant or filter Keel can identify"
 msgstr ""
 
-#: includes/backport-policy.php:259
+#: includes/backport-policy.php:261
 msgid "WordPress cannot write to its own files without credentials it would have to stop and ask for"
 msgstr ""
 
-#: includes/backport-policy.php:269
+#: includes/backport-policy.php:271
 msgid "an earlier core update failed badly enough that WordPress will not retry on its own"
 msgstr ""
 
-#: includes/backport-policy.php:276
+#: includes/backport-policy.php:278
 msgid "the site is under version control, so WordPress will not overwrite its own files"
 msgstr ""
 
@@ -433,49 +433,49 @@ msgid "WordPress installs this"
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:458
+#: includes/backport-policy.php:460
 #, php-format
 msgid "Nothing will install on its own while the updater cannot act, whatever WordPress core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:465
+#: includes/backport-policy.php:467
 #, php-format
 msgid "Nothing will install on its own while automatic updates are held back here, whatever WordPress core would otherwise select. %s can still be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:473
+#: includes/backport-policy.php:475
 #, php-format
 msgid "Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:481
+#: includes/backport-policy.php:483
 #, php-format
 msgid "Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line."
 msgstr ""
 
 #. translators: 1: the version the scheduled check would install, 2: target version.
-#: includes/backport-policy.php:489
+#: includes/backport-policy.php:491
 #, php-format
 msgid "The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:501
+#: includes/backport-policy.php:503
 #, php-format
 msgid "WordPress is not scheduling %s: it is not in this site's cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. Installing it deliberately requires an offer for it, which this site does not currently hold."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:509
+#: includes/backport-policy.php:511
 #, php-format
 msgid "WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:516
+#: includes/backport-policy.php:518
 #, php-format
 msgid "Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line."
 msgstr ""
@@ -943,7 +943,7 @@ msgid "Unchanged"
 msgstr ""
 
 #: includes/site-health.php:254
-#: includes/update-timeline.php:92
+#: includes/update-timeline.php:99
 msgid "None"
 msgstr ""
 
@@ -1701,24 +1701,24 @@ msgid "REST API"
 msgstr ""
 
 #. translators: %s: patched WordPress version on the site's own release line.
-#: includes/updates-screen.php:131
+#: includes/updates-screen.php:133
 #, php-format
 msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line."
 msgstr ""
 
 #. translators: 1: release WordPress would install, 2: patched release on this line.
-#: includes/updates-screen.php:144
+#: includes/updates-screen.php:146
 #, php-format
 msgid "WordPress would install %1$s and skip %2$s. It takes the highest release your settings allow rather than the nearest, so the fix for the line you are on is passed over."
 msgstr ""
 
 #. translators: 1: release the Updates screen is offering, 2: patched release on this line.
-#: includes/updates-screen.php:162
+#: includes/updates-screen.php:164
 #, php-format
 msgid "The update offered below is %1$s. %2$s is the minor update that closes the known vulnerabilities."
 msgstr ""
 
-#: includes/updates-screen.php:184
+#: includes/updates-screen.php:186
 msgid "A security release exists for your version line"
 msgstr ""
 
@@ -2261,7 +2261,7 @@ msgid "WordPress retains a core-update failure record; it may be historical. Fai
 msgstr ""
 
 #: includes/cron-presentation.php:125
-#: includes/update-timeline.php:145
+#: includes/update-timeline.php:153
 msgid "time unknown"
 msgstr ""
 
@@ -2676,6 +2676,7 @@ msgid "Turned off by code"
 msgstr ""
 
 #: includes/extension-updates.php:157
+#: includes/extension-updates.php:158
 msgid "Automatic plugin and theme updates"
 msgstr ""
 
@@ -2689,6 +2690,7 @@ msgstr ""
 
 #: includes/extension-updates.php:158
 #: includes/extension-updates.php:160
+#: includes/extension-updates.php:161
 msgid "Changed by code"
 msgstr ""
 
@@ -2720,164 +2722,177 @@ msgstr ""
 msgid "Partial coverage: only the first 200 items of each type are counted."
 msgstr ""
 
-#: includes/update-timeline.php:74
+#: includes/update-timeline.php:81
 msgid "file changes are turned off"
 msgstr ""
 
-#: includes/update-timeline.php:75
+#: includes/update-timeline.php:82
 msgid "automatic updates are turned off in wp-config.php"
 msgstr ""
 
-#: includes/update-timeline.php:76
+#: includes/update-timeline.php:83
 msgid "a plugin or theme turns automatic updates off"
 msgstr ""
 
-#: includes/update-timeline.php:77
+#: includes/update-timeline.php:84
 msgid "automatic updates are turned off"
 msgstr ""
 
-#: includes/update-timeline.php:78
+#: includes/update-timeline.php:85
 msgid "WordPress needs file credentials to update"
 msgstr ""
 
-#: includes/update-timeline.php:79
+#: includes/update-timeline.php:86
 msgid "an earlier update failed and WordPress won’t retry"
 msgstr ""
 
-#: includes/update-timeline.php:80
+#: includes/update-timeline.php:87
 msgid "the site is under version control"
 msgstr ""
 
-#: includes/update-timeline.php:88
-#: includes/update-timeline.php:90
-#: includes/update-timeline.php:92
-#: includes/update-timeline.php:94
+#: includes/update-timeline.php:95
+#: includes/update-timeline.php:97
+#: includes/update-timeline.php:99
+#: includes/update-timeline.php:101
 msgid "Next automatic install"
 msgstr ""
 
-#: includes/update-timeline.php:88
+#: includes/update-timeline.php:95
 msgid "Blocked"
 msgstr ""
 
-#: includes/update-timeline.php:88
+#: includes/update-timeline.php:95
 msgid "WordPress won’t install core updates on its own because"
 msgstr ""
 
-#: includes/update-timeline.php:90
+#: includes/update-timeline.php:97
 msgid "WordPress will try this release on its next update run."
 msgstr ""
 
-#: includes/update-timeline.php:92
+#: includes/update-timeline.php:99
 msgid "Nothing is queued. That alone doesn’t mean the site is current; see the version status above."
 msgstr ""
 
-#: includes/update-timeline.php:94
+#: includes/update-timeline.php:101
 msgid "WordPress hasn’t reported which release it would install."
 msgstr ""
 
-#: includes/update-timeline.php:97
+#: includes/update-timeline.php:104
 msgid "Newer patch for this branch"
 msgstr ""
 
-#: includes/update-timeline.php:102
-#: includes/update-timeline.php:110
+#: includes/update-timeline.php:109
+#: includes/update-timeline.php:117
 msgid "Last attempted check with WordPress.org"
 msgstr ""
 
 #. translators: %s: human-readable time, such as "5 mins".
-#: includes/update-timeline.php:105
+#: includes/update-timeline.php:112
 #, php-format
 msgid "%s ago"
 msgstr ""
 
-#: includes/update-timeline.php:106
+#: includes/update-timeline.php:113
 msgid "WordPress records when it tried, not whether WordPress.org answered."
 msgstr ""
 
-#: includes/update-timeline.php:108
+#: includes/update-timeline.php:115
 msgid "Over a day old, so it’s stale. WordPress normally checks twice a day."
 msgstr ""
 
-#: includes/update-timeline.php:114
+#: includes/update-timeline.php:122
 msgid "Scheduled update checks"
 msgstr ""
 
-#: includes/update-timeline.php:114
+#: includes/update-timeline.php:121
 msgid "Not read yet"
 msgstr ""
 
-#: includes/update-timeline.php:114
+#: includes/update-timeline.php:122
 msgid "Run Site Health to fill this in; its “Cron pressure and update delivery” check reads the schedule."
 msgstr ""
 
-#: includes/update-timeline.php:118
+#: includes/update-timeline.php:126
 msgid "Next update check"
 msgstr ""
 
-#: includes/update-timeline.php:119
+#: includes/update-timeline.php:127
 msgid "Next automatic update run"
 msgstr ""
 
-#: includes/update-timeline.php:124
+#: includes/update-timeline.php:132
 msgid "Not scheduled"
 msgstr ""
 
-#: includes/update-timeline.php:125
+#: includes/update-timeline.php:133
 msgid "Keel read only part of the schedule (partial coverage), so it may exist."
 msgstr ""
 
-#: includes/update-timeline.php:125
+#: includes/update-timeline.php:133
 msgid "Not found when Keel last read this site’s schedule."
 msgstr ""
 
-#: includes/update-timeline.php:130
+#: includes/update-timeline.php:138
 msgid "Was already overdue when Keel last read the schedule."
 msgstr ""
 
-#: includes/update-timeline.php:132
+#: includes/update-timeline.php:140
 msgid "Due now; Keel can’t see yet whether it ran."
 msgstr ""
 
-#: includes/update-timeline.php:140
+#: includes/update-timeline.php:148
 msgid "WP-Cron"
 msgstr ""
 
-#: includes/update-timeline.php:140
+#: includes/update-timeline.php:148
 msgid "Turned off"
 msgstr ""
 
-#: includes/update-timeline.php:140
+#: includes/update-timeline.php:148
 msgid "DISABLE_WP_CRON is set, so a server task (an external scheduler) has to run scheduled jobs. Keel can’t tell whether it does."
 msgstr ""
 
-#: includes/update-timeline.php:146
+#: includes/update-timeline.php:154
 msgid "Last failed core update"
 msgstr ""
 
-#: includes/update-timeline.php:146
+#: includes/update-timeline.php:154
 msgid "This may be from an earlier attempt, not the release above."
 msgstr ""
 
-#: includes/update-timeline.php:149
+#: includes/update-timeline.php:157
+#: includes/update-timeline.php:158
 msgid "Automatic core updates"
 msgstr ""
 
-#: includes/update-timeline.php:150
+#: includes/update-timeline.php:158
 msgid "Check"
 msgstr ""
 
-#: includes/update-timeline.php:150
+#: includes/update-timeline.php:158
 msgid "Status"
 msgstr ""
 
-#: includes/update-timeline.php:150
+#: includes/update-timeline.php:158
 msgid "Note"
 msgstr ""
 
-#: includes/update-timeline.php:151
+#: includes/update-timeline.php:159
 msgid "This is what WordPress knows right now. No installation time is promised. On multisite, update checks and failures are network-wide; the schedule is per site and can be up to an hour old."
 msgstr ""
 
 #: includes/extension-updates.php:164
 msgid "a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed."
 msgstr ""
+
+#: includes/update-timeline.php:121
+msgid "Unavailable"
+msgstr ""
+
+#: includes/update-policy-notice.php:88
+msgid "Policy details"
+msgstr "Policy details"
+
+#: includes/updates-screen.php:57
+msgid "Update diagnostics"
+msgstr "Update diagnostics"

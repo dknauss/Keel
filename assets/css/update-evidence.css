@@ -1,0 +1,24 @@
+/* Core removes generic focus outlines; keep evidence scroll regions visible. */
+.keel-defaults-update-table-scroll:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.keel-defaults-update-diagnostics {
+	margin: 16px 0;
+}
+
+.keel-defaults-update-diagnostics > summary,
+.keel-update-policy-notice summary {
+	cursor: pointer;
+}
+
+.keel-defaults-update-diagnostics > summary:focus-visible,
+.keel-update-policy-notice summary:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+.keel-update-policy-notice details {
+	margin-bottom: 8px;
+}

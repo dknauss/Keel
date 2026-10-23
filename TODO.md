@@ -20,12 +20,15 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Current focused work:** #299 single three-mode Admin List Tables control;
-  continue observing the autoload and cron/update attribution reports in the field.
-  #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
-  The development schema now has 44 individually configurable settings; the two extension policies default to Leave unchanged and Admin List Tables defaults to Leave unchanged; Tidy consistently shows date and time; there is no separate time control. Existing per-item choices and version floors are unchanged.
-  The maintainer's WordPress.com settings-save confirmation remains
-  open; routine PHPStan expansion stays paused.
+- **Current state (2026-10-23):** the focused Updates-screen verification pass is
+  complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
+  Admin List Tables and the accepted update/support work are merged and unreleased;
+  the verification fixes are in a separate PR. The development schema has 44
+  individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
+  Tidy includes date and time without a separate control. Saved Screen Options and
+  per-item update choices are preserved. The maintainer's WordPress.com settings-save
+  confirmation remains open. Continue dated field observation; no
+  version bump or release is authorized. Routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -180,7 +183,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 ## Issue triage — 2026-10-15
 
 - [x] **Compact list-table columns** — merged in #300 (`3a19720`); #265 closed; unreleased.
-  - Original #300 implementation used two opt-in controls; #299 consolidates them. Preserve accessible labels, keys,
+  - Original #300 implementation used two opt-in controls; merged #299 consolidated them. Preserve accessible labels, keys,
     sorting and saved Screen Options. Only site-admin post-type lists are in scope.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
@@ -317,7 +320,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 ## Then — 0.9.0 update operations and support
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased; no version bump or release.
-  - Combine selected release, branch tip, offer freshness, next check and recent result.
+  - Combine selected release, branch tip, attempted-check age, cached next check and retained failure evidence; #309 now renders this in tables.
   - Reuse core's decisions and stable blocker codes; never promise an execution time.
   - Missing success history stays unknown; no new collector or update controls.
   - Preserve site-local cached cron versus network-wide offer/failure scope.
@@ -360,13 +363,53 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     capture, inventory reads, extra HTTP, storage or blocking controls.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
-- [x] **Inventory the Abilities authorization filters** — merged in #301 (`68a877b`); unreleased. Read-only registration inventory; no permission policy or observer.
+- [x] **Inventory the Abilities authorization filters** — merged in #301 (`68a877b`); unreleased. Read-only registration inventory; no permission policy or observer. #312 adds the passive attribution guard; its AX port is complete (#311).
 
-- **#299 follow-up:** one three-mode Admin List Tables control replaces five controls; Tidy always includes times. ID starts hidden only without saved Screen Options.
-  Existing saved lists, including empty arrays, are never backfilled or marked.
-  Verification: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
-  Both Tidy modes preserve the latest auto-sized desktop columns and full original labels.
-  #302 date-column work is merged (`dd893b4`), as are #303 Playground badges (`525e939`); no version bump or release.
+- [x] **Consolidate Admin List Tables** — #299 merged as `87cbfe8`; unreleased.
+  One three-mode control replaces five controls; Tidy includes times without a
+  separate setting. Image starts visible in helper mode; ID and Modified start
+  hidden only where no saved Screen Options exist. Saved lists, including empty
+  arrays, are never backfilled or marked. Both Tidy modes retain content-sized
+  desktop columns and accessible full labels.
+  #302's dates and sorting, #305's adjacent sort arrows and #310's wrapping/help
+  refinements are merged. The combined #305/#310 check passed 77 standalone suites,
+  86 real-WordPress list-table checks and Chromium checks at 375–1440px, including
+  saved Screen Options across mode changes. This is focused coverage, not a full
+  browser-engine or live installer matrix.
+  Earlier design record: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
+
+- [x] **Reconcile the October follow-ups** — #303 Playground badges, #304 overview
+  wording, #306 narrow-screen environment indicator, #307 compact policy notice,
+  #308 Canadian catalogs and #309 update-evidence tables are merged; unreleased.
+  #309 distinguishes attempted checks from successful responses, leaves absent
+  hooks unknown under partial coverage, and describes changed decisions against
+  WordPress's baseline with a ten-per-type detail cap. The catalogs are reconciled
+  against the combined source; MO header/bounds and continued PO strings are tested.
+
+- [x] **Keep callback attribution passive** — #312 merged as `bb1d8ea`; unreleased.
+  Unloaded class callbacks remain untraceable without triggering autoloaders;
+  loaded classes and traits retain attribution. AX commit `668d326` ports the fix;
+  #311 is closed and #312 records the counterpart as ported. AX local gates, PR CI
+  and post-merge single-site/multisite WordPress canaries passed.
+
+- [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+  PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
+  and shortens the synthetic demo notice; no new setting or release.
+  [results and limits](docs/review/updates-screen-verification-2026-10-23.md).
+  - Fixed 320px page overflow, supplied visible focus for keyboard scroll regions,
+    distinguished failed collection from unread evidence, and stopped cold timeline
+    rendering from resolving the branch tip again and issuing HTTP.
+  - Chromium and Firefox passed seven widths on single-site and Network Updates,
+    keyboard scrolling/link targets and 200% layout checks. English, Canadian and
+    French locale rendering passed on single-site; French Keel strings fall back
+    to English. Scoped axe scans found no violations; computed color pairs passed
+    contrast checks. Manual screen-reader speech, WebKit and RTL were not tested.
+  - All three strengthened real-WordPress probes pass on single-site and multisite;
+    all six live installer-matrix rows pass on `8bab3b7`, including version-floor,
+    French, persistent-cache multisite and backward/forward installation coverage.
+  - A hosted Playground demo is available in the record: synthetic evidence is
+    labelled and real WordPress downloads/installations are blocked. No production
+    writes, new collectors, settings, version bump or release.
 
 ## Completed in v0.6.0
 

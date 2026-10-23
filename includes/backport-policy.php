@@ -116,10 +116,11 @@ function keel_defaults_updates_screen_offer( $version ) {
  * and defaults to false. Assuming true is more permissive than core and would
  * call an update possible that core will refuse.
  *
+ * @param string|false|null $branch_tip Pre-resolved tip, or null to resolve it as usual.
  * @return bool
  */
-function keel_defaults_relaxed_ownership_allowed() {
-	$offer = keel_defaults_offer_for_version( keel_defaults_branch_tip() );
+function keel_defaults_relaxed_ownership_allowed( $branch_tip = null ) {
+	$offer = keel_defaults_offer_for_version( null === $branch_tip ? keel_defaults_branch_tip() : $branch_tip );
 
 	if ( null === $offer ) {
 		return false;
@@ -178,10 +179,11 @@ function keel_defaults_offer_for_version( $version ) {
  * copy must not claim otherwise. See Core_Upgrader::should_update_to_version()
  * and WP_Automatic_Updater::should_update().
  *
+ * @param string|false|null $branch_tip Pre-resolved tip, or null to resolve it as usual.
  * @return array{policy:bool,owner:string,operable:bool,blockers:list<array{code:string,text:string}>}
  * @phpstan-return KeelMinorUpdateState
  */
-function keel_defaults_minor_update_state() {
+function keel_defaults_minor_update_state( $branch_tip = null ) {
 	$blockers = array();
 
 	if ( ! wp_is_file_mod_allowed( 'automatic_updater' ) ) {
@@ -253,7 +255,7 @@ function keel_defaults_minor_update_state() {
 	if ( class_exists( 'Automatic_Upgrader_Skin' ) ) {
 		$skin = new Automatic_Upgrader_Skin();
 
-		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed() ) ) {
+		if ( ! $skin->request_filesystem_credentials( false, ABSPATH, keel_defaults_relaxed_ownership_allowed( $branch_tip ) ) ) {
 			$blockers[] = array(
 				'code' => 'credentials',
 				'text' => __( 'WordPress cannot write to its own files without credentials it would have to stop and ask for', 'keel-defaults' ),

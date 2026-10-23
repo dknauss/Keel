@@ -92,3 +92,68 @@ curl -s -o /dev/null -w '%{http_code}\n' -L \
 
 `200` means the blueprint has something to install. Anything else means the
 Playground link in the README is broken regardless of how the blueprint reads.
+
+## Focused Updates-screen verification (unreleased branch)
+
+[Open the synthetic Updates demo](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fdknauss%2FKeel%2Fcodex%2Fupdates-screen-verification%2Fplayground%2Fblueprint-updates-screen.json).
+This URL works after the branch and these files are pushed. It tracks
+`codex/updates-screen-verification`, not a release or the rolling `latest` asset.
+It installs the branch source archive through the official CORS proxy and lands
+on `/wp-admin/update-core.php`. Direct GitHub ZIP fetches have failed CORS checks;
+this uses a ZIP `url` resource, not `git:directory` or `github-proxy.com`.
+
+Everything shown as update evidence is **synthetic**. A prominent admin notice
+and section heading label it. This is an inspection fixture, not proof that a
+WordPress.org request succeeded, a release exists, a cron job ran, or any update
+will install. The actual WordPress version is left alone. No package URLs,
+security release claims, or successful install results are fabricated.
+
+Inspect these cases on the Updates screen:
+
+1. The default two-day attempted check is stale. Use the **Synthetic recent
+   attempt** link for five minutes, then switch back. Both states must retain
+   the caveat that a check attempt does not establish a response.
+2. The partial schedule snapshot omits both observed hooks. They must read
+   **Unknown**, with the partial-coverage explanation, rather than Not scheduled.
+3. The installed `synthetic-keel-demo/synthetic-keel-demo.php` plugin has a false
+   baseline changed to true by a demo filter. The inactive `synthetic-keel-demo`
+   theme has a true baseline changed to false. Other items have no fixture
+   metadata and remain Unknown. The fixture theme need not be activated.
+4. The automatic updater is disabled by the demo guard. WordPress HTTP requests,
+   upgrader downloads, and pre-install execution return explicit demo errors.
+   Read capabilities remain available so the report can render. `DISABLE_WP_CRON`
+   also prevents traffic-driven cron; none of this describes a real site's policy.
+
+`updates-screen-fixtures.php` is the readable demo-only MU-plugin source.
+`build-updates-demo.py` embeds it into the self-contained
+`blueprint-updates-screen.json`; regenerate that JSON after editing the fixture.
+No runtime plugin file is changed. The fixture is installed only after Keel,
+so the install guard cannot block the blueprint's initial plugin installation.
+
+Local verification (Node 20.18+ and Python `jsonschema` required):
+
+```bash
+python3 playground/build-updates-demo.py
+python3 playground/test-updates-demo.py
+php -l playground/updates-screen-fixtures.php
+php -l playground/verify-updates-demo.php
+```
+
+The test validates against the current official Blueprint schema, checks embedded
+fixture parity, then boots a disposable WordPress with `@wp-playground/cli` and
+mounts this clone's Keel code instead of fetching an unpushed branch. Its final
+PHP step checks actual report rendering, both attempt ages, partial coverage,
+changed extension decisions, visible fixture labeling, and installer/network
+guards. This local pass does not verify the hosted URL, CORS, browser CSS, or the
+parent branch's eventual code; perform the final hosted browser pass after push.
+
+Local verification on 2026-10-23 passed with Playground CLI 3.1.57,
+WordPress 7.1.3 and PHP 8.3 against source commit `7013953`: schema validation,
+all real-WordPress fixture assertions, `composer test`, both demo PHP syntax
+checks, and `git diff --check`. Hosted branch/browser verification remains a
+separate step after integration and push.
+
+The preview starts with **Update diagnostics** collapsed. Open it for the core
+timeline and plugin/theme tables. **Policy details** expands provenance and delivery
+caveats; policy mismatches remain visible. The demo warning uses sentence case and
+keeps its fixture explanation under **About this demo**. None is a saved setting.
