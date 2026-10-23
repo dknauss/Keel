@@ -25,7 +25,7 @@
 	}
 
 	body.edit-php table.wp-list-table.fixed td:not(.column-title) {
-		overflow-wrap: break-word;
+		overflow-wrap: anywhere;
 	}
 
 	/*

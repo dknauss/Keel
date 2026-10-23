@@ -2387,7 +2387,7 @@ msgid "Admin List Tables"
 msgstr ""
 
 #: includes/strings.php:230
-msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
+msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users. Where you haven’t saved a preference, Image starts visible; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
 msgstr ""
 
 #: includes/strings.php:233
