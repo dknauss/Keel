@@ -267,11 +267,21 @@ installs. Site Health must not become the performance problem it is diagnosing.
   accessibility evidence from unperformed manual speech/WebKit/RTL testing and
   includes a synthetic Playground review demo. No version bump or release.
 
-- [x] **Run the focused accessibility regression pass** — 2026-10-23; branch work, unreleased.
+- [x] **Run the focused accessibility regression pass** — merged in #314 (`1d754a9`); unreleased. Verified 2026-10-23.
   Fix locked-checkbox page navigation and WebKit table arrow scrolling. Browser/RTL
   evidence and the remaining manual VoiceOver/native Safari limits are recorded in
   [the focused accessibility record](docs/review/focused-accessibility-2026-10-23.md).
   No version bump, new setting or release.
+
+- [ ] **Review the bounded HIBP lookup budget design** — proposed, not implemented.
+  Recommend one site/network bucket (burst 10, refill one credit/minute), two
+  admission leases, 64 fixed cache slots and explicit unknown results on denial.
+  Cache hits stay ahead of throttling; no IP/account keys or new settings. Atomic
+  storage, concurrency, privacy, upgrade/cleanup and counterpart acceptance gates
+  are in the [bounded HIBP budget design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
+  Shared-budget exhaustion can reduce screening for legitimate users; numerical
+  defaults and the DB-backed cache tradeoff need review before runtime work.
+  No version bump or release.
 
 ## Later
 
@@ -346,13 +356,12 @@ installs. Site Health must not become the performance problem it is diagnosing.
   Do 1 and 2 first — both done. Report-only remains the rule, and 3a stays inside
   it: reading the hook array changes nothing and asks nobody.
 
-- [ ] **Rate-limit the breach lookup** — undecided. a5e38bb moved the free
-  rejections ahead of the network call, which narrows the amplification the review
-  found without closing it: an attacker sending plausible passwords still gets one
-  outbound request and one cache entry each. Closing it means a rate limit keyed to
-  something, and every candidate key has a cost — per user punishes shared accounts,
-  per IP punishes NAT, global punishes everyone during an attack. Decide the key
-  before writing the code.
+- [ ] **Implement the agreed breach-lookup budget** — awaiting policy/design review,
+  not implementation work in progress. See the [bounded HIBP budget design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md)
+  and the active review item above. It recommends a network-shared token bucket
+  plus bounded cache slots, preserving cached verdicts and fail-open/unknown semantics.
+  IP/user throttles are not proposed in v1. The request, storage, fairness and
+  multisite tradeoffs must be accepted before building.
 
 - [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   Core’s update requests include site identity, environment categories and installed

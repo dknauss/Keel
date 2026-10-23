@@ -411,11 +411,21 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     labelled and real WordPress downloads/installations are blocked. No production
     writes, new collectors, settings, version bump or release.
 
-- [x] **Run the focused accessibility regression pass** — 2026-10-23; branch work, unreleased.
+- [x] **Run the focused accessibility regression pass** — merged in #314 (`1d754a9`); unreleased. Verified 2026-10-23.
   Fix locked-checkbox page navigation and WebKit table arrow scrolling. Browser/RTL
   evidence and the remaining manual VoiceOver/native Safari limits are recorded in
   [the focused accessibility record](docs/review/focused-accessibility-2026-10-23.md).
   No version bump, new setting or release.
+
+- [ ] **Review the bounded HIBP lookup budget design** — proposed, not implemented.
+  Recommend one site/network bucket (burst 10, refill one credit/minute), two
+  admission leases, 64 fixed cache slots and explicit unknown results on denial.
+  Cache hits stay ahead of throttling; no IP/account keys or new settings. Atomic
+  storage, concurrency, privacy, upgrade/cleanup and counterpart acceptance gates
+  are in the [bounded HIBP budget design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
+  Shared-budget exhaustion can reduce screening for legitimate users; numerical
+  defaults and the DB-backed cache tradeoff need review before runtime work.
+  No version bump or release.
 
 ## Completed in v0.6.0
 
