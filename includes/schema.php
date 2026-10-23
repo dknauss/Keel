@@ -279,33 +279,19 @@ function keel_defaults_schema() {
 			 */
 			'values'  => array( 'default', '160', '200', '240', '280', '300' ),
 		),
-		'compact_column_labels'           => array(
-			'default' => 'no',
-			'type'    => 'toggle',
+		'admin_list_tables'               => array(
+			'default' => 'unchanged',
+			'type'    => 'select',
 			'group'   => 'ux',
-		),
-		'fewer_list_columns'              => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'ux',
-		),
-		'helper_list_columns'             => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'ux',
-		),
-		'tidy_date_columns'               => array(
-			'default' => 'no',
-			'type'    => 'toggle',
-			'group'   => 'ux',
+			'choices' => array( 'unchanged', 'tidy', 'tidy_helpers' ),
 		),
 		'date_columns_show_time'          => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
 			'group'   => 'ux',
 			'depends' => array(
-				'field'     => 'tidy_date_columns',
-				'hide_when' => 'no',
+				'field'     => 'admin_list_tables',
+				'hide_when' => 'unchanged',
 			),
 		),
 		'environment_indicator'           => array(
@@ -422,6 +408,9 @@ function keel_defaults_get( $key ) {
 		$stored = array();
 	}
 
+	if ( 'admin_list_tables' === $key ) {
+		return keel_defaults_list_table_mode_from_values( $stored );
+	}
 	return array_key_exists( $key, $stored ) ? $stored[ $key ] : $schema[ $key ]['default'];
 }
 
@@ -464,4 +453,34 @@ function keel_defaults_key_supported( $key ) {
  */
 function keel_defaults_enabled( $key ) {
 	return 'yes' === keel_defaults_get( $key );
+}
+
+/**
+ * Resolve the consolidated control without persisting a migration.
+ *
+ * @param array $values Stored site or network choices.
+ * @return string Closed three-mode value.
+ */
+function keel_defaults_list_table_mode_from_values( $values ) {
+	if ( array_key_exists( 'admin_list_tables', $values ) ) {
+		return in_array( $values['admin_list_tables'], array( 'unchanged', 'tidy', 'tidy_helpers' ), true ) ? $values['admin_list_tables'] : 'unchanged';
+	}
+	if ( isset( $values['helper_list_columns'] ) && 'yes' === $values['helper_list_columns'] ) {
+		return 'tidy_helpers';
+	}
+	foreach ( array( 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' ) as $key ) {
+		if ( isset( $values[ $key ] ) && 'yes' === $values[ $key ] ) {
+			return 'tidy';
+		}
+	}
+	return 'unchanged';
+}
+
+/**
+ * Whether either tidy mode is selected.
+ *
+ * @return bool
+ */
+function keel_defaults_list_tables_tidy() {
+	return in_array( keel_defaults_get( 'admin_list_tables' ), array( 'tidy', 'tidy_helpers' ), true );
 }

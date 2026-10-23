@@ -54,7 +54,7 @@ function keel_defaults_register_list_table_columns( $screen ) {
  * Generated content leaves those consumers with the original full label only.
  */
 function keel_defaults_enqueue_compact_column_style() {
-	if ( ! keel_defaults_enabled( 'compact_column_labels' ) || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
 		return;
 	}
 	wp_enqueue_style( 'keel-defaults-list-table-columns', keel_defaults_asset_url( 'list-table-columns.css' ), array(), KEEL_DEFAULTS_VERSION );
@@ -71,7 +71,7 @@ function keel_defaults_enqueue_compact_column_style() {
  * so the stylesheet switches to auto layout and only sets Title's share.
  */
 function keel_defaults_enqueue_fewer_columns_style() {
-	if ( ! keel_defaults_enabled( 'fewer_list_columns' ) || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
 		return;
 	}
 	wp_enqueue_style( 'keel-defaults-list-table-fewer-columns', keel_defaults_asset_url( 'list-table-fewer-columns.css' ), array(), KEEL_DEFAULTS_VERSION );
@@ -85,7 +85,7 @@ function keel_defaults_enqueue_fewer_columns_style() {
  */
 function keel_defaults_compact_column_labels( $columns ) {
 	$screen = get_current_screen();
-	if ( ! keel_defaults_enabled( 'compact_column_labels' ) || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $columns ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $columns ) ) {
 		return $columns;
 	}
 
@@ -132,7 +132,7 @@ function keel_defaults_compact_column_labels( $columns ) {
  * @return string[]
  */
 function keel_defaults_fewer_list_columns( $hidden, $screen ) {
-	if ( ! keel_defaults_enabled( 'fewer_list_columns' ) || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $hidden ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $hidden ) ) {
 		return $hidden;
 	}
 	$columns = get_column_headers( $screen );
@@ -180,7 +180,7 @@ function keel_defaults_list_date( $post, $field = 'date' ) {
  * @return array
  */
 function keel_defaults_published_column_label( $columns ) {
-	if ( keel_defaults_enabled( 'tidy_date_columns' ) && is_array( $columns ) && isset( $columns['date'] ) ) {
+	if ( keel_defaults_list_tables_tidy() && is_array( $columns ) && isset( $columns['date'] ) ) {
 		$columns['date'] = __( 'Published', 'keel-defaults' );
 	}
 	return $columns;
@@ -199,7 +199,7 @@ function keel_defaults_published_column_label( $columns ) {
  * @return string
  */
 function keel_defaults_date_column_status( $status, $post, $column = 'date' ) {
-	if ( ! keel_defaults_enabled( 'tidy_date_columns' ) || 'date' !== $column || ! $post instanceof WP_Post || 'future' === $post->post_status ) {
+	if ( ! keel_defaults_list_tables_tidy() || 'date' !== $column || ! $post instanceof WP_Post || 'future' === $post->post_status ) {
 		return $status;
 	}
 	return '';
@@ -217,7 +217,7 @@ function keel_defaults_date_column_status( $status, $post, $column = 'date' ) {
  * @return string
  */
 function keel_defaults_date_column_time( $t_time, $post, $column = 'date' ) {
-	if ( ! keel_defaults_enabled( 'tidy_date_columns' ) || 'date' !== $column || ! $post instanceof WP_Post ) {
+	if ( ! keel_defaults_list_tables_tidy() || 'date' !== $column || ! $post instanceof WP_Post ) {
 		return $t_time;
 	}
 	if ( in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) {

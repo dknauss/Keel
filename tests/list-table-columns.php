@@ -55,9 +55,7 @@ function check( $condition, $message ) {
 }
 require dirname( __DIR__ ) . '/includes/schema.php';
 $schema = keel_defaults_schema();
-foreach ( array( 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' ) as $key ) {
-	check( isset( $schema[ $key ] ) && 'no' === $schema[ $key ]['default'] && 'ux' === $schema[ $key ]['group'], "$key is independently opt-in in UX" );
-}
+check( 'unchanged' === $schema['admin_list_tables']['default'] && 'select' === $schema['admin_list_tables']['type'], 'Three-mode control defaults unchanged' );
 require dirname( __DIR__ ) . '/includes/list-table-columns.php';
 check( array() === $GLOBALS['hooks'], 'Module is declaration-only' );
 $GLOBALS['screen']  = new WP_Screen();
@@ -79,7 +77,7 @@ keel_defaults_enqueue_fewer_columns_style();
 check( empty( $GLOBALS['enqueued'] ), 'Disabled fewer columns enqueues nothing' );
 keel_defaults_enqueue_compact_column_style();
 check( empty( $GLOBALS['enqueued'] ), 'Disabled compact labels enqueue nothing' );
-$GLOBALS['settings']['compact_column_labels'] = 'yes';
+$GLOBALS['settings']['admin_list_tables'] = 'tidy';
 keel_defaults_enqueue_compact_column_style();
 check( 'keel-defaults-list-table-columns' === $GLOBALS['enqueued'][0][0] && '/assets/list-table-columns.css' === $GLOBALS['enqueued'][0][1], 'Compact style enqueued from versioned static asset' );
 keel_defaults_register_list_table_columns( $GLOBALS['screen'] );
@@ -110,9 +108,9 @@ foreach ( array( null, false, 'broken', new stdClass() ) as $bad ) {
 	};
 	check( keel_defaults_compact_column_labels( $columns ) === $columns, 'Malformed map safely ignored' );
 }
-$GLOBALS['map_filter']                        = null;
-$GLOBALS['settings']['compact_column_labels'] = 'no';
-$GLOBALS['settings']['fewer_list_columns']    = 'yes';
+$GLOBALS['map_filter']                    = null;
+$GLOBALS['settings']['admin_list_tables'] = 'unchanged';
+$GLOBALS['settings']['admin_list_tables'] = 'tidy';
 check( array( 'date', 'jetpack_seo_description', 'shortlink', 'keel_id', 'keel_modified' ) === keel_defaults_fewer_list_columns( array( 'date' ), $GLOBALS['screen'] ), 'Only present allowlisted defaults hidden, independently of compaction' );
 $GLOBALS['enqueued'] = array();
 keel_defaults_enqueue_fewer_columns_style();
@@ -158,18 +156,19 @@ $GLOBALS['screen']->id        = 'edit-page';
 keel_defaults_register_list_table_columns( $GLOBALS['screen'] );
 check( isset( $GLOBALS['hooks']['manage_pages_columns'], $GLOBALS['hooks']['manage_page_posts_columns'], $GLOBALS['hooks']['default_hidden_columns'] ), 'Page and defaults hooks registered' );
 check( array( 'keel_defaults_compact_column_labels', 1000, 1 ) === ( $GLOBALS['hooks']['manage_edit-page_columns'] ?? null ), 'Page screen hook registered' );
-check( 'yes' === $schema['date_columns_show_time']['default'] && 'tidy_date_columns' === $schema['date_columns_show_time']['depends']['field'], 'Time defaults on and hides with tidy dates off' );
+check( 'yes' === $schema['date_columns_show_time']['default'] && 'admin_list_tables' === $schema['date_columns_show_time']['depends']['field'], 'Time defaults on and hides with tidy dates off' );
 check( isset( $GLOBALS['hooks']['post_date_column_status'], $GLOBALS['hooks']['post_date_column_time'] ) && 3 === $GLOBALS['hooks']['post_date_column_time'][2], 'Date column filters registered' );
-$published = new WP_Post( 'publish' );
-$draft     = new WP_Post( 'draft' );
-$scheduled = new WP_Post( 'future' );
-$date_cols = array(
+$published                                = new WP_Post( 'publish' );
+$draft                                    = new WP_Post( 'draft' );
+$scheduled                                = new WP_Post( 'future' );
+$date_cols                                = array(
 	'title' => 'Title',
 	'date'  => 'Date',
 );
+$GLOBALS['settings']['admin_list_tables'] = 'unchanged';
 check( keel_defaults_published_column_label( $date_cols ) === $date_cols, 'Disabled tidy dates keep the Date heading' );
 check( 'Published' === keel_defaults_date_column_status( 'Published', $published ) && 'core' === keel_defaults_date_column_time( 'core', $published ), 'Disabled tidy dates leave core cells alone' );
-$GLOBALS['settings']['tidy_date_columns']      = 'yes';
+$GLOBALS['settings']['admin_list_tables']      = 'tidy';
 $GLOBALS['settings']['date_columns_show_time'] = 'yes';
 check( 'Published' === keel_defaults_published_column_label( $date_cols )['date'] && array( 'title' => 'Title' ) === keel_defaults_published_column_label( array( 'title' => 'Title' ) ), 'Date heading relabeled only when present' );
 check( '' === keel_defaults_date_column_status( 'Published', $published ) && '' === keel_defaults_date_column_status( 'Last Modified', $draft ), 'Published and draft status lines dropped' );

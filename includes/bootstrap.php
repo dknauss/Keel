@@ -558,7 +558,7 @@ function keel_defaults_bootstrap() {
 
 	add_action( 'current_screen', 'keel_defaults_register_list_table_columns' );
 
-	if ( keel_defaults_enabled( 'helper_list_columns' ) ) {
+	if ( 'tidy_helpers' === keel_defaults_get( 'admin_list_tables' ) ) {
 		add_action( 'current_screen', 'keel_defaults_register_helper_post_columns' );
 		add_filter( 'manage_media_columns', 'keel_defaults_filter_media_columns' );
 		add_action( 'manage_media_custom_column', 'keel_defaults_render_media_column', 10, 2 );
@@ -566,7 +566,6 @@ function keel_defaults_bootstrap() {
 		add_filter( 'manage_users_custom_column', 'keel_defaults_render_user_column', 10, 3 );
 		add_action( 'wp_login', 'keel_defaults_record_last_login', 10, 2 );
 		add_filter( 'default_hidden_columns', 'keel_defaults_hide_helper_id_column', 10, 2 );
-		add_action( 'current_screen', 'keel_defaults_backfill_hidden_id_column' );
 	}
 
 	if ( keel_defaults_enabled( 'environment_indicator' ) ) {

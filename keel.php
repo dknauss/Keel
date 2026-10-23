@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
- * Description:       48 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
+ * Description:       45 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
  * Version:           0.8.0
  * Requires at least: 6.4
  * Requires PHP:      7.4

@@ -13,6 +13,9 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 require_once ABSPATH . 'wp-admin/includes/class-wp-posts-list-table.php';
 require_once ABSPATH . 'wp-admin/includes/user.php';
 
+$keel_columns_original_host = $_SERVER['HTTP_HOST'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Restore exact CLI test environment, never rendered.
+
+$_SERVER['HTTP_HOST']         = 'example.test';
 $keel_columns_original_get    = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Preserve request context in a CLI probe.
 $keel_columns_original_type   = $GLOBALS['post_type_object'] ?? null;
 $keel_columns_original_user   = get_current_user_id();
@@ -21,6 +24,9 @@ $keel_columns_option_exists   = false !== get_option( KEEL_DEFAULTS_OPTION, fals
 $keel_columns_original_option = get_option( KEEL_DEFAULTS_OPTION );
 $keel_columns_user            = 0;
 $keel_columns_checks          = 0;
+$keel_columns_posts           = array();
+$keel_columns_date_format     = get_option( 'date_format' );
+$keel_columns_time_format     = get_option( 'time_format' );
 $keel_columns_assert          = static function ( $condition, $message ) use ( &$keel_columns_checks ) {
 	++$keel_columns_checks;
 	if ( ! $condition ) {
@@ -77,8 +83,7 @@ try {
 	update_option(
 		KEEL_DEFAULTS_OPTION,
 		array(
-			'compact_column_labels' => 'yes',
-			'fewer_list_columns'    => 'yes',
+			'admin_list_tables' => 'tidy',
 		)
 	);
 	add_filter( 'manage_posts_columns', $keel_columns_fixture, 20 );
@@ -146,13 +151,72 @@ try {
 	update_option(
 		KEEL_DEFAULTS_OPTION,
 		array(
-			'compact_column_labels' => 'no',
-			'fewer_list_columns'    => 'no',
+			'admin_list_tables' => 'unchanged',
 		)
 	);
 	$fixture = $keel_columns_fixture( array( 'title' => 'Title' ) );
 	$keel_columns_assert( keel_defaults_compact_column_labels( $fixture ) === $fixture && array() === get_hidden_columns( get_current_screen() ), 'Disabled settings preserve plugin labels and core defaults.' );
+	// Helper ID default applies only when core has no saved preference.
+	update_option( KEEL_DEFAULTS_OPTION, array( 'admin_list_tables' => 'tidy_helpers' ) );
+	add_filter( 'default_hidden_columns', 'keel_defaults_hide_helper_id_column', 10, 2 );
+	set_current_screen( 'edit-post' );
+	$key = 'manageedit-postcolumnshidden';
+	delete_user_option( $keel_columns_user, $key );
+	remove_filter( 'default_hidden_columns', 'keel_defaults_fewer_list_columns', 1000 );
+	$keel_columns_assert( array( 'keel_id' ) === get_hidden_columns( get_current_screen() ), 'ID starts hidden without saved Screen Options, even with Fewer off.' );
+	foreach ( array( array(), array( 'activitypub' ), array( 'keel_id' ) ) as $saved ) {
+		update_user_option( $keel_columns_user, $key, $saved );
+		$before = get_user_meta( $keel_columns_user );
+		do_action( 'current_screen', get_current_screen() );
+		$keel_columns_assert( get_hidden_columns( get_current_screen() ) === $saved, 'Existing empty/nonempty Screen Options remain exact on a list visit.' );
+		$after = get_user_meta( $keel_columns_user );
+		$keel_columns_assert( $before === $after, 'No preference writes or migration marker on a list visit.' );
+	}
+	// Real date objects exercise shared formatting, drafts and schedule labels.
+	update_option( 'date_format', 'Y-m-d' );
+	update_option( 'time_format', 'H:i' );
+	foreach ( array( 'publish', 'draft', 'future' ) as $status ) {
+		$date = 'future' === $status ? gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ) : '2020-01-02 03:04:05';
+		$id   = wp_insert_post(
+			array(
+				'post_title'    => 'Keel mode probe',
+				'post_status'   => $status,
+				'post_date'     => $date,
+				'post_date_gmt' => $date,
+			)
+		);
+		$keel_columns_assert( is_int( $id ) && $id > 0, 'Date fixture created.' );
+		$keel_columns_posts[] = $id;
+		$post                 = get_post( $id );
+		if ( 'publish' === $status ) {
+			update_option(
+				KEEL_DEFAULTS_OPTION,
+				array(
+					'admin_list_tables'      => 'tidy',
+					'date_columns_show_time' => 'yes',
+				)
+			);
+			$keel_columns_assert( '2020-01-02 at 03:04' === keel_defaults_date_column_time( 'core', $post ), 'Real published date uses site formats and time.' );
+			update_option(
+				KEEL_DEFAULTS_OPTION,
+				array(
+					'admin_list_tables'      => 'tidy',
+					'date_columns_show_time' => 'no',
+				)
+			);
+			$keel_columns_assert( '2020-01-02' === keel_defaults_date_column_time( 'core', $post ), 'Show Times off suppresses time.' );
+		} elseif ( 'draft' === $status ) {
+			$keel_columns_assert( false !== strpos( keel_defaults_date_column_time( 'core', $post ), 'Not published' ), 'Real draft has accessible unpublished label.' );
+		} else {
+			$keel_columns_assert( 'Scheduled' === keel_defaults_date_column_status( 'Scheduled', $post ) && 'Missed schedule' === keel_defaults_date_column_status( 'Missed schedule', $post ), 'Schedule status labels preserved.' );
+		}
+	}
 } finally {
+	foreach ( $keel_columns_posts as $id ) {
+		wp_delete_post( $id, true );
+	}
+	update_option( 'date_format', $keel_columns_date_format );
+	update_option( 'time_format', $keel_columns_time_format );
 	unregister_post_type( 'keel_column_probe' );
 	foreach ( $keel_columns_hooks as $hook => $original ) {
 		if ( null === $original ) {
@@ -175,6 +239,11 @@ try {
 			wp_delete_user( $keel_columns_user );
 		}
 		$keel_columns_assert( false === get_userdata( $keel_columns_user ), 'Fixture account removed, including network user.' );
+	}
+	if ( null === $keel_columns_original_host ) {
+		unset( $_SERVER['HTTP_HOST'] );
+	} else {
+		$_SERVER['HTTP_HOST'] = $keel_columns_original_host;
 	}
 	$_GET                        = $keel_columns_original_get;
 	$GLOBALS['post_type_object'] = $keel_columns_original_type;
