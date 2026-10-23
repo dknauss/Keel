@@ -51,3 +51,17 @@ gap; the fix has failing-first regression coverage.
   option overrides were used for screenshots. Captures retained locally under
   `.playwright-mcp/three-mode-*`. Listing screenshots are unchanged.
 - The existing integration probe runs on all live installer matrix rows.
+
+## Final refinement
+
+The final #299 interface has one setting and 44 total controls (18 on toggles,
+13 opt-in toggles, 13 other controls). Show Times and its dependency row were
+removed: Tidy always includes the site-formatted time, including when an obsolete
+saved time preference says no. Choices are Leave unchanged, Tidy existing tables,
+and Tidy + helper columns. The two-sentence help directs individual choices to
+Screen Options and explicitly preserves saved preferences.
+
+The redundant helper-ID default filter is removed. The single Tidy default-hidden
+filter still hides ID for users without saved Screen Options; saved empty lists
+and explicit visible-ID choices continue to win. Auto-layout CSS is unchanged.
+The real WordPress probe retains date/time and preference-preservation coverage.

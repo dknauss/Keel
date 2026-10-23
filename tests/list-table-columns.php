@@ -156,7 +156,6 @@ $GLOBALS['screen']->id        = 'edit-page';
 keel_defaults_register_list_table_columns( $GLOBALS['screen'] );
 check( isset( $GLOBALS['hooks']['manage_pages_columns'], $GLOBALS['hooks']['manage_page_posts_columns'], $GLOBALS['hooks']['default_hidden_columns'] ), 'Page and defaults hooks registered' );
 check( array( 'keel_defaults_compact_column_labels', 1000, 1 ) === ( $GLOBALS['hooks']['manage_edit-page_columns'] ?? null ), 'Page screen hook registered' );
-check( 'yes' === $schema['date_columns_show_time']['default'] && 'admin_list_tables' === $schema['date_columns_show_time']['depends']['field'], 'Time defaults on and hides with tidy dates off' );
 check( isset( $GLOBALS['hooks']['post_date_column_status'], $GLOBALS['hooks']['post_date_column_time'] ) && 3 === $GLOBALS['hooks']['post_date_column_time'][2], 'Date column filters registered' );
 $published                                = new WP_Post( 'publish' );
 $draft                                    = new WP_Post( 'draft' );
@@ -178,5 +177,5 @@ check( 'October 22, 2026 at 7:49 pm' === keel_defaults_date_column_time( 'core',
 check( 'October 23, 2026 at 9:05 am' === keel_defaults_list_date( $published, 'modified' ), 'Modified shares the format' );
 check( false !== strpos( keel_defaults_date_column_time( 'core', $draft ), 'Not published' ) && 0 === strpos( keel_defaults_date_column_time( 'core', $draft ), '<span aria-hidden="true">&mdash;</span>' ), 'Drafts show a dash with a screen-reader label' );
 $GLOBALS['settings']['date_columns_show_time'] = 'no';
-check( 'October 22, 2026' === keel_defaults_date_column_time( 'core', $scheduled ) && 'October 23, 2026' === keel_defaults_list_date( $published, 'modified' ), 'Time toggle hides the time in both columns' );
+check( 'October 22, 2026 at 7:49 pm' === keel_defaults_date_column_time( 'core', $scheduled ) && 'October 23, 2026 at 9:05 am' === keel_defaults_list_date( $published, 'modified' ), 'Tidy always includes times, even with an obsolete saved time preference' );
 echo "list table columns: OK\n";

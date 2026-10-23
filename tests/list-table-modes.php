@@ -16,7 +16,7 @@ function check( $ok, $message ) { if ( ! $ok ) {
 require dirname( __DIR__ ) . '/includes/schema.php';
 require dirname( __DIR__ ) . '/includes/network.php';
 $s = keel_defaults_schema();
-check( isset( $s['admin_list_tables'] ) && 45 === count( $s ), 'One three-mode setting replaces four toggles; 45 total.' );
+check( isset( $s['admin_list_tables'] ) && 44 === count( $s ), 'One three-mode setting replaces four toggles; 44 total.' );
 check( array( 'unchanged', 'tidy', 'tidy_helpers' ) === $s['admin_list_tables']['choices'], 'Three explicit choices.' );
 check( 'unchanged' === keel_defaults_get( 'admin_list_tables' ), 'Default unchanged.' );
 foreach ( array( 'helper_list_columns', 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' ) as $old ) {
@@ -37,11 +37,5 @@ $GLOBALS['mode_network'] = array(
 	'helper_list_columns' => 'yes',
 );
 check( 'tidy' === keel_defaults_get( 'admin_list_tables' ), 'Explicit new network choice wins.' );
-check(
-	array(
-		'field'     => 'admin_list_tables',
-		'hide_when' => 'unchanged',
-	) === $s['date_columns_show_time']['depends'],
-	'Show times depends on either tidy mode.'
-);
+check( ! isset( $s['date_columns_show_time'] ), 'No separate time preference.' );
 echo "OK: three list-table modes and compatible read resolution.\n";

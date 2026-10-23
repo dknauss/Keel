@@ -93,7 +93,7 @@ function keel_defaults_add_help_tab() {
 					__( 'There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
-				'<p>' . esc_html__( 'Six settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, Password Policy Exemptions when Password Strength is off, and Show Times when Admin List Tables is set to Leave unchanged.', 'keel-defaults' ) . '</p>',
+				'<p>' . esc_html__( 'Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off.', 'keel-defaults' ) . '</p>',
 		)
 	);
 

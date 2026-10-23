@@ -56,42 +56,8 @@ keel_assert( isset( $cols['keel_file_size'] ), 'Media columns include file size.
 $cols = keel_defaults_filter_user_columns( array( 'username' => 'Username' ) );
 keel_assert( isset( $cols['keel_registered'] ) && isset( $cols['keel_last_login'] ), 'User columns include registered + last login.' );
 
-// ID starts hidden on post-type lists, and only there.
-class Keel_Helper_Test_Screen {
-	public $base      = 'edit';
-	public $post_type = 'post';
-	public $network   = false;
-	public function in_admin( $scope ) { return 'network' === $scope ? $this->network : ! $this->network; }
-}
-function get_post_type_object( $type ) { return (object) array( 'cap' => (object) array( 'edit_posts' => 'edit_posts' ) ); }
-function current_user_can( $cap ) { return true; }
-class_alias( 'Keel_Helper_Test_Screen', 'WP_Screen' );
-$edit = new WP_Screen();
-keel_assert( array( 'keel_id' ) === keel_defaults_hide_helper_id_column( array(), $edit ), 'ID starts hidden on post lists.' );
-keel_assert( array( 'core', 'keel_id' ) === keel_defaults_hide_helper_id_column( array( 'core' ), $edit ), "Core's defaults are kept, ID added after them." );
-keel_assert( array( 'keel_id' ) === keel_defaults_hide_helper_id_column( array( 'keel_id' ), $edit ), 'ID is not listed twice.' );
-keel_assert( array( 'keel_id' ) === keel_defaults_hide_helper_id_column( null, $edit ), 'A non-array from core is treated as empty.' );
-foreach ( array( 'users', 'upload', 'edit-tags' ) as $base ) {
-	keel_assert( array() === keel_defaults_hide_helper_id_column( array(), (object) array( 'base' => $base ) ), "Nothing is hidden on '{$base}'." );
-}
-keel_assert( array() === keel_defaults_hide_helper_id_column( array() ), 'Nothing is hidden without a screen.' );
-$edit->network = true;
-keel_assert( array() === keel_defaults_hide_helper_id_column( array(), $edit ), 'Network lists untouched.' );
-$edit->network   = false;
-$edit->post_type = 'attachment';
-keel_assert( array() === keel_defaults_hide_helper_id_column( array(), $edit ), 'Media lists untouched.' );
-$edit->post_type = 'post';
-foreach ( array( 'keel_thumb', 'keel_modified' ) as $k ) {
-	keel_assert( ! in_array( $k, keel_defaults_hide_helper_id_column( array(), $edit ), true ), "'{$k}' still shows by default." );
-}
-
-// Existing user preferences must never be migrated or marked by a page visit.
-keel_assert( ! function_exists( 'keel_defaults_backfill_hidden_id_column' ), 'No saved Screen Options backfill exists.' );
-
-// Registered with the helper columns, both arguments, only when enabled.
-$bootstrap = (string) file_get_contents( dirname( __DIR__ ) . '/includes/bootstrap.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading plugin source in a CLI test.
-keel_assert( false !== strpos( $bootstrap, "'tidy_helpers' === keel_defaults_get( 'admin_list_tables' )" ), 'Helpers only in the third mode.' );
-keel_assert( false === strpos( $bootstrap, 'keel_defaults_backfill_hidden_id_column' ), 'No preference-writing screen hook.' );
+keel_assert( ! function_exists( 'keel_defaults_hide_helper_id_column' ), 'Tidy default hiding is the only ID-hiding mechanism.' );
+keel_assert( ! function_exists( 'keel_defaults_backfill_hidden_id_column' ), 'No saved Screen Options backfill.' );
 
 // Last-login: unknown is 0; record then read round-trips.
 keel_assert( 0 === keel_defaults_last_login_timestamp( 7 ), 'Unknown last login is 0.' );

@@ -56,11 +56,11 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** #299 three-mode Admin List Tables control and Show Times sub-option.
+- **Current focused work:** #299 single three-mode Admin List Tables control.
   The core delivery timeline (#294), extension policies (#295), sanitized export
   (#296), runtime audit (#297) and policy notice (#298) are merged and unreleased.
-  The development tree has 45 individually configurable settings. Extension policies
-  default to Leave unchanged; Admin List Tables defaults to Leave unchanged; Show Times defaults on but is inactive until a Tidy mode is selected;
+  The development tree has 44 individually configurable settings. Extension policies
+  default to Leave unchanged; Admin List Tables defaults to Leave unchanged; Tidy consistently includes date and time without a separate control;
   no version bump or release.
 
 ## Release completion — 2026-10-15
@@ -236,7 +236,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
     sorting and saved Screen Options. Only site-admin post-type lists are in scope.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
-- **#299 follow-up:** one three-mode Admin List Tables control replaces four toggles; Show Times is its sub-option. ID starts hidden only without saved Screen Options.
+- **#299 follow-up:** one three-mode Admin List Tables control replaces five controls; Tidy always includes times. ID starts hidden only without saved Screen Options.
   Existing saved lists, including empty arrays, are never backfilled or marked.
   Verification: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
   Both Tidy modes preserve the latest auto-sized desktop columns and full original labels.

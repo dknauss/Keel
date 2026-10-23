@@ -9,11 +9,11 @@ Stable tag: 0.8.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-45 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
+44 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
 
 == Description ==
 
-A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 45 defaults on one screen, in plain language, where you can change any of them.
+A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 44 defaults on one screen, in plain language, where you can change any of them.
 
 **[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already switched on. No hosting, installation, or account required.
 
@@ -23,7 +23,7 @@ A new WordPress site leaves a lot of small decisions to you: how strong password
 * **Makes safer settings routine.** Better password protection, less exposed to the outside world, and practical choices for updates and revisions, without a collection of small single-purpose plugins.
 * **Stops test sites emailing real people.** Staging and local copies of your site send no email by default, so a copied database cannot email your customers, members, or clients by surprise.
 * **Explains normal WordPress.org update checks.** Site Health Info summarizes the categories core normally sends, without collecting or displaying this site’s values or making extra requests.
-* **Offers optional list-table compaction.** Choose Leave unchanged, Tidy existing tables, or Tidy tables and add useful columns, with an optional time display. Saved Screen Options remain yours.
+* **Offers optional list-table compaction.** Choose Leave unchanged, Tidy existing tables, or Tidy + helper columns. Tidy uses consistent dates and times. Saved Screen Options remain yours.
 * **Shows you exactly what it is doing.** One Site Health page lists every setting and its current state, and points out likely overlaps with other plugins.
 * **Keeps a multisite network consistent.** A Super Admin can set chosen defaults for every site from one Network Policy screen. Each site's own choices are kept underneath and come back when the policy is lifted.
 

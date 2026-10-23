@@ -347,27 +347,6 @@ function keel_defaults_filter_post_columns( $columns ) {
 }
 
 /**
- * Start Keel's ID column hidden on post-type lists.
- *
- * The ID is wanted now and then rather than on every visit, so it is shown
- * only when a user ticks it on in Screen Options. Core consults
- * `default_hidden_columns` only while the user has no saved Screen Options
- * for the screen, so that choice, once made, is kept.
- *
- * @param array           $hidden Column keys core already hides by default.
- * @param \WP_Screen|null $screen Current screen.
- * @return array
- */
-function keel_defaults_hide_helper_id_column( $hidden, $screen = null ) {
-	$hidden = is_array( $hidden ) ? $hidden : array();
-	if ( keel_defaults_is_post_list_screen( $screen ) && ! in_array( 'keel_id', $hidden, true ) ) {
-		$hidden[] = 'keel_id';
-	}
-
-	return $hidden;
-}
-
-/**
  * Make Modified sortable. WP_Query already orders by `modified`.
  *
  * @param array $columns Sortable column keys mapped to orderby values.

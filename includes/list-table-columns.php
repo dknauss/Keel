@@ -162,9 +162,6 @@ function keel_defaults_list_date( $post, $field = 'date' ) {
 	if ( ! is_string( $date ) || '' === $date ) {
 		return '';
 	}
-	if ( ! keel_defaults_enabled( 'date_columns_show_time' ) ) {
-		return $date;
-	}
 	return sprintf(
 		/* translators: 1: Post date, 2: Post time. */
 		__( '%1$s at %2$s', 'keel-defaults' ),

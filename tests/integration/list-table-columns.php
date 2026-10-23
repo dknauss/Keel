@@ -158,12 +158,10 @@ try {
 	$keel_columns_assert( keel_defaults_compact_column_labels( $fixture ) === $fixture && array() === get_hidden_columns( get_current_screen() ), 'Disabled settings preserve plugin labels and core defaults.' );
 	// Helper ID default applies only when core has no saved preference.
 	update_option( KEEL_DEFAULTS_OPTION, array( 'admin_list_tables' => 'tidy_helpers' ) );
-	add_filter( 'default_hidden_columns', 'keel_defaults_hide_helper_id_column', 10, 2 );
 	set_current_screen( 'edit-post' );
 	$key = 'manageedit-postcolumnshidden';
 	delete_user_option( $keel_columns_user, $key );
-	remove_filter( 'default_hidden_columns', 'keel_defaults_fewer_list_columns', 1000 );
-	$keel_columns_assert( array( 'keel_id' ) === get_hidden_columns( get_current_screen() ), 'ID starts hidden without saved Screen Options, even with Fewer off.' );
+	$keel_columns_assert( in_array( 'keel_id', get_hidden_columns( get_current_screen() ), true ), 'Tidy defaults hide ID without a separate helper filter.' );
 	foreach ( array( array(), array( 'activitypub' ), array( 'keel_id' ) ) as $saved ) {
 		update_user_option( $keel_columns_user, $key, $saved );
 		$before = get_user_meta( $keel_columns_user );
@@ -204,7 +202,7 @@ try {
 					'date_columns_show_time' => 'no',
 				)
 			);
-			$keel_columns_assert( '2020-01-02' === keel_defaults_date_column_time( 'core', $post ), 'Show Times off suppresses time.' );
+			$keel_columns_assert( '2020-01-02 at 03:04' === keel_defaults_date_column_time( 'core', $post ), 'An obsolete Show Times preference cannot suppress time.' );
 		} elseif ( 'draft' === $status ) {
 			$keel_columns_assert( false !== strpos( keel_defaults_date_column_time( 'core', $post ), 'Not published' ), 'Real draft has accessible unpublished label.' );
 		} else {

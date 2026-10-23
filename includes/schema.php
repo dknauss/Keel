@@ -285,15 +285,6 @@ function keel_defaults_schema() {
 			'group'   => 'ux',
 			'choices' => array( 'unchanged', 'tidy', 'tidy_helpers' ),
 		),
-		'date_columns_show_time'          => array(
-			'default' => 'yes',
-			'type'    => 'toggle',
-			'group'   => 'ux',
-			'depends' => array(
-				'field'     => 'admin_list_tables',
-				'hide_when' => 'unchanged',
-			),
-		),
 		'environment_indicator'           => array(
 			'default' => 'no',
 			'type'    => 'toggle',

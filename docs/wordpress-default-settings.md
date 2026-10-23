@@ -724,12 +724,13 @@ tidy-date toggles:
 | --- | --- |
 | Leave unchanged | Adds no helper columns or table formatting. |
 | Tidy existing tables | Auto-sizes post-type tables, shortens known headings, tidies dates and reduces initial column visibility. |
-| Tidy tables and add useful columns | Tidies tables and adds ID, Image and sortable Modified; also adds Media file size and Users registration/last-login helpers. |
+| Tidy + helper columns | Tidies tables and adds ID, Image and sortable Modified; also adds Media file size and Users registration/last-login helpers. |
 
-**Show Times** (`date_columns_show_time`, default `yes`) appears only in either
-Tidy mode. Published and Modified share the site's date and optional time format.
-Scheduled and missed-schedule labels remain visible. Unpublished posts show a dash
-and an accessible Not published label. Modified is sortable in the helpers mode.
+Both Tidy modes show the site's date and time consistently in Published and
+Modified. There is no separate time setting. Scheduled and missed-schedule labels
+remain visible; unpublished posts have an accessible dash. Modified is sortable
+in the helper mode. Helper columns include ID, Image and Modified on post-type
+lists, file size on Media, and registration/last-login information on Users.
 
 **Your saved Screen Options always take precedence.** Only users without a saved
 preference start with present SEO description/schema/search, Shortlink, Keel ID
@@ -1414,7 +1415,6 @@ covering only some, which reads as a full inventory when it is not.
 | Front-End Admin Bar | `frontend_admin_bar_behavior` | `''` | UX |
 | Admin Menu Width | `admin_menu_width` | `default` | UX |
 | Admin List Tables | `admin_list_tables` | `unchanged` | UX |
-| Show Times | `date_columns_show_time` | `yes` | UX |
 | Environment Indicator | `environment_indicator` | `no` | UX |
 | Remember Me | `disable_remember_me` | `no` | Login |
 | Regular Session Length | `session_regular_days` | `2` | Login |

@@ -227,17 +227,12 @@ function keel_defaults_strings() {
 		),
 		'admin_list_tables'               => array(
 			'label'   => __( 'Admin List Tables', 'keel-defaults' ),
-			'help'    => __( 'Tidy existing post-type lists with auto-sized columns, shorter known headings, consistent dates and fewer columns initially visible. Add useful columns also adds ID, Image and sortable Modified, plus Media file size and Users registration/last-login columns. Your saved Screen Options always take precedence; show or hide individual columns there. Leave unchanged adds no helper columns or formatting.', 'keel-defaults' ),
+			'help'    => __( 'Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns.', 'keel-defaults' ),
 			'choices' => array(
 				'unchanged'    => __( 'Leave unchanged', 'keel-defaults' ),
 				'tidy'         => __( 'Tidy existing tables', 'keel-defaults' ),
-				'tidy_helpers' => __( 'Tidy tables and add useful columns', 'keel-defaults' ),
+				'tidy_helpers' => __( 'Tidy + helper columns', 'keel-defaults' ),
 			),
-		),
-		'date_columns_show_time'          => array(
-			'label'     => __( 'Show Times', 'keel-defaults' ),
-			'statement' => __( 'Show the time after the date', 'keel-defaults' ),
-			'help'      => __( 'Adds the time, in the Settings → General time format, to the Published and Modified columns. On by default in either Tidy mode; hidden and inactive with Leave unchanged.', 'keel-defaults' ),
 		),
 		'environment_indicator'           => array(
 			'label'     => __( 'Environment Indicator', 'keel-defaults' ),

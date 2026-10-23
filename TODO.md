@@ -20,10 +20,10 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Current focused work:** #299 three-mode Admin List Tables control and Show Times sub-option;
+- **Current focused work:** #299 single three-mode Admin List Tables control;
   continue observing the autoload and cron/update attribution reports in the field.
   #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
-  The development schema now has 45 individually configurable settings; the two extension policies default to Leave unchanged and Admin List Tables defaults to Leave unchanged; Show Times defaults on but is inactive until a Tidy mode is selected. Existing per-item choices and version floors are unchanged.
+  The development schema now has 44 individually configurable settings; the two extension policies default to Leave unchanged and Admin List Tables defaults to Leave unchanged; Tidy consistently shows date and time; there is no separate time control. Existing per-item choices and version floors are unchanged.
   The maintainer's WordPress.com settings-save confirmation remains
   open; routine PHPStan expansion stays paused.
 
@@ -362,7 +362,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 - [x] **Inventory the Abilities authorization filters** — merged in #301 (`68a877b`); unreleased. Read-only registration inventory; no permission policy or observer.
 
-- **#299 follow-up:** one three-mode Admin List Tables control replaces four toggles; Show Times is its sub-option. ID starts hidden only without saved Screen Options.
+- **#299 follow-up:** one three-mode Admin List Tables control replaces five controls; Tidy always includes times. ID starts hidden only without saved Screen Options.
   Existing saved lists, including empty arrays, are never backfilled or marked.
   Verification: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
   Both Tidy modes preserve the latest auto-sized desktop columns and full original labels.
