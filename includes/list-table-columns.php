@@ -40,6 +40,8 @@ function keel_defaults_register_list_table_columns( $screen ) {
 		add_filter( 'manage_pages_columns', 'keel_defaults_published_column_label', 1000 );
 		add_filter( 'manage_pages_columns', 'keel_defaults_compact_column_labels', 1000 );
 	}
+	// Plugins such as Hum add columns on the screen filter, which core runs after the post-type ones.
+	add_filter( "manage_{$screen->id}_columns", 'keel_defaults_compact_column_labels', 1000 );
 	add_filter( 'post_date_column_status', 'keel_defaults_date_column_status', 1000, 3 );
 	add_filter( 'post_date_column_time', 'keel_defaults_date_column_time', 1000, 3 );
 	add_filter( 'default_hidden_columns', 'keel_defaults_fewer_list_columns', 1000, 2 );
