@@ -1,0 +1,68 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Keel Updates — SYNTHETIC verification fixtures",
+    "author": "dknauss",
+    "description": "Unreleased branch preview. All evidence is synthetic; real downloads and installs are blocked. Toggle recent/stale attempted checks, inspect partial schedule Unknown and plugin/theme decisions changed by code."
+  },
+  "landingPage": "/wp-admin/update-core.php",
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "latest"
+  },
+  "features": {
+    "networking": false
+  },
+  "constants": {
+    "DISABLE_WP_CRON": true
+  },
+  "login": true,
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "url",
+        "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/Keel/archive/refs/heads/codex/updates-screen-verification.zip"
+      },
+      "options": {
+        "activate": true,
+        "targetFolderName": "keel-defaults"
+      },
+      "progress": {
+        "caption": "Installing unreleased Updates-screen branch"
+      }
+    },
+    {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/mu-plugins"
+    },
+    {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/plugins/synthetic-keel-demo"
+    },
+    {
+      "step": "writeFile",
+      "path": "/wordpress/wp-content/plugins/synthetic-keel-demo/synthetic-keel-demo.php",
+      "data": "<?php\n/* Plugin Name: SYNTHETIC fixture plugin — no real updates */\n"
+    },
+    {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/themes/synthetic-keel-demo"
+    },
+    {
+      "step": "writeFile",
+      "path": "/wordpress/wp-content/themes/synthetic-keel-demo/style.css",
+      "data": "/*\nTheme Name: SYNTHETIC fixture theme — no real updates\nVersion: 0.0.0\n*/\n"
+    },
+    {
+      "step": "writeFile",
+      "path": "/wordpress/wp-content/themes/synthetic-keel-demo/index.php",
+      "data": "<?php // Inactive synthetic fixture theme.\n"
+    },
+    {
+      "step": "writeFile",
+      "path": "/wordpress/wp-content/mu-plugins/keel-updates-demo.php",
+      "data": "<?php\n/**\n * Plugin Name: SYNTHETIC FIXTURES — Keel Updates screen demo\n * Description: Playground-only read filters. No real update evidence or installations.\n */\n\ndefined( 'ABSPATH' ) || exit;\n\nfunction keel_demo_attempt_age() {\n\t// Read-only scenario selection. Neither scenario records a real check.\n\treturn isset( $_GET['keel-demo-attempt'] ) && 'fresh' === $_GET['keel-demo-attempt'] ? 300 : 172800;\n}\n\nadd_action( 'admin_notices', function () {\n\techo '<div class=\"notice notice-warning\"><h2>SYNTHETIC FIXTURES — Updates screen verification</h2><p>All update evidence on this demo screen is synthetic. No WordPress.org check, successful response, scheduled install, or real update decision is established. Real downloads and installations are blocked by this demo MU-plugin.</p><p>Inspect the attempt-age caveat, partial schedule coverage → Unknown, and the SYNTHETIC fixture plugin/theme decisions changed by code. Other items have no fixture metadata → Unknown. The disabled automatic updater is a demo guard, not evidence about your site.</p><p><a href=\"' . esc_url( admin_url( 'update-core.php?keel-demo-attempt=stale' ) ) . '\">Synthetic stale attempt (2 days)</a> · <a href=\"' . esc_url( admin_url( 'update-core.php?keel-demo-attempt=fresh' ) ) . '\">Synthetic recent attempt (5 minutes)</a></p></div>';\n} );\n\nadd_action( 'after_core_auto_updates_settings', function () {\n\techo '<h2>SYNTHETIC FIXTURE RESULTS — not live evidence</h2>';\n}, 1 );\n\nadd_filter( 'pre_site_transient_update_core', function () {\n\tglobal $wp_version;\n\treturn (object) array( 'last_checked' => time() - keel_demo_attempt_age(), 'version_checked' => $wp_version, 'updates' => array() );\n} );\n\nadd_filter( 'pre_transient_keel_cron_report', function () {\n\treturn array(\n\t\t'schema' => 1, 'site' => get_current_blog_id(), 'checked' => time() - 120,\n\t\t'error' => '', 'done' => true,\n\t\t'data' => array( 'examined' => 2000, 'limited' => true, 'malformed' => false, 'core' => array(), 'overdue' => array(), 'frequent' => array() ),\n\t\t'update' => array( 'offer_age' => keel_demo_attempt_age(), 'failure' => null ),\n\t);\n} );\n\n// Only these installed demo items get metadata; never synthesize a download URL.\nadd_filter( 'pre_site_transient_update_plugins', function () {\n\treturn (object) array( 'last_checked' => time(), 'response' => array(), 'no_update' => array(\n\t\t'synthetic-keel-demo/synthetic-keel-demo.php' => (object) array( 'plugin' => 'synthetic-keel-demo/synthetic-keel-demo.php', 'autoupdate' => false ),\n\t) );\n} );\nadd_filter( 'pre_site_transient_update_themes', function () {\n\treturn (object) array( 'last_checked' => time(), 'response' => array(), 'no_update' => array(\n\t\t'synthetic-keel-demo' => array( 'theme' => 'synthetic-keel-demo', 'autoupdate' => true ),\n\t) );\n} );\nadd_filter( 'auto_update_plugin', function ( $decision, $item ) {\n\treturn isset( $item->plugin ) && 'synthetic-keel-demo/synthetic-keel-demo.php' === $item->plugin ? true : $decision;\n}, PHP_INT_MAX, 2 );\nadd_filter( 'auto_update_theme', function ( $decision, $item ) {\n\treturn isset( $item->theme ) && 'synthetic-keel-demo' === $item->theme ? false : $decision;\n}, PHP_INT_MAX, 2 );\n\n// Keep read capabilities so Keel renders; reject updater execution instead.\nadd_filter( 'automatic_updater_disabled', '__return_true', PHP_INT_MAX );\nadd_filter( 'pre_http_request', function () {\n\treturn new WP_Error( 'synthetic_demo_network_blocked', 'SYNTHETIC demo: outbound WordPress HTTP is disabled.' );\n}, PHP_INT_MAX );\nfunction keel_demo_block_install() {\n\treturn new WP_Error( 'synthetic_demo_install_blocked', 'SYNTHETIC demo: real downloads and installations are disabled.' );\n}\nadd_filter( 'upgrader_pre_download', 'keel_demo_block_install', PHP_INT_MAX );\nadd_filter( 'upgrader_pre_install', 'keel_demo_block_install', PHP_INT_MAX );\n"
+    }
+  ]
+}
