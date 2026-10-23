@@ -65,6 +65,17 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   [browser verification record](docs/review/hibp-site-health-browser-2026-10-23.md)
   for evidence, cleanup and manual-screen-reader/native-Safari limits. #317 merged
   as `c2c967c`; no new setting, version bump or release.
+- [ ] **Get an en_CA language pack built** — an en_CA site shows US spellings
+  ("behavior") because translate.wordpress.org has no approved en_CA strings. On
+  2026-10-23, Stable had 0 translated, 364 waiting and 140 untranslated, so no pack
+  was built. The maintainer requested the en_CA Project Translation Editor role on
+  Polyglots that day. Once it is granted, import the complete en_CA catalog into
+  Stable and Development as approved; a pack follows at 90%. The repository catalog
+  now covers every Canadian spelling (#308) and is the source for that import.
+  Bundling the catalog in the zip again is a fallback we chose not to take: the
+  0.5.3 review asked for its removal, a language pack overrides a bundled copy, and
+  WordPress before 6.8 would need `load_plugin_textdomain()`, which Plugin Check
+  flags.
 
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).

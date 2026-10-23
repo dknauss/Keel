@@ -110,6 +110,13 @@ the tagged sources. See the
   - Not yet seen on a live WordPress.com site: it needs 0.6.8 installed on one. Of the
     nine checked on 2026-10-13, seven leave the width unchanged, which is the state
     the Jetpack notice is for, and two set their own.
+- [ ] **Get an en_CA language pack built**
+  - 2026-10-23: translate.wordpress.org en_CA Stable showed 0 translated, 364 waiting
+    and 140 untranslated, so no pack is built and en_CA sites read "behavior".
+  - The maintainer requested the en_CA Project Translation Editor role on Polyglots
+    the same day. Once granted, import `keel-defaults-en_CA.po` with every string
+    filled into Stable and Development as approved. Not bundling the catalog; see
+    ROADMAP.md.
 - [ ] **Observe the field**
   - Checked 2026-10-13, read-only, on nine WordPress.com sites the maintainer runs.
     All nine are on 0.6.7 with WordPress 7.1.3 and a connected Jetpack. None declares
