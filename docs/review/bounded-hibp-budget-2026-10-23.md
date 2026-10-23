@@ -1,6 +1,6 @@
 # Bounded HIBP budget verification — 2026-10-23
 
-Status: implemented and verified in [PR #316](https://github.com/dknauss/Keel/pull/316); unreleased. No version bump or release. #313 (`fb121e0`) and #314 (`1d754a9`) are merged and unreleased. AX port is tracked in [#315](https://github.com/dknauss/Keel/issues/315).
+Status: implemented and verified in [PR #316](https://github.com/dknauss/Keel/pull/316); unreleased. No version bump or release. #313 (`fb121e0`) and #314 (`1d754a9`) are merged and unreleased. AX port is merged as commit `f628cb8d668c581beb43cffa26620783f384657a`; [#315](https://github.com/dknauss/Keel/issues/315) is closed.
 
 ## Implemented policy
 
@@ -61,7 +61,7 @@ MariaDB with the real WordPress database adapter, before the passing full lab ru
 
 All 81 standalone test scripts pass, along with WPCS, PHP compatibility, syntax lint, the scoped PHPStan pilot and 43 invalid static-contract cases. The ordinary PR CI passed PHP 7.4–8.5; [runtime-head CI](https://github.com/dknauss/Keel/actions/runs/39998358766) is green. Catalogs were regenerated; the setting count remains 44 and version remains 0.8.0.
 
-The independent review's lost-lease diagnostic gap and capacity-only fractional-credit loss were fixed and covered. Uninstall now deletes the 65 known names directly after API cleanup, because a stale option-miss cache can otherwise hide rows created by SQL. Legacy prefix entries are neither scanned nor migrated on password requests; existing TTL/uninstall cleanup remains. Deactivation retains the fixed authority. The pending AX port remains a release-sweep gate; this PR does not perform a release.
+The independent review's lost-lease diagnostic gap and capacity-only fractional-credit loss were fixed and covered. Uninstall now deletes the 65 known names directly after API cleanup, because a stale option-miss cache can otherwise hide rows created by SQL. Legacy prefix entries are neither scanned nor migrated on password requests; existing TTL/uninstall cleanup remains. Deactivation retains the fixed authority. The AX port is merged and #316 records its counterpart commit; the former pending-port release-sweep gate is resolved. Neither implementation is released by this work.
 
 ## Two-network SQLite scope check
 
