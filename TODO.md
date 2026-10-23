@@ -23,7 +23,7 @@ the tagged sources. See the
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Admin List Tables and the accepted update/support work are merged and unreleased;
-  the verification fixes are in a separate PR. The development schema has 44
+  verification fixes are merged in #313 (`fb121e0`) and unreleased. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. The maintainer's WordPress.com settings-save
@@ -392,7 +392,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   #311 is closed and #312 records the counterpart as ported. AX local gates, PR CI
   and post-merge single-site/multisite WordPress canaries passed.
 
-- [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+- [x] **Verify the consolidated Updates screen** — merged in #313 (`fb121e0`); unreleased. Verified 2026-10-23;
   PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
   and shortens the synthetic demo notice; no new setting or release.
   [results and limits](docs/review/updates-screen-verification-2026-10-23.md).
@@ -410,6 +410,12 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   - A hosted Playground demo is available in the record: synthetic evidence is
     labelled and real WordPress downloads/installations are blocked. No production
     writes, new collectors, settings, version bump or release.
+
+- [x] **Run the focused accessibility regression pass** — 2026-10-23; branch work, unreleased.
+  Fix locked-checkbox page navigation and WebKit table arrow scrolling. Browser/RTL
+  evidence and the remaining manual VoiceOver/native Safari limits are recorded in
+  [the focused accessibility record](docs/review/focused-accessibility-2026-10-23.md).
+  No version bump, new setting or release.
 
 ## Completed in v0.6.0
 

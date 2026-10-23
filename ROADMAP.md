@@ -59,7 +59,7 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Admin List Tables and the accepted update/support work are merged and unreleased;
-  the verification fixes are in a separate PR. The development schema has 44
+  verification fixes are merged in #313 (`fb121e0`) and unreleased. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation; no
@@ -256,16 +256,22 @@ installs. Site Health must not become the performance problem it is diagnosing.
   is preserved. AX commit `668d326` completes the port, #311 is closed and the
   counterpart record is updated. AX PR CI and single-site/multisite canaries passed.
 
-- [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+- [x] **Verify the consolidated Updates screen** — merged in #313 (`fb121e0`); unreleased. Verified 2026-10-23;
   PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
   and shortens the synthetic demo notice; no new setting or release.
   [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Single-site/multisite probes, Chromium/Firefox layouts and keyboard behavior,
-  locale checks and all six live installer rows pass. The verification PR fixes
+  locale checks and all six live installer rows pass. Merged #313 fixes
   narrow-page overflow, scroll-region focus, failed-collection wording and a cold
   timeline lookup that could issue HTTP. The record distinguishes automated
   accessibility evidence from unperformed manual speech/WebKit/RTL testing and
   includes a synthetic Playground review demo. No version bump or release.
+
+- [x] **Run the focused accessibility regression pass** — 2026-10-23; branch work, unreleased.
+  Fix locked-checkbox page navigation and WebKit table arrow scrolling. Browser/RTL
+  evidence and the remaining manual VoiceOver/native Safari limits are recorded in
+  [the focused accessibility record](docs/review/focused-accessibility-2026-10-23.md).
+  No version bump, new setting or release.
 
 ## Later
 

@@ -56,7 +56,12 @@
 		} );
 
 		control.addEventListener( 'keydown', function ( event ) {
-			if ( 'Tab' !== event.key && ! event.altKey && ! event.ctrlKey && ! event.metaKey ) {
+			if ( 'Tab' === event.key || 'Escape' === event.key || event.altKey || event.ctrlKey || event.metaKey ) {
+				return;
+			}
+			// Space toggles a checkbox; navigation keys should still scroll the page.
+			// Other controls use arrows, Home/End and Page Up/Down to edit values.
+			if ( 'checkbox' !== control.type || ' ' === event.key ) {
 				event.preventDefault();
 			}
 		} );

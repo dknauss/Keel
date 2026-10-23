@@ -145,3 +145,7 @@ installer behavior; it was not rerun for this presentation refinement.
 
 - [Compact desktop](images/updates-screen-compact-desktop-2026-10-23.png)
 - [Compact mobile](images/updates-screen-compact-mobile-2026-10-23.png)
+
+Follow-up: [focused accessibility verification](focused-accessibility-2026-10-23.md)
+adds WebKit/Arabic RTL coverage and keyboard fixes after #313 merged as `fb121e0`.
+Its manual VoiceOver/native Safari limits remain explicit. Both changes are unreleased.
