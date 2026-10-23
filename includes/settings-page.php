@@ -620,7 +620,7 @@ function keel_defaults_render_settings_page() {
 		 */
 		?>
 		<hr class="wp-header-end">
-		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
+		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
 
 		<?php keel_defaults_render_lock_summary(); ?>
 		<form method="post" action="options.php">

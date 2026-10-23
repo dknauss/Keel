@@ -1401,7 +1401,7 @@ msgid "Balanced defaults for steady sites."
 msgstr ""
 
 #: includes/settings-page.php:623
-msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
+msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
