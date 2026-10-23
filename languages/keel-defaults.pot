@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T06:22:45+00:00\n"
+"POT-Creation-Date: 2026-10-23T06:24:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1134,7 +1134,7 @@ msgid "Changed by code:"
 msgstr ""
 
 #: includes/extension-updates.php:164
-msgid "a plugin, theme or Keel setting overrides the item’s own toggle; up to ten are listed."
+msgid "a plugin, theme or Keel setting overrides the item’s own toggle; up to ten per type are listed."
 msgstr ""
 
 #: includes/extension-updates.php:165
@@ -2765,13 +2765,17 @@ msgstr ""
 
 #: includes/update-timeline.php:102
 #: includes/update-timeline.php:106
-msgid "Last check with WordPress.org"
+msgid "Last attempted check with WordPress.org"
 msgstr ""
 
 #. translators: %s: human-readable time, such as "5 mins".
 #: includes/update-timeline.php:105
 #, php-format
 msgid "%s ago"
+msgstr ""
+
+#: includes/update-timeline.php:106
+msgid "The check marker does not prove a successful response."
 msgstr ""
 
 #: includes/update-timeline.php:106

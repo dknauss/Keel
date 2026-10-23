@@ -86,6 +86,12 @@ $snapshot['data']['malformed'] = false;
 $html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
 check( false !== strpos( $html, 'Next automatic update run</th><td>Not scheduled</td>' ), 'Complete scan supports an absent hook.' );
 check( false !== strpos( $html, 'Not found when Keel last read this site’s schedule.' ) && false !== strpos( $html, 'up to an hour old' ), 'Absent hook is qualified as cached evidence.' );
+foreach ( array( 60, 90000 ) as $age ) {
+	$update['offer_age'] = $age;
+	$html                = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, false, 100000, false );
+	check( false !== strpos( $html, 'Last attempted check with WordPress.org</th>' ), 'Check marker is labeled as an attempt.' );
+	check( false !== strpos( $html, 'The check marker does not prove a successful response.' ), 'Fresh and stale attempt markers never imply a successful response.' );
+}
 $GLOBALS['allowed'] = false;
 $GLOBALS['network'] = false;
 ob_start();

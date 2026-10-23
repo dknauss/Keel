@@ -161,7 +161,7 @@ function keel_defaults_render_extension_updates() {
 			. keel_defaults_update_table_markup( array( esc_html__( 'Item', 'keel-defaults' ), esc_html__( 'Result', 'keel-defaults' ) ), $changed, array( '28%' ) );
 	}
 	$html .= '<p class="description"><strong>' . esc_html__( 'Unknown:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'WordPress has no update data for the item yet.', 'keel-defaults' )
-		. ' <strong>' . esc_html__( 'Changed by code:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'a plugin, theme or Keel setting overrides the item’s own toggle; up to ten are listed.', 'keel-defaults' )
+		. ' <strong>' . esc_html__( 'Changed by code:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'a plugin, theme or Keel setting overrides the item’s own toggle; up to ten per type are listed.', 'keel-defaults' )
 		. ' ' . esc_html__( 'Being on doesn’t guarantee an install: file permissions, version control or a disabled updater can still block it.', 'keel-defaults' );
 	if ( $limited ) {
 		$html .= ' ' . esc_html__( 'Partial coverage: only the first 200 items of each type are counted.', 'keel-defaults' );
