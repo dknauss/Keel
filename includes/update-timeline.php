@@ -36,10 +36,17 @@ function keel_defaults_render_update_timeline( $selected, $tip ) {
  * @param string[]   $head Escaped column headings.
  * @param string[][] $rows Escaped cells; the first cell of each row is its header.
  * @param string[]   $widths Optional CSS widths for the leading columns.
+ * @param string     $caption Optional accessible name for the table and scroll region.
  * @return string Escaped HTML.
  */
-function keel_defaults_update_table_markup( array $head, array $rows, array $widths = array() ) {
-	$html = '<table class="widefat striped" style="max-width:820px"><thead><tr>';
+function keel_defaults_update_table_markup( array $head, array $rows, array $widths = array(), $caption = '' ) {
+	$region = '' !== $caption;
+	$html   = $region ? '<div class="keel-defaults-update-table-scroll" role="region" tabindex="0" aria-label="' . esc_attr( $caption ) . '" style="max-width:820px;overflow-x:auto">' : '';
+	$html  .= '<table class="widefat striped" style="max-width:820px">';
+	if ( $region ) {
+		$html .= '<caption class="screen-reader-text">' . esc_html( $caption ) . '</caption>';
+	}
+	$html .= '<thead><tr>';
 	foreach ( $head as $i => $cell ) {
 		$html .= '<th scope="col"' . ( isset( $widths[ $i ] ) ? ' style="width:' . esc_attr( $widths[ $i ] ) . '"' : '' ) . '>' . $cell . '</th>';
 	}
@@ -47,7 +54,7 @@ function keel_defaults_update_table_markup( array $head, array $rows, array $wid
 	foreach ( $rows as $row ) {
 		$html .= '<tr><th scope="row" style="vertical-align:top">' . array_shift( $row ) . '</th><td>' . implode( '</td><td>', $row ) . '</td></tr>';
 	}
-	return $html . '</tbody></table>';
+	return $html . '</tbody></table>' . ( $region ? '</div>' : '' );
 }
 
 /**
@@ -111,7 +118,8 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 	}
 
 	if ( false === $snapshot || ! $snapshot['done'] || '' !== $snapshot['error'] ) {
-		$rows[] = array( esc_html__( 'Scheduled update checks', 'keel-defaults' ), esc_html__( 'Not read yet', 'keel-defaults' ), esc_html__( 'Run Site Health to fill this in; its “Cron pressure and update delivery” check reads the schedule.', 'keel-defaults' ) );
+		$status = false !== $snapshot && '' !== $snapshot['error'] ? esc_html__( 'Unavailable', 'keel-defaults' ) : esc_html__( 'Not read yet', 'keel-defaults' );
+		$rows[] = array( esc_html__( 'Scheduled update checks', 'keel-defaults' ), $status, esc_html__( 'Run Site Health to fill this in; its “Cron pressure and update delivery” check reads the schedule.', 'keel-defaults' ) );
 	} else {
 		$partial = $snapshot['data']['limited'] || $snapshot['data']['malformed'];
 		$hooks   = array(
@@ -147,6 +155,6 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 	}
 
 	return '<div class="keel-defaults-update-timeline"><h3>' . esc_html__( 'Automatic core updates', 'keel-defaults' ) . '</h3>'
-		. keel_defaults_update_table_markup( array( esc_html__( 'Check', 'keel-defaults' ), esc_html__( 'Status', 'keel-defaults' ), esc_html__( 'Note', 'keel-defaults' ) ), $rows, array( '28%', '20%' ) )
+		. keel_defaults_update_table_markup( array( esc_html__( 'Check', 'keel-defaults' ), esc_html__( 'Status', 'keel-defaults' ), esc_html__( 'Note', 'keel-defaults' ) ), $rows, array( '28%', '20%' ), __( 'Automatic core updates', 'keel-defaults' ) )
 		. '<p class="description">' . esc_html__( 'This is what WordPress knows right now. No installation time is promised. On multisite, update checks and failures are network-wide; the schedule is per site and can be up to an hour old.', 'keel-defaults' ) . '</p></div>';
 }

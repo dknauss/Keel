@@ -1,0 +1,5 @@
+/* Core removes generic focus outlines; keep evidence scroll regions visible. */
+.keel-defaults-update-table-scroll:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}

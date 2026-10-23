@@ -18,6 +18,10 @@ function check( $ok, $message ) { if ( ! $ok ) {
 		fwrite( STDERR, $message . "\n" );
 		exit( 1 ); } }
 require __DIR__ . '/../includes/update-timeline.php';
+$table = keel_defaults_update_table_markup( array( 'Check', 'Status' ), array( array( 'Example', 'Unknown' ) ), array(), 'Automatic core updates' );
+check( false !== strpos( $table, 'role="region" tabindex="0" aria-label="Automatic core updates"' ), 'Overflowing evidence stays in a named keyboard-accessible region.' );
+check( false !== strpos( $table, 'overflow-x:auto' ) && false !== strpos( $table, '<caption class="screen-reader-text">Automatic core updates</caption>' ), 'Evidence tables keep a programmatic name and contain horizontal overflow.' );
+
 $state  = array(
 	'operable' => true,
 	'blockers' => array(),
@@ -30,6 +34,20 @@ $html   = keel_defaults_update_timeline_markup( false, false, $state, $update, f
 check( false !== strpos( $html, 'Next automatic install</th><td>Unknown' ), 'Missing selector evidence stays unknown.' );
 check( false === strpos( $html, 'Last failed' ) && false === strpos( $html, 'Newer patch' ), 'Rows with nothing to report are left out.' );
 check( false !== strpos( $html, 'Not read yet' ), 'Missing collection is not an empty schedule.' );
+$failed_html = keel_defaults_update_timeline_markup(
+	false,
+	false,
+	$state,
+	$update,
+	array(
+		'done'  => true,
+		'error' => 'read_failed',
+	),
+	1000,
+	false
+);
+check( false !== strpos( $failed_html, 'Unavailable' ) && false === strpos( $failed_html, 'Not read yet' ), 'A known failed collection is unavailable, not described as unread.' );
+
 check( false !== strpos( $html, '<table class="widefat striped"' ) && false === strpos( $html, '<li>' ), 'Evidence renders as a table.' );
 $snapshot            = array(
 	'done'    => true,

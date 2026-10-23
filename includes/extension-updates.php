@@ -155,10 +155,10 @@ function keel_defaults_render_extension_updates() {
 		}
 	}
 	$html = '<div class="keel-defaults-extension-updates"><h3>' . esc_html__( 'Automatic plugin and theme updates', 'keel-defaults' ) . '</h3>'
-		. keel_defaults_update_table_markup( array( esc_html__( 'Type', 'keel-defaults' ), esc_html__( 'Auto-updates on', 'keel-defaults' ), esc_html__( 'Off', 'keel-defaults' ), esc_html__( 'Unknown', 'keel-defaults' ), esc_html__( 'Changed by code', 'keel-defaults' ) ), $rows, array( '28%' ) );
+		. keel_defaults_update_table_markup( array( esc_html__( 'Type', 'keel-defaults' ), esc_html__( 'Auto-updates on', 'keel-defaults' ), esc_html__( 'Off', 'keel-defaults' ), esc_html__( 'Unknown', 'keel-defaults' ), esc_html__( 'Changed by code', 'keel-defaults' ) ), $rows, array( '28%' ), __( 'Automatic plugin and theme updates', 'keel-defaults' ) );
 	if ( $changed ) {
 		$html .= '<h4>' . esc_html__( 'Changed by code', 'keel-defaults' ) . '</h4>'
-			. keel_defaults_update_table_markup( array( esc_html__( 'Item', 'keel-defaults' ), esc_html__( 'Result', 'keel-defaults' ) ), $changed, array( '28%' ) );
+			. keel_defaults_update_table_markup( array( esc_html__( 'Item', 'keel-defaults' ), esc_html__( 'Result', 'keel-defaults' ) ), $changed, array( '28%' ), __( 'Changed by code', 'keel-defaults' ) );
 	}
 	$html .= '<p class="description"><strong>' . esc_html__( 'Unknown:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'WordPress has no update data for the item yet.', 'keel-defaults' )
 		. ' <strong>' . esc_html__( 'Changed by code:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed.', 'keel-defaults' )
