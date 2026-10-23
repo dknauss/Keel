@@ -1,0 +1,636 @@
+{
+  "schema": 1,
+  "scope": "Nine configured production sites; anonymized labels, no site mapping retained here.",
+  "reports": [
+    {
+      "observed_at": "2026-10-23T22:01:48+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 2
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792753881
+      },
+      "core_failure_record_present": false,
+      "site": "Site A"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:46+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 1
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792757904
+      },
+      "core_failure_record_present": false,
+      "site": "Site B"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:48+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.4.27",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 2
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": true,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792779170
+      },
+      "core_failure_record_present": false,
+      "site": "Site C"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:52+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 2
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792753644
+      },
+      "core_failure_record_present": false,
+      "site": "Site D"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:53+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 2
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792755303
+      },
+      "core_failure_record_present": false,
+      "site": "Site E"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:54+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 2
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792755334
+      },
+      "core_failure_record_present": false,
+      "site": "Site F"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:56+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 2
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792754594
+      },
+      "core_failure_record_present": false,
+      "site": "Site G"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:58+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.4.27",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 4
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792790295
+      },
+      "core_failure_record_present": false,
+      "site": "Site H"
+    },
+    {
+      "observed_at": "2026-10-23T22:01:59+00:00",
+      "wordpress": "7.1.3",
+      "php": "8.3.36",
+      "multisite": false,
+      "keel": {
+        "version": "0.8.0",
+        "active": true
+      },
+      "jetpack": {
+        "version": "16.4-a.3",
+        "active": true
+      },
+      "environment": "production",
+      "external_cron": true,
+      "capabilities": {
+        "keel_defaults_autoload_health": true,
+        "keel_defaults_cron_health": true,
+        "keel_defaults_posture_export": false,
+        "keel_hibp_budget_evidence": false,
+        "keel_defaults_registration_health": false
+      },
+      "keel_environment": "production",
+      "overlap": {
+        "structural": [],
+        "unconfirmed": {
+          "wp_revisions_to_keep": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 0
+          },
+          "user_has_cap": {
+            "must_use": 1,
+            "theme": 0,
+            "plugin_or_unknown": 3
+          }
+        }
+      },
+      "cached": {
+        "keel_autoload_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_cron_report": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_policy_divergence": {
+          "source": "object_cache",
+          "present": false
+        },
+        "keel_hibp_unavailable": {
+          "source": "object_cache",
+          "present": false
+        }
+      },
+      "legacy_hibp_success_at": null,
+      "configured": {
+        "block_xmlrpc_endpoint": false,
+        "xmlrpc_allow_multicall": false,
+        "require_strong_passwords": true
+      },
+      "core_offer_cache": {
+        "source": "object_cache",
+        "present": true,
+        "attempt_at": 1792758574
+      },
+      "core_failure_record_present": false,
+      "site": "Site I"
+    }
+  ]
+}

@@ -28,7 +28,8 @@ the tagged sources. See the
   Viewing caused no HIBP requests or authority writes. See the
   [browser verification record](docs/review/hibp-site-health-browser-2026-10-23.md)
   for evidence, cleanup and manual-screen-reader/native-Safari limits. #317 merged
-  as `c2c967c`; no new setting, version bump or release.
+  as `c2c967c`; #318 merged as `0a619bd`, including the lab cleanup correction.
+  Both are unreleased; no new setting, version bump or release.
 
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
@@ -107,9 +108,10 @@ the tagged sources. See the
       `docs/wordpress-default-settings.md`.
   - Left alone: the widgets screen's snackbar list, which Jetpack places for a 272px
     menu. Core offsets it before 7.0 and centres it after, under one class.
-  - Not yet seen on a live WordPress.com site: it needs 0.6.8 installed on one. Of the
-    nine checked on 2026-10-13, seven leave the width unchanged, which is the state
-    the Jetpack notice is for, and two set their own.
+  - The October 13 snapshot predated installation of 0.6.8. All nine now run
+    0.8.0 (checked 2026-10-23), but the live editor layout and Jetpack notice
+    were not browser-verified in that read-only pass. The seven unchanged widths
+    and two custom widths below describe October 13, not current configuration.
 - [ ] **Get an en_CA language pack built**
   - 2026-10-23: translate.wordpress.org en_CA Stable showed 0 translated, 364 waiting
     and 140 untranslated, so no pack is built and en_CA sites read "behavior".
@@ -117,7 +119,13 @@ the tagged sources. See the
     the same day. Once granted, import `keel-defaults-en_CA.po` with every string
     filled into Stable and Development as approved. Not bundling the catalog; see
     ROADMAP.md.
-- [ ] **Observe the field**
+- [ ] **Observe the field** — ongoing; the focused read-only pass completed
+  2026-10-23 on all nine configured production sites. All run active Keel 0.8.0
+  and WordPress 7.1.3; WordPress and Keel agree on production. The CLI snapshots
+  identify host must-use overlap without structural overlap, but have no retained
+  autoload, cron or policy-divergence reports. Missing evidence is unknown, not a
+  clean bill of health. See the [current observation record](docs/review/production-observation-2026-10-23.md).
+  The following October 13 notes remain historical; they are not current versions.
   - Checked 2026-10-13, read-only, on nine WordPress.com sites the maintainer runs.
     All nine are on 0.6.7 with WordPress 7.1.3 and a connected Jetpack. None declares
     a non-production environment, so the 0.6.8 warning for a live site that says it
@@ -134,7 +142,8 @@ the tagged sources. See the
     code that cannot be traced to any plugin". The code is the host's own must-use
     plugins, on `wp_revisions_to_keep` (priority 5, so Keel's limit still decides)
     and `user_has_cap`. Fixed in 0.6.8: the report names must-use plugins and
-    themes (dknauss/Keel#244). Not yet seen on one of the nine.
+    themes (dknauss/Keel#244). The October 23 CLI pass now identifies host must-use
+    participation on both hooks on all nine; it does not verify the browser notice.
   - Found: the 272px menu belongs to one of the nine. Looked at in a browser on
     eight: one loads Jetpack's `jetpack-admin-menu` stylesheet, and it is the one
     with no admin interface style stored. The other seven are set to the classic
@@ -184,6 +193,8 @@ only the maintainer’s WordPress.com settings-save confirmation below remains o
   - Corrected: the setting's help text and `docs/wordpress-default-settings.md`, which
     both said refusing multicall was harmless.
 - [ ] **Confirm on the site that found it**
+  - Current read-only check, 2026-10-23: all nine run 0.8.0; eight still have
+    multicall off and one on. No signed request or settings save was exercised.
   - Checked 2026-10-13 on nine connected sites running 0.6.7. Eight refuse multicall,
     the shipped default, and on each Keel finds Jetpack's signature check available.
     The ninth allows multicall. For two of the eight, the plugin list loaded live on
