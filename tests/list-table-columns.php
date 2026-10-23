@@ -9,7 +9,22 @@ define( 'KEEL_DEFAULTS_VERSION', 'test' );
 function keel_defaults_asset_url( $file ) { return '/assets/' . $file; }
 function wp_enqueue_style( ...$args ) { $GLOBALS['enqueued'][] = $args; }
 function is_multisite() { return false; }
-function get_option( $key, $default = false ) { return $GLOBALS['settings']; }
+function get_option( $key, $default = false ) {
+	$formats = array(
+		'date_format' => 'F j, Y',
+		'time_format' => 'g:i a',
+	);
+	return $formats[ $key ] ?? $GLOBALS['settings'];
+}
+function esc_html__( $text, $domain = '' ) { return esc_html( $text ); }
+function get_post_time( $format, $gmt, $post, $translate ) { return 'F j, Y' === $format ? 'October 22, 2026' : '7:49 pm'; }
+function get_post_modified_time( $format, $gmt, $post, $translate ) { return 'F j, Y' === $format ? 'October 23, 2026' : '9:05 am'; }
+// Aliased rather than declared: another test declares its own WP_Post stand-in.
+class Keel_List_Table_Test_Post {
+	public $post_status;
+	public function __construct( $status ) { $this->post_status = $status; }
+}
+class_alias( 'Keel_List_Table_Test_Post', 'WP_Post' );
 function __( $text, $domain = '' ) { return $text; }
 function esc_html( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
 function esc_attr( $text ) { return esc_html( $text ); }
@@ -40,9 +55,7 @@ function check( $condition, $message ) {
 }
 require dirname( __DIR__ ) . '/includes/schema.php';
 $schema = keel_defaults_schema();
-foreach ( array( 'compact_column_labels', 'fewer_list_columns' ) as $key ) {
-	check( isset( $schema[ $key ] ) && 'no' === $schema[ $key ]['default'] && 'ux' === $schema[ $key ]['group'], "$key is independently opt-in in UX" );
-}
+check( 'unchanged' === $schema['admin_list_tables']['default'] && 'select' === $schema['admin_list_tables']['type'], 'Three-mode control defaults unchanged' );
 require dirname( __DIR__ ) . '/includes/list-table-columns.php';
 check( array() === $GLOBALS['hooks'], 'Module is declaration-only' );
 $GLOBALS['screen']  = new WP_Screen();
@@ -60,13 +73,16 @@ $columns            = array(
 $GLOBALS['columns'] = $columns;
 check( keel_defaults_compact_column_labels( $columns ) === $columns, 'Disabled labels unchanged' );
 check( array( 'date' ) === keel_defaults_fewer_list_columns( array( 'date' ), $GLOBALS['screen'] ), 'Disabled defaults unchanged' );
+keel_defaults_enqueue_fewer_columns_style();
+check( empty( $GLOBALS['enqueued'] ), 'Disabled fewer columns enqueues nothing' );
 keel_defaults_enqueue_compact_column_style();
 check( empty( $GLOBALS['enqueued'] ), 'Disabled compact labels enqueue nothing' );
-$GLOBALS['settings']['compact_column_labels'] = 'yes';
+$GLOBALS['settings']['admin_list_tables'] = 'tidy';
 keel_defaults_enqueue_compact_column_style();
 check( 'keel-defaults-list-table-columns' === $GLOBALS['enqueued'][0][0] && '/assets/list-table-columns.css' === $GLOBALS['enqueued'][0][1], 'Compact style enqueued from versioned static asset' );
 keel_defaults_register_list_table_columns( $GLOBALS['screen'] );
 check( isset( $GLOBALS['hooks']['manage_post_posts_columns'] ) && 1000 === $GLOBALS['hooks']['manage_post_posts_columns'][1], 'Late dynamic hook registered' );
+check( array( 'keel_defaults_compact_column_labels', 1000, 1 ) === ( $GLOBALS['hooks']['manage_edit-post_columns'] ?? null ), 'Screen hook catches columns added after the post-type filters' );
 $result = keel_defaults_compact_column_labels( $columns );
 check( array_keys( $columns ) === array_keys( $result ), 'Keys and ordering preserved' );
 check( false !== strpos( $result['jetpack_seo_description'], 'title="SEO &amp; description"' ), 'Stripped original escaped for tooltip' );
@@ -92,10 +108,26 @@ foreach ( array( null, false, 'broken', new stdClass() ) as $bad ) {
 	};
 	check( keel_defaults_compact_column_labels( $columns ) === $columns, 'Malformed map safely ignored' );
 }
-$GLOBALS['map_filter']                        = null;
-$GLOBALS['settings']['compact_column_labels'] = 'no';
-$GLOBALS['settings']['fewer_list_columns']    = 'yes';
+$GLOBALS['map_filter']                    = null;
+$GLOBALS['settings']['admin_list_tables'] = 'unchanged';
+$GLOBALS['settings']['admin_list_tables'] = 'tidy';
 check( array( 'date', 'jetpack_seo_description', 'shortlink', 'keel_id', 'keel_modified' ) === keel_defaults_fewer_list_columns( array( 'date' ), $GLOBALS['screen'] ), 'Only present allowlisted defaults hidden, independently of compaction' );
+$GLOBALS['enqueued'] = array();
+keel_defaults_enqueue_fewer_columns_style();
+check( array( 'keel-defaults-list-table-fewer-columns', '/assets/list-table-fewer-columns.css' ) === array_slice( $GLOBALS['enqueued'][0], 0, 2 ), 'Fewer columns enqueues its static asset' );
+$fewer_css = (string) file_get_contents( dirname( __DIR__ ) . '/assets/list-table-fewer-columns.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a plugin asset in a CLI test.
+$fewer_css = (string) preg_replace( '#/\*.*?\*/#s', '', $fewer_css );
+preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $fewer_css, $rules, PREG_SET_ORDER );
+$declared = array();
+foreach ( $rules as $rule ) {
+	$declared[ (string) preg_replace( '/\s+/', ' ', trim( preg_replace( '/^.*\{/s', '', $rule[1] ) ) ) ] = trim( $rule[2] );
+}
+check( 'table-layout: auto;' === ( $declared['body.edit-php table.wp-list-table.fixed'] ?? '' ), 'Fewer columns sizes post-list columns to their content' );
+check( 'width: 50%;' === ( $declared['body.edit-php table.wp-list-table.fixed .column-title'] ?? '' ), 'Title keeps a floor so content sizing cannot squeeze it' );
+check( 'overflow-wrap: break-word;' === ( $declared['body.edit-php table.wp-list-table.fixed td:not(.column-title)'] ?? '' ), 'Other cells may break long values such as URLs' );
+check( 'width: 1%;' === ( $declared['body.edit-php table.wp-list-table.fixed .check-column, body.edit-php table.wp-list-table.fixed .column-keel_thumb'] ?? '' ), 'Checkbox and Image shrink so they never take spare width' );
+check( 4 === count( $declared ), 'Fewer columns CSS declares nothing else' );
+check( 1 === preg_match( '/@media screen and \(min-width: 783px\)/', $fewer_css ), 'Desktop layout only' );
 $GLOBALS['columns']['jetpack_seo_schema'] = 'Schema';
 $GLOBALS['columns']['jetpack_seo_search'] = 'Search';
 check( 6 === count( keel_defaults_fewer_list_columns( array(), $GLOBALS['screen'] ) ), 'All six exact optional keys can be hidden' );
@@ -107,6 +139,7 @@ foreach ( array( 'users', 'upload', 'dashboard', 'post' ) as $base ) {
 	$GLOBALS['screen']->base = $base;
 	$GLOBALS['enqueued']     = array();
 	keel_defaults_enqueue_compact_column_style();
+	keel_defaults_enqueue_fewer_columns_style();
 	check( array() === $GLOBALS['enqueued'], 'Unrelated screen enqueues nothing' );
 	check( keel_defaults_compact_column_labels( $columns ) === $columns && array() === keel_defaults_fewer_list_columns( array(), $GLOBALS['screen'] ), 'Unrelated screens unchanged' );
 }
@@ -123,4 +156,27 @@ $GLOBALS['screen']->post_type = 'page';
 $GLOBALS['screen']->id        = 'edit-page';
 keel_defaults_register_list_table_columns( $GLOBALS['screen'] );
 check( isset( $GLOBALS['hooks']['manage_pages_columns'], $GLOBALS['hooks']['manage_page_posts_columns'], $GLOBALS['hooks']['default_hidden_columns'] ), 'Page and defaults hooks registered' );
+check( array( 'keel_defaults_compact_column_labels', 1000, 1 ) === ( $GLOBALS['hooks']['manage_edit-page_columns'] ?? null ), 'Page screen hook registered' );
+check( isset( $GLOBALS['hooks']['post_date_column_status'], $GLOBALS['hooks']['post_date_column_time'] ) && 3 === $GLOBALS['hooks']['post_date_column_time'][2], 'Date column filters registered' );
+$published                                = new WP_Post( 'publish' );
+$draft                                    = new WP_Post( 'draft' );
+$scheduled                                = new WP_Post( 'future' );
+$date_cols                                = array(
+	'title' => 'Title',
+	'date'  => 'Date',
+);
+$GLOBALS['settings']['admin_list_tables'] = 'unchanged';
+check( keel_defaults_published_column_label( $date_cols ) === $date_cols, 'Disabled tidy dates keep the Date heading' );
+check( 'Published' === keel_defaults_date_column_status( 'Published', $published ) && 'core' === keel_defaults_date_column_time( 'core', $published ), 'Disabled tidy dates leave core cells alone' );
+$GLOBALS['settings']['admin_list_tables']      = 'tidy';
+$GLOBALS['settings']['date_columns_show_time'] = 'yes';
+check( 'Published' === keel_defaults_published_column_label( $date_cols )['date'] && array( 'title' => 'Title' ) === keel_defaults_published_column_label( array( 'title' => 'Title' ) ), 'Date heading relabeled only when present' );
+check( '' === keel_defaults_date_column_status( 'Published', $published ) && '' === keel_defaults_date_column_status( 'Last Modified', $draft ), 'Published and draft status lines dropped' );
+check( 'Scheduled' === keel_defaults_date_column_status( 'Scheduled', $scheduled ), 'Scheduled keeps its label' );
+check( 'Published' === keel_defaults_date_column_status( 'Published', $published, 'other' ), 'Other columns untouched' );
+check( 'October 22, 2026 at 7:49 pm' === keel_defaults_date_column_time( 'core', $published ), 'Publish date uses site formats with time' );
+check( 'October 23, 2026 at 9:05 am' === keel_defaults_list_date( $published, 'modified' ), 'Modified shares the format' );
+check( false !== strpos( keel_defaults_date_column_time( 'core', $draft ), 'Not published' ) && 0 === strpos( keel_defaults_date_column_time( 'core', $draft ), '<span aria-hidden="true">&mdash;</span>' ), 'Drafts show a dash with a screen-reader label' );
+$GLOBALS['settings']['date_columns_show_time'] = 'no';
+check( 'October 22, 2026 at 7:49 pm' === keel_defaults_date_column_time( 'core', $scheduled ) && 'October 23, 2026 at 9:05 am' === keel_defaults_list_date( $published, 'modified' ), 'Tidy always includes times, even with an obsolete saved time preference' );
 echo "list table columns: OK\n";

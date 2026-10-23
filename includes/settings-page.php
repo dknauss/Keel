@@ -291,6 +291,10 @@ function keel_defaults_sanitize_site( $input ) {
 	$clean    = keel_defaults_sanitize( $input );
 	$existing = get_option( KEEL_DEFAULTS_OPTION, array() );
 	$existing = is_array( $existing ) ? $existing : array();
+	// Preserve the dormant site choice under a network lock during consolidation.
+	if ( ! array_key_exists( 'admin_list_tables', $existing ) && array_intersect( array( 'helper_list_columns', 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' ), array_keys( $existing ) ) ) {
+		$existing['admin_list_tables'] = keel_defaults_list_table_mode_from_values( $existing );
+	}
 
 	foreach ( array_keys( keel_defaults_schema() ) as $key ) {
 		$locked = ( null !== keel_defaults_config_lock( $key ) ) || ( null !== keel_defaults_network_lock( $key ) );

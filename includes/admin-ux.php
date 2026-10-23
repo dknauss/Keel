@@ -317,6 +317,8 @@ function keel_defaults_register_helper_post_columns( $screen ) {
 		return;
 	}
 
+	add_filter( "manage_edit-{$post_type}_sortable_columns", 'keel_defaults_sortable_post_columns' );
+
 	if ( 'page' === $post_type ) {
 		add_filter( 'manage_pages_columns', 'keel_defaults_filter_post_columns' );
 		add_action( 'manage_pages_custom_column', 'keel_defaults_render_post_column', 10, 2 );
@@ -345,6 +347,17 @@ function keel_defaults_filter_post_columns( $columns ) {
 }
 
 /**
+ * Make Modified sortable. WP_Query already orders by `modified`.
+ *
+ * @param array $columns Sortable column keys mapped to orderby values.
+ * @return array
+ */
+function keel_defaults_sortable_post_columns( $columns ) {
+	$columns['keel_modified'] = array( 'modified', true );
+	return $columns;
+}
+
+/**
  * Render a helper post column.
  *
  * @param string $column  Column key.
@@ -360,7 +373,7 @@ function keel_defaults_render_post_column( $column, $post_id ) {
 		return;
 	}
 	if ( 'keel_modified' === $column ) {
-		echo esc_html( get_post_modified_time( get_option( 'date_format' ), false, $post_id, true ) );
+		echo esc_html( keel_defaults_list_tables_tidy() ? keel_defaults_list_date( $post_id, 'modified' ) : get_post_modified_time( get_option( 'date_format' ), false, $post_id, true ) );
 	}
 }
 

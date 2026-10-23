@@ -7,7 +7,8 @@
  * @package keel
  */
 
-$GLOBALS['keel_usermeta'] = array();
+$GLOBALS['keel_usermeta']     = array();
+$GLOBALS['keel_current_user'] = 3;
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -24,6 +25,11 @@ function get_user_meta( $uid, $key, $single = false ) {
 function update_user_meta( $uid, $key, $val ) {
 	$GLOBALS['keel_usermeta'][ $uid ][ $key ] = $val;
 	return true;
+}
+function get_current_user_id() { return $GLOBALS['keel_current_user']; }
+function get_user_option( $key, $uid ) {
+	$v = get_user_meta( $uid, $key, true );
+	return '' === $v ? false : $v;
 }
 class WP_User {
 	public $ID;
@@ -50,6 +56,9 @@ keel_assert( isset( $cols['keel_file_size'] ), 'Media columns include file size.
 $cols = keel_defaults_filter_user_columns( array( 'username' => 'Username' ) );
 keel_assert( isset( $cols['keel_registered'] ) && isset( $cols['keel_last_login'] ), 'User columns include registered + last login.' );
 
+keel_assert( ! function_exists( 'keel_defaults_hide_helper_id_column' ), 'Tidy default hiding is the only ID-hiding mechanism.' );
+keel_assert( ! function_exists( 'keel_defaults_backfill_hidden_id_column' ), 'No saved Screen Options backfill.' );
+
 // Last-login: unknown is 0; record then read round-trips.
 keel_assert( 0 === keel_defaults_last_login_timestamp( 7 ), 'Unknown last login is 0.' );
 keel_defaults_record_last_login( 'bob', new WP_User( 7 ) );
@@ -67,7 +76,8 @@ keel_assert( 1600000000 === keel_defaults_last_login_timestamp( 9 ), 'Reads a th
 $schema = keel_defaults_schema();
 keel_assert( 'yes' === $schema['media_sizes_panel']['default'], 'media_sizes_panel defaults on.' );
 keel_assert( 'media' === $schema['media_sizes_panel']['group'], 'media_sizes_panel is in the Media group.' );
-keel_assert( 'no' === $schema['helper_list_columns']['default'], 'helper_list_columns defaults off.' );
-keel_assert( 'ux' === $schema['helper_list_columns']['group'], 'helper_list_columns is in the UX group.' );
+keel_assert( 'unchanged' === $schema['admin_list_tables']['default'], 'helper_list_columns defaults off.' );
+keel_assert( 'ux' === $schema['admin_list_tables']['group'], 'helper_list_columns is in the UX group.' );
+keel_assert( array( 'modified', true ) === keel_defaults_sortable_post_columns( array() )['keel_modified'], 'Modified sorts by post_modified, newest first on first click.' );
 
 fwrite( STDOUT, "helper columns tests passed.\n" );
