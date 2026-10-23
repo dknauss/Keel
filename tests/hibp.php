@@ -333,7 +333,6 @@ keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
 keel_assert( keel_hibp_budget_read( keel_hibp_budget_scope(), 'keel_hibp_v2_0_state' ) === $raw, 'A cache hit writes neither budget nor recovery evidence.' );
 keel_assert( empty( $GLOBALS['keel_transients'] ) && empty( $GLOBALS['keel_object_cache'] ), 'No new unbounded legacy or persistent cache entries.' );
 keel_assert( false === keel_password_is_pwned( 'anything' ), 'Opt-out and fail-open adapter remain unchanged.' );
-echo "hibp: OK\n";
 
 // Atomic admission and bounded state tests (real parallel proof is a separate lab).
 keel_hibp_reset( 200, $live_suffix . ':1' );
@@ -399,3 +398,16 @@ $GLOBALS['wpdb']->cas_failures = 10;
 $denied                        = keel_hibp_budget_admit( $scope, '02000' );
 keel_assert( 'budget_unavailable' === $denied['error'], 'Repeated CAS contention produces unknown.' );
 keel_assert( 3 === $GLOBALS['wpdb']->cas_attempts, 'Admission stops after three CAS attempts without polling.' );
+
+// Capability failures must remain unknown rather than interrupting password changes.
+keel_hibp_reset( 200, $live_suffix . ':1' );
+$GLOBALS['wpdb']->driver_failure = true;
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A throwing driver capability check remains unknown.' );
+keel_assert( 0 === $GLOBALS['keel_http_calls'], 'A throwing capability check starts no HTTP.' );
+keel_assert( 0 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'Failed capability discovery creates no authority.' );
+keel_assert( false === $GLOBALS['wpdb']->suppress_errors( false ), 'Capability failures restore database error-suppression state.' );
+$GLOBALS['wpdb']->suppress_errors( true );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Repeated driver failures remain unknown.' );
+keel_assert( true === $GLOBALS['wpdb']->suppress_errors( false ), 'Capability failures also preserve existing suppression.' );
+
+echo "hibp: OK\n";

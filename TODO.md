@@ -422,7 +422,7 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   cache slots, with cached verdicts ahead of throttling and explicit unknown on denial.
   See the [bounded HIBP design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
 - [x] **Implement and verify the bounded HIBP lookup budget** — implemented in
-  [#316](https://github.com/dknauss/Keel/pull/316), open and unreleased.
+  [#316](https://github.com/dknauss/Keel/pull/316), unreleased.
   Fixed database authority, two fenced leases, 64 cache slots, sampled shared
   diagnostics and paged uninstall preserve the 44-setting schema. SQLite labs
   and all four MySQL/MariaDB × WordPress floor/current cells pass, including

@@ -6,16 +6,19 @@ class Keel_HIBP_Test_DB {
 	public $options    = 'wp_options';
 	public $last_error = '';
 	public $pdo;
-	public $cas_attempts = 0;
-	public $cas_failures = 0;
-	public $queries      = 0;
-	private $suppressed  = false;
+	public $driver_failure = false;
+	public $cas_attempts   = 0;
+	public $cas_failures   = 0;
+	public $queries        = 0;
+	private $suppressed    = false;
 	public function __construct() {
 		$this->pdo = new PDO( 'sqlite::memory:' );
 		$this->pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		$this->pdo->exec( 'CREATE TABLE wp_options (option_name TEXT UNIQUE,option_value TEXT,autoload TEXT)' );
 	}
-	public function get_driver() { return $this->pdo; }
+	public function get_driver() { if ( $this->driver_failure ) {
+			throw new RuntimeException( 'Synthetic driver failure' );
+	} return $this->pdo; }
 	public function suppress_errors( $value ) { $old = $this->suppressed;
 		$this->suppressed                            = $value;
 		return $old; }

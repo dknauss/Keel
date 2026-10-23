@@ -1,6 +1,6 @@
 # Bounded HIBP lookup budget design
 
-Status: **implemented and verified in open PR #316**, unreleased. See the
+Status: **implemented and verified in PR #316**, unreleased. See the
 [verification record](../../review/bounded-hibp-budget-2026-10-23.md).
 Written 2026-10-23 against Keel `1d754a9` (merged #314). The user approved this
 bounded policy; numerical defaults remain operational starting points, not measured capacity.

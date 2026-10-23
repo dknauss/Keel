@@ -64,7 +64,6 @@ budget_assert( false !== keel_hibp_budget_state( $raw, 1000 ), 'Fresh state vali
 foreach ( array( '{}', '{', str_repeat( 'x', 4097 ), json_encode( array_merge( json_decode( $raw, true ), array( 'credit' => 601 ) ) ), json_encode( array_merge( json_decode( $raw, true ), array( 'last' => 1400 ) ) ) ) as $bad ) {
 	budget_assert( false === keel_hibp_budget_state( $bad, 1000 ), 'Corrupt/oversized/future state is not a fresh bucket.' );
 }
-echo "HIBP budget: policy/refill/schema safeguards passed.\n";
 
 $s           = keel_hibp_budget_initial( $p, 1000 );
 $s['credit'] = 59;
@@ -77,3 +76,36 @@ $t           = keel_hibp_budget_refill(
 	1000
 );
 budget_assert( 59 === $t['credit'], 'Capacity-only changes preserve fractional credit.' );
+
+// MySQL metadata discovery must also fail conservatively and restore DB state.
+$GLOBALS['wpdb'] = new class() {
+	public $suppressed = false;
+	public function suppress_errors( $value ) { $old = $this->suppressed;
+		$this->suppressed                            = $value;
+		return $old; }
+	public function prepare( $sql, ...$args ) { return $sql; }
+	public function get_row( $sql ) { throw new RuntimeException( 'Synthetic metadata failure' ); }
+};
+budget_assert(
+	false === keel_hibp_budget_transactional(
+		array(
+			'table' => 'wp_options',
+			'id'    => 0,
+		)
+	),
+	'A throwing metadata check denies fresh work.'
+);
+budget_assert( false === $GLOBALS['wpdb']->suppressed, 'Metadata failure restores error suppression.' );
+$GLOBALS['wpdb']->suppressed = true;
+budget_assert(
+	false === keel_hibp_budget_transactional(
+		array(
+			'table' => 'wp_options',
+			'id'    => 0,
+		)
+	),
+	'Repeated metadata failure remains unknown.'
+);
+budget_assert( true === $GLOBALS['wpdb']->suppressed, 'Metadata failure preserves existing suppression.' );
+
+echo "HIBP budget: policy/refill/schema safeguards passed.\n";

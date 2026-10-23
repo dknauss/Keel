@@ -278,7 +278,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
   cache slots, with cached verdicts ahead of throttling and explicit unknown on denial.
   See the [bounded HIBP design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
 - [x] **Implement and verify the bounded HIBP lookup budget** — implemented in
-  [#316](https://github.com/dknauss/Keel/pull/316), open and unreleased.
+  [#316](https://github.com/dknauss/Keel/pull/316), unreleased.
   Fixed database authority, two fenced leases, 64 cache slots, sampled shared
   diagnostics and paged uninstall preserve the 44-setting schema. SQLite labs
   and all four MySQL/MariaDB × WordPress floor/current cells pass, including
@@ -361,9 +361,9 @@ installs. Site Health must not become the performance problem it is diagnosing.
   it: reading the hook array changes nothing and asks nobody.
 
 - [x] **Complete the bounded breach-lookup budget verification** — implemented and
-  verified in open [#316](https://github.com/dknauss/Keel/pull/316); unreleased.
+  verified in [#316](https://github.com/dknauss/Keel/pull/316); unreleased.
   See the active item and verification record above. The AX counterpart remains
-  tracked in [#315](https://github.com/dknauss/Keel/issues/315); no merge, tag or release.
+  tracked in [#315](https://github.com/dknauss/Keel/issues/315); no version bump, tag or release.
 
 - [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   Core’s update requests include site identity, environment categories and installed

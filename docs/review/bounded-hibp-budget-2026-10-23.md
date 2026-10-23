@@ -66,3 +66,7 @@ The independent review's lost-lease diagnostic gap and capacity-only fractional-
 ## Two-network SQLite scope check
 
 [Sanitized network-scope report](evidence/hibp-budget-sqlite-multisite-2026-10-23.json): real WordPress, two distinct networks and main-site tables, plus child sites. Adapter/caller-transaction, canonical scope, independent network allowance, cache flush, cached-positive exhaustion and passive-path assertions all passed. This local check used network activation; site-only activation is an additional CI case.
+
+## Pre-merge review
+
+Review found a fail-open gap in capability discovery: a throwing SQLite driver accessor or MySQL table-metadata query could escape the lookup and interrupt a password change. Both capability helpers now catch backend exceptions, return unavailable and restore the prior DB error-suppression state in `finally`. Connection checks also reject a changed mysqli handle before using its status. Regression cases failed with uncaught exceptions before the fix and pass afterwards, covering no HTTP/no authority creation and both prior suppression states. The existing full CI/database matrix remains the merge gate. No version or setting-count change.

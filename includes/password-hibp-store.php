@@ -191,53 +191,56 @@ function keel_hibp_budget_write( array $scope, $key, $old, array $replacement, $
  */
 function keel_hibp_budget_connection_idle() {
 	global $wpdb;
-	if ( null !== keel_hibp_budget_native_pin() ) {
-		return false;
-	}
-	if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
-		if ( ! is_callable( array( $wpdb, 'get_driver' ) ) ) {
+	$previous = $wpdb->suppress_errors( true );
+	try {
+		if ( null !== keel_hibp_budget_native_pin() ) {
 			return false;
 		}
-		$driver = $wpdb->get_driver();
-		return is_object( $driver ) && is_callable( array( $driver, 'inTransaction' ) ) && ! $driver->inTransaction();
-	}
-	$connection = $wpdb->dbh;
-	if ( ! $connection instanceof mysqli ) {
-		return false;
-	}
-	$previous = $wpdb->suppress_errors( true );
-	// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Non-mutating connection check plus an immediately released private savepoint; never commits caller data.
-	$autocommit = $wpdb->get_var( 'SELECT @@session.autocommit' );
-	if ( '1' !== (string) $autocommit ) {
-		$wpdb->suppress_errors( $previous );
-		return false;
-	}
-	$token = str_replace( '-', '', wp_generate_uuid4() );
-	if ( ! preg_match( '/\A[a-f0-9]{32}\z/D', $token ) ) {
-		$wpdb->suppress_errors( $previous );
-		return false;
-	}
-	$name      = 'keel_hibp_probe_' . $token;
-	$old_error = $wpdb->last_error;
-	// Outside a transaction SAVEPOINT has no effect and RELEASE reports 1305.
-	// Inside a transaction both succeed; release only our private savepoint and deny.
-	$saved    = $wpdb->query( "SAVEPOINT `$name`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Random identifier strictly allowlisted above.
-	$released = false !== $saved ? $wpdb->query( "RELEASE SAVEPOINT `$name`" ) : false; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Same allowlisted private identifier.
-	$idle     = false !== $saved && false === $released && 1305 === $connection->errno;
-	if ( $idle ) {
-		// wpdb records even suppressed errors. Remove only this expected probe
-		// failure so repeated checks cannot grow its per-request error array.
-		global $EZSQL_ERROR;
-		if ( is_array( $EZSQL_ERROR ) ) {
-			$last = end( $EZSQL_ERROR );
-			if ( is_array( $last ) && isset( $last['query'] ) && $wpdb->last_query === $last['query'] ) {
-				array_pop( $EZSQL_ERROR ); }
+		if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
+			if ( ! is_callable( array( $wpdb, 'get_driver' ) ) ) {
+				return false;
+			}
+			$driver = $wpdb->get_driver();
+			return is_object( $driver ) && is_callable( array( $driver, 'inTransaction' ) ) && ! $driver->inTransaction();
 		}
-		$wpdb->last_error = $old_error;
+		$connection = $wpdb->dbh;
+		if ( ! $connection instanceof mysqli ) {
+			return false;
+		}
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Non-mutating connection check plus an immediately released private savepoint; never commits caller data.
+		$autocommit = $wpdb->get_var( 'SELECT @@session.autocommit' );
+		if ( $wpdb->dbh !== $connection || '1' !== (string) $autocommit ) {
+			return false;
+		}
+		$token = str_replace( '-', '', wp_generate_uuid4() );
+		if ( ! preg_match( '/\A[a-f0-9]{32}\z/D', $token ) ) {
+			return false;
+		}
+		$name      = 'keel_hibp_probe_' . $token;
+		$old_error = $wpdb->last_error;
+		// Outside a transaction SAVEPOINT has no effect and RELEASE reports 1305.
+		// Inside a transaction both succeed; release only our private savepoint and deny.
+		$saved    = $wpdb->query( "SAVEPOINT `$name`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Random identifier strictly allowlisted above.
+		$released = false !== $saved && $wpdb->dbh === $connection ? $wpdb->query( "RELEASE SAVEPOINT `$name`" ) : false; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Same allowlisted private identifier.
+		$idle     = $wpdb->dbh === $connection && false !== $saved && false === $released && 1305 === $connection->errno;
+		if ( $idle ) {
+			// wpdb records even suppressed errors. Remove only this expected probe
+			// failure so repeated checks cannot grow its per-request error array.
+			global $EZSQL_ERROR;
+			if ( is_array( $EZSQL_ERROR ) ) {
+				$last = end( $EZSQL_ERROR );
+				if ( is_array( $last ) && isset( $last['query'] ) && $wpdb->last_query === $last['query'] ) {
+					array_pop( $EZSQL_ERROR ); }
+			}
+			$wpdb->last_error = $old_error;
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+		return $idle;
+	} catch ( Throwable $error ) {
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
 	}
-	$wpdb->suppress_errors( $previous );
-	// phpcs:enable WordPress.DB.DirectDatabaseQuery
-	return $idle;
 }
 
 /**
@@ -248,14 +251,19 @@ function keel_hibp_budget_connection_idle() {
  */
 function keel_hibp_budget_transactional( array $scope ) {
 	global $wpdb;
-	if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
-		return true;
-	}
 	$previous = $wpdb->suppress_errors( true );
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Capability inspection of canonical table; no application data.
-	$row = $wpdb->get_row( $wpdb->prepare( 'SHOW TABLE STATUS WHERE Name = %s', $scope['table'] ) );
-	$wpdb->suppress_errors( $previous );
-	return is_object( $row ) && isset( $row->Engine ) && 'innodb' === strtolower( $row->Engine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- MySQL metadata field.
+	try {
+		if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
+			return true;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Capability inspection of canonical table; no application data.
+		$row = $wpdb->get_row( $wpdb->prepare( 'SHOW TABLE STATUS WHERE Name = %s', $scope['table'] ) );
+		return is_object( $row ) && isset( $row->Engine ) && 'innodb' === strtolower( $row->Engine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- MySQL metadata field.
+	} catch ( Throwable $error ) {
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
 }
 
 /**
