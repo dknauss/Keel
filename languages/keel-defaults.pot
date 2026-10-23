@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T00:37:07+00:00\n"
+"POT-Creation-Date: 2026-10-23T00:37:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -28,7 +28,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "46 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
+msgid "48 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
 msgstr ""
 
 #. Author of the plugin
@@ -129,56 +129,56 @@ msgstr ""
 msgid "Check each plugin's documentation for why it uses these filters."
 msgstr ""
 
-#: includes/admin-ux.php:341
+#: includes/admin-ux.php:343
 msgid "ID"
 msgstr ""
 
-#: includes/admin-ux.php:342
+#: includes/admin-ux.php:344
 msgid "Image"
 msgstr ""
 
-#: includes/admin-ux.php:343
+#: includes/admin-ux.php:345
 msgid "Modified"
 msgstr ""
 
-#: includes/admin-ux.php:436
-#: includes/admin-ux.php:543
+#: includes/admin-ux.php:449
+#: includes/admin-ux.php:556
 msgid "File size"
 msgstr ""
 
-#: includes/admin-ux.php:461
+#: includes/admin-ux.php:474
 msgid "Registered"
 msgstr ""
 
-#: includes/admin-ux.php:462
+#: includes/admin-ux.php:475
 msgid "Last login"
 msgstr ""
 
-#: includes/admin-ux.php:526
+#: includes/admin-ux.php:539
 msgid "Generated Image Sizes"
 msgstr ""
 
-#: includes/admin-ux.php:538
+#: includes/admin-ux.php:551
 msgid "No generated image sizes were found for this attachment."
 msgstr ""
 
-#: includes/admin-ux.php:542
+#: includes/admin-ux.php:555
 msgid "Read-only view of the generated image files and URLs."
 msgstr ""
 
-#: includes/admin-ux.php:543
+#: includes/admin-ux.php:556
 msgid "Size"
 msgstr ""
 
-#: includes/admin-ux.php:543
+#: includes/admin-ux.php:556
 msgid "Dimensions"
 msgstr ""
 
-#: includes/admin-ux.php:543
+#: includes/admin-ux.php:556
 msgid "URL"
 msgstr ""
 
-#: includes/admin-ux.php:580
+#: includes/admin-ux.php:593
 #: includes/autoload-diagnostics.php:251
 #: includes/autoload-diagnostics.php:304
 #: includes/autoload-diagnostics.php:418
@@ -187,108 +187,108 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: includes/admin-ux.php:630
-#: includes/strings.php:253
+#: includes/admin-ux.php:643
+#: includes/strings.php:263
 msgid "Production"
 msgstr ""
 
-#: includes/admin-ux.php:636
-#: includes/strings.php:254
+#: includes/admin-ux.php:649
+#: includes/strings.php:264
 msgid "Staging"
 msgstr ""
 
-#: includes/admin-ux.php:642
-#: includes/strings.php:255
+#: includes/admin-ux.php:655
+#: includes/strings.php:265
 msgid "Development"
 msgstr ""
 
-#: includes/admin-ux.php:648
-#: includes/strings.php:256
+#: includes/admin-ux.php:661
+#: includes/strings.php:266
 msgid "Local"
 msgstr ""
 
-#: includes/admin-ux.php:1117
+#: includes/admin-ux.php:1130
 msgid "WP_ENVIRONMENT_TYPE is set once for the whole network. Ask your network administrator to correct it."
 msgstr ""
 
 #. translators: 1: path to wp-config.php. 2: a WP-CLI command.
-#: includes/admin-ux.php:1127
+#: includes/admin-ux.php:1140
 #, php-format
 msgid "The value comes from a server environment variable, not from wp-config.php. Change it where your host sets environment variables, or define the constant in %1$s, which takes precedence over the variable. With WP-CLI: %2$s"
 msgstr ""
 
 #. translators: 1: path to wp-config.php. 2: a WP-CLI command.
-#: includes/admin-ux.php:1135
+#: includes/admin-ux.php:1148
 #, php-format
 msgid "If this is the live site, change the WP_ENVIRONMENT_TYPE line in %1$s to production. A local install’s copy of the file may have overwritten it, as WordPress Studio pushes can. If the line is not in that file, it is in a file that wp-config.php includes: change it there, because a second definition does not take effect. With WP-CLI, for a line in wp-config.php itself: %2$s"
 msgstr ""
 
-#: includes/admin-ux.php:1181
+#: includes/admin-ux.php:1194
 #: includes/site-health.php:73
-#: includes/strings.php:249
+#: includes/strings.php:259
 msgid "Environment"
 msgstr ""
 
-#: includes/admin-ux.php:1188
+#: includes/admin-ux.php:1201
 #: includes/site-health.php:109
 msgid "Keel’s environment override is being ignored on this site."
 msgstr ""
 
 #. translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting.
-#: includes/admin-ux.php:1192
+#: includes/admin-ux.php:1205
 #: includes/site-health.php:78
 #, php-format
 msgid "It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one."
 msgstr ""
 
-#: includes/admin-ux.php:1208
+#: includes/admin-ux.php:1221
 msgid "This site looks live, but WordPress says it is not."
 msgstr ""
 
 #. translators: 1: environment name, such as local. 2: the site's address.
-#: includes/admin-ux.php:1212
+#: includes/admin-ux.php:1225
 #: includes/site-health.php:102
 #, php-format
 msgid "WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local."
 msgstr ""
 
 #. translators: %s: link to the Environment setting.
-#: includes/admin-ux.php:1223
+#: includes/admin-ux.php:1236
 #, php-format
 msgid "Until the file is fixed, set Keel’s %s to Production. If this really is a local or development copy, leave the setting alone and filter keel_environment_looks_mislabelled to silence this."
 msgstr ""
 
-#: includes/admin-ux.php:1237
+#: includes/admin-ux.php:1250
 msgid "Keel’s Environment setting is covering for a wrong WordPress label."
 msgstr ""
 
 #. translators: 1: environment Keel uses, such as production. 2: environment WordPress reports, such as local.
-#: includes/admin-ux.php:1241
+#: includes/admin-ux.php:1254
 #: includes/site-health.php:120
 #, php-format
 msgid "Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labeled local stops accepting pingbacks."
 msgstr ""
 
 #. translators: %s: link to the Environment setting.
-#: includes/admin-ux.php:1252
+#: includes/admin-ux.php:1265
 #: includes/site-health.php:125
 #, php-format
 msgid "Once it is fixed, set Keel’s %s back to Automatic."
 msgstr ""
 
 #. translators: 1: environment name, such as production. 2: link to the Environment setting.
-#: includes/admin-ux.php:1269
+#: includes/admin-ux.php:1282
 #: includes/site-health.php:143
 #, php-format
 msgid "Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production, for example, would go on sending mail from a copy that is meant to be staging."
 msgstr ""
 
-#: includes/admin-ux.php:1299
+#: includes/admin-ux.php:1312
 msgid "This network looks live, but WordPress says it is not."
 msgstr ""
 
 #. translators: 1: environment name, such as local. 2: the main site's address.
-#: includes/admin-ux.php:1303
+#: includes/admin-ux.php:1316
 #, php-format
 msgid "WP_ENVIRONMENT_TYPE is set to %1$s for every site in the network, but the main site is served from %2$s. Keel can hold back email on sites it treats as %1$s, and other plugins may turn features off."
 msgstr ""
@@ -341,7 +341,7 @@ msgstr ""
 
 #: includes/autoload-diagnostics.php:342
 #: includes/cron-presentation.php:48
-#: includes/strings.php:310
+#: includes/strings.php:320
 msgid "Performance"
 msgstr ""
 
@@ -1114,16 +1114,30 @@ msgstr ""
 msgid "Disabled by filters"
 msgstr ""
 
-#: includes/list-table-columns.php:95
+#: includes/list-table-columns.php:99
 msgid "Meta"
 msgstr ""
 
-#: includes/list-table-columns.php:96
+#: includes/list-table-columns.php:100
 msgid "Link"
 msgstr ""
 
-#: includes/list-table-columns.php:97
+#: includes/list-table-columns.php:101
 msgid "Fedi"
+msgstr ""
+
+#. translators: 1: Post date, 2: Post time.
+#: includes/list-table-columns.php:168
+#, php-format
+msgid "%1$s at %2$s"
+msgstr ""
+
+#: includes/list-table-columns.php:182
+msgid "Published"
+msgstr ""
+
+#: includes/list-table-columns.php:225
+msgid "Not published"
 msgstr ""
 
 #: includes/network.php:96
@@ -1329,7 +1343,7 @@ msgid "There is one exception: Keel sends an <code>X-Frame-Options</code> header
 msgstr ""
 
 #: includes/settings-page.php:96
-msgid "Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off."
+msgid "Six settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, Password Policy Exemptions when Password Strength is off, and Date Column Times when Date Columns is off."
 msgstr ""
 
 #: includes/settings-page.php:103
@@ -1367,7 +1381,7 @@ msgid "On multisite, this setting is stored per site but does not act per site. 
 msgstr ""
 
 #: includes/settings-page.php:160
-#: includes/strings.php:322
+#: includes/strings.php:332
 msgid "XML-RPC"
 msgstr ""
 
@@ -2404,136 +2418,160 @@ msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and mo
 msgstr ""
 
 #: includes/strings.php:244
-msgid "Environment Indicator"
+msgid "Date Columns"
 msgstr ""
 
 #: includes/strings.php:245
-msgid "Show the current environment in the admin bar"
+msgid "Show Published and Modified dates in the site's date format"
 msgstr ""
 
 #: includes/strings.php:246
-msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
+msgid "Renames the post-list Date column to Published and drops the Published line above each date. Scheduled and Missed schedule keep their label; drafts and pending posts show a dash, because they have no publish date yet. Published and Keel's Modified column both follow the date and time formats in Settings → General. Modified becomes sortable whenever Admin List Columns is on. Off by default."
+msgstr ""
+
+#: includes/strings.php:249
+msgid "Date Column Times"
 msgstr ""
 
 #: includes/strings.php:250
-msgid "What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabeled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too."
+msgid "Show the time after the date"
 msgstr ""
 
-#: includes/strings.php:252
-msgid "Automatic (WordPress environment type)"
+#: includes/strings.php:251
+msgid "Adds the time, in the Settings → General time format, to the Published and Modified columns. On by default when Date Columns is on."
+msgstr ""
+
+#: includes/strings.php:254
+msgid "Environment Indicator"
+msgstr ""
+
+#: includes/strings.php:255
+msgid "Show the current environment in the admin bar"
+msgstr ""
+
+#: includes/strings.php:256
+msgid "Adds a color-coded label to the admin bar showing the current environment (Production, Staging, Development, or Local) from <code>wp_get_environment_type()</code>, or from the Environment setting below when one is chosen — a quick guard against acting on the wrong site. Common local-development hosts are recognized automatically. Off by default."
 msgstr ""
 
 #: includes/strings.php:260
-msgid "Remember Me"
-msgstr ""
-
-#: includes/strings.php:261
-msgid "Disable Remember Me and remove the login checkbox"
+msgid "What Keel treats this site as, for the environment indicator and for holding back non-production email. Automatic reads <code>WP_ENVIRONMENT_TYPE</code> and recognizes common local-development hosts. Choose an environment to override that when the site is mislabeled — for example, a live site whose <code>wp-config.php</code> was copied from a local install and still says <code>local</code>. This changes Keel only: WordPress and other plugins keep reading <code>WP_ENVIRONMENT_TYPE</code>, so fix that too."
 msgstr ""
 
 #: includes/strings.php:262
-msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
+msgid "Automatic (WordPress environment type)"
 msgstr ""
 
-#: includes/strings.php:265
-msgid "Regular Session Length"
-msgstr ""
-
-#: includes/strings.php:266
-#: includes/strings.php:272
-msgid "days"
-msgstr ""
-
-#: includes/strings.php:267
-#: includes/strings.php:273
-msgid "day"
-msgstr ""
-
-#: includes/strings.php:268
-msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
+#: includes/strings.php:270
+msgid "Remember Me"
 msgstr ""
 
 #: includes/strings.php:271
-msgid "Remember Me Length"
+msgid "Disable Remember Me and remove the login checkbox"
 msgstr ""
 
-#: includes/strings.php:274
-msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
+#: includes/strings.php:272
+msgid "Removes the Remember Me checkbox from the login form, so every login uses the regular session length below. Useful for shared or kiosk machines."
+msgstr ""
+
+#: includes/strings.php:275
+msgid "Regular Session Length"
+msgstr ""
+
+#: includes/strings.php:276
+#: includes/strings.php:282
+msgid "days"
 msgstr ""
 
 #: includes/strings.php:277
-msgid "Login Logo"
+#: includes/strings.php:283
+msgid "day"
 msgstr ""
 
 #: includes/strings.php:278
-msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
-msgstr ""
-
-#: includes/strings.php:280
-msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
+msgid "How long a normal (non-remembered) login stays signed in. WordPress's default is 2 days."
 msgstr ""
 
 #: includes/strings.php:281
-msgid "Remove the logo and the wordpress.org link"
+msgid "Remember Me Length"
 msgstr ""
 
-#: includes/strings.php:282
-msgid "Keep the logo, drop the wordpress.org link"
-msgstr ""
-
-#: includes/strings.php:283
-msgid "Replace the logo with your site logo"
+#: includes/strings.php:284
+msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the regular session length above."
 msgstr ""
 
 #: includes/strings.php:287
-msgid "Heartbeat API"
+msgid "Login Logo"
 msgstr ""
 
 #: includes/strings.php:288
+msgid "The default logo links to wordpress.org, off your site. Left untouched by default, since changing the login screen out of the box is intrusive. Removing, unlinking, or replacing the logo always points the header link at your home page. Replacing uses the logo set in the Customizer, or the site icon if there is no logo; with neither set, the WordPress logo stays."
+msgstr ""
+
+#: includes/strings.php:290
+msgid "Keep the WordPress logo and wordpress.org link (WordPress default)"
+msgstr ""
+
+#: includes/strings.php:291
+msgid "Remove the logo and the wordpress.org link"
+msgstr ""
+
+#: includes/strings.php:292
+msgid "Keep the logo, drop the wordpress.org link"
+msgstr ""
+
+#: includes/strings.php:293
+msgid "Replace the logo with your site logo"
+msgstr ""
+
+#: includes/strings.php:297
+msgid "Heartbeat API"
+msgstr ""
+
+#: includes/strings.php:298
 msgid "Slow background admin polling"
 msgstr ""
 
-#: includes/strings.php:289
+#: includes/strings.php:299
 msgid "Slows admin polling to 60 seconds and drops it on the dashboard home. Off by default: Heartbeat also powers autosave and post-lock warnings, so enabling this will make them update less often."
 msgstr ""
 
-#: includes/strings.php:301
+#: includes/strings.php:311
 msgid "Security and Attack Surface"
 msgstr ""
 
-#: includes/strings.php:302
+#: includes/strings.php:312
 msgid "Updates"
 msgstr ""
 
-#: includes/strings.php:303
+#: includes/strings.php:313
 msgid "Content and Public Surfaces"
 msgstr ""
 
-#: includes/strings.php:304
+#: includes/strings.php:314
 msgid "Editor"
 msgstr ""
 
-#: includes/strings.php:305
+#: includes/strings.php:315
 msgid "Media"
 msgstr ""
 
-#: includes/strings.php:306
+#: includes/strings.php:316
 msgid "Email"
 msgstr ""
 
-#: includes/strings.php:307
+#: includes/strings.php:317
 msgid "Admin and Front-End UX"
 msgstr ""
 
-#: includes/strings.php:308
+#: includes/strings.php:318
 msgid "Login and Sessions"
 msgstr ""
 
-#: includes/strings.php:309
+#: includes/strings.php:319
 msgid "Branding"
 msgstr ""
 
-#: includes/strings.php:321
+#: includes/strings.php:331
 msgid "REST API"
 msgstr ""
 

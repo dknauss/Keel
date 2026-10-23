@@ -70,6 +70,16 @@ It could not exist until there was a stable release: `v0.1.0-dev` and the rollin
 on it would have shipped broken. That is why the README carried one Playground
 badge and not two until now.
 
+## README badges
+
+The README links both blueprints twice: as the two links under **Try it
+first**, and as two badges at the end of the badge row, so the demo is visible
+before anyone scrolls. The blue **Playground · stable release** badge opens
+`blueprint-stable.json`; the amber **Playground · main build** badge opens
+`blueprint-hosted.json`, amber because it runs code that has not been released.
+Both point at the blueprints on `main` through `raw.githubusercontent.com`, so
+a blueprint change reaches the badges as soon as it merges.
+
 ## Checking a change
 
 Blueprints fail silently in the browser, so verify the zip URL still resolves
