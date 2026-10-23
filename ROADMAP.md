@@ -56,11 +56,11 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Current focused work:** read-only WordPress.org update-check disclosure and optional list-table compaction (#265).
+- **Current focused work:** #299 single three-mode Admin List Tables control.
   The core delivery timeline (#294), extension policies (#295), sanitized export
   (#296), runtime audit (#297) and policy notice (#298) are merged and unreleased.
-  The development tree has 48 individually configurable settings. Extension policies
-  default to Leave unchanged; the list-table and date-column controls default off;
+  The development tree has 44 individually configurable settings. Extension policies
+  default to Leave unchanged; Admin List Tables defaults to Leave unchanged; Tidy consistently includes date and time without a separate control;
   no version bump or release.
 
 ## Release completion — 2026-10-15
@@ -231,14 +231,20 @@ installs. Site Health must not become the performance problem it is diagnosing.
     policy provenance and a direct link to the relevant setting. No delivery guarantee.
   - Verification: [notice record](docs/review/update-policy-notice-2026-10-22.md).
 
-- [x] **Compact list-table columns** — implemented for #265 on the development branch, pending PR review; unreleased.
-  - Two independent controls default off. Preserve full accessible labels, keys,
+- [x] **Compact list-table columns** — merged in #300 (`3a19720`); #265 closed; unreleased.
+  - Original #300 implementation used two opt-in controls; #299 consolidates them. Preserve accessible labels, keys,
     sorting and saved Screen Options. Only site-admin post-type lists are in scope.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
+- **#299 follow-up:** one three-mode Admin List Tables control replaces five controls; Tidy always includes times. ID starts hidden only without saved Screen Options.
+  Existing saved lists, including empty arrays, are never backfilled or marked.
+  Verification: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
+  Both Tidy modes preserve the latest auto-sized desktop columns and full original labels.
+  #302 date-column work is merged (`dd893b4`), as are #303 Playground badges (`525e939`); no version bump or release.
+
 ## Later
 
-- [ ] **Close the monitoring gap the 0.6.0 review found** — the important one, and
+- [x] **Close the monitoring gap the 0.6.0 review found** — scoped static checks and runtime registration audit completed through #297; unreleased audit. Historically the important gap, and
   not the one the review named. It recommended adding `user_has_cap` and
   `auth_cookie_expiration` to the expectations mapping; both were already in both
   maps, so that was not the cause. The cause is categorical.
@@ -317,7 +323,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
   per IP punishes NAT, global punishes everyone during an attack. Decide the key
   before writing the code.
 
-- [x] **Report what this site normally sends to WordPress.org** — implemented on the development branch, pending PR review; unreleased.
+- [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   Core’s update requests include site identity, environment categories and installed
   plugin/theme metadata. The category summary is checked against core source for
   stable WordPress 6.4–7.1, rather than observing this site’s traffic.
@@ -336,7 +342,7 @@ installs. Site Health must not become the performance problem it is diagnosing.
   conditions for revisiting are in [AI integrations](docs/ai-integrations.md).
 
 - [x] **Inventory the Abilities authorization filters** — implemented on the
-  development branch 2026-10-22; pending PR review and unreleased. On core 7.1+,
+  merged in #301 (`68a877b`) on 2026-10-22; unreleased. On core 7.1+,
   a Site Health test lists every callback on `wp_ability_permission_result` and
   `wp_pre_execute_ability`. Any one of them can change who may run an ability, or
   skip the check, so a single registration is a finding (`recommended`, never

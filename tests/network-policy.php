@@ -441,6 +441,16 @@ keel_assert(
 	'A wp-config constant takes precedence over the network note when both apply.'
 );
 
+// A locked save must preserve the site's dormant legacy choice as a new mode.
+$GLOBALS['keel_is_multisite'] = true;
+$GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => array( 'helper_list_columns' => 'yes' ) );
+$GLOBALS['keel_site_options'] = array( KEEL_DEFAULTS_NETWORK_OPTION => array( 'admin_list_tables' => 'tidy' ) );
+$preserved                    = keel_defaults_sanitize_site( array() );
+keel_assert( 'tidy_helpers' === ( $preserved['admin_list_tables'] ?? null ), 'Locked save preserves dormant legacy helper choice.' );
+$GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => $preserved );
+$GLOBALS['keel_site_options'] = array();
+keel_assert( 'tidy_helpers' === keel_defaults_get( 'admin_list_tables' ), 'Lifting network policy restores site helper choice after a save.' );
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "network policy: {$fail} failed\n" );
 	exit( 1 );

@@ -373,7 +373,7 @@ function keel_defaults_render_post_column( $column, $post_id ) {
 		return;
 	}
 	if ( 'keel_modified' === $column ) {
-		echo esc_html( keel_defaults_enabled( 'tidy_date_columns' ) ? keel_defaults_list_date( $post_id, 'modified' ) : get_post_modified_time( get_option( 'date_format' ), false, $post_id, true ) );
+		echo esc_html( keel_defaults_list_tables_tidy() ? keel_defaults_list_date( $post_id, 'modified' ) : get_post_modified_time( get_option( 'date_format' ), false, $post_id, true ) );
 	}
 }
 

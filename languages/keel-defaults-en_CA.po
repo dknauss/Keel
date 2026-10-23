@@ -24,11 +24,6 @@ msgstr ""
 msgid "https://github.com/dknauss/keel"
 msgstr ""
 
-#. Description of the plugin
-#: keel.php
-msgid "48 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
-msgstr ""
-
 #. Author of the plugin
 #: keel.php
 msgid "Dan Knauss"
@@ -713,10 +708,6 @@ msgstr "The defaults that are on out of the box are low-risk and safe for nearly
 
 #: includes/settings-page.php:93
 msgid "There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
-msgstr ""
-
-#: includes/settings-page.php:96
-msgid "Six settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, Password Policy Exemptions when Password Strength is off, and Date Column Times when Date Columns is off."
 msgstr ""
 
 #: includes/settings-page.php:103
@@ -1557,18 +1548,6 @@ msgstr ""
 
 #: includes/strings.php:198
 msgid "300px"
-msgstr ""
-
-#: includes/strings.php:201
-msgid "Admin List Columns"
-msgstr ""
-
-#: includes/strings.php:202
-msgid "Add helper columns to admin list tables"
-msgstr ""
-
-#: includes/strings.php:203
-msgid "Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default."
 msgstr ""
 
 #: includes/strings.php:206

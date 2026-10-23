@@ -33,12 +33,15 @@ function keel_defaults_register_list_table_columns( $screen ) {
 		return;
 	}
 	add_action( 'admin_enqueue_scripts', 'keel_defaults_enqueue_compact_column_style' );
+	add_action( 'admin_enqueue_scripts', 'keel_defaults_enqueue_fewer_columns_style' );
 	add_filter( "manage_{$screen->post_type}_posts_columns", 'keel_defaults_published_column_label', 1000 );
 	add_filter( "manage_{$screen->post_type}_posts_columns", 'keel_defaults_compact_column_labels', 1000 );
 	if ( 'page' === $screen->post_type ) {
 		add_filter( 'manage_pages_columns', 'keel_defaults_published_column_label', 1000 );
 		add_filter( 'manage_pages_columns', 'keel_defaults_compact_column_labels', 1000 );
 	}
+	// Plugins such as Hum add columns on the screen filter, which core runs after the post-type ones.
+	add_filter( "manage_{$screen->id}_columns", 'keel_defaults_compact_column_labels', 1000 );
 	add_filter( 'post_date_column_status', 'keel_defaults_date_column_status', 1000, 3 );
 	add_filter( 'post_date_column_time', 'keel_defaults_date_column_time', 1000, 3 );
 	add_filter( 'default_hidden_columns', 'keel_defaults_fewer_list_columns', 1000, 2 );
@@ -51,10 +54,27 @@ function keel_defaults_register_list_table_columns( $screen ) {
  * Generated content leaves those consumers with the original full label only.
  */
 function keel_defaults_enqueue_compact_column_style() {
-	if ( ! keel_defaults_enabled( 'compact_column_labels' ) || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
 		return;
 	}
 	wp_enqueue_style( 'keel-defaults-list-table-columns', keel_defaults_asset_url( 'list-table-columns.css' ), array(), KEEL_DEFAULTS_VERSION );
+}
+
+/**
+ * Enqueue the rules that size post-list columns to their content.
+ *
+ * Core's fixed table layout ignores content: Author, Date, Categories and Tags
+ * keep about 54% between them, and every other column, empty or not, gets an
+ * equal share of the rest, Title included. Measured with every column showing
+ * at 1280px, Title went from 76px to 170px; with fewer columns showing it
+ * roughly doubles. Setting widths on the small columns made Title narrower,
+ * so the stylesheet switches to auto layout and only sets Title's share.
+ */
+function keel_defaults_enqueue_fewer_columns_style() {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {
+		return;
+	}
+	wp_enqueue_style( 'keel-defaults-list-table-fewer-columns', keel_defaults_asset_url( 'list-table-fewer-columns.css' ), array(), KEEL_DEFAULTS_VERSION );
 }
 
 /**
@@ -65,7 +85,7 @@ function keel_defaults_enqueue_compact_column_style() {
  */
 function keel_defaults_compact_column_labels( $columns ) {
 	$screen = get_current_screen();
-	if ( ! keel_defaults_enabled( 'compact_column_labels' ) || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $columns ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $columns ) ) {
 		return $columns;
 	}
 
@@ -112,7 +132,7 @@ function keel_defaults_compact_column_labels( $columns ) {
  * @return string[]
  */
 function keel_defaults_fewer_list_columns( $hidden, $screen ) {
-	if ( ! keel_defaults_enabled( 'fewer_list_columns' ) || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $hidden ) ) {
+	if ( ! keel_defaults_list_tables_tidy() || ! keel_defaults_is_post_list_screen( $screen ) || ! is_array( $hidden ) ) {
 		return $hidden;
 	}
 	$columns = get_column_headers( $screen );
@@ -142,9 +162,6 @@ function keel_defaults_list_date( $post, $field = 'date' ) {
 	if ( ! is_string( $date ) || '' === $date ) {
 		return '';
 	}
-	if ( ! keel_defaults_enabled( 'date_columns_show_time' ) ) {
-		return $date;
-	}
 	return sprintf(
 		/* translators: 1: Post date, 2: Post time. */
 		__( '%1$s at %2$s', 'keel-defaults' ),
@@ -160,7 +177,7 @@ function keel_defaults_list_date( $post, $field = 'date' ) {
  * @return array
  */
 function keel_defaults_published_column_label( $columns ) {
-	if ( keel_defaults_enabled( 'tidy_date_columns' ) && is_array( $columns ) && isset( $columns['date'] ) ) {
+	if ( keel_defaults_list_tables_tidy() && is_array( $columns ) && isset( $columns['date'] ) ) {
 		$columns['date'] = __( 'Published', 'keel-defaults' );
 	}
 	return $columns;
@@ -179,7 +196,7 @@ function keel_defaults_published_column_label( $columns ) {
  * @return string
  */
 function keel_defaults_date_column_status( $status, $post, $column = 'date' ) {
-	if ( ! keel_defaults_enabled( 'tidy_date_columns' ) || 'date' !== $column || ! $post instanceof WP_Post || 'future' === $post->post_status ) {
+	if ( ! keel_defaults_list_tables_tidy() || 'date' !== $column || ! $post instanceof WP_Post || 'future' === $post->post_status ) {
 		return $status;
 	}
 	return '';
@@ -197,7 +214,7 @@ function keel_defaults_date_column_status( $status, $post, $column = 'date' ) {
  * @return string
  */
 function keel_defaults_date_column_time( $t_time, $post, $column = 'date' ) {
-	if ( ! keel_defaults_enabled( 'tidy_date_columns' ) || 'date' !== $column || ! $post instanceof WP_Post ) {
+	if ( ! keel_defaults_list_tables_tidy() || 'date' !== $column || ! $post instanceof WP_Post ) {
 		return $t_time;
 	}
 	if ( in_array( $post->post_status, array( 'publish', 'private', 'future' ), true ) ) {

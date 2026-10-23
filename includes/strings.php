@@ -225,30 +225,14 @@ function keel_defaults_strings() {
 			'help'   => __( 'Sets the width of the left admin menu, useful when plugin menu labels are long. WordPress default is 160px. Leave unchanged and Keel sets no width at all; choose 160px to assert core\'s width over a theme, host, or plugin that has widened the menu.', 'keel-defaults' ),
 			'labels' => array( __( 'Leave unchanged', 'keel-defaults' ), __( '160px (WordPress default)', 'keel-defaults' ), __( '200px', 'keel-defaults' ), __( '240px', 'keel-defaults' ), __( '280px', 'keel-defaults' ), __( '300px', 'keel-defaults' ) ),
 		),
-		'compact_column_labels'           => array(
-			'label'     => __( 'Compact Column Labels', 'keel-defaults' ),
-			'statement' => __( 'Shorten known plugin column headings in post lists', 'keel-defaults' ),
-			'help'      => __( 'Uses Meta, Link, and Fedi for known Jetpack description, shortlink, and ActivityPub columns. Full headings remain in tooltips and screen-reader text. Does not change column contents or sorting. Off by default.', 'keel-defaults' ),
-		),
-		'fewer_list_columns'              => array(
-			'label'     => __( 'Fewer List Columns', 'keel-defaults' ),
-			'statement' => __( 'Hide optional columns by default in post lists', 'keel-defaults' ),
-			'help'      => __( 'Hides known Jetpack SEO, shortlink, and Keel ID and modified-date columns when present on posts, pages, and custom post types. Saved Screen Options preferences always win; columns remain available there. Does not affect Media or Users. Off by default.', 'keel-defaults' ),
-		),
-		'helper_list_columns'             => array(
-			'label'     => __( 'Admin List Columns', 'keel-defaults' ),
-			'statement' => __( 'Add helper columns to admin list tables', 'keel-defaults' ),
-			'help'      => __( 'Adds at-a-glance columns to admin list tables: ID, featured image, and modified date on posts and pages; file size on the Media library; registration and last-login dates on Users. Last login is recorded from when this is enabled onward. Off by default.', 'keel-defaults' ),
-		),
-		'tidy_date_columns'               => array(
-			'label'     => __( 'Date Columns', 'keel-defaults' ),
-			'statement' => __( 'Show Published and Modified dates in the site\'s date format', 'keel-defaults' ),
-			'help'      => __( 'Renames the post-list Date column to Published and drops the Published line above each date. Scheduled and Missed schedule keep their label; drafts and pending posts show a dash, because they have no publish date yet. Published and Keel\'s Modified column both follow the date and time formats in Settings → General. Modified becomes sortable whenever Admin List Columns is on. Off by default.', 'keel-defaults' ),
-		),
-		'date_columns_show_time'          => array(
-			'label'     => __( 'Date Column Times', 'keel-defaults' ),
-			'statement' => __( 'Show the time after the date', 'keel-defaults' ),
-			'help'      => __( 'Adds the time, in the Settings → General time format, to the Published and Modified columns. On by default when Date Columns is on.', 'keel-defaults' ),
+		'admin_list_tables'               => array(
+			'label'   => __( 'Admin List Tables', 'keel-defaults' ),
+			'help'    => __( 'Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns.', 'keel-defaults' ),
+			'choices' => array(
+				'unchanged'    => __( 'Leave unchanged', 'keel-defaults' ),
+				'tidy'         => __( 'Tidy existing tables', 'keel-defaults' ),
+				'tidy_helpers' => __( 'Tidy + helper columns', 'keel-defaults' ),
+			),
 		),
 		'environment_indicator'           => array(
 			'label'     => __( 'Environment Indicator', 'keel-defaults' ),

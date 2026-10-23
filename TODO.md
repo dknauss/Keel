@@ -20,10 +20,10 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Current focused work:** read-only WordPress.org update-check disclosure and optional list-table compaction (#265);
+- **Current focused work:** #299 single three-mode Admin List Tables control;
   continue observing the autoload and cron/update attribution reports in the field.
   #292 and #293 hardened attribution after 0.8.0; those merged fixes are unreleased.
-  The development schema now has 48 individually configurable settings; the two extension policies default to Leave unchanged and the list-table and date-column controls default off. Existing per-item choices and version floors are unchanged.
+  The development schema now has 44 individually configurable settings; the two extension policies default to Leave unchanged and Admin List Tables defaults to Leave unchanged; Tidy consistently shows date and time; there is no separate time control. Existing per-item choices and version floors are unchanged.
   The maintainer's WordPress.com settings-save confirmation remains
   open; routine PHPStan expansion stays paused.
 
@@ -179,8 +179,8 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
 
 ## Issue triage — 2026-10-15
 
-- [x] **Compact list-table columns** — implemented for [#265](https://github.com/dknauss/Keel/issues/265) on the development branch, pending PR review; unreleased.
-  - Two independent controls default off. Preserve full accessible labels, keys,
+- [x] **Compact list-table columns** — merged in #300 (`3a19720`); #265 closed; unreleased.
+  - Original #300 implementation used two opt-in controls; #299 consolidates them. Preserve accessible labels, keys,
     sorting and saved Screen Options. Only site-admin post-type lists are in scope.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
 
@@ -355,10 +355,18 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
     policy provenance and a direct link to the relevant setting. No delivery guarantee.
   - Verification: [notice record](docs/review/update-policy-notice-2026-10-22.md).
 
-- [x] **Report what this site normally sends to WordPress.org** — implemented on the development branch, pending PR review; unreleased.
+- [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   - Static Site Health Info documentation, with no actual site values, request
     capture, inventory reads, extra HTTP, storage or blocking controls.
   - Verification: [disclosure and columns record](docs/review/update-disclosure-and-columns-2026-10-22.md).
+
+- [x] **Inventory the Abilities authorization filters** — merged in #301 (`68a877b`); unreleased. Read-only registration inventory; no permission policy or observer.
+
+- **#299 follow-up:** one three-mode Admin List Tables control replaces five controls; Tidy always includes times. ID starts hidden only without saved Screen Options.
+  Existing saved lists, including empty arrays, are never backfilled or marked.
+  Verification: [three-mode record](docs/review/admin-list-table-modes-2026-10-22.md).
+  Both Tidy modes preserve the latest auto-sized desktop columns and full original labels.
+  #302 date-column work is merged (`dd893b4`), as are #303 Playground badges (`525e939`); no version bump or release.
 
 ## Completed in v0.6.0
 

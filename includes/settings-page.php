@@ -93,7 +93,7 @@ function keel_defaults_add_help_tab() {
 					__( 'There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
-				'<p>' . esc_html__( 'Six settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, Password Policy Exemptions when Password Strength is off, and Date Column Times when Date Columns is off.', 'keel-defaults' ) . '</p>',
+				'<p>' . esc_html__( 'Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off.', 'keel-defaults' ) . '</p>',
 		)
 	);
 
@@ -291,6 +291,10 @@ function keel_defaults_sanitize_site( $input ) {
 	$clean    = keel_defaults_sanitize( $input );
 	$existing = get_option( KEEL_DEFAULTS_OPTION, array() );
 	$existing = is_array( $existing ) ? $existing : array();
+	// Preserve the dormant site choice under a network lock during consolidation.
+	if ( ! array_key_exists( 'admin_list_tables', $existing ) && array_intersect( array( 'helper_list_columns', 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' ), array_keys( $existing ) ) ) {
+		$existing['admin_list_tables'] = keel_defaults_list_table_mode_from_values( $existing );
+	}
 
 	foreach ( array_keys( keel_defaults_schema() ) as $key ) {
 		$locked = ( null !== keel_defaults_config_lock( $key ) ) || ( null !== keel_defaults_network_lock( $key ) );

@@ -713,71 +713,83 @@ add_action( 'add_meta_boxes_attachment', function () {
 } );
 ```
 
-### Helper List-Table Columns
-- **Key:** `helper_list_columns`
-- **Default:** `no`
-- **Why:** Adds the columns you end up wanting: ID, featured image and modified date on posts
-  and pages; file size on the Media library; registration date and last login on Users.
+### Admin List Tables
 
-**Last login is recorded from when this is switched on, not retroactively** — WordPress does
-not store it, so there is no history to backfill. Existing accounts show blank until their
-next sign-in.
+*(`admin_list_tables`, default `unchanged`)*
 
-```php
-add_filter( 'manage_users_columns', function ( $columns ) {
-    $columns['keel_last_login'] = __( 'Last login', 'keel' );
+One select control replaces the separate helper, compact-label, fewer-column and
+tidy-date toggles:
 
-    return $columns;
-} );
+| Mode | Behavior |
+| --- | --- |
+| Leave unchanged | Adds no helper columns or table formatting. |
+| Tidy existing tables | Auto-sizes post-type tables, shortens known headings, tidies dates and reduces initial column visibility. |
+| Tidy + helper columns | Tidies tables and adds ID, Image and sortable Modified (ID and Modified stay off until ticked in Screen Options); also adds Media file size and Users registration/last-login helpers. |
 
-add_action( 'wp_login', function ( $login, $user ) {
-    update_user_meta( $user->ID, 'keel_last_login', time() );
-}, 10, 2 );
-```
+Both Tidy modes show the site's date and time consistently in Published and
+Modified. There is no separate time setting. Scheduled and missed-schedule labels
+remain visible; unpublished posts have an accessible dash. Modified is sortable
+in the helper mode. Helper columns include ID, Image and Modified on post-type
+lists, file size on Media, and registration/last-login information on Users.
 
-### Date columns
+**Your saved Screen Options always take precedence.** Only users without a saved
+preference start with present SEO description/schema/search, Shortlink, Keel ID
+and Modified hidden. Saved empty lists are intentional too. Visiting a list never
+writes a hidden-column preference or backfill marker. Individual columns remain
+available in Screen Options. Unknown and primary columns are not hidden by Keel.
 
-Core's post-list Date column ignores Settings → General. It formats dates with
-its own translatable `'Y/m/d'` and `'g:i a'` strings and puts a status line
-(Published, Scheduled, Missed schedule, Last Modified) above each one. There is
-no core setting to change either, only the `post_date_column_status` and
-`post_date_column_time` filters.
+Tidying applies to site-admin Posts, Pages and custom post-type lists. Desktop
+uses the latest auto layout with Title asking for 50% width; the checkbox and Image
+columns shrink to their content so spare width never pools there (on a short Pages
+list the checkbox column otherwise measured 261px). Mobile keeps core's responsive
+layout. Users and Media receive only their supported helper columns.
+Known headings use Meta, Link and Fedi with original hover/accessible names;
+`keel_defaults_column_labels` remains available to customize the exact-key map.
 
-`tidy_date_columns` (default `no`) uses those filters. The Date heading becomes
-Published and the status line goes, except Scheduled and Missed schedule, which
-keep theirs because a bare future date reads as a mistake. Published and
-private posts show their date; drafts, pending and other unpublished statuses
-show a dash with "Not published" for screen readers. Published and Keel's
-Modified helper column share the site's date format, with its time format after
-it while `date_columns_show_time` (default `yes`) is on.
+Existing settings are read compatibly without a database migration: a saved
+`helper_list_columns=yes` selects Tidy + useful columns; otherwise any enabled
+legacy tidying switch selects Tidy. An explicit `admin_list_tables` value wins.
+Legacy network policy is resolved and locked in the network screen as a single
+mode, ahead of site choices. A normal settings save stores the new controls;
+there is no versioned migration and no Screen Options rewrite. Last-login recording
+continues only while useful columns are enabled, as with the old helper option.
 
-Modified is sortable whenever `helper_list_columns` is on, newest first on the
-first click; WordPress orders by `post_modified` natively.
+**What actually gives Title room.** Core's list table is `table-layout: fixed`, which never
+looks at content. Author, Categories, Tags and Date get set percentages (about 54% of a post
+list), and every other column, empty or not, splits what is left equally with Title. Header
+text does not size a column, so compact labels are a visual tidy-up only. Setting widths on
+the small columns only moved the remainder around, with each column's padding on top of its
+share, and every attempt made Title narrower.
 
-### Optional list-table compaction
+Measured on a site running Jetpack 16.3.1, Hum 1.4.0, ActivityPub 9.3.1 and Keel's helper
+columns, Posts list, every column showing:
 
-`compact_column_labels` and `fewer_list_columns` are independent toggles, both
-`no` by default. They apply to site-admin Posts, Pages and custom post-type lists,
-not Users, Media or Network Admin tables. Existing helper columns remain a
-separate option.
+| Change | Title at 1440px | Title at 1024px |
+|---|---|---|
+| Nothing | 66px | 27px |
+| Compact labels | 66px | 27px |
+| Fixed widths on the small columns | 0px | 0px |
+| Percentage widths on the small columns | 41px | 0px |
+| Categories and Tags at `width: auto` | 106px | 60px |
+| Tags and Categories hidden | 148px | 85px |
 
-Compact labels shorten only known column keys: Jetpack SEO description to Meta,
-Hum Shortlink to Link, and ActivityPub to Fedi. The original label remains
-available to assistive technology and on hover. Keys, cells, sorting, primary
-columns and user preferences are unchanged. Sites can extend or replace the map:
+Measured again on a local WordPress 6.8 with stand-in Jetpack SEO and shortlink columns,
+fixed layout with Categories and Tags at `width: auto` compared with content-sized columns:
 
-```php
-add_filter( 'keel_defaults_column_labels', function ( $labels, $post_type ) {
-    $labels['my_optional_column'] = __( 'Short', 'my-site' );
-    return $labels;
-}, 10, 2 );
-```
+| Posts list | Fixed | Content-sized |
+|---|---|---|
+| Every column (12), 1440px | 89px | 268px |
+| Every column (12), 1280px | 76px | 170px |
+| Every column (12), 1024px | 57px | 95px |
+| Tidy defaults, 1440px | 221px | 562px |
+| Tidy defaults, 1024px | 142px | 336px |
+| Pages, Tidy defaults, 1440px | 443px | 618px |
+| Pages, Tidy defaults, 1024px | 285px | 410px |
 
-Fewer List Columns adds present SEO description/schema/search, Shortlink, Keel ID
-and Modified columns to core’s default-hidden list. It does not remove columns or
-rewrite user options. Saved Screen Options—including a saved empty hidden list—
-always win. Title, selection, primary and unknown columns are not hidden by Keel.
-Changed or absent third-party keys are left alone.
+With all twelve columns at 1024px the table runs slightly wider than the screen, because a
+column can't be narrower than its longest word. Hiding a column or two in Screen Options fixes
+that. ActivityPub 9.3.1 adds its column to the Users list only, so the Fedi label has nothing
+to act on there today.
 
 ### Admin Menu Width
 - **Key:** `admin_menu_width`
@@ -1404,11 +1416,7 @@ covering only some, which reads as a full inventory when it is not.
 | Admin Search | `title_only_admin_search` | `no` | UX |
 | Front-End Admin Bar | `frontend_admin_bar_behavior` | `''` | UX |
 | Admin Menu Width | `admin_menu_width` | `default` | UX |
-| Admin List Columns | `helper_list_columns` | `no` | UX |
-| Compact Column Labels | `compact_column_labels` | `no` | UX |
-| Fewer List Columns | `fewer_list_columns` | `no` | UX |
-| Date Columns | `tidy_date_columns` | `no` | UX |
-| Date Column Times | `date_columns_show_time` | `yes` | UX |
+| Admin List Tables | `admin_list_tables` | `unchanged` | UX |
 | Environment Indicator | `environment_indicator` | `no` | UX |
 | Remember Me | `disable_remember_me` | `no` | Login |
 | Regular Session Length | `session_regular_days` | `2` | Login |

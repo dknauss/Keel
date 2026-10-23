@@ -48,7 +48,15 @@ function keel_defaults_network_settings() {
 
 	$stored = get_site_option( KEEL_DEFAULTS_NETWORK_OPTION, array() );
 
-	return is_array( $stored ) ? $stored : array();
+	$stored = is_array( $stored ) ? $stored : array();
+	$legacy = array( 'helper_list_columns', 'compact_column_labels', 'fewer_list_columns', 'tidy_date_columns' );
+	if ( array_key_exists( 'admin_list_tables', $stored ) || array_intersect( $legacy, array_keys( $stored ) ) ) {
+		$stored['admin_list_tables'] = keel_defaults_list_table_mode_from_values( $stored );
+		foreach ( $legacy as $key ) {
+			unset( $stored[ $key ] );
+		}
+	}
+	return $stored;
 }
 
 /**
