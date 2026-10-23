@@ -332,7 +332,7 @@ function keel_defaults_callback_mu_plugin( $callback ) {
 }
 
 /**
- * Resolve every callable form WordPress accepts to its source file.
+ * Resolve loaded callable forms to their source file without autoloading code.
  *
  * @param mixed $callback Callback.
  * @return string Source file, or an empty string when unavailable.
@@ -346,10 +346,16 @@ function keel_defaults_callback_file( $callback ) {
 			$file       = (string) $reflection->getFileName();
 		} elseif ( is_string( $callback ) && false !== strpos( $callback, '::' ) ) {
 			list( $class, $method ) = explode( '::', $callback, 2 );
-			$reflection             = new ReflectionMethod( $class, $method );
-			$file                   = (string) $reflection->getFileName();
+			if ( ! class_exists( $class, false ) && ! trait_exists( $class, false ) ) {
+				return '';
+			}
+			$reflection = new ReflectionMethod( $class, $method );
+			$file       = (string) $reflection->getFileName();
 		} elseif ( is_array( $callback ) && isset( $callback[0], $callback[1] ) ) {
-			$class      = is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0];
+			$class = is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0];
+			if ( ! class_exists( $class, false ) && ! trait_exists( $class, false ) ) {
+				return '';
+			}
 			$reflection = new ReflectionMethod( $class, (string) $callback[1] );
 			$file       = (string) $reflection->getFileName();
 		} elseif ( is_object( $callback ) && is_callable( $callback ) ) {
