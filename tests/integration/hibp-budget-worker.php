@@ -45,7 +45,13 @@ function hibp_lab_pause( $name ) {
 		return;
 	}
 	$phase['paused'] = true;
-	hibp_lab_json( $job['work'] . '/paused.json', array( 'phase' => $name ) );
+	hibp_lab_json(
+		$job['work'] . '/paused.json',
+		array(
+			'phase'      => $name,
+			'connection' => $GLOBALS['wpdb']->dbh instanceof mysqli ? (int) $GLOBALS['wpdb']->dbh->thread_id : null,
+		)
+	);
 	hibp_lab_wait( $job['work'] . '/resume' );
 }
 function hibp_lab_query( $sql ) {
@@ -234,22 +240,11 @@ try {
 		case 'evidence':
 			$result['evidence'] = keel_hibp_budget_evidence();
 			break;
-		case 'diagnose':
-			hibp_lab_seed();
-			$result['idle']                = keel_hibp_budget_connection_idle();
-			$result['transactional']       = keel_hibp_budget_transactional( $scope );
-			$result['idle_after_metadata'] = keel_hibp_budget_connection_idle();
-			$raw                           = keel_hibp_budget_read( $scope, $state_key );
-			$state                         = keel_hibp_budget_state( $raw, time() );
-			$result['valid_state']         = false !== $state;
-			++$state['rev'];
-			$result['cas']   = keel_hibp_budget_write( $scope, $state_key, $raw, $state );
-			$result['begin'] = keel_hibp_budget_transaction( 'START TRANSACTION' );
-			if ( $result['begin'] ) {
-				$result['rollback'] = keel_hibp_budget_transaction( 'ROLLBACK' ); }
-			$admission           = keel_hibp_budget_admit( $scope, '01001' );
-			$result['admission'] = isset( $admission['ticket'] ) ? 'ticket' : ( $admission['error'] ?? 'body' );
-			$result['leases']    = count( keel_hibp_budget_state( keel_hibp_budget_read( $scope, $state_key ), time() )['leases'] );
+		case 'kill_connection':
+			if ( 'true' !== getenv( 'GITHUB_ACTIONS' ) || ! $wpdb->dbh instanceof mysqli || ! is_int( $job['connection'] ) || $job['connection'] < 1 || $job['connection'] === (int) $wpdb->dbh->thread_id ) {
+				throw new Keel_HIBP_Lab_Exception( 'Connection-loss fixture requires another disposable CI worker connection.' );
+			}
+			hibp_lab_assert( false !== $wpdb->query( $wpdb->prepare( 'KILL CONNECTION %d', $job['connection'] ) ), 'could not kill disposable worker connection' );
 			break;
 		case 'adapter':
 			hibp_lab_seed();
@@ -276,6 +271,7 @@ try {
 				$dbh = $wpdb->get_driver();
 				hibp_lab_assert( is_object( $dbh ) && is_callable( array( $dbh, 'inTransaction' ) ) && $dbh->inTransaction(), 'SQLite caller transaction cannot be detected' );
 			} else {
+				hibp_lab_assert( false !== $wpdb->query( 'SAVEPOINT keel_lab_caller' ), 'caller savepoint fixture failed' );
 				hibp_lab_assert( ! keel_hibp_budget_connection_idle(), 'session transaction probe unsupported' );
 			}
 			$wpdb->query( $wpdb->prepare( "UPDATE `{$scope['table']}` SET option_value=%s WHERE option_name=%s", $raw . ' ', $state_key ) );
@@ -286,9 +282,20 @@ try {
 			hibp_lab_assert( $metrics['begins'] === $before['begins'] && $metrics['commits'] === $before['commits'] && $metrics['rollbacks'] === $before['rollbacks'], 'admission touched caller transaction' );
 			hibp_lab_assert( null === keel_hibp_lookup( 'synthetic-transaction-lab-value' ), 'active transaction must return unknown' );
 			hibp_lab_assert( 0 === $metrics['http'], 'active transaction reached HTTP' );
+			if ( ! ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) ) {
+				hibp_lab_assert( false !== $wpdb->query( 'ROLLBACK TO SAVEPOINT keel_lab_caller' ), 'probe removed a caller-owned savepoint' );
+			}
 			hibp_lab_assert( false !== $wpdb->query( 'ROLLBACK' ), 'ROLLBACK unsupported' );
 			hibp_lab_assert( keel_hibp_budget_read( $scope, $state_key ) === $raw, 'caller write was committed or rollback failed' );
 			hibp_lab_assert( false !== $wpdb->query( 'START TRANSACTION' ) && false !== $wpdb->query( 'COMMIT' ), 'COMMIT unsupported' );
+			if ( ! ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) ) {
+				hibp_lab_assert( false !== $wpdb->query( 'SET autocommit = 0' ), 'autocommit fixture failed' );
+				$before = $metrics;
+				hibp_lab_assert( null === keel_hibp_lookup( 'synthetic-autocommit-off-fixture' ), 'autocommit-off lookup was not unknown' );
+				hibp_lab_assert( $metrics['store_writes'] === $before['store_writes'] && 0 === $metrics['http'], 'autocommit-off lookup wrote authority or called HTTP' );
+				hibp_lab_assert( false !== $wpdb->query( 'ROLLBACK' ) && false !== $wpdb->query( 'SET autocommit = 1' ), 'autocommit fixture cleanup failed' );
+			}
+
 			break;
 		case 'storage':
 			for ( $i = 0; $i < ( $job['count'] ?? 2048 ); ++$i ) {

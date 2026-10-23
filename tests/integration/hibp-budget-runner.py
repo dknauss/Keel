@@ -330,6 +330,28 @@ class Lab:
         require(before['rows'] == self.probe()['rows'], 'SIGKILL did not roll back publication transaction')
         self.finish(admission['ticket'], '0' * 35 + ':0')
 
+    def connection_loss(self):
+        self.reset(600)
+        admission = self.call('admit', prefix='02060')['result']
+        require('ticket' in admission, 'connection-loss fixture admission failed')
+        worker = self.spawn('finish', ticket=admission['ticket'], body='0' * 35 + ':0', pause='publisher_locked')
+        checkpoint = worker.wait_file('paused.json')
+        require(isinstance(checkpoint.get('connection'), int), 'native connection checkpoint missing')
+        self.call('kill_connection', connection=checkpoint['connection'])
+        self.call('expire')
+        newer = self.call('admit', prefix='02060')['result']
+        require('ticket' in newer, 'replacement failed after connection loss')
+        before = self.probe()
+        worker.release()
+        old = worker.result()
+        require(old['result']['finish'] is False, 'lost transaction reconnected and published a verdict')
+        after = self.probe()
+        require(self.slot_fingerprints(before) == self.slot_fingerprints(after), 'reconnected old owner altered replacement slot')
+        require(before['state']['leases'] == after['state']['leases'], 'reconnected old owner released replacement lease')
+        require(before['state']['credit'] == after['state']['credit'], 'reconnected old owner restored spent credit')
+        require(before['state']['success'] == after['state']['success'], 'connection loss recorded false success')
+        self.finish(newer['ticket'])
+
     def cache_paths(self):
         self.reset(600)
         password = 'synthetic-cache-hit-fixture'
@@ -419,6 +441,7 @@ def main():
             'scope': lab.scope,
         }
         if os.environ.get('GITHUB_ACTIONS') == 'true':
+            cases['connection_loss'] = lab.connection_loss
             cases['uninstall'] = lab.uninstall
         selected = list(cases) if args.cases == 'all' else args.cases.split(',')
         # Destructive full uninstall is CI-only and always follows all other cases.

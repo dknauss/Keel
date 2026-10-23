@@ -193,11 +193,12 @@ function keel_hibp_budget_admit( array $scope, $prefix ) {
 		if ( false !== $body ) {
 			return array( 'body' => $body );
 		}
-		if ( ! keel_hibp_budget_connection_idle() || ! keel_hibp_budget_transactional( $scope ) ) {
-			break;
-		}
-		$raw = keel_hibp_budget_read( $scope, $key );
+		$ready = false;
+		$raw   = keel_hibp_budget_read( $scope, $key );
 		if ( null === $raw ) {
+			if ( ! keel_hibp_budget_connection_idle() || ! keel_hibp_budget_transactional( $scope ) ) {
+				break; }
+			$ready = true;
 			keel_hibp_budget_write( $scope, $key, null, keel_hibp_budget_initial( $policy, $now ) );
 			$raw = keel_hibp_budget_read( $scope, $key );
 		}
@@ -217,6 +218,9 @@ function keel_hibp_budget_admit( array $scope, $prefix ) {
 		if ( $state['credit'] < $policy['interval'] ) {
 			return array( 'error' => 'budget_exhausted' );
 		}
+		// A denied read needs no connection probe; check immediately before mutation.
+		if ( ! $ready && ( ! keel_hibp_budget_connection_idle() || ! keel_hibp_budget_transactional( $scope ) ) ) {
+			break; }
 		$lease             = array(
 			'slot'  => $slot,
 			'owner' => str_replace( '-', '', wp_generate_uuid4() ),
@@ -404,7 +408,7 @@ function keel_hibp_budget_finish( array $ticket, $body = null, $kind = '' ) {
  */
 function keel_hibp_budget_note( $kind ) {
 	$scope = keel_hibp_budget_scope();
-	if ( ! $scope || ! keel_hibp_budget_kind( $kind ) || ! keel_hibp_budget_connection_idle() ) {
+	if ( ! $scope || ! keel_hibp_budget_kind( $kind ) ) {
 		return;
 	}
 	$key = keel_hibp_budget_key( $scope, 'state' );
@@ -415,7 +419,7 @@ function keel_hibp_budget_note( $kind ) {
 			return;
 		}
 		$new = keel_hibp_budget_sample( $state, $kind, time() );
-		if ( $new === $state ) {
+		if ( $new === $state || ! keel_hibp_budget_connection_idle() ) {
 			return;
 		}
 		++$new['rev'];
