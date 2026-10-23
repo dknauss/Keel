@@ -56,10 +56,21 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
+- [ ] **Verify bounded HIBP Site Health presentation** — recommended next focused task.
+  Use disposable standalone and multisite labs with synthetic evidence: no recorded
+  checks, local exhaustion/busy slots, transport failure, later live success and
+  explicit opt-out. Check network-manager details and site-admin redaction,
+  keyboard access, narrow layouts and scoped accessibility results. Confirm that
+  viewing the screen performs no HIBP requests or authority writes. Record browser
+  evidence separately from the completed concurrency/storage proof; no new setting,
+  version bump or release.
+
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Admin List Tables and the accepted update/support work are merged and unreleased;
-  verification fixes are merged in #313 (`fb121e0`) and unreleased. The development schema has 44
+  verification fixes are merged in #313 (`fb121e0`), accessibility fixes in #314
+  (`1d754a9`), and the bounded HIBP budget in #316 (`e6de5ca`); all unreleased.
+  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation; no
@@ -278,13 +289,14 @@ installs. Site Health must not become the performance problem it is diagnosing.
   cache slots, with cached verdicts ahead of throttling and explicit unknown on denial.
   See the [bounded HIBP design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
 - [x] **Implement and verify the bounded HIBP lookup budget** — implemented in
-  [#316](https://github.com/dknauss/Keel/pull/316), unreleased.
+  [#316](https://github.com/dknauss/Keel/pull/316), merged as `e6de5ca`; unreleased.
   Fixed database authority, two fenced leases, 64 cache slots, sampled shared
   diagnostics and paged uninstall preserve the 44-setting schema. SQLite labs
   and all four MySQL/MariaDB × WordPress floor/current cells pass, including
   process/connection loss, Redis, two networks, site-only activation and cleanup.
   See the [verification record](docs/review/bounded-hibp-budget-2026-10-23.md).
-  AX counterpart remains tracked in [#315](https://github.com/dknauss/Keel/issues/315).
+  AX counterpart is merged as commit `f628cb8d668c581beb43cffa26620783f384657a`;
+  [#315](https://github.com/dknauss/Keel/issues/315) is closed.
   #313 and #314 remain merged and unreleased. No version bump or release.
 
 ## Later
@@ -362,8 +374,8 @@ installs. Site Health must not become the performance problem it is diagnosing.
 
 - [x] **Complete the bounded breach-lookup budget verification** — implemented and
   verified in [#316](https://github.com/dknauss/Keel/pull/316); unreleased.
-  See the active item and verification record above. The AX counterpart remains
-  tracked in [#315](https://github.com/dknauss/Keel/issues/315); no version bump, tag or release.
+  See the active item and verification record above. The AX counterpart is merged as commit `f628cb8`;
+  [#315](https://github.com/dknauss/Keel/issues/315) is closed. No version bump, tag or release.
 
 - [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   Core’s update requests include site identity, environment categories and installed
