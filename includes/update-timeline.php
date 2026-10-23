@@ -31,7 +31,30 @@ function keel_defaults_render_update_timeline( $selected, $tip ) {
 }
 
 /**
+ * Render a plain admin table from cells that are already escaped HTML.
+ *
+ * @param string[]   $head Escaped column headings.
+ * @param string[][] $rows Escaped cells; the first cell of each row is its header.
+ * @param string[]   $widths Optional CSS widths for the leading columns.
+ * @return string Escaped HTML.
+ */
+function keel_defaults_update_table_markup( array $head, array $rows, array $widths = array() ) {
+	$html = '<table class="widefat striped" style="max-width:820px"><thead><tr>';
+	foreach ( $head as $i => $cell ) {
+		$html .= '<th scope="col"' . ( isset( $widths[ $i ] ) ? ' style="width:' . esc_attr( $widths[ $i ] ) . '"' : '' ) . '>' . $cell . '</th>';
+	}
+	$html .= '</tr></thead><tbody>';
+	foreach ( $rows as $row ) {
+		$html .= '<tr><th scope="row" style="vertical-align:top">' . array_shift( $row ) . '</th><td>' . implode( '</td><td>', $row ) . '</td></tr>';
+	}
+	return $html . '</tbody></table>';
+}
+
+/**
  * Compose current selection evidence and a validated, per-site cron snapshot.
+ *
+ * Rows with nothing to report (no failure on record, no newer patch) are left out,
+ * and the caveats every row shares live in one footnote.
  *
  * @param string|false $selected Core's current selection.
  * @param string|false $tip Branch tip.
@@ -44,62 +67,82 @@ function keel_defaults_render_update_timeline( $selected, $tip ) {
  */
 function keel_defaults_update_timeline_markup( $selected, $tip, array $state, array $update, $snapshot, $now, $external ) {
 	$selection = keel_defaults_selection_state( $state, $selected );
-	$labels    = array(
-		'blocked'   => __( 'Automatic delivery is blocked', 'keel-defaults' ),
-		'unknown'   => __( 'Selected release: unknown', 'keel-defaults' ),
-		'none'      => __( 'No automatic release selected; this does not establish that core is current.', 'keel-defaults' ),
-		'scheduled' => __( 'An automatic release is selected; execution remains unconfirmed.', 'keel-defaults' ),
+	$rows      = array();
+
+	// Blocker codes only; their longer texts stay with the notice above.
+	$reasons = array(
+		'file_mods'                   => __( 'file changes are turned off', 'keel-defaults' ),
+		'automatic_disabled_constant' => __( 'automatic updates are turned off in wp-config.php', 'keel-defaults' ),
+		'automatic_disabled_filter'   => __( 'a plugin or theme turns automatic updates off', 'keel-defaults' ),
+		'automatic_disabled_unknown'  => __( 'automatic updates are turned off', 'keel-defaults' ),
+		'credentials'                 => __( 'WordPress needs file credentials to update', 'keel-defaults' ),
+		'previous_failure'            => __( 'an earlier update failed and WordPress won’t retry', 'keel-defaults' ),
+		'vcs'                         => __( 'the site is under version control', 'keel-defaults' ),
 	);
-	$html      = '<div class="keel-defaults-update-timeline"><h3>' . esc_html__( 'Core-update delivery timeline', 'keel-defaults' ) . '</h3><p>' . esc_html( $labels[ $selection ] ) . '</p><ul>';
-	$html     .= '<li>' . esc_html__( 'Selected release:', 'keel-defaults' ) . ' ' . esc_html( is_string( $selected ) && '' !== $selected ? $selected : __( 'Unknown or none; see selection status above.', 'keel-defaults' ) ) . '</li>';
-	$html     .= '<li>' . esc_html__( 'Available same-line patch:', 'keel-defaults' ) . ' ' . esc_html( is_string( $tip ) && '' !== $tip ? $tip : __( 'None identified or unavailable', 'keel-defaults' ) ) . '</li>';
 	if ( 'blocked' === $selection ) {
+		$notes = array();
 		foreach ( $state['blockers'] as $blocker ) {
-			$html .= '<li>' . esc_html__( 'Blocker code:', 'keel-defaults' ) . ' <code>' . esc_html( $blocker['code'] ) . '</code></li>';
+			$code    = (string) $blocker['code'];
+			$notes[] = ( isset( $reasons[ $code ] ) ? esc_html( $reasons[ $code ] ) . ' ' : '' ) . '(<code>' . esc_html( $code ) . '</code>)';
 		}
+		$rows[] = array( esc_html__( 'Next automatic install', 'keel-defaults' ), esc_html__( 'Blocked', 'keel-defaults' ), esc_html__( 'WordPress won’t install core updates on its own because', 'keel-defaults' ) . ' ' . implode( '; ', $notes ) . '.' );
+	} elseif ( 'scheduled' === $selection ) {
+		$rows[] = array( esc_html__( 'Next automatic install', 'keel-defaults' ), esc_html( $selected ), esc_html__( 'WordPress will try this release on its next update run.', 'keel-defaults' ) );
+	} elseif ( 'none' === $selection ) {
+		$rows[] = array( esc_html__( 'Next automatic install', 'keel-defaults' ), esc_html__( 'None', 'keel-defaults' ), esc_html__( 'Nothing is queued. That alone doesn’t mean the site is current; see the version status above.', 'keel-defaults' ) );
+	} else {
+		$rows[] = array( esc_html__( 'Next automatic install', 'keel-defaults' ), esc_html__( 'Unknown', 'keel-defaults' ), esc_html__( 'WordPress hasn’t reported which release it would install.', 'keel-defaults' ) );
 	}
-	$age   = $update['offer_age'];
-	$html .= '<li>' . ( null === $age ? esc_html__( 'Offer freshness: unknown (missing or future timestamp).', 'keel-defaults' ) : sprintf( /* translators: %d: age in seconds. */ esc_html__( 'Offer last_checked age: %d seconds.', 'keel-defaults' ), $age ) );
-	if ( null !== $age && $age > 86400 ) {
-		$html .= ' ' . esc_html__( 'This marker is stale (over one day).', 'keel-defaults' );
+	if ( is_string( $tip ) && '' !== $tip && $tip !== $selected ) {
+		$rows[] = array( esc_html__( 'Newer patch for this branch', 'keel-defaults' ), esc_html( $tip ), '' );
 	}
-	$html .= ' ' . esc_html__( 'This marker does not prove a successful response or when a release became available.', 'keel-defaults' ) . '</li>';
+
+	$age = $update['offer_age'];
+	if ( null === $age ) {
+		$rows[] = array( esc_html__( 'Last check with WordPress.org', 'keel-defaults' ), esc_html__( 'Unknown', 'keel-defaults' ), '' );
+	} else {
+		/* translators: %s: human-readable time, such as "5 mins". */
+		$ago    = sprintf( esc_html__( '%s ago', 'keel-defaults' ), esc_html( human_time_diff( $now - $age, $now ) ) );
+		$rows[] = array( esc_html__( 'Last check with WordPress.org', 'keel-defaults' ), $ago, $age > 86400 ? esc_html__( 'Over a day old, so it’s stale. WordPress normally checks twice a day.', 'keel-defaults' ) : '' );
+	}
+
 	if ( false === $snapshot || ! $snapshot['done'] || '' !== $snapshot['error'] ) {
-		$html .= '<li>' . esc_html__( 'Schedule observations: unavailable or pending. Recheck the cron report in Site Health; this does not prove a broken scheduler.', 'keel-defaults' ) . '</li>';
+		$rows[] = array( esc_html__( 'Scheduled update checks', 'keel-defaults' ), esc_html__( 'Not read yet', 'keel-defaults' ), esc_html__( 'Run Site Health to fill this in; its “Cron pressure and update delivery” check reads the schedule.', 'keel-defaults' ) );
 	} else {
-		$html .= '<li>' . esc_html__( 'Site-local schedule snapshot:', 'keel-defaults' ) . ' ' . esc_html( gmdate( 'Y-m-d H:i:s', $snapshot['checked'] ) ) . ' UTC';
-		if ( $snapshot['data']['limited'] || $snapshot['data']['malformed'] ) {
-			$html .= ' ' . esc_html__( 'Partial coverage; unobserved hooks may exist.', 'keel-defaults' );
-		}
-		$html .= '<ul>';
-		foreach ( array( 'wp_version_check', 'wp_maybe_auto_update' ) as $hook ) {
-			$at    = $snapshot['data']['core'][ $hook ] ?? null;
-			$html .= '<li><code>' . esc_html( $hook ) . '</code>: ';
+		$partial = $snapshot['data']['limited'] || $snapshot['data']['malformed'];
+		$hooks   = array(
+			'wp_version_check'     => __( 'Next update check', 'keel-defaults' ),
+			'wp_maybe_auto_update' => __( 'Next automatic update run', 'keel-defaults' ),
+		);
+		foreach ( $hooks as $hook => $label ) {
+			$at = $snapshot['data']['core'][ $hook ] ?? null;
 			if ( null === $at ) {
-				$html .= esc_html__( 'Not observed; no next-run claim is possible.', 'keel-defaults' );
+				$status = esc_html__( 'Not scheduled', 'keel-defaults' );
+				$note   = $partial ? esc_html__( 'Keel read only part of the schedule (partial coverage), so it may exist.', 'keel-defaults' ) : esc_html__( 'Not found in this site’s schedule.', 'keel-defaults' );
 			} else {
-				$timing = esc_html__( 'scheduled check, not an installation time.', 'keel-defaults' );
+				$status = esc_html( gmdate( 'Y-m-d H:i', $at ) ) . ' UTC';
+				$note   = '';
 				if ( $at < $snapshot['checked'] ) {
-					$timing = esc_html__( 'overdue when collected; current execution status is unknown.', 'keel-defaults' );
+					$note = esc_html__( 'Was already overdue when Keel last read the schedule.', 'keel-defaults' );
 				} elseif ( $at <= $now ) {
-					$timing = esc_html__( 'due since collection; current execution status is unknown.', 'keel-defaults' );
+					$note = esc_html__( 'Due now; Keel can’t see yet whether it ran.', 'keel-defaults' );
 				}
-				$html .= esc_html( gmdate( 'Y-m-d H:i:s', $at ) ) . ' UTC — ' . $timing;
 			}
-			$html .= '</li>';
+			$rows[] = array( esc_html( $label ), $status, $note . ( '' === $note ? '' : ' ' ) . '<code>' . esc_html( $hook ) . '</code>' );
 		}
-		$html .= '</ul></li>';
 	}
-	$failure = $update['failure'];
-	$html   .= '<li>' . esc_html__( 'Retained core failure:', 'keel-defaults' ) . ' ';
-	if ( null === $failure ) {
-		$html .= esc_html__( 'None observed; this is not proof of success.', 'keel-defaults' );
-	} else {
-		$html .= '<code>' . esc_html( $failure['code'] ) . '</code> — ' . ( null === $failure['at'] ? esc_html__( 'time unknown', 'keel-defaults' ) : esc_html( gmdate( 'Y-m-d H:i:s', $failure['at'] ) ) . ' UTC' ) . '. ' . esc_html__( 'This record may be historical; it is not proof the selected release failed.', 'keel-defaults' );
-	}
-	$html .= '</li><li>' . esc_html__( 'Success history: unknown. No durable success history is collected by this view.', 'keel-defaults' ) . '</li></ul>';
+
 	if ( $external ) {
-		$html .= '<p>' . esc_html__( 'DISABLE_WP_CRON is enabled. An external scheduler may be intentional; whether it is running is unknown.', 'keel-defaults' ) . '</p>';
+		$rows[] = array( esc_html__( 'WP-Cron', 'keel-defaults' ), esc_html__( 'Turned off', 'keel-defaults' ), esc_html__( 'DISABLE_WP_CRON is set, so a server task (an external scheduler) has to run scheduled jobs. Keel can’t tell whether it does.', 'keel-defaults' ) );
 	}
-	return $html . '<p>' . esc_html__( 'Offers and failure records are network-wide on multisite; schedule observations belong to this site and may be cached for up to one hour. Selection, branch status and schedule evidence are nontransactional and can change independently. No installation time is promised.', 'keel-defaults' ) . '</p></div>';
+
+	$failure = $update['failure'];
+	if ( null !== $failure ) {
+		$when   = null === $failure['at'] ? esc_html__( 'time unknown', 'keel-defaults' ) : esc_html( gmdate( 'Y-m-d H:i', $failure['at'] ) ) . ' UTC';
+		$rows[] = array( esc_html__( 'Last failed core update', 'keel-defaults' ), '<code>' . esc_html( $failure['code'] ) . '</code>', $when . '. ' . esc_html__( 'This may be from an earlier attempt, not the release above.', 'keel-defaults' ) );
+	}
+
+	return '<div class="keel-defaults-update-timeline"><h3>' . esc_html__( 'Automatic core updates', 'keel-defaults' ) . '</h3>'
+		. keel_defaults_update_table_markup( array( esc_html__( 'Check', 'keel-defaults' ), esc_html__( 'Status', 'keel-defaults' ), esc_html__( 'Note', 'keel-defaults' ) ), $rows, array( '28%', '20%' ) )
+		. '<p class="description">' . esc_html__( 'This is what WordPress knows right now. No installation time is promised. On multisite, update checks and failures are network-wide; the schedule is per site and can be up to an hour old.', 'keel-defaults' ) . '</p></div>';
 }

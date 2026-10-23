@@ -63,7 +63,7 @@ try {
 		),
 	);
 	$html  = keel_defaults_update_timeline_markup( '7.1.4', '', $state, $update, false, $now, false );
-	$assert( false !== strpos( $html, 'blocked' ) && false !== strpos( $html, 'file_mods' ), 'Real stable blocker helper wins over selection.' );
+	$assert( false !== strpos( $html, 'Blocked' ) && false !== strpos( $html, 'file_mods' ), 'Real stable blocker helper wins over selection.' );
 	$state['blockers'][0]['code'] = 'credentials';
 	$assert( 'scheduled' === keel_defaults_selection_state( $state, '7.1.4' ), 'Core selection overrides branch-tip-only credential probe.' );
 } finally {
