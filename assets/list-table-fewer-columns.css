@@ -11,6 +11,7 @@
  * Desktop layout only: below 783px core shows the primary column alone.
  */
 @media screen and (min-width: 783px) {
+
 	body.edit-php table.wp-list-table.fixed {
 		table-layout: auto;
 	}
@@ -20,6 +21,8 @@
 	}
 
 	body.edit-php table.wp-list-table.fixed .check-column,
+	/* Existing PHP column IDs use underscores; preserve their selectors. */
+	/* stylelint-disable-next-line selector-class-pattern */
 	body.edit-php table.wp-list-table.fixed .column-keel_thumb {
 		width: 1%;
 	}
@@ -47,6 +50,7 @@
 	}
 
 	body.edit-php table.wp-list-table.fixed th.column-date > a > span:first-child,
+	/* stylelint-disable-next-line selector-class-pattern */
 	body.edit-php table.wp-list-table.fixed th.column-keel_modified > a > span:first-child {
 		white-space: nowrap;
 	}

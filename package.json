@@ -1,0 +1,20 @@
+{
+  "name": "keel-development-tools",
+  "private": true,
+  "description": "Development-only checks for Keel's unbundled browser assets.",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:css",
+    "lint:js": "eslint assets --max-warnings=0",
+    "lint:css": "stylelint \"assets/**/*.css\" --max-warnings=0"
+  },
+  "devDependencies": {
+    "@wordpress/eslint-plugin": "28.0.0",
+    "@wordpress/stylelint-config": "27.0.0",
+    "eslint": "10.13.0",
+    "globals": "17.13.0",
+    "stylelint": "17.16.0"
+  }
+}

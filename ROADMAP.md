@@ -57,7 +57,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   labels and informational host must-use attribution without structural overlap.
   Autoload, cron and divergence snapshots were absent in CLI cache reads, so their
   findings remain unknown; collection was not triggered. Post-#318 CI and the latest
-  scheduled live matrix are green. Continue observing before opening another release.
+  scheduled live matrix are green. #319 merged as `0cf70bc`, retaining #320’s
+  pending en_CA language-pack task. Continue observing before opening another release.
   October 13 observations in TODO.md remain historical. The maintainer's
   WordPress.com settings-save confirmation remains open.
 - [x] **Verify bounded HIBP Site Health presentation** — completed 2026-10-23;
@@ -1449,8 +1450,12 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       [compatibility record](docs/review/notifications-compatibility-2026-10-16.md).
 - [ ] **Recheck Notifications when delivery lands** — persistent delivery, client
       store hydration/dismissal, new-site migrations and cross-site recipient isolation.
-- [ ] **Extend verification when risk warrants it** — add JS/CSS linting separately;
-      assess broader accessibility, browser coverage and faithful shared test stubs.
+- [x] **Add WordPress-aligned JS/CSS linting** — implemented 2026-10-23 on the
+      PR branch; unreleased. ESLint and Stylelint cover all browser assets, fail on
+      warnings, and gate the rolling build. npm tools/configuration stay out of the
+      plugin ZIP. See the [verification record](docs/review/asset-lint-2026-10-23.md).
+- [ ] **Extend verification when risk warrants it** — assess broader accessibility,
+      browser coverage and faithful shared test stubs.
       These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.
 

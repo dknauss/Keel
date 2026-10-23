@@ -125,6 +125,7 @@ the tagged sources. See the
   identify host must-use overlap without structural overlap, but have no retained
   autoload, cron or policy-divergence reports. Missing evidence is unknown, not a
   clean bill of health. See the [current observation record](docs/review/production-observation-2026-10-23.md).
+  #319 merged as `0cf70bc`; #320’s pending en_CA language-pack task is retained.
   The following October 13 notes remain historical; they are not current versions.
   - Checked 2026-10-13, read-only, on nine WordPress.com sites the maintainer runs.
     All nine are on 0.6.7 with WordPress 7.1.3 and a connected Jetpack. None declares
@@ -671,8 +672,12 @@ These are maintenance increments alongside feature work, not new release promise
       [compatibility record](docs/review/notifications-compatibility-2026-10-16.md).
 - [ ] **Recheck Notifications when delivery lands** — persistent delivery, client
       store hydration/dismissal, new-site migrations and cross-site recipient isolation.
-- [ ] **Extend verification when risk warrants it** — add JS/CSS linting separately;
-      assess broader accessibility, browser coverage and faithful shared test stubs.
+- [x] **Add WordPress-aligned JS/CSS linting** — implemented 2026-10-23 on the
+      PR branch; unreleased. ESLint and Stylelint cover all browser assets, fail on
+      warnings, and gate the rolling build. npm tools/configuration stay out of the
+      plugin ZIP. See the [verification record](docs/review/asset-lint-2026-10-23.md).
+- [ ] **Extend verification when risk warrants it** — assess broader accessibility,
+      browser coverage and faithful shared test stubs.
       These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives
       and audit source-reading tests, packaging and screenshot guards after moves.
