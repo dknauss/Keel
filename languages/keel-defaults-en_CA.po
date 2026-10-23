@@ -780,7 +780,7 @@ msgid "Mail held back on a live site? Check <code>WP_ENVIRONMENT_TYPE</code> in 
 msgstr ""
 
 msgid "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognizes common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen."
-msgstr ""
+msgstr "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognises common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen."
 
 #: includes/settings-page.php:207
 msgid "Overlapping plugins"
