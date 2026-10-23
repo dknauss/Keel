@@ -111,7 +111,34 @@ function keel_hibp_budget_connection_idle() {
 		return is_object( $driver ) && is_callable( array( $driver, 'inTransaction' ) ) && ! $driver->inTransaction();
 	}
 	$connection = $wpdb->dbh;
-	return $connection instanceof mysqli && 0 === ( $connection->server_status & 1 ) && 0 !== ( $connection->server_status & 2 );
+	if ( ! $connection instanceof mysqli ) {
+		return false;
+	}
+	$previous = $wpdb->suppress_errors( true );
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Non-mutating connection check plus an immediately released private savepoint; never commits caller data.
+	$autocommit = $wpdb->get_var( 'SELECT @@session.autocommit' );
+	if ( '1' !== (string) $autocommit ) {
+		$wpdb->suppress_errors( $previous );
+		return false;
+	}
+	$token = str_replace( '-', '', wp_generate_uuid4() );
+	if ( ! preg_match( '/\A[a-f0-9]{32}\z/D', $token ) ) {
+		$wpdb->suppress_errors( $previous );
+		return false;
+	}
+	$name      = 'keel_hibp_probe_' . $token;
+	$old_error = $wpdb->last_error;
+	// Outside a transaction SAVEPOINT has no effect and RELEASE reports 1305.
+	// Inside a transaction both succeed; release only our private savepoint and deny.
+	$saved    = $wpdb->query( "SAVEPOINT `$name`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Random identifier strictly allowlisted above.
+	$released = false !== $saved ? $wpdb->query( "RELEASE SAVEPOINT `$name`" ) : false; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Same allowlisted private identifier.
+	$idle     = false !== $saved && false === $released && 1305 === $connection->errno;
+	if ( $idle ) {
+		$wpdb->last_error = $old_error;
+	}
+	$wpdb->suppress_errors( $previous );
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery
+	return $idle;
 }
 
 /**

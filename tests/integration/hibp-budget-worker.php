@@ -114,8 +114,9 @@ $GLOBALS['wp_filter']['pre_http_request'][ PHP_INT_MAX ][] = array(
 	'function'      => 'hibp_lab_http',
 	'accepted_args' => 3,
 );
-$_SERVER['HTTP_HOST']                                      = parse_url( $job['url'] ?? 'http://hibp-budget.test/', PHP_URL_HOST );
-$lab_path                   = parse_url( $job['url'] ?? 'http://hibp-budget.test/', PHP_URL_PATH );
+$lab_url                    = parse_url( $job['url'] ?? 'http://hibp-budget.test/' );
+$_SERVER['HTTP_HOST']       = $lab_url['host'] . ( isset( $lab_url['port'] ) ? ':' . $lab_url['port'] : '' );
+$lab_path                   = $lab_url['path'] ?? '/';
 $_SERVER['REQUEST_URI']     = is_string( $lab_path ) && '' !== $lab_path ? $lab_path : '/';
 $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
 $_SERVER['REQUEST_METHOD']  = 'GET';
@@ -231,6 +232,23 @@ try {
 			break;
 		case 'evidence':
 			$result['evidence'] = keel_hibp_budget_evidence();
+			break;
+		case 'diagnose':
+			hibp_lab_seed();
+			$result['idle']                = keel_hibp_budget_connection_idle();
+			$result['transactional']       = keel_hibp_budget_transactional( $scope );
+			$result['idle_after_metadata'] = keel_hibp_budget_connection_idle();
+			$raw                           = keel_hibp_budget_read( $scope, $state_key );
+			$state                         = keel_hibp_budget_state( $raw, time() );
+			$result['valid_state']         = false !== $state;
+			++$state['rev'];
+			$result['cas']   = keel_hibp_budget_write( $scope, $state_key, $raw, $state );
+			$result['begin'] = keel_hibp_budget_transaction( 'START TRANSACTION' );
+			if ( $result['begin'] ) {
+				$result['rollback'] = keel_hibp_budget_transaction( 'ROLLBACK' ); }
+			$admission           = keel_hibp_budget_admit( $scope, '01001' );
+			$result['admission'] = isset( $admission['ticket'] ) ? 'ticket' : ( $admission['error'] ?? 'body' );
+			$result['leases']    = count( keel_hibp_budget_state( keel_hibp_budget_read( $scope, $state_key ), time() )['leases'] );
 			break;
 		case 'adapter':
 			hibp_lab_seed();

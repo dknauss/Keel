@@ -304,8 +304,10 @@ HTTP. Only InnoDB and the WordPress SQLite adapter with observable transaction
 state are supported; unknown adapters fail as unknown. A caller-owned transaction
 or disabled MySQL autocommit denies new work before mutations or HTTP, because
 MySQL-compatible BEGIN can implicitly commit an existing transaction. Cached hits
-remain readable. MySQL connection status bits and SQLite's public `inTransaction()`
-provide the non-mutating connection check.
+remain readable. SQLite's public `inTransaction()` checks its connection. MySQL checks autocommit
+and creates/releases a random private savepoint: outside a transaction, SAVEPOINT
+has no effect and RELEASE reports 1305; inside one, both succeed and fresh work is
+denied. The probe never rolls back or commits caller data and removes its own savepoint.
 
 Success retains the failure sample until its one-hour display expiry. It cannot
 reset the five-minute sampling cadence; Site Health shows the two historical
