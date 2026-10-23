@@ -4,7 +4,10 @@
  * their percentages and every other column, empty or not, gets an equal slice
  * of what is left, Title included. Auto layout lets short columns shrink to
  * their content, and Title asks for half the width so it takes the slack.
- * Long values such as URLs may break inside other cells.
+ * Long values such as URLs may break inside other cells. The checkbox and
+ * Image columns shrink to their content: when every other column has a width,
+ * auto layout hands spare width to them, and the checkbox column measured
+ * 261px on a short Pages list.
  * Desktop layout only: below 783px core shows the primary column alone.
  */
 @media screen and (min-width: 783px) {
@@ -14,6 +17,11 @@
 
 	body.edit-php table.wp-list-table.fixed .column-title {
 		width: 50%;
+	}
+
+	body.edit-php table.wp-list-table.fixed .check-column,
+	body.edit-php table.wp-list-table.fixed .column-keel_thumb {
+		width: 1%;
 	}
 
 	body.edit-php table.wp-list-table.fixed td:not(.column-title) {

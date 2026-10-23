@@ -227,7 +227,7 @@ function keel_defaults_strings() {
 		),
 		'admin_list_tables'               => array(
 			'label'   => __( 'Admin List Tables', 'keel-defaults' ),
-			'help'    => __( 'Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns.', 'keel-defaults' ),
+			'help'    => __( 'Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns.', 'keel-defaults' ),
 			'choices' => array(
 				'unchanged'    => __( 'Leave unchanged', 'keel-defaults' ),
 				'tidy'         => __( 'Tidy existing tables', 'keel-defaults' ),

@@ -739,8 +739,10 @@ writes a hidden-column preference or backfill marker. Individual columns remain
 available in Screen Options. Unknown and primary columns are not hidden by Keel.
 
 Tidying applies to site-admin Posts, Pages and custom post-type lists. Desktop
-uses the latest auto layout with Title asking for 50% width; mobile keeps core's
-responsive layout. Users and Media receive only their supported helper columns.
+uses the latest auto layout with Title asking for 50% width; the checkbox and Image
+columns shrink to their content so spare width never pools there (on a short Pages
+list the checkbox column otherwise measured 261px). Mobile keeps core's responsive
+layout. Users and Media receive only their supported helper columns.
 Known headings use Meta, Link and Fedi with original hover/accessible names;
 `keel_defaults_column_labels` remains available to customize the exact-key map.
 
