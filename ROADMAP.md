@@ -56,14 +56,15 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- [ ] **Verify bounded HIBP Site Health presentation** — recommended next focused task.
-  Use disposable standalone and multisite labs with synthetic evidence: no recorded
-  checks, local exhaustion/busy slots, transport failure, later live success and
-  explicit opt-out. Check network-manager details and site-admin redaction,
-  keyboard access, narrow layouts and scoped accessibility results. Confirm that
-  viewing the screen performs no HIBP requests or authority writes. Record browser
-  evidence separately from the completed concurrency/storage proof; no new setting,
-  version bump or release.
+- [x] **Verify bounded HIBP Site Health presentation** — completed 2026-10-23;
+  unreleased. Chromium, Firefox and Playwright WebKit pass nine synthetic states
+  across standalone, network-manager and delegated site-admin views: 81 panels,
+  nine access denials, 324 width checks and nine settings-link checks. Keyboard,
+  status grouping, privacy and scoped axe checks pass; no runtime defect found.
+  Viewing caused no HIBP requests or authority writes. See the
+  [browser verification record](docs/review/hibp-site-health-browser-2026-10-23.md)
+  for evidence, cleanup and manual-screen-reader/native-Safari limits. #317 merged
+  as `c2c967c`; no new setting, version bump or release.
 
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
