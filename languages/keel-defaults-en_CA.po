@@ -181,31 +181,31 @@ msgstr ""
 msgid "WordPress %s was installed successfully."
 msgstr ""
 
-#: includes/backport-policy.php:190
+#: includes/backport-policy.php:192
 msgid "file changes are blocked, normally because the <code>DISALLOW_FILE_MODS</code> constant is set in <code>wp-config.php</code>"
 msgstr ""
 
-#: includes/backport-policy.php:222
+#: includes/backport-policy.php:224
 msgid "automatic updates are switched off by the <code>AUTOMATIC_UPDATER_DISABLED</code> constant, normally set in <code>wp-config.php</code>"
 msgstr ""
 
-#: includes/backport-policy.php:236
+#: includes/backport-policy.php:238
 msgid "a plugin or theme on this site switches automatic updates off, using the <code>automatic_updater_disabled</code> filter"
 msgstr ""
 
-#: includes/backport-policy.php:241
+#: includes/backport-policy.php:243
 msgid "automatic updates are switched off, but not by a constant or filter Keel can identify"
 msgstr ""
 
-#: includes/backport-policy.php:259
+#: includes/backport-policy.php:261
 msgid "WordPress cannot write to its own files without credentials it would have to stop and ask for"
 msgstr ""
 
-#: includes/backport-policy.php:269
+#: includes/backport-policy.php:271
 msgid "an earlier core update failed badly enough that WordPress will not retry on its own"
 msgstr ""
 
-#: includes/backport-policy.php:276
+#: includes/backport-policy.php:278
 msgid "the site is under version control, so WordPress will not overwrite its own files"
 msgstr ""
 
@@ -433,49 +433,49 @@ msgid "WordPress installs this"
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:458
+#: includes/backport-policy.php:460
 #, php-format
 msgid "Nothing will install on its own while the updater cannot act, whatever WordPress core would otherwise select. Keel will not offer a deliberate install of %s from here until that is cleared."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:465
+#: includes/backport-policy.php:467
 #, php-format
 msgid "Nothing will install on its own while automatic updates are held back here, whatever WordPress core would otherwise select. %s can still be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:473
+#: includes/backport-policy.php:475
 #, php-format
 msgid "Keel could not determine what WordPress would install next, so nothing here establishes whether %s is scheduled. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:481
+#: includes/backport-policy.php:483
 #, php-format
 msgid "Reaching %s means waiting for the scheduled check to install it, or installing it deliberately from the command line."
 msgstr ""
 
 #. translators: 1: the version the scheduled check would install, 2: target version.
-#: includes/backport-policy.php:489
+#: includes/backport-policy.php:491
 #, php-format
 msgid "The scheduled check will install %1$s and skip %2$s. Reaching %2$s means installing it deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:501
+#: includes/backport-policy.php:503
 #, php-format
 msgid "WordPress is not scheduling %s: it is not in this site's cached list of core updates yet. Automatic updates are running here, so a later check may pick it up. Installing it deliberately requires an offer for it, which this site does not currently hold."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:509
+#: includes/backport-policy.php:511
 #, php-format
 msgid "WordPress is not currently scheduling %s, although it is among the releases this site has been offered. Automatic updates are running, so something is declining this particular release. It can be installed deliberately from the command line."
 msgstr ""
 
 #. translators: %s: target version.
-#: includes/backport-policy.php:516
+#: includes/backport-policy.php:518
 #, php-format
 msgid "Reaching %s means either letting automatic updates resume, or installing it deliberately from the command line."
 msgstr ""
@@ -1701,24 +1701,24 @@ msgid "REST API"
 msgstr ""
 
 #. translators: %s: patched WordPress version on the site's own release line.
-#: includes/updates-screen.php:131
+#: includes/updates-screen.php:133
 #, php-format
 msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line."
 msgstr ""
 
 #. translators: 1: release WordPress would install, 2: patched release on this line.
-#: includes/updates-screen.php:144
+#: includes/updates-screen.php:146
 #, php-format
 msgid "WordPress would install %1$s and skip %2$s. It takes the highest release your settings allow rather than the nearest, so the fix for the line you are on is passed over."
 msgstr ""
 
 #. translators: 1: release the Updates screen is offering, 2: patched release on this line.
-#: includes/updates-screen.php:162
+#: includes/updates-screen.php:164
 #, php-format
 msgid "The update offered below is %1$s. %2$s is the minor update that closes the known vulnerabilities."
 msgstr ""
 
-#: includes/updates-screen.php:184
+#: includes/updates-screen.php:186
 msgid "A security release exists for your version line"
 msgstr ""
 
@@ -2888,3 +2888,11 @@ msgstr ""
 #: includes/update-timeline.php:121
 msgid "Unavailable"
 msgstr ""
+
+#: includes/update-policy-notice.php:88
+msgid "Policy details"
+msgstr "Policy details"
+
+#: includes/updates-screen.php:57
+msgid "Update diagnostics"
+msgstr "Update diagnostics"

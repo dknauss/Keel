@@ -15,7 +15,8 @@ import jsonschema
 
 root = Path(__file__).resolve().parent
 blueprint = json.loads((root / 'blueprint-updates-screen.json').read_text())
-with urllib.request.urlopen('https://playground.wordpress.net/blueprint-schema.json', timeout=30) as response:
+request = urllib.request.Request('https://playground.wordpress.net/blueprint-schema.json', headers={'User-Agent': 'Keel-Blueprint-Validator/1.0'})
+with urllib.request.urlopen(request, timeout=30) as response:
     schema = json.load(response)
 jsonschema.Draft202012Validator(schema).validate(blueprint)
 print('Hosted blueprint: official JSON schema validation passed.', flush=True)

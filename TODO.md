@@ -393,6 +393,8 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   and post-merge single-site/multisite WordPress canaries passed.
 
 - [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+  PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
+  and shortens the synthetic demo notice; no new setting or release.
   [results and limits](docs/review/updates-screen-verification-2026-10-23.md).
   - Fixed 320px page overflow, supplied visible focus for keyboard scroll regions,
     distinguished failed collection from unread evidence, and stopped cold timeline

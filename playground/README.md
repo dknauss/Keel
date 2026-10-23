@@ -152,3 +152,8 @@ WordPress 7.1.3 and PHP 8.3 against source commit `7013953`: schema validation,
 all real-WordPress fixture assertions, `composer test`, both demo PHP syntax
 checks, and `git diff --check`. Hosted branch/browser verification remains a
 separate step after integration and push.
+
+The preview starts with **Update diagnostics** collapsed. Open it for the core
+timeline and plugin/theme tables. **Policy details** expands provenance and delivery
+caveats; policy mismatches remain visible. The demo warning uses sentence case and
+keeps its fixture explanation under **About this demo**. None is a saved setting.

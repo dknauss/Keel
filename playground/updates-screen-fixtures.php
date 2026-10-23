@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: SYNTHETIC FIXTURES — Keel Updates screen demo
+ * Plugin Name: Synthetic fixtures — Keel Updates screen demo
  * Description: Playground-only read filters. No real update evidence or installations.
  */
 
@@ -12,12 +12,8 @@ function keel_demo_attempt_age() {
 }
 
 add_action( 'admin_notices', function () {
-	echo '<div class="notice notice-warning"><h2>SYNTHETIC FIXTURES — Updates screen verification</h2><p>All update evidence on this demo screen is synthetic. No WordPress.org check, successful response, scheduled install, or real update decision is established. Real downloads and installations are blocked by this demo MU-plugin.</p><p>Inspect the attempt-age caveat, partial schedule coverage → Unknown, and the SYNTHETIC fixture plugin/theme decisions changed by code. Other items have no fixture metadata → Unknown. The disabled automatic updater is a demo guard, not evidence about your site.</p><p><a href="' . esc_url( admin_url( 'update-core.php?keel-demo-attempt=stale' ) ) . '">Synthetic stale attempt (2 days)</a> · <a href="' . esc_url( admin_url( 'update-core.php?keel-demo-attempt=fresh' ) ) . '">Synthetic recent attempt (5 minutes)</a></p></div>';
+	echo '<div class="notice notice-warning"><p><strong>Demo: synthetic update data.</strong> No live checks or scheduled installs are demonstrated. Downloads and installations are blocked.</p><p><a href="' . esc_url( admin_url( 'update-core.php?keel-demo-attempt=stale' ) ) . '">Attempt: 2 days ago</a> · <a href="' . esc_url( admin_url( 'update-core.php?keel-demo-attempt=fresh' ) ) . '">Attempt: 5 minutes ago</a></p><details><summary>About this demo</summary><p>Open Update diagnostics to inspect partial schedule coverage (Unknown) and fixture plugin/theme decisions changed by code. Other items have no fixture metadata. The disabled updater is a demo safeguard, not evidence about your site.</p></details></div>';
 } );
-
-add_action( 'after_core_auto_updates_settings', function () {
-	echo '<h2>SYNTHETIC FIXTURE RESULTS — not live evidence</h2>';
-}, 1 );
 
 add_filter( 'pre_site_transient_update_core', function () {
 	global $wp_version;

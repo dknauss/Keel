@@ -257,6 +257,8 @@ installs. Site Health must not become the performance problem it is diagnosing.
   counterpart record is updated. AX PR CI and single-site/multisite canaries passed.
 
 - [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+  PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
+  and shortens the synthetic demo notice; no new setting or release.
   [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Single-site/multisite probes, Chromium/Firefox layouts and keyboard behavior,
   locale checks and all six live installer rows pass. The verification PR fixes

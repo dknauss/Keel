@@ -54,8 +54,10 @@ function keel_defaults_render_updates_screen() {
 		keel_defaults_latest_version(),
 		$selected
 	);
+	echo '<details class="keel-defaults-update-diagnostics"><summary>' . esc_html__( 'Update diagnostics', 'keel-defaults' ) . '</summary>';
 	keel_defaults_render_update_timeline( $selected, $tip );
 	keel_defaults_render_extension_updates();
+	echo '</details>';
 }
 
 /**

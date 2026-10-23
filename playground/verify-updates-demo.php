@@ -39,5 +39,5 @@ keel_demo_assert( true === apply_filters( 'automatic_updater_disabled', false ),
 ob_start();
 do_action( 'admin_notices' );
 $html = ob_get_clean();
-keel_demo_assert( false !== strpos( $html, 'All update evidence on this demo screen is synthetic' ), 'fixture notice is visible' );
+keel_demo_assert( false !== strpos( $html, 'Demo: synthetic update data.' ), 'fixture notice is visible' );
 echo "Updates demo: all real-WordPress assertions passed.\n";

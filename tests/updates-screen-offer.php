@@ -261,6 +261,27 @@ function wp_list_pluck_stub( $arr, $key ) {
 	);
 }
 
+// Exercise the complete composition, including default visibility and the capability gate.
+function keel_defaults_branch_tip() { return false; }
+function keel_defaults_ladder_selection() { return false; }
+function keel_defaults_version_status() { return 'latest'; }
+function keel_defaults_latest_version() { return '7.1'; }
+function keel_defaults_render_update_timeline( $selected, $tip ) {
+	echo '<table id="timeline-fixture"></table>';
+}
+function keel_defaults_render_extension_updates() {
+	echo '<table id="extension-fixture"></table>';
+}
+$GLOBALS['keel_caps']['update_core'] = true;
+ob_start();
+keel_defaults_render_updates_screen();
+$composed = ob_get_clean();
+keel_assert( 1 === preg_match( '#<details class="keel-defaults-update-diagnostics"><summary>Update diagnostics</summary><table id="timeline-fixture"></table><table id="extension-fixture"></table></details>#', $composed ), 'Both reports share one native disclosure, closed by default.' );
+$GLOBALS['keel_caps']['update_core'] = false;
+ob_start();
+keel_defaults_render_updates_screen();
+keel_assert( '' === ob_get_clean(), 'Denied users receive neither diagnostics nor an empty disclosure.' );
+
 if ( $GLOBALS['failures'] > 0 ) {
 	echo "updates-screen offer: {$GLOBALS['failures']} assertion(s) failed\n";
 	exit( 1 );

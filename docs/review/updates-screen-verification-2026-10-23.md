@@ -112,3 +112,36 @@ then removed.
 
 No production site was changed. Temporary local fixtures are removed after the pass;
 the user-facing Playground remains available for review.
+
+## PR #313 review: compact presentation
+
+The demo-only, all-capitals headings and repeated fixture warning are replaced
+with one sentence-case warning, scenario links and a collapsed explanation.
+Synthetic evidence remains explicitly labelled; HTTP/download/install guards remain.
+Production Keel now groups the core timeline and extension tables in one native
+`details` disclosure, **Update diagnostics**, closed by default. This changes
+presentation only: existing server-side collection and authorization are unchanged.
+The policy notice keeps its policy, settings link and any observed-settings mismatch
+visible; provenance and delivery caveats sit under **Policy details**. There is no
+new saved setting; the schema remains 44 individually configurable settings.
+Security patch offers and install results remain outside the diagnostic disclosure.
+
+The Help tab's **Restore Plugin or Theme** is WordPress core copy in
+`wp-admin/update-core.php`. It describes temporary plugin/theme backups and automatic
+recovery on upgrade failure, not a user-operated Keel restore or rollback feature.
+Keel's same-line core installer separately requests core's `attempt_rollback` option;
+it does not add a general backup/restore interface. Core help is preserved.
+
+Chromium 156 and Firefox 157 pass closed/expanded presentation and Enter/Space
+keyboard activation at 1440, 782, 390 and 320 CSS pixels, with no page overflow or
+JavaScript errors. Collapsed diagnostics occupy about 18 CSS pixels versus about
+592 expanded on desktop and 982 on a 390-pixel mobile viewport. Scoped axe checks
+on expanded diagnostics and policy details report zero WCAG A/AA violations.
+The three real WordPress integration probes pass again on the single-site lab.
+Official Blueprint schema and disposable Playground fixture checks pass; schema
+requests now identify the validator to avoid an observed HTTP 403 for Python's
+default user agent. The earlier six-row installer matrix applies to the unchanged
+installer behavior; it was not rerun for this presentation refinement.
+
+- [Compact desktop](images/updates-screen-compact-desktop-2026-10-23.png)
+- [Compact mobile](images/updates-screen-compact-mobile-2026-10-23.png)
