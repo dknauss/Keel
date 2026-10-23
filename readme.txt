@@ -144,6 +144,9 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= Unreleased =
+* Changed: Admin List Columns is replaced by one Admin List Tables setting: Leave unchanged, Tidy existing tables, or Tidy + helper columns. Sites that had Admin List Columns on move to Tidy + helper columns, which also sizes post-list columns to their content, shortens known plugin column headings, shows Published dates with times and starts optional columns hidden. ID and Modified stay off until ticked in Screen Options. Saved Screen Options are never changed; choose Leave unchanged in Site Defaults to keep core's tables.
+
 = 0.8.0 =
 * Performance: Site Health identifies the ten largest observed autoloaded options, their byte sizes and probable owners with confidence and evidence. Collection runs in bounded, cached background batches. Option values are never exposed or cached; no options are deleted or given different autoload flags.
 * Performance: Site Health identifies overdue and frequent stored cron events with probable owners, and relates core-update hooks to offer-cache age and retained failure codes. Arguments and error data are never retained; jobs, schedules and update policy are unchanged. External scheduling and incomplete coverage stay explicit; no update installation time is promised.
