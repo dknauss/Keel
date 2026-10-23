@@ -60,6 +60,9 @@ if ( ! defined( 'KEEL_HIBP_BUDGET_LAB' ) || true !== KEEL_HIBP_BUDGET_LAB || ! i
     throw new RuntimeException( 'Disposable multisite lab required.' );
 }
 global $wpdb;
+// Core's legacy default makes an absent row look like true to update_network_option(),
+// which then attempts UPDATE instead of INSERT. Remove it while seeding metadata.
+$restore_upload_default = remove_filter( 'default_site_option_ms_files_rewriting', '__return_true' );
 function keel_lab_site( $network, $domain, $path ) {
     if ( get_network_option( $network, 'ms_files_rewriting', true ) ) {
         throw new RuntimeException( 'Fixture network must use modern upload paths before creating sites.' );
@@ -100,6 +103,12 @@ if ( get_main_site_id( $first ) === get_main_site_id( $second ) || get_main_site
 }
 foreach ( array( get_main_site_id( $first ), $child, $main, $other_child ) as $id ) {
     $table = $wpdb->get_blog_prefix( $id ) . 'options';
+    if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
+        if ( ! wp_is_site_initialized( $id ) ) {
+            throw new RuntimeException( 'Fixture SQLite options table is not initialized.' );
+        }
+        continue;
+    }
     $row = $wpdb->get_row( $wpdb->prepare( 'SHOW TABLE STATUS WHERE Name = %s', $table ) );
     if ( ! $row || 'innodb' !== strtolower( $row->Engine ) ) {
         throw new RuntimeException( 'Fixture options tables require InnoDB.' );
@@ -112,6 +121,9 @@ file_put_contents( ABSPATH . 'hibp-budget-fixture.json', wp_json_encode( array(
     ),
 ) ) );
 echo "Two networks and their main/child options tables are ready.\n";
+if ( $restore_upload_default ) {
+    add_filter( 'default_site_option_ms_files_rewriting', '__return_true' );
+}
 PHP
 wp_lab eval-file "$lab_wp/hibp-budget-bootstrap.php" --skip-plugins --skip-themes
 wp_lab plugin activate keel --network

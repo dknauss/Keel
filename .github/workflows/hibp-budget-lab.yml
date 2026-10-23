@@ -87,6 +87,17 @@ jobs:
           python3 tests/integration/hibp-budget-runner.py \
             --wp "$RUNNER_TEMP/hibp-budget-wp" \
             --output "$RUNNER_TEMP/hibp-budget-results/report.json"
+      - name: Prove shared authority with site-only activation after uninstall
+        run: |
+          set -euo pipefail
+          wp --path="$RUNNER_TEMP/hibp-budget-wp" plugin deactivate keel --network --url=http://hibp-budget.test
+          wp --path="$RUNNER_TEMP/hibp-budget-wp" plugin activate keel --url=http://hibp-budget.test
+          wp --path="$RUNNER_TEMP/hibp-budget-wp" plugin activate keel --url=http://hibp-budget.test/child/
+          python3 tests/integration/hibp-budget-runner.py \
+            --wp "$RUNNER_TEMP/hibp-budget-wp" \
+            --cases scope,cache_paths \
+            --url http://hibp-budget.test/child/ \
+            --output "$RUNNER_TEMP/hibp-budget-results/siteonly-report.json"
       - name: Retain lab evidence
         if: always()
         uses: actions/upload-artifact@v4

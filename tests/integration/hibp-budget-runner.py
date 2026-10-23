@@ -37,6 +37,8 @@ class Worker:
         self.directory.mkdir()
         self.started = time.monotonic()
         job = dict(arguments, wp=str(lab.wp), work=str(self.directory), op=op)
+        if lab.url is not None:
+            job['url'] = lab.url
         path = self.directory / 'job.json'
         path.write_text(json.dumps(job))
         self.log = (self.directory / 'worker.log').open('wb')
@@ -85,6 +87,7 @@ class Worker:
 class Lab:
     def __init__(self, args, root):
         self.wp = Path(args.wp).resolve()
+        self.url = args.url
         self.php = args.php
         self.worker = Path(__file__).with_name('hibp-budget-worker.php').resolve()
         self.root = Path(root)
@@ -385,6 +388,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--wp', required=True)
     parser.add_argument('--output', required=True, help='Sanitized JSON report path')
+    parser.add_argument('--url', help='WordPress bootstrap URL forwarded to every worker job')
     parser.add_argument('--php', default=os.environ.get('KEEL_HIBP_PHP', shutil.which('php')))
     parser.add_argument('--storage-count', type=int, default=2048)
     parser.add_argument('--cases', default='all', help='Comma-separated case names or all')

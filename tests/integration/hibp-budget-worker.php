@@ -114,10 +114,11 @@ $GLOBALS['wp_filter']['pre_http_request'][ PHP_INT_MAX ][] = array(
 	'function'      => 'hibp_lab_http',
 	'accepted_args' => 3,
 );
-$_SERVER['HTTP_HOST']                                      = 'hibp-budget.test';
-$_SERVER['REQUEST_URI']                                    = '/';
-$_SERVER['SERVER_PROTOCOL']                                = 'HTTP/1.1';
-$_SERVER['REQUEST_METHOD']                                 = 'GET';
+$_SERVER['HTTP_HOST']                                      = parse_url( $job['url'] ?? 'http://hibp-budget.test/', PHP_URL_HOST );
+$lab_path                   = parse_url( $job['url'] ?? 'http://hibp-budget.test/', PHP_URL_PATH );
+$_SERVER['REQUEST_URI']     = is_string( $lab_path ) && '' !== $lab_path ? $lab_path : '/';
+$_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
+$_SERVER['REQUEST_METHOD']  = 'GET';
 define( 'WP_USE_THEMES', false );
 ob_start();
 try {
