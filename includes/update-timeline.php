@@ -102,8 +102,12 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 		$rows[] = array( esc_html__( 'Last attempted check with WordPress.org', 'keel-defaults' ), esc_html__( 'Unknown', 'keel-defaults' ), '' );
 	} else {
 		/* translators: %s: human-readable time, such as "5 mins". */
-		$ago    = sprintf( esc_html__( '%s ago', 'keel-defaults' ), esc_html( human_time_diff( $now - $age, $now ) ) );
-		$rows[] = array( esc_html__( 'Last attempted check with WordPress.org', 'keel-defaults' ), $ago, esc_html__( 'The check marker does not prove a successful response.', 'keel-defaults' ) . ( $age > 86400 ? ' ' . esc_html__( 'Over a day old, so it’s stale. WordPress normally checks twice a day.', 'keel-defaults' ) : '' ) );
+		$ago  = sprintf( esc_html__( '%s ago', 'keel-defaults' ), esc_html( human_time_diff( $now - $age, $now ) ) );
+		$note = esc_html__( 'WordPress records when it tried, not whether WordPress.org answered.', 'keel-defaults' );
+		if ( $age > 86400 ) {
+			$note = esc_html__( 'Over a day old, so it’s stale. WordPress normally checks twice a day.', 'keel-defaults' ) . ' ' . $note;
+		}
+		$rows[] = array( esc_html__( 'Last attempted check with WordPress.org', 'keel-defaults' ), $ago, $note );
 	}
 
 	if ( false === $snapshot || ! $snapshot['done'] || '' !== $snapshot['error'] ) {

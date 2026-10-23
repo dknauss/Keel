@@ -51,6 +51,7 @@ check( false === strpos( $html, '<script>' ) && false !== strpos( $html, '&lt;sc
 check( false !== strpos( $html, 'stale' ) && false !== strpos( $html, 'overdue' ), 'Stale offers and overdue checks are explicit.' );
 check( false !== strpos( $html, 'external scheduler' ) && false !== strpos( $html, 'No installation time is promised' ), 'External cron never implies failure or an execution promise.' );
 check( false !== strpos( $html, '1 day' ) || false !== strpos( $html, '90000 secs ago' ), 'Offer age reads as elapsed time.' );
+check( false !== strpos( $html, 'not whether WordPress.org answered' ), 'A check attempt is not called a successful response.' );
 check( false !== strpos( $html, 'Newer patch for this branch</th><td>7.1.4' ), 'A newer patch gets its own row.' );
 $snapshot['data']['core']['wp_version_check'] = 920;
 $html = keel_defaults_update_timeline_markup( '', '', $state, $update, $snapshot, 1000, false );
@@ -90,7 +91,7 @@ foreach ( array( 60, 90000 ) as $age ) {
 	$update['offer_age'] = $age;
 	$html                = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, false, 100000, false );
 	check( false !== strpos( $html, 'Last attempted check with WordPress.org</th>' ), 'Check marker is labeled as an attempt.' );
-	check( false !== strpos( $html, 'The check marker does not prove a successful response.' ), 'Fresh and stale attempt markers never imply a successful response.' );
+	check( false !== strpos( $html, 'WordPress records when it tried, not whether WordPress.org answered.' ), 'Fresh and stale attempt markers never imply a successful response.' );
 }
 $GLOBALS['allowed'] = false;
 $GLOBALS['network'] = false;
