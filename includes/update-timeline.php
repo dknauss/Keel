@@ -22,7 +22,7 @@ function keel_defaults_render_update_timeline( $selected, $tip ) {
 	echo keel_defaults_update_timeline_markup( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped at construction.
 		$selected,
 		$tip,
-		keel_defaults_minor_update_state(),
+		keel_defaults_minor_update_state( $tip ),
 		keel_defaults_cron_updates( get_site_transient( 'update_core' ), get_site_option( 'auto_core_update_failed' ), $now ),
 		keel_defaults_cron_snapshot(),
 		$now,
