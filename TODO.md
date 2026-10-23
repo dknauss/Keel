@@ -149,10 +149,11 @@ the tagged sources. See the
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
 
-## Priority fix — multicall refusal breaks Jetpack
+## Multicall repair — shipped; field confirmation remains
 
 Found 2026-10-05 on a live WordPress.com Atomic site (Jetpack 16.3-a.7, Keel with the
-shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 work.
+then-shipped default `xmlrpc_allow_multicall = no`). The repair shipped in 0.6.8;
+only the maintainer’s WordPress.com settings-save confirmation below remains open.
 
 - [x] **Stop the multicall refusal from cutting a Jetpack site off from WordPress.com**
   - Evidence. WordPress.com's calls into the site failed with "transport error - HTTP
