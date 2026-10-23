@@ -1433,6 +1433,7 @@ function keel_defaults_environment_css() {
 
 	$css  = '.keel-environment-indicator { pointer-events: none; }';
 	$css .= ' .keel-environment-indicator .ab-icon { top: 3px; }';
+	$css .= ' #wpadminbar .keel-environment-indicator .ab-icon:before { color: inherit; }';
 
 	foreach ( $environments as $type => $environment ) {
 		$css .= sprintf(
@@ -1452,6 +1453,18 @@ function keel_defaults_environment_css() {
 	$css .= ' @media screen and (min-width: 783px) and (max-width: 960px) {';
 	$css .= ' #wpadminbar .keel-environment-indicator .ab-label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }';
 	$css .= ' #wpadminbar .keel-environment-indicator .ab-icon { margin-right: 0; }';
+	$css .= ' }';
+
+	/*
+	 * At 782px and below, core hides every top-level toolbar item except its
+	 * own short list (`#wp-toolbar > ul > li { display: none }`), which would
+	 * take the indicator off phones and narrow windows entirely. Put it back
+	 * as a touch-sized icon; core already clips every .ab-label at this width,
+	 * so the label stays the accessible name.
+	 */
+	$css .= ' @media screen and (max-width: 782px) {';
+	$css .= ' #wpadminbar li#wp-admin-bar-keel-environment-indicator { display: block; }';
+	$css .= ' #wpadminbar .keel-environment-indicator .ab-icon { top: 0; }';
 	$css .= ' }';
 
 	// CSS is raw text: values are sanitized per-interpolation above, and

@@ -6,10 +6,21 @@ returning one of core's four names — `production`, `staging`, `development`, o
 the label on screen and the behaviour behind it cannot disagree:
 
 - **The environment indicator** labels the admin bar, so you can tell at a
-  glance which site you are acting on.
+  glance which site you are acting on. It is off by default, because on a
+  production site it would sit on every screen all the time; it earns its place
+  where production, staging and local copies are open side by side. The
+  Environment setting changes what it says, never whether it appears. Between
+  783px and 960px the label collapses to its colored icon, and at 782px and
+  below — where core hides most toolbar items — it stays as a touch-sized icon.
+  Either way the text label remains the accessible name.
 - **Non-production email suppression** stops outgoing mail on anything that is
   not production. That one is on by default, so a wrong answer here does not
-  just mislabel a site — it decides whether mail leaves it.
+  just mislabel a site — it decides whether mail leaves it. A database copied
+  down from a live site carries real customer addresses and production's mail
+  settings, so a cron run on a laptop can email real people. Keel says so in an
+  admin notice, and WordPress still reports each held message as sent, so code
+  that branches on `wp_mail()` takes the same path it will in production rather
+  than an error path that only ever runs on staging.
 
 ## Where the value comes from
 
