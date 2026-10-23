@@ -20,15 +20,15 @@ the tagged sources. See the
 - [x] **Release 0.6.9** — #274 merged after green CI/live matrix and clear
       counterpart sweep; v0.6.9 tagged, protected deployment approved, SVN revision
       3749515 and published packages/assets verified.
-- **Recommended next focused task:** verify the consolidated Updates screen on
-  real WordPress before adding another feature. The accepted update/support work
-  and Admin List Tables consolidation are merged and unreleased; #299 is complete.
-  The development schema has 44 individually configurable settings. Extension
-  policies and Admin List Tables default to Leave unchanged; Tidy includes date
-  and time without a separate control. Saved Screen Options and per-item update
-  choices are preserved. No version bump or release is authorized.
-  The maintainer's WordPress.com settings-save confirmation remains open;
-  routine PHPStan expansion stays paused.
+- **Current state (2026-10-23):** the focused Updates-screen verification pass is
+  complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
+  Admin List Tables and the accepted update/support work are merged and unreleased;
+  the verification fixes are in a separate PR. The development schema remains 44
+  settings. Extension policies and Admin List Tables default to Leave unchanged;
+  Tidy includes date and time without a separate control. Saved Screen Options and
+  per-item update choices are preserved. The maintainer's WordPress.com settings-save
+  confirmation remains open. Continue dated field observation; no
+  version bump or release is authorized. Routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -392,17 +392,22 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   #311 is closed and #312 records the counterpart as ported. AX local gates, PR CI
   and post-merge single-site/multisite WordPress canaries passed.
 
-- [ ] **Verify the consolidated Updates screen** — recommended next focused task.
-  Exercise the policy notice and #309's core/plugin/theme tables together on
-  disposable single-site and multisite installations, including network authority,
-  missing/stale/partial evidence and filter-changed decisions. Check keyboard and
-  screen-reader table semantics, narrow layouts, Canadian translations and French
-  locale rendering. Reuse the existing live installer matrix for version-floor and
-  backward/forward coverage; record its actual run and current browser evidence.
-  Use disposable fixtures; no production writes, new collectors, controls or
-  release work belongs in this pass. The #294/#295 verification records predate the table
-  layout and remain historical evidence; the later list-table browser check does
-  not verify the Updates screen.
+- [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+  [results and limits](docs/review/updates-screen-verification-2026-10-23.md).
+  - Fixed 320px page overflow, supplied visible focus for keyboard scroll regions,
+    distinguished failed collection from unread evidence, and stopped cold timeline
+    rendering from resolving the branch tip again and issuing HTTP.
+  - Chromium and Firefox passed seven widths on single-site and Network Updates,
+    keyboard scrolling/link targets and 200% layout checks. English, Canadian and
+    French locale rendering passed on single-site; French Keel strings fall back
+    to English. Scoped axe scans found no violations; computed color pairs passed
+    contrast checks. Manual screen-reader speech, WebKit and RTL were not tested.
+  - All three strengthened real-WordPress probes pass on single-site and multisite;
+    all six live installer-matrix rows pass on `8bab3b7`, including version-floor,
+    French, persistent-cache multisite and backward/forward installation coverage.
+  - A hosted Playground demo is available in the record: synthetic evidence is
+    labelled and real WordPress downloads/installations are blocked. No production
+    writes, new collectors, settings, version bump or release.
 
 ## Completed in v0.6.0
 

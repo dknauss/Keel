@@ -56,14 +56,14 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   reports before opening another release. Historical production observations in
   TODO.md are dated evidence, not a current inventory. The maintainer's
   WordPress.com settings-save confirmation remains open.
-- **Recommended next focused task:** verify the consolidated Updates screen on
-  real WordPress before adding another feature. The accepted update/support work
-  and Admin List Tables consolidation are merged and unreleased; #299 is complete.
-  The development schema has 44 individually configurable settings. Extension
-  policies and Admin List Tables default to Leave unchanged; Tidy includes date
-  and time without a separate control. Saved Screen Options and per-item update
-  choices are preserved. No version bump or release is authorized.
-  Routine PHPStan expansion stays paused.
+- **Current state (2026-10-23):** the focused Updates-screen verification pass is
+  complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
+  Admin List Tables and the accepted update/support work are merged and unreleased;
+  the verification fixes are in a separate PR. The development schema remains 44
+  settings. Extension policies and Admin List Tables default to Leave unchanged;
+  Tidy includes date and time without a separate control. Saved Screen Options and
+  per-item update choices are preserved. Continue dated field observation; no
+  version bump or release is authorized. Routine PHPStan expansion stays paused.
 
 ## Release completion — 2026-10-15
 
@@ -256,13 +256,14 @@ installs. Site Health must not become the performance problem it is diagnosing.
   is preserved. AX commit `668d326` completes the port, #311 is closed and the
   counterpart record is updated. AX PR CI and single-site/multisite canaries passed.
 
-- [ ] **Verify the consolidated Updates screen** — recommended next focused task.
-  Verify the policy notice and current core/plugin/theme tables together on real
-  single-site and multisite WordPress: permission boundaries, uncertain evidence,
-  accessibility, narrow layouts and localization. Reuse the existing live installer
-  matrix for version-floor and backward/forward coverage. Record current evidence;
-  #294/#295's browser records predate #309's tables. Detailed acceptance criteria
-  are in [TODO.md](TODO.md). No new feature, version bump or release is part of it.
+- [x] **Verify the consolidated Updates screen** — completed 2026-10-23;
+  [verification record](docs/review/updates-screen-verification-2026-10-23.md).
+  Single-site/multisite probes, Chromium/Firefox layouts and keyboard behavior,
+  locale checks and all six live installer rows pass. The verification PR fixes
+  narrow-page overflow, scroll-region focus, failed-collection wording and a cold
+  timeline lookup that could issue HTTP. The record distinguishes automated
+  accessibility evidence from unperformed manual speech/WebKit/RTL testing and
+  includes a synthetic Playground review demo. No version bump or release.
 
 ## Later
 

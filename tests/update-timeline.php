@@ -21,6 +21,8 @@ require __DIR__ . '/../includes/update-timeline.php';
 $table = keel_defaults_update_table_markup( array( 'Check', 'Status' ), array( array( 'Example', 'Unknown' ) ), array(), 'Automatic core updates' );
 check( false !== strpos( $table, 'role="region" tabindex="0" aria-label="Automatic core updates"' ), 'Overflowing evidence stays in a named keyboard-accessible region.' );
 check( false !== strpos( $table, 'overflow-x:auto' ) && false !== strpos( $table, '<caption class="screen-reader-text">Automatic core updates</caption>' ), 'Evidence tables keep a programmatic name and contain horizontal overflow.' );
+$escaped_table = keel_defaults_update_table_markup( array( 'Check', 'Status' ), array(), array(), 'Caption <script>' );
+check( false === strpos( $escaped_table, '<script>' ) && false !== strpos( $escaped_table, 'aria-label="Caption &lt;script&gt;"' ) && false !== strpos( $escaped_table, '>Caption &lt;script&gt;</caption>' ), 'Table and region names escape translated caption markup.' );
 
 $state  = array(
 	'operable' => true,
