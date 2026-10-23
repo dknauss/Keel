@@ -136,23 +136,39 @@ function keel_defaults_render_extension_updates() {
 	if ( ! function_exists( 'wp_is_auto_update_enabled_for_type' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/update.php';
 	}
-	$html = '<div class="keel-defaults-extension-updates"><h3>' . esc_html__( 'Plugin and theme auto-update decisions', 'keel-defaults' ) . '</h3><p>' . esc_html__( 'These are current filter decisions from cached metadata, not installation guarantees. Filesystem access, updater disablement, version control, compatibility and scheduling can still prevent installation. Filters are evaluated as on WordPress’s item screens; their results can depend on context.', 'keel-defaults' ) . '</p>';
-	if ( is_multisite() ) {
-		$html .= '<p>' . esc_html__( 'Plugin/theme files and opt-ins are network-wide. Network policy wins; otherwise the main site’s Keel setting decides, including on subsite requests.', 'keel-defaults' ) . '</p>';
-	}
+	$rows    = array();
+	$changed = array();
+	$limited = false;
 	foreach ( array( 'plugin', 'theme' ) as $type ) {
-		$ids    = 'plugin' === $type ? array_keys( get_plugins() ) : array_keys( wp_get_themes() );
-		$report = keel_defaults_extension_update_report( $type, $ids, get_site_transient( 'update_' . $type . 's' ), (array) get_site_option( 'auto_update_' . $type . 's', array() ), wp_is_auto_update_enabled_for_type( $type ) );
-		$html  .= '<h4>' . ( 'plugin' === $type ? esc_html__( 'Plugins', 'keel-defaults' ) : esc_html__( 'Themes', 'keel-defaults' ) ) . '</h4><p>' . sprintf( /* translators: 1: enabled filter decisions, 2: examined installed items, 3: unknown decisions, 4: decisions changed by filters. */ esc_html__( '%1$d enabled among %2$d examined items; %3$d unknown; filters changed %4$d baseline decisions.', 'keel-defaults' ), $report['on'], $report['examined'], $report['unknown'], $report['changed_count'] ) . '</p>';
-		$html  .= '<p>' . esc_html__( 'Baseline: WordPress’s per-item opt-in and cached offer flags. A matching result does not prove filters are absent. Missing cached metadata stays unknown; removed items are excluded. Coverage is limited to 200 installed items per type and ten changed decisions below.', 'keel-defaults' ) . '</p>';
-		if ( $report['limited'] ) {
-			$html .= '<p>' . esc_html__( 'Partial coverage: more installed items exist.', 'keel-defaults' ) . '</p>';
-		}
-		$html .= '<ul>';
+		$ids     = 'plugin' === $type ? array_keys( get_plugins() ) : array_keys( wp_get_themes() );
+		$report  = keel_defaults_extension_update_report( $type, $ids, get_site_transient( 'update_' . $type . 's' ), (array) get_site_option( 'auto_update_' . $type . 's', array() ), wp_is_auto_update_enabled_for_type( $type ) );
+		$limited = $limited || $report['limited'];
+		$rows[]  = array(
+			'plugin' === $type ? esc_html__( 'Plugins', 'keel-defaults' ) : esc_html__( 'Themes', 'keel-defaults' ),
+			(string) $report['on'],
+			(string) ( $report['examined'] - $report['on'] - $report['unknown'] ),
+			(string) $report['unknown'],
+			(string) $report['changed_count'],
+		);
 		foreach ( $report['changed'] as $row ) {
-			$html .= '<li><code>' . esc_html( $row['id'] ) . '</code>: ' . ( $row['on'] ? esc_html__( 'Enabled by filters', 'keel-defaults' ) : esc_html__( 'Disabled by filters', 'keel-defaults' ) ) . '</li>';
+			$changed[] = array( '<code>' . esc_html( $row['id'] ) . '</code>', $row['on'] ? esc_html__( 'Turned on by code', 'keel-defaults' ) : esc_html__( 'Turned off by code', 'keel-defaults' ) );
 		}
-		$html .= '</ul>';
+	}
+	$html = '<div class="keel-defaults-extension-updates"><h3>' . esc_html__( 'Automatic plugin and theme updates', 'keel-defaults' ) . '</h3>'
+		. keel_defaults_update_table_markup( array( esc_html__( 'Type', 'keel-defaults' ), esc_html__( 'Auto-updates on', 'keel-defaults' ), esc_html__( 'Off', 'keel-defaults' ), esc_html__( 'Unknown', 'keel-defaults' ), esc_html__( 'Changed by code', 'keel-defaults' ) ), $rows, array( '28%' ) );
+	if ( $changed ) {
+		$html .= '<h4>' . esc_html__( 'Changed by code', 'keel-defaults' ) . '</h4>'
+			. keel_defaults_update_table_markup( array( esc_html__( 'Item', 'keel-defaults' ), esc_html__( 'Result', 'keel-defaults' ) ), $changed, array( '28%' ) );
+	}
+	$html .= '<p class="description"><strong>' . esc_html__( 'Unknown:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'WordPress has no update data for the item yet.', 'keel-defaults' )
+		. ' <strong>' . esc_html__( 'Changed by code:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed.', 'keel-defaults' )
+		. ' ' . esc_html__( 'Being on doesn’t guarantee an install: file permissions, version control or a disabled updater can still block it.', 'keel-defaults' );
+	if ( $limited ) {
+		$html .= ' ' . esc_html__( 'Partial coverage: only the first 200 items of each type are counted.', 'keel-defaults' );
+	}
+	$html .= '</p>';
+	if ( is_multisite() ) {
+		$html .= '<p class="description">' . esc_html__( 'Plugin/theme files and opt-ins are network-wide. Network policy wins; otherwise the main site’s Keel setting decides, including on subsite requests.', 'keel-defaults' ) . '</p>';
 	}
 	echo $html . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped at construction.
 }

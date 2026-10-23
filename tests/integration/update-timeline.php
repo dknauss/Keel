@@ -46,6 +46,17 @@ try {
 	$assert( false !== strpos( $html, 'stale' ) && false !== strpos( $html, 'overdue' ), 'Real cache evidence rendered.' );
 	$assert( false === strpos( $html, 'SECRET_PAYLOAD' ) && false === strpos( $html, '&lt;secret&gt;' ), 'Failure payload omitted.' );
 	$assert( false !== strpos( $html, 'time unknown' ), 'Future failure timestamp stays unknown.' );
+	foreach ( array( 'limited', 'malformed' ) as $coverage ) {
+		$fixture['data']['limited']   = 'limited' === $coverage;
+		$fixture['data']['malformed'] = 'malformed' === $coverage;
+		$html                         = keel_defaults_update_timeline_markup( false, '', array( 'operable' => true ), $update, keel_defaults_cron_snapshot(), $now, false );
+		$assert( false !== strpos( $html, 'Next automatic update run</th><td>Unknown</td>' ) && false === strpos( $html, 'Not scheduled' ), 'Validated partial cache cannot establish absence: ' . $coverage );
+		$assert( false !== strpos( $html, 'partial coverage' ) && false !== strpos( $html, 'overdue' ), 'Partial cache preserves its caveat and observed hook.' );
+	}
+	$fixture['data']['limited']   = false;
+	$fixture['data']['malformed'] = false;
+	$html                         = keel_defaults_update_timeline_markup( false, '', array( 'operable' => true ), $update, keel_defaults_cron_snapshot(), $now, false );
+	$assert( false !== strpos( $html, 'Next automatic update run</th><td>Not scheduled</td>' ) && false !== strpos( $html, 'Not found when Keel last read this site’s schedule.' ), 'Complete cache establishes absence only at collection time.' );
 	$fixture['site'] = $site + 100000;
 	$assert( false === keel_defaults_cron_snapshot(), 'Foreign-site snapshot rejected.' );
 	$fixture['site']    = $site;
@@ -63,7 +74,7 @@ try {
 		),
 	);
 	$html  = keel_defaults_update_timeline_markup( '7.1.4', '', $state, $update, false, $now, false );
-	$assert( false !== strpos( $html, 'blocked' ) && false !== strpos( $html, 'file_mods' ), 'Real stable blocker helper wins over selection.' );
+	$assert( false !== strpos( $html, 'Blocked' ) && false !== strpos( $html, 'file_mods' ), 'Real stable blocker helper wins over selection.' );
 	$state['blockers'][0]['code'] = 'credentials';
 	$assert( 'scheduled' === keel_defaults_selection_state( $state, '7.1.4' ), 'Core selection overrides branch-tip-only credential probe.' );
 } finally {

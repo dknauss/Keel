@@ -8,6 +8,7 @@ function esc_html__( $s, $domain = '' ) { return esc_html( $s ); }
 function esc_attr( $s ) { return esc_html( $s ); }
 function current_user_can( $cap ) { return 'manage_network_options' === $cap ? false : $GLOBALS['allowed']; }
 function is_multisite() { return $GLOBALS['network']; }
+function human_time_diff( $from, $to ) { return ( $to - $from ) . ' secs'; }
 function keel_defaults_selection_state( $state, $selected ) {
 	if ( ! $state['operable'] ) {
 		return 'blocked'; }
@@ -26,9 +27,10 @@ $update = array(
 	'failure'   => null,
 );
 $html   = keel_defaults_update_timeline_markup( false, false, $state, $update, false, 1000, false );
-check( false !== strpos( $html, 'Selected release: unknown' ), 'Missing selector evidence stays unknown.' );
-check( false !== strpos( $html, 'Success history: unknown' ), 'No failure record is not proof of success.' );
-check( false !== strpos( $html, 'Schedule observations: unavailable' ), 'Missing collection is not an empty schedule.' );
+check( false !== strpos( $html, 'Next automatic install</th><td>Unknown' ), 'Missing selector evidence stays unknown.' );
+check( false === strpos( $html, 'Last failed' ) && false === strpos( $html, 'Newer patch' ), 'Rows with nothing to report are left out.' );
+check( false !== strpos( $html, 'Not read yet' ), 'Missing collection is not an empty schedule.' );
+check( false !== strpos( $html, '<table class="widefat striped"' ) && false === strpos( $html, '<li>' ), 'Evidence renders as a table.' );
 $snapshot            = array(
 	'done'    => true,
 	'error'   => '',
@@ -48,9 +50,12 @@ $html                = keel_defaults_update_timeline_markup( '<script>', '7.1.4'
 check( false === strpos( $html, '<script>' ) && false !== strpos( $html, '&lt;script&gt;' ), 'Versions are escaped.' );
 check( false !== strpos( $html, 'stale' ) && false !== strpos( $html, 'overdue' ), 'Stale offers and overdue checks are explicit.' );
 check( false !== strpos( $html, 'external scheduler' ) && false !== strpos( $html, 'No installation time is promised' ), 'External cron never implies failure or an execution promise.' );
+check( false !== strpos( $html, '1 day' ) || false !== strpos( $html, '90000 secs ago' ), 'Offer age reads as elapsed time.' );
+check( false !== strpos( $html, 'not whether WordPress.org answered' ), 'A check attempt is not called a successful response.' );
+check( false !== strpos( $html, 'Newer patch for this branch</th><td>7.1.4' ), 'A newer patch gets its own row.' );
 $snapshot['data']['core']['wp_version_check'] = 920;
 $html = keel_defaults_update_timeline_markup( '', '', $state, $update, $snapshot, 1000, false );
-check( false === strpos( $html, 'overdue' ) && false !== strpos( $html, 'execution status is unknown' ), 'A check due after collection cannot be called overdue from cached evidence.' );
+check( false === strpos( $html, 'overdue' ) && false !== strpos( $html, 'whether it ran' ), 'A check due after collection cannot be called overdue from cached evidence.' );
 
 $state             = array(
 	'operable' => false,
@@ -66,12 +71,28 @@ $update['failure'] = array(
 	'code' => 'download_failed',
 );
 $html              = keel_defaults_update_timeline_markup( '7.1.4', '7.1.4', $state, $update, $snapshot, 1000, false );
-check( false !== strpos( $html, 'blocked' ) && false !== strpos( $html, 'file_mods' ), 'Global blocker wins over a selected release.' );
+check( false !== strpos( $html, 'Blocked' ) && false !== strpos( $html, 'file changes are turned off (<code>file_mods</code>)' ), 'Global blocker wins over a selected release, in plain words.' );
 check( false === strpos( $html, 'private' ) && false !== strpos( $html, 'download_failed' ), 'Only safe failure and blocker codes are rendered.' );
-$snapshot['data']['limited'] = true;
-$snapshot['data']['core']    = array();
-$html                        = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
-check( false !== strpos( $html, 'No automatic release selected' ) && false !== strpos( $html, 'Partial coverage' ) && false !== strpos( $html, 'Not observed' ), 'No selection, incomplete coverage and absent hooks stay distinct.' );
+foreach ( array( 'limited', 'malformed' ) as $coverage ) {
+	$snapshot['data']['limited']   = 'limited' === $coverage;
+	$snapshot['data']['malformed'] = 'malformed' === $coverage;
+	$snapshot['data']['core']      = array( 'wp_version_check' => 1200 );
+	$html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
+	check( false !== strpos( $html, 'Next automatic update run</th><td>Unknown</td>' ) && false === strpos( $html, 'Not scheduled' ), 'Missing hook stays unknown under ' . $coverage . ' coverage.' );
+	check( false !== strpos( $html, 'partial coverage' ) && false !== strpos( $html, 'Nothing is queued' ), 'Partial coverage and no selected release remain distinct.' );
+	check( false !== strpos( $html, 'Next update check</th><td>1970-01-01 00:20 UTC</td>' ), 'Observed hook remains visible under partial coverage.' );
+}
+$snapshot['data']['limited']   = false;
+$snapshot['data']['malformed'] = false;
+$html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
+check( false !== strpos( $html, 'Next automatic update run</th><td>Not scheduled</td>' ), 'Complete scan supports an absent hook.' );
+check( false !== strpos( $html, 'Not found when Keel last read this site’s schedule.' ) && false !== strpos( $html, 'up to an hour old' ), 'Absent hook is qualified as cached evidence.' );
+foreach ( array( 60, 90000 ) as $age ) {
+	$update['offer_age'] = $age;
+	$html                = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, false, 100000, false );
+	check( false !== strpos( $html, 'Last attempted check with WordPress.org</th>' ), 'Check marker is labeled as an attempt.' );
+	check( false !== strpos( $html, 'WordPress records when it tried, not whether WordPress.org answered.' ), 'Fresh and stale attempt markers never imply a successful response.' );
+}
 $GLOBALS['allowed'] = false;
 $GLOBALS['network'] = false;
 ob_start();
