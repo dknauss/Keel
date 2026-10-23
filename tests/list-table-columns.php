@@ -103,13 +103,16 @@ keel_defaults_enqueue_fewer_columns_style();
 check( array( 'keel-defaults-list-table-fewer-columns', '/assets/list-table-fewer-columns.css' ) === array_slice( $GLOBALS['enqueued'][0], 0, 2 ), 'Fewer columns enqueues its static asset' );
 $fewer_css = (string) file_get_contents( dirname( __DIR__ ) . '/assets/list-table-fewer-columns.css' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading a plugin asset in a CLI test.
 $fewer_css = (string) preg_replace( '#/\*.*?\*/#s', '', $fewer_css );
-preg_match_all( '/(?<![-\w])width\s*:\s*([^;}]+)/', $fewer_css, $declared );
-check( array( 'auto' ) === array_values( array_unique( array_map( 'trim', $declared[1] ) ) ), 'Fewer columns CSS only removes widths, never sets one' );
-check( false !== strpos( $fewer_css, '.column-categories' ) && false !== strpos( $fewer_css, '.column-tags' ), 'Categories and Tags targeted' );
-check( 1 === preg_match( '/@media screen and \(min-width: 783px\)/', $fewer_css ), 'Desktop layout only' );
-foreach ( array( 'title', 'author', 'date', 'shortlink', 'keel_' ) as $col ) {
-	check( false === strpos( $fewer_css, '.column-' . $col ), "Column $col untouched" );
+preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $fewer_css, $rules, PREG_SET_ORDER );
+$declared = array();
+foreach ( $rules as $rule ) {
+	$declared[ trim( preg_replace( '/^.*\{/s', '', $rule[1] ) ) ] = trim( $rule[2] );
 }
+check( 'table-layout: auto;' === ( $declared['body.edit-php table.wp-list-table.fixed'] ?? '' ), 'Fewer columns sizes post-list columns to their content' );
+check( 'width: 50%;' === ( $declared['body.edit-php table.wp-list-table.fixed .column-title'] ?? '' ), 'Title keeps a floor so content sizing cannot squeeze it' );
+check( 'overflow-wrap: break-word;' === ( $declared['body.edit-php table.wp-list-table.fixed td:not(.column-title)'] ?? '' ), 'Other cells may break long values such as URLs' );
+check( 3 === count( $declared ), 'Fewer columns CSS declares nothing else' );
+check( 1 === preg_match( '/@media screen and \(min-width: 783px\)/', $fewer_css ), 'Desktop layout only' );
 $GLOBALS['columns']['jetpack_seo_schema'] = 'Schema';
 $GLOBALS['columns']['jetpack_seo_search'] = 'Search';
 check( 6 === count( keel_defaults_fewer_list_columns( array(), $GLOBALS['screen'] ) ), 'All six exact optional keys can be hidden' );

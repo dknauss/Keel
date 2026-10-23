@@ -55,13 +55,14 @@ function keel_defaults_enqueue_compact_column_style() {
 }
 
 /**
- * Enqueue the rule that lets Categories and Tags share width with Title.
+ * Enqueue the rules that size post-list columns to their content.
  *
- * Core reserves 15% of a post list for each of them, so with Author and Date
- * about 54% is spoken for before Title gets any. Measured with every column
- * showing, removing those widths took Title from 66px to 106px at 1440px and
- * from 27px to 60px at 1024px. Setting widths on other columns made Title
- * narrower, so the stylesheet only removes widths and never sets one.
+ * Core's fixed table layout ignores content: Author, Date, Categories and Tags
+ * keep about 54% between them, and every other column, empty or not, gets an
+ * equal share of the rest, Title included. Measured with every column showing
+ * at 1280px, Title went from 76px to 170px; with fewer columns showing it
+ * roughly doubles. Setting widths on the small columns made Title narrower,
+ * so the stylesheet switches to auto layout and only sets Title's share.
  */
 function keel_defaults_enqueue_fewer_columns_style() {
 	if ( ! keel_defaults_enabled( 'fewer_list_columns' ) || ! keel_defaults_is_post_list_screen( get_current_screen() ) ) {

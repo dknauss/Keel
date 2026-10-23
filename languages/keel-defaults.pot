@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-22T21:12:35+00:00\n"
+"POT-Creation-Date: 2026-10-23T00:37:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1114,15 +1114,15 @@ msgstr ""
 msgid "Disabled by filters"
 msgstr ""
 
-#: includes/list-table-columns.php:94
+#: includes/list-table-columns.php:95
 msgid "Meta"
 msgstr ""
 
-#: includes/list-table-columns.php:95
+#: includes/list-table-columns.php:96
 msgid "Link"
 msgstr ""
 
-#: includes/list-table-columns.php:96
+#: includes/list-table-columns.php:97
 msgid "Fedi"
 msgstr ""
 
@@ -2388,7 +2388,7 @@ msgid "Hide optional columns by default in post lists"
 msgstr ""
 
 #: includes/strings.php:236
-msgid "Hides known Jetpack SEO, shortlink, and Keel ID and modified-date columns when present on posts, pages, and custom post types. Saved Screen Options preferences always win; columns remain available there. Also lets the Categories and Tags columns share width with Title instead of keeping 15% each. Does not affect Media or Users. Off by default."
+msgid "Hides known Jetpack SEO, shortlink, and Keel ID and modified-date columns when present on posts, pages, and custom post types. Saved Screen Options preferences always win; columns remain available there. Also sizes list columns to their content on wide screens, so empty columns stop taking space from Title. Does not affect Media or Users. Off by default."
 msgstr ""
 
 #: includes/strings.php:239

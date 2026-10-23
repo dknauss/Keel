@@ -768,31 +768,47 @@ rewrite user options. Saved Screen Options—including a saved empty hidden list
 always win. Title, selection, primary and unknown columns are not hidden by Keel.
 Changed or absent third-party keys are left alone.
 
-Fewer List Columns also removes core's 15% widths from the Categories and Tags columns on
-post lists, above core's 783px responsive breakpoint, so they share the leftover width with
-Title. It only removes widths and never sets one.
+Fewer List Columns also switches post lists to content-sized columns above core's 783px
+responsive breakpoint. The table uses auto layout, Title asks for half the width, and other
+cells may break long values such as URLs. Short and empty columns shrink to their content
+and Title takes the slack.
 
-**What actually gives Title room.** The list table is `table-layout: fixed`. Core gives
-Author, Categories, Tags and Date set percentages (about 54% of a post list), and every column
-without a width, Title included, splits what is left equally. Measured on a site running
-Jetpack 16.3.1, Hum 1.4.0, ActivityPub 9.3.1 and Keel's helper columns, Posts list:
+**What actually gives Title room.** Core's list table is `table-layout: fixed`, which never
+looks at content. Author, Categories, Tags and Date get set percentages (about 54% of a post
+list), and every other column, empty or not, splits what is left equally with Title. Header
+text does not size a column, so compact labels are a visual tidy-up only. Setting widths on
+the small columns only moved the remainder around, with each column's padding on top of its
+share, and every attempt made Title narrower.
 
-| Change (every column showing unless noted) | Title at 1440px | Title at 1024px |
+Measured on a site running Jetpack 16.3.1, Hum 1.4.0, ActivityPub 9.3.1 and Keel's helper
+columns, Posts list, every column showing:
+
+| Change | Title at 1440px | Title at 1024px |
 |---|---|---|
 | Nothing | 66px | 27px |
 | Compact labels | 66px | 27px |
 | Fixed widths on the small columns | 0px | 0px |
 | Percentage widths on the small columns | 41px | 0px |
 | Categories and Tags at `width: auto` | 106px | 60px |
-| Tags hidden | 107px | 56px |
 | Tags and Categories hidden | 148px | 85px |
-| Fewer List Columns, user without saved Screen Options | 221–393px | 142–222px |
 
-Header text does not size a column in a fixed layout, so compact labels are a visual tidy-up
-only. Set widths just move the remainder around, with each column's padding on top of its
-share; every attempt made Title narrower. Hiding columns is what gives Title room. (Pages has
-no Categories or Tags; its Title measured 452px and 248px.) ActivityPub 9.3.1 adds its column
-to the Users list only, so the Fedi label has nothing to act on there today.
+Measured again on a local WordPress 6.8 with stand-in Jetpack SEO and shortlink columns,
+fixed layout with Categories and Tags at `width: auto` compared with content-sized columns:
+
+| Posts list | Fixed | Content-sized |
+|---|---|---|
+| Every column (12), 1440px | 89px | 268px |
+| Every column (12), 1280px | 76px | 170px |
+| Every column (12), 1024px | 57px | 95px |
+| Fewer List Columns defaults, 1440px | 221px | 562px |
+| Fewer List Columns defaults, 1024px | 142px | 336px |
+| Pages, Fewer List Columns defaults, 1440px | 443px | 618px |
+| Pages, Fewer List Columns defaults, 1024px | 285px | 410px |
+
+With all twelve columns at 1024px the table runs slightly wider than the screen, because a
+column can't be narrower than its longest word. Hiding a column or two in Screen Options fixes
+that. ActivityPub 9.3.1 adds its column to the Users list only, so the Fedi label has nothing
+to act on there today.
 
 ### Admin Menu Width
 - **Key:** `admin_menu_width`
