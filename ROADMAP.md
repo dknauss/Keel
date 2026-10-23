@@ -52,9 +52,13 @@ alongside it.
 #292 and #293 subsequently hardened attribution across transient kinds, raw cron
 hook names and multisite storage scopes. Those fixes are merged, not released.
 
-- [ ] **Observe the field** — watch the scheduled live matrix and attribution
-  reports before opening another release. Historical production observations in
-  TODO.md are dated evidence, not a current inventory. The maintainer's
+- [ ] **Observe the field** — ongoing. The [read-only pass on 2026-10-23](docs/review/production-observation-2026-10-23.md)
+  confirms active 0.8.0 on all nine production sites, matching production environment
+  labels and informational host must-use attribution without structural overlap.
+  Autoload, cron and divergence snapshots were absent in CLI cache reads, so their
+  findings remain unknown; collection was not triggered. Post-#318 CI and the latest
+  scheduled live matrix are green. Continue observing before opening another release.
+  October 13 observations in TODO.md remain historical. The maintainer's
   WordPress.com settings-save confirmation remains open.
 - [x] **Verify bounded HIBP Site Health presentation** — completed 2026-10-23;
   unreleased. Chromium, Firefox and Playwright WebKit pass nine synthetic states
@@ -64,7 +68,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   Viewing caused no HIBP requests or authority writes. See the
   [browser verification record](docs/review/hibp-site-health-browser-2026-10-23.md)
   for evidence, cleanup and manual-screen-reader/native-Safari limits. #317 merged
-  as `c2c967c`; no new setting, version bump or release.
+  as `c2c967c`; #318 merged as `0a619bd`, including the lab cleanup correction.
+  Both are unreleased; no new setting, version bump or release.
 
 - **Current state (2026-10-23):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
