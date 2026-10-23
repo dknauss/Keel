@@ -1,0 +1,97 @@
+name: HIBP budget database lab
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hibp-budget-lab-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  budget:
+    name: ${{ matrix.database.id }} / WP ${{ matrix.wordpress.version }} / PHP ${{ matrix.wordpress.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        database:
+          - id: mysql8
+            image: mysql:8.0
+            health: mysqladmin ping -h 127.0.0.1 -proot
+          - id: mariadb1011
+            image: mariadb:10.11
+            health: mariadb-admin ping -h 127.0.0.1 -proot
+        wordpress:
+          - version: '6.4'
+            php: '7.4'
+          - version: latest
+            php: '8.3'
+    services:
+      database:
+        image: ${{ matrix.database.image }}
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="${{ matrix.database.health }}"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=30
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.wordpress.php }}
+          extensions: mysqli, redis
+          coverage: none
+          tools: wp-cli
+      - name: Ensure WP-CLI is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v wp >/dev/null; then
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors \
+              --output "$RUNNER_TEMP/wp-cli.phar" https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+            sudo install -m 0755 "$RUNNER_TEMP/wp-cli.phar" /usr/local/bin/wp
+          fi
+          wp --version
+      - name: Bootstrap disposable two-network WordPress and Redis
+        env:
+          KEEL_LAB_DB_NAME: wordpress
+          KEEL_LAB_DB_USER: root
+          KEEL_LAB_DB_PASSWORD: root
+          KEEL_LAB_DB_HOST: 127.0.0.1:3306
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/hibp-budget-results"
+          bash tests/integration/hibp-budget-setup.sh "$RUNNER_TEMP/hibp-budget-wp" '${{ matrix.wordpress.version }}' \
+            2>&1 | tee "$RUNNER_TEMP/hibp-budget-results/setup.log"
+      - name: Prove real database concurrency, scope and cache contracts
+        run: |
+          python3 tests/integration/hibp-budget-runner.py \
+            --wp "$RUNNER_TEMP/hibp-budget-wp" \
+            --output "$RUNNER_TEMP/hibp-budget-results/report.json"
+      - name: Retain lab evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hibp-budget-${{ matrix.database.id }}-wp-${{ matrix.wordpress.version }}
+          path: ${{ runner.temp }}/hibp-budget-results
+          if-no-files-found: warn
+          retention-days: 14

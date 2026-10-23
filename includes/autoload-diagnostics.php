@@ -258,7 +258,7 @@ function keel_defaults_autoload_owner( $name ) {
 		'transient'      => array( 'keel_autoload_report', 'keel_cron_report', 'keel_shortcode_residue', 'keel_policy_divergence', 'keel_hibp_unavailable' ),
 		'site_transient' => array( 'keel_stable_check', 'keel_stable_check_failed' ),
 	);
-	if ( in_array( $key, $keel[ $kind ], true ) || ( 'transient' === $kind && preg_match( '/^keel_(?:hibp_[0-9a-f]{32}_[0-9a-f]{5}|backport_install_result_[0-9]+)$/i', $key ) ) ) {
+	if ( in_array( $key, $keel[ $kind ], true ) || ( 'option' === $kind && preg_match( '/^keel_hibp_v2_[0-9]+_(?:state|slot_(?:[0-5][0-9]|6[0-3]))$/D', $key ) ) || ( 'transient' === $kind && preg_match( '/^keel_(?:hibp_[0-9a-f]{32}_[0-9a-f]{5}|backport_install_result_[0-9]+)$/i', $key ) ) ) {
 		return array(
 			'owner'      => __( 'Keel', 'keel-defaults' ),
 			'confidence' => 'high',

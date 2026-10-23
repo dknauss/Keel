@@ -552,16 +552,11 @@ function keel_defaults_conflict_list( $conflicts ) {
 }
 
 /**
- * Report whether breach screening is actually reaching Have I Been Pwned.
+ * Report passive, sampled evidence about the shared breach-screening transport.
  *
- * The one thing this feature could not previously tell anybody. Screening fails
- * open by design — refusing a password because somebody else's API is down
- * would lock people out of their own accounts — but until now it also failed
- * silently, and a site whose lookups had been erroring for a week looked
- * identical to one where every password happened to be clean.
- *
- * Read-only, like the rest of Keel's Site Health surface, and green on a site
- * with nothing to report.
+ * Missing evidence is not proof of clean passwords. Local admission limits and
+ * provider failures both leave the password verdict unknown; cache hits may still
+ * work. Network-wide activity is visible only to network managers.
  *
  * @return array
  */
@@ -576,6 +571,11 @@ function keel_defaults_site_health_breach_screening() {
 		'description' => '<p>' . esc_html__( 'New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure.', 'keel-defaults' ) . '</p>',
 		'test'        => 'keel_defaults_breach_screening',
 	);
+
+	if ( ! current_user_can( 'view_site_health_checks' ) ) {
+		$result['description'] = '';
+		return $result;
+	}
 
 	// Nothing to say when the feature is off. A site that has switched breach
 	// screening off has not got a problem, it has made a choice.
@@ -611,66 +611,73 @@ function keel_defaults_site_health_breach_screening() {
 		return $result;
 	}
 
-	$failure = keel_hibp_last_failure();
+	// One passive read: no initialization, refill, HTTP, or diagnostic writes.
+	$evidence = keel_hibp_budget_evidence();
+	$shared   = is_multisite();
+	$private  = $shared && ! current_user_can( 'manage_network_options' );
+	$failure  = $evidence['failure'];
+	$success  = $evidence['success'];
+	$degraded = ! $evidence['available'] || null !== $failure;
 
-	if ( null === $failure ) {
-		/*
-		 * Absence of a failure is not evidence of success. The failure record
-		 * lasts an hour, so a site that stopped retrying after an outage looks
-		 * identical to one that never had one — and a site where no password has
-		 * ever been set has no record of any kind. Say which of those it is.
-		 */
-		$success = keel_hibp_last_success();
-
-		if ( null !== $success ) {
-			$result['label']       = __( 'Password breach screening is working', 'keel-defaults' );
-			$result['description'] = '<p>' . sprintf(
-				/* translators: %s: human-readable time difference, e.g. "2 hours". */
-				esc_html__( 'New passwords are screened against the Have I Been Pwned corpus. The last lookup completed %s ago.', 'keel-defaults' ),
-				esc_html( human_time_diff( $success ) )
-			) . '</p>';
-
-			return $result;
-		}
-
-		$result['description'] = '<p>' . esc_html__( 'New passwords are screened against the Have I Been Pwned corpus. No lookup has completed on this site yet, and none has failed — screening is set up, but nothing has exercised it. It runs the next time somebody sets or changes a password.', 'keel-defaults' ) . '</p>';
-
+	if ( $private ) {
+		$result['status']      = $degraded ? 'recommended' : 'good';
+		$result['label']       = __( 'Password breach-screening coverage is unknown', 'keel-defaults' );
+		$result['description'] = '<p>' . esc_html__( 'Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run.', 'keel-defaults' ) . '</p>';
 		return $result;
 	}
 
-	$kinds = array(
-		'unreachable' => __( 'the service could not be reached', 'keel-defaults' ),
-		'truncated'   => __( 'the reply was cut short before it could be read', 'keel-defaults' ),
-		'malformed'   => __( 'the reply was not the list of hashes it should have been, which usually means something answered on the service\'s behalf — a captive portal, or a filtering proxy', 'keel-defaults' ),
-	);
+	$result['label'] = __( 'Password breach screening has no sampled failures', 'keel-defaults' );
+	$description     = '<p>' . ( $shared
+		? esc_html__( 'This is network-shared screening transport evidence, not proof that a particular site’s last password was checked.', 'keel-defaults' )
+		: esc_html__( 'This is screening transport evidence, not proof that every password was checked.', 'keel-defaults' ) ) . '</p>';
 
-	$kind = isset( $failure['kind'] ) ? (string) $failure['kind'] : '';
-
-	if ( isset( $kinds[ $kind ] ) ) {
-		$reason = $kinds[ $kind ];
-	} elseif ( 0 === strpos( $kind, 'http_' ) ) {
-		$reason = sprintf(
-			/* translators: %s: HTTP status code. */
-			__( 'the service answered with HTTP %s', 'keel-defaults' ),
-			esc_html( substr( $kind, 5 ) )
+	if ( ! $evidence['available'] ) {
+		$result['status'] = 'recommended';
+		$result['label']  = __( 'Password breach-screening transport evidence is unavailable', 'keel-defaults' );
+		$description     .= '<p>' . esc_html__( 'The shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.', 'keel-defaults' ) . '</p>';
+	} elseif ( null !== $failure ) {
+		$kinds = array(
+			'budget_exhausted'   => __( 'the shared allowance for fresh lookups was exhausted', 'keel-defaults' ),
+			'lookup_busy'        => __( 'the shared lookup slots were busy', 'keel-defaults' ),
+			'budget_unavailable' => __( 'the shared lookup budget was unavailable', 'keel-defaults' ),
+			'unreachable'        => __( 'the service could not be reached', 'keel-defaults' ),
+			'truncated'          => __( 'the reply was cut short before it could be read', 'keel-defaults' ),
+			'malformed'          => __( 'the reply did not contain a valid complete range response', 'keel-defaults' ),
 		);
+		$kind  = $failure['kind'];
+		if ( isset( $kinds[ $kind ] ) ) {
+			$reason = $kinds[ $kind ];
+		} elseif ( preg_match( '/^http_[0-9]{3}$/D', $kind ) ) {
+			/* translators: %s: HTTP response status code. */
+			$reason = sprintf( __( 'the service answered with HTTP %s', 'keel-defaults' ), substr( $kind, 5 ) );
+		} else {
+			$reason = __( 'the lookup could not complete', 'keel-defaults' );
+		}
+		$result['status'] = 'recommended';
+		$result['label']  = __( 'Password breach screening has sampled unavailability', 'keel-defaults' );
+		$description     .= '<p>' . sprintf(
+			/* translators: 1: sampled lookup failure reason, 2: elapsed time since the sample. */
+			esc_html__( 'A sampled fresh lookup was skipped or could not complete: %1$s. The sample was recorded %2$s ago. Samples are rate-limited, not counts of all skipped or failed checks.', 'keel-defaults' ),
+			esc_html( $reason ),
+			esc_html( human_time_diff( $failure['seen'] ) )
+		) . '</p>';
 	} else {
-		$reason = __( 'the lookup did not complete', 'keel-defaults' );
+		$description .= '<p>' . esc_html__( 'No unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded.', 'keel-defaults' ) . '</p>';
 	}
 
-	$result['status'] = 'recommended';
-	$result['label']  = __( 'Passwords are not being screened against known breaches', 'keel-defaults' );
-
-	$description = '<p>' . sprintf(
-		/* translators: %s: short reason the lookup failed. */
-		esc_html__( 'The last breach lookup did not complete: %s. Passwords set since then have been accepted without that check.', 'keel-defaults' ),
-		esc_html( $reason )
-	) . '</p>';
-
-	$description .= '<p>' . esc_html__( 'This does not block anybody from changing their password, and it is not a reason to. The rest of the password policy — length, the blocklist, and the checks against a person\'s own name and email — is unaffected and still applies.', 'keel-defaults' ) . '</p>';
-
-	$description .= '<p>' . esc_html__( 'If the site cannot make outbound HTTPS requests, that is worth fixing for its own sake: plugin and core updates use the same path. This notice clears on its own once a lookup succeeds.', 'keel-defaults' ) . '</p>';
-
+	if ( null !== $success ) {
+		$description .= '<p>' . sprintf(
+			/* translators: %s: elapsed time since a validated live response. */
+			esc_html__( 'The last recorded validated live response completed %s ago. This is historical transport evidence, not a guarantee of current availability.', 'keel-defaults' ),
+			esc_html( human_time_diff( $success ) )
+		) . '</p>';
+		if ( null !== $failure && $success > $failure['seen'] ) {
+			$description .= '<p>' . esc_html__( 'A later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.', 'keel-defaults' ) . '</p>';
+		}
+	} else {
+		$description .= '<p>' . esc_html__( 'No validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.', 'keel-defaults' ) . '</p>';
+	}
+	$description          .= '<p>' . esc_html__( 'Cached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked.', 'keel-defaults' ) . '</p>';
 	$result['description'] = $description;
 
 	return $result;

@@ -1,8 +1,8 @@
 # Proposed design: bounded HIBP lookup budget
 
-Status: **proposed**, not implemented or accepted for release. Written 2026-10-23
-against Keel `1d754a9` (merged #314). The numerical defaults and storage choices
-below are the author's recommendations, not measured capacity or prior user decisions.
+Status: **approved for implementation; implementation under verification**, unreleased.
+Written 2026-10-23 against Keel `1d754a9` (merged #314). The user approved this
+bounded policy; numerical defaults remain operational starting points, not measured capacity.
 This change would preserve PHP 7.4 compatibility and the 44-setting schema.
 
 ## Recommendation
@@ -38,7 +38,7 @@ defaults. No disable/unlimited value; the existing deliberate HIBP opt-out remai
 Changing a valid policy must preserve credit conservatively: clamp existing credit
 to the new capacity, discard fractional credit on interval changes, and reset the
 refill reference to now without granting a fresh burst. Policy changes cannot erase
-active leases, reset diagnostic throttles or create new storage keys. In credit-seconds, convert with
+active leases, reset diagnostic throttles or create new storage keys. When the interval changes, convert credit-seconds with
 `new_credit = min(new_capacity, floor(old_credit / old_interval)) * new_interval`;
 set the refill reference to `max(now, old_refill_reference)`. The cache and
 lease caps remain fixed in v1. Document the resulting request bound when tuning.
@@ -282,8 +282,8 @@ Implementation order: review this policy; build and prove the bounded atomic sto
 wire cache-hit/admission/transport paths; reconcile diagnostics/lifecycle and AX;
 then run the adversarial/parallel labs and document measured costs. If atomic storage
 or hit-path costs prove unacceptable, revisit the design rather than weakening the
-bounds invisibly. No runtime implementation, version bump or release is authorized
-by this document.
+bounds invisibly. The user subsequently authorized implementation and a PR; no version bump or
+release is authorized.
 
 ## Design review and validation
 
@@ -294,3 +294,21 @@ proposed decisions and implementation acceptance gates. Documentation/count guar
 and `git diff --check` pass. No new runtime or lab tests were claimed for this
 design-only change. TODO and ROADMAP mark #314 (`1d754a9`) merged and unreleased,
 and separate this design review from future implementation work.
+
+## Implementation decisions
+
+The store uses the canonical options table directly; no transient or object-cache
+copy is authoritative. Both slot claim and completion use a short transaction and
+a control-row CAS to fence reservations while touching a slot. No DB lock spans
+HTTP. Only InnoDB and the WordPress SQLite adapter with observable transaction
+state are supported; unknown adapters fail as unknown. A caller-owned transaction
+or disabled MySQL autocommit denies new work before mutations or HTTP, because
+MySQL-compatible BEGIN can implicitly commit an existing transaction. Cached hits
+remain readable. MySQL connection status bits and SQLite's public `inTransaction()`
+provide the non-mutating connection check.
+
+Success retains the failure sample until its one-hour display expiry. It cannot
+reset the five-minute sampling cadence; Site Health shows the two historical
+evidence points separately. Lost ownership also samples unknown without touching
+a newer lease. Capacity-only policy changes retain fractional credits; interval
+changes use the conservative whole-credit conversion above.

@@ -417,15 +417,15 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   [the focused accessibility record](docs/review/focused-accessibility-2026-10-23.md).
   No version bump, new setting or release.
 
-- [ ] **Review the bounded HIBP lookup budget design** — proposed, not implemented.
-  Recommend one site/network bucket (burst 10, refill one credit/minute), two
-  admission leases, 64 fixed cache slots and explicit unknown results on denial.
-  Cache hits stay ahead of throttling; no IP/account keys or new settings. Atomic
-  storage, concurrency, privacy, upgrade/cleanup and counterpart acceptance gates
-  are in the [bounded HIBP budget design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
-  Shared-budget exhaustion can reduce screening for legitimate users; numerical
-  defaults and the DB-backed cache tradeoff need review before runtime work.
-  No version bump or release.
+- [x] **Review the bounded HIBP lookup budget design** — approved for implementation.
+  The user approved burst 10, one credit/minute, two admission leases and 64 fixed
+  cache slots, with cached verdicts ahead of throttling and explicit unknown on denial.
+  See the [bounded HIBP design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
+- [ ] **Implement and verify the bounded HIBP lookup budget** — implementation in
+  this branch; independent-worker database labs and PR checks are acceptance gates.
+  Fixed database authority, fenced cache publication, bounded retention, passive
+  shared diagnostics and paged uninstall preserve the 44-setting schema.
+  #313 and #314 remain merged and unreleased. No version bump or release.
 
 ## Completed in v0.6.0
 

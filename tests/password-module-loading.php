@@ -40,10 +40,10 @@ $callbacks = array(
 	'keel_hibp_body_is_valid',
 	'keel_hibp_range_contains',
 	'keel_hibp_unavailable',
-	'keel_hibp_note_success',
+	'keel_hibp_budget_admit',
 	'keel_hibp_last_success',
 	'keel_hibp_last_failure',
-	'keel_hibp_cache_generation',
+	'keel_hibp_budget_evidence',
 	'keel_hibp_lookup',
 	'keel_password_is_pwned',
 );
