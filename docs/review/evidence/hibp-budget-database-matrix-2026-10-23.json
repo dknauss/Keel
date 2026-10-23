@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "run": "https://github.com/dknauss/Keel/actions/runs/39998358729",
+  "runtime_commit": "6201731",
+  "transport": "Synthetic WordPress pre_http_request fixtures; no live HIBP calls",
+  "cells": [
+    {
+      "name": "hibp-budget-mariadb1011-wp-6.4",
+      "wordpress": "6.4",
+      "php": "7.4",
+      "backend": {
+        "class": "wpdb",
+        "engine": "InnoDB"
+      },
+      "redis": true,
+      "multisite": true,
+      "passed": [
+        "adapter",
+        "initialization",
+        "exact_burst",
+        "last_credit",
+        "cap_two",
+        "same_slot",
+        "stale_reservation",
+        "stale_http",
+        "stale_claim",
+        "kill_reservation",
+        "kill_http",
+        "publisher_rollback",
+        "cache_paths",
+        "storage",
+        "scope",
+        "connection_loss",
+        "uninstall"
+      ],
+      "site_only_passed": [
+        "scope",
+        "cache_paths"
+      ],
+      "burst_conservation": {
+        "attempts": 11,
+        "admitted": 10,
+        "denied": 1,
+        "initial_credit_units": 600,
+        "refilled_credit_units": 8,
+        "spent_credit_units": 600,
+        "remaining_credit_units": 8
+      },
+      "performance_per_lookup": {
+        "cold_miss": {
+          "milliseconds": 6.318,
+          "queries": 28.0,
+          "store_reads": 8.0,
+          "store_writes": 6.0,
+          "http": 1.0,
+          "begins": 2.0,
+          "commits": 2.0,
+          "rollbacks": 0.0
+        },
+        "cached_hit_100": {
+          "milliseconds": 0.16092,
+          "queries": 1.0,
+          "store_reads": 1.0,
+          "store_writes": 0.0,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        },
+        "exhausted_100": {
+          "milliseconds": 0.51699,
+          "queries": 4.04,
+          "store_reads": 4.0,
+          "store_writes": 0.01,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        }
+      },
+      "cleanup": "canonical scope fixed budget rows removed; no uninstall"
+    },
+    {
+      "name": "hibp-budget-mariadb1011-wp-latest",
+      "wordpress": "7.1.3",
+      "php": "8.3",
+      "backend": {
+        "class": "wpdb",
+        "engine": "InnoDB"
+      },
+      "redis": true,
+      "multisite": true,
+      "passed": [
+        "adapter",
+        "initialization",
+        "exact_burst",
+        "last_credit",
+        "cap_two",
+        "same_slot",
+        "stale_reservation",
+        "stale_http",
+        "stale_claim",
+        "kill_reservation",
+        "kill_http",
+        "publisher_rollback",
+        "cache_paths",
+        "storage",
+        "scope",
+        "connection_loss",
+        "uninstall"
+      ],
+      "site_only_passed": [
+        "scope",
+        "cache_paths"
+      ],
+      "burst_conservation": {
+        "attempts": 11,
+        "admitted": 10,
+        "denied": 1,
+        "initial_credit_units": 600,
+        "refilled_credit_units": 12,
+        "spent_credit_units": 600,
+        "remaining_credit_units": 12
+      },
+      "performance_per_lookup": {
+        "cold_miss": {
+          "milliseconds": 8.029,
+          "queries": 28.0,
+          "store_reads": 8.0,
+          "store_writes": 6.0,
+          "http": 1.0,
+          "begins": 2.0,
+          "commits": 2.0,
+          "rollbacks": 0.0
+        },
+        "cached_hit_100": {
+          "milliseconds": 0.241,
+          "queries": 1.0,
+          "store_reads": 1.0,
+          "store_writes": 0.0,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        },
+        "exhausted_100": {
+          "milliseconds": 0.91833,
+          "queries": 4.04,
+          "store_reads": 4.0,
+          "store_writes": 0.01,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        }
+      },
+      "cleanup": "canonical scope fixed budget rows removed; no uninstall"
+    },
+    {
+      "name": "hibp-budget-mysql8-wp-6.4",
+      "wordpress": "6.4",
+      "php": "7.4",
+      "backend": {
+        "class": "wpdb",
+        "engine": "InnoDB"
+      },
+      "redis": true,
+      "multisite": true,
+      "passed": [
+        "adapter",
+        "initialization",
+        "exact_burst",
+        "last_credit",
+        "cap_two",
+        "same_slot",
+        "stale_reservation",
+        "stale_http",
+        "stale_claim",
+        "kill_reservation",
+        "kill_http",
+        "publisher_rollback",
+        "cache_paths",
+        "storage",
+        "scope",
+        "connection_loss",
+        "uninstall"
+      ],
+      "site_only_passed": [
+        "scope",
+        "cache_paths"
+      ],
+      "burst_conservation": {
+        "attempts": 11,
+        "admitted": 10,
+        "denied": 1,
+        "initial_credit_units": 600,
+        "refilled_credit_units": 8,
+        "spent_credit_units": 600,
+        "remaining_credit_units": 8
+      },
+      "performance_per_lookup": {
+        "cold_miss": {
+          "milliseconds": 7.12,
+          "queries": 28.0,
+          "store_reads": 8.0,
+          "store_writes": 6.0,
+          "http": 1.0,
+          "begins": 2.0,
+          "commits": 2.0,
+          "rollbacks": 0.0
+        },
+        "cached_hit_100": {
+          "milliseconds": 0.17411,
+          "queries": 1.0,
+          "store_reads": 1.0,
+          "store_writes": 0.0,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        },
+        "exhausted_100": {
+          "milliseconds": 0.75955,
+          "queries": 4.04,
+          "store_reads": 4.0,
+          "store_writes": 0.01,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        }
+      },
+      "cleanup": "canonical scope fixed budget rows removed; no uninstall"
+    },
+    {
+      "name": "hibp-budget-mysql8-wp-latest",
+      "wordpress": "7.1.3",
+      "php": "8.3",
+      "backend": {
+        "class": "wpdb",
+        "engine": "InnoDB"
+      },
+      "redis": true,
+      "multisite": true,
+      "passed": [
+        "adapter",
+        "initialization",
+        "exact_burst",
+        "last_credit",
+        "cap_two",
+        "same_slot",
+        "stale_reservation",
+        "stale_http",
+        "stale_claim",
+        "kill_reservation",
+        "kill_http",
+        "publisher_rollback",
+        "cache_paths",
+        "storage",
+        "scope",
+        "connection_loss",
+        "uninstall"
+      ],
+      "site_only_passed": [
+        "scope",
+        "cache_paths"
+      ],
+      "burst_conservation": {
+        "attempts": 11,
+        "admitted": 10,
+        "denied": 1,
+        "initial_credit_units": 600,
+        "refilled_credit_units": 13,
+        "spent_credit_units": 600,
+        "remaining_credit_units": 13
+      },
+      "performance_per_lookup": {
+        "cold_miss": {
+          "milliseconds": 10.848,
+          "queries": 28.0,
+          "store_reads": 8.0,
+          "store_writes": 6.0,
+          "http": 1.0,
+          "begins": 2.0,
+          "commits": 2.0,
+          "rollbacks": 0.0
+        },
+        "cached_hit_100": {
+          "milliseconds": 0.27656,
+          "queries": 1.0,
+          "store_reads": 1.0,
+          "store_writes": 0.0,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        },
+        "exhausted_100": {
+          "milliseconds": 1.15864,
+          "queries": 4.04,
+          "store_reads": 4.0,
+          "store_writes": 0.01,
+          "http": 0.0,
+          "begins": 0.0,
+          "commits": 0.0,
+          "rollbacks": 0.0
+        }
+      },
+      "cleanup": "canonical scope fixed budget rows removed; no uninstall"
+    }
+  ]
+}

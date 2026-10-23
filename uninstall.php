@@ -48,7 +48,10 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  *   and never the hash prefix.
  * - `keel_hibp_cache_generation` — the per-installation namespace that keeps
  *   cache entries left in an external object cache unreachable after reinstall.
- * - `keel_hibp_*` — breach-lookup response cache, one transient per five-hex
+ * - `keel_hibp_v2_<scope>_state` and 64 fixed slots — shared budget and range
+ *   cache, removed once from each network's main-site options table (scope 0
+ *   on single site), without enumerating passwords or hash prefixes.
+ * - `keel_hibp_*` — legacy breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
  * - `keel_backport_install_result_*` — one short-lived core-update result per
@@ -175,7 +178,65 @@ function keel_defaults_uninstall_site() {
 	);
 }
 
+/**
+ * Remove the bounded store from its canonical options table only.
+ *
+ * Called once per network's main site, or once with scope zero on single site.
+ * No prefix scan is needed for these 65 fixed, non-autoloaded options.
+ *
+ * @param int $scope Network ID, or zero for single site.
+ * @return void
+ */
+function keel_defaults_uninstall_hibp_budget( $scope ) {
+	global $wpdb;
+	$prefix = 'keel_hibp_v2_' . $scope . '_';
+	$keys   = array( $prefix . 'state' );
+	for ( $slot = 0; $slot < 64; ++$slot ) {
+		$keys[] = $prefix . 'slot_' . sprintf( '%02d', $slot );
+	}
+	foreach ( $keys as $key ) {
+		delete_option( $key );
+	}
+	// Direct SQL writes can coexist with a stale get_option() negative cache.
+	// Ensure those authoritative rows are removed even if delete_option() skipped them.
+	$placeholders = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Canonical WP options table; fixed known names prepared, no prefix scan.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name IN ($placeholders)", $keys ) );
+}
+
 if ( is_multisite() ) {
+	// Shared stores belong to networks, including networks where Keel was only
+	// site-active. Never substitute the current subsite for a missing main site.
+	$keel_network_offset = 0;
+	do {
+		$keel_networks = get_networks(
+			array(
+				'fields'  => 'ids',
+				'number'  => 200,
+				'offset'  => $keel_network_offset,
+				'orderby' => 'id',
+				'order'   => 'ASC',
+			)
+		);
+		foreach ( $keel_networks as $keel_network_id ) {
+			$keel_main_id   = get_main_site_id( (int) $keel_network_id );
+			$keel_main_site = $keel_main_id ? get_site( $keel_main_id ) : null;
+			if ( ! $keel_main_site || (int) $keel_main_site->site_id !== (int) $keel_network_id ) {
+				continue;
+			}
+			// A soft-deleted main site still owns its existing options table.
+			// Clean its fixed keys too; only a missing/foreign owner is skipped.
+			switch_to_blog( $keel_main_id );
+			try {
+				keel_defaults_uninstall_hibp_budget( (int) $keel_network_id );
+			} finally {
+				restore_current_blog();
+			}
+		}
+		$keel_network_found   = count( $keel_networks );
+		$keel_network_offset += 200;
+	} while ( 200 === $keel_network_found );
+
 	/*
 	 * Network policy first, and unconditionally: it is a single site option that
 	 * belongs to no subsite, so the per-site loop below would never reach it and
@@ -220,6 +281,7 @@ if ( is_multisite() ) {
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
 } else {
+	keel_defaults_uninstall_hibp_budget( 0 );
 	keel_defaults_uninstall_site();
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );

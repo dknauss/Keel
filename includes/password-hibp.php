@@ -10,6 +10,7 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+require_once __DIR__ . '/password-hibp-budget.php';
 
 /**
  * Largest HIBP range response this site will accept, in bytes.
@@ -77,234 +78,92 @@ function keel_hibp_range_contains( $body, $suffix ) {
 }
 
 /**
- * Note that breach screening could not be completed, and report it as unknown.
+ * Record bounded, scope-shared evidence without storing credential material.
  *
- * Returns null so the caller can tell "not in the corpus" from "the corpus was
- * not consulted". Recording is a side effect of an answer that was going to be
- * given anyway, so a working site never reaches this and never writes.
- *
- * What is stored is the kind of failure and when it last happened — never the
- * password, and never the hash prefix. The prefix is k-anonymous by design, but
- * a record of which prefixes a site has looked up is still a record of its
- * passwords' shape, and no diagnostic needs it.
- *
- * Bounded by its own TTL rather than by anything clearing it: a site that stops
- * failing stops being reported an hour later, without a cron job or a reader.
- *
- * @param string $kind Short machine tag: unreachable, http_429, truncated, malformed.
+ * @param string $kind Failure reason.
  * @return null
  */
 function keel_hibp_unavailable( $kind ) {
-	$stored = get_transient( 'keel_hibp_unavailable' );
-	$now    = time();
-
-	if ( is_array( $stored ) && isset( $stored['kind'] ) && $stored['kind'] === $kind ) {
-		/*
-		 * Same failure as last time. Re-arm the TTL so a standing outage keeps
-		 * being reported, but do not rewrite on every attempt — a password screen
-		 * under load would otherwise write once per keystroke-triggered check.
-		 */
-		if ( isset( $stored['seen'] ) && ( $now - (int) $stored['seen'] ) < 5 * MINUTE_IN_SECONDS ) {
-			return null;
-		}
-
-		$stored['seen']  = $now;
-		$stored['count'] = isset( $stored['count'] ) ? (int) $stored['count'] + 1 : 2;
-		set_transient( 'keel_hibp_unavailable', $stored, HOUR_IN_SECONDS );
-
-		return null;
-	}
-
-	set_transient(
-		'keel_hibp_unavailable',
-		array(
-			'kind'  => (string) $kind,
-			'first' => $now,
-			'seen'  => $now,
-			'count' => 1,
-		),
-		HOUR_IN_SECONDS
-	);
-
+	keel_hibp_budget_note( $kind );
 	return null;
 }
 
 /**
- * Note that a lookup completed, so Site Health can say so from evidence.
+ * Last validated live lookup, never a cache hit.
  *
- * "No failure recorded" is not the same as "screening works": a site where no
- * password has ever been set, or whose hour-long failure record simply expired
- * without anything retrying, has no record either way. Storing the success
- * separately is what lets the difference be reported honestly.
- *
- * Throttled to once an hour. The value is a timestamp, so rewriting it on every
- * lookup would be a write per password check to move a number that nothing
- * reads at that resolution.
- *
- * @return void
- */
-function keel_hibp_note_success() {
-	$last = get_option( 'keel_hibp_last_success' );
-
-	if ( is_numeric( $last ) && ( time() - (int) $last ) < HOUR_IN_SECONDS ) {
-		return;
-	}
-
-	update_option( 'keel_hibp_last_success', time(), false );
-}
-
-/**
- * When breach screening last completed, if it ever has.
- *
- * @return int|null Unix timestamp, or null if no lookup has ever succeeded here.
+ * @return int|null
  */
 function keel_hibp_last_success() {
-	$last = get_option( 'keel_hibp_last_success' );
-
-	return is_numeric( $last ) ? (int) $last : null;
+	return keel_hibp_budget_evidence()['success'];
 }
 
 /**
- * The last recorded breach-screening failure, if it is still current.
+ * Recent sampled unavailability, not a denial counter.
  *
- * Only array-ness and a non-empty kind are checked. Timestamp/count fields and
- * third-party cached values remain unvalidated at this boundary.
- *
- * @return array<array-key,mixed>|null Raw failure record, or null.
+ * @return array{kind:string,first:int,seen:int}|null
  */
 function keel_hibp_last_failure() {
-	$stored = get_transient( 'keel_hibp_unavailable' );
-
-	if ( ! is_array( $stored ) || empty( $stored['kind'] ) ) {
-		return null;
-	}
-
-	return $stored;
+	return keel_hibp_budget_evidence()['failure'];
 }
 
 /**
- * Return the cache generation for this installation.
+ * Perform a bounded, padded range lookup; compare the suffix only locally.
  *
- * Persistent object-cache entries cannot always be enumerated or deleted on
- * uninstall. Giving every installation its own generation makes any entries
- * left by an older installation unreachable after the plugin is reinstalled.
- * add_option() resolves two first requests racing to create it: the winner's
- * value is read back and used by both.
- *
- * @return string Opaque per-installation cache generation.
- */
-function keel_hibp_cache_generation() {
-	$generation = get_option( 'keel_hibp_cache_generation' );
-
-	if ( is_string( $generation ) && '' !== $generation ) {
-		return $generation;
-	}
-
-	$candidate = str_replace( '-', '', wp_generate_uuid4() );
-
-	if ( add_option( 'keel_hibp_cache_generation', $candidate, '', false ) ) {
-		return $candidate;
-	}
-
-	$generation = get_option( 'keel_hibp_cache_generation' );
-
-	return is_string( $generation ) && '' !== $generation ? $generation : $candidate;
-}
-
-/**
- * Ask Have I Been Pwned whether this password appears in a known breach.
- *
- * Three values, not two. `false` used to mean both "this password is not in the
- * corpus" and "the corpus could not be consulted", which are opposite facts
- * wearing the same answer — a site whose screening had been failing for a week
- * looked exactly like one where every password happened to be clean.
- *
- * `null` is the third: could not determine. It still does not block a password
- * change (see keel_password_is_pwned()) but it is recorded and reported, which
- * is the whole point of separating it.
- *
- * @param string $password The password to screen.
- * @return bool|null True if breached, false if verified clean, null if unknown.
+ * @param string $password Password to screen.
+ * @return bool|null Breached, verified clean, or unknown.
  */
 function keel_hibp_lookup( $password ) {
-	$hash   = strtoupper( sha1( $password ) );
-	$prefix = substr( $hash, 0, 5 );
-	$suffix = substr( $hash, 5 );
-	$limit  = keel_hibp_response_limit();
-
-	$cache_key = 'keel_hibp_' . keel_hibp_cache_generation() . '_' . $prefix;
-
-	/*
-	 * Object cache first, transient second. A password change validates the same
-	 * prefix more than once in a request — the profile screen and the REST guard
-	 * both ask — and on a site with a persistent object cache the transient is a
-	 * cache read anyway. Without one, the transient is a database read each time,
-	 * and this makes it one read instead of several.
-	 */
-	$body   = wp_cache_get( $cache_key, 'keel_hibp' );
-	$cached = false !== $body;
-
-	if ( ! $cached ) {
-		$body   = get_transient( $cache_key );
-		$cached = false !== $body;
-
-		if ( $cached ) {
-			wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
+	$scope = keel_hibp_budget_scope();
+	if ( ! $scope ) {
+		return null;
+	}
+	$hash      = strtoupper( sha1( $password ) );
+	$admission = keel_hibp_budget_admit( $scope, substr( $hash, 0, 5 ) );
+	if ( isset( $admission['body'] ) ) {
+		return keel_hibp_range_contains( $admission['body'], substr( $hash, 5 ) );
+	}
+	if ( isset( $admission['error'] ) ) {
+		return keel_hibp_unavailable( $admission['error'] );
+	}
+	$ticket = $admission['ticket'];
+	if ( ! keel_hibp_budget_owned( $ticket ) ) {
+		return keel_hibp_unavailable( 'budget_unavailable' );
+	}
+	$limit    = keel_hibp_response_limit();
+	$response = wp_remote_get(
+		'https://api.pwnedpasswords.com/range/' . substr( $hash, 0, 5 ),
+		array(
+			'timeout'             => max( 1, (int) apply_filters( 'keel_hibp_request_timeout', 4 ) ),
+			'limit_response_size' => $limit,
+			'headers'             => array( 'Add-Padding' => 'true' ),
+		)
+	);
+	$kind     = '';
+	$body     = null;
+	if ( is_wp_error( $response ) ) {
+		$kind = 'unreachable';
+	} elseif ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+		$kind = 'http_' . (int) wp_remote_retrieve_response_code( $response );
+		if ( ! keel_hibp_budget_kind( $kind ) ) {
+			$kind = 'unreachable';
+		}
+	} else {
+		$raw = (string) wp_remote_retrieve_body( $response );
+		if ( ! keel_hibp_body_is_complete( $raw, $limit ) ) {
+			$kind = 'truncated';
+		} elseif ( ! keel_hibp_body_is_valid( trim( $raw ) ) ) {
+			$kind = 'malformed';
+		} else {
+			$body = trim( $raw );
 		}
 	}
-
-	if ( ! $cached ) {
-		$response = wp_remote_get(
-			'https://api.pwnedpasswords.com/range/' . $prefix,
-			array(
-				'timeout'             => max( 1, (int) apply_filters( 'keel_hibp_request_timeout', 4 ) ),
-				'limit_response_size' => $limit,
-				'headers'             => array( 'Add-Padding' => 'true' ),
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return keel_hibp_unavailable( 'unreachable' );
-		}
-
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return keel_hibp_unavailable( 'http_' . (int) wp_remote_retrieve_response_code( $response ) );
-		}
-
-		$body = (string) wp_remote_retrieve_body( $response );
-
-		// Boundary check before trimming (see keel_hibp_body_is_complete()).
-		if ( ! keel_hibp_body_is_complete( $body, $limit ) ) {
-			return keel_hibp_unavailable( 'truncated' );
-		}
+	if ( ! keel_hibp_budget_finish( $ticket, $body, $kind ) ) {
+		return keel_hibp_unavailable( 'budget_unavailable' );
 	}
-
-	$body = trim( (string) $body );
-
-	if ( '' === $body || ! keel_hibp_body_is_valid( $body ) ) {
-		return keel_hibp_unavailable( 'malformed' );
+	if ( null === $body ) {
+		return null;
 	}
-
-	if ( ! $cached ) {
-		set_transient( $cache_key, $body, 12 * HOUR_IN_SECONDS );
-		wp_cache_set( $cache_key, $body, 'keel_hibp', 12 * HOUR_IN_SECONDS );
-
-		/*
-		 * A live response proves screening is working again, so the outage record
-		 * goes. Only on the uncached path: a cache hit proves nothing about the
-		 * service's current state, and clearing there would put a write on the
-		 * common path to answer a question it had not asked.
-		 *
-		 * Read before delete, so an already-clean site does not write at all.
-		 */
-		if ( null !== keel_hibp_last_failure() ) {
-			delete_transient( 'keel_hibp_unavailable' );
-		}
-
-		keel_hibp_note_success();
-	}
-
-	return keel_hibp_range_contains( $body, $suffix );
+	return keel_hibp_range_contains( $body, substr( $hash, 5 ) );
 }
 
 /**

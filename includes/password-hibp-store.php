@@ -1,0 +1,319 @@
+<?php
+/**
+ * Fixed, database-authoritative HIBP rows. No object-cache authority.
+ *
+ * @package Keel
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Canonical trusted scope.
+ *
+ * @return array{table:string,id:int}|false
+ */
+function keel_hibp_budget_scope() {
+	global $wpdb;
+	if ( ! is_object( $wpdb ) || ! isset( $wpdb->options ) ) {
+		return false;
+	}
+	$id    = 0;
+	$table = $wpdb->options;
+	if ( is_multisite() ) {
+		$id   = get_current_network_id();
+		$main = get_main_site_id( $id );
+		$site = $main ? get_site( $main ) : null;
+		if ( ! $site || (int) $site->site_id !== $id || ! empty( $site->deleted ) ) {
+			return false;
+		}
+		$table = $wpdb->get_blog_prefix( $main ) . 'options';
+	}
+	return is_int( $id ) && $id >= 0 && is_string( $table ) && preg_match( '/\A[a-zA-Z0-9_]+\z/D', $table )
+		? array(
+			'table' => $table,
+			'id'    => $id,
+		) : false;
+}
+
+/**
+ * Fixed option name, never credential-derived.
+ *
+ * @param array  $scope Canonical database scope.
+ * @param string $part Fixed row identifier.
+ * @return string
+ */
+function keel_hibp_budget_key( array $scope, $part ) {
+	return 'keel_hibp_v2_' . $scope['id'] . '_' . $part;
+}
+
+/**
+ * Our native transaction connection and failure latch, never caller authority.
+ *
+ * @return array|null
+ */
+function &keel_hibp_budget_native_pin() {
+	static $pin = null;
+	return $pin;
+}
+
+/**
+ * Query the original transaction handle without wpdb reconnect/replay.
+ *
+ * A failed statement poisons the transaction until rollback, including engines
+ * that automatically roll back a transaction after a deadlock.
+ *
+ * @param string $sql Prepared SQL or a fixed transaction command.
+ * @return mysqli_result|int|false
+ */
+function keel_hibp_budget_native_query( $sql ) {
+	global $wpdb;
+	$pin =& keel_hibp_budget_native_pin();
+	if ( null === $pin || ( $pin['failed'] && 'ROLLBACK' !== $sql ) ) {
+		return false;
+	}
+	try {
+		if ( $wpdb->dbh !== $pin['handle'] ) {
+			$pin['failed'] = true;
+			return false;
+		}
+		// Preserve WordPress instrumentation, then recheck callbacks did not reconnect.
+		$sql = apply_filters( 'query', $sql );
+		if ( ! is_string( $sql ) || '' === $sql || $wpdb->dbh !== $pin['handle'] ) {
+			$pin['failed'] = true;
+			return false;
+		}
+		$wpdb->last_query = $sql;
+		$wpdb->last_error = '';
+		++$wpdb->num_queries;
+		// phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_query -- Pinned handle must never reconnect or replay a fenced write.
+		$result = mysqli_query( $pin['handle'], $sql );
+		if ( false === $result || $wpdb->dbh !== $pin['handle'] ) {
+			$pin['failed']    = true;
+			$wpdb->last_error = 'HIBP transaction query failed.';
+			return false;
+		}
+		// phpcs:ignore WordPress.DB.RestrictedFunctions.mysql_mysqli_affected_rows -- Match wpdb affected-row semantics without another query.
+		return true === $result ? mysqli_affected_rows( $pin['handle'] ) : $result;
+	} catch ( Throwable $error ) {
+		$pin['failed']    = true;
+		$wpdb->last_error = 'HIBP transaction connection unavailable.';
+		return false;
+	}
+}
+
+/**
+ * Bounded raw value, missing, or unavailable.
+ *
+ * @param array  $scope Canonical database scope.
+ * @param string $key Fixed option name.
+ * @param int    $cap Maximum encoded bytes.
+ * @return string|null|false
+ */
+function keel_hibp_budget_read( array $scope, $key, $cap = 4096 ) {
+	global $wpdb;
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery -- CAS authority cannot use an evictable cache.
+	$previous = $wpdb->suppress_errors( true );
+	$pin      =& keel_hibp_budget_native_pin();
+	try {
+		$sql = $wpdb->prepare( "SELECT SUBSTR(option_value,1,%d) FROM `{$scope['table']}` WHERE option_name = %s", $cap + 1, $key ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Identifier derived from trusted WP scope and allowlisted.
+		if ( null !== $pin ) {
+			$result = keel_hibp_budget_native_query( $sql );
+			if ( ! $result instanceof mysqli_result ) {
+				return false;
+			}
+			try {
+				$row = $result->fetch_row();
+				$raw = $row ? $row[0] : null;
+			} finally {
+				$result->free();
+			}
+		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL prepared above inside the exception boundary.
+			$raw = $wpdb->get_var( $sql );
+		}
+		$error = $wpdb->last_error;
+	} catch ( Throwable $error ) {
+		if ( null !== $pin ) {
+			$pin['failed'] = true;
+		}
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery
+	return '' !== $error || ( null !== $raw && ( ! is_string( $raw ) || strlen( $raw ) > $cap ) ) ? false : $raw;
+}
+
+/**
+ * Insert-if-absent or byte-exact compare-and-swap.
+ *
+ * @param array  $scope Canonical database scope.
+ * @param string $key Fixed option name.
+ * @param mixed  $old Expected raw value, or null for insert.
+ * @param array  $replacement Candidate value.
+ * @param int    $cap Maximum encoded bytes.
+ * @return bool
+ */
+function keel_hibp_budget_write( array $scope, $key, $old, array $replacement, $cap = 4096 ) {
+	global $wpdb;
+	$value = wp_json_encode( $replacement, JSON_UNESCAPED_SLASHES );
+	if ( ! is_string( $value ) || strlen( $value ) > $cap ) {
+		return false;
+	}
+	$previous = $wpdb->suppress_errors( true );
+	$pin      =& keel_hibp_budget_native_pin();
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Fixed trusted table; all values prepared; cache would violate CAS authority.
+	try {
+		$sql = null === $old
+			? $wpdb->prepare( "INSERT IGNORE INTO `{$scope['table']}` (option_name,option_value,autoload) VALUES (%s,%s,'no')", $key, $value )
+			: $wpdb->prepare( "UPDATE `{$scope['table']}` SET option_value = %s, autoload = 'no' WHERE option_name = %s AND HEX(option_value) = %s", $value, $key, strtoupper( bin2hex( $old ) ) );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Both SQL branches are prepared above.
+		$result = null !== $pin ? keel_hibp_budget_native_query( $sql ) : $wpdb->query( $sql );
+	} catch ( Throwable $error ) {
+		if ( null !== $pin ) {
+			$pin['failed'] = true;
+		}
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	return 1 === $result;
+}
+
+/**
+ * Reject caller-owned transactions before any authority mutation or HTTP.
+ *
+ * MySQL-compatible BEGIN may implicitly commit an existing transaction, including
+ * the SQLite translator. Unknown connection implementations fail conservatively.
+ *
+ * @return bool The connection is idle and in normal autocommit mode.
+ */
+function keel_hibp_budget_connection_idle() {
+	global $wpdb;
+	$previous = $wpdb->suppress_errors( true );
+	try {
+		if ( null !== keel_hibp_budget_native_pin() ) {
+			return false;
+		}
+		if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
+			if ( ! is_callable( array( $wpdb, 'get_driver' ) ) ) {
+				return false;
+			}
+			$driver = $wpdb->get_driver();
+			return is_object( $driver ) && is_callable( array( $driver, 'inTransaction' ) ) && ! $driver->inTransaction();
+		}
+		$connection = $wpdb->dbh;
+		if ( ! $connection instanceof mysqli ) {
+			return false;
+		}
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery -- Non-mutating connection check plus an immediately released private savepoint; never commits caller data.
+		$autocommit = $wpdb->get_var( 'SELECT @@session.autocommit' );
+		if ( $wpdb->dbh !== $connection || '1' !== (string) $autocommit ) {
+			return false;
+		}
+		$token = str_replace( '-', '', wp_generate_uuid4() );
+		if ( ! preg_match( '/\A[a-f0-9]{32}\z/D', $token ) ) {
+			return false;
+		}
+		$name      = 'keel_hibp_probe_' . $token;
+		$old_error = $wpdb->last_error;
+		// Outside a transaction SAVEPOINT has no effect and RELEASE reports 1305.
+		// Inside a transaction both succeed; release only our private savepoint and deny.
+		$saved    = $wpdb->query( "SAVEPOINT `$name`" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Random identifier strictly allowlisted above.
+		$released = false !== $saved && $wpdb->dbh === $connection ? $wpdb->query( "RELEASE SAVEPOINT `$name`" ) : false; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Same allowlisted private identifier.
+		$idle     = $wpdb->dbh === $connection && false !== $saved && false === $released && 1305 === $connection->errno;
+		if ( $idle ) {
+			// wpdb records even suppressed errors. Remove only this expected probe
+			// failure so repeated checks cannot grow its per-request error array.
+			global $EZSQL_ERROR;
+			if ( is_array( $EZSQL_ERROR ) ) {
+				$last = end( $EZSQL_ERROR );
+				if ( is_array( $last ) && isset( $last['query'] ) && $wpdb->last_query === $last['query'] ) {
+					array_pop( $EZSQL_ERROR ); }
+			}
+			$wpdb->last_error = $old_error;
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery
+		return $idle;
+	} catch ( Throwable $error ) {
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
+}
+
+/**
+ * Short transactions must actually roll back on the owning table.
+ *
+ * @param array $scope Canonical database scope.
+ * @return bool
+ */
+function keel_hibp_budget_transactional( array $scope ) {
+	global $wpdb;
+	$previous = $wpdb->suppress_errors( true );
+	try {
+		if ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) {
+			return true;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Capability inspection of canonical table; no application data.
+		$row = $wpdb->get_row( $wpdb->prepare( 'SHOW TABLE STATUS WHERE Name = %s', $scope['table'] ) );
+		return is_object( $row ) && isset( $row->Engine ) && 'innodb' === strtolower( $row->Engine ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- MySQL metadata field.
+	} catch ( Throwable $error ) {
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
+}
+
+/**
+ * Execute one fixed transaction command, never user SQL.
+ *
+ * @param string $command Allowlisted transaction command.
+ * @return bool
+ */
+function keel_hibp_budget_transaction( $command ) {
+	global $wpdb;
+	if ( ! in_array( $command, array( 'START TRANSACTION', 'COMMIT', 'ROLLBACK' ), true ) ) {
+		return false;
+	}
+	$pin =& keel_hibp_budget_native_pin();
+	if ( 'START TRANSACTION' === $command && ( null !== $pin || ! keel_hibp_budget_connection_idle() ) ) {
+		return false;
+	}
+	$previous = $wpdb->suppress_errors( true );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Strict fixed command allowlist.
+	try {
+		if ( null !== $pin ) {
+			$result = keel_hibp_budget_native_query( $command );
+			// A failed COMMIT retains the original pin for the caller's rollback.
+			if ( false !== $result || 'ROLLBACK' === $command ) {
+				$pin = null;
+			}
+		} else {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.NotPrepared -- Fixed allowlisted command; only BEGIN uses wpdb on MySQL.
+			$result = $wpdb->query( $command );
+			if ( false !== $result && 'START TRANSACTION' === $command && ! ( defined( 'DB_ENGINE' ) && 'sqlite' === DB_ENGINE ) ) {
+				$connection = $wpdb->dbh;
+				if ( ! $connection instanceof mysqli ) {
+					return false;
+				}
+				$pin = array(
+					'handle' => $connection,
+					'failed' => false,
+				);
+			}
+		}
+		return false !== $result;
+	} catch ( Throwable $error ) {
+		if ( null !== $pin ) {
+			$pin['failed'] = true;
+			if ( 'ROLLBACK' === $command ) {
+				$pin = null;
+			}
+		}
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
+}

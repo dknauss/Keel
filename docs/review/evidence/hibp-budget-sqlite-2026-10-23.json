@@ -1,0 +1,325 @@
+{
+  "schema": 1,
+  "transport": "synthetic WordPress pre_http_request; no live HIBP calls",
+  "cases": [
+    {
+      "name": "adapter",
+      "status": "passed",
+      "seconds": 0.645
+    },
+    {
+      "name": "initialization",
+      "status": "passed",
+      "seconds": 6.599
+    },
+    {
+      "name": "exact_burst",
+      "status": "passed",
+      "seconds": 14.923
+    },
+    {
+      "name": "last_credit",
+      "status": "passed",
+      "seconds": 1.096
+    },
+    {
+      "name": "cap_two",
+      "status": "passed",
+      "seconds": 1.364
+    },
+    {
+      "name": "same_slot",
+      "status": "passed",
+      "seconds": 0.785
+    },
+    {
+      "name": "stale_reservation",
+      "status": "passed",
+      "seconds": 2.012
+    },
+    {
+      "name": "stale_http",
+      "status": "passed",
+      "seconds": 2.62
+    },
+    {
+      "name": "stale_claim",
+      "status": "passed",
+      "seconds": 2.422
+    },
+    {
+      "name": "kill_reservation",
+      "status": "passed",
+      "seconds": 2.394
+    },
+    {
+      "name": "kill_http",
+      "status": "passed",
+      "seconds": 2.578
+    },
+    {
+      "name": "publisher_rollback",
+      "status": "passed",
+      "seconds": 2.311
+    },
+    {
+      "name": "cache_paths",
+      "status": "passed",
+      "seconds": 3.272
+    },
+    {
+      "name": "storage",
+      "status": "passed",
+      "seconds": 19.17
+    },
+    {
+      "name": "scope",
+      "status": "passed",
+      "seconds": 0.774
+    }
+  ],
+  "performance": {
+    "adapter": {
+      "milliseconds": 7.754,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 18,
+        "store_reads": 10,
+        "store_writes": 4,
+        "http": 0,
+        "begins": 2,
+        "commits": 1,
+        "rollbacks": 1
+      },
+      "bootstrap": {
+        "queries": 4,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 1,
+      "operation_unit": "operation",
+      "per_operation": {
+        "milliseconds": 7.754,
+        "queries": 18.0,
+        "store_reads": 10.0,
+        "store_writes": 4.0,
+        "http": 0.0,
+        "begins": 2.0,
+        "commits": 1.0,
+        "rollbacks": 1.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "cold_miss": {
+      "milliseconds": 8.51,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 18,
+        "store_reads": 8,
+        "store_writes": 6,
+        "http": 1,
+        "begins": 2,
+        "commits": 2,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 4,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 1,
+      "operation_unit": "lookup",
+      "per_operation": {
+        "milliseconds": 8.51,
+        "queries": 18.0,
+        "store_reads": 8.0,
+        "store_writes": 6.0,
+        "http": 1.0,
+        "begins": 2.0,
+        "commits": 2.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "cached_hit_100": {
+      "milliseconds": 49.009,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 100,
+        "store_reads": 100,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 4,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 100,
+      "operation_unit": "lookup",
+      "per_operation": {
+        "milliseconds": 0.49009,
+        "queries": 1.0,
+        "store_reads": 1.0,
+        "store_writes": 0.0,
+        "http": 0.0,
+        "begins": 0.0,
+        "commits": 0.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "exhausted_100": {
+      "milliseconds": 230.589,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 401,
+        "store_reads": 400,
+        "store_writes": 1,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 4,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 100,
+      "operation_unit": "lookup",
+      "per_operation": {
+        "milliseconds": 2.30589,
+        "queries": 4.01,
+        "store_reads": 4.0,
+        "store_writes": 0.01,
+        "http": 0.0,
+        "begins": 0.0,
+        "commits": 0.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "no_screening_bootstrap": {
+      "milliseconds": 0.004,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 0,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 4,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 1,
+      "operation_unit": "operation",
+      "per_operation": {
+        "milliseconds": 0.004,
+        "queries": 0.0,
+        "store_reads": 0.0,
+        "store_writes": 0.0,
+        "http": 0.0,
+        "begins": 0.0,
+        "commits": 0.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "storage_2048": {
+      "milliseconds": 18540.332,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 38953,
+        "store_reads": 16404,
+        "store_writes": 14348,
+        "http": 0,
+        "begins": 4100,
+        "commits": 4100,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 4,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 2048,
+      "operation_unit": "storage_iteration",
+      "per_operation": {
+        "milliseconds": 9.052896,
+        "queries": 19.02002,
+        "store_reads": 8.009766,
+        "store_writes": 7.005859,
+        "http": 0.0,
+        "begins": 2.001953,
+        "commits": 2.001953,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    }
+  },
+  "limitations": [
+    "Lease caps bound valid admissions, not physical sockets after suspension.",
+    "Expired-owner tests advance persisted lease expiry via fixture CAS; no wall-clock override.",
+    "Multisite and persistent-cache proof require the corresponding provisioned lab."
+  ],
+  "backend": {
+    "class": "WP_SQLite_DB",
+    "engine": "sqlite"
+  },
+  "burst_conservation": {
+    "attempts": 11,
+    "admitted": 10,
+    "denied": 1,
+    "initial_credit_units": 600,
+    "refilled_credit_units": 12,
+    "spent_credit_units": 600,
+    "remaining_credit_units": 12
+  },
+  "stale_http_diagnostic": {
+    "success_unchanged": true,
+    "sampled_reason": "budget_unavailable",
+    "verdict": "unknown"
+  },
+  "persistent_cache": null,
+  "multisite": false,
+  "cleanup": "canonical scope fixed budget rows removed; no uninstall"
+}

@@ -267,11 +267,25 @@ installs. Site Health must not become the performance problem it is diagnosing.
   accessibility evidence from unperformed manual speech/WebKit/RTL testing and
   includes a synthetic Playground review demo. No version bump or release.
 
-- [x] **Run the focused accessibility regression pass** — 2026-10-23; branch work, unreleased.
+- [x] **Run the focused accessibility regression pass** — merged in #314 (`1d754a9`); unreleased. Verified 2026-10-23.
   Fix locked-checkbox page navigation and WebKit table arrow scrolling. Browser/RTL
   evidence and the remaining manual VoiceOver/native Safari limits are recorded in
   [the focused accessibility record](docs/review/focused-accessibility-2026-10-23.md).
   No version bump, new setting or release.
+
+- [x] **Review the bounded HIBP lookup budget design** — approved for implementation.
+  The user approved burst 10, one credit/minute, two admission leases and 64 fixed
+  cache slots, with cached verdicts ahead of throttling and explicit unknown on denial.
+  See the [bounded HIBP design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
+- [x] **Implement and verify the bounded HIBP lookup budget** — implemented in
+  [#316](https://github.com/dknauss/Keel/pull/316), unreleased.
+  Fixed database authority, two fenced leases, 64 cache slots, sampled shared
+  diagnostics and paged uninstall preserve the 44-setting schema. SQLite labs
+  and all four MySQL/MariaDB × WordPress floor/current cells pass, including
+  process/connection loss, Redis, two networks, site-only activation and cleanup.
+  See the [verification record](docs/review/bounded-hibp-budget-2026-10-23.md).
+  AX counterpart remains tracked in [#315](https://github.com/dknauss/Keel/issues/315).
+  #313 and #314 remain merged and unreleased. No version bump or release.
 
 ## Later
 
@@ -346,13 +360,10 @@ installs. Site Health must not become the performance problem it is diagnosing.
   Do 1 and 2 first — both done. Report-only remains the rule, and 3a stays inside
   it: reading the hook array changes nothing and asks nobody.
 
-- [ ] **Rate-limit the breach lookup** — undecided. a5e38bb moved the free
-  rejections ahead of the network call, which narrows the amplification the review
-  found without closing it: an attacker sending plausible passwords still gets one
-  outbound request and one cache entry each. Closing it means a rate limit keyed to
-  something, and every candidate key has a cost — per user punishes shared accounts,
-  per IP punishes NAT, global punishes everyone during an attack. Decide the key
-  before writing the code.
+- [x] **Complete the bounded breach-lookup budget verification** — implemented and
+  verified in [#316](https://github.com/dknauss/Keel/pull/316); unreleased.
+  See the active item and verification record above. The AX counterpart remains
+  tracked in [#315](https://github.com/dknauss/Keel/issues/315); no version bump, tag or release.
 
 - [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   Core’s update requests include site identity, environment categories and installed

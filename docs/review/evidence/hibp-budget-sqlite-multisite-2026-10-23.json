@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "transport": "synthetic WordPress pre_http_request; no live HIBP calls",
+  "cases": [
+    {
+      "name": "adapter",
+      "status": "passed",
+      "seconds": 0.751
+    },
+    {
+      "name": "scope",
+      "status": "passed",
+      "seconds": 0.88
+    },
+    {
+      "name": "cache_paths",
+      "status": "passed",
+      "seconds": 3.618
+    }
+  ],
+  "performance": {
+    "adapter": {
+      "milliseconds": 8.069,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 18,
+        "store_reads": 10,
+        "store_writes": 4,
+        "http": 0,
+        "begins": 2,
+        "commits": 1,
+        "rollbacks": 1
+      },
+      "bootstrap": {
+        "queries": 8,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 1,
+      "operation_unit": "operation",
+      "per_operation": {
+        "milliseconds": 8.069,
+        "queries": 18.0,
+        "store_reads": 10.0,
+        "store_writes": 4.0,
+        "http": 0.0,
+        "begins": 2.0,
+        "commits": 1.0,
+        "rollbacks": 1.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "cold_miss": {
+      "milliseconds": 8.521,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 18,
+        "store_reads": 8,
+        "store_writes": 6,
+        "http": 1,
+        "begins": 2,
+        "commits": 2,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 8,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 1,
+      "operation_unit": "lookup",
+      "per_operation": {
+        "milliseconds": 8.521,
+        "queries": 18.0,
+        "store_reads": 8.0,
+        "store_writes": 6.0,
+        "http": 1.0,
+        "begins": 2.0,
+        "commits": 2.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "cached_hit_100": {
+      "milliseconds": 50.271,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 100,
+        "store_reads": 100,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 8,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 100,
+      "operation_unit": "lookup",
+      "per_operation": {
+        "milliseconds": 0.50271,
+        "queries": 1.0,
+        "store_reads": 1.0,
+        "store_writes": 0.0,
+        "http": 0.0,
+        "begins": 0.0,
+        "commits": 0.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "exhausted_100": {
+      "milliseconds": 204.058,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 401,
+        "store_reads": 400,
+        "store_writes": 1,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 8,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 100,
+      "operation_unit": "lookup",
+      "per_operation": {
+        "milliseconds": 2.04058,
+        "queries": 4.01,
+        "store_reads": 4.0,
+        "store_writes": 0.01,
+        "http": 0.0,
+        "begins": 0.0,
+        "commits": 0.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    },
+    "no_screening_bootstrap": {
+      "milliseconds": 0.012,
+      "peak_bytes": 44564480,
+      "metrics": {
+        "queries": 0,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "bootstrap": {
+        "queries": 8,
+        "store_reads": 0,
+        "store_writes": 0,
+        "http": 0,
+        "begins": 0,
+        "commits": 0,
+        "rollbacks": 0
+      },
+      "operations": 1,
+      "operation_unit": "operation",
+      "per_operation": {
+        "milliseconds": 0.012,
+        "queries": 0.0,
+        "store_reads": 0.0,
+        "store_writes": 0.0,
+        "http": 0.0,
+        "begins": 0.0,
+        "commits": 0.0,
+        "rollbacks": 0.0
+      },
+      "timing_scope": "operation only; excludes WordPress bootstrap and process startup",
+      "memory_scope": "whole-worker peak, not incremental operation allocation"
+    }
+  },
+  "limitations": [
+    "Lease caps bound valid admissions, not physical sockets after suspension.",
+    "Expired-owner tests advance persisted lease expiry via fixture CAS; no wall-clock override.",
+    "Multisite and persistent-cache proof require the corresponding provisioned lab."
+  ],
+  "backend": {
+    "class": "WP_SQLite_DB",
+    "engine": "sqlite"
+  },
+  "multisite": true,
+  "persistent_cache": null,
+  "cleanup": "canonical scope fixed budget rows removed; no uninstall"
+}

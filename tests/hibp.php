@@ -106,6 +106,7 @@ defined( 'MINUTE_IN_SECONDS' ) || define( 'MINUTE_IN_SECONDS', 60 );
 
 define( 'ABSPATH', __DIR__ . '/' );
 
+require __DIR__ . '/stubs/hibp-store.php';
 require dirname( __DIR__ ) . '/keel.php';
 
 function keel_assert( $cond, $msg ) {
@@ -211,6 +212,7 @@ keel_assert( keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ) !== $ai_wa
  * nothing stopped a refactor from reordering them.
  */
 function keel_hibp_reset( $code, $body ) {
+	$GLOBALS['wpdb']              = new Keel_HIBP_Test_DB();
 	$GLOBALS['keel_transients']   = array();
 	$GLOBALS['keel_object_cache'] = array();
 	$GLOBALS['keel_http_calls']   = 0;
@@ -226,28 +228,16 @@ function keel_hibp_reset( $code, $body ) {
  * @return bool
  */
 function keel_hibp_anything_cached() {
-	/*
-	 * Range entries only. The failure record is a transient too, and it is
-	 * *supposed* to be written when a lookup fails — counting it here would make
-	 * "nothing was cached" false for exactly the responses this is checking, and
-	 * the assertion would be measuring the diagnostic instead of the cache.
-	 */
-	$range = array_filter(
-		array_keys( (array) $GLOBALS['keel_transients'] ),
-		static function ( $key ) {
-			return 'keel_hibp_unavailable' !== $key;
-		}
-	);
-
-	return ! empty( $range ) || ! empty( $GLOBALS['keel_object_cache'] );
+	$rows = $GLOBALS['wpdb']->pdo->query( "SELECT option_value FROM wp_options WHERE option_name LIKE '%slot_%'" )->fetchAll( PDO::FETCH_COLUMN ); // phpcs:ignore WordPress.DB.RestrictedClasses -- SQL-backed test double.
+	foreach ( $rows as $raw ) {
+		$slot = json_decode( $raw, true );
+		if ( ! empty( $slot['data'] ) ) {
+			return true; }
+	}
+	return false;
 }
 
 $live_suffix = strtoupper( substr( sha1( 'correct-horse-battery-staple-9271' ), 5 ) );
-
-// A stable, per-installation generation namespaces both cache layers.
-$generation = keel_hibp_cache_generation();
-keel_assert( '' !== $generation, 'The HIBP cache generation is created on first use.' );
-keel_assert( keel_hibp_cache_generation() === $generation, 'The HIBP cache generation is stable within an installation.' );
 
 // The reported case: a 200 whose body is empty.
 keel_hibp_reset( 200, '' );
@@ -301,14 +291,11 @@ $before = $GLOBALS['keel_http_calls'];
 keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
 keel_assert( $GLOBALS['keel_http_calls'] === $before, 'A second lookup for the same prefix is served from cache.' );
 
-// Simulate uninstall and reinstall while an external cache keeps the old
-// entries. A new generation must miss those entries and make a live request.
-$old_generation = keel_hibp_cache_generation();
-delete_option( 'keel_hibp_cache_generation' );
+// Uninstall removes fixed rows; external cache entries cannot restore them.
+$GLOBALS['wpdb']->query( 'DELETE FROM wp_options' );
 $before = $GLOBALS['keel_http_calls'];
 keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( keel_hibp_cache_generation() !== $old_generation, 'Reinstall creates a different HIBP cache generation.' );
-keel_assert( $GLOBALS['keel_http_calls'] === $before + 1, 'A reinstall cannot read entries left under the old cache generation.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before + 1, 'A reinstall cannot read stale external range caches.' );
 
 /*
  * TLS verification is what makes the hostile-upstream case require a real
@@ -326,86 +313,101 @@ keel_assert(
 	'The lookup asks for padding, so response size cannot reveal how many real matches a prefix had.'
 );
 
-/*
- * --- an outage is recorded, and a working site records nothing ---
- *
- * The point of the third value. Screening still fails open, so the assertions
- * above stand; these are about whether anybody could ever find out that it did.
- */
-$GLOBALS['keel_transients']   = array();
-$GLOBALS['keel_object_cache'] = array();
-
-keel_assert( null === keel_hibp_last_failure(), 'A site that has not failed has nothing recorded.' );
-
-keel_hibp_reset( 0, '' );
-$GLOBALS['keel_http_reply'] = new WP_Error( 'http_request_failed', 'down' );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-
-$record = keel_hibp_last_failure();
-keel_assert( is_array( $record ), 'An unreachable API leaves a record.' );
-keel_assert( 'unreachable' === $record['kind'], 'The record says what kind of failure it was: ' . $record['kind'] );
-keel_assert( 1 === $record['count'], 'One failure counts once.' );
-
-/*
- * The record must carry nothing derived from the password. The hash prefix is
- * k-anonymous by design, but a log of which prefixes a site has looked up is
- * still a record of its passwords' shape, and no diagnostic needs it.
- */
-$serialised = json_encode( $record ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Test harness; wp_json_encode() is not stubbed here.
-$prefix     = strtoupper( substr( sha1( 'correct-horse-battery-staple-9271' ), 0, 5 ) );
-keel_assert( false === strpos( $serialised, 'correct-horse' ), 'The record does not contain the password.' );
-keel_assert( false === strpos( $serialised, $prefix ), 'Nor the hash prefix that was looked up.' );
-
-// A different failure replaces the record rather than accumulating a second one.
-keel_hibp_reset( 200, '<html>captive portal</html>' );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( 'malformed' === keel_hibp_last_failure()['kind'], 'A different failure kind replaces the record.' );
-
-// A non-200 records its status, so a rate limit is distinguishable from an outage.
+// Sampled diagnostics contain no credential material and do not count denials.
 keel_hibp_reset( 429, '' );
 keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( 'http_429' === keel_hibp_last_failure()['kind'], 'A rate limit is recorded as its own status rather than as "unreachable".' );
-
-// And screening still fails open throughout: a third-party outage never locks
-// anybody out of their own account.
-keel_assert( false === keel_password_is_pwned( 'correct-horse-battery-staple-9271' ), 'An unknown verdict still reads as not-breached to the password policy.' );
-
-/*
- * --- a success clears the outage record, and is itself recorded ---
- *
- * Both halves of the review finding. The Site Health copy promised the notice
- * clears once a lookup succeeds and nothing ever cleared it; and "no failure
- * recorded" was being reported as "screening is working", which it is not —
- * a site where no lookup has ever run has no record either way.
- */
-$GLOBALS['keel_transients']   = array();
-$GLOBALS['keel_object_cache'] = array();
-$GLOBALS['keel_options']      = array();
-
-keel_assert( null === keel_hibp_last_success(), 'A site where no lookup has ever completed records no success.' );
-
-// Fail, then succeed.
-keel_hibp_reset( 0, '' );
-$GLOBALS['keel_http_reply'] = new WP_Error( 'http_request_failed', 'down' );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( null !== keel_hibp_last_failure(), 'Precondition: the outage is recorded.' );
-
-$GLOBALS['keel_transients']   = array( 'keel_hibp_unavailable' => $GLOBALS['keel_transients']['keel_hibp_unavailable'] );
-$GLOBALS['keel_object_cache'] = array();
-keel_hibp_reset( 200, $live_suffix . ':3' );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-
-keel_assert( null === keel_hibp_last_failure(), 'A live successful response clears the outage record, as the copy promises.' );
-keel_assert( null !== keel_hibp_last_success(), 'And records that screening completed.' );
-
-// A cache hit proves nothing about the service now, so it must not clear.
-$GLOBALS['keel_transients']['keel_hibp_unavailable'] = array(
-	'kind'  => 'unreachable',
-	'first' => time(),
-	'seen'  => time(),
-	'count' => 1,
+$record = keel_hibp_last_failure();
+keel_assert( 'http_429' === $record['kind'], 'HTTP rate limiting is distinguishable.' );
+keel_assert( ! isset( $record['count'] ), 'Sampling is not a denied-lookup counter.' );
+keel_hibp_budget_note( 'malformed' );
+keel_assert( keel_hibp_last_failure() === $record, 'Changing reasons cannot bypass the five-minute sampling interval.' );
+$GLOBALS['keel_http_reply'] = array(
+	'code' => 200,
+	'body' => $live_suffix . ':3',
 );
+keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A live lookup can recover.' );
+keel_assert( null !== keel_hibp_last_success(), 'Live completion records success.' );
+keel_assert( keel_hibp_last_failure() === $record, 'Success preserves the bounded sampling cadence.' );
+$raw = keel_hibp_budget_read( keel_hibp_budget_scope(), 'keel_hibp_v2_0_state' );
 keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( null !== keel_hibp_last_failure(), 'A cached lookup does not clear the record: it is not evidence the service recovered.' );
+keel_assert( keel_hibp_budget_read( keel_hibp_budget_scope(), 'keel_hibp_v2_0_state' ) === $raw, 'A cache hit writes neither budget nor recovery evidence.' );
+keel_assert( empty( $GLOBALS['keel_transients'] ) && empty( $GLOBALS['keel_object_cache'] ), 'No new unbounded legacy or persistent cache entries.' );
+keel_assert( false === keel_password_is_pwned( 'anything' ), 'Opt-out and fail-open adapter remain unchanged.' );
+
+// Atomic admission and bounded state tests (real parallel proof is a separate lab).
+keel_hibp_reset( 200, $live_suffix . ':1' );
+$scope = keel_hibp_budget_scope();
+$a     = keel_hibp_budget_admit( $scope, '00000' );
+$b     = keel_hibp_budget_admit( $scope, '01000' );
+keel_assert( isset( $a['ticket'], $b['ticket'] ), 'Two distinct slots can be admitted.' );
+keel_assert( 'lookup_busy' === keel_hibp_budget_admit( $scope, '02000' )['error'], 'A third active lookup is denied.' );
+keel_assert( 'lookup_busy' === keel_hibp_budget_admit( $scope, '40000' )['error'], 'A colliding prefix cannot create another same-slot lease.' );
+keel_assert( keel_hibp_budget_finish( $a['ticket'], null, 'unreachable' ), 'Failure releases its own lease.' );
+keel_assert( ! keel_hibp_budget_finish( $a['ticket'], $live_suffix . ':1' ), 'Released tickets cannot publish or release twice.' );
+keel_hibp_budget_finish( $b['ticket'], null, 'malformed' );
+$state = json_decode( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), true );
+keel_assert( 480 === $state['credit'], 'Failure does not refund consumed credits.' );
+$state['credit'] = 0;
+$old             = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $old, $state );
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope, '02000' )['error'], 'Empty allowance denies outbound work.' );
+$GLOBALS['wpdb']->query( "UPDATE wp_options SET option_value = '{}' WHERE option_name = 'keel_hibp_v2_0_state'" );
+$before = $GLOBALS['keel_http_calls'];
+keel_assert( null === keel_hibp_lookup( 'uncached-other-value' ), 'Corrupt authority is unknown.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before, 'Corrupt authority cannot mint a fresh burst.' );
+keel_assert( '{}' === keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), 'Invalid authority is never reset.' );
+keel_hibp_reset( 200, $live_suffix . ':1' );
+$GLOBALS['wpdb']->pdo->beginTransaction();
+$GLOBALS['wpdb']->query( "INSERT INTO wp_options VALUES ('caller-owned','pending','no')" );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Caller-owned transaction denies new outbound work.' );
+keel_assert( 0 === $GLOBALS['keel_http_calls'], 'No HTTP runs inside a caller-owned transaction.' );
+keel_assert( $GLOBALS['wpdb']->pdo->inTransaction(), 'Lookup never commits the caller transaction.' );
+keel_assert( 1 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'No budget or diagnostic writes join the caller transaction.' );
+$GLOBALS['wpdb']->pdo->rollBack();
+keel_assert( 0 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'Caller retains rollback control.' );
+// Cached positive verdicts survive budget exhaustion and external cache flush.
+keel_hibp_reset( 200, $live_suffix . ':1' );
+keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Seed a known breached range.' );
+$scope           = keel_hibp_budget_scope();
+$old             = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+$state           = json_decode( $old, true );
+$state['credit'] = 0;
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $old, $state );
+$GLOBALS['keel_object_cache'] = array();
+$before                       = $GLOBALS['keel_http_calls'];
+keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An exhausted budget cannot bypass a cached breached match.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before, 'External cache flush does not replenish allowance or discard fixed ranges.' );
+// An operator may raise the transport cap, but retention remains fixed.
+$large = implode( "\n", array_fill( 0, 3600, $live_suffix . ':1' ) );
+$GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] = 200000;
+keel_hibp_reset( 200, $large );
+keel_assert( strlen( $large ) > 131072 && keel_hibp_body_is_valid( $large ), 'Oversized fixture is a valid complete range.' );
+keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Oversized valid live response preserves its positive verdict.' );
+keel_assert( ! keel_hibp_anything_cached(), 'Raising the transport cap cannot raise fixed retention bounds.' );
+unset( $GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] );
+// Case-insensitive DB collations must not weaken byte-exact CAS.
+keel_hibp_reset( 200, '' );
+$scope   = keel_hibp_budget_scope();
+$initial = keel_hibp_budget_initial( keel_hibp_budget_policy(), time() );
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', null, $initial );
+$raw = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+keel_assert( ! keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', strtoupper( $raw ), $initial ), 'CAS rejects a differently cased expected byte string.' );
+$initial['rev']                = 0;
+$GLOBALS['wpdb']->cas_attempts = 0;
+$GLOBALS['wpdb']->cas_failures = 10;
+$denied                        = keel_hibp_budget_admit( $scope, '02000' );
+keel_assert( 'budget_unavailable' === $denied['error'], 'Repeated CAS contention produces unknown.' );
+keel_assert( 3 === $GLOBALS['wpdb']->cas_attempts, 'Admission stops after three CAS attempts without polling.' );
+
+// Capability failures must remain unknown rather than interrupting password changes.
+keel_hibp_reset( 200, $live_suffix . ':1' );
+$GLOBALS['wpdb']->driver_failure = true;
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A throwing driver capability check remains unknown.' );
+keel_assert( 0 === $GLOBALS['keel_http_calls'], 'A throwing capability check starts no HTTP.' );
+keel_assert( 0 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'Failed capability discovery creates no authority.' );
+keel_assert( false === $GLOBALS['wpdb']->suppress_errors( false ), 'Capability failures restore database error-suppression state.' );
+$GLOBALS['wpdb']->suppress_errors( true );
+keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Repeated driver failures remain unknown.' );
+keel_assert( true === $GLOBALS['wpdb']->suppress_errors( false ), 'Capability failures also preserve existing suppression.' );
 
 echo "hibp: OK\n";

@@ -175,11 +175,11 @@ check( 'unknown' === $unknown['confidence'], 'Ambiguous plugin prefixes remain u
 check( 'high' === keel_defaults_autoload_owner( 'theme_mods_test-theme' )['confidence'], 'A verified theme-mods name identifies its installed theme.' );
 check( 'unknown' === keel_defaults_autoload_owner( 'some_random_key' )['confidence'], 'Unrecognized names do not acquire invented owners.' );
 check( 'high' === keel_defaults_autoload_owner( 'rewrite_rules' )['confidence'], 'Known core options are distinguished from inferred plugin names.' );
-foreach ( array( 'keel_settings', 'keel_defaults', '_transient_keel_cron_report', '_transient_timeout_keel_shortcode_residue', '_transient_keel_hibp_0123456789abcdef0123456789abcdef_5BAA6', '_transient_keel_backport_install_result_12' ) as $own ) {
+foreach ( array( 'keel_hibp_v2_0_state', 'keel_hibp_v2_12_slot_63', 'keel_settings', 'keel_defaults', '_transient_keel_cron_report', '_transient_timeout_keel_shortcode_residue', '_transient_keel_hibp_0123456789abcdef0123456789abcdef_5BAA6', '_transient_keel_backport_install_result_12' ) as $own ) {
 	$owner = keel_defaults_autoload_owner( $own );
 	check( 'Keel' === $owner['owner'] && 'high' === $owner['confidence'], "Keel attributes its own stored name {$own}." );
 }
-foreach ( array( 'keel_unrelated', '_transient_keel_hibp_short_5BAA6', '_transient_keel_backport_install_result_x', 'keel_settings_extra' ) as $other ) {
+foreach ( array( 'keel_hibp_v2_0_slot_64', 'keel_hibp_v2_0_slot_100', 'keel_unrelated', '_transient_keel_hibp_short_5BAA6', '_transient_keel_backport_install_result_x', 'keel_settings_extra' ) as $other ) {
 	check( 'Keel' !== keel_defaults_autoload_owner( $other )['owner'], "A name Keel does not write is not claimed: {$other}." );
 }
 foreach ( array( '_transient_wp_core_block_css_files', '_transient_wp_styles_for_blocks', '_transient_health-check-site-status-result', '_transient_doing_cron', '_transient_timeout_plugin_slugs', '_site_transient_update_plugins', '_site_transient_wp_plugin_dependencies_plugin_data' ) as $core ) {
