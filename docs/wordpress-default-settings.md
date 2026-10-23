@@ -724,7 +724,7 @@ tidy-date toggles:
 | --- | --- |
 | Leave unchanged | Adds no helper columns or table formatting. |
 | Tidy existing tables | Auto-sizes post-type tables, shortens known headings, tidies dates and reduces initial column visibility. |
-| Tidy + helper columns | Tidies tables and adds ID, Image and sortable Modified; also adds Media file size and Users registration/last-login helpers. |
+| Tidy + helper columns | Tidies tables and adds ID, Image and sortable Modified (ID and Modified stay off until ticked in Screen Options); also adds Media file size and Users registration/last-login helpers. |
 
 Both Tidy modes show the site's date and time consistently in Published and
 Modified. There is no separate time setting. Scheduled and missed-schedule labels

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T01:29:31+00:00\n"
+"POT-Creation-Date: 2026-10-23T01:34:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -2387,7 +2387,7 @@ msgid "Admin List Tables"
 msgstr ""
 
 #: includes/strings.php:230
-msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
+msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
 msgstr ""
 
 #: includes/strings.php:233
