@@ -49,6 +49,8 @@ Use an explicitly disposable localhost Studio site and its `wp_cli` tool. A temp
 
 Cleanup was executed and verified on both labs: exact original authority restored, synthetic users deleted, wrapper and fixture-data files removed. The multisite lab was stopped; the previously running standalone lab remains running. No production site was accessed or changed.
 
+PR review corrected the cleanup helper to recreate a saved authority when the final `none` case has deleted its row. A separate real WordPress/SQLite regression check passed restoration of an existing snapshot after deletion and restoration of original absence; the lab's original authority was restored afterward. This changes only the lab helper, not the HIBP runtime or browser results above.
+
 ## Gates and limits
 
 PHP coding standards and all standalone regression scripts pass. The browser harness and all PHP fixtures pass syntax checks. Runtime files, assets and version metadata match #317 exactly.

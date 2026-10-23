@@ -17,7 +17,7 @@ global $wpdb;
 if ( null === $original['raw'] ) {
 	$wpdb->query( $wpdb->prepare( "DELETE FROM `{$scope['table']}` WHERE option_name=%s", $key ) );
 } elseif ( is_string( $original['raw'] ) ) {
-	$wpdb->query( $wpdb->prepare( "UPDATE `{$scope['table']}` SET option_value=%s WHERE option_name=%s", $original['raw'], $key ) );
+	$wpdb->query( $wpdb->prepare( "INSERT INTO `{$scope['table']}` (option_name,option_value,autoload) VALUES(%s,%s,'no') ON DUPLICATE KEY UPDATE option_value=VALUES(option_value)", $key, $original['raw'] ) );
 } else {
 	throw new RuntimeException( 'Original authority was unreadable.' ); }
 if ( keel_hibp_budget_read( $scope, $key ) !== $original['raw'] ) {
