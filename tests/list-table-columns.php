@@ -124,9 +124,12 @@ foreach ( $rules as $rule ) {
 }
 check( 'table-layout: auto;' === ( $declared['body.edit-php table.wp-list-table.fixed'] ?? '' ), 'Fewer columns sizes post-list columns to their content' );
 check( 'width: 50%;' === ( $declared['body.edit-php table.wp-list-table.fixed .column-title'] ?? '' ), 'Title keeps a floor so content sizing cannot squeeze it' );
-check( 'overflow-wrap: break-word;' === ( $declared['body.edit-php table.wp-list-table.fixed td:not(.column-title)'] ?? '' ), 'Other cells may break long values such as URLs' );
+check( 'overflow-wrap: anywhere;' === ( $declared['body.edit-php table.wp-list-table.fixed td:not(.column-title)'] ?? '' ), 'Other cells may break long values such as URLs' );
 check( 'width: 1%;' === ( $declared['body.edit-php table.wp-list-table.fixed .check-column, body.edit-php table.wp-list-table.fixed .column-keel_thumb'] ?? '' ), 'Checkbox and Image shrink so they never take spare width' );
-check( 4 === count( $declared ), 'Fewer columns CSS declares nothing else' );
+check( 'display: flex; align-items: flex-start;' === (string) preg_replace( '/\s+/', ' ', $declared['body.edit-php table.wp-list-table.fixed th.sortable > a, body.edit-php table.wp-list-table.fixed th.sorted > a'] ?? '' ), 'Sort arrows sit beside their label, not below it' );
+check( 'flex-shrink: 0;' === ( $declared['body.edit-php table.wp-list-table.fixed th.sortable > a > .sorting-indicators, body.edit-php table.wp-list-table.fixed th.sorted > a > .sorting-indicators'] ?? '' ), 'Sort arrows never shrink under their label' );
+check( 'white-space: nowrap;' === ( $declared['body.edit-php table.wp-list-table.fixed th.column-date > a > span:first-child, body.edit-php table.wp-list-table.fixed th.column-keel_modified > a > span:first-child'] ?? '' ), 'Published and Modified labels stay on one line' );
+check( 7 === count( $declared ), 'Fewer columns CSS declares nothing else' );
 check( 1 === preg_match( '/@media screen and \(min-width: 783px\)/', $fewer_css ), 'Desktop layout only' );
 $GLOBALS['columns']['jetpack_seo_schema'] = 'Schema';
 $GLOBALS['columns']['jetpack_seo_search'] = 'Search';

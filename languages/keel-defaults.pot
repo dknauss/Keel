@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T01:34:06+00:00\n"
+"POT-Creation-Date: 2026-10-23T06:21:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -305,7 +305,7 @@ msgstr ""
 
 #: includes/autoload-diagnostics.php:263
 #: includes/settings-page.php:24
-#: includes/settings-page.php:614
+#: includes/settings-page.php:610
 #: includes/shortcodes.php:229
 #: includes/site-health.php:89
 #: includes/site-health.php:192
@@ -1410,99 +1410,95 @@ msgid "Environments"
 msgstr ""
 
 #: includes/settings-page.php:182
-msgid "Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognizes common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database."
+msgid "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognizes common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen."
 msgstr ""
 
 #: includes/settings-page.php:186
-msgid "<strong>Outgoing email stops at the edge of production.</strong> A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived."
+msgid "<strong>Email:</strong> outside production, outgoing mail is held back and an admin notice says so. WordPress still reports each message as sent, so code behaves as it will in production."
 msgstr ""
 
 #: includes/settings-page.php:190
-msgid "WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of <code>wp_mail()</code> then behaves the way it will in production, instead of taking an error path that only ever runs on staging."
+msgid "<strong>Environment indicator:</strong> a color-coded label in the admin bar. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
 msgstr ""
 
 #: includes/settings-page.php:194
-msgid "<strong>The environment indicator is the color-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn't needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It's useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences."
+msgid "Mail held back on a live site? Check <code>WP_ENVIRONMENT_TYPE</code> in <code>wp-config.php</code> first."
 msgstr ""
 
-#: includes/settings-page.php:198
-msgid "If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting <code>WP_ENVIRONMENT_TYPE</code> explicitly in <code>wp-config.php</code> is worth doing on every install regardless, because core, plugins and themes all read it."
-msgstr ""
-
-#: includes/settings-page.php:207
+#: includes/settings-page.php:203
 msgid "Overlapping plugins"
 msgstr ""
 
-#: includes/settings-page.php:209
+#: includes/settings-page.php:205
 msgid "Many of Keel's defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one plugin's activity prevails. There is no error, nothing is logged, and the plugin that was quietly overruled goes on showing the setting you think it applied. That is why WordPress can have two plugins configured to disable comments and still have comments."
 msgstr ""
 
-#: includes/settings-page.php:210
+#: includes/settings-page.php:206
 msgid "Keel reports collisions with other plugins in two ways, and they answer different questions."
 msgstr ""
 
-#: includes/settings-page.php:212
+#: includes/settings-page.php:208
 msgid "<strong>The first method names plugins:</strong> another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either one. Compare their settings and decide which plugin should own the disabling function."
 msgstr ""
 
-#: includes/settings-page.php:216
+#: includes/settings-page.php:212
 msgid "<strong>The second method says a setting is not taking effect:</strong> Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
 msgstr ""
 
-#: includes/settings-page.php:220
+#: includes/settings-page.php:216
 msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
 msgstr ""
 
 #. translators: %s: linked name of the Site Health screen.
-#: includes/settings-page.php:226
+#: includes/settings-page.php:222
 #, php-format
 msgid "<strong>The full collision report, hook by hook, is under %s.</strong> The dashboard and plugins screens carry a short version, and the dashboard notification can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing it means “I have seen this” rather than “never mention this again.”"
 msgstr ""
 
-#: includes/settings-page.php:227
+#: includes/settings-page.php:223
 msgid "Site Health"
 msgstr ""
 
-#: includes/settings-page.php:234
+#: includes/settings-page.php:230
 msgid "Nothing in Keel runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them."
 msgstr ""
 
-#: includes/settings-page.php:239
+#: includes/settings-page.php:235
 msgid "Current posture"
 msgstr ""
 
 #. translators: %s: URL of the Site Health Info screen.
-#: includes/settings-page.php:243
+#: includes/settings-page.php:239
 #, php-format
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:533
+#: includes/settings-page.php:529
 msgid "Locked"
 msgstr ""
 
-#: includes/settings-page.php:565
+#: includes/settings-page.php:561
 msgid "Locked settings"
 msgstr ""
 
 #. translators: %d: number of settings locked by configuration.
-#: includes/settings-page.php:571
+#: includes/settings-page.php:567
 #, php-format
 msgid "Locked by wp-config.php (%d)"
 msgstr ""
 
 #. translators: %d: number of settings locked by network policy.
-#: includes/settings-page.php:573
+#: includes/settings-page.php:569
 #, php-format
 msgid "Locked by network policy (%d)"
 msgstr ""
 
-#: includes/settings-page.php:615
+#: includes/settings-page.php:611
 msgid "Balanced defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:627
-msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
+#: includes/settings-page.php:623
+msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
@@ -2387,7 +2383,7 @@ msgid "Admin List Tables"
 msgstr ""
 
 #: includes/strings.php:230
-msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
+msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users. Where you haven’t saved a preference, Image starts visible; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
 msgstr ""
 
 #: includes/strings.php:233
@@ -2672,7 +2668,7 @@ msgstr ""
 msgid "Keel update policy"
 msgstr ""
 
-#: includes/update-policy-notice.php:89
+#: includes/update-policy-notice.php:90
 msgid "This describes policy, not a guarantee that an update will install. Cron, hosting restrictions and other filters can affect delivery."
 msgstr ""
 
