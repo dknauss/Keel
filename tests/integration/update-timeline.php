@@ -129,11 +129,16 @@ try {
 	$valid['checked'] = $now - 60;
 	$malformed        = $valid;
 	$malformed['data']['core']['wp_version_check'] = 'not-a-timestamp';
-	foreach ( array( false, array(), $malformed, array_merge( $valid, array( 'done' => false ) ), array_merge( $valid, array( 'error' => 'malformed_cron' ) ), $fixture, array_merge( $valid, array( 'checked' => $now - 3601 ) ) ) as $unavailable ) {
+	foreach ( array( false, array(), $malformed, array_merge( $valid, array( 'done' => false ) ), $fixture, array_merge( $valid, array( 'checked' => $now - 3601 ) ) ) as $unavailable ) {
 		$fixture = $unavailable;
 		$html    = $render();
-		$assert( false !== strpos( $html, 'Not read yet' ) && false === strpos( $html, 'Not scheduled' ), 'Missing, pending, failed, malformed, future and expired caches never imply absent jobs.' );
+		$assert( false !== strpos( $html, 'Not read yet' ) && false === strpos( $html, 'Not scheduled' ), 'Missing, pending, malformed, future and expired caches remain unread rather than implying absent jobs.' );
 	}
+	$fixture = array_merge( $valid, array( 'error' => 'malformed_cron' ) );
+	$failed  = keel_defaults_cron_snapshot();
+	$assert( false !== $failed && 'malformed_cron' === $failed['error'], 'Failed collection fixture is a valid cached error, not a rejected malformed snapshot.' );
+	$html = $render();
+	$assert( false !== strpos( $html, 'Scheduled update checks</th><td>Unavailable</td>' ) && false === strpos( $html, 'Not read yet' ) && false === strpos( $html, 'Not scheduled' ), 'Known collection failure is unavailable, distinct from unread evidence and absent jobs.' );
 	$fixture                                     = $valid;
 	$fixture['data']['core']['wp_version_check'] = $now - 30;
 	$html                                        = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, keel_defaults_cron_snapshot(), $now, false );
