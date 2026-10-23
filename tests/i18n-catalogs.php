@@ -304,6 +304,111 @@ foreach ( $source as $string ) {
 	}
 }
 
+/**
+ * Translated entries in a PO file, msgid => msgstr.
+ *
+ * Plural entries are keyed by the singular and carry their forms joined with a
+ * NUL, the way a compiled .mo stores them, so the two can be compared directly.
+ * Untranslated entries are left out: an empty msgstr falls back to the source.
+ *
+ * @param string $path File path.
+ * @return array<string, string>
+ */
+function keel_po_translations( $path ) {
+	$out = array();
+
+	// Reading a catalog off disk in a CLI test; wp_remote_get() is for HTTP.
+	foreach ( preg_split( '/\n\s*\n/', (string) file_get_contents( $path ) ) as $block ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( ! preg_match( '/^msgid "(.+)"$/m', $block, $id ) ) {
+			continue;
+		}
+
+		preg_match_all( '/^msgstr(?:\[\d+\])? "(.*)"$/m', $block, $str );
+		$forms = array_filter( $str[1], 'strlen' );
+
+		if ( array() !== $forms ) {
+			$out[ keel_msgid_to_source( $id[1] ) ] = keel_msgid_to_source( implode( "\0", $str[1] ) );
+		}
+	}
+
+	return $out;
+}
+
+/**
+ * Translated entries in a compiled .mo file, msgid => msgstr.
+ *
+ * @param string $path File path.
+ * @return array<string, string>
+ */
+function keel_mo_translations( $path ) {
+	$data = (string) file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	$head = unpack( 'Vmagic/Vrevision/Vcount/Vids/Vstrs', substr( $data, 0, 20 ) );
+	$out  = array();
+
+	for ( $i = 0; $i < $head['count']; $i++ ) {
+		$id  = unpack( 'Vlen/Voffset', substr( $data, $head['ids'] + 8 * $i, 8 ) );
+		$str = unpack( 'Vlen/Voffset', substr( $data, $head['strs'] + 8 * $i, 8 ) );
+		$key = substr( $data, $id['offset'], $id['len'] );
+
+		// The header entry has an empty msgid, and a plural's msgid carries both
+		// source forms; the singular is what the PO side is keyed by.
+		if ( '' !== $key ) {
+			$out[ explode( "\0", $key )[0] ] = substr( $data, $str['offset'], $str['len'] );
+		}
+	}
+
+	return $out;
+}
+
+// --- every compiled catalog says what its source catalog says ---
+foreach ( glob( $root . '/languages/*.po' ) as $po ) {
+	$mo = preg_replace( '/\.po$/', '.mo', $po );
+
+	if ( ! is_file( $mo ) ) {
+		continue;
+	}
+
+	keel_assert(
+		keel_po_translations( $po ) == keel_mo_translations( $mo ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- key order differs; contents must not.
+		basename( $mo ) . ' is out of date with ' . basename( $po ) . '. WordPress reads only the .mo, so edits to the .po do nothing until it is recompiled. Run: wp i18n make-mo languages/'
+	);
+}
+
+/*
+ * --- en_CA carries every Canadian spelling ---
+ *
+ * The source is US English, so each string that spells a word the Canadian way
+ * differently needs an en_CA entry or that locale reads the US spelling. Only
+ * five of the strings that needed one had it.
+ */
+/**
+ * The prose of a string: markup and <code> spans removed, since `color` in an
+ * attribute or a function name is not a word to respell.
+ *
+ * @param string $text String with possible markup.
+ * @return string
+ */
+function keel_prose( $text ) {
+	return (string) preg_replace( array( '#<code>.*?</code>#', '#<[^>]+>#' ), '', $text );
+}
+
+$en_ca = $root . '/languages/keel-defaults-en_CA.po';
+if ( is_file( $en_ca ) ) {
+	$ca_strings = keel_po_translations( $en_ca );
+	$us_words   = '/\b(behavior|color|labeled|mislabeled|honor|recogniz)/i';
+
+	foreach ( $source as $string ) {
+		if ( ! preg_match( $us_words, keel_prose( $string ), $m ) ) {
+			continue;
+		}
+
+		keel_assert(
+			isset( $ca_strings[ $string ] ) && ! preg_match( $us_words, keel_prose( explode( "\0", $ca_strings[ $string ] )[0] ) ),
+			"keel-defaults-en_CA.po has no Canadian spelling for \"{$m[1]}\" in: \"" . substr( $string, 0, 90 ) . '"'
+		);
+	}
+}
+
 if ( $fail > 0 ) {
 	fwrite( STDERR, "i18n catalogs: {$fail} failed\n" );
 	exit( 1 );
