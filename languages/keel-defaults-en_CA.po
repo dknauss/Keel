@@ -2712,10 +2712,6 @@ msgstr ""
 msgid "Changed by code:"
 msgstr ""
 
-#: includes/extension-updates.php:164
-msgid "a plugin, theme or Keel setting overrides the item’s own toggle; up to ten per type are listed."
-msgstr ""
-
 #: includes/extension-updates.php:165
 msgid "Being on doesn’t guarantee an install: file permissions, version control or a disabled updater can still block it."
 msgstr ""
@@ -2880,4 +2876,8 @@ msgstr ""
 
 #: includes/update-timeline.php:151
 msgid "This is what WordPress knows right now. No installation time is promised. On multisite, update checks and failures are network-wide; the schedule is per site and can be up to an hour old."
+msgstr ""
+
+#: includes/extension-updates.php:164
+msgid "a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed."
 msgstr ""
