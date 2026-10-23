@@ -152,7 +152,7 @@ the tagged sources. See the
 ## Multicall repair — shipped; field confirmation remains
 
 Found 2026-10-05 on a live WordPress.com Atomic site (Jetpack 16.3-a.7, Keel with the
-then-shipped default `xmlrpc_allow_multicall = no`). The repair shipped in 0.6.8;
+then-shipped default `xmlrpc_allow_multicall = no`). The repair shipped in 0.6.7;
 only the maintainer’s WordPress.com settings-save confirmation below remains open.
 
 - [x] **Stop the multicall refusal from cutting a Jetpack site off from WordPress.com**
