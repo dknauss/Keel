@@ -80,6 +80,11 @@ foreach ( $sources as $file ) {
 	// uses — caught by their literal prefix rather than the whole key.
 	if ( preg_match_all( "/'(keel_[a-z0-9_]*)'\s*\.\s*\\\$/i", $code, $m ) ) {
 		foreach ( $m[1] as $key ) {
+			if ( 'keel_hibp_probe_' === $key && 'password-hibp-store.php' === basename( $file ) ) {
+				// A private SQL savepoint is connection-local, not a persistent key.
+				keel_uninstall_assert( false !== strpos( $code, 'SAVEPOINT' ) && false !== strpos( $code, 'RELEASE SAVEPOINT' ), 'The transaction probe releases its connection-local savepoint.' );
+				continue;
+			}
 			$written[ $key ] = basename( $file );
 		}
 	}

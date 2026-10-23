@@ -9,6 +9,7 @@ $job = json_decode( file_get_contents( $argv[1] ), true );
 if ( ! is_array( $job ) || ! is_file( $job['wp'] . '/.hibp-budget-lab' ) || ! is_dir( $job['work'] ) ) {
 	exit( 2 );
 }
+class Keel_HIBP_Lab_Exception extends RuntimeException {}
 $metrics = array(
 	'queries'      => 0,
 	'store_reads'  => 0,
@@ -33,7 +34,7 @@ function hibp_lab_wait( $path ) {
 	$end = microtime( true ) + 25;
 	while ( ! is_file( $path ) ) {
 		if ( microtime( true ) > $end ) {
-			throw new RuntimeException( 'barrier timeout' );
+			throw new Keel_HIBP_Lab_Exception( 'barrier timeout' );
 		}
 		usleep( 5000 );
 	}
@@ -125,12 +126,12 @@ ob_start();
 try {
 	require $job['wp'] . '/wp-load.php';
 	if ( ! defined( 'KEEL_HIBP_BUDGET_LAB' ) || true !== KEEL_HIBP_BUDGET_LAB || ! function_exists( 'keel_hibp_budget_admit' ) ) {
-		throw new RuntimeException( 'lab marker or runtime API missing' );
+		throw new Keel_HIBP_Lab_Exception( 'lab marker or runtime API missing' );
 	}
 	$bootstrap = $metrics;
 	$scope     = keel_hibp_budget_scope();
 	if ( ! $scope || ! preg_match( '/^[a-zA-Z0-9_]+$/D', $scope['table'] ) ) {
-		throw new RuntimeException( 'canonical scope unavailable' );
+		throw new Keel_HIBP_Lab_Exception( 'canonical scope unavailable' );
 	}
 	$state_key = 'keel_hibp_v2_' . $scope['id'] . '_state';
 	function hibp_lab_seed( $credit = null ) {
@@ -141,7 +142,7 @@ try {
 		}
 		$old = keel_hibp_budget_read( $scope, $state_key );
 		if ( ! keel_hibp_budget_write( $scope, $state_key, $old, $state ) ) {
-			throw new RuntimeException( 'fixture seed CAS failed' );
+			throw new Keel_HIBP_Lab_Exception( 'fixture seed CAS failed' );
 		}
 	}
 	function hibp_lab_rows() {
@@ -161,7 +162,7 @@ try {
 	}
 	function hibp_lab_assert( $condition, $message ) {
 		if ( ! $condition ) {
-			throw new RuntimeException( $message );
+			throw new Keel_HIBP_Lab_Exception( $message );
 		}
 	}
 	if ( isset( $job['barrier'] ) ) {
@@ -252,6 +253,10 @@ try {
 			break;
 		case 'adapter':
 			hibp_lab_seed();
+			$errors_before = count( $GLOBALS['EZSQL_ERROR'] ?? array() );
+			for ( $i = 0; $i < 10; ++$i ) {
+				hibp_lab_assert( keel_hibp_budget_connection_idle(), 'idle connection detection failed' ); }
+			hibp_lab_assert( count( $GLOBALS['EZSQL_ERROR'] ?? array() ) === $errors_before, 'expected transaction probes accumulated request error records' );
 			$raw   = keel_hibp_budget_read( $scope, $state_key );
 			$state = json_decode( $raw, true );
 			// A case-only mismatch must lose even under case-insensitive MySQL collation.
@@ -320,7 +325,7 @@ try {
 			break;
 		case 'uninstall':
 			if ( 'true' !== getenv( 'GITHUB_ACTIONS' ) ) {
-				throw new RuntimeException( 'Full uninstall proof requires the disposable CI fixture.' );
+				throw new Keel_HIBP_Lab_Exception( 'Full uninstall proof requires the disposable CI fixture.' );
 			}
 			hibp_lab_seed();
 			// Simulate another caller's stale option-miss cache for every direct SQL key.
@@ -341,7 +346,9 @@ try {
 						'data'  => null,
 					);
 					$old   = keel_hibp_budget_read( $owner_scope, $key );
-					hibp_lab_assert( keel_hibp_budget_write( $owner_scope, $key, $old, $value ), 'uninstall fixture creation failed' );
+					if ( wp_json_encode( $value, JSON_UNESCAPED_SLASHES ) !== $old ) {
+						hibp_lab_assert( keel_hibp_budget_write( $owner_scope, $key, $old, $value ), 'uninstall fixture creation failed' );
+					}
 					$negative[ $key ] = true;
 				}
 				wp_cache_set( 'notoptions', $negative, 'options' );
@@ -404,7 +411,7 @@ try {
 			$result['multisite'] = true;
 			break;
 		default:
-			throw new RuntimeException( 'unsupported lab operation' );
+			throw new Keel_HIBP_Lab_Exception( 'unsupported lab operation' );
 	}
 	$delta = array();
 	foreach ( $metrics as $key => $value ) {
@@ -425,7 +432,7 @@ try {
 } catch ( Throwable $error ) {
 	ob_end_clean();
 	// Only harness-authored assertion messages; never print SQL, WP config or payloads.
-	$message = $error instanceof RuntimeException ? $error->getMessage() : 'unexpected PHP exception: ' . get_class( $error );
+	$message = $error instanceof Keel_HIBP_Lab_Exception ? $error->getMessage() : 'unexpected PHP exception: ' . get_class( $error );
 	hibp_lab_json(
 		$job['work'] . '/result.json',
 		array(

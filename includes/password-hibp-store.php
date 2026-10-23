@@ -134,6 +134,14 @@ function keel_hibp_budget_connection_idle() {
 	$released = false !== $saved ? $wpdb->query( "RELEASE SAVEPOINT `$name`" ) : false; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Same allowlisted private identifier.
 	$idle     = false !== $saved && false === $released && 1305 === $connection->errno;
 	if ( $idle ) {
+		// wpdb records even suppressed errors. Remove only this expected probe
+		// failure so repeated checks cannot grow its per-request error array.
+		global $EZSQL_ERROR;
+		if ( is_array( $EZSQL_ERROR ) ) {
+			$last = end( $EZSQL_ERROR );
+			if ( is_array( $last ) && isset( $last['query'] ) && $wpdb->last_query === $last['query'] ) {
+				array_pop( $EZSQL_ERROR ); }
+		}
 		$wpdb->last_error = $old_error;
 	}
 	$wpdb->suppress_errors( $previous );

@@ -74,7 +74,7 @@ class Worker:
         data = json.loads(path.read_text())
         # Do not propagate raw exception strings or PHP stderr into the report.
         require(code == 0 and data.get('ok') is True,
-                'worker operation failed; inspect its assertion locally before temporary cleanup')
+                'worker operation failed: ' + str(data.get('error', 'no sanitized assertion'))[:250])
         return data
 
     def kill(self):
