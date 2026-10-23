@@ -24,15 +24,15 @@
 
 ## Tasks
 
-- [ ] 1. Add failing `tests/hibp-budget.php` for pure policy/refill/schema rules; run red. Create `includes/password-hibp-budget.php` with scope, fixed-row read/write, state validation/refill, cache read, admission, ownership, completion and sampled evidence. Run green and real adapter smoke tests before integration.
-- [ ] 2. Replace legacy prefix-cache lookup path in `includes/password-hibp.php` with `keel_hibp_budget_admit($scope,$prefix)` returning `body`, `ticket`, or `error`; ticket `{scope,slot,owner,until}`. `keel_hibp_budget_finish($ticket,$body=null,$kind='')` validates/fences completion; `keel_hibp_budget_evidence()` returns `{available,failure,success}` without initialization/writes. Adapt legacy HIBP unit stubs/expectations and prove hit/exhaustion/unknown paths.
-- [ ] 3. Update Site Health and uninstall for the shared evidence/fixed store. Add new denial wording, network authorization, non-writing readers and paged fixed-key cleanup tests; regenerate translations.
-- [ ] 4. Add independent-PHP-worker WordPress integration harness and run SQLite plus MySQL/MariaDB, concurrency, storage, scope, failure/kill, persistent cache and performance cases. Use Studio for local site lifecycle/CLI and an isolated CI database lab where Studio cannot supply MySQL.
-- [ ] 5. Update accepted design status, TODO/roadmap, docs and verification record. Run existing lint/compatibility/static/type/unit gates, deep review, fix findings, record counterpart honestly and open PR. No merge/tag/release.
+- [x] 1. Add failing `tests/hibp-budget.php` for pure policy/refill/schema rules; run red. Create `includes/password-hibp-budget.php` with scope, fixed-row read/write, state validation/refill, cache read, admission, ownership, completion and sampled evidence. Run green and real adapter smoke tests before integration.
+- [x] 2. Replace legacy prefix-cache lookup path in `includes/password-hibp.php` with `keel_hibp_budget_admit($scope,$prefix)` returning `body`, `ticket`, or `error`; ticket `{scope,slot,owner,until,prefix}`. `keel_hibp_budget_finish($ticket,$body=null,$kind='')` validates/fences completion; `keel_hibp_budget_evidence()` returns `{available,failure,success}` without initialization/writes. Adapt legacy HIBP unit stubs/expectations and prove hit/exhaustion/unknown paths.
+- [x] 3. Update Site Health and uninstall for the shared evidence/fixed store. Add new denial wording, network authorization, non-writing readers and paged fixed-key cleanup tests; regenerate translations.
+- [x] 4. Add independent-PHP-worker WordPress integration harness and run SQLite plus MySQL/MariaDB, concurrency, storage, scope, failure/kill, persistent cache and performance cases. Use Studio for local site lifecycle/CLI and an isolated CI database lab where Studio cannot supply MySQL.
+- [x] 5. Update accepted design status, TODO/roadmap, docs and verification record. Run existing lint/compatibility/static/type/unit gates, deep review, fix findings, record counterpart honestly and open PR. No merge/tag/release.
 
 ## Interfaces
 
-All storage functions live in `includes/password-hibp-budget.php` (loaded by password-hibp.php).
+Storage primitives live in `includes/password-hibp-store.php`; admission, cache and evidence live in `includes/password-hibp-budget.php`, loaded by password-hibp.php.
 - `keel_hibp_budget_scope(): array|false` => `{table:string,id:int}`.
 - `keel_hibp_budget_policy(): array` => `{capacity:int,interval:int}`.
 - `keel_hibp_budget_initial(array $policy,int $now): array` and `keel_hibp_budget_refill(array $state,array $policy,int $now): array|false` are pure.
@@ -50,3 +50,13 @@ All storage functions live in `includes/password-hibp-budget.php` (loaded by pas
 
 - User explicitly approved design and implementation; execute without an extra plan-approval pause.
 - Existing thread limit requires reusing available collaborators. Runtime store/lookup are owned locally; lab harness and Site Health/uninstall have separate ownership.
+
+- Initial pure-policy test failed before the module existed, then passed. Transport and state regressions cover malformed/truncated/oversized bodies, cache hits under exhaustion, policy changes, CAS retry bounds and caller rollback.
+- Review fixed lost-lease diagnostic sampling and capacity-only fractional-credit loss. Stale-worker fences require short control-row transactions for both claim and completion; no lock spans HTTP.
+- SQLite's MySQL translator can implicitly commit on BEGIN too. Use its public transaction-state API. The first MySQL lab exposed an unavailable mysqli property; replace it with an autocommit/private-savepoint check, preserving caller data and pruning only the expected suppressed probe error.
+- MySQL reports zero affected rows on an unchanged CAS value; uninstall fixture setup now skips identical writes. The production CAS paths always advance revisions/owners.
+- Standalone SQLite passed all 15 independent-worker cases. Two-network SQLite passed adapter/scope/cache paths. Four MySQL/MariaDB × floor/current cells passed the expanded suite; all 17 cases plus two child site-only cases pass in each final cell. No performance or backend success is inferred from sequential stubs.
+- Counterpart port is explicitly pending in Keel #315; PR #316 remains unreleased. No version bump, tagging or publishing.
+
+- KILL CONNECTION reproduced wpdb reconnect/replay after losing the row lock (bad: finished/cached true). Pinning the original native connection plus rollback-only failure latching changed the reproduction to false/false; independent replacement-owner tests pass on all four final database cells. Read-only denials avoid unnecessary transaction probes.
+- Final evidence: `docs/review/bounded-hibp-budget-2026-10-23.md`; 81 standalone scripts, WPCS/compatibility/syntax, scoped PHPStan and static contracts pass. PR #316 open; AX #315 pending; no release actions.

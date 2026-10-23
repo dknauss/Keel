@@ -421,10 +421,14 @@ shipped default `xmlrpc_allow_multicall = no`). Takes precedence over the 0.7.0 
   The user approved burst 10, one credit/minute, two admission leases and 64 fixed
   cache slots, with cached verdicts ahead of throttling and explicit unknown on denial.
   See the [bounded HIBP design](docs/superpowers/specs/2026-10-23-hibp-budget-design.md).
-- [ ] **Implement and verify the bounded HIBP lookup budget** — implementation in
-  this branch; independent-worker database labs and PR checks are acceptance gates.
-  Fixed database authority, fenced cache publication, bounded retention, passive
-  shared diagnostics and paged uninstall preserve the 44-setting schema.
+- [x] **Implement and verify the bounded HIBP lookup budget** — implemented in
+  [#316](https://github.com/dknauss/Keel/pull/316), open and unreleased.
+  Fixed database authority, two fenced leases, 64 cache slots, sampled shared
+  diagnostics and paged uninstall preserve the 44-setting schema. SQLite labs
+  and all four MySQL/MariaDB × WordPress floor/current cells pass, including
+  process/connection loss, Redis, two networks, site-only activation and cleanup.
+  See the [verification record](docs/review/bounded-hibp-budget-2026-10-23.md).
+  AX counterpart remains tracked in [#315](https://github.com/dknauss/Keel/issues/315).
   #313 and #314 remain merged and unreleased. No version bump or release.
 
 ## Completed in v0.6.0

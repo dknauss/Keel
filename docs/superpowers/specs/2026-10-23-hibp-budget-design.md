@@ -1,11 +1,12 @@
-# Proposed design: bounded HIBP lookup budget
+# Bounded HIBP lookup budget design
 
-Status: **approved for implementation; implementation under verification**, unreleased.
+Status: **implemented and verified in open PR #316**, unreleased. See the
+[verification record](../../review/bounded-hibp-budget-2026-10-23.md).
 Written 2026-10-23 against Keel `1d754a9` (merged #314). The user approved this
 bounded policy; numerical defaults remain operational starting points, not measured capacity.
-This change would preserve PHP 7.4 compatibility and the 44-setting schema.
+This change preserves PHP 7.4 compatibility and the 44-setting schema.
 
-## Recommendation
+## Approved policy
 
 Use one shared token bucket per standalone site or WordPress network, ahead of
 **uncached outbound** HIBP requests, with a fixed-size shared range cache. Do not
@@ -13,7 +14,7 @@ key throttling by password, prefix, IP address, cookie, user ID or submitted acc
 Do not add a settings-screen control. Preserve the current fail-open password-change
 behavior, but return and report **unknown**, never clean, when screening cannot run.
 
-| Policy | Proposed default |
+| Policy | Default |
 | --- | --- |
 | Burst allowance | 10 uncached requests |
 | Refill | One request credit per 60 seconds, capped at 10 |
@@ -43,14 +44,14 @@ active leases, reset diagnostic throttles or create new storage keys. When the i
 set the refill reference to `max(now, old_refill_reference)`. The cache and
 lease caps remain fixed in v1. Document the resulting request bound when tuning.
 
-## Why this is needed
+## Baseline before implementation
 
 `includes/password-policy.php` rejects empty and over-4096-byte input before the
 lookup, but role exemptions are deliberately checked afterwards. Other local rules
 remain role-scoped. Keep that ordering: this work must not silently exempt subscriber
 accounts from breach screening or expand their length/blocklist requirements.
 
-`includes/password-hibp.php` currently caches each five-character SHA-1 prefix in
+At `1d754a9`, `includes/password-hibp.php` cached each five-character SHA-1 prefix in
 both an object-cache group and a 12-hour transient. It limits each default response
 to 128 KiB and validates completion, format and zero-count padding, but has no
 aggregate request or cache-cardinality budget. Repeated random prefixes can therefore
@@ -62,8 +63,8 @@ This is local resource protection. The Pwned Passwords range API itself has no
 service rate limit; do not confuse it with HIBP's other APIs. Keep five-character
 prefix queries, local suffix comparison and `Add-Padding: true` as documented by
 [HIBP](https://haveibeenpwned.com/API/v3#PwnedPasswords). Do not send incremental
-password input, complete hashes or plaintext. These source observations concern
-the current code and API, not a newly measured production workload.
+password input, complete hashes or plaintext. These design-baseline observations concern that code and API, not a measured
+production workload. Current implementation evidence is recorded below.
 
 ## Options and consequences
 
@@ -287,9 +288,10 @@ release is authorized.
 
 ## Design review and validation
 
-The builder check reported no consequential unanswered questions. This does not
-accept the numerical policy or prove concurrency/storage behavior; those remain
-proposed decisions and implementation acceptance gates. Documentation/count guards
+At the design-only stage, the builder check reported no consequential unanswered
+questions. That review did not itself accept the numerical policy or prove
+concurrency/storage behavior. The user subsequently approved implementation; the
+linked verification record now supplies the backend acceptance evidence. Documentation/count guards
 (`tests/default-count.php`, `tests/docs-consistency.php`, `tests/readme-spec.php`)
 and `git diff --check` pass. No new runtime or lab tests were claimed for this
 design-only change. TODO and ROADMAP mark #314 (`1d754a9`) merged and unreleased,
@@ -314,3 +316,10 @@ reset the five-minute sampling cadence; Site Health shows the two historical
 evidence points separately. Lost ownership also samples unknown without touching
 a newer lease. Capacity-only policy changes retain fractional credits; interval
 changes use the conservative whole-credit conversion above.
+
+Fenced MySQL transactions pin their original mysqli handle and bypass wpdb's
+connection-retry/replay path until commit/rollback. A connection change, SQL failure
+or deadlock latches failure and permits only rollback; an old worker cannot reconnect
+and replay a stale publication after losing its row lock. An independent worker
+kills that database connection, admits a replacement owner, then resumes the old
+worker to verify slots, leases, credits and success evidence remain intact.
