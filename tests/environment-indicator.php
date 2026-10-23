@@ -515,6 +515,7 @@ $css                      = keel_defaults_environment_css();
 keel_assert( false !== strpos( $css, 'keel-environment-indicator--production' ), 'Styles include the production rule.' );
 keel_assert( false !== strpos( $css, 'min-width: 783px' ), 'Styles include the responsive label-clip band.' );
 keel_assert( false !== strpos( $css, 'clip-path: inset(50%)' ), 'Label is clipped (not display:none) for accessibility.' );
+keel_assert( false !== strpos( $css, 'max-width: 782px' ) && false !== strpos( $css, 'li#wp-admin-bar-keel-environment-indicator { display: block; }' ), 'The indicator is put back at 782px and below, where core hides non-core toolbar items.' );
 
 // No admin bar → no output.
 $GLOBALS['keel_bar_show'] = false;

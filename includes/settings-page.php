@@ -179,23 +179,19 @@ function keel_defaults_add_help_tab() {
 			'title'   => __( 'Environments', 'keel-defaults' ),
 			'content' =>
 				'<p>' . wp_kses(
-					__( 'Two defaults behave differently depending on whether Keel is running in a production or non-production environment: outgoing email and the environment indicator. Both defaults read <code>wp_get_environment_type()</code>, which returns whatever the <code>WP_ENVIRONMENT_TYPE</code> constant or environment variable is set to — the constant is the input, the function is the output — and <code>production</code> when nothing sets it. Keel also recognizes common local hostnames without configuration, and the Environment setting can override all of this for Keel alone — on the site it was chosen on, never on a copy of its database.', 'keel-defaults' ),
+					__( 'Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognizes common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( '<strong>Outgoing email stops at the edge of production.</strong> A database copied down from a live site carries real customer addresses and whatever mail service production was using, so a cron run or a bulk action can email real people from a staging site or a laptop. On any environment that is not production, Keel suppresses outgoing mail — and says so in an admin notice, because the alternative is somebody wondering for an afternoon why a password reset never arrived.', 'keel-defaults' ),
+					__( '<strong>Email:</strong> outside production, outgoing mail is held back and an admin notice says so. WordPress still reports each message as sent, so code behaves as it will in production.', 'keel-defaults' ),
 					array( 'strong' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'WordPress still reports each suppressed message as sent, deliberately. Code that branches on the result of <code>wp_mail()</code> then behaves the way it will in production, instead of taking an error path that only ever runs on staging.', 'keel-defaults' ),
-					array( 'code' => array() )
-				) . '</p>' .
-				'<p>' . wp_kses(
-					__( '<strong>The environment indicator is the color-coded label in the admin bar naming the current environment.</strong> It is off by default and worth turning on anywhere somebody might have production and staging open in adjacent browser tabs. Below 960px the label collapses to its icon to save room, but it stays readable to screen readers. <strong>It is the opt-in half of this pair on purpose:</strong> suppressing mail isn\'t needed in production environments, while the environment indicator would be visible on every screen of every production site all the time. It\'s useful as an opt-in feature when live production, local test, and development staging counterparts coexist and can be confused — with very bad consequences.', 'keel-defaults' ),
+					__( '<strong>Environment indicator:</strong> a color-coded label in the admin bar. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears.', 'keel-defaults' ),
 					array( 'strong' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( 'If mail is being suppressed on a site you consider production, the environment type is what to check first — not this plugin. Setting <code>WP_ENVIRONMENT_TYPE</code> explicitly in <code>wp-config.php</code> is worth doing on every install regardless, because core, plugins and themes all read it.', 'keel-defaults' ),
+					__( 'Mail held back on a live site? Check <code>WP_ENVIRONMENT_TYPE</code> in <code>wp-config.php</code> first.', 'keel-defaults' ),
 					array( 'code' => array() )
 				) . '</p>',
 		)
@@ -624,7 +620,7 @@ function keel_defaults_render_settings_page() {
 		 */
 		?>
 		<hr class="wp-header-end">
-		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
+		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
 
 		<?php keel_defaults_render_lock_summary(); ?>
 		<form method="post" action="options.php">
