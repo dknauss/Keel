@@ -7,7 +7,7 @@
  * file is static, cacheable, and works for any number of range fields rather
  * than being re-emitted once per field.
  */
-( function () {
+( function() {
 	'use strict';
 
 	/* --- The menu-width slider's readout and live preview. --- */
@@ -15,19 +15,19 @@
 	function parseJSONAttribute( element, name ) {
 		try {
 			return JSON.parse( element.getAttribute( name ) || '[]' );
-		} catch ( e ) {
+		} catch {
 			return [];
 		}
 	}
 
-	document.querySelectorAll( 'input[type="range"][data-keel-range]' ).forEach( function ( input ) {
-		var output = document.getElementById( input.getAttribute( 'data-keel-range' ) );
-		var labels = parseJSONAttribute( input, 'data-keel-range-labels' );
-		var widths = parseJSONAttribute( input, 'data-keel-range-widths' );
+	document.querySelectorAll( 'input[type="range"][data-keel-range]' ).forEach( function( input ) {
+		const output = document.getElementById( input.getAttribute( 'data-keel-range' ) );
+		const labels = parseJSONAttribute( input, 'data-keel-range-labels' );
 
 		if ( ! output || ! document.body || ! labels.length ) {
 			return;
 		}
+		const widths = parseJSONAttribute( input, 'data-keel-range-widths' );
 
 		function pos() {
 			return parseInt( input.value, 10 ) || 0;
@@ -35,7 +35,7 @@
 
 		// Cheap: runs live while dragging — only the readout text changes.
 		function updateLabel() {
-			var text = labels[ pos() ] || labels[0];
+			const text = labels[ pos() ] || labels[ 0 ];
 			output.textContent = text;
 			// The value a screen reader announces has to move with the word, or
 			// the slider goes on saying whatever it was rendered at.
@@ -46,9 +46,9 @@
 		// so it runs only when the drag settles (release/keyboard), not on every
 		// 'input' tick — otherwise the slider is janky.
 		function applyPreview() {
-			document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[0] ) + 'px' );
+			document.body.style.setProperty( '--keel-menu-preview-width', ( widths[ pos() ] || widths[ 0 ] ) + 'px' );
 
-			var adminMenu = document.getElementById( 'adminmenu' );
+			const adminMenu = document.getElementById( 'adminmenu' );
 			if ( adminMenu ) {
 				document.body.style.setProperty( '--keel-menu-preview-bg', window.getComputedStyle( adminMenu ).backgroundColor );
 			}
@@ -59,7 +59,7 @@
 		input.addEventListener( 'input', updateLabel );
 		input.addEventListener( 'change', applyPreview );
 		input.addEventListener( 'pointerup', applyPreview );
-		input.addEventListener( 'keyup', function ( event ) {
+		input.addEventListener( 'keyup', function( event ) {
 			if ( [ 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown' ].indexOf( event.key ) !== -1 ) {
 				applyPreview();
 			}
@@ -69,19 +69,19 @@
 	/* --- Hide rows whose setting is moot given a controlling setting's value. --- */
 
 	function controllerValue( name ) {
-		var els = document.querySelectorAll( '[name="keel_settings[' + name + ']"]' );
+		const els = document.querySelectorAll( '[name="keel_settings[' + name + ']"]' );
 		if ( ! els.length ) {
 			return null;
 		}
 
-		var el = els[0];
+		const el = els[ 0 ];
 
 		if ( 'checkbox' === el.type ) {
 			return el.checked ? el.value : 'no';
 		}
 
 		if ( 'radio' === el.type ) {
-			var picked = document.querySelector( '[name="keel_settings[' + name + ']"]:checked' );
+			const picked = document.querySelector( '[name="keel_settings[' + name + ']"]:checked' );
 			return picked ? picked.value : '';
 		}
 
@@ -97,14 +97,14 @@
 	 * ones never showed or hid until a reload, and never got the aria-controls
 	 * and aria-expanded wiring at all, which is the half a screen reader needs.
 	 */
-	document.querySelectorAll( '[data-keel-dep-field]' ).forEach( function ( row ) {
-		var field = row.getAttribute( 'data-keel-dep-field' );
-		var hide  = row.getAttribute( 'data-keel-dep-hide' );
-		var ctrls = document.querySelectorAll( '[name="keel_settings[' + field + ']"]' );
+	document.querySelectorAll( '[data-keel-dep-field]' ).forEach( function( row ) {
+		const field = row.getAttribute( 'data-keel-dep-field' );
+		const ctrls = document.querySelectorAll( '[name="keel_settings[' + field + ']"]' );
 
 		if ( ! ctrls.length ) {
 			return;
 		}
+		const hide = row.getAttribute( 'data-keel-dep-hide' );
 
 		/*
 		 * Tell assistive technology which control governs this row, and whether
@@ -113,8 +113,8 @@
 		 * so a row appearing had no announced relationship to the choice that
 		 * produced it.
 		 */
-		ctrls.forEach( function ( c ) {
-			var owned = ( c.getAttribute( 'aria-controls' ) || '' ).split( ' ' ).filter( Boolean );
+		ctrls.forEach( function( c ) {
+			const owned = ( c.getAttribute( 'aria-controls' ) || '' ).split( ' ' ).filter( Boolean );
 			if ( row.id && -1 === owned.indexOf( row.id ) ) {
 				owned.push( row.id );
 				c.setAttribute( 'aria-controls', owned.join( ' ' ) );
@@ -122,17 +122,17 @@
 		} );
 
 		function sync() {
-			var hidden = controllerValue( field ) === hide;
+			const hidden = controllerValue( field ) === hide;
 			row.style.display = hidden ? 'none' : '';
-			ctrls.forEach( function ( c ) {
+			ctrls.forEach( function( c ) {
 				c.setAttribute( 'aria-expanded', hidden ? 'false' : 'true' );
 			} );
 		}
 
-		ctrls.forEach( function ( c ) {
+		ctrls.forEach( function( c ) {
 			c.addEventListener( 'change', sync );
 		} );
 
 		sync();
 	} );
-} )();
+}() );

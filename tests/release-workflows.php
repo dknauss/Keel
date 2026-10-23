@@ -109,8 +109,8 @@ keel_assert(
 	'The rolling job is gated to main, so a pull request cannot republish the demo.'
 );
 keel_assert(
-	false !== strpos( $ci_src, 'needs: [ test, compat ]' ),
-	'The rolling job waits for the suite, so a red build is never published as the demo.'
+	false !== strpos( $ci_src, 'needs: [ test, compat, assets ]' ),
+	'The rolling job waits for PHP checks and asset lint, so a red build is never published as the demo.'
 );
 
 /*

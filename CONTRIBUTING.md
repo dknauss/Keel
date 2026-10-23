@@ -1,18 +1,21 @@
 # Contributing to Keel
 
 Thanks for helping improve Keel. It is a plain PHP WordPress plugin with no build
-step, no npm, and no Docker — the tests are standalone PHP scripts that stub the
-handful of WordPress functions they need. If you have PHP and Composer, you can
-run everything.
+step and no Docker. PHP tests are standalone scripts that stub the handful of
+WordPress functions they need. Node.js is used only for development asset linting;
+the installed plugin has no npm dependencies or compilation step.
 
 ## Development setup
 
 ```bash
 composer install
+npm ci --ignore-scripts
 ```
 
-That is the whole setup. `vendor/` is untracked and holds development-only linters,
-PHPStan and WordPress declarations. None is loaded by the installed plugin.
+Use Node.js 24 (CI), or a supported Node.js version at least 22.13.0. `vendor/`
+and `node_modules/` are untracked development tools. Neither is loaded by the
+installed plugin; manifests, lockfiles and lint configuration are excluded from
+the distributable ZIP.
 
 ## Quality gates
 
@@ -24,11 +27,21 @@ composer lint
 composer lint:compat
 composer analyse
 composer test:types
+npm run lint
 ```
 
 `composer test` runs every top-level PHP file in `tests/` — the glob is deliberate, because an
 earlier hand-maintained list left one spec file that never ran from the day it
 merged. `composer lint:fix` fixes most style complaints automatically.
+
+`npm run lint:js` checks all JavaScript under `assets/` with WordPress's
+`recommended-with-formatting` ESLint flat preset and browser globals.
+`npm run lint:css` checks every CSS file under `assets/` with
+`@wordpress/stylelint-config`. Both fail on warnings. Node-based browser lab
+harnesses and maintenance scripts are outside this browser-asset scope. Use
+`npm run lint:js -- --fix` or `npm run lint:css -- --fix` for automatic fixes,
+then review the diff. Existing underscore column identifiers have two local
+Stylelint exceptions; other selector names retain the WordPress rule.
 
 `composer lint:compat` is a separate gate from `composer lint` because it answers
 a different question: not "is this written the way the project writes things" but

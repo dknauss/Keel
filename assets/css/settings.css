@@ -5,6 +5,19 @@
  * second HTTP request to save eight rules is a worse trade than a comment.
  */
 
+/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
+.form-table .keel-dep-item {
+	margin-bottom: 14px;
+}
+
+.form-table .keel-dep-item:last-child {
+	margin-bottom: 0;
+}
+
+.form-table .keel-dep-item .description {
+	margin-top: 2px;
+}
+
 /*
  * Landing on a setting should show you which one.
  *
@@ -13,6 +26,7 @@
  * decoration: without :has() the link still scrolls to the right place, which is
  * the part that matters.
  */
+
 .keel-anchor {
 	display: block;
 	position: relative;
@@ -41,6 +55,7 @@ tr:has( > td > .keel-anchor:target ) > th {
 
 /* Below 783px core stacks the label above the field, so both cells meet the bar. */
 @media screen and (max-width: 782px) {
+
 	tr:has( > td > .keel-anchor:target ) > td {
 		padding-left: 16px;
 	}
@@ -66,23 +81,11 @@ tr:has( > td > .keel-anchor:target ) > th {
 }
 
 @media screen and (max-width: 782px) {
+
 	.rtl tr:has( > td > .keel-anchor:target ) > td {
 		padding-left: 0;
 		padding-right: 16px;
 	}
-}
-
-/* Vertical separation between stacked checkboxes in a grouped row (REST, XML-RPC). */
-.form-table .keel-dep-item {
-	margin-bottom: 14px;
-}
-
-.form-table .keel-dep-item:last-child {
-	margin-bottom: 0;
-}
-
-.form-table .keel-dep-item .description {
-	margin-top: 2px;
 }
 
 /*
@@ -109,6 +112,7 @@ tr:has( > td > .keel-anchor:target ) > th {
  * widen does not mark those important, so the extra body class already wins
  * them on specificity.
  */
+
 /*
  * The same breakpoint and fold scope as the saved widen in admin-ux.php, so the
  * preview shows what saving will do. With the menu folded, or below 961px where
@@ -117,6 +121,7 @@ tr:has( > td > .keel-anchor:target ) > th {
  * CSS governs a folded menu, so the folded-margin patch went with it.
  */
 @media screen and (min-width: 961px) {
+
 	body.keel-menu-width-preview:not(.folded) #adminmenu,
 	body.keel-menu-width-preview:not(.folded) #adminmenuback,
 	body.keel-menu-width-preview:not(.folded) #adminmenuwrap,
