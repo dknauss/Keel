@@ -38,6 +38,7 @@ file_put_contents(
 	$fixture . '/wp-content/plugins/gate-plugin/gate.php',
 	"<?php\n"
 	. "function keel_test_gate_grants( \$permission ) { exit( 97 ); }\n"
+	. "trait Keel_Test_Trait_Gate { public static function deny( \$p ) { exit( 97 ); } }\n"
 	. "class Keel_Test_Gate { public static function deny( \$p ) { exit( 97 ); } public function cache( \$pre ) { exit( 97 ); } }\n"
 	. "\$GLOBALS['keel_test_gate_closure'] = static function ( \$pre ) { exit( 97 ); };\n"
 );
@@ -193,6 +194,9 @@ keel_assert( 1 === $inventory['hooks']['wp_ability_permission_result']['untracea
 keel_assert( 1 === $inventory['hooks']['wp_pre_execute_ability']['untraceable'], 'An unloaded array callback stays untraceable.' );
 keel_assert( '' === keel_defaults_callback_file( array( 'Keel_Unloaded_Array_Gate', 'check' ) ), 'Unloaded classes are not attributed.' );
 keel_assert( keel_defaults_callback_file( array( 'Keel_Test_Gate', 'deny' ) ) === $fixture . '/wp-content/plugins/gate-plugin/gate.php', 'Already loaded class-name array callbacks remain attributable.' );
+
+keel_assert( keel_defaults_callback_file( 'Keel_Test_Trait_Gate::deny' ) === $fixture . '/wp-content/plugins/gate-plugin/gate.php', 'Loaded trait string callbacks remain attributable.' );
+keel_assert( keel_defaults_callback_file( array( 'Keel_Test_Trait_Gate', 'deny' ) ) === $fixture . '/wp-content/plugins/gate-plugin/gate.php', 'Loaded trait array callbacks remain attributable.' );
 
 // A registry Keel cannot fully read is unknown, never clean.
 $GLOBALS['wp_filter']['wp_pre_execute_ability']->callbacks = array( 10 => array_fill( 0, 1001, array( 'function' => '__return_false' ) ) );

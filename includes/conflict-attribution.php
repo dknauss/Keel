@@ -346,14 +346,14 @@ function keel_defaults_callback_file( $callback ) {
 			$file       = (string) $reflection->getFileName();
 		} elseif ( is_string( $callback ) && false !== strpos( $callback, '::' ) ) {
 			list( $class, $method ) = explode( '::', $callback, 2 );
-			if ( ! class_exists( $class, false ) ) {
+			if ( ! class_exists( $class, false ) && ! trait_exists( $class, false ) ) {
 				return '';
 			}
 			$reflection = new ReflectionMethod( $class, $method );
 			$file       = (string) $reflection->getFileName();
 		} elseif ( is_array( $callback ) && isset( $callback[0], $callback[1] ) ) {
 			$class = is_object( $callback[0] ) ? get_class( $callback[0] ) : (string) $callback[0];
-			if ( ! class_exists( $class, false ) ) {
+			if ( ! class_exists( $class, false ) && ! trait_exists( $class, false ) ) {
 				return '';
 			}
 			$reflection = new ReflectionMethod( $class, (string) $callback[1] );
