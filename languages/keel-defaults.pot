@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-23T05:19:21+00:00\n"
+"POT-Creation-Date: 2026-10-23T06:17:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1498,7 +1498,7 @@ msgid "Balanced defaults for steady sites."
 msgstr ""
 
 #: includes/settings-page.php:623
-msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, the admin experience, and performance. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
+msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
@@ -2383,7 +2383,7 @@ msgid "Admin List Tables"
 msgstr ""
 
 #: includes/strings.php:230
-msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
+msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users. Where you haven’t saved a preference, Image starts visible; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
 msgstr ""
 
 #: includes/strings.php:233
