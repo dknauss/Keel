@@ -98,5 +98,5 @@ keel_defaults_attach_styles( 'unknown', 'unused' );
 keel_asset_assert( array() === $GLOBALS['keel_asset_events'], 'Unknown contexts attach nothing.' );
 $GLOBALS['keel_asset_events'] = array();
 keel_defaults_enqueue_update_evidence_assets();
-keel_asset_assert( array( array( 'style', array( 'keel-defaults-update-evidence', 'https://example.test/keel/assets/css/update-evidence.css', array(), KEEL_DEFAULTS_VERSION ) ) ) === $GLOBALS['keel_asset_events'], 'Updates-screen focus styling uses a versioned, independently dequeueable stylesheet.' );
+keel_asset_assert( array( array( 'style', array( 'keel-defaults-update-evidence', 'https://example.test/keel/assets/css/update-evidence.css', array(), KEEL_DEFAULTS_VERSION ) ), array( 'script', array( 'keel-defaults-update-evidence', 'https://example.test/keel/assets/js/update-evidence.js', array(), KEEL_DEFAULTS_VERSION, true ) ) ) === $GLOBALS['keel_asset_events'], 'Updates-screen focus styling and keyboard scrolling use versioned, independently dequeueable assets.' );
 echo "asset providers: OK\n";

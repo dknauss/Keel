@@ -302,7 +302,7 @@ function keel_defaults_enqueue_locked_controls() {
 }
 
 /**
- * Keep keyboard focus visible on Updates-screen evidence scroll regions.
+ * Keep Updates-screen evidence regions focusable and keyboard-scrollable.
  *
  * @return void
  */
@@ -312,5 +312,12 @@ function keel_defaults_enqueue_update_evidence_assets() {
 		keel_defaults_asset_url( 'css/update-evidence.css' ),
 		array(),
 		KEEL_DEFAULTS_VERSION
+	);
+	wp_enqueue_script(
+		'keel-defaults-update-evidence',
+		keel_defaults_asset_url( 'js/update-evidence.js' ),
+		array(),
+		KEEL_DEFAULTS_VERSION,
+		true
 	);
 }
