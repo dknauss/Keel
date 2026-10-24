@@ -276,7 +276,7 @@ $GLOBALS['keel_caps']['update_core'] = true;
 ob_start();
 keel_defaults_render_updates_screen();
 $composed = ob_get_clean();
-keel_assert( 1 === preg_match( '#<details class="keel-defaults-update-diagnostics"><summary>Update diagnostics</summary><table id="timeline-fixture"></table><table id="extension-fixture"></table></details>#', $composed ), 'Both reports share one native disclosure, closed by default.' );
+keel_assert( false === strpos( $composed, 'timeline-fixture' ) && false === strpos( $composed, 'extension-fixture' ) && false === strpos( $composed, 'keel-defaults-update-diagnostics' ), 'Updates screen omits the diagnostic tables and their disclosure.' );
 $GLOBALS['keel_caps']['update_core'] = false;
 ob_start();
 keel_defaults_render_updates_screen();

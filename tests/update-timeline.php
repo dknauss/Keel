@@ -36,6 +36,9 @@ $html   = keel_defaults_update_timeline_markup( false, false, $state, $update, f
 check( false !== strpos( $html, 'Next automatic install</th><td>Unknown' ), 'Missing selector evidence stays unknown.' );
 check( false === strpos( $html, 'Last failed' ) && false === strpos( $html, 'Newer patch' ), 'Rows with nothing to report are left out.' );
 check( false !== strpos( $html, 'Not read yet' ), 'Missing collection is not an empty schedule.' );
+$wp_version = '7.1.3';
+$html       = keel_defaults_update_timeline_markup( '', false, $state, $update, false, 1000, false );
+check( false !== strpos( $html, 'No update queued</td><td>Installed WordPress version: 7.1.3 — release status unknown. WordPress has not queued an automatic core update.' ), 'An unqueued install identifies the installed version without claiming it is current.' );
 $failed_html = keel_defaults_update_timeline_markup(
 	false,
 	false,
@@ -98,20 +101,20 @@ foreach ( array( 'limited', 'malformed' ) as $coverage ) {
 	$snapshot['data']['malformed'] = 'malformed' === $coverage;
 	$snapshot['data']['core']      = array( 'wp_version_check' => 1200 );
 	$html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
-	check( false !== strpos( $html, 'Next automatic update run</th><td>Unknown</td>' ) && false === strpos( $html, 'Not scheduled' ), 'Missing hook stays unknown under ' . $coverage . ' coverage.' );
-	check( false !== strpos( $html, 'partial coverage' ) && false !== strpos( $html, 'Nothing is queued' ), 'Partial coverage and no selected release remain distinct.' );
-	check( false !== strpos( $html, 'Next update check</th><td>1970-01-01 00:20 UTC</td>' ), 'Observed hook remains visible under partial coverage.' );
+	check( false !== strpos( $html, 'Next scheduled automatic-update run</th><td>Unknown</td>' ) && false === strpos( $html, 'Not scheduled' ), 'Missing hook stays unknown under ' . $coverage . ' coverage.' );
+	check( false !== strpos( $html, 'partial coverage' ) && false !== strpos( $html, 'WordPress has not queued an automatic core update.' ), 'Partial coverage and no selected release remain distinct.' );
+	check( false !== strpos( $html, 'Next scheduled update check</th><td>1970-01-01 00:20 UTC</td>' ), 'Observed hook remains visible under partial coverage.' );
 }
 $snapshot['data']['limited']   = false;
 $snapshot['data']['malformed'] = false;
 $html                          = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, $snapshot, 1000, false );
-check( false !== strpos( $html, 'Next automatic update run</th><td>Not scheduled</td>' ), 'Complete scan supports an absent hook.' );
-check( false !== strpos( $html, 'Not found when Keel last read this site’s schedule.' ) && false !== strpos( $html, 'up to an hour old' ), 'Absent hook is qualified as cached evidence.' );
+check( false !== strpos( $html, 'Next scheduled automatic-update run</th><td>Not scheduled</td>' ), 'Complete scan supports an absent hook.' );
+check( false !== strpos( $html, 'Keel did not find a scheduled event when it last read this site’s schedule.' ) && false !== strpos( $html, 'up to an hour old' ), 'Absent hook is qualified as cached evidence.' );
 foreach ( array( 60, 90000 ) as $age ) {
 	$update['offer_age'] = $age;
 	$html                = keel_defaults_update_timeline_markup( '', '', array( 'operable' => true ), $update, false, 100000, false );
 	check( false !== strpos( $html, 'Last attempted check with WordPress.org</th>' ), 'Check marker is labeled as an attempt.' );
-	check( false !== strpos( $html, 'WordPress records when it tried, not whether WordPress.org answered.' ), 'Fresh and stale attempt markers never imply a successful response.' );
+	check( false !== strpos( $html, 'WordPress records when it tried to check for updates, not whether WordPress.org answered.' ), 'Fresh and stale attempt markers never imply a successful response.' );
 }
 $GLOBALS['allowed'] = false;
 $GLOBALS['network'] = false;

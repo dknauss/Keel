@@ -125,10 +125,21 @@ function keel_defaults_extension_update_report( $type, array $installed, $cache,
 	return $out;
 }
 
-/** Authenticated Updates-screen report; no remote requests or installation probes. */
-function keel_defaults_render_extension_updates() {
-	if ( ! current_user_can( 'update_plugins' ) || ! current_user_can( 'update_themes' ) || ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) ) {
-		return;
+/**
+ * Reuse one bounded per-type observation within this request.
+ *
+ * @param string $type Plugin or theme.
+ * @return array|null Report, or null without authority.
+ */
+function keel_defaults_extension_update_snapshot( $type ) {
+	if ( ! in_array( $type, array( 'plugin', 'theme' ), true ) || ! current_user_can( 'update_' . $type . 's' ) || ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) ) {
+		return null;
+	}
+	static $reports = array();
+	$site_id        = function_exists( 'get_current_blog_id' ) ? get_current_blog_id() : 0;
+	$key            = $site_id . ':' . $type;
+	if ( isset( $reports[ $key ] ) ) {
+		return $reports[ $key ];
 	}
 	if ( ! function_exists( 'get_plugins' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -136,12 +147,82 @@ function keel_defaults_render_extension_updates() {
 	if ( ! function_exists( 'wp_is_auto_update_enabled_for_type' ) ) {
 		require_once ABSPATH . 'wp-admin/includes/update.php';
 	}
+	$ids             = 'plugin' === $type ? array_keys( get_plugins() ) : array_keys( wp_get_themes() );
+	$reports[ $key ] = keel_defaults_extension_update_report( $type, $ids, get_site_transient( 'update_' . $type . 's' ), (array) get_site_option( 'auto_update_' . $type . 's', array() ), wp_is_auto_update_enabled_for_type( $type ) );
+	return $reports[ $key ];
+}
+
+/**
+ * Return the native list URL for extension update choices.
+ *
+ * @param string $type Plugin or theme.
+ * @param bool   $disabled_only Whether to show the disabled automatic-update view.
+ * @return string Empty without list authority.
+ */
+function keel_defaults_extension_update_list_url( $type, $disabled_only = false ) {
+	if ( ! in_array( $type, array( 'plugin', 'theme' ), true ) ) {
+		return '';
+	}
+	$list_cap = is_multisite() ? 'manage_network_' . $type . 's' : ( 'plugin' === $type ? 'activate_plugins' : 'edit_theme_options' );
+	if ( ! current_user_can( $list_cap ) ) {
+		return '';
+	}
+	$path = $type . 's.php';
+	if ( $disabled_only ) {
+		$path .= '?' . ( 'plugin' === $type ? 'plugin_status' : 'theme_status' ) . '=auto-update-disabled';
+	}
+	return is_multisite() ? network_admin_url( $path ) : admin_url( $path );
+}
+
+/**
+ * Compact, selectively linked summary of the same decisions shown in Site Health.
+ *
+ * @param string $type Plugin or theme.
+ * @return string Escaped non-zero counts, with only disabled choices linked.
+ */
+function keel_defaults_extension_update_counts_markup( $type ) {
+	$report = keel_defaults_extension_update_snapshot( $type );
+	if ( null === $report ) {
+		return '';
+	}
+	$disabled = $report['examined'] - $report['on'] - $report['unknown'];
+	$parts    = array();
+	if ( $report['on'] > 0 ) {
+		/* translators: %s: number of extensions with automatic updates enabled. */
+		$parts[] = sprintf( esc_html__( '%s enabled', 'keel-defaults' ), esc_html( number_format_i18n( $report['on'] ) ) );
+	}
+	if ( $disabled > 0 ) {
+		/* translators: %s: number of extensions with automatic updates disabled. */
+		$text    = sprintf( esc_html__( '%s disabled', 'keel-defaults' ), esc_html( number_format_i18n( $disabled ) ) );
+		$url     = keel_defaults_extension_update_list_url( $type, true );
+		$parts[] = '' === $url ? $text : '<a href="' . esc_url( $url ) . '">' . $text . '</a>';
+	}
+	if ( $report['unknown'] > 0 ) {
+		/* translators: %s: number of extensions without update metadata. */
+		$parts[] = sprintf( esc_html__( '%s unknown', 'keel-defaults' ), esc_html( number_format_i18n( $report['unknown'] ) ) );
+	}
+	if ( $report['changed_count'] > 0 ) {
+		/* translators: %s: number of automatic-update decisions changed by code. */
+		$parts[] = sprintf( esc_html__( '%s changed by code', 'keel-defaults' ), esc_html( number_format_i18n( $report['changed_count'] ) ) );
+	}
+	$text = implode( ', ', $parts ) . ( $parts ? '.' : '' );
+	if ( $report['limited'] ) {
+		/* translators: %s: number of examined items in a partial report. */
+		$text .= ' ' . sprintf( esc_html__( 'First %s items only; counts are partial.', 'keel-defaults' ), esc_html( number_format_i18n( $report['examined'] ) ) );
+	}
+	return '<span class="keel-update-policy-counts">' . $text . '</span>';
+}
+
+/** Authenticated Updates-screen report; no remote requests or installation probes. */
+function keel_defaults_render_extension_updates() {
+	if ( ! current_user_can( 'update_plugins' ) || ! current_user_can( 'update_themes' ) || ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) ) {
+		return;
+	}
 	$rows    = array();
 	$changed = array();
 	$limited = false;
 	foreach ( array( 'plugin', 'theme' ) as $type ) {
-		$ids     = 'plugin' === $type ? array_keys( get_plugins() ) : array_keys( wp_get_themes() );
-		$report  = keel_defaults_extension_update_report( $type, $ids, get_site_transient( 'update_' . $type . 's' ), (array) get_site_option( 'auto_update_' . $type . 's', array() ), wp_is_auto_update_enabled_for_type( $type ) );
+		$report  = keel_defaults_extension_update_snapshot( $type );
 		$limited = $limited || $report['limited'];
 		$rows[]  = array(
 			'plugin' === $type ? esc_html__( 'Plugins', 'keel-defaults' ) : esc_html__( 'Themes', 'keel-defaults' ),
@@ -160,9 +241,9 @@ function keel_defaults_render_extension_updates() {
 		$html .= '<h4>' . esc_html__( 'Changed by code', 'keel-defaults' ) . '</h4>'
 			. keel_defaults_update_table_markup( array( esc_html__( 'Item', 'keel-defaults' ), esc_html__( 'Result', 'keel-defaults' ) ), $changed, array( '28%' ), __( 'Changed by code', 'keel-defaults' ) );
 	}
-	$html .= '<p class="description"><strong>' . esc_html__( 'Unknown:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'WordPress has no update data for the item yet.', 'keel-defaults' )
-		. ' <strong>' . esc_html__( 'Changed by code:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed.', 'keel-defaults' )
-		. ' ' . esc_html__( 'Being on doesn’t guarantee an install: file permissions, version control or a disabled updater can still block it.', 'keel-defaults' );
+	$html .= '<p class="description"><strong>' . esc_html__( 'Unknown:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'WordPress has no update data for one or more installed plugins or themes yet.', 'keel-defaults' )
+		. ' <strong>' . esc_html__( 'Changed by code:', 'keel-defaults' ) . '</strong> ' . esc_html__( 'a plugin, theme or Keel setting is overriding WordPress’s baseline auto-update decision; up to ten changed decisions per type are listed.', 'keel-defaults' )
+		. ' ' . esc_html__( 'Enabling auto-updates doesn’t guarantee they will be installed. File permissions, version control, or a disabled updater can prevent auto-updates from succeeding.', 'keel-defaults' );
 	if ( $limited ) {
 		$html .= ' ' . esc_html__( 'Partial coverage: only the first 200 items of each type are counted.', 'keel-defaults' );
 	}

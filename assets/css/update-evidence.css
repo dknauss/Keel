@@ -22,3 +22,21 @@
 .keel-update-policy-notice details {
 	margin-bottom: 8px;
 }
+
+.keel-update-policy-overview {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 4px 24px;
+	margin: 8px 0;
+}
+
+.keel-update-policy-overview li {
+	margin: 0;
+}
+
+@media screen and (max-width: 782px) {
+
+	.keel-update-policy-overview {
+		grid-template-columns: 1fr;
+	}
+}

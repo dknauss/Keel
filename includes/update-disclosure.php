@@ -11,7 +11,8 @@ defined( 'ABSPATH' ) || exit;
  * Add a documented baseline to Site Health Info, without inspecting request data.
  *
  * No inventories, HTTP interception, update calls, storage or site-value collection.
- * Core escapes these strings when rendering and copying Site Health information.
+ * Core escapes field values when rendering and copying Site Health information.
+ * The section description contains only Keel-constructed, sanitized source links.
  *
  * @param mixed $info Existing Site Health information.
  * @return mixed Information with the authorized disclosure section.
@@ -59,13 +60,25 @@ function keel_defaults_update_disclosure_info( $info ) {
 			'value' => __( 'This covers the three normal core update-check endpoints only. It does not describe package downloads, directory searches, third-party update services, telemetry from other components or Keel’s separate stable-check request. Core prefers HTTPS where supported and can fall back to HTTP. Disabling update checks can prevent security updates; this disclosure changes no update behavior.', 'keel-defaults' ),
 		);
 	}
-	$fields['sources']              = array(
-		'label' => __( 'Core source references', 'keel-defaults' ),
-		'value' => 'https://developer.wordpress.org/reference/functions/wp_version_check/ | https://developer.wordpress.org/reference/functions/wp_update_plugins/ | https://developer.wordpress.org/reference/functions/wp_update_themes/',
+	$source_links = sprintf(
+		/* translators: 1: WordPress core update-check function link. 2: Plugin update-check function link. 3: Theme update-check function link. */
+		__( 'Core source references: %1$s, %2$s and %3$s.', 'keel-defaults' ),
+		'<a href="' . esc_url( 'https://developer.wordpress.org/reference/functions/wp_version_check/' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Core version check', 'keel-defaults' ) . '</a>',
+		'<a href="' . esc_url( 'https://developer.wordpress.org/reference/functions/wp_update_plugins/' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Plugin update check', 'keel-defaults' ) . '</a>',
+		'<a href="' . esc_url( 'https://developer.wordpress.org/reference/functions/wp_update_themes/' ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Theme update check', 'keel-defaults' ) . '</a>'
 	);
 	$info['keel_update_disclosure'] = array(
 		'label'       => __( 'WordPress.org update-check disclosure', 'keel-defaults' ),
-		'description' => __( 'Read-only documentation of data categories core normally sends. No actual site values or request payloads are shown.', 'keel-defaults' ),
+		'description' => wp_kses(
+			__( 'Read-only documentation of data categories core normally sends. No actual site values or request payloads are shown.', 'keel-defaults' ) . ' ' . $source_links,
+			array(
+				'a' => array(
+					'href'   => array(),
+					'target' => array(),
+					'rel'    => array(),
+				),
+			)
+		),
 		'fields'      => $fields,
 	);
 	return $info;

@@ -15,7 +15,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: keel.php
 #: includes/site-health.php:25
-#: includes/site-health.php:396
+#: includes/site-health.php:400
 msgid "Keel Defaults"
 msgstr ""
 
@@ -84,10 +84,10 @@ msgstr ""
 #: includes/autoload-diagnostics.php:418
 #: includes/cron-diagnostics.php:140
 #: includes/cron-presentation.php:31
-#: includes/extension-updates.php:158
-#: includes/update-timeline.php:101
-#: includes/update-timeline.php:109
-#: includes/update-timeline.php:132
+#: includes/extension-updates.php:239
+#: includes/update-timeline.php:129
+#: includes/update-timeline.php:137
+#: includes/update-timeline.php:160
 msgid "Unknown"
 msgstr ""
 
@@ -261,7 +261,7 @@ msgstr ""
 #: includes/abilities-authorization.php:214
 #: includes/backport-presentation.php:186
 #: includes/registration-audit.php:207
-#: includes/site-health.php:455
+#: includes/site-health.php:459
 msgid "Security"
 msgstr ""
 
@@ -692,10 +692,11 @@ msgstr ""
 #: includes/settings-page.php:24
 #: includes/settings-page.php:610
 #: includes/shortcodes.php:229
-#: includes/site-health.php:89
-#: includes/site-health.php:192
-#: includes/site-health.php:568
-#: includes/site-health.php:703
+#: includes/site-health.php:93
+#: includes/site-health.php:196
+#: includes/site-health.php:572
+#: includes/site-health.php:707
+#: includes/update-timeline.php:20
 msgid "Keel"
 msgstr ""
 
@@ -877,235 +878,234 @@ msgstr ""
 msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
-#: includes/site-health.php:29
+#: includes/site-health.php:33
 msgid "Overlapping defaults plugins"
 msgstr ""
 
-#: includes/site-health.php:33
+#: includes/site-health.php:37
 msgid "Password breach screening"
 msgstr ""
 
-#: includes/site-health.php:52
+#: includes/site-health.php:56
 msgid "Jetpack and XML-RPC"
 msgstr ""
 
-#: includes/site-health.php:189
+#: includes/site-health.php:193
 msgid "Jetpack can reach this site over XML-RPC"
 msgstr ""
 
-#: includes/site-health.php:195
+#: includes/site-health.php:199
 msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. Requests that Jetpack verifies as signed by WordPress.com are let through, so the connection keeps working. Every other multicall is still refused."
 msgstr ""
 
-#: includes/site-health.php:200
+#: includes/site-health.php:204
 msgid "Batched XML-RPC requests (system.multicall) are allowed on this site, so the requests WordPress.com sends through Jetpack are not affected."
 msgstr ""
 
-#: includes/site-health.php:205
+#: includes/site-health.php:209
 msgid "Jetpack can still report itself as connected while this is happening, because it checks the connection from this site outwards. On WordPress.com, the plugin list, settings changes and other actions on this site will fail."
 msgstr ""
 
-#: includes/site-health.php:209
+#: includes/site-health.php:213
 msgid "Jetpack is connected, but the XML-RPC endpoint is blocked"
 msgstr ""
 
 #. translators: %s: link to the XML-RPC Endpoint setting.
-#: includes/site-health.php:212
+#: includes/site-health.php:216
 #, php-format
 msgid "WordPress.com reaches this site through XML-RPC, and Keel is set to refuse every XML-RPC request. Turn off the block under %s, or disconnect Jetpack if it is not needed."
 msgstr ""
 
-#: includes/site-health.php:213
+#: includes/site-health.php:217
 #: includes/strings.php:48
 msgid "XML-RPC Endpoint"
 msgstr ""
 
-#: includes/site-health.php:221
+#: includes/site-health.php:225
 msgid "Requests from WordPress.com to Jetpack are being refused"
 msgstr ""
 
-#: includes/site-health.php:225
+#: includes/site-health.php:229
 #: includes/strings.php:43
 msgid "XML-RPC Multicall"
 msgstr ""
 
-#: includes/site-health.php:244
+#: includes/site-health.php:248
 msgid "On"
 msgstr ""
 
-#: includes/extension-updates.php:158
-#: includes/site-health.php:244
+#: includes/extension-updates.php:239
+#: includes/site-health.php:248
 msgid "Off"
 msgstr ""
 
-#: includes/site-health.php:248
+#: includes/site-health.php:252
 msgid "Unchanged"
 msgstr ""
 
-#: includes/site-health.php:254
-#: includes/update-timeline.php:99
+#: includes/site-health.php:258
 msgid "None"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:399
+#: includes/site-health.php:403
 #, php-format
 msgid "Every default Keel manages and its current state on this site. Read-only — change them under %s."
 msgstr ""
 
-#: includes/site-health.php:400
-#: includes/site-health.php:424
+#: includes/site-health.php:404
+#: includes/site-health.php:428
 msgid "Settings → Site Defaults"
 msgstr ""
 
 #. translators: %s: link to the Keel settings screen.
-#: includes/site-health.php:423
+#: includes/site-health.php:427
 #, php-format
 msgid "Current state of the defaults Keel manages on this site — a read-only summary of your choices under %s, not a warning."
 msgstr ""
 
-#: includes/site-health.php:441
+#: includes/site-health.php:445
 msgid "Strong passwords are off, so privileged accounts can set weak or breached passwords."
 msgstr ""
 
-#: includes/site-health.php:444
+#: includes/site-health.php:448
 msgid "REST user discovery is open, so anonymous visitors can enumerate usernames."
 msgstr ""
 
-#: includes/site-health.php:446
+#: includes/site-health.php:450
 msgid "Worth a look:"
 msgstr ""
 
-#: includes/site-health.php:451
+#: includes/site-health.php:455
 msgid "Keel defaults are in place"
 msgstr ""
 
-#: includes/site-health.php:452
+#: includes/site-health.php:456
 msgid "Some Keel security defaults are off"
 msgstr ""
 
-#: includes/site-health.php:462
+#: includes/site-health.php:466
 msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:524
+#: includes/site-health.php:528
 #, php-format
 msgid "used by %s, and by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:530
+#: includes/site-health.php:534
 #, php-format
 msgid "used by %s"
 msgstr ""
 
-#: includes/site-health.php:534
+#: includes/site-health.php:538
 msgid "used by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms".
-#: includes/site-health.php:542
+#: includes/site-health.php:546
 #, php-format
 msgid "Keel setting: %1$s; also %2$s"
 msgstr ""
 
-#: includes/site-health.php:565
+#: includes/site-health.php:569
 msgid "No breach-screening failures recorded"
 msgstr ""
 
-#: includes/site-health.php:571
+#: includes/site-health.php:575
 msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
 msgstr ""
 
-#: includes/site-health.php:583
+#: includes/site-health.php:587
 msgid "Password breach screening is switched off"
 msgstr ""
 
 #. translators: %s: link to the Password Strength setting.
-#: includes/site-health.php:586
+#: includes/site-health.php:590
 #, php-format
 msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
 msgstr ""
 
-#: includes/site-health.php:587
+#: includes/site-health.php:591
 #: includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
-#: includes/site-health.php:605
+#: includes/site-health.php:609
 msgid "Password breach screening is switched off in code"
 msgstr ""
 
-#: includes/site-health.php:607
+#: includes/site-health.php:611
 msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
 msgstr ""
 
-#: includes/site-health.php:643
+#: includes/site-health.php:647
 msgid "the service could not be reached"
 msgstr ""
 
-#: includes/site-health.php:644
+#: includes/site-health.php:648
 msgid "the reply was cut short before it could be read"
 msgstr ""
 
 #. translators: %s: HTTP response status code.
-#: includes/site-health.php:652
+#: includes/site-health.php:656
 #, php-format
 msgid "the service answered with HTTP %s"
 msgstr ""
 
-#: includes/site-health.php:706
+#: includes/site-health.php:710
 msgid "Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there's a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose."
 msgstr ""
 
-#: includes/site-health.php:706
+#: includes/site-health.php:710
 msgid "Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too."
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/site-health.php:722
+#: includes/site-health.php:726
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:724
+#: includes/site-health.php:728
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:729
+#: includes/site-health.php:733
 msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:729
+#: includes/site-health.php:733
 msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:752
+#: includes/site-health.php:756
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:782
+#: includes/site-health.php:786
 msgid "A Keel setting is also affected by code Keel cannot identify"
 msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:796
+#: includes/site-health.php:800
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:836
+#: includes/site-health.php:840
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:838
+#: includes/site-health.php:842
 msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:842
+#: includes/site-health.php:846
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
@@ -1282,6 +1282,7 @@ msgid "Leave unchanged (WordPress, host, or another plugin decides)"
 msgstr ""
 
 #: includes/strings.php:124
+#: includes/update-policy-notice.php:99
 msgid "Translations"
 msgstr ""
 
@@ -1661,30 +1662,30 @@ msgid "REST API"
 msgstr ""
 
 #. translators: %s: patched WordPress version on the site's own release line.
-#: includes/updates-screen.php:133
+#: includes/updates-screen.php:129
 #, php-format
 msgid "This site is running a release with publicly known vulnerabilities. %s fixes them and stays on the same release line."
 msgstr ""
 
 #. translators: 1: release WordPress would install, 2: patched release on this line.
-#: includes/updates-screen.php:146
+#: includes/updates-screen.php:142
 #, php-format
 msgid "WordPress would install %1$s and skip %2$s. It takes the highest release your settings allow rather than the nearest, so the fix for the line you are on is passed over."
 msgstr ""
 
 #. translators: 1: release the Updates screen is offering, 2: patched release on this line.
-#: includes/updates-screen.php:164
+#: includes/updates-screen.php:160
 #, php-format
 msgid "The update offered below is %1$s. %2$s is the minor update that closes the known vulnerabilities."
 msgstr ""
 
-#: includes/updates-screen.php:186
+#: includes/updates-screen.php:182
 msgid "A security release exists for your version line"
 msgstr ""
 
 #. translators: 1: environment Keel uses, such as production. 2: environment WordPress reports, such as local.
 #: includes/admin-ux.php:1192
-#: includes/site-health.php:120
+#: includes/site-health.php:124
 #, php-format
 msgid "Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labeled local stops accepting pingbacks."
 msgstr "Keel treats this site as %1$s, but WordPress still says %2$s. The setting changes only Keel: WordPress, Jetpack and other plugins still read the label, so they may keep features off — on WordPress.com, for one, a site labelled local stops accepting pingbacks."
@@ -1710,19 +1711,19 @@ msgid "If this is the live site, change the WP_ENVIRONMENT_TYPE line in %1$s to 
 msgstr ""
 
 #: includes/admin-ux.php:1132
-#: includes/site-health.php:73
+#: includes/site-health.php:77
 #: includes/strings.php:243
 msgid "Environment"
 msgstr ""
 
 #: includes/admin-ux.php:1139
-#: includes/site-health.php:109
+#: includes/site-health.php:113
 msgid "Keel’s environment override is being ignored on this site."
 msgstr ""
 
 #. translators: 1: environment name, such as production. 2: the host the override was chosen on. 3: this site's host. 4: link to the Environment setting.
 #: includes/admin-ux.php:1143
-#: includes/site-health.php:78
+#: includes/site-health.php:82
 #, php-format
 msgid "It says %1$s, but it was chosen on %2$s and this site is %3$s — most likely a copy of that site’s database. Keel is using the automatic environment instead, so a copy does not send real mail as if it were the live site. Choose the %4$s again here if this site needs one."
 msgstr ""
@@ -1733,7 +1734,7 @@ msgstr ""
 
 #. translators: 1: environment name, such as local. 2: the site's address.
 #: includes/admin-ux.php:1163
-#: includes/site-health.php:102
+#: includes/site-health.php:106
 #, php-format
 msgid "WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local."
 msgstr ""
@@ -1750,14 +1751,14 @@ msgstr ""
 
 #. translators: %s: link to the Environment setting.
 #: includes/admin-ux.php:1203
-#: includes/site-health.php:125
+#: includes/site-health.php:129
 #, php-format
 msgid "Once it is fixed, set Keel’s %s back to Automatic."
 msgstr ""
 
 #. translators: 1: environment name, such as production. 2: link to the Environment setting.
 #: includes/admin-ux.php:1220
-#: includes/site-health.php:143
+#: includes/site-health.php:147
 #, php-format
 msgid "Keel’s %2$s is set to %1$s, which is what this site reports anyway. Consider setting it back to Automatic, so Keel follows the site if it ever changes — a leftover Production, for example, would go on sending mail from a copy that is meant to be staging."
 msgstr ""
@@ -1780,58 +1781,58 @@ msgstr ""
 msgid "Jetpack is active on this site and follows this setting. While it is on, Jetpack's AI Assistant and its other AI features are switched off too."
 msgstr ""
 
-#: includes/site-health.php:37
+#: includes/site-health.php:41
 msgid "Environment type"
 msgstr ""
 
 #. translators: %s: environment name, such as production.
-#: includes/site-health.php:86
+#: includes/site-health.php:90
 #, php-format
 msgid "WordPress and Keel agree that this is a %s site"
 msgstr ""
 
-#: includes/site-health.php:92
+#: includes/site-health.php:96
 msgid "Keel’s environment indicator and its non-production email handling use the same environment WordPress reports, so the label you see and what Keel does with email match what other plugins see."
 msgstr ""
 
 #. translators: %s: environment name, such as local.
-#: includes/site-health.php:99
+#: includes/site-health.php:103
 #, php-format
 msgid "This site looks live, but WordPress says it is %s"
 msgstr ""
 
-#: includes/site-health.php:117
+#: includes/site-health.php:121
 msgid "Keel’s Environment setting is covering for a wrong WordPress label"
 msgstr ""
 
-#: includes/site-health.php:134
+#: includes/site-health.php:138
 msgid "Keel’s environment override is being ignored on this site"
 msgstr ""
 
 #. translators: %s: environment Keel uses, such as staging.
-#: includes/site-health.php:155
+#: includes/site-health.php:159
 #, php-format
 msgid "Keel treats this production site as %s and is holding back its email"
 msgstr ""
 
 #. translators: 1: environment Keel uses, such as staging. 2: link to the Environment setting.
-#: includes/site-health.php:158
+#: includes/site-health.php:162
 #, php-format
 msgid "WordPress reports this site as production, but Keel’s %2$s is set to %1$s, and Keel holds back outgoing email on non-production sites. If this is the live site, its password resets, notifications and other email are not being sent. Set the Environment to Automatic or Production if that is not intended."
 msgstr ""
 
 #. translators: 1: environment WordPress reports. 2: environment Keel uses.
-#: includes/site-health.php:168
+#: includes/site-health.php:172
 #, php-format
 msgid "Keel treats this %1$s site as %2$s"
 msgstr ""
 
-#: includes/site-health.php:169
+#: includes/site-health.php:173
 msgid "Keel’s environment indicator and non-production email handling follow Keel’s environment, either because of the Environment setting or because the site is served from a local development address and declares no environment of its own. WordPress core and other plugins still see the environment WordPress reports."
 msgstr ""
 
 #. translators: %s: the setting's current state, such as "Leave unchanged".
-#: includes/site-health.php:331
+#: includes/site-health.php:335
 #, php-format
 msgid "%s (Jetpack's WordPress.com menu styling sets 272px)"
 msgstr ""
@@ -1862,21 +1863,21 @@ msgstr ""
 msgid "Your theme may influence some of the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:733
+#: includes/site-health.php:737
 msgid "Must-use plugins are installed by a host or a developer and cannot be turned off from the Plugins screen, so Keel lists them here and shows no notice about them."
 msgstr ""
 
 #. translators: %s: theme name, or a child theme and its parent, comma-separated.
-#: includes/site-health.php:820
+#: includes/site-health.php:824
 #, php-format
 msgid "Your theme may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:822
+#: includes/site-health.php:826
 msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:826
+#: includes/site-health.php:830
 msgid "Your theme may influence the same settings as Keel"
 msgstr ""
 
@@ -1893,7 +1894,7 @@ msgid "<strong>Environment indicator:</strong> a color-coded label in the admin 
 msgstr "<strong>Environment indicator:</strong> a colour-coded label in the admin bar. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
 
 #. translators: %s: link to the XML-RPC Multicall setting.
-#: includes/site-health.php:224
+#: includes/site-health.php:228
 #, php-format
 msgid "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognize requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
 msgstr "Keel refuses batched XML-RPC requests (system.multicall), which is how WordPress.com manages this site through Jetpack. This version of Jetpack does not offer the check Keel uses to recognise requests signed by WordPress.com, so Keel cannot let them through. Update Jetpack, or allow multicall under %s."
@@ -2221,7 +2222,7 @@ msgid "WordPress retains a core-update failure record; it may be historical. Fai
 msgstr ""
 
 #: includes/cron-presentation.php:125
-#: includes/update-timeline.php:153
+#: includes/update-timeline.php:181
 msgid "time unknown"
 msgstr ""
 
@@ -2233,15 +2234,17 @@ msgstr ""
 msgid "Confirm hook ownership and purpose with the component maintainer before changing a schedule. Review the external scheduler and WordPress Updates screen for delivery problems. Collection is nontransactional and cached for up to one hour; clock changes and concurrent scheduling can affect observations. No installation time is promised."
 msgstr ""
 
-#: includes/extension-updates.php:171
+#: includes/extension-updates.php:252
 msgid "Plugin/theme files and opt-ins are network-wide. Network policy wins; otherwise the main site’s Keel setting decides, including on subsite requests."
 msgstr ""
 
-#: includes/extension-updates.php:147
+#: includes/extension-updates.php:228
+#: includes/update-policy-notice.php:85
 msgid "Plugins"
 msgstr ""
 
-#: includes/extension-updates.php:147
+#: includes/extension-updates.php:228
+#: includes/update-policy-notice.php:86
 msgid "Themes"
 msgstr ""
 
@@ -2416,7 +2419,7 @@ msgstr ""
 msgid "Keel hides recognizable residue from readers while keeping enclosed text. People who can edit a post still see its residue. Restore the missing plugin or update the content; hiding markup does not restore the missing output. These are observations, not proof that a plugin supplied each tag."
 msgstr "Keel hides recognisable residue from readers while keeping enclosed text. People who can edit a post still see its residue. Restore the missing plugin or update the content; hiding markup does not restore the missing output. These are observations, not proof that a plugin supplied each tag."
 
-#: includes/site-health.php:43
+#: includes/site-health.php:47
 msgid "Broken shortcodes"
 msgstr ""
 
@@ -2479,94 +2482,72 @@ msgstr ""
 msgid "Tidy + helper columns"
 msgstr ""
 
-#: includes/update-disclosure.php:30
+#: includes/update-disclosure.php:31
 msgid "Coverage"
 msgstr ""
 
-#: includes/update-disclosure.php:32
+#: includes/update-disclosure.php:33
 msgid "Documented core baseline for stable WordPress 6.4–7.1; not evidence that this site sent a request. Categories are a summary, not an exhaustive payload schema."
 msgstr ""
 
-#: includes/update-disclosure.php:33
+#: includes/update-disclosure.php:34
 msgid "This WordPress version is unverified by this disclosure. Request categories are withheld; consult the installed core source."
 msgstr ""
 
-#: includes/update-disclosure.php:36
+#: includes/update-disclosure.php:37
 msgid "What this report does"
 msgstr ""
 
-#: includes/update-disclosure.php:37
+#: includes/update-disclosure.php:38
 msgid "Explains normal update checks without running them. It makes no extra requests, reads no installed-item inventory, captures no traffic or payloads, stores nothing and offers no blocking switch. Core, plugins and hosts can modify, redirect or prevent requests. Actual transmission and delivery remain unverified."
 msgstr ""
 
-#: includes/update-disclosure.php:40
+#: includes/update-disclosure.php:41
 msgid "Multisite scope"
 msgstr ""
 
-#: includes/update-disclosure.php:41
+#: includes/update-disclosure.php:42
 msgid "Update checks can include installation/network-wide metadata and the requesting site’s URL or activation context. Plugin and theme files are shared across a network. This is not a per-site traffic log or a network inventory."
 msgstr ""
 
-#: includes/update-disclosure.php:46
+#: includes/update-disclosure.php:47
 msgid "WordPress core update checks"
 msgstr ""
 
-#: includes/update-disclosure.php:47
+#: includes/update-disclosure.php:48
 msgid "api.wordpress.org/core/version-check/1.7/ — checks core releases and translations. Categories: site and installation URLs in request identity/headers; WordPress, PHP and database versions; locale and package language; site/user counts and multisite status; initial database version; PHP extension versions, platform and image-format support; installed core translation metadata. Newer core can include database storage-engine compatibility metadata. Callers may add statistics and a configured development channel."
 msgstr ""
 
-#: includes/update-disclosure.php:50
+#: includes/update-disclosure.php:51
 msgid "Plugin update checks"
 msgstr ""
 
-#: includes/update-disclosure.php:51
+#: includes/update-disclosure.php:52
 msgid "api.wordpress.org/plugins/update-check/1.1/ — checks plugin releases and translations. Categories: WordPress version and site URL in request identity; metadata for installed plugins, including inactive plugins; active-plugin identifiers; installed translation metadata and requested locales. Callers may add statistics."
 msgstr ""
 
-#: includes/update-disclosure.php:54
+#: includes/update-disclosure.php:55
 msgid "Theme update checks"
 msgstr ""
 
-#: includes/update-disclosure.php:55
+#: includes/update-disclosure.php:56
 msgid "api.wordpress.org/themes/update-check/1.1/ — checks theme releases and translations. Categories: WordPress version and site URL in request identity; installed theme names, identifiers and versions, author names and author/update URIs, including inactive themes; active theme identifier; installed translation metadata and requested locales. Callers may add statistics."
 msgstr ""
 
-#: includes/update-disclosure.php:58
+#: includes/update-disclosure.php:59
 msgid "Limits and other requests"
 msgstr ""
 
-#: includes/update-disclosure.php:59
+#: includes/update-disclosure.php:60
 msgid "This covers the three normal core update-check endpoints only. It does not describe package downloads, directory searches, third-party update services, telemetry from other components or Keel’s separate stable-check request. Core prefers HTTPS where supported and can fall back to HTTP. Disabling update checks can prevent security updates; this disclosure changes no update behavior."
 msgstr "This covers the three normal core update-check endpoints only. It does not describe package downloads, directory searches, third-party update services, telemetry from other components or Keel’s separate stable-check request. Core prefers HTTPS where supported and can fall back to HTTP. Disabling update checks can prevent security updates; this disclosure changes no update behaviour."
 
-#: includes/update-disclosure.php:63
-msgid "Core source references"
-msgstr ""
-
-#: includes/update-disclosure.php:67
+#: includes/update-disclosure.php:71
 msgid "WordPress.org update-check disclosure"
 msgstr ""
 
-#: includes/update-disclosure.php:68
+#: includes/update-disclosure.php:73
 msgid "Read-only documentation of data categories core normally sends. No actual site values or request payloads are shown."
-msgstr ""
-
-#. translators: %s: configuration constant disabling background updates.
-#: includes/update-policy-notice.php:37
-#, php-format
-msgid "Configured policy source: %s in wp-config.php disables background updates."
-msgstr ""
-
-#: includes/update-policy-notice.php:39
-msgid "Configured policy source: WP_AUTO_UPDATE_CORE in wp-config.php. Keel does not override that declaration."
-msgstr ""
-
-#: includes/update-policy-notice.php:41
-msgid "Configured policy source: Keel network policy."
-msgstr ""
-
-#: includes/update-policy-notice.php:41
-msgid "Configured policy source: Keel Site Defaults."
 msgstr ""
 
 #: includes/update-policy-notice.php:48
@@ -2579,22 +2560,6 @@ msgstr ""
 msgid "This site is on the %s release branch."
 msgstr ""
 
-#: includes/update-policy-notice.php:54
-msgid "Automatic WordPress core updates are limited by this policy to maintenance and security releases within the current release branch. Major-version upgrades are not enabled by this policy."
-msgstr ""
-
-#: includes/update-policy-notice.php:55
-msgid "This policy permits automatic WordPress core updates, including major-version upgrades to a different release branch."
-msgstr ""
-
-#: includes/update-policy-notice.php:56
-msgid "No automatic WordPress core releases are enabled by this policy. A host or another updater may apply updates separately."
-msgstr ""
-
-#: includes/update-policy-notice.php:57
-msgid "Keel leaves the core update policy unchanged. WordPress or another component controls which releases are enabled; see WordPress’s status above."
-msgstr ""
-
 #: includes/update-policy-notice.php:59
 msgid "The configured core update policy is unavailable."
 msgstr ""
@@ -2603,336 +2568,477 @@ msgstr ""
 msgid "Core’s current filtered update settings are unavailable to this notice."
 msgstr ""
 
-#: includes/update-policy-notice.php:72
-msgid "Core’s current filtered settings differ from the configured policy. Other components or updater restrictions may be affecting it; review WordPress’s status above."
-msgstr ""
-
-#: includes/update-policy-notice.php:79
-msgid "Review the network core update policy"
-msgstr ""
-
-#: includes/update-policy-notice.php:81
-msgid "Review the core update policy in Site Defaults"
-msgstr ""
-
-#: includes/update-policy-notice.php:85
+#: includes/update-policy-notice.php:131
 msgid "Keel update policy"
-msgstr ""
-
-#: includes/update-policy-notice.php:90
-msgid "This describes policy, not a guarantee that an update will install. Cron, hosting restrictions and other filters can affect delivery."
 msgstr ""
 
 #: includes/strings.php:230
 msgid "Tidy sizes columns to their content, simplifies headings and dates, and initially hides optional columns where you haven’t saved a preference. Tidy + helper columns also adds ID, Image and Modified to post lists, file size to Media, and registration and last-login dates to Users. Where you haven’t saved a preference, Image starts visible; ID and Modified stay off until you tick them in Screen Options. Your saved Screen Options stay unchanged; use Screen Options to show or hide individual columns."
 msgstr ""
 
-#: includes/extension-updates.php:154
+#: includes/extension-updates.php:235
 msgid "Turned on by code"
 msgstr ""
 
-#: includes/extension-updates.php:154
+#: includes/extension-updates.php:235
 msgid "Turned off by code"
 msgstr ""
 
-#: includes/extension-updates.php:157
-#: includes/extension-updates.php:158
+#: includes/extension-updates.php:238
+#: includes/extension-updates.php:239
 msgid "Automatic plugin and theme updates"
 msgstr ""
 
-#: includes/extension-updates.php:158
+#: includes/extension-updates.php:239
 msgid "Type"
 msgstr ""
 
-#: includes/extension-updates.php:158
+#: includes/extension-updates.php:239
 msgid "Auto-updates on"
 msgstr ""
 
-#: includes/extension-updates.php:158
-#: includes/extension-updates.php:160
-#: includes/extension-updates.php:161
+#: includes/extension-updates.php:239
+#: includes/extension-updates.php:241
+#: includes/extension-updates.php:242
 msgid "Changed by code"
 msgstr ""
 
-#: includes/extension-updates.php:161
+#: includes/extension-updates.php:242
 msgid "Item"
 msgstr ""
 
-#: includes/extension-updates.php:161
+#: includes/extension-updates.php:242
 msgid "Result"
 msgstr ""
 
-#: includes/extension-updates.php:163
+#: includes/extension-updates.php:244
 msgid "Unknown:"
 msgstr ""
 
-#: includes/extension-updates.php:163
-msgid "WordPress has no update data for the item yet."
-msgstr ""
-
-#: includes/extension-updates.php:164
+#: includes/extension-updates.php:245
 msgid "Changed by code:"
 msgstr ""
 
-#: includes/extension-updates.php:165
-msgid "Being on doesn’t guarantee an install: file permissions, version control or a disabled updater can still block it."
-msgstr ""
-
-#: includes/extension-updates.php:167
+#: includes/extension-updates.php:248
 msgid "Partial coverage: only the first 200 items of each type are counted."
 msgstr ""
 
-#: includes/update-timeline.php:81
+#: includes/update-timeline.php:109
 msgid "file changes are turned off"
 msgstr ""
 
-#: includes/update-timeline.php:82
+#: includes/update-timeline.php:110
 msgid "automatic updates are turned off in wp-config.php"
 msgstr ""
 
-#: includes/update-timeline.php:83
+#: includes/update-timeline.php:111
 msgid "a plugin or theme turns automatic updates off"
 msgstr ""
 
-#: includes/update-timeline.php:84
+#: includes/update-timeline.php:112
 msgid "automatic updates are turned off"
 msgstr ""
 
-#: includes/update-timeline.php:85
+#: includes/update-timeline.php:113
 msgid "WordPress needs file credentials to update"
 msgstr ""
 
-#: includes/update-timeline.php:86
+#: includes/update-timeline.php:114
 msgid "an earlier update failed and WordPress won’t retry"
 msgstr ""
 
-#: includes/update-timeline.php:87
+#: includes/update-timeline.php:115
 msgid "the site is under version control"
 msgstr ""
 
-#: includes/update-timeline.php:95
-#: includes/update-timeline.php:97
-#: includes/update-timeline.php:99
-#: includes/update-timeline.php:101
+#: includes/update-timeline.php:123
+#: includes/update-timeline.php:125
+#: includes/update-timeline.php:127
+#: includes/update-timeline.php:129
 msgid "Next automatic install"
 msgstr ""
 
-#: includes/update-timeline.php:95
+#: includes/update-timeline.php:123
 msgid "Blocked"
 msgstr ""
 
-#: includes/update-timeline.php:95
+#: includes/update-timeline.php:123
 msgid "WordPress won’t install core updates on its own because"
 msgstr ""
 
-#: includes/update-timeline.php:97
+#: includes/update-timeline.php:125
 msgid "WordPress will try this release on its next update run."
 msgstr ""
 
-#: includes/update-timeline.php:99
-msgid "Nothing is queued. That alone doesn’t mean the site is current; see the version status above."
-msgstr ""
-
-#: includes/update-timeline.php:101
+#: includes/update-timeline.php:129
 msgid "WordPress hasn’t reported which release it would install."
 msgstr ""
 
-#: includes/update-timeline.php:104
+#: includes/update-timeline.php:132
 msgid "Newer patch for this branch"
 msgstr ""
 
-#: includes/update-timeline.php:109
-#: includes/update-timeline.php:117
+#: includes/update-timeline.php:137
+#: includes/update-timeline.php:145
 msgid "Last attempted check with WordPress.org"
 msgstr ""
 
 #. translators: %s: human-readable time, such as "5 mins".
-#: includes/update-timeline.php:112
+#: includes/update-timeline.php:140
 #, php-format
 msgid "%s ago"
 msgstr ""
 
-#: includes/update-timeline.php:113
-msgid "WordPress records when it tried, not whether WordPress.org answered."
-msgstr ""
-
-#: includes/update-timeline.php:115
+#: includes/update-timeline.php:143
 msgid "Over a day old, so it’s stale. WordPress normally checks twice a day."
 msgstr ""
 
-#: includes/update-timeline.php:122
+#: includes/update-timeline.php:150
 msgid "Scheduled update checks"
 msgstr ""
 
-#: includes/update-timeline.php:121
+#: includes/update-timeline.php:149
 msgid "Not read yet"
 msgstr ""
 
-#: includes/update-timeline.php:122
-msgid "Run Site Health to fill this in; its “Cron pressure and update delivery” check reads the schedule."
-msgstr ""
-
-#: includes/update-timeline.php:126
-msgid "Next update check"
-msgstr ""
-
-#: includes/update-timeline.php:127
-msgid "Next automatic update run"
-msgstr ""
-
-#: includes/update-timeline.php:132
+#: includes/update-timeline.php:160
 msgid "Not scheduled"
 msgstr ""
 
-#: includes/update-timeline.php:133
+#: includes/update-timeline.php:161
 msgid "Keel read only part of the schedule (partial coverage), so it may exist."
 msgstr ""
 
-#: includes/update-timeline.php:133
-msgid "Not found when Keel last read this site’s schedule."
-msgstr ""
-
-#: includes/update-timeline.php:138
+#: includes/update-timeline.php:166
 msgid "Was already overdue when Keel last read the schedule."
 msgstr ""
 
-#: includes/update-timeline.php:140
+#: includes/update-timeline.php:168
 msgid "Due now; Keel can’t see yet whether it ran."
 msgstr ""
 
-#: includes/update-timeline.php:148
+#: includes/update-timeline.php:176
 msgid "WP-Cron"
 msgstr ""
 
-#: includes/update-timeline.php:148
+#: includes/update-timeline.php:176
 msgid "Turned off"
 msgstr ""
 
-#: includes/update-timeline.php:148
+#: includes/update-timeline.php:176
 msgid "DISABLE_WP_CRON is set, so a server task (an external scheduler) has to run scheduled jobs. Keel can’t tell whether it does."
 msgstr ""
 
-#: includes/update-timeline.php:154
+#: includes/update-timeline.php:182
 msgid "Last failed core update"
 msgstr ""
 
-#: includes/update-timeline.php:154
-msgid "This may be from an earlier attempt, not the release above."
-msgstr ""
-
-#: includes/update-timeline.php:157
-#: includes/update-timeline.php:158
+#: includes/update-timeline.php:185
+#: includes/update-timeline.php:186
 msgid "Automatic core updates"
 msgstr ""
 
-#: includes/update-timeline.php:158
+#: includes/update-timeline.php:186
 msgid "Check"
 msgstr ""
 
-#: includes/update-timeline.php:158
+#: includes/update-timeline.php:186
 msgid "Status"
 msgstr ""
 
-#: includes/update-timeline.php:158
+#: includes/update-timeline.php:186
 msgid "Note"
 msgstr ""
 
-#: includes/update-timeline.php:159
+#: includes/update-timeline.php:187
 msgid "This is what WordPress knows right now. No installation time is promised. On multisite, update checks and failures are network-wide; the schedule is per site and can be up to an hour old."
 msgstr ""
 
-#: includes/extension-updates.php:164
-msgid "a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed."
-msgstr ""
-
-#: includes/update-timeline.php:121
+#: includes/update-timeline.php:149
 msgid "Unavailable"
 msgstr ""
 
-#: includes/update-policy-notice.php:89
-msgid "Policy details"
-msgstr "Policy details"
-
-#: includes/updates-screen.php:57
+#: includes/site-health.php:29
+#: includes/update-timeline.php:17
 msgid "Update diagnostics"
 msgstr "Update diagnostics"
 
-#: includes/site-health.php:624
+#: includes/site-health.php:628
 msgid "Password breach-screening coverage is unknown"
 msgstr ""
 
-#: includes/site-health.php:625
+#: includes/site-health.php:629
 msgid "Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
 msgstr ""
 
-#: includes/site-health.php:629
+#: includes/site-health.php:633
 msgid "Password breach screening has no sampled failures"
 msgstr ""
 
-#: includes/site-health.php:631
+#: includes/site-health.php:635
 msgid "This is network-shared screening transport evidence, not proof that a particular site’s last password was checked."
 msgstr ""
 
-#: includes/site-health.php:632
+#: includes/site-health.php:636
 msgid "This is screening transport evidence, not proof that every password was checked."
 msgstr ""
 
-#: includes/site-health.php:636
+#: includes/site-health.php:640
 msgid "Password breach-screening transport evidence is unavailable"
 msgstr ""
 
-#: includes/site-health.php:637
+#: includes/site-health.php:641
 msgid "The shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage."
 msgstr ""
 
-#: includes/site-health.php:640
+#: includes/site-health.php:644
 msgid "the shared allowance for fresh lookups was exhausted"
 msgstr ""
 
-#: includes/site-health.php:641
+#: includes/site-health.php:645
 msgid "the shared lookup slots were busy"
 msgstr ""
 
-#: includes/site-health.php:642
+#: includes/site-health.php:646
 msgid "the shared lookup budget was unavailable"
 msgstr ""
 
-#: includes/site-health.php:645
+#: includes/site-health.php:649
 msgid "the reply did not contain a valid complete range response"
 msgstr ""
 
-#: includes/site-health.php:654
+#: includes/site-health.php:658
 msgid "the lookup could not complete"
 msgstr ""
 
-#: includes/site-health.php:657
+#: includes/site-health.php:661
 msgid "Password breach screening has sampled unavailability"
 msgstr ""
 
 #. translators: 1: sampled lookup failure reason, 2: elapsed time since the sample.
-#: includes/site-health.php:660
+#: includes/site-health.php:664
 #, php-format
 msgid "A sampled fresh lookup was skipped or could not complete: %1$s. The sample was recorded %2$s ago. Samples are rate-limited, not counts of all skipped or failed checks."
 msgstr ""
 
-#: includes/site-health.php:665
+#: includes/site-health.php:669
 msgid "No unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded."
 msgstr ""
 
 #. translators: %s: elapsed time since a validated live response.
-#: includes/site-health.php:671
+#: includes/site-health.php:675
 #, php-format
 msgid "The last recorded validated live response completed %s ago. This is historical transport evidence, not a guarantee of current availability."
 msgstr ""
 
-#: includes/site-health.php:675
+#: includes/site-health.php:679
 msgid "A later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval."
 msgstr ""
 
-#: includes/site-health.php:678
+#: includes/site-health.php:682
 msgid "No validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery."
 msgstr ""
 
-#: includes/site-health.php:680
+#: includes/site-health.php:684
 msgid "Cached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+msgstr ""
+
+#: includes/update-policy-notice.php:55
+msgid "Automatic releases, including major-version upgrades."
+msgstr ""
+
+#: includes/update-policy-notice.php:56
+msgid "Automatic core updates off in Keel."
+msgstr ""
+
+#: includes/update-policy-notice.php:57
+msgid "WordPress or another component controls core updates."
+msgstr ""
+
+#: includes/update-policy-notice.php:72
+msgid "Core’s current filtered settings differ from the configured policy. Other components or updater restrictions may be affecting it; review WordPress’s status below."
+msgstr ""
+
+#: includes/update-policy-notice.php:77
+msgid "WordPress"
+msgstr ""
+
+#: includes/update-policy-notice.php:129
+msgid "View update diagnostics"
+msgstr ""
+
+#: includes/update-policy-notice.php:80
+#: includes/update-policy-notice.php:99
+msgid "Automatic updates enabled."
+msgstr ""
+
+#: includes/update-policy-notice.php:81
+#: includes/update-policy-notice.php:99
+msgid "Automatic updates disabled."
+msgstr ""
+
+#: includes/update-policy-notice.php:120
+msgid "Disabled in configuration."
+msgstr ""
+
+#: includes/update-timeline.php:182
+msgid "This may be from an earlier update attempt."
+msgstr ""
+
+#. translators: %s: number of examined items in a partial report.
+#: includes/extension-updates.php:211
+#, php-format
+msgid "First %s items only; counts are partial."
+msgstr ""
+
+#. translators: %s: configuration constant disabling background updates.
+#: includes/update-policy-notice.php:37
+#, php-format
+msgid "Background updates are disabled by %s in wp-config.php."
+msgstr ""
+
+#: includes/update-policy-notice.php:39
+msgid "Its core update policy is set by WP_AUTO_UPDATE_CORE in wp-config.php."
+msgstr ""
+
+#: includes/update-policy-notice.php:41
+msgid "Its update policy is set by Keel network policy."
+msgstr ""
+
+#: includes/update-policy-notice.php:41
+msgid "Its update policy is set by Keel Site Defaults."
+msgstr ""
+
+#: includes/update-policy-notice.php:54
+msgid "Maintenance and security releases only. Major upgrades are not enabled."
+msgstr ""
+
+#: includes/update-policy-notice.php:135
+msgid "An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery."
+msgstr ""
+
+#: includes/update-timeline.php:34
+msgid "The following tables contain update forensics for troubleshooting. They do not provide a health verdict or an installation schedule."
+msgstr ""
+
+#: includes/extension-updates.php:244
+msgid "WordPress has no update data for one or more installed plugins or themes yet."
+msgstr ""
+
+#: includes/extension-updates.php:245
+msgid "a plugin, theme or Keel setting is overriding WordPress’s baseline auto-update decision; up to ten changed decisions per type are listed."
+msgstr ""
+
+#: includes/extension-updates.php:246
+msgid "Enabling auto-updates doesn’t guarantee they will be installed. File permissions, version control, or a disabled updater can prevent auto-updates from succeeding."
+msgstr ""
+
+#: includes/update-timeline.php:127
+msgid "No update queued"
+msgstr ""
+
+#: includes/update-timeline.php:127
+msgid "WordPress has not queued an automatic core update."
+msgstr ""
+
+#: includes/update-timeline.php:141
+msgid "WordPress records when it tried to check for updates, not whether WordPress.org answered."
+msgstr ""
+
+#: includes/update-timeline.php:150
+msgid "See Site Health → Info for configuration details. Then run the “Cron pressure and update delivery” Status check to collect this schedule."
+msgstr ""
+
+#: includes/update-timeline.php:154
+msgid "Next scheduled update check"
+msgstr ""
+
+#: includes/update-timeline.php:155
+msgid "Next scheduled automatic-update run"
+msgstr ""
+
+#: includes/update-timeline.php:161
+msgid "Keel did not find a scheduled event when it last read this site’s schedule."
+msgstr ""
+
+#: includes/update-timeline.php:200
+msgid "The installed WordPress version is unavailable."
+msgstr ""
+
+#: includes/update-timeline.php:204
+msgid "latest patch for this release branch"
+msgstr ""
+
+#: includes/update-timeline.php:205
+msgid "an update is available"
+msgstr ""
+
+#: includes/update-timeline.php:206
+msgid "flagged insecure"
+msgstr ""
+
+#: includes/update-timeline.php:207
+msgid "release status unknown"
+msgstr ""
+
+#. translators: 1: installed WordPress version. 2: validated cached release status.
+#: includes/update-timeline.php:211
+#, php-format
+msgid "Installed WordPress version: %1$s — %2$s."
+msgstr ""
+
+#. translators: %s: number of extensions with automatic updates enabled.
+#: includes/extension-updates.php:192
+#, php-format
+msgid "%s enabled"
+msgstr ""
+
+#. translators: %s: number of extensions with automatic updates disabled.
+#: includes/extension-updates.php:196
+#, php-format
+msgid "%s disabled"
+msgstr ""
+
+#. translators: %s: number of extensions without update metadata.
+#: includes/extension-updates.php:202
+#, php-format
+msgid "%s unknown"
+msgstr ""
+
+#. translators: %s: number of automatic-update decisions changed by code.
+#: includes/extension-updates.php:206
+#, php-format
+msgid "%s changed by code"
+msgstr ""
+
+#. translators: 1: WordPress core update-check function link. 2: Plugin update-check function link. 3: Theme update-check function link.
+#: includes/update-disclosure.php:65
+#, php-format
+msgid "Core source references: %1$s, %2$s and %3$s."
+msgstr ""
+
+#: includes/update-disclosure.php:66
+msgid "Core version check"
+msgstr ""
+
+#: includes/update-disclosure.php:67
+msgid "Plugin update check"
+msgstr ""
+
+#: includes/update-disclosure.php:68
+msgid "Theme update check"
+msgstr ""
+
+#: includes/update-policy-notice.php:89
+msgid "individual plugin settings"
+msgstr ""
+
+#: includes/update-policy-notice.php:89
+msgid "individual theme settings"
+msgstr ""
+
+#. translators: %s: linked text for the native per-item update settings.
+#: includes/update-policy-notice.php:93
+#, php-format
+msgid "Follow %s."
 msgstr ""
