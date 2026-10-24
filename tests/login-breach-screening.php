@@ -155,21 +155,7 @@ function keel_user_sites( $user_id ) {
 	return isset( $GLOBALS['keel_user_sites'][ $user_id ] ) ? $GLOBALS['keel_user_sites'][ $user_id ] : array( 1 );
 }
 
-class WP_User {
-	public $ID;
-	public $roles;
-	public $user_login;
-	public $display_name;
-	public $user_email    = '';
-	public $user_nicename = '';
-	public $user_pass     = '$wp$2y$10$old';
-	public function __construct( $id, $roles = array( 'editor' ), $login = 'user', $name = 'User' ) {
-		$this->ID           = $id;
-		$this->roles        = $roles;
-		$this->user_login   = $login;
-		$this->display_name = $name;
-	}
-}
+require_once __DIR__ . '/stubs/wp-user.php';
 
 /**
  * Minimal user query: filters the stubbed users by the meta key it is given.
@@ -193,11 +179,12 @@ class WP_User_Query {
 		usort(
 			$this->found,
 			function ( $a, $b ) use ( $args ) {
-				return (int) get_user_meta( $b->ID, $args['meta_key'], true ) - (int) get_user_meta( $a->ID, $args['meta_key'], true );
+				$by_time = (int) get_user_meta( $b->ID, $args['meta_key'], true ) - (int) get_user_meta( $a->ID, $args['meta_key'], true );
+				return $by_time ? $by_time : $b->ID - $a->ID;
 			}
 		);
 		$this->total = count( $this->found );
-		$this->found = array_slice( $this->found, 0, $args['number'] );
+		$this->found = array_slice( $this->found, $args['offset'] ?? 0, $args['number'] );
 	}
 	public $total;
 	public function get_total() { return $this->total; }
@@ -511,6 +498,30 @@ keel_assert( array() !== $GLOBALS['keel_user_query_args'], 'The multisite checks
 foreach ( $GLOBALS['keel_user_query_args'] as $args ) {
 	keel_assert( ! empty( $args['blog_id'] ), 'Every report query names its site explicitly.' );
 }
+
+// Severity must include older accounts beyond the ten displayed rows, including
+// a second page of results, while respecting the current site's membership.
+$saved_users = $GLOBALS['keel_users'];
+$saved_meta  = $GLOBALS['keel_user_meta'];
+for ( $id = 20; $id <= 130; ++$id ) {
+	$GLOBALS['keel_users'][ $id ] = new WP_User( $id, array( 130 === $id ? 'administrator' : 'subscriber' ), 'account' . $id, 'Account ' . $id );
+	update_user_meta( $id, 'keel_password_breached', 2000 - $id );
+}
+$r = keel_defaults_site_health_breached_passwords();
+keel_assert( 'critical' === $r['status'], 'An older flagged administrator outside the displayed rows still makes the result critical.' );
+keel_assert( false === strpos( $r['description'], 'Account 130' ), 'Severity does not expand the ten-row display.' );
+$GLOBALS['keel_user_sites'][130] = array( 2 );
+$r                               = keel_defaults_site_health_breached_passwords();
+keel_assert( 'recommended' === $r['status'], 'A flagged administrator who belongs only to another site does not raise this site\'s severity.' );
+for ( $id = 20; $id <= 130; ++$id ) {
+	$GLOBALS['keel_users'][ $id ]->roles = array( 20 === $id ? 'administrator' : 'subscriber' );
+	update_user_meta( $id, 'keel_password_breached', 1000 );
+}
+$r = keel_defaults_site_health_breached_passwords();
+keel_assert( 'critical' === $r['status'], 'Equal flag timestamps retain a stable page order and do not hide an older administrator.' );
+$GLOBALS['keel_users']     = $saved_users;
+$GLOBALS['keel_user_meta'] = $saved_meta;
+unset( $GLOBALS['keel_user_sites'][130] );
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "login breach screening: {$fail} failed\n" );

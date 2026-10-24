@@ -102,7 +102,7 @@ there) and three popular plugins from wordpress.org,
 each configured the way its own settings screen would save it, so every kind of
 finding Keel's conflict check makes is on screen at once. It lands on the
 Dashboard, where Keel's notice summarises them and links to **Tools → Site
-Health → More than one plugin may influence the same settings**.
+Health → A setting is not taking effect**.
 
 | What is installed | How it is set up | What Keel reports |
 | --- | --- | --- |
@@ -147,8 +147,11 @@ Health status and the Dashboard notice's colour.
 Checked on 2026-10-24 against WordPress 6.8.3 (SQLite, PHP 8.3) with Keel
 `main` and with v0.8.0, Disable Comments 2.9.0, Classic Editor 1.7.0 and Disable
 XML-RPC 1.0.1: schema validation and every assertion passed, and both screens
-were checked in Chromium. The hosted Playground run itself is unverified from
-that environment, which cannot reach playground.wordpress.net.
+were checked in Chromium. A subsequent hosted Playground pass on 2026-10-24
+booted successfully on WordPress 7.1.3 in Chrome, confirmed all four plugins
+active, and checked the amber Dashboard notice and expanded Site Health findings
+with no console or page errors. See the
+[verification record](../docs/review/p2-fixes-and-conflict-demo-2026-10-24.md).
 
 ## Focused Updates-screen verification (unreleased branch)
 

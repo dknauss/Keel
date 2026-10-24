@@ -318,17 +318,22 @@ function keel_defaults_render_breached_password_notice() {
  * scoping is visible here and cannot be lost to a change of that default.
  *
  * @param int $limit Maximum number of accounts to return.
+ * @param int $offset Number of accounts to skip.
  * @return array{total:int,users:WP_User[]}
  */
-function keel_defaults_breached_users( $limit = 10 ) {
+function keel_defaults_breached_users( $limit = 10, $offset = 0 ) {
 	$query = new WP_User_Query(
 		array(
 			'blog_id'     => get_current_blog_id(),
 			'meta_key'    => 'keel_password_breached', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Bounded admin report; the key exists only on flagged accounts.
-			'orderby'     => 'meta_value_num',
-			'order'       => 'DESC',
+			// A stable tie-breaker keeps equal timestamps on consistent pages.
+			'orderby'     => array(
+				'meta_value_num' => 'DESC',
+				'ID'             => 'DESC',
+			),
 			'number'      => max( 1, (int) $limit ),
-			'count_total' => true,
+			'offset'      => max( 0, (int) $offset ),
+			'count_total' => 0 === (int) $offset,
 		)
 	);
 
@@ -649,12 +654,23 @@ function keel_defaults_site_health_breached_passwords() {
 		return $result;
 	}
 
+	// The display limit must not hide a privileged account from the severity
+	// check. Read older flags in bounded pages, stopping at the first match.
 	$privileged = false;
-	foreach ( $found['users'] as $user ) {
-		if ( user_can( $user, 'manage_options' ) ) {
-			$privileged = true;
+	$users      = $found['users'];
+	$offset     = 0;
+	while ( $users ) {
+		foreach ( $users as $user ) {
+			if ( user_can( $user, 'manage_options' ) ) {
+				$privileged = true;
+				break 2;
+			}
+		}
+		$offset += count( $users );
+		if ( $offset >= $total ) {
 			break;
 		}
+		$users = keel_defaults_breached_users( 100, $offset )['users'];
 	}
 
 	$result['status'] = $privileged ? 'critical' : 'recommended';
