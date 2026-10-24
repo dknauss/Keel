@@ -146,7 +146,17 @@ function keel_defaults_render_conflicts_notice() {
 			</strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ); ?>
+			<?php
+			esc_html_e( 'These were last seen producing a different value from the one configured here, so something else on this site is deciding them.', 'keel-defaults' );
+			echo ' ';
+			// Same rule as the Site Health test: claim nobody can be named only
+			// when no plugin on these hooks was.
+			if ( array() === array_diff_key( $divergences, $conflicts ) ) {
+				esc_html_e( 'The plugins named below use the same hooks and are the place to look.', 'keel-defaults' );
+			} else {
+				esc_html_e( 'Keel cannot always say what: a plugin that switches a feature on or off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' );
+			}
+			?>
 		</p>
 		<?php endif; ?>
 		<?php if ( ! empty( $plugins ) ) : ?>
@@ -205,7 +215,7 @@ function keel_defaults_render_conflicts_notice() {
 				'</strong>'
 			);
 			?>
-			<?php esc_html_e( 'A plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it.', 'keel-defaults' ); ?>
+			<?php esc_html_e( 'A plugin that switches a feature on or off using one of WordPress\'s own helper functions leaves nothing behind to identify it.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<p>

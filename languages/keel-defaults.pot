@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T17:44:19+00:00\n"
+"POT-Creation-Date: 2026-10-24T19:01:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -866,12 +866,20 @@ msgid_plural "Some Keel settings are not taking effect on this site: %s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflict-notices.php:149
-msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+#: includes/conflict-notices.php:150
+msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them."
+msgstr ""
+
+#: includes/conflict-notices.php:155
+msgid "The plugins named below use the same hooks and are the place to look."
+msgstr ""
+
+#: includes/conflict-notices.php:157
+msgid "Keel cannot always say what: a plugin that switches a feature on or off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/conflict-notices.php:157
+#: includes/conflict-notices.php:167
 #, php-format
 msgid "Another plugin may influence some of the same settings as Keel: %s"
 msgid_plural "Other plugins may influence some of the same settings as Keel: %s"
@@ -879,37 +887,41 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s: theme name, or a child theme and its parent, comma-separated.
-#: includes/conflict-notices.php:178
+#: includes/conflict-notices.php:188
 #, php-format
 msgid "Your theme may influence some of the same settings as Keel: %s"
 msgstr ""
 
-#: includes/conflict-notices.php:187
+#: includes/conflict-notices.php:197
 msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflict-notices.php:194
+#: includes/conflict-notices.php:204
 #, php-format
 msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
 msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflict-notices.php:208
-msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
+#: includes/conflict-notices.php:218
+msgid "A plugin that switches a feature on or off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflict-notices.php:212
+#: includes/conflict-notices.php:222
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflict-notices.php:216
+#: includes/conflict-notices.php:226
 msgid "Dismiss until this changes"
 msgstr ""
 
 #: includes/content.php:42
 msgid "Site Contributor"
+msgstr ""
+
+#: includes/content.php:217
+msgid "Comments are closed on this site."
 msgstr ""
 
 #: includes/cron-diagnostics.php:21
@@ -1517,7 +1529,7 @@ msgid "<strong>The second method says a setting is not taking effect:</strong> K
 msgstr ""
 
 #: includes/settings-page.php:216
-msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
+msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature on or off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
 msgstr ""
 
 #. translators: %s: linked name of the Site Health screen.
@@ -1955,60 +1967,70 @@ msgid "Not taking effect: %s"
 msgstr ""
 
 #: includes/site-health.php:728
-msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them."
 msgstr ""
 
-#: includes/site-health.php:733
+#: includes/site-health.php:741
+msgid "The plugins listed below for the same hooks are the place to look."
+msgstr ""
+
+#: includes/site-health.php:743
+msgid "Keel cannot always say what: a plugin that turns a feature on or off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgstr ""
+
+#: includes/site-health.php:749
 msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:733
+#: includes/site-health.php:749
 msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:737
+#: includes/site-health.php:753
 msgid "Must-use plugins are installed by a host or a developer and cannot be turned off from the Plugins screen, so Keel lists them here and shows no notice about them."
 msgstr ""
 
-#: includes/site-health.php:756
+#: includes/site-health.php:772
+#: includes/site-health.php:846
+#: includes/site-health.php:870
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:786
+#: includes/site-health.php:802
 msgid "A Keel setting is also affected by code Keel cannot identify"
 msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:800
+#: includes/site-health.php:816
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
 #. translators: %s: theme name, or a child theme and its parent, comma-separated.
-#: includes/site-health.php:824
+#: includes/site-health.php:840
 #, php-format
 msgid "Your theme may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:826
+#: includes/site-health.php:842
 msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:830
+#: includes/site-health.php:846
 msgid "Your theme may influence the same settings as Keel"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:840
+#: includes/site-health.php:856
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:842
+#: includes/site-health.php:858
 msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
 msgstr ""
 
-#: includes/site-health.php:846
+#: includes/site-health.php:870
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 

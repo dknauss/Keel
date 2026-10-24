@@ -41,6 +41,8 @@ function get_option( $key, $default = false ) {
 }
 define( 'ABSPATH', __DIR__ . '/' );
 
+require __DIR__ . '/stubs/wp-error.php';
+
 require dirname( __DIR__ ) . '/keel.php';
 
 function keel_assert( $cond, $msg ) {
@@ -171,5 +173,26 @@ keel_assert( keel_defaults_hide_rest_comment( $rest_comment ) === $rest_comment,
 
 $keel_content_source = (string) file_get_contents( dirname( __DIR__ ) . '/includes/content.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local source file.
 keel_assert( false === strpos( $keel_content_source, 'wp_is_rest_request' ), 'The REST guard does not depend on wp_is_rest_request(), which WordPress does not define.' );
+
+/*
+ * --- the write path, when another plugin reopens comments_open ---
+ *
+ * Measured 2026-10-24: with a fixture answering comments_open with
+ * __return_true after Keel, the form stayed hidden but a POST to
+ * wp-comments-post.php stored the comment. pre_comment_approved is where every
+ * core comment path asks last, so the refusal lives there.
+ */
+$GLOBALS['keel_is_rest'] = true;
+$rest_refused            = keel_defaults_refuse_closed_comment( 1, array( 'comment_type' => 'comment' ) );
+keel_assert( array( 'status' => 403 ) === $rest_refused->get_error_data(), 'Over REST the status is data[status], or the server answers 500 instead of 403.' );
+$GLOBALS['keel_is_rest'] = false;
+
+$refused = keel_defaults_refuse_closed_comment( 1, array( 'comment_type' => 'comment' ) );
+keel_assert( $refused instanceof WP_Error, 'A comment submitted while comments are off is refused, whatever comments_open answered.' );
+keel_assert( 'comment_closed' === $refused->code && 403 === $refused->get_error_data(), 'The refusal uses core\'s comment_closed code and a 403, so the form handler and REST answer as for a closed post.' );
+keel_assert( keel_defaults_refuse_closed_comment( 1, array( 'comment_type' => '' ) ) instanceof WP_Error, 'An untyped submission is a comment, and is refused too.' );
+keel_assert( keel_defaults_refuse_closed_comment( 1, array( 'comment_type' => 'pingback' ) ) instanceof WP_Error, 'A pingback is refused: the same setting closes pings_open.' );
+keel_assert( 1 === keel_defaults_refuse_closed_comment( 1, array( 'comment_type' => 'note' ) ), 'A Note keeps its approval, so block-editor Notes still work.' );
+keel_assert( keel_defaults_refuse_closed_comment( 0, 'not an array' ) instanceof WP_Error, 'Malformed comment data is treated as a comment, not waved through.' );
 
 echo "comments tests passed.\n";
