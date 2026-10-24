@@ -113,7 +113,7 @@ WordPress's strength meter advises the person typing but cannot refuse a passwor
 
 = Can I download a report for support? =
 
-Yes. Use Download posture JSON under Site Defaults. The authenticated download includes validated policy choices and cached diagnostic summaries, with unknown evidence marked explicitly. It excludes site/user identifiers, raw option records, callback paths and full plugin/theme inventories. On multisite, network-management authority is required. Review the file before sharing it; downloading does not refresh diagnostics or run update checks.
+Yes. Go to **Settings → Site Defaults** and use **Download JSON** under Export Settings and Diagnostics. The authenticated download includes validated policy choices and cached diagnostic summaries, with unknown evidence marked explicitly. It excludes site/user identifiers, raw option records, callback paths and full plugin/theme inventories. On multisite, network-management authority is required. Review the file before sharing it; downloading does not refresh diagnostics or run update checks.
 
 = Can I set these in code instead? =
 

@@ -2279,7 +2279,7 @@ msgid "Shared plugin and theme updates use network policy or the main site’s s
 msgstr ""
 
 #: includes/posture-export.php:200
-msgid "Use the posture export download button."
+msgid "Use the Download JSON button on the Keel settings screen."
 msgstr ""
 
 #: includes/posture-export.php:204
@@ -2291,7 +2291,7 @@ msgid "The posture report could not be encoded."
 msgstr ""
 
 #: includes/posture-export.php:228
-msgid "Support posture export"
+msgid "Export Settings and Diagnostics"
 msgstr ""
 
 #: includes/posture-export.php:229
@@ -2299,7 +2299,7 @@ msgid "Download validated policy choices and cached diagnostic summaries. No sit
 msgstr ""
 
 #: includes/posture-export.php:233
-msgid "Download posture JSON"
+msgid "Download JSON"
 msgstr ""
 
 #: includes/registration-audit.php:204
@@ -2910,7 +2910,7 @@ msgid "Its update policy is set by Keel Site Defaults."
 msgstr ""
 
 #: includes/update-policy-notice.php:54
-msgid "Maintenance and security releases only. Major upgrades are not enabled."
+msgid "Maintenance and security releases only, not major upgrades."
 msgstr ""
 
 #: includes/update-policy-notice.php:135

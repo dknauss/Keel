@@ -47,10 +47,10 @@ $minor = array(
 $html  = keel_defaults_update_policy_notice_markup( $minor );
 check( false !== strpos( $html, 'notice-info inline' ) && false === strpos( $html, 'is-dismissible' ), 'Persistent native inline notice.' );
 check( false !== strpos( $html, '<strong>Keel update policy</strong>' ), 'Clear bold attribution.' );
-check( false !== strpos( $html, 'Maintenance and security releases only. Major upgrades are not enabled.' ), 'Major-release scope is inline in the WordPress summary.' );
+check( false !== strpos( $html, 'Maintenance and security releases only, not major upgrades.' ), 'Major-release scope is inline in the WordPress summary.' );
 check( false !== strpos( $html, 'Follow <a href="http://example.test/wp-admin/plugins.php">individual plugin settings</a>.' ) && false !== strpos( $html, 'Follow <a href="http://example.test/wp-admin/themes.php">individual theme settings</a>.' ), 'Per-item wording links only the relevant native list.' );
 check( false !== strpos( $html, 'Its update policy is set by Keel Site Defaults.' ) && false !== strpos( $html, 'An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery.' ), 'Requested policy details preserve the configured source.' );
-check( false !== strpos( $html, '7.1 release branch' ) && false !== strpos( $html, 'Major upgrades are not enabled.' ), 'Minor scope includes current branch without manual-only promise.' );
+check( false !== strpos( $html, '7.1 release branch' ) && false !== strpos( $html, 'not major upgrades.' ), 'Minor scope includes current branch without manual-only promise.' );
 check( false !== strpos( $html, 'options-general.php?page=keel#keel-setting-core-update-policy' ), 'Link directly to policy.' );
 check( false !== strpos( $html, 'does not guarantee' ), 'Policy does not promise delivery.' );
 foreach ( array( 'core-update-policy', 'plugin-auto-update-policy', 'theme-auto-update-policy', 'auto-update-translations' ) as $anchor ) {

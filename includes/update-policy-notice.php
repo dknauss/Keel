@@ -51,7 +51,7 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 		esc_html( $branch )
 	);
 	$messages = array(
-		'minor'   => __( 'Maintenance and security releases only. Major upgrades are not enabled.', 'keel-defaults' ),
+		'minor'   => __( 'Maintenance and security releases only, not major upgrades.', 'keel-defaults' ),
 		'all'     => __( 'Automatic releases, including major-version upgrades.', 'keel-defaults' ),
 		'manual'  => __( 'Automatic core updates are off.', 'keel-defaults' ),
 		'inherit' => __( 'WordPress or another component controls core updates.', 'keel-defaults' ),
