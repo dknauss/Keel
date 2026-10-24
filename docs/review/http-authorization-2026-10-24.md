@@ -29,14 +29,16 @@ transport; they do not override the tested handler or nonce implementation.
 
 ## Results
 
-See [machine-readable results](http-authorization-results-2026-10-24.json).
-The final run passed 135 cases across ten actor/site combinations, including
-127 HTTP denials. No authentication tokens or settings payloads are retained.
+The [initial results](http-authorization-results-2026-10-24.json) are preserved.
+The [review rerun](http-authorization-results-2026-10-24-review.json) passed 135
+cases across ten actor/site combinations, including 127 HTTP denials and zero
+HTTP 500 responses. No authentication tokens or settings payloads are retained.
 
 - Missing/invalid nonce, a nonce from another user's session, insufficient
   capabilities, anonymous requests and multisite delegation are rejected by the
-  real request path. Core sometimes uses HTTP 500 for `wp_die()` denials with no
-  explicit status; those outcomes are recorded, not reported as a successful save.
+  real request path. Review found that two Keel permission denials defaulted to
+  HTTP 500. Both handlers now explicitly return 403; the harness requires exact
+  statuses rather than accepting a range of alternatives.
 - Posture export rejects GET with 405 and unauthorized/invalid-nonce POST with
   403. Authorized JSON carries `no-store` and `nosniff` headers.
 - Backport/autoload/cron AJAX endpoints reject invalid nonces and unauthorized
@@ -52,7 +54,14 @@ The final run passed 135 cases across ten actor/site combinations, including
 - HTTP response bodies contain no PHP fatal/conversion warnings in these cases.
   The initial admin-page smoke check reports no JavaScript page errors.
 
-No Keel runtime defect was exposed. Harness assumptions failed during setup:
+Review corrected the initial conclusion that no runtime defect was exposed:
+the initial lab accepted HTTP 500 for permission denials, masking the response
+status defect described above. The new standalone status assertion failed before
+the fix and passes after it; the stricter HTTP rerun also passes. Network Admin
+can reject a request before Keel's save callback, so the direct callback assertion
+separately verifies its status code.
+
+Harness assumptions failed during setup:
 `DISALLOW_FILE_MODS` also denies `update_core`, so it was replaced by download and
 automatic-updater guards; the initial assumed options group was wrong, so the
 harness now reads the real form. A stricter capability assertion also confirmed
@@ -68,11 +77,15 @@ Add a temporary MU wrapper defining `KEEL_HTTP_AUTH_LAB` as true and requiring
 `eval-file`. Setup refuses an existing backup or fixture login. Then run:
 
 ```sh
-NODE_PATH=/path/to/lab/node_modules node tests/integration/http-authorization.mjs http://localhost:8889 http://localhost:8890
+NODE_PATH=/path/to/lab/node_modules node tests/integration/http-authorization.mjs http://localhost:8889 http://localhost:8890 /path/to/new-results.json
 ```
 
-The browser harness requires Playwright; no dependency is added to the plugin.
-It keeps authentication material in memory and writes only redacted assertions.
+The harness requires Studio's `/studio-auto-login` route and Playwright; it is
+not verified on other runners and is not an automated CI job. It keeps
+authentication material in memory and writes only redacted assertions. A required
+output path is opened exclusively before any lab mutation; an existing artifact
+causes an immediate failure rather than overwriting evidence. The runtime source
+is verified by SHA-256 against this checkout, irrespective of folder casing/name.
 
 In a finally/cleanup step, run the same setup PHP through `eval-file` with the
 argument `cleanup`, then remove exactly the temporary MU wrapper. Cleanup restores

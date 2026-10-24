@@ -34,14 +34,15 @@ add_filter(
 /** Return real-session nonces and narrowly scoped persisted state. */
 function keel_http_lab_context() {
 	return array(
-		'wordpress' => get_bloginfo( 'version' ),
-		'php'       => PHP_VERSION,
-		'multisite' => is_multisite(),
-		'site'      => get_current_blog_id(),
-		'roles'     => wp_get_current_user()->roles,
-		'source'    => ( new ReflectionFunction( 'keel_defaults_sanitize' ) )->getFileName(),
-		'caps'      => array_map( 'current_user_can', array( 'manage_options', 'manage_network_options', 'update_core', 'view_site_health_checks' ) ),
-		'nonces'    => array(
+		'wordpress'   => get_bloginfo( 'version' ),
+		'php'         => PHP_VERSION,
+		'multisite'   => is_multisite(),
+		'site'        => get_current_blog_id(),
+		'roles'       => wp_get_current_user()->roles,
+		'source'      => ( new ReflectionFunction( 'keel_defaults_sanitize' ) )->getFileName(),
+		'source_hash' => hash_file( 'sha256', ( new ReflectionFunction( 'keel_defaults_sanitize' ) )->getFileName() ),
+		'caps'        => array_map( 'current_user_can', array( 'manage_options', 'manage_network_options', 'update_core', 'view_site_health_checks' ) ),
+		'nonces'      => array(
 			'control' => wp_create_nonce( 'keel-http-lab' ),
 			'minor'   => wp_create_nonce( 'keel_defaults_enable_minor_updates' ),
 			'health'  => wp_create_nonce( 'health-check-site-status' ),
@@ -49,7 +50,7 @@ function keel_http_lab_context() {
 			'network' => wp_create_nonce( 'keel-network-save' ),
 			'options' => wp_create_nonce( 'keel_settings_group-options' ),
 		),
-		'state'     => array(
+		'state'       => array(
 			'minor'    => get_site_option( 'auto_update_core_minor', null ),
 			'settings' => get_option( 'keel_settings', null ),
 			'network'  => get_site_option( 'keel_network_settings', null ),

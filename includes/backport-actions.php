@@ -39,7 +39,7 @@ function keel_defaults_backport_ajax() {
  */
 function keel_defaults_handle_enable_minor_updates() {
 	if ( ! current_user_can( 'update_core' ) || ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) ) {
-		wp_die( esc_html__( 'You are not allowed to change update settings on this site.', 'keel-defaults' ) );
+		wp_die( esc_html__( 'You are not allowed to change update settings on this site.', 'keel-defaults' ), '', array( 'response' => 403 ) );
 	}
 
 	check_admin_referer( 'keel_defaults_enable_minor_updates' );

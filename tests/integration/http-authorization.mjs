@@ -2,10 +2,16 @@
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 const { chromium } = createRequire(import.meta.url)('playwright');
-const bases = process.argv.slice(2);
+const [single, multi, output] = process.argv.slice(2);
+assert.ok(output, 'Pass single-site URL, multisite URL and a new output JSON path.');
+const bases = [single, multi];
 assert.equal(bases.length, 2, 'Pass single-site and multisite localhost URLs.');
 for (const base of bases) assert.ok(['localhost', '127.0.0.1'].includes(new URL(base).hostname));
+const expectedSourceHash = createHash('sha256').update(await fs.readFile(new URL('../../includes/settings-page.php', import.meta.url))).digest('hex');
+// Reserve a new artifact before mutating either lab. Existing evidence is never overwritten.
+const artifact = await fs.open(output, 'wx', 0o600);
 const browser = await chromium.launch();
 const results = [];
 const actors = [];
@@ -26,7 +32,7 @@ try {
 		const owner = await info(root, base);
 		assert.equal(owner.state.minor, 'disabled', 'Run setup before the lab so the authorized control must change persisted state.');
 		assert.equal(owner.multisite, index === 1);
-		assert.ok(owner.source.endsWith('/keel/includes/settings-page.php'));
+		assert.equal(owner.source_hash, expectedSourceHash, 'Runtime sanitizer matches this checkout irrespective of folder name.');
 		const storage = await root.storageState();
 		async function probe(ctx, profile, name, path, form, expected, unchanged = true, method = 'POST') {
 			const before = await info(root, base);
@@ -65,21 +71,21 @@ try {
 				assert.match(exported.response.headers()['cache-control'], /no-store/);
 				assert.equal(exported.response.headers()['x-content-type-options'], 'nosniff');
 			}
-			await probe(ctx, profile, 'minor-bad-nonce', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates', _wpnonce: 'invalid' }, allowed ? [403] : [500]);
-			if (!allowed) await probe(ctx, profile, 'minor-valid-nonce-denied', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates', _wpnonce: user.nonces.minor }, [500]);
+			await probe(ctx, profile, 'minor-bad-nonce', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates', _wpnonce: 'invalid' }, [403]);
+			if (!allowed) await probe(ctx, profile, 'minor-valid-nonce-denied', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates', _wpnonce: user.nonces.minor }, [403]);
 			for (const action of ['health-check-keel-backport', 'health-check-keel-autoload', 'health-check-keel-cron']) {
 				await probe(ctx, profile, action + '-bad-nonce', '/wp-admin/admin-ajax.php', { action, _wpnonce: 'invalid' }, [403]);
 				if (!user.caps[3]) await probe(ctx, profile, action + '-valid-nonce-denied', '/wp-admin/admin-ajax.php', { action, _wpnonce: user.nonces.health }, [403]);
 			}
 			if (index) {
-				await probe(ctx, profile, 'network-bad-nonce', '/wp-admin/network/settings.php?page=keel-network', { keel_network_nonce: 'invalid' }, user.caps[1] ? [403] : [403, 500]);
-				if (!user.caps[1]) await probe(ctx, profile, 'network-valid-nonce-denied', '/wp-admin/network/settings.php?page=keel-network', { keel_network_nonce: user.nonces.network }, [403, 500]);
+				await probe(ctx, profile, 'network-bad-nonce', '/wp-admin/network/settings.php?page=keel-network', { keel_network_nonce: 'invalid' }, [403]);
+				if (!user.caps[1]) await probe(ctx, profile, 'network-valid-nonce-denied', '/wp-admin/network/settings.php?page=keel-network', { keel_network_nonce: user.nonces.network }, [403]);
 			}
 			await ctx.close();
 		}
 		const anon = await browser.newContext();
 		await probe(anon, 'anonymous', 'export-post', '/wp-admin/admin-post.php', { action: 'keel_posture_export', _wpnonce: 'invalid' }, [403]);
-		await probe(anon, 'anonymous', 'minor-post', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates' }, [302, 400]);
+		await probe(anon, 'anonymous', 'minor-post', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates' }, [400]);
 		await probe(anon, 'anonymous', 'collector-post', '/wp-admin/admin-ajax.php', { action: 'health-check-keel-autoload' }, [400]);
 		await anon.close();
 		const enabled = await probe(root, 'owner', 'minor-authorized-control', '/wp-admin/admin-post.php', { action: 'keel_defaults_enable_minor_updates', _wpnonce: owner.nonces.minor }, [302], false);
@@ -97,6 +103,6 @@ try {
 		if (!index) assert.deepEqual(settings.password_exempt_roles, []);
 		await root.close();
 	}
-	await fs.writeFile('docs/review/http-authorization-results-2026-10-24.json', JSON.stringify({ capabilityOrder: ['manage_options', 'manage_network_options', 'update_core', 'view_site_health_checks'], actors, cases: results }, null, 2) + '\n');
+	await artifact.writeFile(JSON.stringify({ capabilityOrder: ['manage_options', 'manage_network_options', 'update_core', 'view_site_health_checks'], actors, cases: results }, null, 2) + '\n');
 	console.log(JSON.stringify({ cases: results.length, labs: 2, failures: 0 }));
-} finally { await browser.close(); }
+} finally { await browser.close(); await artifact.close(); }

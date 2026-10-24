@@ -1,0 +1,1107 @@
+{
+  "capabilityOrder": [
+    "manage_options",
+    "manage_network_options",
+    "update_core",
+    "view_site_health_checks"
+  ],
+  "actors": [
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "roles": [
+        "subscriber"
+      ],
+      "capabilities": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "roles": [
+        "editor"
+      ],
+      "capabilities": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "roles": [
+        "administrator"
+      ],
+      "capabilities": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "roles": [
+        "administrator"
+      ],
+      "capabilities": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "roles": [
+        "administrator"
+      ],
+      "capabilities": [
+        true,
+        false,
+        true,
+        true
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "roles": [
+        "subscriber"
+      ],
+      "capabilities": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "roles": [
+        "editor"
+      ],
+      "capabilities": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "roles": [
+        "administrator"
+      ],
+      "capabilities": [
+        true,
+        false,
+        false,
+        false
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "roles": [
+        "administrator"
+      ],
+      "capabilities": [
+        true,
+        false,
+        true,
+        false
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "roles": [
+        "administrator"
+      ],
+      "capabilities": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "wordpress": "7.1.3",
+      "php": "8.4.27"
+    }
+  ],
+  "cases": [
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "site-settings-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "export-valid-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "minor-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "health-check-keel-backport-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "health-check-keel-autoload-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "subscriber",
+      "name": "health-check-keel-cron-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "site-settings-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "export-valid-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "minor-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "health-check-keel-backport-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "health-check-keel-autoload-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "editor",
+      "name": "health-check-keel-cron-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "export-valid-nonce",
+      "status": 200,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "admin",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "export-valid-nonce",
+      "status": 200,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "delegate",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "export-valid-nonce",
+      "status": 200,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "anonymous",
+      "name": "export-post",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "anonymous",
+      "name": "minor-post",
+      "status": 400,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "anonymous",
+      "name": "collector-post",
+      "status": 400,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "minor-authorized-control",
+      "status": 302,
+      "protectedStateUnchanged": null
+    },
+    {
+      "lab": "single",
+      "profile": "owner",
+      "name": "malformed-settings-control",
+      "status": 302,
+      "protectedStateUnchanged": null
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "site-settings-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "export-valid-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "minor-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "health-check-keel-backport-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "health-check-keel-autoload-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "health-check-keel-cron-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "network-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "subscriber",
+      "name": "network-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "site-settings-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "export-valid-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "minor-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "health-check-keel-backport-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "health-check-keel-autoload-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "health-check-keel-cron-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "network-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "editor",
+      "name": "network-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "export-valid-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "minor-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "health-check-keel-backport-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "health-check-keel-autoload-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "health-check-keel-cron-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "network-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "admin",
+      "name": "network-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "export-other-session-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "export-valid-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "minor-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "health-check-keel-backport-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "health-check-keel-autoload-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "health-check-keel-cron-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "network-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "delegate",
+      "name": "network-valid-nonce-denied",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "site-settings-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "export-get",
+      "status": 405,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "export-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "export-valid-nonce",
+      "status": 200,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "minor-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "health-check-keel-backport-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "health-check-keel-autoload-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "health-check-keel-cron-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "network-bad-nonce",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "anonymous",
+      "name": "export-post",
+      "status": 403,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "anonymous",
+      "name": "minor-post",
+      "status": 400,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "anonymous",
+      "name": "collector-post",
+      "status": 400,
+      "protectedStateUnchanged": true
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "minor-authorized-control",
+      "status": 302,
+      "protectedStateUnchanged": null
+    },
+    {
+      "lab": "multisite",
+      "profile": "owner",
+      "name": "malformed-settings-control",
+      "status": 302,
+      "protectedStateUnchanged": null
+    }
+  ]
+}
