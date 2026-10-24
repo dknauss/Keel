@@ -38,7 +38,7 @@ function keel_defaults_backport_ajax() {
  * @return never Rejects the request or redirects and exits.
  */
 function keel_defaults_handle_enable_minor_updates() {
-	if ( ! current_user_can( 'update_core' ) ) {
+	if ( ! current_user_can( 'update_core' ) || ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) ) {
 		wp_die( esc_html__( 'You are not allowed to change update settings on this site.', 'keel-defaults' ) );
 	}
 
