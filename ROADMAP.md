@@ -93,6 +93,11 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   WordPress's text, and moves update-forensics tables to Site Health. The full
   three-engine focused accessibility matrix re-verified that placement on 2026-10-24:
   42 lab combinations, 168 width checks, no scoped axe violations or page errors.
+  Assurance gates merged in #324 (`facde24`); unreleased. The focused PHP boundary
+  pass found and fixed legacy network-action authority and malformed-setting
+  conversion gaps, with adversarial regression tests; see the
+  [review record](docs/review/php-boundaries-2026-10-24.md). These follow-up fixes
+  are on a review branch, not yet merged.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and

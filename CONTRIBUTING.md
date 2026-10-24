@@ -28,7 +28,7 @@ composer lint:compat
 composer analyse
 composer test:types
 npm run lint
-composer audit --no-interaction
+composer audit --locked --no-interaction
 npm audit --omit=dev --audit-level=high
 ```
 

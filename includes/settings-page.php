@@ -348,6 +348,7 @@ function keel_defaults_sanitize( $input ) {
 				$min = isset( $field['min'] ) ? (int) $field['min'] : 0;
 				$max = isset( $field['max'] ) ? (int) $field['max'] : PHP_INT_MAX;
 				$raw = isset( $input[ $key ] ) ? $input[ $key ] : $field['default'];
+				$raw = is_scalar( $raw ) ? $raw : $field['default'];
 
 				if ( $min < 0 ) {
 					$valid = is_scalar( $raw ) && preg_match( '/^-?\d+$/', trim( (string) $raw ) );
@@ -373,7 +374,7 @@ function keel_defaults_sanitize( $input ) {
 				// to the stored value. Also accept a direct value (e.g. seeded default
 				// or a filter) so the store is robust either way.
 				$values = isset( $field['values'] ) ? array_values( $field['values'] ) : array();
-				$posted = isset( $input[ $key ] ) ? (string) $input[ $key ] : '';
+				$posted = isset( $input[ $key ] ) && is_scalar( $input[ $key ] ) ? (string) $input[ $key ] : '';
 				if ( '' !== $posted && ctype_digit( $posted ) && isset( $values[ (int) $posted ] ) ) {
 					$clean[ $key ] = (string) $values[ (int) $posted ];
 				} elseif ( in_array( $posted, array_map( 'strval', $values ), true ) ) {
@@ -388,7 +389,7 @@ function keel_defaults_sanitize( $input ) {
 				// forged POST cannot exempt a privileged role, because roles outside
 				// the low-privilege set are never valid choices.
 				$allowed       = ( 'password_exempt_roles' === $key ) ? array_keys( keel_defaults_exemptable_roles() ) : array();
-				$posted        = ( isset( $input[ $key ] ) && is_array( $input[ $key ] ) ) ? array_map( 'strval', $input[ $key ] ) : array();
+				$posted        = ( isset( $input[ $key ] ) && is_array( $input[ $key ] ) ) ? array_map( 'strval', array_filter( $input[ $key ], 'is_scalar' ) ) : array();
 				$clean[ $key ] = array_values( array_intersect( $posted, array_map( 'strval', $allowed ) ) );
 				break;
 		}

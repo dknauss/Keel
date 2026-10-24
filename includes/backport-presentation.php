@@ -325,7 +325,7 @@ function keel_defaults_backport_verdict() {
  * @return string Markup.
  */
 function keel_defaults_backport_actions( $tip ) {
-	if ( ! current_user_can( 'update_core' ) ) {
+	if ( ! current_user_can( 'update_core' ) || ( is_multisite() && ! current_user_can( 'manage_network_options' ) ) ) {
 		return '';
 	}
 
@@ -359,7 +359,7 @@ function keel_defaults_backport_actions( $tip ) {
 		} elseif ( 'keel' === $state['owner'] ) {
 			$out .= '<p>' . sprintf(
 				'<a class="button button-primary" href="%s">%s</a>',
-				esc_url( admin_url( 'options-general.php?page=keel-defaults#updates' ) ),
+				esc_url( admin_url( 'options-general.php?page=keel#keel-setting-core-update-policy' ) ),
 				esc_html__( 'Change the core update policy in Keel', 'keel-defaults' )
 			) . '</p><p class="description">'
 			. esc_html__( 'Keel is deciding this, not the stored WordPress option. Setting the option directly would have no effect.', 'keel-defaults' )
