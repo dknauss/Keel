@@ -377,7 +377,10 @@ enumeration extract and was not measured.)
 ### What this pass found in Keel
 
 Measuring other plugins this carefully only counts if Keel gets the same
-treatment. Four things, none fixed in this change:
+treatment. Four things. Items 2 to 4 were fixed in a follow-up commit on the
+same pull request and re-measured on the same lab (results under each item).
+Item 1 is on the roadmap as an open question. The raw output below is from
+`main` before those fixes.
 
 1. **Keel does not normalise the login or lost-password responses.** Both forms
    still tell a real account from an unknown one (`enum.login_distinguishes 1`,
@@ -392,6 +395,12 @@ treatment. Four things, none fixed in this change:
    does not prevent it. Whether it should (for example, by also refusing in
    `pre_comment_approved` or `preprocess_comment` when comments are configured
    off) is a design question worth an issue.
+
+   **Fixed.** `keel_defaults_refuse_closed_comment()` on `pre_comment_approved`
+   (last priority) refuses anything but an allowed type such as Notes. Re-run
+   with the fixture: `site.comment_landed 0`; the form POST answers 403 "Comments
+   are closed on this site", a REST create answers 403 `comment_closed`, a real
+   pingback is refused, and a REST Note is still created (201).
 3. **The divergence report's copy is wrong in two places.** The untraceable case
    says "a plugin that turns a feature *off* using one of WordPress's own helper
    functions" — here the other plugin turned comments *on*. And the same "Keel
@@ -404,6 +413,12 @@ treatment. Four things, none fixed in this change:
    recorded the same confirmed divergence and both are status `recommended`. A
    confirmed "your comments setting is not taking effect, and this plugin is why"
    is the more actionable of the two and should not have the vaguer headline.
+
+   **Items 3 and 4 fixed.** Re-run: both cases are labelled "A setting is not
+   taking effect". The untraceable case says "Keel cannot always say what: a
+   plugin that turns a feature on or off…"; the named case says "The plugins
+   listed below for the same hooks are the place to look" and no longer claims
+   nothing can be named. The Dashboard notice follows the same rule.
 
 ### Raw output for this pass
 

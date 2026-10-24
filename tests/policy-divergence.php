@@ -382,6 +382,13 @@ keel_assert(
 	'And the label does not say nothing was found while the body says a setting is being overridden.'
 );
 
+// With nothing attributable on the hook, saying nobody can be named is true,
+// and the direction stays neutral: the commonest override reopens comments.
+keel_assert(
+	false !== strpos( $health['description'], 'Keel cannot always say what' ) && false !== strpos( $health['description'], 'turns a feature on or off' ),
+	'The untraceable case says Keel cannot name the cause, without assuming the other plugin turned something off.'
+);
+
 /*
  * --- the observer is last by priority, not last absolutely ---
  *

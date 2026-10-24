@@ -213,7 +213,7 @@ function keel_defaults_add_help_tab() {
 					array( 'strong' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(
-					__( '<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery.', 'keel-defaults' ),
+					__( '<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature on or off using one of WordPress\'s own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery.', 'keel-defaults' ),
 					array( 'strong' => array() )
 				) . '</p>' .
 				'<p>' . wp_kses(

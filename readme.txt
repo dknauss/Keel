@@ -146,6 +146,8 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = Unreleased =
+* Fixed: with comments disabled, a comment could still be posted when another plugin reopened comments. Keel hid the form but the comment was stored. Submissions are now refused through the form, REST, XML-RPC and pingbacks; Notes keep working.
+* Fixed: when another plugin overrides a setting and Keel can name it, Site Health now says "A setting is not taking effect" and points to that plugin, instead of a vaguer headline and a paragraph saying nothing could be named. The wording no longer assumes the other plugin turned a feature off.
 * Fixed: the environment indicator disappeared from the admin bar at 782px and below, because WordPress hides every toolbar item it doesn't recognize on narrow screens. It now stays as a color-coded icon on phones and narrow windows.
 * Changed: the Environments help tab is less than half its old length. The longer reasoning moved to docs/environment-detection.md. It now also says that the Environment setting changes what the indicator says, not whether it appears.
 * Changed: Admin List Columns is replaced by one Admin List Tables setting: Leave unchanged, Tidy existing tables, or Tidy + helper columns. Sites that had Admin List Columns on move to Tidy + helper columns, which also sizes post-list columns to their content, shortens known plugin column headings, shows Published dates with times and starts optional columns hidden. ID and Modified stay off until ticked in Screen Options. Saved Screen Options are never changed; choose Leave unchanged in Site Defaults to keep core's tables.

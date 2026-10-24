@@ -171,6 +171,55 @@ function keel_defaults_hide_rest_comment( $comment ) {
 }
 
 /**
+ * Refuse a comment submitted while comments are disabled.
+ *
+ * `comments_open` decides whether core accepts a comment, and it is a filter
+ * like any other: a plugin answering it later than Keel wins. Measured
+ * 2026-10-24 with a fixture returning `__return_true` at priority 99, the form
+ * stayed hidden (Keel's render_block filter) but a POST to
+ * wp-comments-post.php was accepted and the comment was stored. Keel reported
+ * the divergence and did not prevent it, on a site whose setting says
+ * comments are off.
+ *
+ * `pre_comment_approved` is the last word on every path that creates a
+ * comment through core: the form handler, the REST controller, XML-RPC and
+ * pingbacks all pass through wp_allow_comment(). Returning a WP_Error there
+ * makes each refuse it in its own way (a 403 page, a REST error, a pingback
+ * fault). Allowed types such as Notes are let through, as everywhere else.
+ *
+ * Code that calls wp_insert_comment() directly is not covered and is not meant
+ * to be: that is a plugin storing a row on purpose, not a visitor commenting.
+ *
+ * @param int|string|WP_Error $approved    The approval status so far.
+ * @param array               $commentdata The comment being submitted.
+ * @return int|string|WP_Error
+ */
+function keel_defaults_refuse_closed_comment( $approved, $commentdata ) {
+	$type = is_array( $commentdata ) && isset( $commentdata['comment_type'] ) ? (string) $commentdata['comment_type'] : '';
+	$type = '' === $type ? 'comment' : $type;
+
+	if ( in_array( $type, keel_defaults_allowed_comment_types(), true ) ) {
+		return $approved;
+	}
+
+	/*
+	 * Same code and status core uses for a closed post, so callers that already
+	 * handle that refusal handle this one. The two callers read the status in
+	 * different shapes: wp-comments-post.php casts the error data to an int,
+	 * and the REST server reads data['status'] (a bare 403 there answers 500).
+	 */
+	$is_rest = function_exists( 'wp_is_rest_endpoint' )
+		? wp_is_rest_endpoint()
+		: ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+
+	return new WP_Error(
+		'comment_closed',
+		__( 'Comments are closed on this site.', 'keel-defaults' ),
+		$is_rest ? array( 'status' => 403 ) : 403
+	);
+}
+
+/**
  * Comment blocks removed from the inserter while comments are disabled.
  *
  * @return string[]
