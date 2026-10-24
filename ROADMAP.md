@@ -95,9 +95,12 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   42 lab combinations, 168 width checks, no scoped axe violations or page errors.
   Assurance gates merged in #324 (`facde24`); unreleased. The focused PHP boundary
   pass found and fixed legacy network-action authority and malformed-setting
-  conversion gaps, with adversarial regression tests; see the
-  [review record](docs/review/php-boundaries-2026-10-24.md). These follow-up fixes
-  are on a review branch, not yet merged.
+  conversion gaps, with adversarial regression tests; #325 merged as `1d858a0`,
+  unreleased. See the [review record](docs/review/php-boundaries-2026-10-24.md).
+  The subsequent local HTTP authorization pass and its scope are recorded in
+  [the lab evidence](docs/review/http-authorization-2026-10-24.md).
+  #326 verifies 135 HTTP cases and corrects permission-denial responses to 403;
+  implemented and unreleased. Its harness remains a manual Studio lab.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
@@ -1462,8 +1465,8 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       [compatibility record](docs/review/notifications-compatibility-2026-10-16.md).
 - [ ] **Recheck Notifications when delivery lands** — persistent delivery, client
       store hydration/dismissal, new-site migrations and cross-site recipient isolation.
-- [x] **Add WordPress-aligned JS/CSS linting** — implemented 2026-10-23 on the
-      PR branch; unreleased. ESLint and Stylelint cover all browser assets, fail on
+- [x] **Add WordPress-aligned JS/CSS linting** — merged in #321 on 2026-10-23;
+      unreleased. ESLint and Stylelint cover all browser assets, fail on
       warnings, and gate the rolling build. npm tools/configuration stay out of the
       plugin ZIP. See the [verification record](docs/review/asset-lint-2026-10-23.md).
 - [ ] **Extend verification when risk warrants it** — assess broader accessibility,

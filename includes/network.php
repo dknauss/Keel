@@ -222,7 +222,7 @@ function keel_defaults_handle_network_save() {
 	}
 
 	if ( ! keel_defaults_can_manage_network() ) {
-		wp_die( esc_html__( 'You do not have permission to set network policy.', 'keel-defaults' ) );
+		wp_die( esc_html__( 'You do not have permission to set network policy.', 'keel-defaults' ), '', array( 'response' => 403 ) );
 	}
 
 	check_admin_referer( 'keel-network-save', 'keel_network_nonce' );

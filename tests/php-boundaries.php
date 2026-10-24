@@ -10,7 +10,10 @@ function apply_filters( $hook, $value ) { return $value; }
 function current_user_can( $cap ) { return ! empty( $GLOBALS['caps'][ $cap ] ); }
 function is_multisite() { return ! empty( $GLOBALS['multisite'] ); }
 function wp_roles() { return (object) array( 'roles' => array() ); }
-function wp_die( $message = '', $title = '', $args = array() ) { throw new RuntimeException( 'denied' ); }
+function wp_die( $message = '', $title = '', $args = array() ) {
+	$GLOBALS['denial_status'] = is_array( $args ) ? ( $args['response'] ?? 500 ) : $args;
+	throw new RuntimeException( 'denied' );
+}
 function check_admin_referer( $action ) {
 	$GLOBALS['events'][] = 'nonce';
 	if ( empty( $GLOBALS['nonce'] ) ) {
@@ -86,6 +89,9 @@ foreach ( array(
 		boundary_assert( $expected === $error->getMessage(), 'Unexpected authority result: ' . $error->getMessage() );
 	}
 	boundary_assert( $intercepted, 'Action must reject or reach the intercepted write.' );
+	if ( 'denied' === $expected ) {
+		boundary_assert( 403 === $GLOBALS['denial_status'], 'Minor-update authority denial is HTTP 403.' );
+	}
 	boundary_assert( $events === $GLOBALS['events'], 'Denied action reached nonce or mutation.' );
 }
 
@@ -104,6 +110,9 @@ foreach ( array( array( false, true, 'denied' ), array( true, false, 'nonce' ) )
 		boundary_assert( $expected === $error->getMessage(), 'Network save rejects before mutation.' );
 	}
 	boundary_assert( ! in_array( 'write', $GLOBALS['events'], true ), 'Rejected network save has no writes.' );
+	if ( 'denied' === $expected ) {
+		boundary_assert( 403 === $GLOBALS['denial_status'], 'Network authority denial is HTTP 403.' );
+	}
 }
 unset( $_POST['keel_network_nonce'] );
 
