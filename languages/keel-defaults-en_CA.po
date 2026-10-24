@@ -541,7 +541,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/conflict-notices.php:149
-msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgid "These were last seen producing a different value from the one configured here, so something else on this site is deciding them."
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
@@ -568,7 +568,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/conflict-notices.php:208
-msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
+msgid "A plugin that switches a feature on or off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
 #: includes/conflict-notices.php:212
@@ -823,7 +823,7 @@ msgid "<strong>The second method says a setting is not taking effect:</strong> K
 msgstr ""
 
 #: includes/settings-page.php:216
-msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
+msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature on or off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
 msgstr ""
 
 #. translators: %s: linked name of the Site Health screen.
@@ -1073,7 +1073,7 @@ msgid "Not taking effect: %s"
 msgstr ""
 
 #: includes/site-health.php:728
-msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
+msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them."
 msgstr ""
 
 #: includes/site-health.php:733
@@ -2282,7 +2282,7 @@ msgid "Shared plugin and theme updates use network policy or the main site’s s
 msgstr ""
 
 #: includes/posture-export.php:200
-msgid "Use the posture export download button."
+msgid "Use the Download JSON button on the Keel settings screen."
 msgstr ""
 
 #: includes/posture-export.php:204
@@ -2294,7 +2294,7 @@ msgid "The posture report could not be encoded."
 msgstr ""
 
 #: includes/posture-export.php:228
-msgid "Support posture export"
+msgid "Export Settings and Diagnostics"
 msgstr ""
 
 #: includes/posture-export.php:229
@@ -2302,7 +2302,7 @@ msgid "Download validated policy choices and cached diagnostic summaries. No sit
 msgstr ""
 
 #: includes/posture-export.php:233
-msgid "Download posture JSON"
+msgid "Download JSON"
 msgstr ""
 
 #: includes/registration-audit.php:204
@@ -2908,12 +2908,13 @@ msgstr ""
 msgid "Its update policy is set by Keel network policy."
 msgstr ""
 
-#: includes/update-policy-notice.php:41
-msgid "Its update policy is set by Keel Site Defaults."
+#: includes/update-policy-notice.php:48
+#, php-format
+msgid "Its update policy is set by Keel’s %s."
 msgstr ""
 
 #: includes/update-policy-notice.php:54
-msgid "Maintenance and security releases only. Major upgrades are not enabled."
+msgid "Maintenance and security releases only, not major upgrades."
 msgstr ""
 
 #: includes/update-policy-notice.php:135

@@ -725,7 +725,23 @@ function keel_defaults_site_health_conflicts() {
 			/* translators: %s: comma-separated setting names, each followed by its hook. */
 			esc_html__( 'Not taking effect: %s', 'keel-defaults' ),
 			keel_defaults_hook_setting_names( array_keys( $divergences ) )
-		) . '</strong></p><p>' . esc_html__( 'These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ) . '</p>';
+		) . '</strong></p><p>' . esc_html__( 'These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them.', 'keel-defaults' ) . ' ';
+
+		/*
+		 * Say "Keel cannot say what" only when that is true.
+		 *
+		 * The sentence used to print whatever the overlap report found, so a
+		 * site where the plugin overriding comments was named three lines
+		 * further down was also told nobody could be named. Where every
+		 * diverging hook has an attributable overlap, point at that list
+		 * instead. It also said the other plugin turned a feature "off", which
+		 * is backwards for the commonest case: a plugin reopening comments.
+		 */
+		if ( array() === array_diff_key( $divergences, $overlaps ) ) {
+			$intro .= esc_html__( 'The plugins listed below for the same hooks are the place to look.', 'keel-defaults' ) . '</p>';
+		} else {
+			$intro .= esc_html__( 'Keel cannot always say what: a plugin that turns a feature on or off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ) . '</p>';
+		}
 	}
 	$details = '';
 
@@ -827,7 +843,7 @@ function keel_defaults_site_health_conflicts() {
 		$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
 
 		return array(
-			'label'       => __( 'Your theme may influence the same settings as Keel', 'keel-defaults' ),
+			'label'       => empty( $divergences ) ? __( 'Your theme may influence the same settings as Keel', 'keel-defaults' ) : __( 'A setting is not taking effect', 'keel-defaults' ),
 			'status'      => 'recommended',
 			'badge'       => $badge,
 			'description' => $description,
@@ -842,8 +858,16 @@ function keel_defaults_site_health_conflicts() {
 	) . '</strong></p><p>' . esc_html__( 'On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn\'t deactivate a plugin simply for this reason without further investigation.', 'keel-defaults' ) . '</p><ul>';
 	$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
 
+	/*
+	 * A confirmed divergence keeps its headline when a plugin can be named.
+	 *
+	 * The named case read softer than the untraceable one: the same recorded
+	 * divergence got "A setting is not taking effect" when nobody could be
+	 * blamed and "More than one plugin may influence" when somebody could. The
+	 * second is the more actionable finding and should not be the vaguer one.
+	 */
 	return array(
-		'label'       => __( 'More than one plugin may influence the same settings', 'keel-defaults' ),
+		'label'       => empty( $divergences ) ? __( 'More than one plugin may influence the same settings', 'keel-defaults' ) : __( 'A setting is not taking effect', 'keel-defaults' ),
 		'status'      => 'recommended',
 		'badge'       => $badge,
 		'description' => $description,

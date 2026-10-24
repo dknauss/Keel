@@ -66,6 +66,7 @@ $policies = array(
 			'feed discovery links'         => "'feed_links_show_comments_feed', '__return_false'",
 			'comment blocks in the editor' => "'allowed_block_types_all', 'keel_defaults_remove_comment_blocks'",
 			'comment blocks already saved' => "'render_block', 'keel_defaults_suppress_comment_blocks'",
+			'a comment submitted anyway'   => "'pre_comment_approved', 'keel_defaults_refuse_closed_comment'",
 		),
 	),
 	'disable_author_archives' => array(
