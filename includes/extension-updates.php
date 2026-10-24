@@ -167,6 +167,10 @@ function keel_defaults_extension_update_list_url( $type, $disabled_only = false 
 	if ( ! current_user_can( $list_cap ) ) {
 		return '';
 	}
+	// Single-site themes.php has no status filter; only the network table reads theme_status.
+	if ( $disabled_only && 'theme' === $type && ! is_multisite() ) {
+		return '';
+	}
 	$path = $type . 's.php';
 	if ( $disabled_only ) {
 		$path .= '?' . ( 'plugin' === $type ? 'plugin_status' : 'theme_status' ) . '=auto-update-disabled';

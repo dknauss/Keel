@@ -38,20 +38,23 @@
 		}
 	}
 
-	document.querySelectorAll( '.keel-defaults-update-table-scroll' ).forEach( function( region ) {
-		region.addEventListener( 'keydown', function( event ) {
-			if ( event.target !== region || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) {
-				return;
-			}
-			if ( 'ArrowLeft' !== event.key && 'ArrowRight' !== event.key ) {
-				return;
-			}
-			const before = region.scrollLeft;
-			// Physical directions work for both positive LTR and negative RTL offsets.
-			region.scrollLeft += 'ArrowRight' === event.key ? 40 : -40;
-			if ( region.scrollLeft !== before ) {
-				event.preventDefault();
-			}
-		} );
+	// Delegated: Site Health inserts its diagnostic tables after this script runs.
+	document.addEventListener( 'keydown', function( event ) {
+		const region = event.target;
+		if ( ! ( region instanceof Element ) || ! region.classList.contains( 'keel-defaults-update-table-scroll' ) ) {
+			return;
+		}
+		if ( event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ) {
+			return;
+		}
+		if ( 'ArrowLeft' !== event.key && 'ArrowRight' !== event.key ) {
+			return;
+		}
+		const before = region.scrollLeft;
+		// Physical directions work for both positive LTR and negative RTL offsets.
+		region.scrollLeft += 'ArrowRight' === event.key ? 40 : -40;
+		if ( region.scrollLeft !== before ) {
+			event.preventDefault();
+		}
 	} );
 }() );
