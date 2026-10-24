@@ -324,3 +324,14 @@ mu-plugins and dropins. `wp plugin list` does not show an mu-plugin loader.
 per run and never writes it to disk; it is a live login cookie. If those probes
 return `403`, the nonce and the cookie disagree — usually because the cookie was
 generated without a session token, which `wp_validate_auth_cookie()` rejects.
+
+## HTTP authorization lab
+
+The disposable single-site/multisite HTTP harness is
+`http-authorization.mjs`, with the explicitly enabled local MU fixture
+`fixtures/http-authorization.php` and WP-CLI setup/cleanup script
+`http-authorization-setup.php`. See
+[the setup, results and cleanup record](../../docs/review/http-authorization-2026-10-24.md).
+Run setup before every pass and cleanup even after failures. It creates real
+sessions, submits real admin requests, and mutates backed-up settings in local
+labs; do not point it at a production installation.
