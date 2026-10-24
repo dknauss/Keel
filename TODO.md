@@ -368,7 +368,14 @@ only the maintainer’s WordPress.com settings-save confirmation below remains o
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
-## Then — 0.9.0 update operations and support
+## 0.9.0 update operations and support — release candidate
+
+- [x] **Prepare 0.9.0** — version metadata, changelog and upgrade notice finalized.
+- [ ] **Finish the pre-tag gates** — Firefox/WebKit focused accessibility, manual
+  VoiceOver and Safari keyboard passes, a clean counterpart sweep (#302 and #335
+  still pending), then review the release PR, tag and publish. Evidence and steps
+  are in the [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
+
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased; no version bump or release.
   - Combine selected release, branch tip, attempted-check age, cached next check and retained failure evidence; #309 now renders this in tables.

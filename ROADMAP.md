@@ -226,7 +226,12 @@ report-only first, asynchronous and cached, bounded on large databases,
 multisite-aware, and tested with persistent caches, external cron and localized
 installs. Site Health must not become the performance problem it is diagnosing.
 
-## Then — 0.9.0 update operations and support
+## 0.9.0 update operations and support — release candidate
+
+Everything below is merged. Version metadata, changelog and upgrade notice are
+prepared for 0.9.0 (44 settings; PHP 7.4 and WordPress 6.4 floors unchanged).
+Release PR review, the manual browser passes and a clean counterpart sweep precede
+tagging and publication. See the [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased. Bring the selected release,
    branch-tip status, attempted-check age, cached scheduled checks and retained

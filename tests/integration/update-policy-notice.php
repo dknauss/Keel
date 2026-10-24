@@ -63,7 +63,7 @@ try {
 		$assert( false !== strpos( $html, keel_defaults_setting_anchor( 'core_update_policy' ) ), 'Link targets actual control anchor.' );
 		$effective = keel_defaults_config_locked_value( 'core_update_policy', $policy );
 		if ( 'minor' === $effective ) {
-			$assert( false !== strpos( $html, 'Major-version upgrades are not enabled by this policy.' ), 'Minor choice explains scope without mandatory-manual claim.' );
+			$assert( false !== strpos( $html, 'Maintenance and security releases only, not major upgrades.' ), 'Minor choice explains scope without mandatory-manual claim.' );
 		} elseif ( 'inherit' === $effective ) {
 			$assert( false !== strpos( $html, 'WordPress or another component' ), 'Inheritance provenance clear.' );
 		}
