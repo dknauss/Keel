@@ -99,8 +99,16 @@ shipped with two reviewed warnings. All eleven were reviewed:
   on `5229780`: five of six rows passed. `6.9-operable-minor` failed in the
   update-policy notice probe, the only row whose effective policy is `minor`. The
   probe still looked for copy that f4ef852 had shortened. The runtime text was
-  right and the probe was stale, so this PR corrects the probe. The rerun is
-  recorded below.
+  right and the probe was stale, so this PR corrects the probe.
+- [Live matrix 40135694060](https://github.com/dknauss/Keel/actions/runs/40135694060)
+  on `3675a90`: all six rows passed, including `6.9-operable-minor`.
+- [Focused accessibility lab 40135696116](https://github.com/dknauss/Keel/actions/runs/40135696116),
+  dispatched with `engines=chromium,firefox,webkit` on `3675a90`: passed in all
+  three engines, on the single site and the multisite network, in English and
+  Arabic. This is the Firefox and WebKit pass the RC record left open; it
+  replaces running it on the maintainer's machine.
+- PR checks on `3675a90` passed: CI, Counterpart, Security analysis, the HTTP
+  authorization lab, the HIBP budget lab and the Chromium accessibility lab.
 
 ## Counterpart sweep
 
@@ -108,8 +116,9 @@ Pull requests merged since `v0.8.0` whose Counterpart line says pending:
 
 - #331: delivered (AX commits `75ebc87` and `14f46a2`), and #333 is closed. Its
   line now says ported.
-- #302: **still pending.** AX's Modified helper column shows the date without the
-  time and is not sortable. The port goes into the AX release preparation.
+- #302: ported in the AX 0.2.0 preparation, still to merge there. AX's Modified
+  helper column now shows the time and sorts. Once it merges, #302's line
+  becomes `ported — AX commit <hash>`.
 - #335: **still pending** on #323. The AX port of the login re-check is in
   progress.
 
@@ -119,13 +128,7 @@ The sweep has to come back clean before the tag.
 
 These need a machine with more than Chromium, or a person:
 
-1. **Firefox and WebKit** legs of `tests/integration/focused-accessibility.mjs`.
-   This container cannot download Playwright's Firefox or WebKit builds (the
-   download hosts are blocked). This PR lets the Focused accessibility lab run
-   all three engines when dispatched with `engines=chromium,firefox,webkit`;
-   pull requests still run Chromium only. The dispatched result is recorded
-   below. If it cannot run there, use the maintainer's Mac with the same
-   `KEEL_A11Y_ENGINES` value and `focused-accessibility-lab.sh`.
+1. ~~Firefox and WebKit~~: done in CI; see run 40135696116 above.
 2. **VoiceOver with Safari**: the documented manual pass, covering the Updates
    policy notice, the Site Health update diagnostics tables, the Breached passwords
    Site Health panel and Users view, and the owner's breach warning.
