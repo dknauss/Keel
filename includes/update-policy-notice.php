@@ -38,7 +38,15 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 	} elseif ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
 		$source = esc_html__( 'Its core update policy is set by WP_AUTO_UPDATE_CORE in wp-config.php.', 'keel-defaults' );
 	} else {
-		$source = $network ? esc_html__( 'Its update policy is set by Keel network policy.', 'keel-defaults' ) : esc_html__( 'Its update policy is set by Keel Site Defaults.', 'keel-defaults' );
+		$source = esc_html__( 'Its update policy is set by Keel network policy.', 'keel-defaults' );
+		if ( ! $network ) {
+			$defaults = esc_html__( 'Site Defaults', 'keel-defaults' );
+			if ( current_user_can( 'manage_options' ) ) {
+				$defaults = '<a href="' . esc_url( keel_defaults_setting_url( 'core_update_policy' ) ) . '">' . $defaults . '</a>';
+			}
+			/* translators: %s: "Site Defaults", linked to Keel's settings screen when the user can open it. */
+			$source = sprintf( esc_html__( 'Its update policy is set by Keel’s %s.', 'keel-defaults' ), $defaults );
+		}
 	}
 
 	$branch = '';

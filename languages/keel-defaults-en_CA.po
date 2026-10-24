@@ -2905,8 +2905,9 @@ msgstr ""
 msgid "Its update policy is set by Keel network policy."
 msgstr ""
 
-#: includes/update-policy-notice.php:41
-msgid "Its update policy is set by Keel Site Defaults."
+#: includes/update-policy-notice.php:48
+#, php-format
+msgid "Its update policy is set by Keel’s %s."
 msgstr ""
 
 #: includes/update-policy-notice.php:54
