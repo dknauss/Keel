@@ -132,6 +132,40 @@ recovery on upgrade failure, not a user-operated Keel restore or rollback featur
 Keel's same-line core installer separately requests core's `attempt_rollback` option;
 it does not add a general backup/restore interface. Core help is preserved.
 
+## Post-review policy and diagnostic refinement
+
+The approved follow-up keeps WordPress's own automatic-update sentence unchanged,
+but moves Keel's policy notice above the **Current version** heading. All four policy
+labels link to their Keel controls. When plugin or theme policy follows native
+per-item choices, the phrase “individual plugin settings” or “individual theme
+settings” links to the corresponding list. The compact observed summary omits zero
+values; only a non-zero disabled count links to core's disabled-auto-update view.
+Enabled, unknown and code-changed counts remain plain text.
+
+Policy provenance and the delivery caveat are ordinary description text below the
+four policy rows, not a disclosure: “An update policy describes but does not
+guarantee the intended outcome.” This keeps essential context visible without an
+extra heading or click. The native **Update diagnostics** disclosure remains in Site
+Health, where its direct link opens, focuses and scrolls to the existing evidence
+tables. Its introduction explicitly calls those tables troubleshooting forensics,
+not a health verdict or installation schedule.
+
+The Site Health Info update-check disclosure now shows labelled, safe external links
+to the three WordPress core reference functions rather than raw URL text. It remains
+static documentation of normal data categories, not a traffic log, inventory,
+request capture, control or delivery claim.
+
+Real WordPress 7.1.3 / PHP 8.4 / SQLite verification: the notice is above **Current
+version**, has no accordion, preserves core's policy text, has no console errors and
+does not overflow at 320px. The disabled-plugin link resolves to
+`plugins.php?plugin_status=auto-update-disabled`; the theme link appears only when
+there is a non-zero disabled count. All standalone tests, WPCS, PHP compatibility,
+PHPStan, type contracts, JS/CSS lint and localization checks pass. No production
+site, version, default or release was changed.
+
+- [Refined desktop](images/updates-screen-compact-desktop-2026-10-23.png)
+- [Refined 320px](images/updates-screen-compact-mobile-2026-10-23.png)
+
 Chromium 156 and Firefox 157 pass closed/expanded presentation and Enter/Space
 keyboard activation at 1440, 782, 390 and 320 CSS pixels, with no page overflow or
 JavaScript errors. Collapsed diagnostics occupy about 18 CSS pixels versus about

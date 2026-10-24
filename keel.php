@@ -102,8 +102,9 @@ require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/settings-controls.php';
 require_once __DIR__ . '/includes/settings-page.php';
 
-// Evidence tables need visible keyboard focus only on the Updates screen.
+// Policy placement and diagnostic table keyboard support.
 keel_defaults_enqueue_on_screen( 'update-core.php', 'keel_defaults_enqueue_update_evidence_assets' );
+keel_defaults_enqueue_on_screen( 'site-health.php', 'keel_defaults_enqueue_update_evidence_assets' );
 
 /*
  * Seeding, and the two moments it has to happen.

@@ -4,21 +4,20 @@
 	outline-offset: 2px;
 }
 
-.keel-defaults-update-diagnostics {
-	margin: 16px 0;
+.keel-update-policy-overview {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 4px 24px;
+	margin: 8px 0;
 }
 
-.keel-defaults-update-diagnostics > summary,
-.keel-update-policy-notice summary {
-	cursor: pointer;
+.keel-update-policy-overview li {
+	margin: 0;
 }
 
-.keel-defaults-update-diagnostics > summary:focus-visible,
-.keel-update-policy-notice summary:focus-visible {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px;
-}
+@media screen and (max-width: 782px) {
 
-.keel-update-policy-notice details {
-	margin-bottom: 8px;
+	.keel-update-policy-overview {
+		grid-template-columns: 1fr;
+	}
 }

@@ -25,6 +25,10 @@ function keel_defaults_site_health_tests( $tests ) {
 		'label' => __( 'Keel Defaults', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_posture',
 	);
+	$tests['direct']['keel_update_diagnostics']        = array(
+		'label' => __( 'Update diagnostics', 'keel-defaults' ),
+		'test'  => 'keel_defaults_site_health_update_diagnostics',
+	);
 	$tests['direct']['keel_defaults_conflicts']        = array(
 		'label' => __( 'Overlapping defaults plugins', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_conflicts',

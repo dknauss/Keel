@@ -1100,12 +1100,16 @@ the control is locked. `AUTOMATIC_UPDATER_DISABLED` and `DISALLOW_FILE_MODS` can
 updater from running at all, so the screen warns about those overrides too.
 
 The Updates screen preserves WordPress’s own policy text and adds a persistent
-**Keel update policy** notice immediately below it. The notice names the current
-release branch, explains the configured policy and its source, and links directly
-to the site or network setting when the reader can manage it. Configuration
-restrictions take precedence. If core’s already-filtered settings differ, the
-notice says so without rerunning filters. Policy is not a delivery guarantee: cron,
-hosting and other components can affect installation.
+**Keel update policy** notice above **Current version**. The four policy labels link
+to their Keel controls. When plugin or theme policy follows native per-item choices,
+the notice links those individual settings to the relevant WordPress list; a non-zero
+disabled count links to that list's disabled-auto-update view. Zero counts are left
+out, and enabled, unknown and code-changed counts are not links. The notice names
+the current release branch, explains the configured policy and its source, and keeps
+the delivery caveat visible: policy is not a delivery guarantee, because cron,
+hosting and other components can affect installation. Configuration restrictions take
+precedence. If core’s already-filtered settings differ, the notice says so without
+rerunning filters.
 
 Major releases should be tested on staging and deployed within 30 days, not frozen
 indefinitely. Expedite the rollout when a security fix is unavailable on the installed branch.
@@ -1127,7 +1131,8 @@ development versions are explicitly unverified. It displays no site values or
 inventory and makes no extra requests, intercepts no traffic, stores nothing and
 changes no update behavior. It requires Site Health access and, on multisite,
 network-management authority. Plugins and hosts can modify or prevent requests.
-Package downloads and third-party update services are outside its scope.
+Package downloads and third-party update services are outside its scope. Labelled
+links point to the relevant WordPress core source references.
 
 ### Plugin and theme auto-updates
 

@@ -89,8 +89,8 @@ foreach ( array( 'plugin', 'theme' ) as $type ) {
 ob_start();
 keel_defaults_render_extension_updates();
 $html = ob_get_clean();
-check( false !== strpos( $html, 'up to ten per type are listed' ), 'Changed-item caveat describes the per-type limit.' );
-check( false !== strpos( $html, esc_html( 'a plugin, theme or Keel setting overrides WordPress’s baseline decision; up to ten per type are listed.' ) ) && false === strpos( $html, esc_html( 'item’s own toggle' ) ), 'Changed decisions are compared with the combined WordPress baseline, not only the item toggle.' );
+check( false !== strpos( $html, 'up to ten changed decisions per type are listed' ), 'Changed-item caveat describes the per-type limit.' );
+check( false !== strpos( $html, esc_html( 'a plugin, theme or Keel setting is overriding WordPress’s baseline auto-update decision; up to ten changed decisions per type are listed.' ) ) && false === strpos( $html, esc_html( 'item’s own toggle' ) ), 'Changed decisions are compared with the combined WordPress baseline, not only the item toggle.' );
 check( 20 === substr_count( $html, 'Turned on by code' ), 'Ten plugins and ten themes are displayed together.' );
 foreach ( array( 'plugin', 'theme' ) as $type ) {
 	check( false !== strpos( $html, '<code>' . $type . '-10</code>' ) && false === strpos( $html, '<code>' . $type . '-11</code>' ), 'Each type independently retains its first ten changed items.' );

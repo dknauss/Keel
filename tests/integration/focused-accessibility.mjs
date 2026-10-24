@@ -48,21 +48,23 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
 			await page.goto(base + '/studio-auto-login?redirect_to=%2Fwp-admin%2F');
 			for (const locale of ['en_US', 'ar']) {
 				await context.addCookies([{ name: 'keel_a11y_locale', value: locale, url: base }]);
-				for (const screen of ['updates', 'settings', ...(networkSite ? ['network'] : [])]) {
+				for (const screen of ['updates', 'health', 'settings', ...(networkSite ? ['network'] : [])]) {
 					const path =
 						screen === 'updates'
 							? networkSite
 								? '/wp-admin/network/update-core.php'
 								: '/wp-admin/update-core.php'
-							: screen === 'network'
-								? '/wp-admin/network/settings.php?page=keel-network'
-								: '/wp-admin/options-general.php?page=keel';
+							: screen === 'health'
+								? '/wp-admin/site-health.php?keel-update-diagnostics=1'
+								: screen === 'network'
+									? '/wp-admin/network/settings.php?page=keel-network'
+									: '/wp-admin/options-general.php?page=keel';
+					const ready = {
+						updates: '.keel-update-policy-notice',
+						health: '.keel-defaults-update-table-scroll'
+					};
 					await page.goto(base + path);
-					await page
-						.locator(
-							screen === 'updates' ? '.keel-defaults-update-diagnostics > summary' : '.keel-lock-summary'
-						)
-						.waitFor();
+					await page.locator(ready[screen] || '.keel-lock-summary').first().waitFor();
 					assert.equal(
 						await page.locator('html').evaluate((e) => getComputedStyle(e).direction),
 						locale === 'ar' ? 'rtl' : 'ltr'
@@ -70,16 +72,30 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
 					const row = { engine, version: browser.version(), port, locale, screen, widths: [] };
 					assert.equal(
 						await page.locator('script[src*="/assets/js/update-evidence.js"]').count(),
-						screen === 'updates' ? 1 : 0,
-						'Keyboard helper is Updates-only.'
+						['updates', 'health'].includes(screen) ? 1 : 0,
+						'Keyboard helper loads only on Updates and Site Health.'
 					);
 					if (screen === 'updates') {
-						const diag = page.locator('.keel-defaults-update-diagnostics');
-						assert.equal(await diag.getAttribute('open'), null);
-						const summary = diag.locator(':scope > summary');
-						await summary.focus();
-						await page.keyboard.press('Enter');
-						assert.notEqual(await diag.getAttribute('open'), null);
+						const notice = page.locator('.keel-update-policy-notice');
+						assert.ok(
+							await notice.evaluate((n) => {
+								const heading = document.querySelector('.wp-current-version');
+								return (
+									!heading ||
+									!!(n.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING)
+								);
+							}),
+							'Policy notice sits above Current version.'
+						);
+						assert.equal(await page.locator('.keel-defaults-update-table-scroll').count(), 0);
+						row.policyAX = await notice.ariaSnapshot();
+					} else if (screen === 'health') {
+						const trigger = page.locator(
+							'button[aria-controls="health-check-accordion-block-keel_update_diagnostics"]'
+						);
+						assert.equal(await trigger.getAttribute('aria-expanded'), 'true', 'Deep link opens diagnostics.');
+						assert.equal(await trigger.evaluate((t) => document.activeElement === t), true);
+						const diag = page.locator('#health-check-accordion-block-keel_update_diagnostics');
 						await page.keyboard.press('Tab');
 						assert.equal(
 							await page.evaluate(() => document.activeElement.className),
@@ -120,16 +136,6 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
 							);
 						}
 
-						await summary.focus();
-						await page.keyboard.press('Space');
-						assert.equal(await diag.getAttribute('open'), null);
-						await summary.press('Enter');
-						const policy = page.locator('.keel-update-policy-notice details summary');
-						await policy.focus();
-						await page.keyboard.press('Enter');
-						assert.equal(await policy.evaluate((e) => e.parentElement.open), true);
-						await page.keyboard.press('Space');
-						assert.equal(await policy.evaluate((e) => e.parentElement.open), false);
 					} else {
 						const form = page.locator('#wpbody-content .wrap');
 						row.controlAX = await form.ariaSnapshot();
@@ -236,7 +242,7 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
 							geometry.scroll <= width + 1,
 							JSON.stringify({ engine, port, locale, screen, ...geometry })
 						);
-						if (screen === 'updates') {
+						if (screen === 'health') {
 							for (const region of await page.locator('.keel-defaults-update-table-scroll').all()) {
 								await region.focus();
 								const initial = await region.evaluate((r) => ({
@@ -271,8 +277,10 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
 					await page.addScriptTag({ path: axePath });
 					const selector =
 						screen === 'updates'
-							? '.keel-defaults-update-diagnostics, .keel-update-policy-notice'
-							: '#wpbody-content .wrap';
+							? '.keel-update-policy-notice'
+							: screen === 'health'
+								? '#health-check-accordion-block-keel_update_diagnostics'
+								: '#wpbody-content .wrap';
 					const axeResult = await page.evaluate(
 						async (selector) =>
 							await axe.run(selector, {

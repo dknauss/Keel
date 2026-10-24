@@ -18,7 +18,7 @@ function keel_defaults_render_update_policy_notice( $settings = null ) {
 }
 
 /**
- * Explain configured policy without rerunning update filters or promising delivery.
+ * Explain policy and observed item counts without rerunning core policy filters.
  *
  * @param mixed $settings Core's already-filtered automatic-update settings.
  * @return string Escaped native notice, or empty for unauthorized users.
@@ -34,11 +34,11 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 	$network = keel_defaults_network_manages( 'core_update_policy' );
 	if ( null !== $off ) {
 		/* translators: %s: configuration constant disabling background updates. */
-		$source = sprintf( esc_html__( 'Configured policy source: %s in wp-config.php disables background updates.', 'keel-defaults' ), '<code>' . esc_html( $off ) . '</code>' );
+		$source = sprintf( esc_html__( 'Background updates are disabled by %s in wp-config.php.', 'keel-defaults' ), '<code>' . esc_html( $off ) . '</code>' );
 	} elseif ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-		$source = esc_html__( 'Configured policy source: WP_AUTO_UPDATE_CORE in wp-config.php. Keel does not override that declaration.', 'keel-defaults' );
+		$source = esc_html__( 'Its core update policy is set by WP_AUTO_UPDATE_CORE in wp-config.php.', 'keel-defaults' );
 	} else {
-		$source = $network ? esc_html__( 'Configured policy source: Keel network policy.', 'keel-defaults' ) : esc_html__( 'Configured policy source: Keel Site Defaults.', 'keel-defaults' );
+		$source = $network ? esc_html__( 'Its update policy is set by Keel network policy.', 'keel-defaults' ) : esc_html__( 'Its update policy is set by Keel Site Defaults.', 'keel-defaults' );
 	}
 
 	$branch = '';
@@ -51,10 +51,10 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 		esc_html( $branch )
 	);
 	$messages = array(
-		'minor'   => __( 'Automatic WordPress core updates are limited by this policy to maintenance and security releases within the current release branch. Major-version upgrades are not enabled by this policy.', 'keel-defaults' ),
-		'all'     => __( 'This policy permits automatic WordPress core updates, including major-version upgrades to a different release branch.', 'keel-defaults' ),
-		'manual'  => __( 'No automatic WordPress core releases are enabled by this policy. A host or another updater may apply updates separately.', 'keel-defaults' ),
-		'inherit' => __( 'Keel leaves the core update policy unchanged. WordPress or another component controls which releases are enabled; see WordPress’s status above.', 'keel-defaults' ),
+		'minor'   => __( 'Maintenance and security releases only. Major upgrades are not enabled.', 'keel-defaults' ),
+		'all'     => __( 'Automatic releases, including major-version upgrades.', 'keel-defaults' ),
+		'manual'  => __( 'Automatic core updates are off.', 'keel-defaults' ),
+		'inherit' => __( 'WordPress or another component controls core updates.', 'keel-defaults' ),
 	);
 	$message  = is_string( $policy ) && isset( $messages[ $policy ] ) ? $messages[ $policy ] : __( 'The configured core update policy is unavailable.', 'keel-defaults' );
 
@@ -69,25 +69,69 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 		$major = 'all' === $policy;
 		$dev   = null === $off && defined( 'WP_AUTO_UPDATE_CORE' ) && 'all' === $policy;
 		if ( $minor !== $settings['minor'] || $major !== $settings['major'] || $dev !== $settings['dev'] ) {
-			$detail = esc_html__( 'Core’s current filtered settings differ from the configured policy. Other components or updater restrictions may be affecting it; review WordPress’s status above.', 'keel-defaults' );
+			$detail = esc_html__( 'Core’s current filtered settings differ from the configured policy. Other components or updater restrictions may be affecting it; review WordPress’s status below.', 'keel-defaults' );
 		}
 	}
 
-	$link = '';
-	if ( $network && current_user_can( 'manage_network_options' ) ) {
-		$url  = network_admin_url( 'settings.php?page=keel-network' ) . '#' . keel_defaults_setting_anchor( 'core_update_policy' );
-		$link = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Review the network core update policy', 'keel-defaults' ) . '</a>';
-	} elseif ( ! $network && current_user_can( 'manage_options' ) ) {
-		$link = '<a href="' . esc_url( keel_defaults_setting_url( 'core_update_policy' ) ) . '">' . esc_html__( 'Review the core update policy in Site Defaults', 'keel-defaults' ) . '</a>';
+	$items            = array(
+		'core_update_policy' => array( __( 'WordPress', 'keel-defaults' ), $message ),
+	);
+	$extension_labels = array(
+		'enabled'  => __( 'Automatic updates enabled.', 'keel-defaults' ),
+		'disabled' => __( 'Automatic updates disabled.', 'keel-defaults' ),
+		'unset'    => '',
+	);
+	foreach ( array(
+		'plugin' => __( 'Plugins', 'keel-defaults' ),
+		'theme'  => __( 'Themes', 'keel-defaults' ),
+	) as $type => $label ) {
+		$value                     = keel_defaults_extension_update_policy( $type );
+		$individual                = 'plugin' === $type ? __( 'individual plugin settings', 'keel-defaults' ) : __( 'individual theme settings', 'keel-defaults' );
+		$list_url                  = keel_defaults_extension_update_list_url( $type );
+		$extension_labels['unset'] = sprintf(
+			/* translators: %s: linked text for the native per-item update settings. */
+			__( 'Follow %s.', 'keel-defaults' ),
+			'' === $list_url ? esc_html( $individual ) : '<a href="' . esc_url( $list_url ) . '">' . esc_html( $individual ) . '</a>'
+		);
+		$items[ $type . '_auto_update_policy' ] = array( $label, $extension_labels[ $value ], 'unset' === $value );
 	}
-
+	$translations                      = keel_defaults_config_locked_value( 'auto_update_translations', keel_defaults_get( 'auto_update_translations' ) );
+	$items['auto_update_translations'] = array( __( 'Translations', 'keel-defaults' ), 'yes' === $translations ? __( 'Automatic updates enabled.', 'keel-defaults' ) : __( 'Automatic updates disabled.', 'keel-defaults' ) );
+	$list                              = '';
+	foreach ( $items as $key => $item ) {
+		$label = esc_html( $item[0] );
+		$url   = '';
+		if ( keel_defaults_network_manages( $key ) ) {
+			if ( current_user_can( 'manage_network_options' ) ) {
+				$url = network_admin_url( 'settings.php?page=keel-network' ) . '#' . keel_defaults_setting_anchor( $key );
+			}
+		} elseif ( current_user_can( 'manage_options' ) ) {
+			if ( is_multisite() && in_array( $key, array( 'plugin_auto_update_policy', 'theme_auto_update_policy' ), true ) ) {
+				if ( current_user_can( 'manage_network_options' ) ) {
+					$url = get_admin_url( get_main_site_id(), 'options-general.php?page=keel' ) . '#' . keel_defaults_setting_anchor( $key );
+				}
+			} else {
+				$url = keel_defaults_setting_url( $key );
+			}
+		}
+		if ( '' !== $url ) {
+			$label = '<a href="' . esc_url( $url ) . '">' . $label . '</a>';
+		}
+		$text   = null !== $off ? __( 'Disabled in configuration.', 'keel-defaults' ) : $item[1];
+		$html   = null === $off && ! empty( $item[2] );
+		$counts = '';
+		if ( in_array( $key, array( 'plugin_auto_update_policy', 'theme_auto_update_policy' ), true ) ) {
+			$counts = keel_defaults_extension_update_counts_markup( 'plugin_auto_update_policy' === $key ? 'plugin' : 'theme' );
+		}
+		$list .= '<li><strong>' . $label . ':</strong> ' . ( $html ? $text : esc_html( $text ) ) . ( '' !== $counts ? ' ' . $counts : '' ) . '</li>';
+	}
+	$diagnostics = current_user_can( 'view_site_health_checks' ) && ( ! is_multisite() || current_user_can( 'manage_network_options' ) )
+		? ' <a href="' . esc_url( admin_url( 'site-health.php?keel-update-diagnostics=1' ) ) . '">' . esc_html__( 'View update diagnostics', 'keel-defaults' ) . '</a>' : '';
 	return '<div class="notice notice-info inline keel-update-policy-notice">'
 		. '<p><strong>' . esc_html__( 'Keel update policy', 'keel-defaults' ) . '</strong></p>'
-		. '<p>' . $branch_text . ' ' . esc_html( $message ) . '</p>'
-		. ( '' !== $link ? '<p>' . $link . '</p>' : '' )
+		. '<ul class="keel-update-policy-overview">' . $list . '</ul>'
 		. ( '' !== $detail ? '<p>' . $detail . '</p>' : '' )
-		. '<details><summary>' . esc_html__( 'Policy details', 'keel-defaults' ) . '</summary><p>' . $source
-		. ' ' . esc_html__( 'This describes policy, not a guarantee that an update will install. Cron, hosting restrictions and other filters can affect delivery.', 'keel-defaults' )
-		. '</p></details>'
-		. '</div>';
+		. '<p class="description">' . $branch_text . ' ' . $source
+		. ' ' . esc_html__( 'An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery.', 'keel-defaults' )
+		. '</p>' . ( '' !== $diagnostics ? '<p>' . $diagnostics . '</p>' : '' ) . '</div>';
 }
