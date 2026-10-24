@@ -83,11 +83,14 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   WordPress before 6.8 would need `load_plugin_textdomain()`, which Plugin Check
   flags.
 
-- **Current state (2026-10-23):** the focused Updates-screen verification pass is
+- **Current state (2026-10-24):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Admin List Tables and the accepted update/support work are merged and unreleased;
   verification fixes are merged in #313 (`fb121e0`), accessibility fixes in #314
-  (`1d754a9`), and the bounded HIBP budget in #316 (`e6de5ca`); all unreleased.
+  (`1d754a9`), the bounded HIBP budget in #316 (`e6de5ca`), and the policy/diagnostic
+  refinement in #322 (`4afe74a`); all unreleased.
+  #322 places the compact policy notice above **Current version** while preserving
+  WordPress's text, and moves update-forensics tables to Site Health.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
@@ -286,8 +289,10 @@ installs. Site Health must not become the performance problem it is diagnosing.
   counterpart record is updated. AX PR CI and single-site/multisite canaries passed.
 
 - [x] **Verify the consolidated Updates screen** — merged in #313 (`fb121e0`); unreleased. Verified 2026-10-23;
-  PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
-  and shortens the synthetic demo notice; no new setting or release.
+  PR #313 preserved visible policy/action warnings and shortened the synthetic demo
+  notice. #322 subsequently moves the update-forensics tables from this screen to
+  Site Health, where they remain behind WordPress's native disclosure; no new setting
+  or release.
   [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Single-site/multisite probes, Chromium/Firefox layouts and keyboard behavior,
   locale checks and all six live installer rows pass. Merged #313 fixes

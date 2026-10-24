@@ -31,11 +31,14 @@ the tagged sources. See the
   as `c2c967c`; #318 merged as `0a619bd`, including the lab cleanup correction.
   Both are unreleased; no new setting, version bump or release.
 
-- **Current state (2026-10-23):** the focused Updates-screen verification pass is
+- **Current state (2026-10-24):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
   Admin List Tables and the accepted update/support work are merged and unreleased;
   verification fixes are merged in #313 (`fb121e0`), accessibility fixes in #314
-  (`1d754a9`), and the bounded HIBP budget in #316 (`e6de5ca`); all unreleased.
+  (`1d754a9`), the bounded HIBP budget in #316 (`e6de5ca`), and the policy/diagnostic
+  refinement in #322 (`4afe74a`); all unreleased.
+  #322 places the compact policy notice above **Current version** while preserving
+  WordPress's text, and moves update-forensics tables to Site Health.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
@@ -425,8 +428,10 @@ only the maintainer’s WordPress.com settings-save confirmation below remains o
   and post-merge single-site/multisite WordPress canaries passed.
 
 - [x] **Verify the consolidated Updates screen** — merged in #313 (`fb121e0`); unreleased. Verified 2026-10-23;
-  PR #313 review keeps diagnostics collapsed, preserves visible policy/action warnings
-  and shortens the synthetic demo notice; no new setting or release.
+  PR #313 preserved visible policy/action warnings and shortened the synthetic demo
+  notice. #322 subsequently moves the update-forensics tables from this screen to
+  Site Health, where they remain behind WordPress's native disclosure; no new setting
+  or release.
   [results and limits](docs/review/updates-screen-verification-2026-10-23.md).
   - Fixed 320px page overflow, supplied visible focus for keyboard scroll regions,
     distinguished failed collection from unread evidence, and stopped cold timeline
