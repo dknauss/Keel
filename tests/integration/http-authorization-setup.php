@@ -27,6 +27,10 @@ if ( isset( $args[0] ) && 'cleanup' === $args[0] ) {
 	if ( is_multisite() ) {
 		require_once ABSPATH . 'wp-admin/includes/ms.php'; }
 	foreach ( $backup['users'] as $id ) {
+		$user = get_userdata( $id );
+		if ( is_multisite() && $user && is_super_admin( $id ) ) {
+			revoke_super_admin( $id );
+		}
 		WP_Session_Tokens::get_instance( $id )->destroy_all();
 		is_multisite() ? wpmu_delete_user( $id ) : wp_delete_user( $id );
 		if ( get_userdata( $id ) ) {
@@ -38,6 +42,12 @@ if ( isset( $args[0] ) && 'cleanup' === $args[0] ) {
 }
 if ( false !== $backup ) {
 	throw new RuntimeException( 'Existing backup: clean up before another setup.' ); }
+// The lab owner signs in through wp-login.php, so no runner-specific login route
+// is needed. The harness reads the same variable; the password is never stored.
+$owner_password = (string) getenv( 'KEEL_HTTP_LAB_PASSWORD' );
+if ( strlen( $owner_password ) < 24 ) {
+	throw new RuntimeException( 'Set KEEL_HTTP_LAB_PASSWORD to a random value of at least 24 characters.' );
+}
 $backup = array(
 	'users' => array(),
 	'state' => array(),
@@ -54,6 +64,7 @@ foreach ( array(
 	'editor'     => 'editor',
 	'subscriber' => 'subscriber',
 	'delegate'   => 'administrator',
+	'owner'      => 'administrator',
 ) as $suffix => $role ) {
 	$login = 'keel_http_' . $suffix;
 	if ( get_user_by( 'login', $login ) ) {
@@ -61,7 +72,7 @@ foreach ( array(
 	$id = wp_insert_user(
 		array(
 			'user_login' => $login,
-			'user_pass'  => wp_generate_password( 40 ),
+			'user_pass'  => 'owner' === $suffix ? $owner_password : wp_generate_password( 40 ),
 			'user_email' => $login . '@example.test',
 			'role'       => $role,
 		)
@@ -70,6 +81,9 @@ foreach ( array(
 		throw new RuntimeException( $id->get_error_message() ); }
 	$backup['users'][] = $id;
 	update_option( $key, $backup );
+	if ( 'owner' === $suffix && is_multisite() ) {
+		grant_super_admin( $id );
+	}
 }
 update_site_option( 'auto_update_core_minor', 'disabled' );
 echo "Fixture users created; scoped state backed up.\n";

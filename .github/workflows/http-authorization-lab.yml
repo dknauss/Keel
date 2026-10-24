@@ -1,0 +1,129 @@
+name: HTTP authorization lab
+
+# Real WordPress request paths for Keel's permission boundaries: admin-post,
+# admin-ajax, options.php and Network Settings, driven over HTTP by five signed-in
+# actors plus an anonymous client, on a single site and a multisite network.
+#
+# The standalone suite stubs WordPress, so it can prove a handler calls wp_die()
+# with 403 but not that WordPress actually answers 403, or that a denied request
+# left the protected option alone. #326 found two denials that answered 500
+# because nothing exercised the real path; this keeps that from recurring.
+#
+# The fixture blocks outbound HTTP, downloads and automatic updates, so the only
+# live input is the WordPress download itself.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: http-authorization-lab-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lab:
+    name: WordPress ${{ matrix.wordpress }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wordpress: latest
+            php: '8.3'
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli
+          coverage: none
+          tools: wp-cli
+
+      # setup-php reports a failed tool download without failing its step.
+      - name: Ensure WP-CLI is installed
+        run: |
+          set -euo pipefail
+          if ! command -v wp >/dev/null; then
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors \
+              --output "$RUNNER_TEMP/wp-cli.phar" https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+            sudo install -m 0755 "$RUNNER_TEMP/wp-cli.phar" /usr/local/bin/wp
+          fi
+          wp --version
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      # Installed outside the checkout so the asset-lint lockfile stays untouched.
+      - name: Install Playwright and Chromium
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund --prefix "$RUNNER_TEMP/playwright" playwright@1.63.0
+          "$RUNNER_TEMP/playwright/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Build disposable single-site and multisite installs
+        run: bash tests/integration/http-authorization-bootstrap.sh "$RUNNER_TEMP/http-lab" '${{ matrix.wordpress }}'
+
+      - name: Start WordPress
+        run: |
+          set -euo pipefail
+          for site in single:8889 multi:8890; do
+            name="${site%%:*}"; port="${site##*:}"
+            PHP_CLI_SERVER_WORKERS=4 wp server --path="$RUNNER_TEMP/http-lab/$name" --host=127.0.0.1 --port="$port" \
+              >"$RUNNER_TEMP/http-lab/$name-server.log" 2>&1 &
+          done
+          for port in 8889 8890; do
+            for attempt in {1..30}; do
+              curl --fail --silent "http://127.0.0.1:$port/" >/dev/null && continue 2
+              sleep 1
+            done
+            cat "$RUNNER_TEMP"/http-lab/*-server.log
+            exit 1
+          done
+
+      - name: Run the HTTP authorization lab
+        env:
+          NODE_PATH: ${{ runner.temp }}/playwright/node_modules
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/http-lab-results"
+          bash tests/integration/http-authorization-lab.sh \
+            "$RUNNER_TEMP/http-lab/single" http://127.0.0.1:8889 \
+            "$RUNNER_TEMP/http-lab/multi" http://127.0.0.1:8890 \
+            "$RUNNER_TEMP/http-lab-results/http-authorization.json"
+
+      # Redacted by construction: roles, capabilities, case names and statuses.
+      # No cookies, nonces, passwords or user IDs are written.
+      - name: Retain lab evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: http-authorization-wp-${{ matrix.wordpress }}-php-${{ matrix.php }}
+          path: ${{ runner.temp }}/http-lab-results
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Server logs on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP"/http-lab/*-server.log || true

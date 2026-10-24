@@ -68,27 +68,59 @@ harness now reads the real form. A stricter capability assertion also confirmed
 that core denies `view_site_health_checks` to the delegated multisite site admin.
 Failed setup runs were not counted as passing.
 
+## Runner-independent automation
+
+The passes above signed the owner in through Studio's `/studio-auto-login`
+route, so they could only run on Studio. A follow-up removed that dependency:
+setup now also creates a `keel_http_owner` administrator (a super administrator
+on multisite) whose password comes from `KEEL_HTTP_LAB_PASSWORD`, and the
+harness signs in through the real `wp-login.php` form. Cleanup revokes that
+account's super-admin grant and deletes it with the other fixture users.
+`tests/integration/http-authorization-lab.sh` wraps a pass (MU wrapper, setup,
+harness, cleanup in an exit trap), and the `HTTP authorization lab` workflow
+runs it on every pull request and push to main against two installs built by
+`tests/integration/http-authorization-bootstrap.sh`.
+
+Local verification in a cloud container, before the CI job's first run:
+WordPress 7.1.3 cloned from its GitHub tag, MariaDB 10.11, PHP 8.3 under
+`wp server`, Playwright 1.63.0 Chromium. The single site linked this checkout as
+`plugins/keel-defaults` and the network as `plugins/keel`.
+
+- Clean pass: 135 cases, two labs, zero failures. The
+  [redacted results](http-authorization-results-2026-10-24-runner-independent.json)
+  record the same actors and capabilities as the Studio rerun. Afterwards both
+  installs held only their install account, no MU wrapper and no backup option.
+- Negative control: restoring the pre-#326 `wp_die()` without a status in
+  `includes/backport-actions.php` failed the run at
+  `subscriber/minor-bad-nonce: unexpected HTTP 500`. Cleanup still ran and the
+  script exited 1.
+- Limit: restoring the same defect in `includes/network.php` did not fail the
+  HTTP lab, because core's Network Admin rejects those requests before Keel's
+  save callback runs. `tests/php-boundaries.php` remains the guard for that
+  status code.
+
 ## Reproduction and cleanup
 
-Use only disposable localhost sites with this checkout linked and Keel active.
-Add a temporary MU wrapper defining `KEEL_HTTP_AUTH_LAB` as true and requiring
-`tests/integration/fixtures/http-authorization.php`. Run
-`tests/integration/http-authorization-setup.php` through the runner's WP-CLI
-`eval-file`. Setup refuses an existing backup or fixture login. Then run:
+Use only disposable localhost installs with this checkout linked and Keel active
+(network-active on multisite). Then run:
 
 ```sh
-NODE_PATH=/path/to/lab/node_modules node tests/integration/http-authorization.mjs http://localhost:8889 http://localhost:8890 /path/to/new-results.json
+NODE_PATH=/path/to/playwright/node_modules bash tests/integration/http-authorization-lab.sh \
+  /path/to/single http://127.0.0.1:8889 /path/to/multi http://127.0.0.1:8890 /path/to/new-results.json
 ```
 
-The harness requires Studio's `/studio-auto-login` route and Playwright; it is
-not verified on other runners and is not an automated CI job. It keeps
-authentication material in memory and writes only redacted assertions. A required
-output path is opened exclusively before any lab mutation; an existing artifact
-causes an immediate failure rather than overwriting evidence. The runtime source
-is verified by SHA-256 against this checkout, irrespective of folder casing/name.
+The script adds a temporary MU wrapper defining `KEEL_HTTP_AUTH_LAB` and
+requiring `tests/integration/fixtures/http-authorization.php`, then runs
+`tests/integration/http-authorization-setup.php` through WP-CLI `eval-file`.
+Setup refuses an existing backup or fixture login. Set `KEEL_HTTP_LAB_WP` when
+WP-CLI is not plain `wp`. The harness keeps authentication material in memory
+and writes only redacted assertions. The output path is opened exclusively
+before any lab mutation; an existing artifact causes an immediate failure
+rather than overwriting evidence. The runtime source is verified by SHA-256
+against this checkout, irrespective of folder casing/name.
 
-In a finally/cleanup step, run the same setup PHP through `eval-file` with the
-argument `cleanup`, then remove exactly the temporary MU wrapper. Cleanup restores
+On exit, pass or fail, the script runs the same setup PHP through `eval-file`
+with the argument `cleanup`, then removes exactly the temporary MU wrapper. Cleanup restores
 the saved presence/value of the minor-update option and both Keel settings scopes,
 revokes fixture sessions and deletes only the users it created. The successful
 minor-update action intentionally invalidates core's cached update offer; that

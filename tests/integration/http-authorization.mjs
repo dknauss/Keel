@@ -1,4 +1,9 @@
-/** Local real-WordPress HTTP authorization pass. Tokens remain in memory. */
+/**
+ * Real-WordPress HTTP authorization pass for disposable localhost labs, run by
+ * http-authorization-lab.sh. The owner signs in through wp-login.php with
+ * KEEL_HTTP_LAB_PASSWORD, so no runner-specific login route is needed.
+ * Tokens remain in memory.
+ */
 import { createRequire } from 'node:module';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
@@ -9,6 +14,8 @@ assert.ok(output, 'Pass single-site URL, multisite URL and a new output JSON pat
 const bases = [single, multi];
 assert.equal(bases.length, 2, 'Pass single-site and multisite localhost URLs.');
 for (const base of bases) assert.ok(['localhost', '127.0.0.1'].includes(new URL(base).hostname));
+const ownerPassword = process.env.KEEL_HTTP_LAB_PASSWORD || '';
+assert.ok(ownerPassword.length >= 24, 'Set KEEL_HTTP_LAB_PASSWORD to the value the setup script used.');
 const expectedSourceHash = createHash('sha256').update(await fs.readFile(new URL('../../includes/settings-page.php', import.meta.url))).digest('hex');
 // Reserve a new artifact before mutating either lab. Existing evidence is never overwritten.
 const artifact = await fs.open(output, 'wx', 0o600);
@@ -27,7 +34,11 @@ try {
 		const page = await root.newPage();
 		const errors = [];
 		page.on('pageerror', error => errors.push(error.message));
-		await page.goto(base + '/studio-auto-login?redirect_to=%2Fwp-admin%2F');
+		await page.goto(base + '/wp-login.php?redirect_to=' + encodeURIComponent(base + '/wp-admin/'));
+		await page.fill('#user_login', 'keel_http_owner');
+		await page.fill('#user_pass', ownerPassword);
+		await Promise.all([page.waitForURL(url => url.pathname.startsWith('/wp-admin/')), page.click('#wp-submit')]);
+		await page.waitForLoadState('load');
 		assert.equal(errors.length, 0, 'Admin baseline has no page errors.');
 		const owner = await info(root, base);
 		assert.equal(owner.state.minor, 'disabled', 'Run setup before the lab so the authorized control must change persisted state.');
