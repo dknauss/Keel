@@ -272,14 +272,14 @@ keel_assert(
 // other plugins is not the only side of it a reader sees.
 $row = keel_defaults_conflict_list( array( 'user_has_cap' => array( 'user-switching', 'gravityforms' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel setting: Limit raw HTML and JavaScript to Administrators; also used by User Switching, gravityforms' ),
+	false !== strpos( $row, 'Keel setting: Unfiltered HTML; also used by User Switching, gravityforms' ),
 	'An overlap row names the Keel setting that uses the hook, then the other callbacks.'
 );
 
 $row = keel_defaults_conflict_list( array( 'wp_revisions_to_keep' => array( 'some-plugin' ) ) );
 keel_assert(
 	false !== strpos( $row, 'Keel setting: Post Revision Retention; also used by some-plugin' ),
-	'A setting with no statement falls back to its label.'
+	'A setting with no statement is named by its label.'
 );
 
 $row = keel_defaults_conflict_list( array( 'wp_page_revisions_to_keep' => array( 'some-plugin' ) ) );
@@ -288,22 +288,19 @@ keel_assert(
 	'A post-type revision hook is attributed to the revision setting.'
 );
 
-// A toggle's statement describes it switched on. Keel holds xmlrpc_enabled
-// either way, and by default remote publishing is off — so the row must not
-// claim Keel is allowing it.
-$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'no' );
-$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
-keel_assert(
-	false !== strpos( $row, 'Keel setting: XML-RPC Remote Publishing; also' ),
-	'A toggle that is off is named by its label, not by a statement describing it on.'
-);
+// One name per setting in the panel. The "Not taking effect" line names
+// settings by label, so the rows do too, on or off: switched on, this row used
+// to read "Allow remote publishing (blogging apps)" beneath a line calling the
+// same setting "XML-RPC Remote Publishing".
+foreach ( array( 'no', 'yes' ) as $keel_publishing ) {
+	$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => $keel_publishing );
+	$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
+	keel_assert(
+		false !== strpos( $row, 'Keel setting: XML-RPC Remote Publishing; also' ) && false === strpos( $row, 'blogging apps' ),
+		"Remote publishing set to {$keel_publishing} is named by its label, never its checkbox statement."
+	);
+}
 
-$GLOBALS['keel_options']['keel_settings'] = array( 'xmlrpc_allow_remote_publishing' => 'yes' );
-$row                                      = keel_defaults_conflict_list( array( 'xmlrpc_enabled' => array( 'some-plugin' ) ) );
-keel_assert(
-	false !== strpos( $row, 'Keel setting: Allow remote publishing (blogging apps); also' ),
-	'A toggle that is on is named by its statement.'
-);
 $GLOBALS['keel_options']['keel_settings'] = array();
 
 $row = keel_defaults_conflict_list( array( 'keel_test_unmapped_hook' => array( KEEL_DEFAULTS_UNATTRIBUTED ) ) );
@@ -317,7 +314,7 @@ $GLOBALS['keel_options']['keel_settings'] = array( 'disable_remember_me' => 'yes
 keel_defaults_registered_policy_hooks( 'auth_cookie_expiration', 'keel_defaults_session_length', 50, 3, array( 'disable_remember_me' ) );
 $row = keel_defaults_conflict_list( array( 'auth_cookie_expiration' => array( 'some-plugin' ) ) );
 keel_assert(
-	false !== strpos( $row, 'Keel setting: Disable Remember Me and remove the login checkbox; also' ) && false === strpos( $row, 'Regular Session Length' ),
+	false !== strpos( $row, 'Keel setting: Remember Me; also' ) && false === strpos( $row, 'Regular Session Length' ),
 	'A session overlap names the session setting actually in effect.'
 );
 $GLOBALS['keel_options']['keel_settings'] = array();

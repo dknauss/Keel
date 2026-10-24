@@ -478,20 +478,24 @@ function keel_defaults_site_health_posture() {
  * a plugin granting its own capabilities there could matter.
  *
  * @param string $hook Hook name.
- * @return string Statement of a toggle that is on, else the label, else ''.
+ * @return string The setting labels, semicolon-separated, or ''.
  */
 function keel_defaults_overlap_purpose( $hook ) {
 	$settings = keel_defaults_hook_settings( $hook );
 	$strings  = keel_defaults_strings();
 	$purposes = array();
 
+	/*
+	 * The setting's label, the name it has on the settings screen, and never its
+	 * checkbox statement. The "Not taking effect" line above these rows names
+	 * settings by label, and a row that switched to the statement called one
+	 * setting two things in one panel: "XML-RPC Remote Publishing" there,
+	 * "Allow remote publishing (blogging apps)" here. A statement also
+	 * describes its toggle switched on, which Keel holding a hook does not
+	 * imply.
+	 */
 	foreach ( $settings as $setting ) {
-		// A statement describes its toggle switched on. Keel holds some hooks
-		// either way — xmlrpc_enabled among them, off by default — and the row
-		// must not say Keel is doing what it is currently not doing.
-		if ( ! empty( $strings[ $setting ]['statement'] ) && keel_defaults_enabled( $setting ) ) {
-			$purposes[] = $strings[ $setting ]['statement'];
-		} elseif ( ! empty( $strings[ $setting ]['label'] ) ) {
+		if ( ! empty( $strings[ $setting ]['label'] ) ) {
 			$purposes[] = $strings[ $setting ]['label'];
 		}
 	}
@@ -839,7 +843,7 @@ function keel_defaults_site_health_conflicts() {
 			/* translators: %s: theme name, or a child theme and its parent, comma-separated. */
 			esc_html__( 'Your theme may change the same settings as Keel: %s', 'keel-defaults' ),
 			esc_html( implode( ', ', array_map( 'keel_defaults_theme_name', array_keys( $themes ) ) ) )
-		) . '</strong></p><p>' . esc_html__( 'On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn\'t switch themes simply for this reason without further investigation.', 'keel-defaults' ) . '</p><ul>';
+		) . '</strong></p><p>' . esc_html__( 'Your theme adds filters on the same WordPress hooks as some Keel settings, where whichever runs last can override the other. Although sharing a hook is not definitive evidence of a conflict, you should check that your theme\'s settings and Keel\'s are set up to achieve complementary outcomes.', 'keel-defaults' ) . '</p><ul>';
 		$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
 
 		return array(
@@ -855,7 +859,7 @@ function keel_defaults_site_health_conflicts() {
 		/* translators: %s: comma-separated plugin names. */
 		esc_html__( 'Plugins that may change the same settings as Keel: %s', 'keel-defaults' ),
 		esc_html( implode( ', ', array_map( 'keel_defaults_plugin_name', array_keys( $plugins ) ) ) )
-	) . '</strong></p><p>' . esc_html__( 'On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn\'t deactivate a plugin simply for this reason without further investigation.', 'keel-defaults' ) . '</p><ul>';
+	) . '</strong></p><p>' . esc_html__( 'These plugins add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Although sharing a hook is not definitive evidence of a conflict, you should check that their settings and Keel\'s are set up to achieve complementary outcomes.', 'keel-defaults' ) . '</p><ul>';
 	$description .= keel_defaults_conflict_list( $overlaps ) . '</ul>' . $details;
 
 	/*

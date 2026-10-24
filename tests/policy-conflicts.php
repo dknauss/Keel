@@ -260,8 +260,8 @@ keel_assert( 'rival-plugin' === keel_defaults_callback_plugin_dir( new Keel_Test
 
 $health = keel_defaults_site_health_conflicts();
 keel_assert( 'recommended' === $health['status'], 'A structural overlap prompts settings review in Site Health.' );
-keel_assert( false !== strpos( $health['description'], 'insufficient evidence of a conflict' ), 'Site Health does not claim an opposing outcome.' );
-keel_assert( false !== strpos( $health['description'], 'deactivate a plugin simply for this reason' ), 'Site Health explicitly rejects deactivation based on presence alone.' );
+keel_assert( false !== strpos( $health['description'], 'not definitive evidence of a conflict' ), 'Site Health does not claim an opposing outcome.' );
+keel_assert( false !== strpos( $health['description'], 'you should check that their settings and Keel' ), 'Site Health asks for a settings check, not a deactivation.' );
 keel_assert( array() === $GLOBALS['keel_foreign_calls'], 'Site Health invokes no foreign callback.' );
 keel_assert( 1 === $GLOBALS['keel_map_reads'], 'The overlap report is computed once per request and reused by every consumer.' );
 
