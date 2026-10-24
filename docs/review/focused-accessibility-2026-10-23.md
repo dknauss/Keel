@@ -10,12 +10,12 @@ This is a focused WCAG 2.1 A/AA regression pass, not a conformance certification
 | Finding | Evidence | Fix |
 | --- | --- | --- |
 | Locked checkboxes swallow page-navigation keys (2.1.1, 2.4.3). | On Chromium, Page Down with a visible locked checkbox focused left scrollY at 956; the assertion failed. After the fix it advanced to 1684. Space still cannot change the checkbox. | Cancel Space on locked checkboxes, preserve their navigation keys; let Escape through on all locked controls. Keep value-changing keyboard operations blocked on locked sliders, selects and number inputs. Server-side lock enforcement is unchanged. |
-| WebKit cannot horizontally scroll a focused evidence region with arrow keys (2.1.1). | At 320px, the plugin/theme table region was 298px wide with 342px content. Two Right presses left scrollLeft at 0 before the fix. Afterwards the positions were 40 and 44; Left returned to 4. | An Updates-only, dependency-free script implements physical Left/Right scrolling on the focused region. It cancels the native event only when the offset moves, handles negative RTL offsets, and ignores modifiers and descendant controls. |
+| WebKit cannot horizontally scroll a focused evidence region with arrow keys (2.1.1). | At 320px, the plugin/theme table region was 298px wide with 342px content. Two Right presses left scrollLeft at 0 before the fix. Afterwards the positions were 40 and 44; Left returned to 4. | A dependency-free script implements physical Left/Right scrolling on the focused region. It cancels the native event only when the offset moves, handles negative RTL offsets, and ignores modifiers and descendant controls. #322 delegates it from `document`, so it also covers the Site Health tables WordPress inserts after the script loads. |
 
 No settings, collectors, update actions or stored policies were added or changed.
 There is no counterpart change: Agency Experience has neither Keel's shared
-locked-control handler nor these Updates-screen evidence regions (checked its
-settings scripts and includes). The existing AX menu slider is a different path.
+locked-control handler nor these Site Health update-diagnostic regions (checked
+its settings scripts and includes). The existing AX menu slider is a different path.
 
 ## Browser evidence
 
@@ -29,8 +29,10 @@ admin styles, not just an added CSS class. Keel strings fall back to English.
 
 The browser checks cover:
 
-- Native disclosure Enter/Space activation, collapsed default state, and Tab from
-  the expanded diagnostic summary into a named scroll region.
+- The compact policy notice above **Current version** while WordPress's own text
+  remains intact, and no update table remains on the Updates screen.
+- The Site Health deep link expands and focuses WordPress's native **Update
+  diagnostics** disclosure, then Tabs into a named scroll region.
 - Table accessible names and captions, visible focus, physical arrow scrolling
   where content overflows, and containment of horizontal overflow.
 - Locked controls remaining focusable, described by existing lock/help elements,
@@ -47,22 +49,24 @@ The browser checks cover:
 [Machine-readable browser results](focused-accessibility-results-2026-10-23.json).
 
 Results: Chromium 156.0.8078.4, Firefox 157.0 and Playwright WebKit 27.2 pass
-30 browser/site/locale/screen combinations, including 120 width checks and 30
-640px reflow checks. Scoped axe scans report zero violations; `color-contrast`
-remains incomplete on clipped table content, so this is not a complete automated
-contrast audit. #313's computed text/focus contrast evidence remains applicable
-to the unchanged colors. No JavaScript page errors occurred.
+42 browser/site/locale/screen combinations after #322, including 168 width checks
+and 42 640px reflow checks. The current matrix covers Updates, Site Health and Site
+Defaults on both labs, plus Network Policy on multisite. Scoped axe scans report zero
+violations; `color-contrast` remains incomplete on clipped table content, so this is
+not a complete automated contrast audit. #313's computed text/focus contrast evidence
+remains applicable to the unchanged colors. No JavaScript page errors occurred.
 
 Synthetic lab captures, not live-site evidence or WordPress.org listing assets:
 [RTL Network Updates](images/focused-a11y-rtl-updates-2026-10-23.png) and
-[RTL Site Defaults](images/focused-a11y-rtl-settings-2026-10-23.png).
+[RTL Site Defaults](images/focused-a11y-rtl-settings-2026-10-23.png). The #322
+re-run also captured [RTL Site Health diagnostics](images/focused-a11y-rtl-site-health-2026-10-24.png).
 
 ## Native Safari and assistive-technology boundary
 
-Native Safari's accessibility tree exposes Policy details and Update diagnostics
-as summaries with an off/on state. The local Updates page and its accessible
-names were inspected. Native interaction was interrupted by changing app state;
-that inspection alone is not a completed native Safari keyboard pass.
+Native Safari's accessibility tree exposes Update diagnostics as a summary with an
+off/on state. The local Updates and Site Health pages and their accessible names were
+inspected. Native interaction was interrupted by changing app state; that inspection
+alone is not a completed native Safari keyboard pass.
 
 VoiceOver initially presented its first-run welcome/tutorial. It was launched,
 but its speech/caption output could not be captured reliably through the available
@@ -101,6 +105,15 @@ directory printed on success. Remove both temporary MU-plugin wrappers afterward
 stop the multisite lab if it was started for this pass. Language packs may remain
 as reusable lab tooling. Production WordPress.com settings-save confirmation
 remains a separate maintainer task.
+
+## Post-#322 re-run
+
+On 2026-10-24, the same disposable WordPress 7.1.3 / PHP 8.4 / SQLite labs loaded
+the merged #322 code through their Keel symlinks. The re-run exercised the relocated
+diagnostics on Site Health, including deep-link expansion, focus transfer, RTL,
+keyboard scrolling at narrow widths and scoped axe checks. It does not claim manual
+assistive-technology speech, native Safari keyboard operation, browser zoom, Windows
+high contrast or touch testing.
 
 ## Local regression checks
 

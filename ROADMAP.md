@@ -90,7 +90,9 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   (`1d754a9`), the bounded HIBP budget in #316 (`e6de5ca`), and the policy/diagnostic
   refinement in #322 (`4afe74a`); all unreleased.
   #322 places the compact policy notice above **Current version** while preserving
-  WordPress's text, and moves update-forensics tables to Site Health.
+  WordPress's text, and moves update-forensics tables to Site Health. The full
+  three-engine focused accessibility matrix re-verified that placement on 2026-10-24:
+  42 lab combinations, 168 width checks, no scoped axe violations or page errors.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
