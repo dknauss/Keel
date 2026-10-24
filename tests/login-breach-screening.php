@@ -369,10 +369,18 @@ keel_assert( 'breached' === keel_defaults_screen_user_password( $editor, $breach
 unset( $GLOBALS['keel_filters']['keel_password_is_pwned'] );
 keel_defaults_forget_password_screening( 2 );
 
-// --- exempt roles are not re-checked at login ---
+// --- every role is checked by default; a filter can leave roles out ---
 keel_reset_lookup( 200, $breached_ok );
-keel_assert( 'exempt' === keel_defaults_screen_user_password( $sub, $breached_pw ), 'An exempt role is skipped at login.' );
-keel_assert( 0 === $GLOBALS['keel_http_calls'] && array() === ( $GLOBALS['keel_user_meta'][3] ?? array() ), 'Skipping makes no request and stores nothing.' );
+keel_assert( 'breached' === keel_defaults_screen_user_password( $sub, $breached_pw ), 'Subscribers are checked at login by default, although they are exempt from the length rules.' );
+keel_defaults_forget_password_screening( 3 );
+$GLOBALS['keel_filters']['keel_password_rescreen_skip_roles'] = array( 'subscriber' );
+keel_reset_lookup( 200, $breached_ok );
+keel_assert( 'skipped' === keel_defaults_screen_user_password( $sub, $breached_pw ), 'The filter can leave subscribers out.' );
+keel_assert( 0 === $GLOBALS['keel_http_calls'] && array() === array_filter( $GLOBALS['keel_user_meta'][3] ?? array() ), 'Skipping makes no request and stores nothing.' );
+$both = new WP_User( 6, array( 'subscriber', 'editor' ), 'both', 'Both' );
+keel_assert( 'breached' === keel_defaults_screen_user_password( $both, $breached_pw ), 'An account holding any unlisted role is still checked.' );
+keel_defaults_forget_password_screening( 6 );
+unset( $GLOBALS['keel_filters']['keel_password_rescreen_skip_roles'] );
 
 // --- Site Health: who may see what ---
 keel_reset_lookup( 200, $breached_ok );

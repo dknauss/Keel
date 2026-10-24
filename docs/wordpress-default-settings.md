@@ -242,8 +242,9 @@ function keel_enforce_strong_password( $errors, $update, $user ) {
 > password at most once every 30 days per account (`keel_password_rescreen_interval`, floor one
 > hour). It is warn-only: a breached result sets `keel_password_breached` user meta, the owner sees
 > a non-dismissible admin notice, and admins who can `list_users` get a count and linked list in
-> Site Health plus a **Breached passwords** view on Users. An unknown verdict records nothing, roles
-> exempt from the policy are skipped at login, and a password change clears both meta keys.
+> Site Health plus a **Breached passwords** view on Users. An unknown verdict records nothing, every role
+> is checked unless `keel_password_rescreen_skip_roles` names some to leave out (for example
+> `array( 'subscriber' )`), and a password change clears both meta keys.
 
 ### Disable AI Connectors
 - **Key:** `disable_ai_connectors`

@@ -133,11 +133,9 @@ function keel_defaults_screen_login_password( $user_login, $user = null ) {
 /**
  * Re-check one account's current password and record the verdict.
  *
- * Roles exempted from the password policy are skipped. That is narrower than
- * screening at the moment a password is set, which covers everyone: a set is
- * rare and the person is right there to pick another, while logins on a large
- * membership site would spend the shared lookup budget that password changes
- * rely on. Exempt accounts are still screened whenever they set a password.
+ * Every role is checked, like screening at the moment a password is set. A
+ * site can leave roles out with the keel_password_rescreen_skip_roles filter;
+ * see keel_defaults_password_rescreen_skipped().
  *
  * An unknown verdict records nothing, so the account is tried again at its next
  * login instead of being treated as checked for a whole interval.
@@ -145,13 +143,13 @@ function keel_defaults_screen_login_password( $user_login, $user = null ) {
  * @param WP_User  $user     Account whose password this is.
  * @param string   $password The password just used to log in.
  * @param int|null $now      Current time, for tests.
- * @return string One of exempt, fresh, unknown, breached or clean.
+ * @return string One of skipped, fresh, unknown, breached or clean.
  */
 function keel_defaults_screen_user_password( $user, $password, $now = null ) {
 	$now = null === $now ? time() : (int) $now;
 
-	if ( ! keel_defaults_password_enforced_for_user( $user ) ) {
-		return 'exempt';
+	if ( keel_defaults_password_rescreen_skipped( $user ) ) {
+		return 'skipped';
 	}
 
 	// A timestamp in the future (a clock moved back, a copied database) is stale.
@@ -178,6 +176,45 @@ function keel_defaults_screen_user_password( $user, $password, $now = null ) {
 
 	delete_user_meta( $user->ID, 'keel_password_breached' );
 	return 'clean';
+}
+
+/**
+ * Whether an account is left out of the login re-check.
+ *
+ * Nobody is, by default. A large membership or shop site may not want every
+ * customer login to spend the shared lookup budget that password changes also
+ * rely on, so the keel_password_rescreen_skip_roles filter can name roles to
+ * leave out:
+ *
+ *     add_filter( 'keel_password_rescreen_skip_roles', fn() => array( 'subscriber' ) );
+ *
+ * Like the password policy exemptions, an account is skipped only when every
+ * role it holds is listed, so a subscriber who is also an editor is still
+ * checked. Skipped accounts are still screened whenever they set a password.
+ *
+ * @param WP_User|object $user Account.
+ * @return bool
+ */
+function keel_defaults_password_rescreen_skipped( $user ) {
+	/**
+	 * Filter the roles left out of the login breach re-check.
+	 *
+	 * @param string[] $roles Role slugs. Default empty: every role is checked.
+	 */
+	$skip  = array_map( 'strval', (array) apply_filters( 'keel_password_rescreen_skip_roles', array() ) );
+	$roles = ( isset( $user->roles ) && is_array( $user->roles ) ) ? $user->roles : array();
+
+	if ( empty( $skip ) || empty( $roles ) ) {
+		return false;
+	}
+
+	foreach ( $roles as $role ) {
+		if ( ! in_array( (string) $role, $skip, true ) ) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /**
@@ -597,7 +634,7 @@ function keel_defaults_site_health_breached_passwords() {
 	) . '</p>';
 
 	if ( ! $total ) {
-		$result['description'] = $intro . '<p>' . esc_html__( 'No account on this site is flagged. Accounts that have not logged in since the check began, and roles exempt from the password policy, have not been re-checked; their passwords are still screened whenever they are changed.', 'keel-defaults' ) . '</p>';
+		$result['description'] = $intro . '<p>' . esc_html__( 'No account on this site is flagged. Accounts that have not logged in since the check began, and any roles a site has left out of the login check, have not been re-checked; their passwords are still screened whenever they are changed.', 'keel-defaults' ) . '</p>';
 		return $result;
 	}
 

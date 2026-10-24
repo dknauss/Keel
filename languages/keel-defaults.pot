@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T20:03:48+00:00\n"
+"POT-Creation-Date: 2026-10-24T20:08:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -308,9 +308,9 @@ msgid "No unambiguous name-based attribution."
 msgstr ""
 
 #: includes/autoload-diagnostics.php:263
-#: includes/password-login-screening.php:570
+#: includes/password-login-screening.php:607
 #: includes/settings-page.php:24
-#: includes/settings-page.php:619
+#: includes/settings-page.php:622
 #: includes/shortcodes.php:229
 #: includes/site-health.php:99
 #: includes/site-health.php:202
@@ -1268,133 +1268,133 @@ msgstr ""
 msgid "Save network policy"
 msgstr ""
 
-#: includes/password-login-screening.php:266
+#: includes/password-login-screening.php:303
 msgid "Your password has appeared in a known data breach."
 msgstr ""
 
-#: includes/password-login-screening.php:267
+#: includes/password-login-screening.php:304
 msgid "It still works here, but leaked passwords are the first ones attackers try. Choose a new one that you do not use anywhere else."
 msgstr ""
 
-#: includes/password-login-screening.php:269
+#: includes/password-login-screening.php:306
 msgid "Change your password"
 msgstr ""
 
-#: includes/password-login-screening.php:372
+#: includes/password-login-screening.php:409
 msgid "Breached passwords"
 msgstr ""
 
-#: includes/password-login-screening.php:413
-#: includes/password-login-screening.php:515
+#: includes/password-login-screening.php:450
+#: includes/password-login-screening.php:552
 msgid "Breach found"
 msgstr ""
 
 #. translators: %s: human-readable time, such as "5 mins".
-#: includes/password-login-screening.php:450
+#: includes/password-login-screening.php:487
 #: includes/update-timeline.php:140
 #, php-format
 msgid "%s ago"
 msgstr ""
 
 #. translators: %s: number of days.
-#: includes/password-login-screening.php:471
+#: includes/password-login-screening.php:508
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/password-login-screening.php:492
+#: includes/password-login-screening.php:529
 msgid "No role on this site"
 msgstr ""
 
-#: includes/password-login-screening.php:512
+#: includes/password-login-screening.php:549
 msgid "Accounts with breached passwords, most recently found first"
 msgstr ""
 
-#: includes/password-login-screening.php:515
+#: includes/password-login-screening.php:552
 msgid "Account"
 msgstr ""
 
-#: includes/password-login-screening.php:515
+#: includes/password-login-screening.php:552
 msgid "Role"
 msgstr ""
 
-#: includes/password-login-screening.php:515
+#: includes/password-login-screening.php:552
 msgid "Actions"
 msgstr ""
 
 #. translators: %s: account display name.
-#: includes/password-login-screening.php:532
+#: includes/password-login-screening.php:569
 #, php-format
 msgid "Set a new password for %s"
 msgstr ""
 
-#: includes/password-login-screening.php:533
+#: includes/password-login-screening.php:570
 msgid "Set new password"
 msgstr ""
 
 #. translators: %s: account display name.
-#: includes/password-login-screening.php:540
+#: includes/password-login-screening.php:577
 #, php-format
 msgid "Send password reset to %s"
 msgstr ""
 
-#: includes/password-login-screening.php:541
+#: includes/password-login-screening.php:578
 msgid "Send password reset"
 msgstr ""
 
-#: includes/password-login-screening.php:567
+#: includes/password-login-screening.php:604
 msgid "No accounts are flagged for breached passwords"
 msgstr ""
 
-#: includes/password-login-screening.php:583
+#: includes/password-login-screening.php:620
 msgid "Passwords are re-checked for breaches at login"
 msgstr ""
 
-#: includes/password-login-screening.php:584
+#: includes/password-login-screening.php:621
 msgid "An account that can list users can review which accounts, if any, are flagged."
 msgstr ""
 
 #. translators: 1: re-check interval, such as "30 days". 2: number of accounts checked so far.
-#: includes/password-login-screening.php:594
+#: includes/password-login-screening.php:631
 #, php-format
 msgid "When someone logs in, Keel checks their password against known breaches, at most once every %1$s. So far %2$s account on this site has been checked this way."
 msgid_plural "When someone logs in, Keel checks their password against known breaches, at most once every %1$s. So far %2$s accounts on this site have been checked this way."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/password-login-screening.php:600
-msgid "No account on this site is flagged. Accounts that have not logged in since the check began, and roles exempt from the password policy, have not been re-checked; their passwords are still screened whenever they are changed."
+#: includes/password-login-screening.php:637
+msgid "No account on this site is flagged. Accounts that have not logged in since the check began, and any roles a site has left out of the login check, have not been re-checked; their passwords are still screened whenever they are changed."
 msgstr ""
 
 #. translators: %s: number of accounts.
-#: includes/password-login-screening.php:615
+#: includes/password-login-screening.php:652
 #, php-format
 msgid "%s account has a password found in a known breach"
 msgid_plural "%s accounts have passwords found in known breaches"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/password-login-screening.php:620
+#: includes/password-login-screening.php:657
 msgid "These passwords still work: Keel warns and does not block. Each person sees a notice asking them to change their password, and the flag clears as soon as they do."
 msgstr ""
 
-#: includes/password-login-screening.php:621
+#: includes/password-login-screening.php:658
 msgid "To act sooner, set a new password on the account, which also lets you log it out everywhere else, or send a password reset. A reset email sends a link; the current password keeps working until it is used."
 msgstr ""
 
 #. translators: 1: number of accounts shown, 2: total number of flagged accounts.
-#: includes/password-login-screening.php:627
+#: includes/password-login-screening.php:664
 #, php-format
 msgid "Showing the %1$s most recently flagged of %2$s accounts."
 msgstr ""
 
-#: includes/password-login-screening.php:634
+#: includes/password-login-screening.php:671
 msgid "Review flagged accounts on the Users screen"
 msgstr ""
 
-#: includes/password-login-screening.php:635
+#: includes/password-login-screening.php:672
 msgid "There, select the flagged accounts and choose Send password reset from Bulk actions to email them all at once."
 msgstr ""
 
@@ -1597,131 +1597,131 @@ msgstr ""
 #. translators: %s: URL of the Site Health status screen.
 #: includes/settings-page.php:150
 #, php-format
-msgid "Checking a password only when it is set misses every password chosen before Keel was active. So a login with a username or email and password also re-checks it, at most once every 30 days per account, for the roles the other rules cover. A breached password still works: its owner sees a warning until they change it, and administrators get a list of affected accounts under <a href=\"%s\">Site Health</a> and on the Users screen."
+msgid "Checking a password only when it is set misses every password chosen before Keel was active. So a login with a username or email and password also re-checks it, at most once every 30 days per account, for every role unless the <code>keel_password_rescreen_skip_roles</code> filter leaves some out. A breached password still works: its owner sees a warning until they change it, and administrators get a list of affected accounts under <a href=\"%s\">Site Health</a> and on the Users screen."
 msgstr ""
 
-#: includes/settings-page.php:157
+#: includes/settings-page.php:160
 msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
-#: includes/settings-page.php:168
+#: includes/settings-page.php:171
 #: includes/strings.php:316
 msgid "XML-RPC"
 msgstr ""
 
-#: includes/settings-page.php:170
+#: includes/settings-page.php:173
 msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
 msgstr ""
 
-#: includes/settings-page.php:171
+#: includes/settings-page.php:174
 msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
 msgstr ""
 
-#: includes/settings-page.php:172
+#: includes/settings-page.php:175
 msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
 msgstr ""
 
-#: includes/settings-page.php:174
+#: includes/settings-page.php:177
 msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
 msgstr ""
 
-#: includes/settings-page.php:178
+#: includes/settings-page.php:181
 msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability. WordPress.com uses multicall to manage a site through Jetpack, so Keel lets through the requests Jetpack verifies as signed by WordPress.com even while multicall is off."
 msgstr ""
 
-#: includes/settings-page.php:187
+#: includes/settings-page.php:190
 msgid "Environments"
 msgstr ""
 
-#: includes/settings-page.php:190
+#: includes/settings-page.php:193
 msgid "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognizes common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen."
 msgstr ""
 
-#: includes/settings-page.php:194
+#: includes/settings-page.php:197
 msgid "<strong>Email:</strong> outside production, outgoing mail is held back and an admin notice says so. WordPress still reports each message as sent, so code behaves as it will in production."
 msgstr ""
 
-#: includes/settings-page.php:198
+#: includes/settings-page.php:201
 msgid "<strong>Environment indicator:</strong> a color-coded label in the admin bar. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
 msgstr ""
 
-#: includes/settings-page.php:202
+#: includes/settings-page.php:205
 msgid "Mail held back on a live site? Check <code>WP_ENVIRONMENT_TYPE</code> in <code>wp-config.php</code> first."
 msgstr ""
 
-#: includes/settings-page.php:211
+#: includes/settings-page.php:214
 msgid "Overlapping plugins"
 msgstr ""
 
-#: includes/settings-page.php:213
+#: includes/settings-page.php:216
 msgid "Many of Keel's defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one plugin's activity prevails. There is no error, nothing is logged, and the plugin that was quietly overruled goes on showing the setting you think it applied. That is why WordPress can have two plugins configured to disable comments and still have comments."
 msgstr ""
 
-#: includes/settings-page.php:214
+#: includes/settings-page.php:217
 msgid "Keel reports collisions with other plugins in two ways, and they answer different questions."
 msgstr ""
 
-#: includes/settings-page.php:216
+#: includes/settings-page.php:219
 msgid "<strong>The first method names plugins:</strong> another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either one. Compare their settings and decide which plugin should own the disabling function."
 msgstr ""
 
-#: includes/settings-page.php:220
+#: includes/settings-page.php:223
 msgid "<strong>The second method says a setting is not taking effect:</strong> Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
 msgstr ""
 
-#: includes/settings-page.php:224
+#: includes/settings-page.php:227
 msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature on or off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
 msgstr ""
 
 #. translators: %s: linked name of the Site Health screen.
-#: includes/settings-page.php:230
+#: includes/settings-page.php:233
 #, php-format
 msgid "<strong>The full collision report, hook by hook, is under %s.</strong> The dashboard and plugins screens carry a short version, and the dashboard notification can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing it means “I have seen this” rather than “never mention this again.”"
 msgstr ""
 
-#: includes/settings-page.php:231
+#: includes/settings-page.php:234
 msgid "Site Health"
 msgstr ""
 
-#: includes/settings-page.php:238
+#: includes/settings-page.php:241
 msgid "Nothing in Keel runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them."
 msgstr ""
 
-#: includes/settings-page.php:243
+#: includes/settings-page.php:246
 msgid "Current posture"
 msgstr ""
 
 #. translators: %s: URL of the Site Health Info screen.
-#: includes/settings-page.php:247
+#: includes/settings-page.php:250
 #, php-format
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:538
+#: includes/settings-page.php:541
 msgid "Locked"
 msgstr ""
 
-#: includes/settings-page.php:570
+#: includes/settings-page.php:573
 msgid "Locked settings"
 msgstr ""
 
 #. translators: %d: number of settings locked by configuration.
-#: includes/settings-page.php:576
+#: includes/settings-page.php:579
 #, php-format
 msgid "Locked by wp-config.php (%d)"
 msgstr ""
 
 #. translators: %d: number of settings locked by network policy.
-#: includes/settings-page.php:578
+#: includes/settings-page.php:581
 #, php-format
 msgid "Locked by network policy (%d)"
 msgstr ""
 
-#: includes/settings-page.php:620
+#: includes/settings-page.php:623
 msgid "Balanced defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:632
+#: includes/settings-page.php:635
 msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 

@@ -147,10 +147,13 @@ function keel_defaults_add_help_tab() {
 				'<p>' . wp_kses(
 					sprintf(
 						/* translators: %s: URL of the Site Health status screen. */
-						__( 'Checking a password only when it is set misses every password chosen before Keel was active. So a login with a username or email and password also re-checks it, at most once every 30 days per account, for the roles the other rules cover. A breached password still works: its owner sees a warning until they change it, and administrators get a list of affected accounts under <a href="%s">Site Health</a> and on the Users screen.', 'keel-defaults' ),
+						__( 'Checking a password only when it is set misses every password chosen before Keel was active. So a login with a username or email and password also re-checks it, at most once every 30 days per account, for every role unless the <code>keel_password_rescreen_skip_roles</code> filter leaves some out. A breached password still works: its owner sees a warning until they change it, and administrators get a list of affected accounts under <a href="%s">Site Health</a> and on the Users screen.', 'keel-defaults' ),
 						esc_url( admin_url( 'site-health.php' ) )
 					),
-					array( 'a' => array( 'href' => array() ) )
+					array(
+						'a'    => array( 'href' => array() ),
+						'code' => array(),
+					)
 				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
