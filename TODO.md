@@ -371,9 +371,10 @@ only the maintainer’s WordPress.com settings-save confirmation below remains o
 ## 0.9.0 update operations and support — release candidate
 
 - [x] **Prepare 0.9.0** — version metadata, changelog and upgrade notice finalized.
-- [ ] **Finish the pre-tag gates** — Firefox/WebKit focused accessibility, manual
-  VoiceOver and Safari keyboard passes, a clean counterpart sweep (#302 and #335
-  still pending), then review the release PR, tag and publish. Evidence and steps
+- [x] **Firefox and WebKit focused accessibility** — passed in CI (run 40135696116).
+- [ ] **Finish the pre-tag gates** — manual VoiceOver and Safari keyboard passes,
+  a clean counterpart sweep (#302 merges with AX 0.2.0; #335 waits on #323), then
+  review the release PR, tag and publish. Evidence and steps
   are in the [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
 
 
