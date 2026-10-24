@@ -182,9 +182,13 @@ function keel_defaults_render_conflicts_notice() {
 			</strong>
 		</p>
 		<?php endif; ?>
-		<?php if ( ! empty( $plugins ) || ! empty( $themes ) ) : ?>
+		<?php if ( ! empty( $plugins ) ) : ?>
 		<p>
-				<?php esc_html_e( 'They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel\'s are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict.', 'keel-defaults' ); ?>
+				<?php esc_html_e( 'These plugins add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Although sharing a hook is not definitive evidence of a conflict, you should check that their settings and Keel\'s are set up to achieve complementary outcomes.', 'keel-defaults' ); ?>
+		</p>
+		<?php elseif ( ! empty( $themes ) ) : ?>
+		<p>
+				<?php esc_html_e( 'Your theme adds filters on the same WordPress hooks as some Keel settings, where whichever runs last can override the other. Although sharing a hook is not definitive evidence of a conflict, you should check that your theme\'s settings and Keel\'s are set up to achieve complementary outcomes.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<?php if ( ! empty( $unnamed ) ) : ?>
@@ -192,8 +196,8 @@ function keel_defaults_render_conflicts_notice() {
 			<?php
 			/* translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag. */
 			$untraceable = _n(
-				'%1$s of %2$sKeel%3$s\'s settings is also affected by code that cannot be traced to any plugin.',
-				'%1$s of %2$sKeel%3$s\'s settings are also affected by code that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings is also being affected by code that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings are also being affected by code that cannot be traced to any plugin.',
 				count( $unnamed ),
 				'keel-defaults'
 			);

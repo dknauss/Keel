@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T04:31:30+00:00\n"
+"POT-Creation-Date: 2026-10-24T18:20:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -309,7 +309,7 @@ msgstr ""
 
 #: includes/autoload-diagnostics.php:263
 #: includes/settings-page.php:24
-#: includes/settings-page.php:610
+#: includes/settings-page.php:611
 #: includes/shortcodes.php:229
 #: includes/site-health.php:93
 #: includes/site-health.php:196
@@ -885,26 +885,30 @@ msgid "Your theme may influence some of the same settings as Keel: %s"
 msgstr ""
 
 #: includes/conflict-notices.php:187
-msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
+msgid "These plugins add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Although sharing a hook is not definitive evidence of a conflict, you should check that their settings and Keel's are set up to achieve complementary outcomes."
+msgstr ""
+
+#: includes/conflict-notices.php:191
+msgid "Your theme adds filters on the same WordPress hooks as some Keel settings, where whichever runs last can override the other. Although sharing a hook is not definitive evidence of a conflict, you should check that your theme's settings and Keel's are set up to achieve complementary outcomes."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
-#: includes/conflict-notices.php:194
+#: includes/conflict-notices.php:198
 #, php-format
-msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
-msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
+msgid "%1$s of %2$sKeel%3$s's settings is also being affected by code that cannot be traced to any plugin."
+msgid_plural "%1$s of %2$sKeel%3$s's settings are also being affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/conflict-notices.php:208
+#: includes/conflict-notices.php:212
 msgid "A plugin that switches a feature off using one of WordPress's own helper functions leaves nothing behind to identify it."
 msgstr ""
 
-#: includes/conflict-notices.php:212
+#: includes/conflict-notices.php:216
 msgid "See which settings may be contested under Site Health"
 msgstr ""
 
-#: includes/conflict-notices.php:216
+#: includes/conflict-notices.php:220
 msgid "Dismiss until this changes"
 msgstr ""
 
@@ -1543,31 +1547,31 @@ msgstr ""
 msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
-#: includes/settings-page.php:529
+#: includes/settings-page.php:530
 msgid "Locked"
 msgstr ""
 
-#: includes/settings-page.php:561
+#: includes/settings-page.php:562
 msgid "Locked settings"
 msgstr ""
 
 #. translators: %d: number of settings locked by configuration.
-#: includes/settings-page.php:567
+#: includes/settings-page.php:568
 #, php-format
 msgid "Locked by wp-config.php (%d)"
 msgstr ""
 
 #. translators: %d: number of settings locked by network policy.
-#: includes/settings-page.php:569
+#: includes/settings-page.php:570
 #, php-format
 msgid "Locked by network policy (%d)"
 msgstr ""
 
-#: includes/settings-page.php:611
+#: includes/settings-page.php:612
 msgid "Balanced defaults for steady sites."
 msgstr ""
 
-#: includes/settings-page.php:623
+#: includes/settings-page.php:624
 msgid "Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn't listed here, and anything you leave unchecked keeps WordPress exactly as it ships."
 msgstr ""
 

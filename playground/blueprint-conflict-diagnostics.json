@@ -3,7 +3,7 @@
   "meta": {
     "title": "Keel — conflict diagnostics demo",
     "author": "dknauss",
-    "description": "Keel's latest stable release beside Disable Comments, Classic Editor and Disable XML-RPC from wordpress.org, plus one stand-in host must-use plugin. Opens on the Dashboard notice; Site Health names each overlap and the setting that is not taking effect."
+    "description": "Keel's rolling main build beside Disable Comments, Classic Editor and Disable XML-RPC from wordpress.org, plus one stand-in host must-use plugin. Opens on the Dashboard notice; Site Health names each overlap and the setting that is not taking effect."
   },
   "landingPage": "/wp-admin/",
   "preferredVersions": {
@@ -16,14 +16,14 @@
       "step": "installPlugin",
       "pluginData": {
         "resource": "url",
-        "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/latest/download/keel.zip"
+        "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"
       },
       "options": {
         "activate": true,
         "targetFolderName": "keel-defaults"
       },
       "progress": {
-        "caption": "Installing Keel"
+        "caption": "Installing Keel (main build)"
       }
     },
     {

@@ -15,13 +15,13 @@ blueprint = {
     "meta": {
         "title": "Keel — conflict diagnostics demo",
         "author": "dknauss",
-        "description": "Keel's latest stable release beside Disable Comments, Classic Editor and Disable XML-RPC from wordpress.org, plus one stand-in host must-use plugin. Opens on the Dashboard notice; Site Health names each overlap and the setting that is not taking effect.",
+        "description": "Keel's rolling main build beside Disable Comments, Classic Editor and Disable XML-RPC from wordpress.org, plus one stand-in host must-use plugin. Opens on the Dashboard notice; Site Health names each overlap and the setting that is not taking effect.",
     },
     "landingPage": "/wp-admin/",
     "preferredVersions": {"php": "8.3", "wp": "latest"},
     "login": True,
     "steps": [
-        {"step": "installPlugin", "pluginData": {"resource": "url", "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/latest/download/keel.zip"}, "options": {"activate": True, "targetFolderName": "keel-defaults"}, "progress": {"caption": "Installing Keel"}},
+        {"step": "installPlugin", "pluginData": {"resource": "url", "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"}, "options": {"activate": True, "targetFolderName": "keel-defaults"}, "progress": {"caption": "Installing Keel (main build)"}},
         wporg("disable-comments", "Installing Disable Comments"),
         wporg("classic-editor", "Installing Classic Editor"),
         wporg("disable-xml-rpc", "Installing Disable XML-RPC"),

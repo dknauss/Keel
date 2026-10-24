@@ -553,14 +553,17 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: includes/conflict-notices.php:187
-msgid "They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel's are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict."
+msgid "These plugins add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Although sharing a hook is not definitive evidence of a conflict, you should check that their settings and Keel's are set up to achieve complementary outcomes."
+msgstr ""
+
+msgid "Your theme adds filters on the same WordPress hooks as some Keel settings, where whichever runs last can override the other. Although sharing a hook is not definitive evidence of a conflict, you should check that your theme's settings and Keel's are set up to achieve complementary outcomes."
 msgstr ""
 
 #. translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag.
 #: includes/conflict-notices.php:194
 #, php-format
-msgid "%1$s of %2$sKeel%3$s's settings is also affected by code that cannot be traced to any plugin."
-msgid_plural "%1$s of %2$sKeel%3$s's settings are also affected by code that cannot be traced to any plugin."
+msgid "%1$s of %2$sKeel%3$s's settings is also being affected by code that cannot be traced to any plugin."
+msgid_plural "%1$s of %2$sKeel%3$s's settings are also being affected by code that cannot be traced to any plugin."
 msgstr[0] ""
 msgstr[1] ""
 

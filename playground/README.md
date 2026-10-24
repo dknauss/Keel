@@ -96,7 +96,9 @@ Playground link in the README is broken regardless of how the blueprint reads.
 ## `blueprint-conflict-diagnostics.json`
 
 [Open the conflict diagnostics demo](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-conflict-diagnostics.json).
-It installs the latest stable Keel and three popular plugins from wordpress.org,
+It installs Keel's rolling `main` build (the same zip as `blueprint-hosted.json`,
+so the update-policy settings, update diagnostics and posture export are all
+there) and three popular plugins from wordpress.org,
 each configured the way its own settings screen would save it, so every kind of
 finding Keel's conflict check makes is on screen at once. It lands on the
 Dashboard, where Keel's notice summarises them and links to **Tools → Site
@@ -121,7 +123,8 @@ divergence for an hour, so after that the amber line fades until something asks
 again: request `/xmlrpc.php` in the Playground tab to bring it back. The record
 is also keyed to the active plugins, which is why that step runs last.
 
-The Keel install pins nothing beyond "latest stable". The three wordpress.org
+The Keel install follows `main`, so the demo changes as `main` does; it is not
+a picture of the release on wordpress.org. Use `blueprint-stable.json` for that. The three wordpress.org
 plugins install their current versions, so a plugin update that changes how it
 hooks can change this demo. The versions above are the ones checked.
 

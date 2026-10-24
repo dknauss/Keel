@@ -256,8 +256,8 @@ keel_assert(
 	"The conflict-diagnostics blueprint installs Keel into \"{$built_folder}\" first."
 );
 keel_assert(
-	isset( $keel_install['pluginData']['url'] ) && false !== strpos( $keel_install['pluginData']['url'], 'releases/latest/download/' . $built_zip ),
-	'The conflict-diagnostics blueprint installs the newest stable release.'
+	isset( $keel_install['pluginData']['url'] ) && false !== strpos( $keel_install['pluginData']['url'], 'releases/download/latest/' . $built_zip ),
+	'The conflict-diagnostics blueprint installs the rolling main build, so it shows what main does.'
 );
 
 /*
