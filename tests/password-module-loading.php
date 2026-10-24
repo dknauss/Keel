@@ -46,6 +46,15 @@ $callbacks = array(
 	'keel_hibp_budget_evidence',
 	'keel_hibp_lookup',
 	'keel_password_is_pwned',
+	'keel_hibp_password_verdict',
+	'keel_defaults_password_rescreen_interval',
+	'keel_defaults_capture_login_password',
+	'keel_defaults_screen_login_password',
+	'keel_defaults_screen_user_password',
+	'keel_defaults_password_set_forgets_screening',
+	'keel_defaults_profile_update_forgets_screening',
+	'keel_defaults_render_breached_password_notice',
+	'keel_defaults_site_health_breached_passwords',
 );
 foreach ( $callbacks as $callback ) {
 	if ( ! is_callable( $callback ) ) {
@@ -58,4 +67,4 @@ if ( ! is_callable( 'keel_defaults_require_rest_auth' ) || ! is_callable( 'keel_
 	exit( 1 );
 }
 
-fwrite( STDOUT, "password module loading: OK (19 password callbacks, no runtime work on load)\n" );
+fwrite( STDOUT, 'password module loading: OK (' . count( $callbacks ) . " password callbacks, no runtime work on load)\n" );

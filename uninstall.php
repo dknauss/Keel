@@ -39,6 +39,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_conflicts_dismissed` — user meta, the fingerprint of the competing
  *   plugins a person last dismissed the notice for. Network-wide for the same
  *   reason as the above: it belongs to the user, not the site.
+ * - `keel_password_screened` and `keel_password_breached` — user meta from the
+ *   login breach re-check: when a password last got a definite verdict, and when
+ *   it was found in a breach. Timestamps only. Network-wide, like the above.
  * - `keel_shortcode_residue` — bounded, recent post IDs and missing tag names.
  * - `keel_policy_divergence` — which governed settings were last seen not
  *   producing the value they ask for. An observation about this site, and
@@ -280,12 +283,16 @@ if ( is_multisite() ) {
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
+	delete_metadata( 'user', 0, 'keel_password_screened', '', true );
+	delete_metadata( 'user', 0, 'keel_password_breached', '', true );
 } else {
 	keel_defaults_uninstall_hibp_budget( 0 );
 	keel_defaults_uninstall_site();
 	delete_metadata( 'user', 0, 'keel_last_login', '', true );
 	delete_metadata( 'user', 0, 'keel_conflicts_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
+	delete_metadata( 'user', 0, 'keel_password_screened', '', true );
+	delete_metadata( 'user', 0, 'keel_password_breached', '', true );
 }
 
 /*

@@ -237,6 +237,14 @@ function keel_enforce_strong_password( $errors, $update, $user ) {
 > to add if you want one. Server-side validation is the enforcement layer; pair it with the core
 > JS meter for UX, but never trust the client alone.
 
+> **Login re-check:** screening at set time never sees a password chosen before Keel was active,
+> or one set while HIBP was unreachable. So a successful interactive login re-checks the submitted
+> password at most once every 30 days per account (`keel_password_rescreen_interval`, floor one
+> hour). It is warn-only: a breached result sets `keel_password_breached` user meta, the owner sees
+> a non-dismissible admin notice, and admins who can `list_users` get a count and linked list in
+> Site Health plus a **Breached passwords** view on Users. An unknown verdict records nothing, roles
+> exempt from the policy are skipped at login, and a password change clears both meta keys.
+
 ### Disable AI Connectors
 - **Key:** `disable_ai_connectors`
 - **Default:** `yes`

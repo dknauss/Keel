@@ -23,6 +23,7 @@ parameters:
         - includes/backport-actions.php
         - includes/password-hibp.php
         - includes/password-policy.php
+        - includes/password-login-screening.php
     scanDirectories:
         - includes
     scanFiles:

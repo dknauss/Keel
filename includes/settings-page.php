@@ -144,6 +144,14 @@ function keel_defaults_add_help_tab() {
 					),
 					array( 'a' => array( 'href' => array() ) )
 				) . '</p>' .
+				'<p>' . wp_kses(
+					sprintf(
+						/* translators: %s: URL of the Site Health status screen. */
+						__( 'Checking a password only when it is set misses every password chosen before Keel was active. So a login with a username or email and password also re-checks it, at most once every 30 days per account, for the roles the other rules cover. A breached password still works: its owner sees a warning until they change it, and administrators get a list of affected accounts under <a href="%s">Site Health</a> and on the Users screen.', 'keel-defaults' ),
+						esc_url( admin_url( 'site-health.php' ) )
+					),
+					array( 'a' => array( 'href' => array() ) )
+				) . '</p>' .
 				( is_multisite()
 					? '<p>' . wp_kses(
 						__( 'On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there.', 'keel-defaults' ),

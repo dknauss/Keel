@@ -58,14 +58,22 @@ service-level agreement, and they are the same ones the sibling plugins state.
 Two behaviours are worth stating up front, because both look alarming from the
 outside and neither is what it first appears.
 
-**An outbound network request when a password is set.** With
+**An outbound network request when a password is set, or at login.** With
 `require_strong_passwords` on, Keel checks new passwords against the Have I Been
-Pwned range API. It sends the **first five characters of a SHA-1 hash** and
+Pwned range API, and re-checks an existing password when its owner logs in, at
+most once every 30 days per account (`keel_password_rescreen_interval`). It sends the **first five characters of a SHA-1 hash** and
 nothing else — not the password, not the full hash. The response is a list of
 suffixes compared locally. The request asks for padding so its size cannot reveal
 how many matches it held, and the whole check **fails open**: an unreachable,
 truncated, or malformed response allows the password rather than locking people
 out of password changes during an outage.
+
+The login re-check never blocks a login. A breached result sets a timestamp in
+the `keel_password_breached` user meta, shows a warning to that account only, and
+is listed for accounts that can `list_users` in Site Health and on the Users
+screen. An unknown result records nothing. The password is held in memory only
+until `wp_login` fires, and only for the account core just verified;
+application passwords, XML-RPC and REST logins are never re-checked.
 
 It can be switched off entirely with the `KEEL_DISABLE_HIBP` constant or the
 `keel_disable_hibp` filter.

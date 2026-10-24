@@ -175,10 +175,33 @@ function keel_hibp_lookup( $password ) {
  * to whatever keel_password_is_pwned returns, so a site can substitute a local
  * breach list without the API call.
  *
+ * The keel_password_is_pwned filter this function is named for is applied in
+ * keel_hibp_password_verdict(), which both entry points share.
+ *
  * @param string $password Plain-text password to screen.
  * @return bool True when the password appears in a known breach.
  */
 function keel_password_is_pwned( $password ) {
+	return true === keel_hibp_password_verdict( $password );
+}
+
+/**
+ * Screen a password and keep "unknown" apart from "clean".
+ *
+ * The yes-or-no keel_password_is_pwned() folds unknown into false, which is
+ * right where a password is being set: refusing it during somebody else's
+ * outage would lock people out. The login re-check needs the third answer, because recording an
+ * unknown result as "screened" would skip that account for the whole re-screen
+ * interval on the strength of a lookup that never happened.
+ *
+ * The keel_password_is_pwned filter still gets the last word, so a local breach
+ * list can still flag a password during an outage. It cannot turn an unknown
+ * into a clean result.
+ *
+ * @param string $password Plain-text password to screen.
+ * @return bool|null Breached, clean, or unknown.
+ */
+function keel_hibp_password_verdict( $password ) {
 	$pwned = false;
 
 	/**
@@ -203,9 +226,6 @@ function keel_password_is_pwned( $password ) {
 		 * Site Health reports it. The rest of the policy — length, the blocklist,
 		 * the personal-context rules — is untouched by this and still applies.
 		 */
-		if ( null === $pwned ) {
-			$pwned = false;
-		}
 	}
 
 	/**
@@ -214,5 +234,11 @@ function keel_password_is_pwned( $password ) {
 	 * @param bool   $pwned    Whether the password appeared in a known breach.
 	 * @param string $password The password being screened.
 	 */
-	return (bool) apply_filters( 'keel_password_is_pwned', $pwned, $password );
+	$filtered = (bool) apply_filters( 'keel_password_is_pwned', true === $pwned, $password );
+
+	if ( $filtered ) {
+		return true;
+	}
+
+	return null === $pwned ? null : false;
 }
