@@ -32,6 +32,10 @@ $GLOBALS['keel_did']          = array();
 $GLOBALS['keel_object_cache'] = array();
 $GLOBALS['keel_transients']   = array();
 $GLOBALS['keel_http_calls']   = 0;
+$GLOBALS['keel_blog_id']      = 1;
+$GLOBALS['keel_user_sites']   = array();
+
+$GLOBALS['keel_user_query_args'] = array();
 $GLOBALS['keel_http_reply']   = array(
 	'code' => 200,
 	'body' => '',
@@ -139,6 +143,17 @@ function wp_roles() {
 function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ); }
 function wp_unslash( $v ) { return $v; }
 function is_admin() { return true; }
+function get_current_blog_id() { return $GLOBALS['keel_blog_id']; }
+
+/**
+ * Sites an account belongs to; every account is on site 1 unless set.
+ *
+ * @param int $user_id User ID.
+ * @return int[]
+ */
+function keel_user_sites( $user_id ) {
+	return isset( $GLOBALS['keel_user_sites'][ $user_id ] ) ? $GLOBALS['keel_user_sites'][ $user_id ] : array( 1 );
+}
 
 class WP_User {
 	public $ID;
@@ -156,11 +171,21 @@ class WP_User {
 	}
 }
 
-/** Minimal user query: filters the stubbed users by the meta key it is given. */
+/**
+ * Minimal user query: filters the stubbed users by the meta key it is given.
+ *
+ * With a `blog_id` it keeps only that site's members, as core does. Without one
+ * it searches the whole network, so a report that forgets to scope itself
+ * fails the multisite assertions rather than passing on core's default.
+ */
 class WP_User_Query {
 	private $found = array();
 	public function __construct( $args ) {
+		$GLOBALS['keel_user_query_args'][] = $args;
 		foreach ( $GLOBALS['keel_users'] as $user ) {
+			if ( ! empty( $args['blog_id'] ) && ! in_array( (int) $args['blog_id'], keel_user_sites( $user->ID ), true ) ) {
+				continue;
+			}
 			if ( '' !== get_user_meta( $user->ID, $args['meta_key'], true ) ) {
 				$this->found[] = $user;
 			}
@@ -440,6 +465,51 @@ keel_assert( isset( keel_defaults_breached_users_columns( array() )['keel_passwo
 $GLOBALS['keel_caps']['list_users'] = false;
 keel_assert( keel_defaults_breached_users_view( $views ) === $views && array() === keel_defaults_breached_users_columns( array() ), 'Without list_users the view and column are not offered.' );
 unset( $_GET['keel_password'] );
+$GLOBALS['keel_caps']['list_users'] = true;
+
+// --- multisite: a site's report covers only that site's members ---
+// Ed (2) is flagged and belongs to site 1 only. Ana (7) belongs to site 2 only
+// and is flagged and screened there. Kit (8) belongs to both.
+$ana = new WP_User( 7, array( 'editor' ), 'ana', 'Ana Elsewhere' );
+$kit = new WP_User( 8, array( 'author' ), 'kit', 'Kit Both' );
+
+$GLOBALS['keel_users'][7]      = $ana;
+$GLOBALS['keel_users'][8]      = $kit;
+$GLOBALS['keel_user_sites']    = array(
+	7 => array( 2 ),
+	8 => array( 1, 2 ),
+);
+$GLOBALS['keel_user_query_args'] = array();
+keel_defaults_forget_password_screening( 2 );
+update_user_meta( 2, 'keel_password_breached', time() );
+update_user_meta( 2, 'keel_password_screened', time() );
+update_user_meta( 7, 'keel_password_breached', time() );
+update_user_meta( 7, 'keel_password_screened', time() );
+
+$GLOBALS['keel_blog_id'] = 1;
+$found                   = keel_defaults_breached_users( 10 );
+keel_assert( 1 === $found['total'] && 2 === $found['users'][0]->ID, 'Site 1 lists only its own flagged member, not another site\'s.' );
+keel_assert( 1 === keel_defaults_screened_user_count(), 'Site 1 counts only its own screened members.' );
+$r = keel_defaults_site_health_breached_passwords();
+keel_assert( false === strpos( $r['description'], 'Ana Elsewhere' ) && false === strpos( $r['description'], 'ana' ) && false !== strpos( $r['label'], '1 account has a password' ), 'Site 1\'s Site Health neither names nor counts site 2\'s account.' );
+keel_assert( false !== strpos( keel_defaults_breached_users_view( $views )['keel_breached'], '(1)' ), 'Site 1\'s Users view counts only its own members.' );
+
+$GLOBALS['keel_blog_id'] = 2;
+$found                   = keel_defaults_breached_users( 10 );
+keel_assert( 1 === $found['total'] && 7 === $found['users'][0]->ID, 'Site 2 lists its own flagged member and not site 1\'s.' );
+$r = keel_defaults_site_health_breached_passwords();
+keel_assert( false === strpos( $r['description'], '&lt;script&gt;' ) && false !== strpos( $r['description'], 'Ana Elsewhere' ), 'Site 2\'s Site Health shows its member and not site 1\'s.' );
+
+// The flag is network-wide user meta, so a member of both sites shows on both.
+update_user_meta( 8, 'keel_password_breached', time() );
+keel_assert( 2 === keel_defaults_breached_users( 10 )['total'], 'An account on two sites appears in site 2\'s report.' );
+$GLOBALS['keel_blog_id'] = 1;
+keel_assert( 2 === keel_defaults_breached_users( 10 )['total'], 'And in site 1\'s.' );
+
+keel_assert( array() !== $GLOBALS['keel_user_query_args'], 'The multisite checks ran report queries.' );
+foreach ( $GLOBALS['keel_user_query_args'] as $args ) {
+	keel_assert( ! empty( $args['blog_id'] ), 'Every report query names its site explicitly.' );
+}
 
 if ( $fail > 0 ) {
 	fwrite( STDERR, "login breach screening: {$fail} failed\n" );

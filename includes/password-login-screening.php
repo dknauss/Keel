@@ -310,12 +310,20 @@ function keel_defaults_render_breached_password_notice() {
 /**
  * Accounts on this site whose passwords are flagged, most recently flagged first.
  *
+ * Scoped to members of the current site. On multisite the flag lives in
+ * network-wide user meta, so an account that belongs to several sites shows on
+ * each of them (it is the same password), but a site's report never counts or
+ * names accounts that are not its members. Core's WP_User_Query already
+ * defaults `blog_id` to the current site; it is passed explicitly so the
+ * scoping is visible here and cannot be lost to a change of that default.
+ *
  * @param int $limit Maximum number of accounts to return.
  * @return array{total:int,users:WP_User[]}
  */
 function keel_defaults_breached_users( $limit = 10 ) {
 	$query = new WP_User_Query(
 		array(
+			'blog_id'     => get_current_blog_id(),
 			'meta_key'    => 'keel_password_breached', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Bounded admin report; the key exists only on flagged accounts.
 			'orderby'     => 'meta_value_num',
 			'order'       => 'DESC',
@@ -333,11 +341,14 @@ function keel_defaults_breached_users( $limit = 10 ) {
 /**
  * How many accounts on this site have had a login re-check complete.
  *
+ * Scoped to members of the current site, like keel_defaults_breached_users().
+ *
  * @return int
  */
 function keel_defaults_screened_user_count() {
 	$query = new WP_User_Query(
 		array(
+			'blog_id'     => get_current_blog_id(),
 			'meta_key'    => 'keel_password_screened', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One bounded count for Site Health.
 			'number'      => 1,
 			'fields'      => 'ID',
