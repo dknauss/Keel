@@ -1104,10 +1104,6 @@ msgstr ""
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:842
-msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
-msgstr ""
-
 #: includes/site-health.php:846
 msgid "More than one plugin may influence the same settings"
 msgstr ""
@@ -1874,10 +1870,6 @@ msgstr ""
 #: includes/site-health.php:824
 #, php-format
 msgid "Your theme may change the same settings as Keel: %s"
-msgstr ""
-
-#: includes/site-health.php:826
-msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
 msgstr ""
 
 #: includes/site-health.php:830
