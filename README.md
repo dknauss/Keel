@@ -6,7 +6,7 @@
 
 **A clear, maintainable baseline for secure WordPress sites.** Keel provides 44 individually configurable settings for security, updates, privacy, content, email, media, and wp-admin. Some depend on other settings, and configuration or network policy can manage them centrally. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
 
-**Current version: `0.8.0`.** `main` carries the unreleased work listed under *Unreleased* in the [readme.txt changelog](readme.txt).
+**Current version: `0.9.0` (release candidate; not yet published).** The [readme.txt changelog](readme.txt) lists what it adds to the last published release.
 
 An administrator can download a sanitized JSON posture report from Site Defaults for support. It contains validated policy choices and cached summaries, with unknown evidence marked explicitly. It omits site/user identifiers, raw option records, callback paths and full plugin/theme inventories. On multisite, export requires network-management authority.
 
