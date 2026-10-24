@@ -61,8 +61,16 @@ at priority 99 (`fixtures/lab-comment-reopener*`, copied into
 what do the comment plugin's own diagnostics say? Readers exist for Keel and
 Disable Comments. It deactivates every plugin before and after, so lab only.
 
-All three take `PROBE_URL` and `PROBE_PATH` like the others, and the first two can
-be run through `probe-plugin.sh` with `PROBE_SCRIPT=`. The findings they produced
+**`probe-comment-paths.sh`** — every way core creates a comment (the form, an
+authenticated REST create, a REST Note, XML-RPC `wp.newComment`, a real pingback),
+and whether each one landed. Pair it with `probe-configs-comment-paths/keel.php`,
+which leaves REST and XML-RPC open so each path reaches the comment guard rather
+than a different setting, and with a reopener fixture to test the guard alone.
+Needs `PROBE_XMLRPC_USER`/`PROBE_XMLRPC_PASS`; on multisite set `PROBE_WP_URL` to
+the site under test.
+
+All four take `PROBE_URL` and `PROBE_PATH` like the others, and all but
+`probe-conflict.sh` can be run through `probe-plugin.sh` with `PROBE_SCRIPT=`. The findings they produced
 are the 2026-10-24 section of
 [`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md).
 
