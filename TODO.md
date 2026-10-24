@@ -47,8 +47,10 @@ the tagged sources. See the
   unreleased. See the [review record](docs/review/php-boundaries-2026-10-24.md).
   The subsequent local HTTP authorization pass and its scope are recorded in
   [the lab evidence](docs/review/http-authorization-2026-10-24.md).
-  #326 verifies 135 HTTP cases and corrects permission-denial responses to 403;
-  implemented and unreleased. Its harness remains a manual Studio lab.
+  #326 merged as `f695e24`, unreleased; it verifies 135 HTTP cases and corrects
+  permission-denial responses to 403. The lab now signs in through `wp-login.php`
+  instead of Studio auto-login and runs on every pull request in the
+  `HTTP authorization lab` workflow.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and

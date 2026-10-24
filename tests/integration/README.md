@@ -330,8 +330,22 @@ generated without a session token, which `wp_validate_auth_cookie()` rejects.
 The disposable single-site/multisite HTTP harness is
 `http-authorization.mjs`, with the explicitly enabled local MU fixture
 `fixtures/http-authorization.php` and WP-CLI setup/cleanup script
-`http-authorization-setup.php`. See
+`http-authorization-setup.php`. `http-authorization-lab.sh` wraps one pass:
+it adds the MU wrapper, runs setup, runs the harness, and always runs cleanup
+and removes the wrapper, pass or fail. The `HTTP authorization lab` workflow
+runs it on every pull request against installs built by
+`http-authorization-bootstrap.sh`. See
 [the setup, results and cleanup record](../../docs/review/http-authorization-2026-10-24.md).
-Run setup before every pass and cleanup even after failures. It creates real
-sessions, submits real admin requests, and mutates backed-up settings in local
-labs; do not point it at a production installation.
+
+```sh
+bash tests/integration/http-authorization-lab.sh \
+  /path/to/single http://127.0.0.1:8889 /path/to/multi http://127.0.0.1:8890 /path/to/new-results.json
+```
+
+The owner signs in through `wp-login.php` as a fixture account that setup
+creates and cleanup deletes, using `KEEL_HTTP_LAB_PASSWORD` (generated per run
+when unset), so no runner-specific login route is involved. Set
+`KEEL_HTTP_LAB_WP` when WP-CLI is not plain `wp`, and `NODE_PATH` when
+Playwright is installed outside the checkout. It creates real sessions, submits
+real admin requests, and mutates backed-up settings; point it only at
+disposable localhost installs, never at a production installation.
