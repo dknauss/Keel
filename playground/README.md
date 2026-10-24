@@ -93,6 +93,63 @@ curl -s -o /dev/null -w '%{http_code}\n' -L \
 `200` means the blueprint has something to install. Anything else means the
 Playground link in the README is broken regardless of how the blueprint reads.
 
+## `blueprint-conflict-diagnostics.json`
+
+[Open the conflict diagnostics demo](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-conflict-diagnostics.json).
+It installs Keel's rolling `main` build (the same zip as `blueprint-hosted.json`,
+so the update-policy settings, update diagnostics and posture export are all
+there) and three popular plugins from wordpress.org,
+each configured the way its own settings screen would save it, so every kind of
+finding Keel's conflict check makes is on screen at once. It lands on the
+Dashboard, where Keel's notice summarises them and links to **Tools → Site
+Health → More than one plugin may influence the same settings**.
+
+| What is installed | How it is set up | What Keel reports |
+| --- | --- | --- |
+| [Disable Comments](https://wordpress.org/plugins/disable-comments/) 2.9 | "Everywhere" mode | Named on `comments_open`, `pings_open` and `get_comments_number`. Both plugins close comments, so this is a shared hook, not a disagreement, and the copy says so. |
+| [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7 | "Allow users to switch editors" on; Keel's **Force Classic Editor** on | Named on `use_block_editor_for_post`. |
+| [Disable XML-RPC](https://wordpress.org/plugins/disable-xml-rpc/) 1.0.1 | Active (it has no settings); Keel's **Allow remote publishing** on | **Not taking effect** on `xmlrpc_enabled`. The plugin registers core's `__return_false`, which leaves nothing to trace it by, so Keel cannot name it, only measure that its own setting lost. This finding turns the notice from blue to amber. |
+| `host-revision-limit.php` (must-use, a stand-in) | Caps revisions at five | Listed on `wp_revisions_to_keep` for information only. Must-use code can't be switched off from the Plugins screen, so it never raises the notice. Keel's limit runs after it and wins. |
+
+The must-use file is the only invented piece. It stands in for code a managed
+host ships, and its header says so. Its readable source is
+`conflict-demo-host-revisions.php`.
+
+The divergence needs WordPress to have run the filter once. The last blueprint
+step does what traffic would: it asks `comments_open()` and `pings_open()` for
+the sample post and builds the XML-RPC server class, as a request to
+`xmlrpc.php` does. Nothing calls a policy filter directly. Keel keeps a
+divergence for an hour, so after that the amber line fades until something asks
+again: request `/xmlrpc.php` in the Playground tab to bring it back. The record
+is also keyed to the active plugins, which is why that step runs last.
+
+The Keel install follows `main`, so the demo changes as `main` does; it is not
+a picture of the release on wordpress.org. Use `blueprint-stable.json` for that. The three wordpress.org
+plugins install their current versions, so a plugin update that changes how it
+hooks can change this demo. The versions above are the ones checked.
+
+Editing: change the PHP files, then regenerate and check the blueprint.
+
+```bash
+python3 playground/build-conflict-demo.py
+python3 playground/test-conflict-demo.py
+```
+
+`test-conflict-demo.py` validates against the official Blueprint schema (set
+`BLUEPRINT_SCHEMA` to a local copy, such as the one in the
+`@wp-playground/blueprints` npm package, where playground.wordpress.net is out of
+reach) and checks the embedded PHP matches these files. With `KEEL_DEMO_WP`
+pointing at a local WordPress that already has the four plugins active, the
+must-use file in place and one post, it also runs both runPHP steps and
+`verify-conflict-demo.php`, which asserts each row of the table above, the Site
+Health status and the Dashboard notice's colour.
+
+Checked on 2026-10-24 against WordPress 6.8.3 (SQLite, PHP 8.3) with Keel
+`main` and with v0.8.0, Disable Comments 2.9.0, Classic Editor 1.7.0 and Disable
+XML-RPC 1.0.1: schema validation and every assertion passed, and both screens
+were checked in Chromium. The hosted Playground run itself is unverified from
+that environment, which cannot reach playground.wordpress.net.
+
 ## Focused Updates-screen verification (unreleased branch)
 
 [Open the synthetic Updates demo](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fdknauss%2FKeel%2Fcodex%2Fupdates-screen-verification%2Fplayground%2Fblueprint-updates-screen.json).
