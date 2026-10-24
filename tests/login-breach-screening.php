@@ -34,12 +34,12 @@ $GLOBALS['keel_transients']   = array();
 $GLOBALS['keel_http_calls']   = 0;
 $GLOBALS['keel_blog_id']      = 1;
 $GLOBALS['keel_user_sites']   = array();
-
-$GLOBALS['keel_user_query_args'] = array();
 $GLOBALS['keel_http_reply']   = array(
 	'code' => 200,
 	'body' => '',
 );
+
+$GLOBALS['keel_user_query_args'] = array();
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -473,12 +473,13 @@ $GLOBALS['keel_caps']['list_users'] = true;
 $ana = new WP_User( 7, array( 'editor' ), 'ana', 'Ana Elsewhere' );
 $kit = new WP_User( 8, array( 'author' ), 'kit', 'Kit Both' );
 
-$GLOBALS['keel_users'][7]      = $ana;
-$GLOBALS['keel_users'][8]      = $kit;
-$GLOBALS['keel_user_sites']    = array(
+$GLOBALS['keel_users'][7]   = $ana;
+$GLOBALS['keel_users'][8]   = $kit;
+$GLOBALS['keel_user_sites'] = array(
 	7 => array( 2 ),
 	8 => array( 1, 2 ),
 );
+
 $GLOBALS['keel_user_query_args'] = array();
 keel_defaults_forget_password_screening( 2 );
 update_user_meta( 2, 'keel_password_breached', time() );
