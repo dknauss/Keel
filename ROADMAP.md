@@ -1500,6 +1500,7 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       plugin ZIP. See the [verification record](docs/review/asset-lint-2026-10-23.md).
 - [ ] **Extend verification when risk warrants it** — assess broader accessibility,
       browser coverage and faithful shared test stubs.
+      Chromium focused accessibility runs in CI since 2026-10-24; Firefox/WebKit stay manual.
       These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.
 

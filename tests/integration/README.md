@@ -359,6 +359,28 @@ per run and never writes it to disk; it is a live login cookie. If those probes
 return `403`, the nonce and the cookie disagree — usually because the cookie was
 generated without a session token, which `wp_validate_auth_cookie()` rejects.
 
+## Focused accessibility lab
+
+`focused-accessibility.mjs` drives the Updates, Site Health, settings and
+Network Policy screens on a single site and a multisite network, in English and
+Arabic, with the local fixture `fixtures/focused-accessibility.php`.
+`focused-accessibility-lab.sh` wraps one pass: it adds the MU wrapper and a
+temporary owner, signs in through `wp-login.php`, runs the harness, and always
+removes both, pass or fail. The `Focused accessibility lab` workflow runs it in
+Chromium on every pull request. Install the Arabic core language in both
+installs first (`wp language core install ar`).
+
+```sh
+KEEL_A11Y_ENGINES=chromium bash tests/integration/focused-accessibility-lab.sh \
+  /path/to/single http://127.0.0.1:8889 /path/to/multi http://127.0.0.1:8890
+```
+
+`KEEL_A11Y_ENGINES` defaults to `chromium,firefox,webkit`; `KEEL_A11Y_OUTPUT`
+names a new evidence directory. Set `KEEL_HTTP_LAB_WP` when WP-CLI is not plain
+`wp`, and `NODE_PATH` to a directory holding Playwright and axe-core. Without
+`KEEL_A11Y_PASSWORD`, the harness alone falls back to Studio's auto-login route.
+See [the focused accessibility record](../../docs/review/focused-accessibility-2026-10-23.md).
+
 ## HTTP authorization lab
 
 The disposable single-site/multisite HTTP harness is

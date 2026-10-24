@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T18:33:53+00:00\n"
+"POT-Creation-Date: 2026-10-24T19:01:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1119,12 +1119,12 @@ msgid "First %s items only; counts are partial."
 msgstr ""
 
 #: includes/extension-updates.php:232
-#: includes/update-policy-notice.php:85
+#: includes/update-policy-notice.php:93
 msgid "Plugins"
 msgstr ""
 
 #: includes/extension-updates.php:232
-#: includes/update-policy-notice.php:86
+#: includes/update-policy-notice.php:94
 msgid "Themes"
 msgstr ""
 
@@ -1290,7 +1290,7 @@ msgid "<strong>Error:</strong> Password must not contain your username or email 
 msgstr ""
 
 #: includes/posture-export.php:200
-msgid "Use the posture export download button."
+msgid "Use the Download JSON button on the Keel settings screen."
 msgstr ""
 
 #: includes/posture-export.php:204
@@ -1302,7 +1302,7 @@ msgid "The posture report could not be encoded."
 msgstr ""
 
 #: includes/posture-export.php:228
-msgid "Support posture export"
+msgid "Export Settings and Diagnostics"
 msgstr ""
 
 #: includes/posture-export.php:229
@@ -1310,7 +1310,7 @@ msgid "Download validated policy choices and cached diagnostic summaries. No sit
 msgstr ""
 
 #: includes/posture-export.php:233
-msgid "Download posture JSON"
+msgid "Download JSON"
 msgstr ""
 
 #: includes/registration-audit.php:204
@@ -1401,6 +1401,7 @@ msgid "No low-privilege roles are available to exempt."
 msgstr ""
 
 #: includes/settings-page.php:25
+#: includes/update-policy-notice.php:43
 msgid "Site Defaults"
 msgstr ""
 
@@ -2247,7 +2248,7 @@ msgid "Theme Auto-Updates"
 msgstr ""
 
 #: includes/strings.php:124
-#: includes/update-policy-notice.php:99
+#: includes/update-policy-notice.php:107
 msgid "Translations"
 msgstr ""
 
@@ -2762,89 +2763,91 @@ msgstr ""
 msgid "Its update policy is set by Keel network policy."
 msgstr ""
 
-#: includes/update-policy-notice.php:41
-msgid "Its update policy is set by Keel Site Defaults."
+#. translators: %s: "Site Defaults", linked to Keel's settings screen when the user can open it.
+#: includes/update-policy-notice.php:48
+#, php-format
+msgid "Its update policy is set by Keel’s %s."
 msgstr ""
 
-#: includes/update-policy-notice.php:48
+#: includes/update-policy-notice.php:56
 msgid "The current release branch is unavailable."
 msgstr ""
 
 #. translators: %s: current WordPress major release branch, such as 7.1.
-#: includes/update-policy-notice.php:50
+#: includes/update-policy-notice.php:58
 #, php-format
 msgid "This site is on the %s release branch."
 msgstr ""
 
-#: includes/update-policy-notice.php:54
-msgid "Maintenance and security releases only. Major upgrades are not enabled."
+#: includes/update-policy-notice.php:62
+msgid "Maintenance and security releases only, not major upgrades."
 msgstr ""
 
-#: includes/update-policy-notice.php:55
+#: includes/update-policy-notice.php:63
 msgid "Automatic releases, including major-version upgrades."
 msgstr ""
 
-#: includes/update-policy-notice.php:56
+#: includes/update-policy-notice.php:64
 msgid "Automatic core updates are off."
 msgstr ""
 
-#: includes/update-policy-notice.php:57
+#: includes/update-policy-notice.php:65
 msgid "WordPress or another component controls core updates."
 msgstr ""
 
-#: includes/update-policy-notice.php:59
+#: includes/update-policy-notice.php:67
 msgid "The configured core update policy is unavailable."
 msgstr ""
 
-#: includes/update-policy-notice.php:66
+#: includes/update-policy-notice.php:74
 msgid "Core’s current filtered update settings are unavailable to this notice."
 msgstr ""
 
-#: includes/update-policy-notice.php:72
+#: includes/update-policy-notice.php:80
 msgid "Core’s current filtered settings differ from the configured policy. Other components or updater restrictions may be affecting it; review WordPress’s status below."
 msgstr ""
 
-#: includes/update-policy-notice.php:77
+#: includes/update-policy-notice.php:85
 msgid "WordPress"
 msgstr ""
 
-#: includes/update-policy-notice.php:80
-#: includes/update-policy-notice.php:99
+#: includes/update-policy-notice.php:88
+#: includes/update-policy-notice.php:107
 msgid "Automatic updates enabled."
 msgstr ""
 
-#: includes/update-policy-notice.php:81
-#: includes/update-policy-notice.php:99
+#: includes/update-policy-notice.php:89
+#: includes/update-policy-notice.php:107
 msgid "Automatic updates disabled."
 msgstr ""
 
-#: includes/update-policy-notice.php:89
+#: includes/update-policy-notice.php:97
 msgid "individual plugin settings"
 msgstr ""
 
-#: includes/update-policy-notice.php:89
+#: includes/update-policy-notice.php:97
 msgid "individual theme settings"
 msgstr ""
 
 #. translators: %s: linked text for the native per-item update settings.
-#: includes/update-policy-notice.php:93
+#: includes/update-policy-notice.php:101
 #, php-format
 msgid "Follow %s."
 msgstr ""
 
-#: includes/update-policy-notice.php:120
+#: includes/update-policy-notice.php:128
 msgid "Disabled in configuration."
 msgstr ""
 
-#: includes/update-policy-notice.php:129
+#: includes/update-policy-notice.php:137
 msgid "View update diagnostics"
 msgstr ""
 
-#: includes/update-policy-notice.php:131
+#: includes/update-policy-notice.php:139
 msgid "Keel update policy"
 msgstr ""
 
-#: includes/update-policy-notice.php:135
+#: includes/update-policy-notice.php:143
 msgid "An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery."
 msgstr ""
 

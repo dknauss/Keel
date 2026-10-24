@@ -197,7 +197,7 @@ function keel_defaults_dispatch_posture_export() {
 function keel_defaults_handle_posture_export() {
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- exact allowlist comparison; never output or passed on.
 	if ( 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
-		wp_die( esc_html__( 'Use the posture export download button.', 'keel-defaults' ), '', array( 'response' => 405 ) );
+		wp_die( esc_html__( 'Use the Download JSON button on the Keel settings screen.', 'keel-defaults' ), '', array( 'response' => 405 ) );
 		return;
 	}
 	if ( ! keel_defaults_can_export_posture() ) {
@@ -225,12 +225,12 @@ function keel_defaults_render_posture_export() {
 		return;
 	}
 	?>
-	<h2><?php esc_html_e( 'Support posture export', 'keel-defaults' ); ?></h2>
+	<h2><?php esc_html_e( 'Export Settings and Diagnostics', 'keel-defaults' ); ?></h2>
 	<p><?php esc_html_e( 'Download validated policy choices and cached diagnostic summaries. No site URL, user data, plugin inventory, raw option records, callback paths, or failure payloads are included. Unknown evidence remains unknown. Review the JSON before sharing it.', 'keel-defaults' ); ?></p>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 		<input type="hidden" name="action" value="keel_posture_export" />
 		<?php wp_nonce_field( 'keel-posture-export-' . get_current_blog_id() ); ?>
-		<?php submit_button( __( 'Download posture JSON', 'keel-defaults' ), 'secondary', 'submit', false ); ?>
+		<?php submit_button( __( 'Download JSON', 'keel-defaults' ), 'secondary', 'submit', false ); ?>
 	</form>
 	<?php
 }
