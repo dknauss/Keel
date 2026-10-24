@@ -6,7 +6,7 @@
 
 **A clear, maintainable baseline for secure WordPress sites.** Keel provides 44 individually configurable settings for security, updates, privacy, content, email, media, and wp-admin. Some depend on other settings, and configuration or network policy can manage them centrally. It is designed for people responsible for many sites, or for sites where predictable operations matter. Keel is Multisite compatible.
 
-**Current version: `0.8.0`.**
+**Current version: `0.8.0`.** `main` carries the unreleased work listed under *Unreleased* in the [readme.txt changelog](readme.txt).
 
 An administrator can download a sanitized JSON posture report from Site Defaults for support. It contains validated policy choices and cached summaries, with unknown evidence marked explicitly. It omits site/user identifiers, raw option records, callback paths and full plugin/theme inventories. On multisite, export requires network-management authority.
 
@@ -29,7 +29,7 @@ Keel's settings are intended to:
 - **Reduce accidental exposure:** anonymous user discovery, author archives, comments, pingbacks, attachment pages, raw HTML, security headers, AI connectors, and more.
 - **Make routine maintenance safer:** conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
 - **Protect non-production sites:** outgoing mail is suppressed outside production by default, preventing a staging or local copy from sending to real recipients.
-- **Make operations legible:** Site Health lists the active state of every default and flags attributable policy overlaps with other plugins.
+- **Make operations legible:** Site Health lists the active state of every default, flags attributable policy overlaps with other plugins, checks that Keel's own protections are still registered, and lists plugins that override Abilities API permissions.
 - **Run a network without flattening every site**: a Super Admin can decide selected defaults for the whole network, while each site keeps its own choices underneath. Enforced settings are visibly locked, and lifting the policy restores every saved local choice.
 
 ### See all available WordPress core updates
@@ -37,6 +37,14 @@ Keel's settings are intended to:
 Keel independently checks WordPress.org's `stable-check` status for the installed core version. If a release line has a known vulnerability and a same-line fix exists, Keel names that exact patch, explains what WordPress's Updates screen is offering, and lets an authorized administrator deliberately install only that same-line patch through WordPress's upgrader with rollback enabled.
 
 This is intentionally distinct from asking whether a newer major release exists. A secure same-line patch may be hidden as an automatic-update offer, absent from the Updates screen, or unavailable because WordPress.org has not published one. Keel reports the uncertainty or blocker rather than implying that an update is available when it is not. Details: [core update and stable-check behavior](docs/wordpress-default-settings.md#5-update-policy).
+
+### Make update policy visible
+
+The Updates screen keeps WordPress's own policy text and adds a **Keel update policy** notice above **Current version**. It names the release branch, explains the configured core policy and where it comes from (a constant, network policy or the site setting), and links to the control. It says plainly that a policy is not a delivery guarantee: cron, hosting and other plugins can still decide what installs and when.
+
+Plugin and theme auto-updates have separate Enabled, Disabled and Leave unchanged controls. Both default to Leave unchanged, so WordPress's per-item choices stand until you choose otherwise, and an explicit choice never rewrites them. There is no minor-only channel for plugins or themes, because their version numbers carry no enforced meaning.
+
+For troubleshooting, **Site Health → Status → Update diagnostics** shows the core-update delivery evidence (selected release, branch-tip status, check-attempt age, scheduled checks and retained failure codes) and each type's auto-update decisions in plain tables. **Site Health → Info** lists the data categories WordPress's normal update checks send to WordPress.org, without showing this site's values. Details: [update policy reference](docs/wordpress-default-settings.md#5-update-policy) and the [notice verification record](docs/review/update-policy-notice-2026-10-22.md).
 
 ### Find autoload and cron pressure
 
@@ -82,11 +90,12 @@ literal examples; see [scope and limits](docs/wordpress-default-settings.md#brok
 - **External services:** optional password breach screening uses HIBP's k-anonymous range API; the core security-status check uses WordPress.org's stable-check API. See the [WordPress.org listing](https://wordpress.org/plugins/keel-defaults/) for full disclosures.
 - **Configuration:** prefer the settings screen. Deployment-level constants and documented filters are available when code ownership is appropriate; see [the reference](docs/wordpress-default-settings.md).
 - **Multisite:** a Super Admin uses **Network Admin → Settings → Network Policy** to decide individual settings for every site. Policy is read-time and visibly locked on sites; it never rewrites stored site settings, so removing it restores each site's previous choice.
-- **Compatibility:** Keel identifies attributable shared policy hooks without executing third-party callbacks. Treat a reported overlap as a prompt to compare configuration, not as proof that another plugin must be removed.
+- **Compatibility:** Keel identifies attributable shared policy hooks without executing third-party callbacks. Treat a reported overlap as a prompt to compare configuration, not as proof that another plugin must be removed. The [conflict diagnostics demo](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-conflict-diagnostics.json) runs Keel beside Disable Comments, Classic Editor and Disable XML-RPC so you can see the Dashboard notice and the Site Health report; how overlaps are classified is in [the reference](docs/wordpress-default-settings.md#when-another-plugin-touches-the-same-policy).
+- **Registration audit:** Site Health checks that Keel's comment-feed, author-feed, author-archive, attachment-page and session-length protections are still registered at a priority where they work. It reports missing or outranked registrations without running other code or repairing anything; see [the audit record](docs/review/runtime-registration-audit-2026-10-22.md).
 
 ### Development and verification
 
-The test suite is standalone PHP scripts in [`tests/`](tests/), run with `php tests/<name>.php`. On every push and pull request, CI runs syntax, coding-standards, and PHP-compatibility checks, the scoped PHPStan pilot and its contract examples, plus the unit tests on each PHP version from 7.4 through 8.5; pushes to `main` also build the plugin zip for the rolling Playground demo. Dependency-advisory checks and CodeQL analysis of browser JavaScript run on pull requests, `main` and a weekly schedule. A separate scheduled matrix exercises live WordPress installer and backport paths. The release package is built with `bash bin/build-zip.sh build`.
+The test suite is standalone PHP scripts in [`tests/`](tests/), run with `php tests/<name>.php`. On every push and pull request, CI runs syntax, coding-standards, and PHP-compatibility checks, WordPress ESLint and Stylelint rules for browser assets, the scoped PHPStan pilot and its contract examples, plus the unit tests on each PHP version from 7.4 through 8.5; pushes to `main` also build the plugin zip for the rolling Playground demo. Dependency-advisory checks and CodeQL analysis of browser JavaScript run on pull requests, `main` and a weekly schedule. The HTTP authorization lab builds disposable single-site and multisite installs on every pull request and checks admin-post, admin-ajax and settings requests by role through real WordPress cookies and nonces ([evidence](docs/review/http-authorization-2026-10-24.md)). A separate scheduled matrix exercises live WordPress installer and backport paths. The release package is built with `bash bin/build-zip.sh build`.
 
 Useful references:
 
@@ -95,6 +104,7 @@ Useful references:
 - [Environment detection](docs/environment-detection.md)
 - [AI integrations](docs/ai-integrations.md)
 - [Competitive behavioral probes](docs/competitive-teardown-matrix.md)
+- [Review and verification records](docs/review/)
 - [Security policy](SECURITY.md)
 - [Release roadmap](ROADMAP.md)
 

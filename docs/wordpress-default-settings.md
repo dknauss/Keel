@@ -1149,8 +1149,8 @@ setting. Subsite controls show that effective policy and are locked. Configurati
 constants disabling background updates lock the controls and take precedence; core
 filesystem, compatibility and scheduling gates still apply.
 
-The Updates screen reports policy decisions for up to 200 installed items of each
-type using cached metadata. Missing metadata stays unknown. It counts enabled and
+Site Health → Status → Update diagnostics reports policy decisions for up to 200
+installed items of each type using cached metadata. Missing metadata stays unknown. It counts enabled and
 filter-changed decisions and lists up to ten changed item IDs, without attributing
 a filter to a component or promising installation. Matching the baseline does not
 prove no filter enforces it. Reports require update and network-management permissions.
