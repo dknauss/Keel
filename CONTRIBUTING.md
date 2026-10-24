@@ -28,7 +28,14 @@ composer lint:compat
 composer analyse
 composer test:types
 npm run lint
+composer audit --no-interaction
+npm audit --omit=dev --audit-level=high
 ```
+
+The advisory commands read the locked dependency graph; CI runs the same checks
+on pull requests, `main`, and a weekly schedule. CodeQL separately analyzes
+browser JavaScript in GitHub Actions; PHP remains covered by the project's
+compatibility, coding-standard and PHPStan gates.
 
 `composer test` runs every top-level PHP file in `tests/` — the glob is deliberate, because an
 earlier hand-maintained list left one spec file that never ran from the day it
