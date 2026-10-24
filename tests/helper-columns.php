@@ -31,10 +31,8 @@ function get_user_option( $key, $uid ) {
 	$v = get_user_meta( $uid, $key, true );
 	return '' === $v ? false : $v;
 }
-class WP_User {
-	public $ID;
-	public function __construct( $id ) { $this->ID = $id; }
-}
+require_once __DIR__ . '/stubs/wp-user.php';
+
 define( 'ABSPATH', __DIR__ . '/' );
 
 require dirname( __DIR__ ) . '/keel.php';
