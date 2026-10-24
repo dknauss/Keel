@@ -37,7 +37,13 @@ function keel_defaults_site_health_tests( $tests ) {
 		'label' => __( 'Password breach screening', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_breach_screening',
 	);
-	$tests['direct']['keel_defaults_environment']      = array(
+	if ( keel_defaults_enabled( 'require_strong_passwords' ) ) {
+		$tests['direct']['keel_defaults_breached_passwords'] = array(
+			'label' => __( 'Breached passwords at login', 'keel-defaults' ),
+			'test'  => 'keel_defaults_site_health_breached_passwords',
+		);
+	}
+	$tests['direct']['keel_defaults_environment'] = array(
 		'label' => __( 'Environment type', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_environment',
 	);

@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 // Preserve the security entry point for existing consumers; declarations only.
 require_once __DIR__ . '/password-hibp.php';
 require_once __DIR__ . '/password-policy.php';
+require_once __DIR__ . '/password-login-screening.php';
 
 /**
  * Remove `unfiltered_html` from non-Administrators when the hardening default is on.

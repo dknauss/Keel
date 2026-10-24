@@ -226,7 +226,27 @@ function keel_defaults_bootstrap() {
 		add_action( 'validate_password_reset', 'keel_defaults_validate_reset_password', 10, 2 );
 		keel_defaults_add_policy_filter( 'rest_endpoints', 'keel_defaults_guard_rest_password_arg' );
 		add_filter( 'rest_pre_insert_user', 'keel_defaults_validate_rest_password', 10, 2 );
+
+		// Re-check existing passwords at login (warn-only); see password-login-screening.php.
+		add_filter( 'authenticate', 'keel_defaults_capture_login_password', 999, 3 );
+		add_action( 'wp_login', 'keel_defaults_screen_login_password', 5, 2 );
+		add_action( 'admin_notices', 'keel_defaults_render_breached_password_notice' );
+		add_action( 'user_admin_notices', 'keel_defaults_render_breached_password_notice' );
+		add_action( 'network_admin_notices', 'keel_defaults_render_breached_password_notice' );
+		add_filter( 'views_users', 'keel_defaults_breached_users_view' );
+		add_action( 'pre_get_users', 'keel_defaults_filter_breached_users' );
+		add_filter( 'manage_users_columns', 'keel_defaults_breached_users_columns' );
+		add_filter( 'manage_users_custom_column', 'keel_defaults_render_breached_users_column', 10, 3 );
 	}
+
+	/*
+	 * A changed password forgets the old one's breach flag even while Password
+	 * Strength is off. Otherwise switching the setting off, changing a password
+	 * and switching it back on would revive a warning about a password nobody
+	 * uses any more.
+	 */
+	add_action( 'wp_set_password', 'keel_defaults_password_set_forgets_screening', 10, 2 );
+	add_action( 'profile_update', 'keel_defaults_profile_update_forgets_screening', 10, 3 );
 
 	if ( keel_defaults_enabled( 'limit_unfiltered_html_to_admins' ) ) {
 		// Very late, so it has the final say over other user_has_cap filters.
