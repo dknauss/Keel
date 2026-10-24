@@ -2848,7 +2848,7 @@ msgid "Automatic releases, including major-version upgrades."
 msgstr ""
 
 #: includes/update-policy-notice.php:56
-msgid "Automatic core updates off in Keel."
+msgid "Automatic core updates are off."
 msgstr ""
 
 #: includes/update-policy-notice.php:57

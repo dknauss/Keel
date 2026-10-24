@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T01:43:10+00:00\n"
+"POT-Creation-Date: 2026-10-24T04:31:30+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -184,7 +184,7 @@ msgstr ""
 #: includes/autoload-diagnostics.php:418
 #: includes/cron-diagnostics.php:140
 #: includes/cron-presentation.php:31
-#: includes/extension-updates.php:239
+#: includes/extension-updates.php:243
 #: includes/update-timeline.php:129
 #: includes/update-timeline.php:137
 #: includes/update-timeline.php:160
@@ -1077,110 +1077,110 @@ msgid "Non-Production Email"
 msgstr ""
 
 #. translators: %s: number of extensions with automatic updates enabled.
-#: includes/extension-updates.php:192
+#: includes/extension-updates.php:196
 #, php-format
 msgid "%s enabled"
 msgstr ""
 
 #. translators: %s: number of extensions with automatic updates disabled.
-#: includes/extension-updates.php:196
+#: includes/extension-updates.php:200
 #, php-format
 msgid "%s disabled"
 msgstr ""
 
 #. translators: %s: number of extensions without update metadata.
-#: includes/extension-updates.php:202
+#: includes/extension-updates.php:206
 #, php-format
 msgid "%s unknown"
 msgstr ""
 
 #. translators: %s: number of automatic-update decisions changed by code.
-#: includes/extension-updates.php:206
+#: includes/extension-updates.php:210
 #, php-format
 msgid "%s changed by code"
 msgstr ""
 
 #. translators: %s: number of examined items in a partial report.
-#: includes/extension-updates.php:211
+#: includes/extension-updates.php:215
 #, php-format
 msgid "First %s items only; counts are partial."
 msgstr ""
 
-#: includes/extension-updates.php:228
+#: includes/extension-updates.php:232
 #: includes/update-policy-notice.php:85
 msgid "Plugins"
 msgstr ""
 
-#: includes/extension-updates.php:228
+#: includes/extension-updates.php:232
 #: includes/update-policy-notice.php:86
 msgid "Themes"
 msgstr ""
 
-#: includes/extension-updates.php:235
+#: includes/extension-updates.php:239
 msgid "Turned on by code"
 msgstr ""
 
-#: includes/extension-updates.php:235
+#: includes/extension-updates.php:239
 msgid "Turned off by code"
 msgstr ""
 
-#: includes/extension-updates.php:238
-#: includes/extension-updates.php:239
+#: includes/extension-updates.php:242
+#: includes/extension-updates.php:243
 msgid "Automatic plugin and theme updates"
 msgstr ""
 
-#: includes/extension-updates.php:239
+#: includes/extension-updates.php:243
 msgid "Type"
 msgstr ""
 
-#: includes/extension-updates.php:239
+#: includes/extension-updates.php:243
 msgid "Auto-updates on"
 msgstr ""
 
-#: includes/extension-updates.php:239
+#: includes/extension-updates.php:243
 #: includes/site-health.php:248
 msgid "Off"
 msgstr ""
 
-#: includes/extension-updates.php:239
-#: includes/extension-updates.php:241
-#: includes/extension-updates.php:242
+#: includes/extension-updates.php:243
+#: includes/extension-updates.php:245
+#: includes/extension-updates.php:246
 msgid "Changed by code"
 msgstr ""
 
-#: includes/extension-updates.php:242
+#: includes/extension-updates.php:246
 msgid "Item"
 msgstr ""
 
-#: includes/extension-updates.php:242
+#: includes/extension-updates.php:246
 msgid "Result"
 msgstr ""
 
-#: includes/extension-updates.php:244
+#: includes/extension-updates.php:248
 msgid "Unknown:"
 msgstr ""
 
-#: includes/extension-updates.php:244
+#: includes/extension-updates.php:248
 msgid "WordPress has no update data for one or more installed plugins or themes yet."
 msgstr ""
 
-#: includes/extension-updates.php:245
+#: includes/extension-updates.php:249
 msgid "Changed by code:"
 msgstr ""
 
-#: includes/extension-updates.php:245
+#: includes/extension-updates.php:249
 msgid "a plugin, theme or Keel setting is overriding WordPress’s baseline auto-update decision; up to ten changed decisions per type are listed."
 msgstr ""
 
-#: includes/extension-updates.php:246
+#: includes/extension-updates.php:250
 msgid "Enabling auto-updates doesn’t guarantee they will be installed. File permissions, version control, or a disabled updater can prevent auto-updates from succeeding."
 msgstr ""
 
-#: includes/extension-updates.php:248
+#: includes/extension-updates.php:252
 msgid "Partial coverage: only the first 200 items of each type are counted."
 msgstr ""
 
-#: includes/extension-updates.php:252
+#: includes/extension-updates.php:256
 msgid "Plugin/theme files and opt-ins are network-wide. Network policy wins; otherwise the main site’s Keel setting decides, including on subsite requests."
 msgstr ""
 
@@ -2763,7 +2763,7 @@ msgid "Automatic releases, including major-version upgrades."
 msgstr ""
 
 #: includes/update-policy-notice.php:56
-msgid "Automatic core updates off in Keel."
+msgid "Automatic core updates are off."
 msgstr ""
 
 #: includes/update-policy-notice.php:57

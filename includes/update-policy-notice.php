@@ -53,7 +53,7 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 	$messages = array(
 		'minor'   => __( 'Maintenance and security releases only. Major upgrades are not enabled.', 'keel-defaults' ),
 		'all'     => __( 'Automatic releases, including major-version upgrades.', 'keel-defaults' ),
-		'manual'  => __( 'Automatic core updates off in Keel.', 'keel-defaults' ),
+		'manual'  => __( 'Automatic core updates are off.', 'keel-defaults' ),
 		'inherit' => __( 'WordPress or another component controls core updates.', 'keel-defaults' ),
 	);
 	$message  = is_string( $policy ) && isset( $messages[ $policy ] ) ? $messages[ $policy ] : __( 'The configured core update policy is unavailable.', 'keel-defaults' );

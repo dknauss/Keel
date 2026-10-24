@@ -103,7 +103,7 @@ $GLOBALS['keel_multisite'] = false;
 $GLOBALS['keel_policy']    = 'all';
 check( false !== strpos( keel_defaults_update_policy_notice_markup( $minor ), 'including major-version upgrades' ), 'All policy explains major upgrades.' );
 $GLOBALS['keel_policy'] = 'manual';
-check( false !== strpos( keel_defaults_update_policy_notice_markup( $minor ), 'Automatic core updates off in Keel.' ), 'Manual describes the policy, not external updater behavior.' );
+check( false !== strpos( keel_defaults_update_policy_notice_markup( $minor ), 'Automatic core updates are off.' ), 'Manual describes the policy, not external updater behavior.' );
 $GLOBALS['keel_policy'] = 'inherit';
 check( false !== strpos( keel_defaults_update_policy_notice_markup( $minor ), 'WordPress or another component' ), 'Inheritance attributed honestly.' );
 $GLOBALS['keel_policy'] = array( '<script>' );
