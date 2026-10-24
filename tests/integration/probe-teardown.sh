@@ -80,6 +80,11 @@ rc_pretty=$( code "$URL/wp-json/wp/v2/comments" )
 rn_pretty=$( curl -s "$URL/wp-json/wp/v2/comments" | jn )
 rc_qs=$( code "$URL/?rest_route=/wp/v2/comments" )
 rn_qs=$( curl -s "$URL/?rest_route=/wp/v2/comments" | jn )
+# The single-item route is a separate registration from the collection, and a
+# filter that covers every comment listing does not cover it: Keel 0.6.1 fixed
+# exactly that. The seeded comment's own ID, read rather than assumed.
+CID="$( wp eval '$c = get_comments( array( "post_id" => 1, "number" => 1, "status" => "approve", "suppress_filters" => true ) ); echo $c ? $c[0]->comment_ID : 0;' --path="$WP" --skip-plugins 2>/dev/null | tr -d '\r' | tail -1 )"
+rc_single=$( code "$URL/wp-json/wp/v2/comments/${CID:-1}" )
 rn_embed=$( curl -s "$URL/wp-json/wp/v2/posts/1?_embed=replies" | python3 -c "
 import sys, json
 try:
@@ -116,7 +121,9 @@ pr_oembed_author=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c
 pr_oembed_url=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c '"author_url"' )
 pr_oembed_works=$( curl -s "$URL/wp-json/oembed/1.0/embed?url=$PERMA" | grep -c '"title"' )
 pr_feed_creator=$( curl -s "$URL/feed/" | grep -c "dc:creator" )
-pr_feed_login=$( curl -s "$URL/feed/" | grep -c "admin</dc:creator>" )
+# Core wraps the name in CDATA. Matching only the bare form read 0 on every
+# install, stock included, until probe-exposure.sh's feed row disagreed with it.
+pr_feed_login=$( curl -s "$URL/feed/" | grep -c "<dc:creator>\(<!\[CDATA\[\)\{0,1\}admin\(\]\]>\)\{0,1\}</dc:creator>" )
 
 # --- Feeds and headers ------------------------------------------------------
 fc_site=$( code "$URL/comments/feed/" )
@@ -191,6 +198,7 @@ cat <<OUT
 rest.comments.pretty      $rc_pretty (n=$rn_pretty)
 rest.comments.querystring $rc_qs (n=$rn_qs)
 rest.comments.embed       n=$rn_embed
+rest.comments.single      $rc_single
 rest.index                $rc_index
 rest.users                $rc_users
 rest.posts                $rc_posts

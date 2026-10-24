@@ -40,6 +40,32 @@ asserts HTTP 200 with fault `-32601`. Needs only `PROBE_URL`, so it runs against
 a live site as well as a lab. It cannot check that a request WordPress.com
 really signed gets through; the script's header says how to check that half.
 
+**`probe-exposure.sh`** — what does the site still tell an anonymous visitor about
+its accounts? `/?author=N` four ways, the REST users routes four ways plus
+`_embed=author`, the users sitemap, oEmbed's `author_url`, the feed's
+`<dc:creator>`, whether the login and lost-password forms answer a real account
+differently from an unknown one, six security headers, and the block editor's own
+authenticated user reads. Install `fixtures/lab-mail-delivered.php` as an
+mu-plugin first, or the lost-password row compares two mail failures. Configs for
+the field it was written for are in `probe-configs-exposure/`.
+
+**`probe-pingback.sh`** — does a real pingback still land? Sends one from a page
+that links to post 1 and counts the pingback rows with plugins skipped. Needs
+`fixtures/pingback-source.html` served as `index.html` by `php -S 127.0.0.1:9401`
+and `fixtures/lab-pingback-source.php` as an mu-plugin, because
+`wp_safe_remote_get()` refuses loopback hosts.
+
+**`probe-conflict.sh`** — a comment plugin next to a fixture that reopens comments
+at priority 99 (`fixtures/lab-comment-reopener*`, copied into
+`wp-content/plugins/`): is the form rendered, does a submitted comment land, and
+what do the comment plugin's own diagnostics say? Readers exist for Keel and
+Disable Comments. It deactivates every plugin before and after, so lab only.
+
+All three take `PROBE_URL` and `PROBE_PATH` like the others, and the first two can
+be run through `probe-plugin.sh` with `PROBE_SCRIPT=`. The findings they produced
+are the 2026-10-24 section of
+[`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md).
+
 **`probe-updates.sh`** — which core release would this site install, and does any
 screen the plugin owns say anything true about the release it is running? A
 different question of a different field, and the two halves of it are separate:
