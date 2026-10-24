@@ -370,6 +370,13 @@ function keel_defaults_bootstrap() {
 		// front end still prints a "Comments" heading and an empty block shell
 		// on every post.
 		add_filter( 'render_block', 'keel_defaults_suppress_comment_blocks', 10, 2 );
+
+		// Hiding the form is not refusing the comment. A plugin that answers
+		// comments_open after Keel reopens the write path, so refuse there too,
+		// last, where every core comment path asks. Plain add_filter rather
+		// than a policy filter: antispam plugins all share this hook, and an
+		// overlap report listing each of them would say nothing useful.
+		add_filter( 'pre_comment_approved', 'keel_defaults_refuse_closed_comment', PHP_INT_MAX, 2 );
 	}
 
 	if ( keel_defaults_enabled( 'disable_pingbacks' ) ) {

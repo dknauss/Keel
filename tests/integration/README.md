@@ -40,6 +40,40 @@ asserts HTTP 200 with fault `-32601`. Needs only `PROBE_URL`, so it runs against
 a live site as well as a lab. It cannot check that a request WordPress.com
 really signed gets through; the script's header says how to check that half.
 
+**`probe-exposure.sh`** — what does the site still tell an anonymous visitor about
+its accounts? `/?author=N` four ways, the REST users routes four ways plus
+`_embed=author`, the users sitemap, oEmbed's `author_url`, the feed's
+`<dc:creator>`, whether the login and lost-password forms answer a real account
+differently from an unknown one, six security headers, and the block editor's own
+authenticated user reads. Install `fixtures/lab-mail-delivered.php` as an
+mu-plugin first, or the lost-password row compares two mail failures. Configs for
+the field it was written for are in `probe-configs-exposure/`.
+
+**`probe-pingback.sh`** — does a real pingback still land? Sends one from a page
+that links to post 1 and counts the pingback rows with plugins skipped. Needs
+`fixtures/pingback-source.html` served as `index.html` by `php -S 127.0.0.1:9401`
+and `fixtures/lab-pingback-source.php` as an mu-plugin, because
+`wp_safe_remote_get()` refuses loopback hosts.
+
+**`probe-conflict.sh`** — a comment plugin next to a fixture that reopens comments
+at priority 99 (`fixtures/lab-comment-reopener*`, copied into
+`wp-content/plugins/`): is the form rendered, does a submitted comment land, and
+what do the comment plugin's own diagnostics say? Readers exist for Keel and
+Disable Comments. It deactivates every plugin before and after, so lab only.
+
+**`probe-comment-paths.sh`** — every way core creates a comment (the form, an
+authenticated REST create, a REST Note, XML-RPC `wp.newComment`, a real pingback),
+and whether each one landed. Pair it with `probe-configs-comment-paths/keel.php`,
+which leaves REST and XML-RPC open so each path reaches the comment guard rather
+than a different setting, and with a reopener fixture to test the guard alone.
+Needs `PROBE_XMLRPC_USER`/`PROBE_XMLRPC_PASS`; on multisite set `PROBE_WP_URL` to
+the site under test.
+
+All four take `PROBE_URL` and `PROBE_PATH` like the others, and all but
+`probe-conflict.sh` can be run through `probe-plugin.sh` with `PROBE_SCRIPT=`. The findings they produced
+are the 2026-10-24 section of
+[`docs/competitive-teardown-matrix.md`](../../docs/competitive-teardown-matrix.md).
+
 **`probe-updates.sh`** — which core release would this site install, and does any
 screen the plugin owns say anything true about the release it is running? A
 different question of a different field, and the two halves of it are separate:
@@ -324,6 +358,28 @@ mu-plugins and dropins. `wp plugin list` does not show an mu-plugin loader.
 per run and never writes it to disk; it is a live login cookie. If those probes
 return `403`, the nonce and the cookie disagree — usually because the cookie was
 generated without a session token, which `wp_validate_auth_cookie()` rejects.
+
+## Focused accessibility lab
+
+`focused-accessibility.mjs` drives the Updates, Site Health, settings and
+Network Policy screens on a single site and a multisite network, in English and
+Arabic, with the local fixture `fixtures/focused-accessibility.php`.
+`focused-accessibility-lab.sh` wraps one pass: it adds the MU wrapper and a
+temporary owner, signs in through `wp-login.php`, runs the harness, and always
+removes both, pass or fail. The `Focused accessibility lab` workflow runs it in
+Chromium on every pull request. Install the Arabic core language in both
+installs first (`wp language core install ar`).
+
+```sh
+KEEL_A11Y_ENGINES=chromium bash tests/integration/focused-accessibility-lab.sh \
+  /path/to/single http://127.0.0.1:8889 /path/to/multi http://127.0.0.1:8890
+```
+
+`KEEL_A11Y_ENGINES` defaults to `chromium,firefox,webkit`; `KEEL_A11Y_OUTPUT`
+names a new evidence directory. Set `KEEL_HTTP_LAB_WP` when WP-CLI is not plain
+`wp`, and `NODE_PATH` to a directory holding Playwright and axe-core. Without
+`KEEL_A11Y_PASSWORD`, the harness alone falls back to Studio's auto-login route.
+See [the focused accessibility record](../../docs/review/focused-accessibility-2026-10-23.md).
 
 ## HTTP authorization lab
 

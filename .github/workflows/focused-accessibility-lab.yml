@@ -1,0 +1,134 @@
+name: Focused accessibility lab
+
+# The Updates, Site Health and settings screens in Chromium, driven by
+# tests/integration/focused-accessibility.mjs on a single site and a multisite
+# network, in English and Arabic (RTL): keyboard behavior on locked controls and
+# scroll regions, layout at four widths, and scoped axe WCAG 2.0/2.1 A/AA checks.
+#
+# The standalone suite reads markup and stubs WordPress; it cannot see a selector
+# that no longer matches, a page error, or a width that overflows. Firefox and
+# WebKit stay a manual pass: see docs/review/focused-accessibility-2026-10-23.md.
+#
+# The fixture blocks outbound HTTP, downloads and automatic updates, so the only
+# live inputs are the WordPress download and its Arabic language pack.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: focused-accessibility-lab-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lab:
+    name: Chromium / WordPress ${{ matrix.wordpress }} / PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - wordpress: latest
+            php: '8.3'
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: wordpress
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mysqli
+          coverage: none
+          tools: wp-cli
+
+      # setup-php reports a failed tool download without failing its step.
+      - name: Ensure WP-CLI is installed
+        run: |
+          set -euo pipefail
+          if ! command -v wp >/dev/null; then
+            curl --fail --silent --show-error --location --retry 5 --retry-all-errors \
+              --output "$RUNNER_TEMP/wp-cli.phar" https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+            sudo install -m 0755 "$RUNNER_TEMP/wp-cli.phar" /usr/local/bin/wp
+          fi
+          wp --version
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      # Installed outside the checkout so the asset-lint lockfile stays untouched.
+      - name: Install Playwright, Chromium and axe-core
+        run: |
+          set -euo pipefail
+          npm install --no-audit --no-fund --prefix "$RUNNER_TEMP/playwright" playwright@1.63.0 axe-core@4.14.0
+          "$RUNNER_TEMP/playwright/node_modules/.bin/playwright" install --with-deps chromium
+
+      - name: Build disposable single-site and multisite installs
+        run: |
+          set -euo pipefail
+          bash tests/integration/http-authorization-bootstrap.sh "$RUNNER_TEMP/a11y-lab" '${{ matrix.wordpress }}'
+          for name in single multi; do
+            wp language core install ar --path="$RUNNER_TEMP/a11y-lab/$name" --allow-root
+          done
+
+      - name: Start WordPress
+        run: |
+          set -euo pipefail
+          for site in single:8889 multi:8890; do
+            name="${site%%:*}"; port="${site##*:}"
+            PHP_CLI_SERVER_WORKERS=4 wp server --path="$RUNNER_TEMP/a11y-lab/$name" --host=127.0.0.1 --port="$port" \
+              >"$RUNNER_TEMP/a11y-lab/$name-server.log" 2>&1 &
+          done
+          for port in 8889 8890; do
+            for attempt in {1..30}; do
+              curl --fail --silent "http://127.0.0.1:$port/" >/dev/null && continue 2
+              sleep 1
+            done
+            cat "$RUNNER_TEMP"/a11y-lab/*-server.log
+            exit 1
+          done
+
+      - name: Run the focused accessibility lab
+        env:
+          NODE_PATH: ${{ runner.temp }}/playwright/node_modules
+          KEEL_A11Y_ENGINES: chromium
+          KEEL_A11Y_OUTPUT: ${{ runner.temp }}/a11y-lab-results
+          KEEL_HTTP_LAB_WP: wp --allow-root
+        run: |
+          bash tests/integration/focused-accessibility-lab.sh \
+            "$RUNNER_TEMP/a11y-lab/single" http://127.0.0.1:8889 \
+            "$RUNNER_TEMP/a11y-lab/multi" http://127.0.0.1:8890
+
+      # Accessibility snapshots, geometry and axe results from local fixture
+      # screens. No cookies, passwords or session data are written.
+      - name: Retain lab evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: focused-accessibility-wp-${{ matrix.wordpress }}-php-${{ matrix.php }}
+          path: ${{ runner.temp }}/a11y-lab-results
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Server logs on failure
+        if: failure()
+        run: cat "$RUNNER_TEMP"/a11y-lab/*-server.log || true

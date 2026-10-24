@@ -456,6 +456,33 @@ installs. Site Health must not become the performance problem it is diagnosing.
   library rather than copying it. Revisit after option A has run against real
   sites.
 
+- [ ] **Question: should Keel stop the login and lost-password forms from
+  confirming which accounts exist?** Raised 2026-10-24 by the
+  [competitor re-measurement](docs/competitive-teardown-matrix.md), which found
+  Keel closes every anonymous *read* route that names an account and neither
+  *form* route: `wp-login.php` still answers "unknown username" and "wrong
+  password" differently, and the lost-password form redirects for a real
+  account and re-renders for an unknown one. Really Simple Security fixes only
+  the login message (and hides the lost-password one with CSS); Wordfence, by
+  code review, normalises both. Questions to settle before anything is built:
+
+  - **One option or two?** A uniform login error is a filter on `login_errors`.
+    A uniform lost-password answer means sending the same response whether or
+    not a mail went out, which changes what a real user sees when they mistype.
+  - **Does it belong with the old ways of hiding the login screens?** Dan has
+    earlier methods for moving or hiding the login pages. The v0.5 survey
+    recorded change-login-URL as obscurity and out of scope (see *v0.5 —
+    selected scope*); revisit that call with those methods on the table, not
+    by default.
+  - **Can failed logins feed rate limiting more readily?** The same survey
+    turned down login-attempt limiting because it needs per-request storage,
+    lockout state and an unlock path, the first anonymous write Keel would
+    make. A narrower version, such as making failures easier for a host's or
+    another plugin's limiter to count, may not need any of that.
+
+  Until it is decided, Keel's documentation should say plainly that the two
+  forms are not covered.
+
 Explore database-growth reporting (revision volume, expired transients and unusually
 large rows), media-storage amplification and richer multisite/network diagnostics
 only after the 0.8 framework proves that the measurements can be cheap and honest.
@@ -1473,6 +1500,7 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       plugin ZIP. See the [verification record](docs/review/asset-lint-2026-10-23.md).
 - [ ] **Extend verification when risk warrants it** — assess broader accessibility,
       browser coverage and faithful shared test stubs.
+      Chromium focused accessibility runs in CI since 2026-10-24; Firefox/WebKit stay manual.
       These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.
 

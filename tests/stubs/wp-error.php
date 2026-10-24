@@ -33,6 +33,13 @@ if ( ! class_exists( 'WP_Error' ) ) {
 		public $message;
 
 		/**
+		 * Error data.
+		 *
+		 * @var mixed
+		 */
+		public $data;
+
+		/**
 		 * Errors recorded through add(), keyed by code.
 		 *
 		 * @var array<string, string>
@@ -44,12 +51,22 @@ if ( ! class_exists( 'WP_Error' ) ) {
 		 *
 		 * @param string $code    Error code.
 		 * @param string $message Error message.
-		 * @param mixed  $data    Error data (unused).
+		 * @param mixed  $data    Error data.
 		 */
 		public function __construct( $code = '', $message = '', $data = array() ) {
-			unset( $data );
 			$this->code    = $code;
 			$this->message = $message;
+			$this->data    = $data;
+		}
+
+		/**
+		 * Error data accessor. The comment guard's status lives here, in the
+		 * shape each caller reads.
+		 *
+		 * @return mixed
+		 */
+		public function get_error_data() {
+			return $this->data;
 		}
 
 		/**

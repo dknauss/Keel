@@ -1,24 +1,592 @@
 # How other plugins do the teardowns Keel does
 
 A measured comparison of the most-installed wordpress.org plugins that overlap with
-Keel's defaults, across three surfaces that are easy to get wrong: **the REST
-API**, **the comment teardown**, and **the core update policy**.
+Keel's defaults. It now covers five surfaces that are easy to get wrong: **account
+discovery** (the "stop user enumeration" settings sold by the big security suites),
+**XML-RPC pingbacks**, **the REST API**, **the comment teardown**, and **the core
+update policy**, plus one question none of those asks: **what a plugin tells the
+administrator when another plugin quietly overrides it**.
 
-Nothing here is taken from readmes or marketing copy. Every cell in the matrix is a
-live HTTP or PHP probe against a real install with that plugin active and configured
-the way its own settings screen would configure it.
+Nothing here is taken from readmes or marketing copy, except where a plugin's own
+words are quoted to show what it claims. Every cell is either a live HTTP or PHP
+probe against a real install with that plugin active and configured the way its
+own settings screen would configure it, or — marked as such — a code review of the
+exact release named, with file and line references.
 
-The first two surfaces are a comparison of teardowns: what does the site still
-serve once the plugin has switched something off. The third is a different
-question asked of a different field — given the plugin's own configuration, which
-core release would this site actually install, and does any screen the plugin owns
-say anything true about the release it is running? A plugin can get the first half
-exactly right and still leave an administrator with no way to learn that the
-version underneath it has publicly known vulnerabilities. Those are separate
+The first sections are a comparison of teardowns: what does the site still serve
+once the plugin has switched something off. The update-policy section asks a
+different question of a different field — given the plugin's own configuration,
+which core release would this site actually install, and does any screen the
+plugin owns say anything true about the release it is running? Those are separate
 features and the matrix scores them separately.
+
+**Where a plugin delivers, this document says so.** Several do, on several rows,
+and two of them do things Keel does not. The point of measuring is that the claims
+survive being checked by the people whose plugins they are about.
+
 ---
 
+## The 2026-10-24 re-measurement
+
+This pass did three things: re-ran Keel against every teardown probe (clearing the
+"stale cells" caveat that has stood since 0.6.1), re-measured the field's
+million-install leader (Disable Comments, now 2.9.0), and added the most-installed
+plugins that sell the same protections as Keel's security defaults — Wordfence,
+Really Simple Security, All-In-One Security, Sucuri and Stop User Enumeration,
+together about 10.6 million active installs.
+
+### Method for this pass
+
+- **Lab:** a throwaway WordPress **7.1.3** install (cloned from the WordPress
+  GitHub mirror at tag 7.1.3), SQLite via `sqlite-database-integration` 2.2.15, PHP
+  8.3, `php -S` with a small router so dotted REST paths such as
+  `/wp-json/oembed/1.0/embed` reach WordPress rather than the static-file handler.
+  Block theme (Twenty Twenty-Five), pretty permalinks, one seeded comment, the
+  installer-created administrator `admin` as author of post 1, `DISABLE_WP_CRON`
+  defined. Two lab-only mu-plugins, both committed under
+  `tests/integration/fixtures/`: `lab-mail-delivered.php` reports every `wp_mail()`
+  as sent, as a working production mailer would, so the password-reset probe
+  compares a real account with an unknown one rather than two mail failures; and
+  `lab-pingback-source.php`, which lets `pingback.ping` fetch a source page served
+  from the same machine on port 9401, because `wp_safe_remote_get()` refuses
+  loopback hosts by design.
+- **Keel:** `main` at `24700af` — 0.8.0 plus the unreleased HTTP-authorization lab
+  work, which changes no probed behaviour.
+- **Where the plugins came from.** wordpress.org downloads are blocked from the
+  lab's network, so each plugin is either its vendor's public GitHub repository at
+  the tag matching the wordpress.org release, or code review only:
+
+  | Plugin | Active installs | Version | How measured |
+  |---|---|---|---|
+  | [Wordfence Security](https://wordpress.org/plugins/wordfence/) | 5,000,000+ | 9.0.2 | code review, plus its author-scan code run in the lab as a verbatim extract (see below) |
+  | [Really Simple Security](https://wordpress.org/plugins/really-simple-ssl/) | 3,000,000+ | 9.8.3 | live, full plugin (GitHub `main`, header 9.8.3) |
+  | [All-In-One Security (AIOS)](https://wordpress.org/plugins/all-in-one-wp-security-and-firewall/) | 1,000,000+ | 5.4.10 | code review, plus its user-enumeration code run as a verbatim extract |
+  | [Disable Comments](https://wordpress.org/plugins/disable-comments/) | 1,000,000+ | 2.9.0 | live, full plugin (GitHub tag `v2.9.0`) |
+  | [Sucuri Security](https://wordpress.org/plugins/sucuri-scanner/) | 600,000+ | 2.8.1 | live, full plugin (GitHub tag `2.8.1`) |
+  | [Stop User Enumeration](https://wordpress.org/plugins/stop-user-enumeration/) | 60,000+ | 1.7.10 | live, full plugin (GitHub tag `v1.7.10`, `composer install`) |
+  | **Keel** 0.8.0 (main @ `24700af`) | — | — | live |
+
+  Install counts and versions are from the wordpress.org plugin API on the day of
+  the run. Two of the GitHub trees needed something the wordpress.org zip ships
+  and the repository does not: Stop User Enumeration's Composer autoloader
+  (`composer install --no-dev`), and Really Simple Security's
+  `core/vendor/autoload_packages.php`, which in the release zip is a Jetpack
+  autoloader. The lab replaces the latter with a Composer PSR-4 autoloader over the
+  same two namespaces, built from the release's own
+  `core/vendor/composer/autoload_static.php`. That code is onboarding, licensing
+  and vulnerability scanning; none of the hardening features probed below live
+  there (they are in `security/wordpress/`), and the run before the shim was added
+  produced the same hardening results.
+- **Extracts, and what they can and cannot show.** For Wordfence and AIOS the
+  matrix runs a lab-only plugin containing *only* the functions each one registers
+  for its user-enumeration setting, copied verbatim from the release and hooked
+  exactly as the release hooks them, with file and line references in each
+  extract's header. That measures what the code does on a real request. It does
+  not measure anything else the full plugin might do on the same request, so
+  those columns are labelled "extract", the rows they cannot speak to (login and
+  password-reset messages, which are other code paths) are marked "not
+  extracted", and every claim made from them is also checked against the source.
+  The extracts are third-party code under their own licences and are not
+  committed here; rebuilding them takes the cited line ranges.
+- **Configuration** is each plugin's own save path, applied with the harness's
+  existing rule — before activation where the plugin stores plain options,
+  after activation where its storage only exists once loaded. The files are in
+  `tests/integration/probe-configs/` and `probe-configs-exposure/`, each saying
+  where it got its keys. Stop User Enumeration has no config file: its activation
+  hook writes all of its protections on. Really Simple Security is configured
+  through `rsssl_update_option()` as an administrator, the function its own REST
+  save handler and its `wp rsssl update_option` command both call.
+- **New probes**, all committed:
+  - `probe-exposure.sh` — every route core offers for "which accounts exist and
+    what are they called": `/?author=N` four ways (query string, `index.php`,
+    array, POST), the REST users routes four ways (pretty, `?rest_route=`, mixed
+    case, single item), the author embedded in `/wp/v2/posts?_embed=author`, the
+    users sitemap, oEmbed's `author_url`, the feed's `<dc:creator>`, and whether
+    the login and lost-password forms answer differently for a real account and
+    an unknown one. Plus the six common security headers, and the three
+    authenticated user reads the block editor makes, so a plugin that closes the
+    users route for administrators too would show up.
+  - `probe-pingback.sh` — sends a real pingback from a page that links to post 1
+    and reports whether a pingback comment row landed (counted with plugins
+    skipped, so nothing can hide it).
+  - `probe-conflict.sh` — puts a comment-disabling plugin next to a two-line
+    fixture plugin that reopens comments at priority 99, and reports both what the
+    site does and what the comment plugin's own diagnostics say.
+  - `probe-teardown.sh` gained `rest.comments.single` (`GET
+    /wp/v2/comments/<id>`, the route Keel 0.6.1 fixed), and its
+    `privacy.feed_login` row now matches the CDATA form core actually emits — it
+    read 0 on every install, stock included, until the new probe's feed row
+    disagreed with it.
+- **Reproducibility.** The whole pass was run from a clean option state twice in a
+  row and the outputs diffed. They are identical except one line: Disable
+  Comments' blocked-attempt counters, which are cumulative by design and count the
+  probes' own submissions.
+
+**One harness trap worth recording, because it produced a false "Disable Comments
+does nothing" result on the first run.** On a site where Disable Comments has
+never run, its first load finds no `db_version` in its options and runs every
+upgrade step from version 0. The step for options older than version 5
+(`check_db_upgrades()`, `disable-comments.php:336-379`) rewrites
+`remove_everywhere` from `remove_admin_menu_comments`, which a fresh configuration
+does not carry, so "everywhere" is reset to false and the plugin closes almost
+nothing. A real administrator saves the settings screen after activation, which
+does not hit this; `probe-configs/disable-comments.post.php` now does the same.
+This is the second time this document's numbers were nearly wrong because a
+plugin rewrites its own configuration on first load (the first was Disable
+Comments RB's post-type snapshot, below).
+
+### Headline findings
+
+#### A. Sucuri's "Disable XML-RPC" leaves pingbacks working, while its screen says XML-RPC "has been disabled"
+
+Sucuri Security (600k) has a hardening option titled **Disable XML-RPC**. Its
+description says XML-RPC is "one of the most common vectors for brute-force login
+attempts and pingback-based DDoS amplification attacks. Disabling it closes this
+attack surface", and applying it reports **"XML-RPC (xmlrpc.php) has been
+disabled."** (`src/settings-hardening.php:704-760`).
+
+The implementation is the same single filter as the 200k-install "Disable XML-RPC"
+plugin in finding 1 below (`src/globals.php:58`, `src/hardening.lib.php:554-561`):
+
+```php
+add_filter('xmlrpc_enabled', 'SucuriScanHardening::xmlrpcEnabled');
+// returns false when the hardening option is enabled
+```
+
+`xmlrpc_enabled` gates the methods that authenticate. Pingback is unauthenticated
+by design and is not gated. Measured with the hardening applied:
+
+| | stock | Sucuri, "Disable XML-RPC" applied | Keel |
+|---|---|---|---|
+| `xmlrpc.php` answers | 200 | **200** | 200 |
+| methods listed by `system.listMethods` | 80 | **80** | 3 |
+| `pingback.ping` listed | yes | **yes** | no |
+| authenticated method (`wp.getUsersBlogs`) | fault 403 | fault 405 | fault -32601 |
+| a real pingback from an outside page | registered, comment row created | **registered, comment row created** | fault -32601, nothing created |
+| `X-Pingback` header advertised | yes | **yes** | no |
+
+The pingback row is the one that matters: the reply was WordPress's own
+"Pingback from … registered. Keep the web talking! :-)" and a pingback comment
+landed in the database. That is the amplification and SSRF vector the option's
+own description names, still open behind a screen that says it is closed.
+
+Really Simple Security's "Disable XML-RPC" is the opposite case and **delivers**:
+`security/wordpress/disable-xmlrpc.php` exits on any XML-RPC request, so
+`system.listMethods`, `pingback.ping` and the authenticated method all get an
+empty 200 response and the pingback creates nothing. AIOS's "Disable pingback
+functionality from XMLRPC" also delivers by code review: it unsets
+`pingback.ping` and `pingback.extensions.getPingbacks` from `xmlrpc_methods` and
+strips the `X-Pingback` header (`classes/wp-security-general-init-tasks.php:11-14,
+361-364`). Wordfence does not offer to disable XML-RPC; its option is named
+"Disable XML-RPC authentication", which is what it does.
+
+#### B. "Stop user enumeration" settings close the famous route and leave the others
+
+Every security suite in the field sells protection against username discovery.
+The account name a scanner wants is the one in `/?author=1`'s redirect —
+`/author/admin/` — and core publishes that same name on at least five other
+anonymous routes. Measured with each plugin's enumeration protection on:
+
+| Route that names the account | stock | RSS 3M | Wordfence 5M *(extract)* | AIOS 1M *(extract)* | SUE 60k | Sucuri 600k | **Keel** |
+|---|---|---|---|---|---|---|---|
+| `/?author=1` redirect | leaks | 500 | 404 | 403 | 403 | leaks *(no such setting)* | 301 to home |
+| REST `/wp/v2/users` (all four spellings) | leaks | closed | closed | closed | closed | leaks | closed |
+| REST `/wp/v2/posts?_embed=author` | leaks | closed | closed | **leaks** | closed | leaks | closed |
+| Users sitemap `wp-sitemap-users-1.xml` | leaks | closed | closed | **leaks** | closed | leaks | closed |
+| oEmbed `author_url` | leaks | **leaks** | closed | closed | closed | leaks | closed |
+| Feed `<dc:creator>` (the login, by default) | leaks | **leaks** | **leaks** | **leaks** | **leaks** | leaks | replaced |
+| Block editor's own user reads (admin) | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+
+What each column means in practice:
+
+- **AIOS** (1M) decides whether a REST request is for the users route by reading
+  the *URL* rather than the request
+  (`classes/wp-security-general-init-tasks.php:919-935`):
+
+  ```php
+  $rest_route = !empty($_GET['rest_route']) ? $_GET['rest_route'] : (... parse_url(urldecode($_SERVER['REQUEST_URI']), PHP_URL_PATH));
+  ...
+  if (preg_match('/wp\/v2\/users$/i', $rest_route)) {
+  ```
+
+  `/wp-json/wp/v2/users` is refused with 403. `/wp-json/wp/v2/posts?_embed=author`
+  is a posts URL, so the users request core makes internally to build the embed
+  is let through, and returns `{"id":1,"name":"admin","slug":"admin","link":".../author/admin/"}`
+  — the same record the 403 exists to withhold. Wordfence's equivalent filter reads
+  `$request->get_route()`, which is the internal request's own route, and so
+  closes the embed too (`lib/wordfenceClass.php:2715-2735`). AIOS also has no
+  sitemap handling anywhere in the plugin (no match for `sitemap` across its PHP),
+  so `wp-sitemap-users-1.xml` lists `/author/admin/` with the setting on.
+- **Really Simple Security** (3M) blocks `/?author=N`, the REST users routes and the
+  users sitemap (`security/wordpress/user-enumeration.php`), but not oEmbed: every
+  public post's embed endpoint still returns `"author_url": ".../author/admin/"`.
+  Its `/?author=N` block is a bare `wp_die()` with no status, which WordPress sends
+  as **HTTP 500** — uptime monitors and crawlers read that as a server error.
+- **Stop User Enumeration** (60k) closes every route it names, by default.
+  It removes oEmbed's `author_url` and leaves `author_name`, which on this lab is
+  the login.
+- **Wordfence** closes `/?author=N` (as a 404, including the array and POST
+  variants), the REST users routes including the embed, the users sitemap and
+  both oEmbed author fields — every route its setting names ("'/?author=N' scans,
+  the oEmbed API, the WordPress REST API, and WordPress XML Sitemaps"). On those
+  routes it **delivers**, and the extract confirms the code does what the source
+  says.
+- **The feed is the route nobody closes.** WordPress's installer sets the first
+  administrator's display name to their login, and `<dc:creator>` prints the
+  display name, so `/feed/` carries `<dc:creator><![CDATA[admin]]></dc:creator>`
+  on every site that never changed it. No plugin in the field touches it (for
+  Wordfence and AIOS, confirmed by searching their source for any filter on the
+  author name). Keel, while author archives are disabled, replaces every author
+  name in feeds with "Site Contributor" (`keel_defaults_mask_feed_author()`,
+  `includes/content.php`), and leaves bylines on the site itself alone.
+- **Sucuri** has no username-discovery setting at all; its column is stock, and is
+  shown because it is the setting people look for in a security plugin.
+
+The author archive itself (`/author/admin/`) answers 200 under every plugin except
+Keel, which redirects it. That is a design difference rather than a defect —
+archives are a feature — but it means that once any of the leaking routes above
+has given up the name, the archive confirms it.
+
+#### C. Hiding login errors does not hide the password-reset answer
+
+Really Simple Security's "Hide login feedback" (`disable_login_feedback`) is
+described as: "By default, WordPress shows if a username or email address exists
+when a login fails. This will change it to generic feedback." On the login form it
+**delivers**: a wrong password for `admin` and an unknown username now get the
+same "Invalid login details." message.
+
+On the lost-password form it does not. With the setting on, measured:
+
+| `wp-login.php?action=lostpassword` | real account | unknown account |
+|---|---|---|
+| stock | 302 → `?checkemail=confirm` | 200, "There is no account with that username or email address." |
+| Really Simple Security, setting on | **302 → `?checkemail=confirm`** | **200**, "Invalid login details." |
+
+The message changed; the response did not. A redirect for real accounts and an
+error page for unknown ones is an enumeration oracle a script reads from the
+status code alone. The plugin's other measure on this form is CSS —
+`.login-action-lostpassword #login_error { display: none; }`
+(`security/wordpress/prevent-login-info-leakage.php:13-28`) — which hides the
+message from a person looking at the page and from nothing else.
+
+Wordfence's equivalent ("Don't let WordPress reveal valid users in login errors",
+on by default) handles this case by code review: for an unknown account it
+redirects to `wp-login.php?checkemail=confirm` exactly as core does for a real one
+(`lib/wordfenceClass.php:1874-1883`). It was not run here, so that is a reading,
+not a measurement. **Keel has no setting for either form**; see "What this pass
+found in Keel".
+
+#### D. Disable Comments says comments are disabled while the site accepts them
+
+The conflict probe puts each comment plugin next to a fixture plugin that does
+nothing but add `comments_open` and `pings_open` filters at priority 99 — the
+shape of any forum, review, membership or page-builder plugin that "makes sure"
+comments work on its own pages. Two variants: one returns core's
+`__return_true` (untraceable by design), one a function defined in the fixture's
+own file.
+
+| | comment form rendered | submitted comment landed | what the plugin tells the administrator |
+|---|---|---|---|
+| Disable Comments 2.9.0, "everywhere", alone | no | no | Site Health Info: "Comments are disabled site-wide for all content types". Theme scan: "Comments are off on this page and your theme is respecting that." |
+| Disable Comments + reopener (either variant) | **yes** | **yes** | Site Health Info: **"Comments are disabled site-wide for all content types"**, unchanged. Theme scan: "Comments are still open on this page, so there is nothing for the theme to hide yet. **Check the settings above** before reading anything into this." |
+| Keel alone | no | no | — |
+| Keel + reopener (`__return_true`) | no | **yes** | Site Health: "A setting is not taking effect — Not taking effect: Comments (pings_open), Comments (comments_open)", and that it cannot say which plugin. |
+| Keel + reopener (own callback) | no | **yes** | Site Health: the same "Not taking effect" line, and on both hooks "also used by **Lab Comment Reopener (own callback)**". |
+
+Disable Comments 2.9.0 deserves credit for adding a theme-conflict scanner, and
+the scanner *does* notice that comments are open — but it reports that as a
+settings problem, on a screen whose settings say "everywhere", and its Site
+Health section reports the stored configuration rather than the effective one.
+An administrator who checks both is told twice that comments are off, on a site
+that is publishing a comment form and storing what is submitted.
+
+Keel loses the same fight — its own filter is outvoted on the write path, so the
+comment lands — and that is recorded below as a Keel gap, not glossed. What
+differs is that Keel observes its own result on ordinary traffic, notices that
+`comments_open` answered something other than what it is configured to produce,
+and says so, naming the plugin when the callback can be traced to one.
+
+#### E. The rest of the comment teardown re-measured: Disable Comments 2.9.0 is unchanged from 2.8.0
+
+Re-run on 7.1.3 with the corrected configuration, Disable Comments 2.9.0 matches
+its 2.8.0 column in every row tabulated below, and answers 403 on the
+single-comment route too. Finding 3 still holds: `get_comments()` and
+`wp_count_comments()` answer 1 with comments "disabled everywhere", because it
+does not hook `comments_pre_query` (no match in the 2.9.0 source). Code review of
+Admin and Site Enhancements 9.2.2 finds the same absence, so its column below is
+not expected to have moved either.
+
+#### F. Keel's own teardown rows, re-measured: the 0.6.1 caveat is cleared
+
+Every Keel teardown row in the appendix was re-run on 7.1.3 and matches the
+published Keel column. The two behaviours 0.6.1 fixed are now measured rather
+than inferred: `GET /wp/v2/comments/<id>` answers **401** with comments off and
+the REST gate on, and `/?author=1` redirects to the home page without naming the
+account (`privacy.author_archive` 301, and the exposure probe finds the nicename
+in neither the `Location` header nor the body).
+
+### The account-discovery matrix
+
+Legend: ✅ closed / delivers · ❌ open · ⚠️ partial · — not offered · *(c)* code
+review only.
+
+| | Wordfence 9.0.2 | RSS 9.8.3 | AIOS 5.4.10 | SUE 1.7.10 | Sucuri 2.8.1 | **Keel** 0.8.0 |
+|---|---|---|---|---|---|---|
+| `/?author=N` closed (incl. array, POST, `index.php`) | ✅ 404 | ⚠️ closed as **500**; array form passes | ✅ 403 | ⚠️ 403; array form passes | — | ✅ 301 home |
+| REST users list, single, `?rest_route=`, mixed case | ✅ | ✅ | ✅ | ✅ | — | ✅ |
+| REST `_embed=author` closed | ✅ | ✅ | ❌ **leaks slug** | ✅ | — | ✅ |
+| Users sitemap removed | ✅ | ✅ | ❌ | ✅ | — | ✅ |
+| oEmbed author fields removed | ✅ both | ❌ both kept | ✅ both | ⚠️ `author_url` only | — | ✅ |
+| Feed `<dc:creator>` login hidden | ❌ *(c)* | ❌ | ❌ *(c)* | ❌ | — | ✅ |
+| Login form answers the same for real and unknown accounts | ✅ *(c)* | ✅ | not extracted | — | — | ❌ |
+| Lost-password form answers the same | ✅ *(c)* | ❌ **302 vs 200** | not extracted | — | — | ❌ |
+| Block editor's user reads still work for an administrator | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| On by default after activation | ✅ | ❌ | ❌ | ✅ | — | ✅ |
+
+The "array form passes" cells are `/?author[]=1`. On this lab core does not
+resolve that to an author archive, so nothing leaks through it today; it is
+recorded because both plugins' checks would let it reach WordPress, where
+Wordfence's and AIOS's do not.
+
+### XML-RPC, re-measured with a real pingback
+
+| | stock | Sucuri 2.8.1 | RSS 9.8.3 | Disable Comments 2.9.0 | SUE 1.7.10 | **Keel** |
+|---|---|---|---|---|---|---|
+| Setting under test | — | "Disable XML-RPC" | "Disable XML-RPC" | "everywhere" + XML-RPC toggle | — *(no XML-RPC setting)* | pingbacks, remote publishing and multicall off; endpoint up |
+| `pingback.ping` listed | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ |
+| Real pingback registered | yes | **yes** | no | no | yes | no |
+| Pingback comment row created | 1 | **1** | 0 | 0 | 1 | 0 |
+
+Disable Comments leaves `pingback.ping` listed (finding 4) but the pingback is
+refused, because `pings_open()` is false when comments are off everywhere. The
+listed method is cosmetic there; under Sucuri it is not.
+
+### Security headers
+
+Measured on the front end. Keel sends `X-Frame-Options: SAMEORIGIN`,
+`X-Content-Type-Options: nosniff` and `Referrer-Policy` by default, and no HSTS,
+`Permissions-Policy` or CSP. Really Simple Security's header fields exist in its
+free build's settings, but the whole "Security Headers" menu is marked premium
+(`settings/config/menu.php:97-120`) and nothing in the free build sends them, so
+its column reads 0 after configuring them — that is "not offered in the free
+plugin", not a failure. Wordfence, AIOS, Sucuri and Stop User Enumeration send
+none of the six on a front-end page. (AIOS can send `X-Frame-Options` through its
+separate "prevent site display inside frame" setting, which was not part of the
+enumeration extract and was not measured.)
+
+### What this pass found in Keel
+
+Measuring other plugins this carefully only counts if Keel gets the same
+treatment. Four things. Items 2 to 4 were fixed in a follow-up commit on the
+same pull request and re-measured on the same lab (results under each item).
+Item 1 is on the roadmap as an open question. The raw output below is from
+`main` before those fixes.
+
+1. **Keel does not normalise the login or lost-password responses.** Both forms
+   still tell a real account from an unknown one (`enum.login_distinguishes 1`,
+   `enum.lostpw_distinguishes 1`). Really Simple Security fixes the login message
+   and Wordfence, by code review, fixes both. Keel closes every *anonymous read*
+   route in the account-discovery matrix and none of the *form* routes, and its
+   settings screen should not imply otherwise.
+2. **A reopened `comments_open` beats Keel on the write path.** With the fixture
+   active, Keel's `render_block` filter still hides the form, but a POST to
+   `wp-comments-post.php` is accepted and the comment lands, because core's write
+   path asks `comments_open()` and the fixture answers last. Keel reports it; it
+   does not prevent it. Whether it should (for example, by also refusing in
+   `pre_comment_approved` or `preprocess_comment` when comments are configured
+   off) is a design question worth an issue.
+
+   **Fixed.** `keel_defaults_refuse_closed_comment()` on `pre_comment_approved`
+   (last priority) refuses anything but an allowed type such as Notes. Re-run
+   with the fixture: `site.comment_landed 0`; the form POST answers 403 "Comments
+   are closed on this site", a REST create answers 403 `comment_closed`, a real
+   pingback is refused, and a REST Note is still created (201).
+3. **The divergence report's copy is wrong in two places.** The untraceable case
+   says "a plugin that turns a feature *off* using one of WordPress's own helper
+   functions" — here the other plugin turned comments *on*. And the same "Keel
+   cannot say what" paragraph prints in the traceable case, directly above the
+   lines that name "Lab Comment Reopener (own callback)" as the other user of both
+   hooks.
+4. **The traceable case reads softer than the untraceable one.** With the plugin
+   named, the Site Health label is "More than one plugin may influence the same
+   settings"; with it untraceable, "A setting is not taking effect". Both runs
+   recorded the same confirmed divergence and both are status `recommended`. A
+   confirmed "your comments setting is not taking effect, and this plugin is why"
+   is the more actionable of the two and should not have the vaguer headline.
+
+   **Items 3 and 4 fixed.** Re-run: both cases are labelled "A setting is not
+   taking effect". The untraceable case says "Keel cannot always say what: a
+   plugin that turns a feature on or off…"; the named case says "The plugins
+   listed below for the same hooks are the place to look" and no longer claims
+   nothing can be named. The Dashboard notice follows the same rule.
+
+### Raw output for this pass
+
+Produced by the committed harnesses on the 7.1.3 lab, 2026-10-24. Stock is the
+same install with no plugin active.
+
+**`probe-exposure.sh`**
+
+| probe | stock | Keel 0.8.0 (main) | Really Simple Security 9.8.3 | Stop User Enumeration 1.7.10 | Sucuri 2.8.1 | AIOS 5.4.10 (extract) | Wordfence 9.0.2 (extract) |
+|---|---|---|---|---|---|---|---|
+| `enum.author_query` | 301 leak(location) | 301 | 500 | 403 | 301 leak(location) | 403 | 404 |
+| `enum.author_index` | 301 leak(location) | 301 | 500 | 403 | 301 leak(location) | 403 | 404 |
+| `enum.author_array` | 200 | 200 | 200 | 200 | 200 | 403 | 404 |
+| `enum.author_post` | 200 leak(body) | 301 | 500 | 403 | 200 leak(body) | 403 | 404 |
+| `enum.author_archive` | 200 | 301 | 200 | 200 | 200 | 200 | 200 |
+| `enum.rest_users` | 1 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `enum.rest_users_qs` | 1 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `enum.rest_users_case` | 1 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `enum.rest_user_single` | 1 | 0 | 0 | 0 | 1 | 0 | 0 |
+| `enum.rest_embed_author` | 1 | 0 | 0 | 0 | 1 | 1 | 0 |
+| `enum.sitemap_users` | 1 | 0 | 0 | 0 | 1 | 1 | 0 |
+| `enum.oembed_author_url` | 1 | 0 | 1 | 0 | 1 | 0 | 0 |
+| `enum.feed_login` | 1 | 0 | 1 | 1 | 1 | 1 | 1 |
+| `enum.login_distinguishes` | 1 | 1 | 0 | 1 | 1 | 1 | 1 |
+| `enum.lostpw_distinguishes` | 1 | 1 | 1 | 1 | 1 | 1 | 1 |
+| `header.x_frame_options` | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `header.x_content_type` | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `header.referrer_policy` | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| `header.hsts` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `header.permissions_policy` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `header.csp` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `auth.users_authors` | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+| `auth.users_me` | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+| `auth.posts_edit` | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
+
+The two extract columns' `login_distinguishes` and `lostpw_distinguishes` rows read 1 because the extracts contain only the enumeration code; those plugins' login-message handling is separate code that was not extracted, and is assessed by code review in finding C.
+
+**`probe-teardown.sh`** (the new columns; the earlier field is in the appendix)
+
+| probe | stock | Keel 0.8.0 (main) | Disable Comments 2.9.0 | Really Simple Security 9.8.3 | Sucuri 2.8.1 | Stop User Enumeration 1.7.10 |
+|---|---|---|---|---|---|---|
+| `rest.comments.pretty` | 200 (n=1) | 401 (n=err) | 403 (n=err) | 200 (n=1) | 200 (n=1) | 200 (n=1) |
+| `rest.comments.querystring` | 200 (n=1) | 401 (n=err) | 403 (n=err) | 200 (n=1) | 200 (n=1) | 200 (n=1) |
+| `rest.comments.embed` | n=1 | n=0 | n=0 | n=1 | n=1 | n=1 |
+| `rest.comments.single` | 200 | 401 | 403 | 200 | 200 | 200 |
+| `rest.index` | 200 | 401 | 200 | 200 | 200 | 200 |
+| `rest.users` | 200 | 401 | 200 | 401 | 200 | 401 |
+| `rest.posts` | 200 | 401 | 200 | 200 | 200 | 200 |
+| `rest.oembed` | 200 | 200 | 200 | 200 | 200 | 200 |
+| `rest.head_link` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `feed.site_comments` | 200 | 404 | 403 | 200 | 200 | 200 |
+| `feed.post_comments` | 200 | 404 | 403 | 200 | 200 | 200 |
+| `header.xpingback` | 1 | 0 | 0 | 1 | 1 | 1 |
+| `privacy.author_archive` | 200 | 301 | 200 | 200 | 200 | 200 |
+| `privacy.author_feed` | 200 | 404 | 200 | 200 | 200 | 200 |
+| `privacy.sitemap_listed` | 1 | 0 | 1 | 0 | 1 | 0 |
+| `privacy.sitemap_names` | 1 | 0 | 1 | 0 | 1 | 0 |
+| `privacy.oembed_author` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `privacy.oembed_authorurl` | 1 | 0 | 1 | 1 | 1 | 0 |
+| `privacy.oembed_usable` | 1 | 1 | 1 | 1 | 1 | 1 |
+| `privacy.feed_creator` | 1 | 1 | 1 | 1 | 1 | 1 |
+| `privacy.feed_login` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `xmlrpc.http` | 200 | 200 | 200 | 200 | 200 | 200 |
+| `xmlrpc.methods` | 80 | 3 | 79 | 0 | 80 | 80 |
+| `xmlrpc.has_pingback` | 1 | 0 | 1 | 0 | 1 | 1 |
+| `xmlrpc.has_multicall` | 1 | 1 | 1 | 0 | 1 | 1 |
+| `xmlrpc.has_newPost` | 1 | 0 | 1 | 0 | 1 | 1 |
+| `xmlrpc.has_newComment` | 1 | 0 | 0 | 0 | 1 | 1 |
+| `xmlrpc.direct_pingback` | fault=0 | fault=-32601 | fault=0 | fault=none | fault=0 | fault=0 |
+| `xmlrpc.direct_login` | fault=403 | fault=-32601 | fault=403 | fault=none | fault=405 | fault=403 |
+| `write.wp-comments-post` | 302 | 403 | 403 | 302 | 302 | 302 |
+| `write.rest_post` | 401 | 401 | 403 | 401 | 401 | 401 |
+| `write.comment_landed_indb` | 1 | 0 | 0 | 1 | 1 | 1 |
+| `php.get_comments` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `php.typed` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `php.wp_count_comments` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `php.comments_open` | 1 | 0 | 0 | 1 | 1 | 1 |
+| `php.pings_open` | 1 | 0 | 0 | 1 | 1 | 1 |
+| `php.number` | 1 | 0 | 0 | 1 | 1 | 1 |
+| `php.supports` | 1 | 0 | 1 | 1 | 1 | 1 |
+| `php.default_status` | open | closed | open | open | open | open |
+| `html.comment_form` | 6 | 0 | 0 | 6 | 6 | 6 |
+| `html.comments_block` | 4 | 0 | 0 | 4 | 4 | 4 |
+| `auth.posts_edit` | 200 | 200 | 200 | 200 | 200 | 200 |
+| `auth.settings` | 200 | 200 | 200 | 200 | 200 | 200 |
+| `auth.types` | 200 | 200 | 200 | 200 | 200 | 200 |
+| `auth.block_types` | 200 | 200 | 200 | 200 | 200 | 200 |
+| `auth.comments` | 200 | 200 | 403 | 200 | 200 | 200 |
+
+**`probe-pingback.sh`**
+
+| probe | stock | Keel 0.8.0 (main) | Disable Comments 2.9.0 | Really Simple Security 9.8.3 | Sucuri 2.8.1 | Stop User Enumeration 1.7.10 |
+|---|---|---|---|---|---|---|
+| `pingback.fault` | none | -32601 | 0 | none | none | none |
+| `pingback.registered` | 1 | 0 | 0 | 0 | 1 | 1 |
+| `pingback.comment_landed` | 1 | 0 | 0 | 0 | 1 | 1 |
+
+**`probe-conflict.sh`**
+
+```
+=== disable-comments + none
+site.comment_form         0
+site.comment_landed       0
+says.info                 Comment Status: Comments are disabled site-wide for all content types
+says.info                 Global Disable Active: Yes
+says.info                 XML-RPC Comments: Disabled
+says.info                 REST API Comments: Disabled
+says.info                 Blocked: REST API comment requests: 5
+says.scan                 [clean] Comments are off on this page and your theme is respecting that. Nothing to fix.
+=== disable-comments + lab-comment-reopener
+site.comment_form         5
+site.comment_landed       1
+says.info                 Comment Status: Comments are disabled site-wide for all content types
+says.info                 Global Disable Active: Yes
+says.info                 XML-RPC Comments: Disabled
+says.info                 REST API Comments: Disabled
+says.info                 Blocked: REST API comment requests: 5
+says.scan                 [not_disabled] Comments are still open on this page, so there is nothing for the theme to hide yet. Check the settings above before reading anything into this.
+=== disable-comments + lab-comment-reopener-named
+site.comment_form         5
+site.comment_landed       1
+says.info                 Comment Status: Comments are disabled site-wide for all content types
+says.info                 Global Disable Active: Yes
+says.info                 XML-RPC Comments: Disabled
+says.info                 REST API Comments: Disabled
+says.info                 Blocked: REST API comment requests: 5
+says.scan                 [not_disabled] Comments are still open on this page, so there is nothing for the theme to hide yet. Check the settings above before reading anything into this.
+=== keel + none
+site.comment_form         0
+site.comment_landed       0
+says.status               recommended
+says.label                A Keel setting is also affected by code Keel cannot identify
+=== keel + lab-comment-reopener
+site.comment_form         0
+site.comment_landed       1
+says.status               recommended
+says.label                A setting is not taking effect
+says.line                 Not taking effect: Comments (pings_open), Comments (comments_open)
+says.line                 These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.
+says.line                 comments_open — Keel setting: Disable comments, trackbacks, and pingbacks; also used by code Keel cannot trace to a plugin
+says.line                 pings_open — Keel setting: Disable comments, trackbacks, and pingbacks; also used by code Keel cannot trace to a plugin
+=== keel + lab-comment-reopener-named
+site.comment_form         0
+site.comment_landed       1
+says.status               recommended
+says.label                More than one plugin may influence the same settings
+says.line                 Not taking effect: Comments (pings_open), Comments (comments_open)
+says.line                 These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that turns a feature off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.
+says.line                 comments_open — Keel setting: Disable comments, trackbacks, and pingbacks; also used by Lab Comment Reopener (own callback)
+says.line                 pings_open — Keel setting: Disable comments, trackbacks, and pingbacks; also used by Lab Comment Reopener (own callback)
+```
+
+---
+
+# Earlier measurements (2026-08-04 to 2026-09-16)
+
+Everything below this line is the earlier study, kept as published with its
+staleness notes. Its Keel rows are confirmed current by finding F above; its
+Disable Comments rows by finding E. Other plugins' cells are as measured on the
+dates given.
+
 ## Method
+
+**2026-10-24:** Keel's teardown row was re-measured on WordPress 7.1.3 and matches
+the column published here in every row (see finding F in the 2026-10-24 section
+above), so the "read the Keel comment and REST cells as stale" caveat for 0.6.1
+below is cleared. Disable Comments' column was re-measured at 2.9.0 with the same
+result (finding E). The rest of this section is the original method note.
 
 **0.8.0 release preparation (2026-10-21):** Keel's row labels now track the
 candidate. Autoload/cron attribution does not change the teardowns tabulated here.

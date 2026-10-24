@@ -124,3 +124,25 @@ was enqueued, then passed. Independent review found no actionable issues in the
 runtime, fixture and regression changes. The six-row live installer matrix was not
 rerun: this branch changes keyboard handling and asset loading, not installation.
 #313's post-merge CI is green; final branch CI is checked on the pull request.
+
+## Continuous integration — 2026-10-24
+
+The `Focused accessibility lab` workflow now runs the Chromium leg of this
+regression on every pull request and push to `main`, against fresh WordPress
+latest / PHP 8.3 / MySQL 8.0 single-site and multisite installs built by
+`http-authorization-bootstrap.sh`, with the real Arabic core language pack.
+`focused-accessibility-lab.sh` creates a temporary owner, signs in through
+`wp-login.php`, and removes the owner and the MU fixture wrapper on exit.
+`KEEL_A11Y_ENGINES` limits the engines; the default remains all three.
+
+The sign-in lands on General Settings rather than the Dashboard (WebKit's
+cancelled community-events request) or Profile, whose unload handler throws a
+`serialize` TypeError in Chromium when the next navigation leaves it. That error
+is core's, not Keel's, and it failed the first lab run before the landing page
+changed.
+
+A local run on WordPress 7.1.3 / PHP 8.3 / MariaDB 10.11 with a stub Arabic
+direction catalog passed 14 Chromium combinations, 56 width checks and zero
+scoped axe violations; cleanup removed the owner and wrapper. Firefox and WebKit
+stay a manual pre-release pass, and the manual assistive-technology limits above
+are unchanged.

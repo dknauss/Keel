@@ -1,0 +1,90 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Keel — conflict diagnostics demo",
+    "author": "dknauss",
+    "description": "Keel's rolling main build beside Disable Comments, Classic Editor and Disable XML-RPC from wordpress.org, plus one stand-in host must-use plugin. Opens on the Dashboard notice; Site Health names each overlap and the setting that is not taking effect."
+  },
+  "landingPage": "/wp-admin/",
+  "preferredVersions": {
+    "php": "8.3",
+    "wp": "latest"
+  },
+  "login": true,
+  "steps": [
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "url",
+        "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"
+      },
+      "options": {
+        "activate": true,
+        "targetFolderName": "keel-defaults"
+      },
+      "progress": {
+        "caption": "Installing Keel (main build)"
+      }
+    },
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "disable-comments"
+      },
+      "options": {
+        "activate": true
+      },
+      "progress": {
+        "caption": "Installing Disable Comments"
+      }
+    },
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "classic-editor"
+      },
+      "options": {
+        "activate": true
+      },
+      "progress": {
+        "caption": "Installing Classic Editor"
+      }
+    },
+    {
+      "step": "installPlugin",
+      "pluginData": {
+        "resource": "wordpress.org/plugins",
+        "slug": "disable-xml-rpc"
+      },
+      "options": {
+        "activate": true
+      },
+      "progress": {
+        "caption": "Installing Disable XML-RPC"
+      }
+    },
+    {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/mu-plugins"
+    },
+    {
+      "step": "writeFile",
+      "path": "/wordpress/wp-content/mu-plugins/host-revision-limit.php",
+      "data": "<?php\n/**\n * Plugin Name: Host revision limit (Keel demo stand-in)\n * Description: Playground-only. Stands in for the must-use code a managed host ships to cap post revisions. Keel lists it in Site Health and never raises a notice about it.\n */\n\ndefined( 'ABSPATH' ) || exit;\n\n/**\n * A host cap of five revisions per post.\n *\n * Must-use plugins load before ordinary ones, so at the same priority this runs\n * before Keel's revision limit, and Keel's setting (10 by default) is the one\n * WordPress keeps. The filter registry cannot show that ordering as a problem\n * or as harmless, which is why Keel reports must-use code for information only.\n *\n * @param int     $num  Revisions to keep.\n * @param WP_Post $post Post being revised.\n * @return int\n */\nfunction keel_demo_host_revision_limit( $num, $post ) {\n\tunset( $num, $post );\n\treturn 5;\n}\nadd_filter( 'wp_revisions_to_keep', 'keel_demo_host_revision_limit', 10, 2 );\n"
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\n/**\n * Keel conflict-diagnostics demo: put each plugin in the configuration its own\n * settings screen would save. Runs once, as a blueprint runPHP step.\n */\n\nrequire '/wordpress/wp-load.php';\n\n// Disable Comments 2.9: \"Everywhere\" mode, as its settings screen saves it.\n// db_version must match the plugin's DB_VERSION (8), or its upgrade routine\n// rewrites remove_everywhere from a legacy key on the next load.\nupdate_option(\n\t'disable_comments_options',\n\tarray(\n\t\t'remove_everywhere'        => true,\n\t\t'disabled_post_types'      => array( 'post', 'page', 'attachment' ),\n\t\t'extra_post_types'         => array(),\n\t\t'remove_xmlrpc_comments'   => 0,\n\t\t'remove_rest_API_comments' => 0,\n\t\t'show_existing_comments'   => false,\n\t\t'settings_saved'           => true,\n\t\t'db_version'               => 8,\n\t)\n);\n\n// Classic Editor 1.7: \"Allow users to switch editors: Yes\". That registers its\n// named choose_editor() callback; the default registers only __return_false.\nupdate_option( 'classic-editor-replace', 'classic' );\nupdate_option( 'classic-editor-allow-users', 'allow' );\n\n// Keel: turn on the two settings these plugins contest. Force Classic Editor\n// meets Classic Editor; allowing XML-RPC remote publishing meets Disable XML-RPC,\n// which switches the whole endpoint off behind Keel's back.\n$keel                                   = (array) get_option( 'keel_settings', array() );\n$keel['force_classic_editor']           = 'yes';\n$keel['block_xmlrpc_endpoint']          = 'no';\n$keel['xmlrpc_allow_remote_publishing'] = 'yes';\nupdate_option( 'keel_settings', $keel );\n\n// Keep the Dashboard on Keel's notice rather than core's welcome banner.\nupdate_user_meta( 1, 'show_welcome_panel', 0 );\n"
+    },
+    {
+      "step": "wp-cli",
+      "command": "wp post create --post_type=post --post_title='A post to try the defaults against' --post_status=publish"
+    },
+    {
+      "step": "runPHP",
+      "code": "<?php\n/**\n * Keel conflict-diagnostics demo: let WordPress run the contested filters once,\n * the way real traffic would, so Keel's passive observers have a result to read.\n *\n * Nothing here calls apply_filters() on a policy hook. Rendering a post asks\n * comments_open() and pings_open(); a request to xmlrpc.php builds the server\n * class, whose constructor asks xmlrpc_enabled. Keel records any setting whose\n * final value differs from what it configured, for an hour.\n */\n\nrequire '/wordpress/wp-load.php';\n\n$keel_demo_posts = get_posts( array( 'numberposts' => 1 ) );\nif ( $keel_demo_posts ) {\n\tcomments_open( $keel_demo_posts[0] );\n\tpings_open( $keel_demo_posts[0] );\n}\n\nrequire_once ABSPATH . WPINC . '/class-IXR.php';\nrequire_once ABSPATH . WPINC . '/class-wp-xmlrpc-server.php';\n$keel_demo_class = apply_filters( 'wp_xmlrpc_server_class', 'wp_xmlrpc_server' );\nnew $keel_demo_class();\n"
+    }
+  ]
+}

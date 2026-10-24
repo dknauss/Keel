@@ -146,7 +146,17 @@ function keel_defaults_render_conflicts_notice() {
 			</strong>
 		</p>
 		<p>
-			<?php esc_html_e( 'These were last seen producing a different value from the one configured here, so something else on this site is deciding them. Keel cannot say what: a plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' ); ?>
+			<?php
+			esc_html_e( 'These were last seen producing a different value from the one configured here, so something else on this site is deciding them.', 'keel-defaults' );
+			echo ' ';
+			// Same rule as the Site Health test: claim nobody can be named only
+			// when no plugin on these hooks was.
+			if ( array() === array_diff_key( $divergences, $conflicts ) ) {
+				esc_html_e( 'The plugins named below use the same hooks and are the place to look.', 'keel-defaults' );
+			} else {
+				esc_html_e( 'Keel cannot always say what: a plugin that switches a feature on or off using one of WordPress\'s own helper functions leaves nothing to trace it back by. Your active plugins are the place to look.', 'keel-defaults' );
+			}
+			?>
 		</p>
 		<?php endif; ?>
 		<?php if ( ! empty( $plugins ) ) : ?>
@@ -182,9 +192,13 @@ function keel_defaults_render_conflicts_notice() {
 			</strong>
 		</p>
 		<?php endif; ?>
-		<?php if ( ! empty( $plugins ) || ! empty( $themes ) ) : ?>
+		<?php if ( ! empty( $plugins ) ) : ?>
 		<p>
-				<?php esc_html_e( 'They add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Check that their settings and Keel\'s are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict.', 'keel-defaults' ); ?>
+				<?php esc_html_e( 'These plugins add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Although sharing a hook is not definitive evidence of a conflict, you should check that their settings and Keel\'s are set up to achieve complementary outcomes.', 'keel-defaults' ); ?>
+		</p>
+		<?php elseif ( ! empty( $themes ) ) : ?>
+		<p>
+				<?php esc_html_e( 'Your theme adds filters on the same WordPress hooks as some Keel settings, where whichever runs last can override the other. Although sharing a hook is not definitive evidence of a conflict, you should check that your theme\'s settings and Keel\'s are set up to achieve complementary outcomes.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<?php if ( ! empty( $unnamed ) ) : ?>
@@ -192,8 +206,8 @@ function keel_defaults_render_conflicts_notice() {
 			<?php
 			/* translators: 1: number of settings, 2: opening strong tag, 3: closing strong tag. */
 			$untraceable = _n(
-				'%1$s of %2$sKeel%3$s\'s settings is also affected by code that cannot be traced to any plugin.',
-				'%1$s of %2$sKeel%3$s\'s settings are also affected by code that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings is also being affected by code that cannot be traced to any plugin.',
+				'%1$s of %2$sKeel%3$s\'s settings are also being affected by code that cannot be traced to any plugin.',
 				count( $unnamed ),
 				'keel-defaults'
 			);
@@ -205,7 +219,7 @@ function keel_defaults_render_conflicts_notice() {
 				'</strong>'
 			);
 			?>
-			<?php esc_html_e( 'A plugin that switches a feature off using one of WordPress\'s own helper functions leaves nothing behind to identify it.', 'keel-defaults' ); ?>
+			<?php esc_html_e( 'A plugin that switches a feature on or off using one of WordPress\'s own helper functions leaves nothing behind to identify it.', 'keel-defaults' ); ?>
 		</p>
 		<?php endif; ?>
 		<p>

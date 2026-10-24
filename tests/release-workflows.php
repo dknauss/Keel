@@ -243,6 +243,24 @@ foreach ( $blueprints as $file => $kind ) {
 }
 
 /*
+ * The conflict-diagnostics demo installs three other plugins as well, so it is
+ * kept out of the one-install loop above, but Keel's own install step must agree
+ * with the build just the same. It lands on the Dashboard, not the settings page:
+ * the conflict notice is what it demonstrates.
+ */
+$conflict_demo = json_decode( (string) file_get_contents( $root . '/playground/blueprint-conflict-diagnostics.json' ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+$keel_install  = is_array( $conflict_demo ) && isset( $conflict_demo['steps'][0] ) ? $conflict_demo['steps'][0] : array();
+
+keel_assert(
+	isset( $keel_install['options']['targetFolderName'] ) && $built_folder === $keel_install['options']['targetFolderName'],
+	"The conflict-diagnostics blueprint installs Keel into \"{$built_folder}\" first."
+);
+keel_assert(
+	isset( $keel_install['pluginData']['url'] ) && false !== strpos( $keel_install['pluginData']['url'], 'releases/download/latest/' . $built_zip ),
+	'The conflict-diagnostics blueprint installs the rolling main build, so it shows what main does.'
+);
+
+/*
  * --- the wordpress.org deploy is wired to something that fires ---
  *
  * Nothing in this suite knew wp-deploy.yml existed, and the deploy is the one

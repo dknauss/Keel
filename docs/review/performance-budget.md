@@ -128,6 +128,16 @@ checks, separate JS/CSS linting and targeted tooling/comment cleanup remain open
 Cold external traffic, production MySQL/Redis, OPcache, browser paint and throughput
 remain unmeasured here; prioritize them only when a release/change needs that evidence.
 
+## Release-candidate re-run — 2026-10-24
+
+The [release-candidate record](release-candidate-2026-10-24.md) repeats this
+matrix against tagged 0.8.0 on WordPress 7.1.3 / PHP 8.3 / MariaDB with the
+default object cache, over nine routes including Updates, Site Health and the
+Posts and Plugins lists. Every median is within the regression budget after
+confirmation reruns; the front page adds no queries, markup bytes or assets.
+Query increases on Updates (+2) and Site Health (+4) are explained reads from
+new features. The crowded rebuild measures 3.38 ms against a 20 ms budget.
+
 ## Typography investigation — 2026-10-17
 
 The [compatibility pass](typography-compatibility-2026-10-17.md) measures the
