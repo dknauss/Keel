@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-10-24T19:18:54+00:00\n"
+"POT-Creation-Date: 2026-10-24T19:41:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -313,8 +313,8 @@ msgstr ""
 #: includes/shortcodes.php:229
 #: includes/site-health.php:93
 #: includes/site-health.php:196
-#: includes/site-health.php:572
-#: includes/site-health.php:707
+#: includes/site-health.php:576
+#: includes/site-health.php:711
 #: includes/update-timeline.php:20
 msgid "Keel"
 msgstr ""
@@ -893,10 +893,12 @@ msgid "Your theme may influence some of the same settings as Keel: %s"
 msgstr ""
 
 #: includes/conflict-notices.php:197
+#: includes/site-health.php:862
 msgid "These plugins add filters on the same WordPress hooks as some Keel settings, where the last plugin to run can override the others. Although sharing a hook is not definitive evidence of a conflict, you should check that their settings and Keel's are set up to achieve complementary outcomes."
 msgstr ""
 
 #: includes/conflict-notices.php:201
+#: includes/site-health.php:846
 msgid "Your theme adds filters on the same WordPress hooks as some Keel settings, where whichever runs last can override the other. Although sharing a hook is not definitive evidence of a conflict, you should check that your theme's settings and Keel's are set up to achieve complementary outcomes."
 msgstr ""
 
@@ -1810,231 +1812,223 @@ msgid "Review Keel settings"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:528
+#: includes/site-health.php:532
 #, php-format
 msgid "used by %s, and by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:534
+#: includes/site-health.php:538
 #, php-format
 msgid "used by %s"
 msgstr ""
 
-#: includes/site-health.php:538
+#: includes/site-health.php:542
 msgid "used by code Keel cannot trace to a plugin"
 msgstr ""
 
 #. translators: 1: what Keel uses the hook for, such as "Limit raw HTML and JavaScript to Administrators". 2: what else uses it, such as "used by gravityforms".
-#: includes/site-health.php:546
+#: includes/site-health.php:550
 #, php-format
 msgid "Keel setting: %1$s; also %2$s"
 msgstr ""
 
-#: includes/site-health.php:569
+#: includes/site-health.php:573
 msgid "No breach-screening failures recorded"
 msgstr ""
 
-#: includes/site-health.php:575
+#: includes/site-health.php:579
 msgid "New passwords are screened against the Have I Been Pwned corpus, and nothing has reported a failure."
 msgstr ""
 
-#: includes/site-health.php:587
+#: includes/site-health.php:591
 msgid "Password breach screening is switched off"
 msgstr ""
 
 #. translators: %s: link to the Password Strength setting.
-#: includes/site-health.php:590
+#: includes/site-health.php:594
 #, php-format
 msgid "Strong passwords are not being required, so nothing is screened against known breaches. Turn on %s to enable it."
 msgstr ""
 
-#: includes/site-health.php:591
+#: includes/site-health.php:595
 #: includes/strings.php:58
 msgid "Password Strength"
 msgstr ""
 
-#: includes/site-health.php:609
+#: includes/site-health.php:613
 msgid "Password breach screening is switched off in code"
 msgstr ""
 
-#: includes/site-health.php:611
+#: includes/site-health.php:615
 msgid "Length and the other password rules still apply, but the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter is stopping the breach lookup. This is deliberate configuration, not a fault."
 msgstr ""
 
-#: includes/site-health.php:628
+#: includes/site-health.php:632
 msgid "Password breach-screening coverage is unknown"
 msgstr ""
 
-#: includes/site-health.php:629
+#: includes/site-health.php:633
 msgid "Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
 msgstr ""
 
-#: includes/site-health.php:633
+#: includes/site-health.php:637
 msgid "Password breach screening has no sampled failures"
 msgstr ""
 
-#: includes/site-health.php:635
+#: includes/site-health.php:639
 msgid "This is network-shared screening transport evidence, not proof that a particular site’s last password was checked."
 msgstr ""
 
-#: includes/site-health.php:636
+#: includes/site-health.php:640
 msgid "This is screening transport evidence, not proof that every password was checked."
 msgstr ""
 
-#: includes/site-health.php:640
+#: includes/site-health.php:644
 msgid "Password breach-screening transport evidence is unavailable"
 msgstr ""
 
-#: includes/site-health.php:641
+#: includes/site-health.php:645
 msgid "The shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage."
 msgstr ""
 
-#: includes/site-health.php:644
+#: includes/site-health.php:648
 msgid "the shared allowance for fresh lookups was exhausted"
 msgstr ""
 
-#: includes/site-health.php:645
+#: includes/site-health.php:649
 msgid "the shared lookup slots were busy"
 msgstr ""
 
-#: includes/site-health.php:646
+#: includes/site-health.php:650
 msgid "the shared lookup budget was unavailable"
 msgstr ""
 
-#: includes/site-health.php:647
+#: includes/site-health.php:651
 msgid "the service could not be reached"
 msgstr ""
 
-#: includes/site-health.php:648
+#: includes/site-health.php:652
 msgid "the reply was cut short before it could be read"
 msgstr ""
 
-#: includes/site-health.php:649
+#: includes/site-health.php:653
 msgid "the reply did not contain a valid complete range response"
 msgstr ""
 
 #. translators: %s: HTTP response status code.
-#: includes/site-health.php:656
+#: includes/site-health.php:660
 #, php-format
 msgid "the service answered with HTTP %s"
 msgstr ""
 
-#: includes/site-health.php:658
+#: includes/site-health.php:662
 msgid "the lookup could not complete"
 msgstr ""
 
-#: includes/site-health.php:661
+#: includes/site-health.php:665
 msgid "Password breach screening has sampled unavailability"
 msgstr ""
 
 #. translators: 1: sampled lookup failure reason, 2: elapsed time since the sample.
-#: includes/site-health.php:664
+#: includes/site-health.php:668
 #, php-format
 msgid "A sampled fresh lookup was skipped or could not complete: %1$s. The sample was recorded %2$s ago. Samples are rate-limited, not counts of all skipped or failed checks."
 msgstr ""
 
-#: includes/site-health.php:669
+#: includes/site-health.php:673
 msgid "No unavailability sample is retained. This does not establish that screening has run or that every lookup succeeded."
 msgstr ""
 
 #. translators: %s: elapsed time since a validated live response.
-#: includes/site-health.php:675
+#: includes/site-health.php:679
 #, php-format
 msgid "The last recorded validated live response completed %s ago. This is historical transport evidence, not a guarantee of current availability."
 msgstr ""
 
-#: includes/site-health.php:679
+#: includes/site-health.php:683
 msgid "A later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval."
 msgstr ""
 
-#: includes/site-health.php:682
+#: includes/site-health.php:686
 msgid "No validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery."
 msgstr ""
 
-#: includes/site-health.php:684
+#: includes/site-health.php:688
 msgid "Cached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
 msgstr ""
 
-#: includes/site-health.php:710
+#: includes/site-health.php:714
 msgid "Some Keel settings work by adding a filter to a WordPress hook. Other plugins can add filters to the same hook. When they do, WordPress runs all the filters, and together they decide the result. Sharing a hook does not mean there's a conflict between Keel and the other plugins listed. That may be the case, but often each one has an isolated function and purpose."
 msgstr ""
 
-#: includes/site-health.php:710
+#: includes/site-health.php:714
 msgid "Each item shows the hook name, the Keel setting that uses it, and the other plugins that use it too."
 msgstr ""
 
 #. translators: %s: comma-separated setting names, each followed by its hook.
-#: includes/site-health.php:726
+#: includes/site-health.php:730
 #, php-format
 msgid "Not taking effect: %s"
 msgstr ""
 
-#: includes/site-health.php:728
+#: includes/site-health.php:732
 msgid "These settings were last seen producing a different value from the one configured here, so something else on this site is deciding them."
 msgstr ""
 
-#: includes/site-health.php:741
+#: includes/site-health.php:745
 msgid "The plugins listed below for the same hooks are the place to look."
 msgstr ""
 
-#: includes/site-health.php:743
+#: includes/site-health.php:747
 msgid "Keel cannot always say what: a plugin that turns a feature on or off using one of WordPress's own helper functions leaves nothing to trace it back by. Your active plugins are the place to look."
 msgstr ""
 
-#: includes/site-health.php:749
+#: includes/site-health.php:753
 msgid "Shared, for information only"
 msgstr ""
 
-#: includes/site-health.php:749
+#: includes/site-health.php:753
 msgid "Keel has not confirmed a conflict on any of these. On these hooks, each plugin usually adds its own part without undoing the others — for example, several plugins each granting their own permissions. Or Keel could not tell which plugin the code belongs to. No action is needed unless one of these Keel settings is not working as expected."
 msgstr ""
 
-#: includes/site-health.php:753
+#: includes/site-health.php:757
 msgid "Must-use plugins are installed by a host or a developer and cannot be turned off from the Plugins screen, so Keel lists them here and shows no notice about them."
 msgstr ""
 
-#: includes/site-health.php:772
-#: includes/site-health.php:846
-#: includes/site-health.php:870
+#: includes/site-health.php:776
+#: includes/site-health.php:850
+#: includes/site-health.php:874
 msgid "A setting is not taking effect"
 msgstr ""
 
-#: includes/site-health.php:802
+#: includes/site-health.php:806
 msgid "A Keel setting is also affected by code Keel cannot identify"
 msgid_plural "Some Keel settings are also affected by code Keel cannot identify"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/site-health.php:816
+#: includes/site-health.php:820
 msgid "No other plugin was found changing Keel's settings"
 msgstr ""
 
 #. translators: %s: theme name, or a child theme and its parent, comma-separated.
-#: includes/site-health.php:840
+#: includes/site-health.php:844
 #, php-format
 msgid "Your theme may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:842
-msgid "On these hooks, whichever runs last can override the other. Check that your theme and Keel are set up to achieve complementary outcomes. Sharing a hook is insufficient evidence of a conflict, so you shouldn't switch themes simply for this reason without further investigation."
-msgstr ""
-
-#: includes/site-health.php:846
+#: includes/site-health.php:850
 msgid "Your theme may influence the same settings as Keel"
 msgstr ""
 
 #. translators: %s: comma-separated plugin names.
-#: includes/site-health.php:856
+#: includes/site-health.php:860
 #, php-format
 msgid "Plugins that may change the same settings as Keel: %s"
 msgstr ""
 
-#: includes/site-health.php:858
-msgid "On these hooks, the last plugin to run can override the others. Check that each plugin and Keel are set up to achieve complementary outcomes. Plugins sharing a hook is insufficient evidence of a conflict, so you shouldn't deactivate a plugin simply for this reason without further investigation."
-msgstr ""
-
-#: includes/site-health.php:870
+#: includes/site-health.php:874
 msgid "More than one plugin may influence the same settings"
 msgstr ""
 
