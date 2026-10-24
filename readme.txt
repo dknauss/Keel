@@ -22,9 +22,11 @@ A new WordPress site leaves a lot of small decisions to you: how strong password
 * **Tells you when WordPress itself needs attention.** If WordPress.org flags your version of WordPress as insecure, Keel says so in Site Health. When a secure fix exists for your version, Keel names it and gives an administrator a button to install it. If no fix exists yet, it tells you that too.
 * **Makes safer settings routine.** Better password protection, less exposed to the outside world, and practical choices for updates and revisions, without a collection of small single-purpose plugins.
 * **Stops test sites emailing real people.** Staging and local copies of your site send no email by default, so a copied database cannot email your customers, members, or clients by surprise.
+* **Makes update policy plain.** The Updates screen says which WordPress release line the site follows, where that policy comes from, and links straight to the setting. Plugin and theme auto-updates get their own controls, which leave WordPress's per-item choices alone unless you decide otherwise.
 * **Explains normal WordPress.org update checks.** Site Health Info summarizes the categories core normally sends, without collecting or displaying this site’s values or making extra requests.
 * **Offers optional list-table compaction.** Choose Leave unchanged, Tidy existing tables, or Tidy + helper columns. Tidy uses consistent dates and times. Saved Screen Options remain yours.
-* **Shows you exactly what it is doing.** One Site Health page lists every setting and its current state, and points out likely overlaps with other plugins.
+* **Shows you exactly what it is doing.** One Site Health page lists every setting and its current state, points out likely overlaps with other plugins, checks that Keel's own protections are still registered, and lists plugins that change who may run WordPress abilities.
+* **Hands support a clean report.** An administrator can download a sanitized JSON report of Keel's settings and diagnostics, with no user data, site identifiers, option values or file paths in it.
 * **Keeps a multisite network consistent.** A Super Admin can set chosen defaults for every site from one Network Policy screen. Each site's own choices are kept underneath and come back when the policy is lifted.
 
 = Who it is for =
@@ -105,7 +107,7 @@ Usually, yes, but choose one plugin to own any particular setting. Keel helps by
 
 = Does Keel control plugin and theme auto-updates? =
 
-Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave unchanged. Both default to Leave unchanged, preserving WordPress's per-item choices and other filters. Explicit choices do not rewrite those per-item settings; later filters and global update restrictions still apply. There is no minor-only channel for plugin or theme releases. On multisite, network policy wins, otherwise the main site's Keel setting decides for the shared files. The Updates screen reports cached filter decisions, not installation guarantees.
+Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave unchanged. Both default to Leave unchanged, preserving WordPress's per-item choices and other filters. Explicit choices do not rewrite those per-item settings; later filters and global update restrictions still apply. There is no minor-only channel for plugin or theme releases. On multisite, network policy wins, otherwise the main site's Keel setting decides for the shared files. Site Health → Status, under Update diagnostics, reports the cached filter decisions, not installation guarantees.
 
 = Why is there no password strength meter? =
 
@@ -146,9 +148,22 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 == Changelog ==
 
 = Unreleased =
+* Added: Plugin Auto-Updates and Theme Auto-Updates settings: Enabled, Disabled, or Leave unchanged. Both default to Leave unchanged, which keeps WordPress's per-item choices. An explicit choice never rewrites those choices, and later filters still apply. There is no minor-only option, because plugin and theme version numbers carry no enforced meaning. On multisite, network policy decides for the shared files.
+* Added: a Keel update policy notice on the Updates screen, just above Current version. It names the release line, explains the core update policy and where it comes from, links to the setting, and says plainly that a policy is not a delivery guarantee. WordPress's own text is left as it is.
+* Added: an Update diagnostics panel in Site Health → Status. Plain tables show the release WordPress would install, the age of the last update-check attempt, scheduled checks, retained failure codes, and plugin and theme auto-update decisions. It is evidence for troubleshooting, not a health verdict or an installation schedule.
+* Added: a sanitized JSON report of Keel's settings and diagnostics, downloaded from Settings → Site Defaults. It leaves out site and user identifiers, raw option records, callback paths and full plugin and theme lists. It is built for the download and never stored or sent anywhere. On multisite, network-management authority is required.
+* Added: Site Health → Info lists the categories of data WordPress's normal update checks send to WordPress.org. It shows none of this site's values and makes no requests.
+* Added: a Keel registration audit in Site Health. It checks that the protections for comment feeds, author feeds, author archives, attachment pages and session length are still registered where they can work. It reports what it finds and never runs other plugins' code or repairs anything.
+* Added: on WordPress 7.1 and later, Site Health lists plugins that override Abilities API permission decisions. One such plugin can change who may run an ability, so each is listed for review, not reported as a fault.
+* Changed: Admin List Columns is replaced by one Admin List Tables setting: Leave unchanged, Tidy existing tables, or Tidy + helper columns. Sites that had Admin List Columns on move to Tidy + helper columns, which also sizes post-list columns to their content, shortens known plugin column headings, shows Published dates with times and starts optional columns hidden. ID and Modified stay off until ticked in Screen Options. Saved Screen Options are never changed; choose Leave unchanged in Site Defaults to keep core's tables. In Tidy modes, Modified is sortable, sort arrows stay beside their headings and long values wrap.
 * Fixed: the environment indicator disappeared from the admin bar at 782px and below, because WordPress hides every toolbar item it doesn't recognize on narrow screens. It now stays as a color-coded icon on phones and narrow windows.
 * Changed: the Environments help tab is less than half its old length. The longer reasoning moved to docs/environment-detection.md. It now also says that the Environment setting changes what the indicator says, not whether it appears.
-* Changed: Admin List Columns is replaced by one Admin List Tables setting: Leave unchanged, Tidy existing tables, or Tidy + helper columns. Sites that had Admin List Columns on move to Tidy + helper columns, which also sizes post-list columns to their content, shortens known plugin column headings, shows Published dates with times and starts optional columns hidden. ID and Modified stay off until ticked in Screen Options. Saved Screen Options are never changed; choose Leave unchanged in Site Defaults to keep core's tables.
+* Changed: Have I Been Pwned lookups now share an allowance per site, or per network on multisite: 10 requests to start, then one more each minute, with at most two at once. Up to 64 cached range responses are kept for up to 12 hours. When a fresh check cannot run, the breach result is unknown and the password change goes ahead under the other password rules.
+* Security: on multisite, the older minor-update action also requires network-management permission, malformed setting values are rejected before conversion, and refused requests now answer with HTTP 403. A lab checks 135 authorization cases through real WordPress requests on every pull request.
+* Fixed: locked settings and the update evidence tables can be reached and scrolled by keyboard, with a visible focus outline, and the tables no longer widen the page on a 320px screen.
+* Fixed: overlap diagnostics no longer load another plugin's classes just to name it, and attribution stays within the hook and storage scope it came from. The autoload report now names Keel's own options and core transients.
+* Fixed: the core backport policy action linked to a settings section that no longer exists.
+* Translations: every Canadian spelling in Keel now has an en_CA entry.
 
 = 0.8.0 =
 * Performance: Site Health identifies the ten largest observed autoloaded options, their byte sizes and probable owners with confidence and evidence. Collection runs in bounded, cached background batches. Option values are never exposed or cached; no options are deleted or given different autoload flags.
