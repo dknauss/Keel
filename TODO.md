@@ -51,6 +51,10 @@ the tagged sources. See the
   permission-denial responses to 403. The lab now signs in through `wp-login.php`
   instead of Studio auto-login and runs on every pull request in the
   `HTTP authorization lab` workflow.
+  A release-candidate pass on 2026-10-24 found `main` within the performance
+  budget against 0.8.0 and added a Chromium focused-accessibility workflow; see
+  [the release-candidate record](docs/review/release-candidate-2026-10-24.md).
+  Firefox/WebKit, manual assistive-technology, live-matrix and release steps remain.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
@@ -695,6 +699,7 @@ These are maintenance increments alongside feature work, not new release promise
       plugin ZIP. See the [verification record](docs/review/asset-lint-2026-10-23.md).
 - [ ] **Extend verification when risk warrants it** — assess broader accessibility,
       browser coverage and faithful shared test stubs.
+      Chromium focused accessibility runs in CI since 2026-10-24; Firefox/WebKit stay manual.
       These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — shorten historical narratives
       and audit source-reading tests, packaging and screenshot guards after moves.

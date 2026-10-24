@@ -3,6 +3,10 @@
  * See docs/review/focused-accessibility-2026-10-23.md for fixture setup and limits.
  * Requires playwright and axe-core through local modules or NODE_PATH.
  * Arguments: single-site URL, then multisite URL. Does not submit settings.
+ * KEEL_A11Y_ENGINES limits the engines (comma-separated; default all three).
+ * With KEEL_A11Y_PASSWORD set, KEEL_A11Y_USER signs in through wp-login.php;
+ * otherwise the Studio auto-login route is used. focused-accessibility-lab.sh
+ * sets both, so CI needs no runner-specific login route.
  */
 import { createRequire } from 'node:module';
 import os from 'node:os';
@@ -10,7 +14,15 @@ import path from 'node:path';
 const { chromium, firefox, webkit } = createRequire(import.meta.url)('playwright');
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-const out = await fs.mkdtemp(path.join(os.tmpdir(), 'keel-focused-a11y-'));
+// KEEL_A11Y_OUTPUT names a new evidence directory; an existing one is refused.
+const out = process.env.KEEL_A11Y_OUTPUT
+	? (await fs.mkdir(process.env.KEEL_A11Y_OUTPUT, { recursive: false }), process.env.KEEL_A11Y_OUTPUT)
+	: await fs.mkdtemp(path.join(os.tmpdir(), 'keel-focused-a11y-'));
+const allEngines = { chromium, firefox, webkit };
+const engines = (process.env.KEEL_A11Y_ENGINES || 'chromium,firefox,webkit').split(',').map((e) => e.trim());
+for (const engine of engines) assert.ok(engine in allEngines, `Unknown engine: ${engine}`);
+const loginPassword = process.env.KEEL_A11Y_PASSWORD || '';
+const loginUser = process.env.KEEL_A11Y_USER || 'keel_a11y_owner';
 const rows = [];
 const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 const bases = process.argv.slice(2).filter((arg) => arg.startsWith('http'));
@@ -35,7 +47,8 @@ async function settleScroll(page) {
 			})
 	);
 }
-for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
+for (const engine of engines) {
+	const type = allEngines[engine];
 	const browser = await type.launch();
 	try {
 		for (const base of bases) {
@@ -45,7 +58,20 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
 			const page = await context.newPage();
 			const errors = [];
 			page.on('pageerror', (e) => errors.push(e.message));
-			await page.goto(base + '/studio-auto-login?redirect_to=%2Fwp-admin%2F');
+			// Land on General Settings: WebKit can report the Dashboard's cancelled
+			// community-events request as a page error, and Profile's unload handler
+			// throws in Chromium when the next navigation leaves it.
+			if (loginPassword) {
+				await page.goto(base + '/wp-login.php?redirect_to=' + encodeURIComponent(base + '/wp-admin/options-general.php'));
+				await page.fill('#user_login', loginUser);
+				await page.fill('#user_pass', loginPassword);
+				await Promise.all([
+					page.waitForURL((url) => url.pathname.startsWith('/wp-admin/')),
+					page.click('#wp-submit')
+				]);
+			} else {
+				await page.goto(base + '/studio-auto-login?redirect_to=%2Fwp-admin%2Foptions-general.php');
+			}
 			for (const locale of ['en_US', 'ar']) {
 				await context.addCookies([{ name: 'keel_a11y_locale', value: locale, url: base }]);
 				for (const screen of ['updates', 'health', 'settings', ...(networkSite ? ['network'] : [])]) {
