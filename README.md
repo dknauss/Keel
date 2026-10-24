@@ -16,6 +16,7 @@ No install or hosting required: WordPress Playground opens a disposable WordPres
 
 - **[Try the current stable release](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — the published plugin package.
 - **[Try the current `main` build](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-hosted.json)** — the rolling build for testing changes before a release.
+- **[See the conflict diagnostics](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-conflict-diagnostics.json)** — the stable release beside Disable Comments, Classic Editor and Disable XML-RPC, so the Dashboard notice and **Tools → Site Health** show which plugins share Keel's hooks and which setting another plugin is overriding.
 
 The stable demo follows each release; the rolling demo is rebuilt after successful pushes to `main`. See [the Playground blueprint notes](playground/README.md) for their contracts and a quick availability check.
 
