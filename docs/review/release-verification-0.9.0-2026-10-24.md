@@ -5,8 +5,8 @@ added at the end once the tag is authorized and pushed.
 
 ## Scope
 
-`main` at `9ec7efc` (#335 merged) plus this release PR. 0.9.0 carries everything
-merged since `v0.8.0`, #291 to #335: plugin and theme auto-update policies, the
+`main` at `9443be0` (#336 merged) plus this release PR. 0.9.0 carries everything
+merged since `v0.8.0`, #291 to #336: plugin and theme auto-update policies, the
 Updates-screen policy notice, Site Health update diagnostics, the sanitized JSON
 export, the update data disclosure, the registration audit, Abilities API
 permission overrides, Admin List Tables, the bounded HIBP budget, the comment
@@ -31,7 +31,7 @@ Two behaviors do change for existing sites, and the upgrade notice names both:
 ## Re-check of what merged after the RC pass
 
 The [release-candidate pass](release-candidate-2026-10-24.md) measured `24700af`.
-#328 to #335 merged after it. Each ran the PR gates that now include the
+#328 to #336 merged after it. Each ran the PR gates that now include the
 Chromium accessibility lab and the HTTP authorization lab. Their runtime effects:
 
 - #331 adds one `pre_comment_approved` callback. It runs only when a comment is
@@ -42,6 +42,11 @@ Chromium accessibility lab and the HTTP authorization lab. Their runtime effects
   `keel_password_breached` meta. User meta is primed with the user, so that adds
   no query. The Users view count and Site Health test read user meta once each,
   only on those screens.
+- #336 (merged to `main` after this branch was cut) makes the breached-password
+  Site Health check page through every flagged account before it picks a
+  severity, so an administrator outside the ten listed rows still makes it
+  critical. It runs only on Site Health. It is in the release once this PR
+  merges; its own PR records its tests and lab run.
 
 The performance harness from the RC pass was a scratch tool and was not rerun.
 Nothing above touches the front end, whose markup and query count were identical
@@ -119,10 +124,9 @@ Pull requests merged since `v0.8.0` whose Counterpart line says pending:
 - #302: ported in the AX 0.2.0 preparation, still to merge there. AX's Modified
   helper column now shows the time and sorts. Once it merges, #302's line
   becomes `ported — AX commit <hash>`.
-- #335: **still pending** on #323. The AX port of the login re-check is in
-  progress.
+- #335: ported (AX commit `17cec32`); its line now says so, and #323 is closed.
 
-The sweep has to come back clean before the tag.
+The sweep is clean once #302's line is updated after the AX 0.2.0 merge.
 
 ## Before tagging
 
