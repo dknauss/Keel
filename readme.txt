@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.8.0
+Stable tag: 0.9.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -148,7 +148,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
-= Unreleased =
+= 0.9.0 =
 * Added: Plugin Auto-Updates and Theme Auto-Updates settings: Enabled, Disabled, or Leave unchanged. Both default to Leave unchanged, which keeps WordPress's per-item choices. An explicit choice never rewrites those choices, and later filters still apply. There is no minor-only option, because plugin and theme version numbers carry no enforced meaning. On multisite, network policy decides for the shared files.
 * Added: a Keel update policy notice on the Updates screen, just above Current version. It names the release line, explains the core update policy and where it comes from, links to the setting, and says plainly that a policy is not a delivery guarantee. WordPress's own text is left as it is.
 * Added: an Update diagnostics panel in Site Health → Status. Plain tables show the release WordPress would install, the age of the last update-check attempt, scheduled checks, retained failure codes, and plugin and theme auto-update decisions. It is evidence for troubleshooting, not a health verdict or an installation schedule.
@@ -279,6 +279,9 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 == Upgrade Notice ==
+
+= 0.9.0 =
+Adds plugin and theme auto-update settings, an Updates policy notice, Site Health update diagnostics and a support report. Admin List Columns becomes Admin List Tables. Existing passwords are re-checked for known breaches at login, at most every 30 days. Saved settings carry over.
 
 = 0.8.0 =
 Adds two cached Site Health reports: largest autoloaded options, and cron pressure with core-update delivery evidence. Saved settings and defaults stay unchanged. Reports omit option values, event arguments and failure data, and never delete options, run jobs or change update policy.
