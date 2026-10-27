@@ -110,11 +110,19 @@ function keel_defaults_cron_health() {
 		}
 	}
 	if ( isset( $state['external'] ) && $state['external'] ) {
-		$result['description'] .= '<p>' . esc_html__( 'DISABLE_WP_CRON is enabled. An external scheduler may be intentional; Keel cannot verify whether it is running.', 'keel-defaults' ) . '</p>';
+		$result['description'] .= '<p>' . sprintf(
+			/* translators: %s: DISABLE_WP_CRON. */
+			esc_html__( '%s is enabled. An external scheduler may be intentional; Keel cannot verify whether it is running.', 'keel-defaults' ),
+			'<code>DISABLE_WP_CRON</code>'
+		) . '</p>';
 	}
 	if ( isset( $state['update'] ) ) {
 		$update                 = $state['update'];
-		$result['description'] .= '<p>' . esc_html__( 'Core offers and the core failure record are network-wide on multisite; cron events above belong to this site. Offer age uses WordPress’s last_checked marker, which does not prove a successful response or that an update was available then.', 'keel-defaults' ) . '</p>';
+		$result['description'] .= '<p>' . sprintf(
+			/* translators: %s: last_checked, the update transient's timestamp field. */
+			esc_html__( 'Core offers and the core failure record are network-wide on multisite; cron events above belong to this site. Offer age uses WordPress’s %s marker, which does not prove a successful response or that an update was available then.', 'keel-defaults' ),
+			'<code>last_checked</code>'
+		) . '</p>';
 		$result['description'] .= '<p>' . ( null === $update['offer_age'] ? esc_html__( 'Core offer-cache age: unknown (missing or future timestamp).', 'keel-defaults' ) : sprintf( /* translators: %d: age in seconds. */ esc_html__( 'Core offer-cache age at snapshot: %d seconds.', 'keel-defaults' ), $update['offer_age'] ) ) . '</p>';
 		if ( null !== $update['offer_age'] && $update['offer_age'] > 86400 ) {
 			$result['status'] = 'recommended';

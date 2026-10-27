@@ -575,11 +575,17 @@ function keel_defaults_render_lock_summary( $network_screen = false ) {
 		if ( ! $keys ) {
 			continue;
 		}
-		/* translators: %d: number of settings locked by configuration. */
-		$title = 'config' === $source ? __( 'Locked by wp-config.php (%d)', 'keel-defaults' ) :
+		$title = 'config' === $source ? sprintf(
+			/* translators: 1: wp-config.php. 2: number of settings locked by configuration. */
+			esc_html__( 'Locked by %1$s (%2$d)', 'keel-defaults' ),
+			'<code>wp-config.php</code>',
+			count( $keys )
+		) : sprintf(
 			/* translators: %d: number of settings locked by network policy. */
-			__( 'Locked by network policy (%d)', 'keel-defaults' );
-		echo '<p><strong>' . esc_html( sprintf( $title, count( $keys ) ) ) . '</strong></p><ul>';
+			esc_html__( 'Locked by network policy (%d)', 'keel-defaults' ),
+			count( $keys )
+		);
+		echo '<p><strong>' . $title . '</strong></p><ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped at construction.
 		foreach ( $keys as $key ) {
 			printf( '<li><a href="#%s">%s</a></li>', esc_attr( keel_defaults_setting_anchor( $key ) ), esc_html( $strings[ $key ]['label'] ) );
 		}

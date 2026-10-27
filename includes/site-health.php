@@ -108,10 +108,11 @@ function keel_defaults_site_health_environment() {
 		/* translators: %s: environment name, such as local. */
 		$result['label']       = sprintf( __( 'This site looks live, but WordPress says it is %s', 'keel-defaults' ), $wordpress );
 		$result['description'] = '<p>' . sprintf(
-			/* translators: 1: environment name, such as local. 2: the site's address. */
-			esc_html__( 'WP_ENVIRONMENT_TYPE is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local.', 'keel-defaults' ),
+			/* translators: 1: environment name, such as local. 2: the site's address. 3: WP_ENVIRONMENT_TYPE. */
+			esc_html__( '%3$s is set to %1$s, but this site is served from %2$s. Keel treats the site as %1$s, which can hold back its email, and other plugins may turn features off on a site they think is local.', 'keel-defaults' ),
 			'<strong>' . esc_html( $wordpress ) . '</strong>',
-			$site
+			$site,
+			'<code>WP_ENVIRONMENT_TYPE</code>'
 		) . '</p>' . keel_defaults_environment_fix_advice();
 
 		// A copied database can be both: say so here too, as the notices do.
