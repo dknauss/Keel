@@ -147,6 +147,29 @@ flagged breached account.
   and the cron report regions lacked `keel-defaults-update-table-scroll`, the class
   the outline rule and the arrow-key helper target. #339 adds it to both.
 
+**VoiceOver with native Safari.** VoiceOver ran in Safari 27.0.1 against the same
+lab site. The spoken text was captured from VoiceOver's last phrase after each move,
+not inferred from the accessibility tree.
+
+- Update diagnostics tables: each is announced as a named region, then "table 3
+  columns, 5 rows", and every cell is read with its column header, for example
+  "Status Blocked column 2 of 3". The plugins/themes and "Changed by code" tables
+  behave the same. One stray "group" stop follows a core row.
+- Breached passwords Site Health panel: the toggle reads "1 account has a password
+  found in a known breach Keel collapsed button". The intro, region and table
+  follow, each cell with its header ("Actions link Set a new password for admin
+  column 4 of 4"), then the link to the Users view. Unlike the update tables, the
+  table's size is not announced.
+- Users screen: "Breached passwords (1)" is a link in the "Filter users list"
+  views, announced as the current page when selected, with a "Breach found" column.
+- The owner's breach notice is read in full, followed by "link Change your password".
+- Updates policy notice: read in a sensible order, but "Keel update policy" is
+  plain bold text, not a heading, and each line is read as link and text pieces.
+
+None of these blocks a task. The two minor points (the notice title and the
+breached table's size) are recorded for a later pass. VoiceOver was turned off
+afterwards.
+
 **WordPress.com settings save.** On a connected Atomic site running Keel 0.8.0 with
 `xmlrpc_allow_multicall = no` (read with WP-CLI before and after), "Week starts on"
 was saved through the WordPress.com site-settings API, Monday to Sunday and back.
@@ -163,11 +186,10 @@ disabled on this site."
 These need a machine with more than Chromium, or a person:
 
 1. ~~Firefox and WebKit~~: done in CI; see run 40135696116 above.
-2. **VoiceOver with Safari**: the documented manual pass, covering the Updates
-   policy notice, the Site Health update diagnostics tables, the Breached passwords
-   Site Health panel and Users view, and the owner's breach warning.
-3. **Native Safari keyboard**: the WebKit pass above is done; the native Safari app
-   pass still needs Accessibility permission on the maintainer's machine.
+2. ~~VoiceOver with Safari~~: done; see above.
+3. **Native Safari keyboard**: the WebKit pass above is done. The native Safari app
+   pass is still open, because macOS refused synthetic keystrokes; it needs a person
+   to Tab through, or Accessibility permission for the automation.
 4. ~~WordPress.com settings save~~: done; see above.
 5. ~~A clean counterpart sweep~~: done. #302 is ported as AX commit `937c888`.
 
