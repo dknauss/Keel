@@ -194,7 +194,7 @@ anonymous routes. Measured with each plugin's enumeration protection on:
 | REST `/wp/v2/posts?_embed=author` | leaks | closed | closed | **leaks** | closed | leaks | closed |
 | Users sitemap `wp-sitemap-users-1.xml` | leaks | closed | closed | **leaks** | closed | leaks | closed |
 | oEmbed `author_url` | leaks | **leaks** | closed | closed | closed | leaks | closed |
-| Feed `<dc:creator>` (the login, by default) | leaks | **leaks** | **leaks** | **leaks** | **leaks** | leaks | replaced |
+| Feed `<dc:creator>` (the post author's display name; the login when the two match) | leaks | **leaks** | **leaks** | **leaks** | **leaks** | leaks | replaced |
 | Block editor's own user reads (admin) | 200 | 200 | 200 | 200 | 200 | 200 | 200 |
 
 What each column means in practice:
@@ -231,14 +231,28 @@ What each column means in practice:
   the oEmbed API, the WordPress REST API, and WordPress XML Sitemaps"). On those
   routes it **delivers**, and the extract confirms the code does what the source
   says.
-- **The feed is the route nobody closes.** WordPress's installer sets the first
-  administrator's display name to their login, and `<dc:creator>` prints the
-  display name, so `/feed/` carries `<dc:creator><![CDATA[admin]]></dc:creator>`
-  on every site that never changed it. No plugin in the field touches it (for
-  Wordfence and AIOS, confirmed by searching their source for any filter on the
-  author name). Keel, while author archives are disabled, replaces every author
-  name in feeds with "Site Contributor" (`keel_defaults_mask_feed_author()`,
-  `includes/content.php`), and leaves bylines on the site itself alone.
+- **The feed is the gap they all share.** Core's RSS template prints each
+  post author's display name in `<dc:creator>` (`the_author()`, which returns
+  `display_name`). It doesn't look up the first administrator or expose a role.
+  WordPress's installer sets the first administrator's display name to their
+  login, so on this lab, where `admin` wrote post 1, `/feed/` carries
+  `<dc:creator><![CDATA[admin]]></dc:creator>`. Any author whose public name
+  matches their login is exposed the same way. No plugin in the field changes
+  feed author attribution (for Wordfence and AIOS, confirmed by searching their
+  source for any filter on the author name). This is a coverage gap, not
+  evidence of a deliberate choice: Wordfence's setting lists the routes it
+  covers, feeds aren't among them, and it closes every route it lists. Keel,
+  while author archives are disabled, replaces every author name in feeds with
+  "Site Contributor" (`keel_defaults_mask_feed_author()`, `includes/content.php`)
+  and leaves bylines on the site itself alone. That trades away feed
+  attribution; a gentler option would flag a display name that matches a login
+  and ask the owner to choose another public name.
+- **Core's policy is looser than the field's.** WordPress doesn't treat
+  usernames or user IDs as private ([#50254](https://core.trac.wordpress.org/ticket/50254),
+  [#53561](https://core.trac.wordpress.org/ticket/53561#comment:1)). Enumeration
+  protection is a stricter policy that these plugins add, so the matrix measures
+  two things separately: whether a plugin covers the routes its own setting
+  names, and what still discloses a login with that setting on.
 - **Sucuri** has no username-discovery setting at all; its column is stock, and is
   shown because it is the setting people look for in a security plugin.
 
@@ -328,20 +342,32 @@ in neither the `Location` header nor the body).
 ### The account-discovery matrix
 
 Legend: ✅ closed / delivers · ❌ open · ⚠️ partial · — not offered · *(c)* code
-review only.
+review only. *(d)* this pass recorded the route list a setting claims only
+for Wordfence and Stop User Enumeration; Really Simple Security's and AIOS's
+setting text needs checking before they're scored on this row.
 
 | | Wordfence 9.0.2 | RSS 9.8.3 | AIOS 5.4.10 | SUE 1.7.10 | Sucuri 2.8.1 | **Keel** 0.8.0 |
 |---|---|---|---|---|---|---|
+| **Claimed-route coverage:** closes every route its own setting names | ✅ | not recorded *(d)* | not recorded *(d)* | ✅ | — | ✅ |
 | `/?author=N` closed (incl. array, POST, `index.php`) | ✅ 404 | ⚠️ closed as **500**; array form passes | ✅ 403 | ⚠️ 403; array form passes | — | ✅ 301 home |
 | REST users list, single, `?rest_route=`, mixed case | ✅ | ✅ | ✅ | ✅ | — | ✅ |
 | REST `_embed=author` closed | ✅ | ✅ | ❌ **leaks slug** | ✅ | — | ✅ |
 | Users sitemap removed | ✅ | ✅ | ❌ | ✅ | — | ✅ |
 | oEmbed author fields removed | ✅ both | ❌ both kept | ✅ both | ⚠️ `author_url` only | — | ✅ |
-| Feed `<dc:creator>` login hidden | ❌ *(c)* | ❌ | ❌ *(c)* | ❌ | — | ✅ |
 | Login form answers the same for real and unknown accounts | ✅ *(c)* | ✅ | not extracted | — | — | ❌ |
 | Lost-password form answers the same | ✅ *(c)* | ❌ **302 vs 200** | not extracted | — | — | ❌ |
 | Block editor's user reads still work for an administrator | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | On by default after activation | ✅ | ❌ | ❌ | ✅ | — | ✅ |
+
+**Remaining login disclosure** with the setting on, kept separate from claimed
+coverage so a plugin that does everything it promises isn't scored as failing
+it. The feed shows the post author's display name, which is the login only when
+the two match, as they do for the installer's administrator on this lab.
+
+| | Wordfence 9.0.2 | RSS 9.8.3 | AIOS 5.4.10 | SUE 1.7.10 | Sucuri 2.8.1 | **Keel** 0.8.0 |
+|---|---|---|---|---|---|---|
+| Feed `<dc:creator>` login hidden | ❌ *(c)* | ❌ | ❌ *(c)* | ❌ | — | ✅ |
+| Other routes still naming the account | none | oEmbed | `_embed`, users sitemap | oEmbed `author_name` | all (no setting) | none |
 
 The "array form passes" cells are `/?author[]=1`. On this lab core does not
 resolve that to an author archive, so nothing leaks through it today; it is
