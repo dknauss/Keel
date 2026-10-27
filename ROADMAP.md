@@ -3,7 +3,7 @@
 Where Keel is going, and what has to be true before each step. Milestone-level; the
 task-level checklist is [TODO.md](TODO.md).
 
-**Current version: `0.9.0` (release candidate; not yet published)**. Keel was first published on wordpress.org as
+**Current version: `0.9.0` (published 2026-10-27)**. Keel was first published on wordpress.org as
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
@@ -107,8 +107,7 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation. The
-  0.9.0 pre-tag gates passed on 2026-10-27; tagging and publishing each wait for the
-  maintainer's explicit go. Routine PHPStan expansion stays paused.
+  0.9.0 pre-tag gates passed and 0.9.0 was published on 2026-10-27. Routine PHPStan expansion stays paused.
 
 ## Release completion — 2026-10-15
 
@@ -227,7 +226,7 @@ report-only first, asynchronous and cached, bounded on large databases,
 multisite-aware, and tested with persistent caches, external cron and localized
 installs. Site Health must not become the performance problem it is diagnosing.
 
-## 0.9.0 update operations and support — release candidate
+## 0.9.0 update operations and support — released 2026-10-27
 
 Everything below is merged. Version metadata, changelog and upgrade notice are
 prepared for 0.9.0 (44 settings; PHP 7.4 and WordPress 6.4 floors unchanged).

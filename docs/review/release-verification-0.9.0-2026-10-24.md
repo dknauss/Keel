@@ -1,7 +1,7 @@
 # Keel 0.9.0 verification — candidate, 2026-10-24
 
-This record covers the release candidate. Publication and artifact checks are
-added at the end once the tag is authorized and pushed.
+This record covers the release candidate and, at the end, its publication on
+2026-10-27.
 
 ## Scope
 
@@ -216,4 +216,33 @@ Unchanged from 0.8.0, and only with the maintainer's go-ahead at each public ste
 5. Dispatch the real WordPress.org deployment (`dry_run=false`) and approve it.
    Verify the SVN revision, both public ZIPs and the listing assets.
 
-No tag, GitHub release, WordPress.org upload or SVN commit has been made.
+## Publication — 2026-10-27
+
+Each public step had the maintainer's go-ahead.
+
+- The draft GitHub release was created first, then the annotated `v0.9.0` tag
+  was pushed on `1b0672f`. The tag's two Release runs (40591502622,
+  40591505237) were cancelled while their deploy jobs waited for approval.
+- The draft's `keel.zip` (315,560 bytes) unpacks to the same tree as a local
+  rebuild of `v0.9.0`. `SHA256SUMS` was uploaded beside it:
+  `5b1da0e7446e217722772c415e84e3ac9dcef7cd13b37850e3039697daeb06de  keel.zip`.
+- The protected WordPress.org dry run (run 40592490260) passed and committed
+  nothing.
+- The GitHub release was published at 22:12 UTC.
+- The real deployment (run 40594261924, `dry_run=false`) passed. The
+  WordPress.org plugin API lists `keel-defaults` 0.9.0, updated
+  2026-10-27 22:27 UTC, with the `0.9.0` tag among its versions.
+- Agency Experience `v0.2.0` was tagged on `937c888`. It has no release workflow.
+
+Checked afterwards from the maintainer's Mac, read-only:
+
+- SVN `tags/0.9.0` was added in r3769617 at 22:27:12 UTC by `dpknauss`.
+- Both public ZIPs, `keel-defaults.0.9.0.zip` and `keel-defaults.zip`, are
+  byte-identical (SHA-256 `b51162439dfad67d5d57b54d6a798c62616b0906d40f9a00171e59d8e66e8925`).
+  WordPress.org builds its own archive, so this hash differs from the GitHub
+  ZIP's. The GitHub ZIP still matches `SHA256SUMS`.
+- Unpacked, the public ZIP and the GitHub ZIP hold the same 60 files under one
+  `keel-defaults` folder, and `diff -rq` finds no difference. All three trees say
+  `Version: 0.9.0` and `Stable tag: 0.9.0`.
+- All 10 listing images (two banners, three icons, five screenshots) return
+  HTTP 200 from `ps.w.org`.
