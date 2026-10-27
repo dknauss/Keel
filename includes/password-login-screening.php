@@ -583,7 +583,7 @@ function keel_defaults_breached_users_table( $users, $total = 0 ) {
 			number_format_i18n( $shown )
 		);
 	}
-	$html    = '<div class="keel-defaults-update-table-scroll" role="region" tabindex="0" aria-label="' . esc_attr( $caption ) . '" style="max-width:100%;overflow-x:auto"><table class="widefat striped keel-breached-accounts" style="min-width:560px"><caption>' . esc_html( $caption ) . '</caption><thead><tr>';
+	$html = '<div class="keel-defaults-update-table-scroll" role="region" tabindex="0" aria-label="' . esc_attr( $caption ) . '" style="max-width:100%;overflow-x:auto"><table class="widefat striped keel-breached-accounts" style="min-width:560px"><caption>' . esc_html( $caption ) . '</caption><thead><tr>';
 
 	foreach ( array( __( 'Account', 'keel-defaults' ), __( 'Role', 'keel-defaults' ), __( 'Breach found', 'keel-defaults' ), __( 'Actions', 'keel-defaults' ) ) as $heading ) {
 		$html .= '<th scope="col">' . esc_html( $heading ) . '</th>';
