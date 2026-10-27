@@ -53,6 +53,6 @@ foreach ( array_keys( $documented ) as $hook ) {
 preg_match( '/Keel has (\d+) filters and (\d+)\s+actions/', $reference, $counts );
 $actions = (int) preg_match_all( '/^\|\s*`keel_[a-z0-9_]+`\s*\|\s*action\s*\|/m', $reference );
 keel_hooks_assert( ! empty( $counts ), 'docs/hooks.md states how many filters and actions there are.' );
-keel_hooks_assert( (int) $counts[1] === count( $documented ) - $actions && (int) $counts[2] === $actions, 'The filter and action counts in docs/hooks.md match its rows.' );
+keel_hooks_assert( count( $documented ) - $actions === (int) $counts[1] && $actions === (int) $counts[2], 'The filter and action counts in docs/hooks.md match its rows.' );
 
 echo 'Hooks reference: ' . count( $fired ) . " hooks documented.\n";
