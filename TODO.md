@@ -387,8 +387,8 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 - [x] **Tag and publish 0.9.0** — tagged on `1b0672f`, dry run passed, GitHub
   release published and deployed to WordPress.org on 2026-10-27 (run 40594261924).
   See the [verification record](docs/review/release-verification-0.9.0-2026-10-24.md).
-- [ ] **Verify the public 0.9.0 ZIPs** — record the SVN revision and compare both
-  WordPress.org ZIPs with the GitHub ZIP.
+- [x] **Verify the public 0.9.0 ZIPs** — SVN r3769617; both WordPress.org ZIPs
+  unpack to the same 60 files as the GitHub ZIP, and the listing assets load.
 
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased; no version bump or release.

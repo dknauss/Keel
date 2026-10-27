@@ -234,5 +234,15 @@ Each public step had the maintainer's go-ahead.
   2026-10-27 22:27 UTC, with the `0.9.0` tag among its versions.
 - Agency Experience `v0.2.0` was tagged on `937c888`. It has no release workflow.
 
-Still to check from a machine that can reach WordPress.org: the SVN revision,
-both public ZIPs against the GitHub ZIP, and the listing assets.
+Checked afterwards from the maintainer's Mac, read-only:
+
+- SVN `tags/0.9.0` was added in r3769617 at 22:27:12 UTC by `dpknauss`.
+- Both public ZIPs, `keel-defaults.0.9.0.zip` and `keel-defaults.zip`, are
+  byte-identical (SHA-256 `b51162439dfad67d5d57b54d6a798c62616b0906d40f9a00171e59d8e66e8925`).
+  WordPress.org builds its own archive, so this hash differs from the GitHub
+  ZIP's. The GitHub ZIP still matches `SHA256SUMS`.
+- Unpacked, the public ZIP and the GitHub ZIP hold the same 60 files under one
+  `keel-defaults` folder, and `diff -rq` finds no difference. All three trees say
+  `Version: 0.9.0` and `Stable tag: 0.9.0`.
+- All 10 listing images (two banners, three icons, five screenshots) return
+  HTTP 200 from `ps.w.org`.
