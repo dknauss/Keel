@@ -104,21 +104,25 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 	$selection = keel_defaults_selection_state( $state, $selected );
 	$rows      = array();
 
-	// Blocker codes only; detailed policy context stays with the update controls.
+	// Blocker codes only; detailed policy context stays with the update controls. Escaped here.
 	$reasons = array(
-		'file_mods'                   => __( 'file changes are turned off', 'keel-defaults' ),
-		'automatic_disabled_constant' => __( 'automatic updates are turned off in wp-config.php', 'keel-defaults' ),
-		'automatic_disabled_filter'   => __( 'a plugin or theme turns automatic updates off', 'keel-defaults' ),
-		'automatic_disabled_unknown'  => __( 'automatic updates are turned off', 'keel-defaults' ),
-		'credentials'                 => __( 'WordPress needs file credentials to update', 'keel-defaults' ),
-		'previous_failure'            => __( 'an earlier update failed and WordPress won’t retry', 'keel-defaults' ),
-		'vcs'                         => __( 'the site is under version control', 'keel-defaults' ),
+		'file_mods'                   => esc_html__( 'file changes are turned off', 'keel-defaults' ),
+		'automatic_disabled_constant' => sprintf(
+			/* translators: %s: wp-config.php. */
+			esc_html__( 'automatic updates are turned off in %s', 'keel-defaults' ),
+			'<code>wp-config.php</code>'
+		),
+		'automatic_disabled_filter'   => esc_html__( 'a plugin or theme turns automatic updates off', 'keel-defaults' ),
+		'automatic_disabled_unknown'  => esc_html__( 'automatic updates are turned off', 'keel-defaults' ),
+		'credentials'                 => esc_html__( 'WordPress needs file credentials to update', 'keel-defaults' ),
+		'previous_failure'            => esc_html__( 'an earlier update failed and WordPress won’t retry', 'keel-defaults' ),
+		'vcs'                         => esc_html__( 'the site is under version control', 'keel-defaults' ),
 	);
 	if ( 'blocked' === $selection ) {
 		$notes = array();
 		foreach ( $state['blockers'] as $blocker ) {
 			$code    = (string) $blocker['code'];
-			$notes[] = ( isset( $reasons[ $code ] ) ? esc_html( $reasons[ $code ] ) . ' ' : '' ) . '(<code>' . esc_html( $code ) . '</code>)';
+			$notes[] = ( isset( $reasons[ $code ] ) ? $reasons[ $code ] . ' ' : '' ) . '(<code>' . esc_html( $code ) . '</code>)';
 		}
 		$rows[] = array( esc_html__( 'Next automatic install', 'keel-defaults' ), esc_html__( 'Blocked', 'keel-defaults' ), esc_html__( 'WordPress won’t install core updates on its own because', 'keel-defaults' ) . ' ' . implode( '; ', $notes ) . '.' );
 	} elseif ( 'scheduled' === $selection ) {
@@ -173,7 +177,11 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 	}
 
 	if ( $external ) {
-		$rows[] = array( esc_html__( 'WP-Cron', 'keel-defaults' ), esc_html__( 'Turned off', 'keel-defaults' ), esc_html__( 'DISABLE_WP_CRON is set, so a server task (an external scheduler) has to run scheduled jobs. Keel can’t tell whether it does.', 'keel-defaults' ) );
+		$rows[] = array( esc_html__( 'WP-Cron', 'keel-defaults' ), esc_html__( 'Turned off', 'keel-defaults' ), sprintf(
+			/* translators: %s: DISABLE_WP_CRON. */
+			esc_html__( '%s is set, so a server task (an external scheduler) has to run scheduled jobs. Keel can’t tell whether it does.', 'keel-defaults' ),
+			'<code>DISABLE_WP_CRON</code>'
+		) );
 	}
 
 	$failure = $update['failure'];

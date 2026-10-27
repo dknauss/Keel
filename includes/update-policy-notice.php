@@ -33,10 +33,19 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 	$off     = keel_defaults_background_updates_off();
 	$network = keel_defaults_network_manages( 'core_update_policy' );
 	if ( null !== $off ) {
-		/* translators: %s: configuration constant disabling background updates. */
-		$source = sprintf( esc_html__( 'Background updates are disabled by %s in wp-config.php.', 'keel-defaults' ), '<code>' . esc_html( $off ) . '</code>' );
+		$source = sprintf(
+			/* translators: 1: configuration constant disabling background updates. 2: wp-config.php. */
+			esc_html__( 'Background updates are disabled by %1$s in %2$s.', 'keel-defaults' ),
+			'<code>' . esc_html( $off ) . '</code>',
+			'<code>wp-config.php</code>'
+		);
 	} elseif ( defined( 'WP_AUTO_UPDATE_CORE' ) ) {
-		$source = esc_html__( 'Its core update policy is set by WP_AUTO_UPDATE_CORE in wp-config.php.', 'keel-defaults' );
+		$source = sprintf(
+			/* translators: 1: WP_AUTO_UPDATE_CORE. 2: wp-config.php. */
+			esc_html__( 'Its core update policy is set by %1$s in %2$s.', 'keel-defaults' ),
+			'<code>WP_AUTO_UPDATE_CORE</code>',
+			'<code>wp-config.php</code>'
+		);
 	} else {
 		$source = esc_html__( 'Its update policy is set by Keel network policy.', 'keel-defaults' );
 		if ( ! $network ) {

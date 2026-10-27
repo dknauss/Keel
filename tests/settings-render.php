@@ -346,7 +346,7 @@ $locked_html = keel_render( array() );
 
 keel_assert( false === strpos( $stock, 'class="keel-lock-summary"' ), 'An unlocked site has no lock summary.' );
 keel_assert( 4 === substr_count( $locked_html, 'class="keel-lock-marker"' ), 'All four update-policy configuration locks carry visible markers.' );
-keel_assert( false !== strpos( $locked_html, 'Locked by wp-config.php (4)' ), 'The summary counts configuration locks.' );
+keel_assert( false !== strpos( $locked_html, 'Locked by <code>wp-config.php</code> (4)' ), 'The summary counts configuration locks.' );
 keel_assert( false !== strpos( $locked_html, 'href="#keel-setting-core-update-policy"' ), 'The summary links to the locked setting.' );
 
 $GLOBALS['keel_test_multisite'] = true;
