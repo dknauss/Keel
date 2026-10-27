@@ -71,17 +71,22 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   for evidence, cleanup and manual-screen-reader/native-Safari limits. #317 merged
   as `c2c967c`; #318 merged as `0a619bd`, including the lab cleanup correction.
   Both are unreleased; no new setting, version bump or release.
-- [ ] **Get an en_CA language pack built** — an en_CA site shows US spellings
-  ("behavior") because translate.wordpress.org has no approved en_CA strings. On
-  2026-10-23, Stable had 0 translated, 364 waiting and 140 untranslated, so no pack
-  was built. The maintainer requested the en_CA Project Translation Editor role on
-  Polyglots that day. Once it is granted, import the complete en_CA catalog into
-  Stable and Development as approved; a pack follows at 90%. The repository catalog
-  now covers every Canadian spelling (#308) and is the source for that import.
-  Bundling the catalog in the zip again is a fallback we chose not to take: the
-  0.5.3 review asked for its removal, a language pack overrides a bundled copy, and
-  WordPress before 6.8 would need `load_plugin_textdomain()`, which Plugin Check
-  flags.
+- [x] **Get an en_CA language pack built** — on 2026-10-26 Polyglots granted the
+  maintainer the en_CA Project Translation Editor role. On 2026-10-27 the full 0.9.0
+  en_CA catalog was imported as approved into Stable and Development: both read
+  715/715 approved (100%) with nothing waiting, above the 90% a pack needs. The
+  repository catalog covers every Canadian spelling (#308) and was the source for
+  that import. Bundling the catalog in the zip again is a fallback we chose not to
+  take: the 0.5.3 review asked for its removal, a language pack overrides a bundled
+  copy, and WordPress before 6.8 would need `load_plugin_textdomain()`, which Plugin
+  Check flags.
+- [ ] **Re-import en_CA after each release with new strings** — translate.wordpress.org
+  only approves what has been imported, so every release that adds or changes strings
+  drops en_CA below 100% until the catalog is imported again. The next one is the
+  release that ships #347's Help tab copy edit and new Updates tab (33 new strings).
+  After that release reaches SVN, rebuild the import file from the released `.pot`
+  and `languages/keel-defaults-en_CA.po`, import it into Stable and Development as
+  approved, and confirm both read 100%.
 
 - **Current state (2026-10-24):** the focused Updates-screen verification pass is
   complete; see the [verification record](docs/review/updates-screen-verification-2026-10-23.md).
