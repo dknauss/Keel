@@ -55,14 +55,14 @@ the tagged sources. See the
   budget against 0.8.0 and added a Chromium focused-accessibility workflow; see
   [the release-candidate record](docs/review/release-candidate-2026-10-24.md).
   Firefox and WebKit then passed in CI, and the manual VoiceOver, native Safari
-  keyboard and WordPress.com checks passed on 2026-10-27; only the 0.9.0 tag and
-  publication remain (see the 0.9.0 section below).
+  keyboard and WordPress.com checks passed on 2026-10-27. 0.9.0 was published on 2026-10-27
+  (see the 0.9.0 section below).
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. The WordPress.com settings-save confirmation
-  passed on 2026-10-27. Continue dated field observation. Tagging and publishing
-  0.9.0 each wait for the maintainer's explicit go. Routine PHPStan expansion stays paused.
+  passed on 2026-10-27. Continue dated field observation. 0.9.0 was published on
+  2026-10-27. Routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -376,7 +376,7 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
-## 0.9.0 update operations and support — release candidate
+## 0.9.0 update operations and support — released 2026-10-27
 
 - [x] **Prepare 0.9.0** — version metadata, changelog and upgrade notice finalized.
 - [x] **Firefox and WebKit focused accessibility** — passed in CI (run 40135696116).
@@ -384,8 +384,11 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   the WordPress.com settings save passed on 2026-10-27 (#339); the counterpart sweep
   is clean (#302 is ported as AX `937c888`). Evidence is in the
   [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
-- [ ] **Tag and publish 0.9.0** — draft the release, tag, run the protected
-  WordPress.org dry run, then publish; each step waits for the maintainer's go.
+- [x] **Tag and publish 0.9.0** — tagged on `1b0672f`, dry run passed, GitHub
+  release published and deployed to WordPress.org on 2026-10-27 (run 40594261924).
+  See the [verification record](docs/review/release-verification-0.9.0-2026-10-24.md).
+- [ ] **Verify the public 0.9.0 ZIPs** — record the SVN revision and compare both
+  WordPress.org ZIPs with the GitHub ZIP.
 
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased; no version bump or release.
