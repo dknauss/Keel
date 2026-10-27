@@ -80,6 +80,8 @@ Use at least 30 samples after five warm-ups; rerun a breach to confirm it.
 
 - Normal frontend: zero additional database queries, writes or outbound requests
   for healthy passive conflict observation; no new frontend JS/CSS for diagnostics.
+  The query, read and write half is asserted on a real install by
+  `tests/integration/conflict-hot-path.php` in the live core backport matrix.
 - Refactor regression: median increase no greater than max(2 ms, 5%); p95 increase
   no greater than max(5 ms, 10%) on each route compared with the accepted revision.
 - Bare frontend overhead: median no greater than 5 ms above no-Keel on this fixture.

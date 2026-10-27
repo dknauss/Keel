@@ -61,6 +61,12 @@ at priority 99 (`fixtures/lab-comment-reopener*`, copied into
 what do the comment plugin's own diagnostics say? Readers exist for Keel and
 Disable Comments. It deactivates every plugin before and after, so lab only.
 
+**`conflict-hot-path.php`** — run with `wp eval-file`. Does the conflict
+observer cost an ordinary request nothing on a real install? Fires every watched
+hook fifty times and asserts zero queries, zero reads of the divergence record
+and zero writes, then forces one divergence to prove it is recorded once. The
+live core backport matrix runs it on MySQL, and with Redis on the multisite row.
+
 **`probe-comment-paths.sh`** — every way core creates a comment (the form, an
 authenticated REST create, a REST Note, XML-RPC `wp.newComment`, a real pingback),
 and whether each one landed. Pair it with `probe-configs-comment-paths/keel.php`,
