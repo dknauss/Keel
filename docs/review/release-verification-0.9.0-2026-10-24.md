@@ -121,12 +121,42 @@ Pull requests merged since `v0.8.0` whose Counterpart line says pending:
 
 - #331: delivered (AX commits `75ebc87` and `14f46a2`), and #333 is closed. Its
   line now says ported.
-- #302: ported in the AX 0.2.0 preparation, still to merge there. AX's Modified
-  helper column now shows the time and sorts. Once it merges, #302's line
-  becomes `ported — AX commit <hash>`.
+- #302: ported (AX commit `937c888`, the AX 0.2.0 merge). AX's Modified helper
+  column now shows the time and sorts.
 - #335: ported (AX commit `17cec32`); its line now says so, and #323 is closed.
 
-The sweep is clean once #302's line is updated after the AX 0.2.0 merge.
+The sweep is clean.
+
+## Checks on the maintainer's machine, 2026-10-27
+
+**Keyboard (WebKit).** Native Safari could not be driven, because the session had
+no Accessibility permission. Option+Tab passes ran instead in Playwright WebKit 27.2
+against a disposable local Studio site running `main` at `dddabf1` (built with
+`bin/build-zip.sh`), with the synthetic update fixtures, two lock constants and a
+flagged breached account.
+
+- No focus traps. On Settings > Keel every stop shows a focus ring; the locked Core
+  Auto-Updates and Post Revision Retention fields stay tabbable (`aria-disabled`),
+  show a ring, and are described by their lock note.
+- The Updates policy notice links and the Users "Breached passwords (1)" view link
+  are reachable with a ring.
+- The update diagnostics tables show a 2px outline on focus and scroll fully with
+  ArrowRight at 360px. They do not overflow at 600px or wider.
+- **Found and fixed:** the Site Health breached-accounts scroll region had no visible
+  focus outline, and ArrowRight did not scroll it at 360px (285px of overflow). It
+  and the cron report regions lacked `keel-defaults-update-table-scroll`, the class
+  the outline rule and the arrow-key helper target. #339 adds it to both.
+
+**WordPress.com settings save.** On a connected Atomic site running Keel 0.8.0 with
+`xmlrpc_allow_multicall = no` (read with WP-CLI before and after), "Week starts on"
+was saved through the WordPress.com site-settings API, Monday to Sunday and back.
+Both saves reported `applied: remote`, and WP-CLI on the site read 0 and then 1
+within a minute of each. There was no transport error or 405. Before the first
+save, WordPress.com reported Sunday while the site held Monday, so WordPress.com's
+cached copy was stale; the saves themselves reached the site. An unsigned
+multicall probe got HTTP 429 from the host's edge, so the refusal fault was not
+observed there; the local 0.9.0 site returned fault `-32601` "system.multicall is
+disabled on this site."
 
 ## Before tagging
 
@@ -136,11 +166,10 @@ These need a machine with more than Chromium, or a person:
 2. **VoiceOver with Safari**: the documented manual pass, covering the Updates
    policy notice, the Site Health update diagnostics tables, the Breached passwords
    Site Health panel and Users view, and the owner's breach warning.
-3. **Native Safari keyboard**: Tab and arrow scrolling through the locked settings
-   and the evidence tables, with a visible focus outline. Chromium scrolls tables
-   natively, so WebKit-only keyboard fixes cannot be confirmed here.
-4. **WordPress.com settings save**: still open from earlier releases.
-5. A clean `bin/counterpart-sweep`.
+3. **Native Safari keyboard**: the WebKit pass above is done; the native Safari app
+   pass still needs Accessibility permission on the maintainer's machine.
+4. ~~WordPress.com settings save~~: done; see above.
+5. ~~A clean counterpart sweep~~: done. #302 is ported as AX commit `937c888`.
 
 ## Publication sequence
 
