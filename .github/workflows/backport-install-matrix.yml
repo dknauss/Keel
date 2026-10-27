@@ -191,6 +191,9 @@ jobs:
       - name: Protected search access contracts
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/protected-search.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Conflict observer healthy-path cost
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/conflict-hot-path.php" --path=/tmp/keel-wp --allow-root
+
       - name: Report the effective update policy
         env:
           ROW: ${{ matrix.id }}
