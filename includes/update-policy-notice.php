@@ -145,7 +145,7 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 	$diagnostics = current_user_can( 'view_site_health_checks' ) && ( ! is_multisite() || current_user_can( 'manage_network_options' ) )
 		? ' <a href="' . esc_url( admin_url( 'site-health.php?keel-update-diagnostics=1' ) ) . '">' . esc_html__( 'View update diagnostics', 'keel-defaults' ) . '</a>' : '';
 	return '<div class="notice notice-info inline keel-update-policy-notice">'
-		. '<p><strong>' . esc_html__( 'Keel update policy', 'keel-defaults' ) . '</strong></p>'
+		. '<h2 class="keel-update-policy-title">' . esc_html__( 'Keel update policy', 'keel-defaults' ) . '</h2>'
 		. '<ul class="keel-update-policy-overview">' . $list . '</ul>'
 		. ( '' !== $detail ? '<p>' . $detail . '</p>' : '' )
 		. '<p class="description">' . $branch_text . ' ' . $source

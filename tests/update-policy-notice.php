@@ -46,7 +46,7 @@ $minor = array(
 );
 $html  = keel_defaults_update_policy_notice_markup( $minor );
 check( false !== strpos( $html, 'notice-info inline' ) && false === strpos( $html, 'is-dismissible' ), 'Persistent native inline notice.' );
-check( false !== strpos( $html, '<strong>Keel update policy</strong>' ), 'Clear bold attribution.' );
+check( false !== strpos( $html, '<h2 class="keel-update-policy-title">Keel update policy</h2>' ), 'The attribution is a heading, so screen readers can find the notice by heading.' );
 check( false !== strpos( $html, 'Maintenance and security releases only, not major upgrades.' ), 'Major-release scope is inline in the WordPress summary.' );
 check( false !== strpos( $html, 'Follow <a href="http://example.test/wp-admin/plugins.php">individual plugin settings</a>.' ) && false !== strpos( $html, 'Follow <a href="http://example.test/wp-admin/themes.php">individual theme settings</a>.' ), 'Per-item wording links only the relevant native list.' );
 check( false !== strpos( $html, 'Its update policy is set by Keel’s <a href="http://example.test/wp-admin/options-general.php?page=keel#keel-setting-core-update-policy">Site Defaults</a>.' ) && false !== strpos( $html, 'An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery.' ), 'Requested policy details preserve the configured source.' );
