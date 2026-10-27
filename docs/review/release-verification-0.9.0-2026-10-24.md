@@ -121,26 +121,86 @@ Pull requests merged since `v0.8.0` whose Counterpart line says pending:
 
 - #331: delivered (AX commits `75ebc87` and `14f46a2`), and #333 is closed. Its
   line now says ported.
-- #302: ported in the AX 0.2.0 preparation, still to merge there. AX's Modified
-  helper column now shows the time and sorts. Once it merges, #302's line
-  becomes `ported — AX commit <hash>`.
+- #302: ported (AX commit `937c888`, the AX 0.2.0 merge). AX's Modified helper
+  column now shows the time and sorts.
 - #335: ported (AX commit `17cec32`); its line now says so, and #323 is closed.
 
-The sweep is clean once #302's line is updated after the AX 0.2.0 merge.
+The sweep is clean.
+
+## Checks on the maintainer's machine, 2026-10-27
+
+**Keyboard (WebKit).** Option+Tab passes ran first in Playwright WebKit 27.2
+against a disposable local Studio site running `main` at `dddabf1` (built with
+`bin/build-zip.sh`), with the synthetic update fixtures, two lock constants and a
+flagged breached account.
+
+- No focus traps. On Settings > Keel every stop shows a focus ring; the locked Core
+  Auto-Updates and Post Revision Retention fields stay tabbable (`aria-disabled`),
+  show a ring, and are described by their lock note.
+- The Updates policy notice links and the Users "Breached passwords (1)" view link
+  are reachable with a ring.
+- The update diagnostics tables show a 2px outline on focus and scroll fully with
+  ArrowRight at 360px. They do not overflow at 600px or wider.
+- **Found and fixed:** the Site Health breached-accounts scroll region had no visible
+  focus outline. It and the cron report regions lacked
+  `keel-defaults-update-table-scroll`, the class the outline rule and the arrow-key
+  helper target. #339 adds it to both. (The WebKit run also reported that ArrowRight
+  did not scroll the region; native Safari showed that was a harness artifact.)
+
+**Keyboard (native Safari).** Once Accessibility permission was granted, the same
+lab was checked in Safari 27.0.1 with Option+Tab, reading the focused element from
+the accessibility tree after each key. No focus traps; every page tabs through and
+back out to Safari's toolbar. All 46 Keel controls on Settings > Keel come in a
+sensible order, and the locked Core Auto-Updates and Post Revision Retention fields
+are reachable with a visible ring beside their lock notes. The Updates policy
+notice links run in reading order with visible focus, "Breached passwords (1)" on
+Users shows a ring, and the update diagnostics tables show their 2px outline. The
+breached-accounts region took focus and scrolled with the arrow keys but drew no
+outline, confirming the gap #339 fixes.
+
+**VoiceOver with native Safari.** VoiceOver ran in Safari 27.0.1 against the same
+lab site. The spoken text was captured from VoiceOver's last phrase after each move,
+not inferred from the accessibility tree.
+
+- Update diagnostics tables: each is announced as a named region, then "table 3
+  columns, 5 rows", and every cell is read with its column header, for example
+  "Status Blocked column 2 of 3". The plugins/themes and "Changed by code" tables
+  behave the same. One stray "group" stop follows a core row.
+- Breached passwords Site Health panel: the toggle reads "1 account has a password
+  found in a known breach Keel collapsed button". The intro, region and table
+  follow, each cell with its header ("Actions link Set a new password for admin
+  column 4 of 4"), then the link to the Users view. Unlike the update tables, the
+  table's size is not announced.
+- Users screen: "Breached passwords (1)" is a link in the "Filter users list"
+  views, announced as the current page when selected, with a "Breach found" column.
+- The owner's breach notice is read in full, followed by "link Change your password".
+- Updates policy notice: read in a sensible order, but "Keel update policy" is
+  plain bold text, not a heading, and each line is read as link and text pieces.
+
+None of these blocks a task. The two minor points (the notice title and the
+breached table's size) are recorded for a later pass. VoiceOver was turned off
+afterwards.
+
+**WordPress.com settings save.** On a connected Atomic site running Keel 0.8.0 with
+`xmlrpc_allow_multicall = no` (read with WP-CLI before and after), "Week starts on"
+was saved through the WordPress.com site-settings API, Monday to Sunday and back.
+Both saves reported `applied: remote`, and WP-CLI on the site read 0 and then 1
+within a minute of each. There was no transport error or 405. Before the first
+save, WordPress.com reported Sunday while the site held Monday, so WordPress.com's
+cached copy was stale; the saves themselves reached the site. An unsigned
+multicall probe got HTTP 429 from the host's edge, so the refusal fault was not
+observed there; the local 0.9.0 site returned fault `-32601` "system.multicall is
+disabled on this site."
 
 ## Before tagging
 
 These need a machine with more than Chromium, or a person:
 
 1. ~~Firefox and WebKit~~: done in CI; see run 40135696116 above.
-2. **VoiceOver with Safari**: the documented manual pass, covering the Updates
-   policy notice, the Site Health update diagnostics tables, the Breached passwords
-   Site Health panel and Users view, and the owner's breach warning.
-3. **Native Safari keyboard**: Tab and arrow scrolling through the locked settings
-   and the evidence tables, with a visible focus outline. Chromium scrolls tables
-   natively, so WebKit-only keyboard fixes cannot be confirmed here.
-4. **WordPress.com settings save**: still open from earlier releases.
-5. A clean `bin/counterpart-sweep`.
+2. ~~VoiceOver with Safari~~: done; see above.
+3. ~~Native Safari keyboard~~: done; see above. Its one finding is fixed in #339.
+4. ~~WordPress.com settings save~~: done; see above.
+5. ~~A clean counterpart sweep~~: done. #302 is ported as AX commit `937c888`.
 
 ## Publication sequence
 

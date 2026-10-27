@@ -59,8 +59,8 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   findings remain unknown; collection was not triggered. Post-#318 CI and the latest
   scheduled live matrix are green. #319 merged as `0cf70bc`, retaining #320’s
   pending en_CA language-pack task. Continue observing before opening another release.
-  October 13 observations in TODO.md remain historical. The maintainer's
-  WordPress.com settings-save confirmation remains open.
+  October 13 observations in TODO.md remain historical. The
+  WordPress.com settings-save confirmation passed on 2026-10-27.
 - [x] **Verify bounded HIBP Site Health presentation** — completed 2026-10-23;
   unreleased. Chromium, Firefox and Playwright WebKit pass nine synthetic states
   across standalone, network-manager and delegated site-admin views: 81 panels,

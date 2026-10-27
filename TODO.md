@@ -58,8 +58,8 @@ the tagged sources. See the
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
-  per-item update choices are preserved. The maintainer's WordPress.com settings-save
-  confirmation remains open. Continue dated field observation; no
+  per-item update choices are preserved. The WordPress.com settings-save confirmation
+  passed on 2026-10-27. Continue dated field observation; no
   version bump or release is authorized. Routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
@@ -190,7 +190,7 @@ the tagged sources. See the
 
 Found 2026-10-05 on a live WordPress.com Atomic site (Jetpack 16.3-a.7, Keel with the
 then-shipped default `xmlrpc_allow_multicall = no`). The repair shipped in 0.6.7;
-only the maintainer’s WordPress.com settings-save confirmation below remains open.
+the WordPress.com settings-save confirmation below passed on 2026-10-27.
 
 - [x] **Stop the multicall refusal from cutting a Jetpack site off from WordPress.com**
   - Evidence. WordPress.com's calls into the site failed with "transport error - HTTP
@@ -212,7 +212,15 @@ only the maintainer’s WordPress.com settings-save confirmation below remains o
     verify requests.
   - Corrected: the setting's help text and `docs/wordpress-default-settings.md`, which
     both said refusing multicall was harmless.
-- [ ] **Confirm on the site that found it**
+- [x] **Confirm on the site that found it** — settings save confirmed 2026-10-27
+  - Settings save, 2026-10-27, on a connected Atomic site running Keel 0.8.0 with
+    `xmlrpc_allow_multicall = no` (read with WP-CLI before and after). "Week starts on"
+    was saved through the WordPress.com site-settings API, Monday to Sunday and back.
+    Both saves reported `applied: remote`, and WP-CLI on the site read 0 and then 1
+    within a minute of each. No transport error or 405. Before the first save,
+    WordPress.com reported Sunday while the site held Monday, so WordPress.com's
+    cached copy of the setting was stale; the saves themselves reached the site.
+    Whether WordPress.com sent them as a multicall cannot be seen from either end.
   - Current read-only check, 2026-10-23: all nine run 0.8.0; eight still have
     multicall off and one on. No signed request or settings save was exercised.
   - Checked 2026-10-13 on nine connected sites running 0.6.7. Eight refuse multicall,
@@ -220,8 +228,6 @@ only the maintainer’s WordPress.com settings-save confirmation below remains o
     The ninth allows multicall. For two of the eight, the plugin list loaded live on
     WordPress.com. That is the first half; what cannot be seen from outside is
     whether it travelled as a multicall.
-  - Still open: a settings change saved from WordPress.com with multicall off. It is
-    a write to a live site, so it waits for the maintainer.
   - Not observed: the refusal as a fault on HTTP 200. The host answered an unsigned
     multicall with 429 before the request reached WordPress.
   - Only WordPress.com can sign a request, so the half that matters cannot be probed
