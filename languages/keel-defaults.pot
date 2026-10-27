@@ -3194,7 +3194,7 @@ msgid "A policy is not a delivery schedule. WordPress installs updates when its 
 msgstr ""
 
 #: includes/settings-page.php:222
-msgid "On multisite, every site shares the same core, plugin and theme files, so Network Policy decides for the whole network."
+msgid "On multisite, every site shares the same plugin and theme files, so one policy applies to the whole network. A Super Admin can set it under Network Policy. If Network Policy leaves plugin or theme updates unmanaged, the main site’s setting decides for every site, so change it on the main site."
 msgstr ""
 
 #: includes/settings-page.php:233
