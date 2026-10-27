@@ -1316,9 +1316,17 @@ msgstr[1] ""
 msgid "No role on this site"
 msgstr ""
 
-#: includes/password-login-screening.php:560
-msgid "Accounts with breached passwords, most recently found first"
+#. translators: 1: number of accounts listed, 2: total number of flagged accounts.
+#: includes/password-login-screening.php:575
+msgid "%1$s of %2$s accounts with breached passwords, most recently found first"
 msgstr ""
+
+#. translators: %s: number of accounts listed.
+#: includes/password-login-screening.php:582
+msgid "%s account with a breached password"
+msgid_plural "%s accounts with breached passwords, most recently found first"
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/password-login-screening.php:563
 msgid "Account"

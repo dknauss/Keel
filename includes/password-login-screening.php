@@ -554,15 +554,35 @@ function keel_defaults_breached_user_roles( $user ) {
  * that account, and the reset link is never offered for the viewer's own
  * account, matching core's row actions.
  *
+ * The caption carries the row count, and the total when the list is cut
+ * short, because VoiceOver does not announce this table's size the way it
+ * does for the update tables.
+ *
  * @param WP_User[] $users Flagged accounts.
+ * @param int       $total Total flagged accounts, when more exist than are shown.
  * @return string HTML.
  */
-function keel_defaults_breached_users_table( $users ) {
+function keel_defaults_breached_users_table( $users, $total = 0 ) {
 	if ( empty( $users ) ) {
 		return '';
 	}
 
-	$caption = __( 'Accounts with breached passwords, most recently found first', 'keel-defaults' );
+	$shown = count( $users );
+	$total = max( $shown, (int) $total );
+	if ( $total > $shown ) {
+		$caption = sprintf(
+			/* translators: 1: number of accounts listed, 2: total number of flagged accounts. */
+			__( '%1$s of %2$s accounts with breached passwords, most recently found first', 'keel-defaults' ),
+			number_format_i18n( $shown ),
+			number_format_i18n( $total )
+		);
+	} else {
+		$caption = sprintf(
+			/* translators: %s: number of accounts listed. */
+			_n( '%s account with a breached password', '%s accounts with breached passwords, most recently found first', $shown, 'keel-defaults' ),
+			number_format_i18n( $shown )
+		);
+	}
 	$html    = '<div class="keel-defaults-update-table-scroll" role="region" tabindex="0" aria-label="' . esc_attr( $caption ) . '" style="max-width:100%;overflow-x:auto"><table class="widefat striped keel-breached-accounts" style="min-width:560px"><caption>' . esc_html( $caption ) . '</caption><thead><tr>';
 
 	foreach ( array( __( 'Account', 'keel-defaults' ), __( 'Role', 'keel-defaults' ), __( 'Breach found', 'keel-defaults' ), __( 'Actions', 'keel-defaults' ) ) as $heading ) {
@@ -683,7 +703,7 @@ function keel_defaults_site_health_breached_passwords() {
 	$description = $intro
 		. '<p>' . esc_html__( 'These passwords still work: Keel warns and does not block. Each person sees a notice asking them to change their password, and the flag clears as soon as they do.', 'keel-defaults' ) . '</p>'
 		. '<p>' . esc_html__( 'To act sooner, set a new password on the account, which also lets you log it out everywhere else, or send a password reset. A reset email sends a link; the current password keeps working until it is used.', 'keel-defaults' ) . '</p>'
-		. keel_defaults_breached_users_table( $found['users'] );
+		. keel_defaults_breached_users_table( $found['users'], $total );
 
 	if ( $total > count( $found['users'] ) ) {
 		$description .= '<p>' . sprintf(

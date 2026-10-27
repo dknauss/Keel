@@ -4,6 +4,14 @@
 	outline-offset: 2px;
 }
 
+/* A real heading for screen readers, sized like the bold title it replaced. */
+.keel-update-policy-notice .keel-update-policy-title {
+	margin: 0.5em 0;
+	padding: 2px;
+	font-size: 1em;
+	line-height: 1.5;
+}
+
 .keel-update-policy-overview {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
