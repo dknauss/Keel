@@ -106,8 +106,9 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
-  per-item update choices are preserved. Continue dated field observation; no
-  version bump or release is authorized. Routine PHPStan expansion stays paused.
+  per-item update choices are preserved. Continue dated field observation. The
+  0.9.0 pre-tag gates passed on 2026-10-27; tagging and publishing each wait for the
+  maintainer's explicit go. Routine PHPStan expansion stays paused.
 
 ## Release completion — 2026-10-15
 
@@ -230,8 +231,8 @@ installs. Site Health must not become the performance problem it is diagnosing.
 
 Everything below is merged. Version metadata, changelog and upgrade notice are
 prepared for 0.9.0 (44 settings; PHP 7.4 and WordPress 6.4 floors unchanged).
-Release PR review, the manual browser passes and a clean counterpart sweep precede
-tagging and publication. See the [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
+The manual browser passes, the WordPress.com settings save and the counterpart
+sweep all passed by 2026-10-27; tagging and publication remain. See the [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased. Bring the selected release,
    branch-tip status, attempted-check age, cached scheduled checks and retained

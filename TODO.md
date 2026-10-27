@@ -54,13 +54,15 @@ the tagged sources. See the
   A release-candidate pass on 2026-10-24 found `main` within the performance
   budget against 0.8.0 and added a Chromium focused-accessibility workflow; see
   [the release-candidate record](docs/review/release-candidate-2026-10-24.md).
-  Firefox/WebKit, manual assistive-technology, live-matrix and release steps remain.
+  Firefox and WebKit then passed in CI, and the manual VoiceOver, native Safari
+  keyboard and WordPress.com checks passed on 2026-10-27; only the 0.9.0 tag and
+  publication remain (see the 0.9.0 section below).
   The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. The WordPress.com settings-save confirmation
-  passed on 2026-10-27. Continue dated field observation; no
-  version bump or release is authorized. Routine PHPStan expansion stays paused.
+  passed on 2026-10-27. Continue dated field observation. Tagging and publishing
+  0.9.0 each wait for the maintainer's explicit go. Routine PHPStan expansion stays paused.
 
 - [x] **Release 0.6.0, 0.6.1, 0.6.2, 0.6.3** — tagged on commits carrying their own
       green CI and live matrix; deployed to wordpress.org through the reviewed SVN path.
@@ -378,10 +380,12 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 
 - [x] **Prepare 0.9.0** — version metadata, changelog and upgrade notice finalized.
 - [x] **Firefox and WebKit focused accessibility** — passed in CI (run 40135696116).
-- [ ] **Finish the pre-tag gates** — manual VoiceOver and Safari keyboard passes,
-  a clean counterpart sweep (#302 resolves when AX 0.2.0 merges), then
-  review the release PR, tag and publish. Evidence and steps
-  are in the [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
+- [x] **Finish the pre-tag gates** — manual VoiceOver and Safari keyboard passes and
+  the WordPress.com settings save passed on 2026-10-27 (#339); the counterpart sweep
+  is clean (#302 is ported as AX `937c888`). Evidence is in the
+  [release checks](docs/review/release-verification-0.9.0-2026-10-24.md).
+- [ ] **Tag and publish 0.9.0** — draft the release, tag, run the protected
+  WordPress.org dry run, then publish; each step waits for the maintainer's go.
 
 
 - [x] **Show the core-update delivery timeline** — merged in #294 and unreleased; no version bump or release.

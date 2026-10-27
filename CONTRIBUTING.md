@@ -114,6 +114,12 @@ the schema stays structure-only. Several defaults share a bootstrap block where
 they genuinely belong together — the XML-RPC family is one — so "one entry, one
 block" is the shape rather than a rule.
 
+A new filter or action gets a row in [the hooks reference](docs/hooks.md). New
+stored data (an option, transient, user meta key or scheduled event) gets a row in
+[the data inventory](docs/data-inventory.md) and a matching delete in
+`uninstall.php`. A new `wp-config.php` constant or lock goes in
+[Constants and locked settings](docs/constants-and-locks.md).
+
 ## Conventions the tests enforce
 
 These are not style preferences; `tests/naming-conventions.php` fails on them.
