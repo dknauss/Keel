@@ -30,7 +30,7 @@ function keel_defaults_site_health_tests( $tests ) {
 		'test'  => 'keel_defaults_site_health_update_diagnostics',
 	);
 	$tests['direct']['keel_defaults_conflicts']        = array(
-		'label' => __( 'Overlapping defaults plugins', 'keel-defaults' ),
+		'label' => __( 'Overlapping plugins', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_conflicts',
 	);
 	$tests['direct']['keel_defaults_breach_screening'] = array(
