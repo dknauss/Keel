@@ -342,13 +342,19 @@ in neither the `Location` header nor the body).
 ### The account-discovery matrix
 
 Legend: ✅ closed / delivers · ❌ open · ⚠️ partial · — not offered · *(c)* code
-review only. *(d)* this pass recorded the route list a setting claims only
-for Wordfence and Stop User Enumeration; Really Simple Security's and AIOS's
-setting text needs checking before they're scored on this row.
+review only. *(d)* what the setting itself says, read from source
+(Really Simple Security 9.8.4, AIOS 5.4.10). Really Simple Security's checkbox is
+labelled only "Disable user enumeration", with no tooltip or route list
+(`settings/config/fields/hardening-basic.php:79-87`), so the claim is unscoped and
+oEmbed, a standard enumeration route, falls inside it. AIOS's help text names
+three routes: "URLs like `/?author=1`, `/wp-json/wp/v2/users`, oEmbed request"
+(`templates/wp-admin/user-security/partials/user-enumeration.php:14`). It closes
+all three, and the users sitemap is outside that list; `_embed=author` is a
+posts URL, but it hands back the same users record the named route withholds.
 
 | | Wordfence 9.0.2 | RSS 9.8.3 | AIOS 5.4.10 | SUE 1.7.10 | Sucuri 2.8.1 | **Keel** 0.8.0 |
 |---|---|---|---|---|---|---|
-| **Claimed-route coverage:** closes every route its own setting names | ✅ | not recorded *(d)* | not recorded *(d)* | ✅ | — | ✅ |
+| **Claimed-route coverage:** closes every route its own setting names | ✅ | ⚠️ names no routes *(d)*; misses oEmbed | ⚠️ closes all three it names; `_embed` returns the same record *(d)* | ✅ | — | ✅ |
 | `/?author=N` closed (incl. array, POST, `index.php`) | ✅ 404 | ⚠️ closed as **500**; array form passes | ✅ 403 | ⚠️ 403; array form passes | — | ✅ 301 home |
 | REST users list, single, `?rest_route=`, mixed case | ✅ | ✅ | ✅ | ✅ | — | ✅ |
 | REST `_embed=author` closed | ✅ | ✅ | ❌ **leaks slug** | ✅ | — | ✅ |
