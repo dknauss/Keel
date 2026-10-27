@@ -133,13 +133,18 @@ the tagged sources. See the
     0.8.0 (checked 2026-10-23), but the live editor layout and Jetpack notice
     were not browser-verified in that read-only pass. The seven unchanged widths
     and two custom widths below describe October 13, not current configuration.
-- [ ] **Get an en_CA language pack built**
+- [x] **Get an en_CA language pack built**
   - 2026-10-23: translate.wordpress.org en_CA Stable showed 0 translated, 364 waiting
     and 140 untranslated, so no pack is built and en_CA sites read "behavior".
-  - The maintainer requested the en_CA Project Translation Editor role on Polyglots
-    the same day. Once granted, import `keel-defaults-en_CA.po` with every string
-    filled into Stable and Development as approved. Not bundling the catalog; see
-    ROADMAP.md.
+  - 2026-10-26: Polyglots granted the maintainer the en_CA Project Translation
+    Editor role.
+  - 2026-10-27: the full 0.9.0 catalog was imported as approved; Stable and
+    Development both read 715/715 (100%). Not bundling the catalog; see ROADMAP.md.
+- [ ] **Re-import en_CA after each release with new strings**
+  - Next: the release that ships #347 (Help tab copy edit and Updates tab, 33 new
+    strings). After it reaches SVN, rebuild the import file from the released `.pot`
+    and `languages/keel-defaults-en_CA.po`, import into Stable and Development as
+    approved, and confirm both read 100%.
 - [ ] **Observe the field** — ongoing; the focused read-only pass completed
   2026-10-23 on all nine configured production sites. All run active Keel 0.8.0
   and WordPress 7.1.3; WordPress and Keel agree on production. The CLI snapshots
