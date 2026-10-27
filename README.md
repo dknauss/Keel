@@ -101,6 +101,9 @@ Useful references:
 
 - [Contributing](CONTRIBUTING.md)
 - [Default behavior and technical reference](docs/wordpress-default-settings.md)
+- [Hooks reference](docs/hooks.md)
+- [Constants and locked settings](docs/constants-and-locks.md)
+- [Data inventory](docs/data-inventory.md)
 - [Environment detection](docs/environment-detection.md)
 - [AI integrations](docs/ai-integrations.md)
 - [Competitive behavioral probes](docs/competitive-teardown-matrix.md)
