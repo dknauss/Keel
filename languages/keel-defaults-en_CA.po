@@ -715,50 +715,8 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
-#: includes/settings-page.php:90
-msgid "Keel applies a menu of sensible security, privacy, UX, and performance defaults to WordPress. Each switch on this page is one default, and they are independent: turning one on does not turn on anything else, and a switch left off means Keel does not apply that default at all."
-msgstr ""
-
-#: includes/settings-page.php:91
-msgid "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behavior or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
-msgstr "The defaults that are on out of the box are low-risk and safe for nearly any site. Anything that can change behaviour or break an integration — requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor — is off by default and opt-in only."
-
-#: includes/settings-page.php:93
-msgid "There is one exception: Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot embed yours in an iframe. If something else is meant to display this site inside a frame — an intranet dashboard, a screenshot or visual-review service, a kiosk or signage screen — set Frame options to “Leave unchanged” under Security and Attack Surface. A blocked frame usually fails silently, as a blank box."
-msgstr ""
-
 #: includes/settings-page.php:103
 msgid "Passwords"
-msgstr ""
-
-#: includes/settings-page.php:106
-msgid "For strong passwords, Keel requires length and breach screening in place of composition rules that require mixtures of different character types. This follows <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes — like <code>Password1!</code> — without making them harder to guess."
-msgstr ""
-
-#: includes/settings-page.php:117
-msgid "WordPress already shows a strength meter as you type, and Keel leaves it in place — it is good advice. It cannot be the rule, though. The meter, the weak-password warning and the checkbox asking you to confirm a weak password are all JavaScript, and nothing on the server reads any of them, so a password set through the REST API, WP-CLI, or a form with scripts turned off is never measured at all."
-msgstr ""
-
-#: includes/settings-page.php:121
-msgid "Keel enforces password strength on the server, where nothing can skip it — but it asks how long a password is and whether it has ever appeared in a breach, not how easy it is to guess. Something long that has never leaked can still be an obvious choice, and spotting that is what the strength meter is good at."
-msgstr ""
-
-#: includes/settings-page.php:125
-msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange\" target=\"_blank\" rel=\"noopener noreferrer\">Have I Been Pwned</a> only the first five characters of a SHA-1 hash computed on this site, and matches the returned suffixes locally — so neither the password nor its full hash leaves the site. It can be switched off with the <code>KEEL_DISABLE_HIBP</code> constant or the <code>keel_disable_hibp</code> filter."
-msgstr ""
-
-#: includes/settings-page.php:136
-msgid "An outage or a malformed response lets the password through rather than blocking it. That is deliberate — the alternative is that nobody can change a password if the HIBP API is down. The length, blocklist and personal-context rules still apply, and only a response that arrived whole and parsed cleanly is ever cached, so one bad reply cannot become hours of false &#8220;not breached&#8221; answers."
-msgstr ""
-
-#. translators: %s: URL of the Site Health status screen.
-#: includes/settings-page.php:142
-#, php-format
-msgid "It does not fail quietly, though. A lookup that cannot be completed is recorded and reported under <a href=\"%s\">Site Health</a>, which says what went wrong — unreachable, rate-limited, cut short, or answered by something that was not the service. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. The record clears itself once a lookup succeeds."
-msgstr ""
-
-#: includes/settings-page.php:149
-msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on — and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself and the strictest site sets the floor for anyone who changes their password there."
 msgstr ""
 
 #: includes/settings-page.php:160
@@ -766,88 +724,24 @@ msgstr ""
 msgid "XML-RPC"
 msgstr ""
 
-#: includes/settings-page.php:162
-msgid "XML-RPC is WordPress's original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
-msgstr ""
-
-#: includes/settings-page.php:163
-msgid "That is why these are four switches rather than one. Turning the endpoint off completely is the strictest posture. The three narrower controls remove the specific method families that attract abuse — pingbacks, credential-authenticated publishing, and multicall — while still leaving the endpoint available."
-msgstr ""
-
 #: includes/settings-page.php:164
 msgid "Jetpack talks to WordPress.com over XML-RPC, so blocking the endpoint breaks the connection and everything downstream of it. Test the connection and the features you use before deciding Jetpack no longer needs it."
-msgstr ""
-
-#: includes/settings-page.php:166
-msgid "Blocking the endpoint inside WordPress still costs a request. PHP starts, WordPress loads, and only then does the plugin answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request even reaches WordPress, that is cheaper under exactly the load that makes blocking attractive — a flood of requests. This setting is the answer for sites without that option."
-msgstr ""
-
-#: includes/settings-page.php:170
-msgid "The negative reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability. WordPress.com uses multicall to manage a site through Jetpack, so Keel lets through the requests Jetpack verifies as signed by WordPress.com even while multicall is off."
 msgstr ""
 
 #: includes/settings-page.php:179
 msgid "Environments"
 msgstr ""
 
-#: includes/settings-page.php:186
-msgid "<strong>Email:</strong> outside production, outgoing mail is held back and an admin notice says so. WordPress still reports each message as sent, so code behaves as it will in production."
-msgstr ""
-
-#: includes/settings-page.php:194
-msgid "Mail held back on a live site? Check <code>WP_ENVIRONMENT_TYPE</code> in <code>wp-config.php</code> first."
-msgstr ""
-
-#: includes/settings-page.php:182
-msgid "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognizes common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen."
-msgstr "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset), recognises common local hostnames, and the Environment setting can override both, for Keel only and only on the site where it was chosen."
-
 #: includes/settings-page.php:203
 msgid "Overlapping plugins"
-msgstr ""
-
-#: includes/settings-page.php:205
-msgid "Many of Keel's defaults are applied through WordPress filters that return a single value. When two plugins are registered on the same filter, only one plugin's activity prevails. There is no error, nothing is logged, and the plugin that was quietly overruled goes on showing the setting you think it applied. That is why WordPress can have two plugins configured to disable comments and still have comments."
-msgstr ""
-
-#: includes/settings-page.php:206
-msgid "Keel reports collisions with other plugins in two ways, and they answer different questions."
-msgstr ""
-
-#: includes/settings-page.php:208
-msgid "<strong>The first method names plugins:</strong> another active plugin is registered on a setting Keel also sets. That confirms an overlap, not a disagreement — two plugins turning the same thing off both get their way, and the report is not a reason to deactivate either one. Compare their settings and decide which plugin should own the disabling function."
-msgstr ""
-
-#: includes/settings-page.php:212
-msgid "<strong>The second method says a setting is not taking effect:</strong> Keel asked for a value, watched what the filter chain actually settled on, and they disagree. That one is worth acting on, because it is measured rather than inferred."
-msgstr ""
-
-#: includes/settings-page.php:216
-msgid "<strong>Sometimes there is no plugin that can be named.</strong> A plugin that turns a feature on or off using one of WordPress's own helper functions leaves nothing behind to identify it — the callback belongs to WordPress, not to whoever registered it. Those overlaps are reported as untraceable rather than guessed at, and your list of active plugins is the place to look to get to the bottom of the mystery."
-msgstr ""
-
-#. translators: %s: linked name of the Site Health screen.
-#: includes/settings-page.php:222
-#, php-format
-msgid "<strong>The full collision report, hook by hook, is under %s.</strong> The dashboard and plugins screens carry a short version, and the dashboard notification can be dismissed — it comes back if the set of overlapping plugins changes, so dismissing it means “I have seen this” rather than “never mention this again.”"
 msgstr ""
 
 #: includes/settings-page.php:223
 msgid "Site Health"
 msgstr ""
 
-#: includes/settings-page.php:230
-msgid "Nothing in Keel runs another plugin's code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them."
-msgstr ""
-
 #: includes/settings-page.php:235
 msgid "Current posture"
-msgstr ""
-
-#. translators: %s: URL of the Site Health Info screen.
-#: includes/settings-page.php:239
-#, php-format
-msgid "Every default and its current state is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the defaults that warrant attention, and files the rest under “Passed tests”."
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
@@ -879,10 +773,6 @@ msgstr ""
 
 #: includes/settings-controls.php:118
 msgid "No low-privilege roles are available to exempt."
-msgstr ""
-
-#: includes/site-health.php:33
-msgid "Overlapping defaults plugins"
 msgstr ""
 
 #: includes/site-health.php:37
@@ -1886,10 +1776,6 @@ msgstr ""
 msgid "Controls who may embed this site in an iframe. <code>SAMEORIGIN</code> permits framing only by this site and can block previews embedded on WordPress.com, partner sites, or other preview tools. Choose Leave unchanged if cross-origin previews or embeds are needed. This stops Keel adding the header; it does not remove a restriction set by your host, CDN, or another plugin. Test the preview after changing this setting."
 msgstr ""
 
-#: includes/settings-page.php:190
-msgid "<strong>Environment indicator:</strong> a color-coded label in the admin bar. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
-msgstr "<strong>Environment indicator:</strong> a colour-coded label in the admin bar. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
-
 #. translators: %s: link to the XML-RPC Multicall setting.
 #: includes/site-health.php:228
 #, php-format
@@ -2368,10 +2254,6 @@ msgstr ""
 
 #: includes/registration-audit.php:250
 msgid "Redirects are compared with the earliest registered core canonical redirect; the session clamp must follow default priority 10. Later callbacks can still change outcomes. This is current-request evidence, not a persistent or network-wide verdict. Investigate intentional overrides before changing code; the audit does not identify who changed a registration."
-msgstr ""
-
-#: includes/settings-page.php:96
-msgid "Five settings disappear, become inactive, and cannot be toggled when another choice makes them irrelevant and takes them off the table: the three XML-RPC method controls when the endpoint itself is blocked, Remember Me Length when Remember Me is off, and Password Policy Exemptions when Password Strength is off."
 msgstr ""
 
 #: includes/settings-page.php:529
@@ -3049,4 +2931,150 @@ msgstr ""
 #: includes/update-policy-notice.php:93
 #, php-format
 msgid "Follow %s."
+msgstr ""
+
+#: includes/settings-page.php:90
+msgid "Keel applies a set of sensible security, privacy, usability and performance defaults to WordPress. Each control on this page sets one default. Turning one on never turns on another, and a switch left off, or a choice left at Leave unchanged, means Keel does nothing there."
+msgstr ""
+
+#: includes/settings-page.php:91
+msgid "The defaults that are on out of the box are meant to be safe for nearly any site, but several change what visitors and editors see: comments, author archives and attachment pages are turned off, for example. The ones most likely to break an integration (requiring authentication for all REST requests, blocking the XML-RPC endpoint, the Classic editor) stay off until you turn them on."
+msgstr ""
+
+#: includes/settings-page.php:93
+msgid "One default that is on can still break something. Keel sends an <code>X-Frame-Options</code> header of <code>SAMEORIGIN</code>, so other sites cannot show yours in an iframe. That includes previews embedded on WordPress.com, intranet dashboards, screenshot and visual-review services, and kiosk or signage screens. If one of those needs to frame this site, set Frame Options to Leave unchanged under Security and Attack Surface. A blocked frame usually shows up as a blank box, with no error."
+msgstr ""
+
+#: includes/settings-page.php:96
+msgid "Five settings disappear while another choice makes them irrelevant: the three XML-RPC method controls while the XML-RPC endpoint is blocked, Remember Me Length while Remember Me is disabled, and Password Policy Exemptions while Password Strength is off."
+msgstr ""
+
+#: includes/settings-page.php:98
+msgid "A setting with a lock marker is decided somewhere else: by a constant in <code>wp-config.php</code> or, on multisite, by a Super Admin under Network Policy. The Locked settings summary at the top of this page links to each one and says what is holding it."
+msgstr ""
+
+#: includes/settings-page.php:110
+msgid "For strong passwords, Keel requires at least 15 characters and screens against known breaches, instead of composition rules that demand a mix of character types. A password also cannot be the username, the name part of the email address, or a common choice. This follows <a href=\"https://pages.nist.gov/800-63-4/sp800-63b/authenticators/#passwordver\" target=\"_blank\" rel=\"noopener noreferrer\">NIST SP 800-63B-4 § 3.1.1.2</a>. Composition rules push people toward predictable shapes, like <code>Password1!</code>, without making them harder to guess."
+msgstr ""
+
+#: includes/settings-page.php:120
+msgid "WordPress’s strength meter stays in place, and its advice is good, but it runs only in the browser. A password set through the REST API, WP-CLI or a form with scripts off is never measured. Keel’s checks run on the server, so nothing skips them, but they ask how long a password is and whether it has leaked, not how easy it is to guess. The meter is still the better judge of an obvious choice."
+msgstr ""
+
+#: includes/settings-page.php:122
+msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#SearchingPwnedPasswordsByRange\" target=\"_blank\" rel=\"noopener noreferrer\">Have I Been Pwned</a> (HIBP) only the first five characters of a SHA-1 hash of the password, made on this site, and checks the list that comes back here. Neither the password nor its full hash leaves the site. To turn the check off, define <code>KEEL_DISABLE_HIBP</code> or use the <code>keel_disable_hibp</code> filter; Site Health then says it is off on purpose."
+msgstr ""
+
+#: includes/settings-page.php:132
+msgid "An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 fresh lookups to start and one more each minute by default, and Keel keeps up to 64 answers for 12 hours, so a burst of password changes cannot flood the service. The length, common-password and username rules still apply, and only a reply that arrived whole and parsed cleanly is ever kept."
+msgstr ""
+
+#. translators: %s: URL of the Site Health status screen.
+#: includes/settings-page.php:136
+#, php-format
+msgid "It does not fail quietly, though. When a lookup is skipped or cannot finish, Keel keeps a sample of the reason and shows it under <a href=\"%s\">Site Health</a> for an hour: the service could not be reached, the reply was cut short or incomplete, the service answered with an HTTP error, or this site’s allowance of lookups ran out. Screening is the one part of the password policy that depends on a third party, so it is the one part that can stop working without warning. On multisite, only people who manage the network see the details."
+msgstr ""
+
+#. translators: %s: URL of the Site Health status screen.
+#: includes/settings-page.php:144
+#, php-format
+msgid "Checking a password only when it is set misses every password chosen before Keel was active. So a login with a username or email and password also re-checks it, at most once every 30 days per account, for every role unless the <code>keel_password_rescreen_skip_roles</code> filter leaves some out. A breached password still works. Its owner sees a warning on every admin screen until they change it, and anyone who can list users sees a count in <a href=\"%s\">Site Health</a> and a Breached passwords view on the Users screen, with a link to send each person a password reset."
+msgstr ""
+
+#: includes/settings-page.php:153
+msgid "On multisite, this setting is stored per site but does not act per site. WordPress keeps one user table for the whole network, so a password is checked against whichever site the person is setting it on, and once set, it is their password everywhere. A Super Admin can settle this for everyone: under Network Admin → Settings → Network Policy, ticking a setting decides it for the whole network and locks it on every site. Left unticked, each site decides for itself, and a password only has to pass the rules of the site where it is set."
+msgstr ""
+
+#: includes/settings-page.php:164
+msgid "XML-RPC is WordPress’s original remote API. It predates the REST API and still carries the methods that let an outside client publish, fetch and manage a site with a username and password. Most sites no longer use XML-RPC, but some may need it in part or entirely."
+msgstr ""
+
+#: includes/settings-page.php:165
+msgid "That is why there are four switches rather than one. Blocking the endpoint is the strictest choice. The other three are off by default, which removes the method families that attract abuse (pingbacks, remote publishing with a username and password, and multicall) while the rest of the endpoint keeps working. Turn one on only for a client that needs it."
+msgstr ""
+
+#: includes/settings-page.php:168
+msgid "Blocking the endpoint inside WordPress still costs a full request: PHP starts, WordPress loads, and only then does Keel answer 403. If your host, CDN or firewall can refuse <code>xmlrpc.php</code> before the request reaches WordPress, that is cheaper, especially during a flood of requests, which is when blocking matters most. This setting is for sites that can’t do that."
+msgstr ""
+
+#: includes/settings-page.php:172
+msgid "The bad reputation of <code>system.multicall</code> is out of date. It once let an attacker bundle hundreds of password guesses into a single request. WordPress 4.4 closed that in 2015. Refusing it today is modest attack-surface reduction against batching, not a fix for a live vulnerability. WordPress.com uses multicall to manage a site through Jetpack, so Keel lets through the requests Jetpack verifies as signed by WordPress.com even while multicall is off."
+msgstr ""
+
+#: includes/settings-page.php:184
+msgid "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset) and recognizes common local hostnames. The Environment setting can override both. That override changes Keel only, and a copy of the database on another site ignores it."
+msgstr "Keel treats each site as production, staging, development or local. It reads <code>WP_ENVIRONMENT_TYPE</code> (production when unset) and recognises common local hostnames. The Environment setting can override both. That override changes Keel only, and a copy of the database on another site ignores it."
+
+#: includes/settings-page.php:188
+msgid "<strong>Email:</strong> with Non-Production Email on, which is the default, outgoing mail is held back outside production and an admin notice says so. WordPress still reports each message as sent, so code behaves as it will in production. <code>KEEL_ALLOW_NONPRODUCTION_MAIL</code> in <code>wp-config.php</code> lets one site send anyway."
+msgstr ""
+
+#: includes/settings-page.php:195
+msgid "<strong>Environment indicator:</strong> a color-coded label in the admin bar, shown as an icon on narrow screens. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
+msgstr "<strong>Environment indicator:</strong> a colour-coded label in the admin bar, shown as an icon on narrow screens. It is off by default; turn it on wherever a live site and its copies could be mistaken for each other. The Environment setting changes what the label says, not whether it appears."
+
+#: includes/settings-page.php:199
+msgid "Mail held back on a live site? Keel shows a warning when a public site says it is local, naming the <code>wp-config.php</code> file and the command that fixes it. Otherwise, check <code>WP_ENVIRONMENT_TYPE</code> in <code>wp-config.php</code> first."
+msgstr ""
+
+#: includes/settings-page.php:208
+msgid "Updates"
+msgstr ""
+
+#: includes/settings-page.php:210
+msgid "Keel’s update settings decide what WordPress may install by itself. Core Auto-Updates defaults to maintenance and security releases only. Plugin Auto-Updates and Theme Auto-Updates default to Leave unchanged, which keeps the choices made on the Plugins and Themes screens."
+msgstr ""
+
+#: includes/settings-page.php:211
+msgid "Choosing Enabled or Disabled overrides those choices without rewriting them, so going back to Leave unchanged restores them. Another plugin that filters updates after Keel can still decide differently. There is no minor-only option for plugins and themes, because their version numbers follow no enforced rules."
+msgstr ""
+
+#. translators: 1: URL of the Updates screen, 2: URL of the Site Health status screen.
+#: includes/settings-page.php:215
+#, php-format
+msgid "A policy is not a delivery schedule. WordPress installs updates when its scheduled checks run and it can write the files. The <a href=\"%1$s\">Updates screen</a> says which core policy is in force and where it comes from, and Update diagnostics in <a href=\"%2$s\">Site Health</a> shows the last check, the next scheduled ones and any errors kept from failed attempts."
+msgstr ""
+
+#: includes/settings-page.php:222
+msgid "On multisite, every site shares the same core, plugin and theme files, so Network Policy decides for the whole network."
+msgstr ""
+
+#: includes/settings-page.php:233
+msgid "Many of Keel’s defaults are applied through WordPress filters that return a single value. When two plugins are on the same filter, the last one to run wins. There is no error, nothing is logged, and the plugin that lost goes on showing the setting you think it applied. That is how a site can have comments turned off in one plugin and still get comments: another plugin on the same filter turned them back on."
+msgstr ""
+
+#: includes/settings-page.php:234
+msgid "Keel reports three kinds of overlap."
+msgstr ""
+
+#: includes/settings-page.php:236
+msgid "<strong>Shared setting:</strong> another active plugin or theme is on a setting Keel also sets. That shows an overlap, not a disagreement. Two plugins turning the same thing off both get their way, so this is not a reason to deactivate either one. Compare their settings and decide which should own it."
+msgstr ""
+
+#: includes/settings-page.php:240
+msgid "<strong>Setting not taking effect:</strong> Keel compared the value it asked for with the value WordPress ended up using, and they differ. When Keel can tell who set the final value, it names that plugin. Act on this one: it is measured, not inferred."
+msgstr ""
+
+#: includes/settings-page.php:244
+msgid "<strong>Untraceable:</strong> a plugin that switches a feature with one of WordPress’s own helper functions, such as <code>__return_false</code>, leaves nothing that points back to it. Keel reports these as untraceable rather than guess. Your list of active plugins is the place to look."
+msgstr ""
+
+#. translators: %s: linked name of the Site Health screen.
+#: includes/settings-page.php:253
+#, php-format
+msgid "<strong>The full report, hook by hook, is under %s.</strong> The Dashboard, the Plugins screen and this settings screen show a short version. You can dismiss the one on the Dashboard. It comes back if the set of overlapping plugins changes, so dismissing it means “I’ve seen this,” not “never mention it again.”"
+msgstr ""
+
+#: includes/settings-page.php:261
+msgid "Nothing in Keel runs another plugin’s code to find out what it does. An earlier version did, and it was withdrawn for a simple reason: a check that reports collisions must not be able to cause them."
+msgstr ""
+
+#. translators: %s: URL of the Site Health Info screen.
+#: includes/settings-page.php:270
+#, php-format
+msgid "Every setting and its current value is listed under <a href=\"%s\">Site Health → Info</a>, in the <strong>Keel Defaults</strong> section. Site Health → Status flags only the ones that need attention and lists the rest under Passed tests."
+msgstr ""
+
+#: includes/settings-page.php:278
+msgid "To share Keel’s setup with a developer or support, use Download JSON on this screen. The report leaves out site and user identifiers."
 msgstr ""
