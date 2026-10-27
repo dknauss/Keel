@@ -129,8 +129,7 @@ The sweep is clean.
 
 ## Checks on the maintainer's machine, 2026-10-27
 
-**Keyboard (WebKit).** Native Safari could not be driven, because the session had
-no Accessibility permission. Option+Tab passes ran instead in Playwright WebKit 27.2
+**Keyboard (WebKit).** Option+Tab passes ran first in Playwright WebKit 27.2
 against a disposable local Studio site running `main` at `dddabf1` (built with
 `bin/build-zip.sh`), with the synthetic update fixtures, two lock constants and a
 flagged breached account.
@@ -143,9 +142,21 @@ flagged breached account.
 - The update diagnostics tables show a 2px outline on focus and scroll fully with
   ArrowRight at 360px. They do not overflow at 600px or wider.
 - **Found and fixed:** the Site Health breached-accounts scroll region had no visible
-  focus outline, and ArrowRight did not scroll it at 360px (285px of overflow). It
-  and the cron report regions lacked `keel-defaults-update-table-scroll`, the class
-  the outline rule and the arrow-key helper target. #339 adds it to both.
+  focus outline. It and the cron report regions lacked
+  `keel-defaults-update-table-scroll`, the class the outline rule and the arrow-key
+  helper target. #339 adds it to both. (The WebKit run also reported that ArrowRight
+  did not scroll the region; native Safari showed that was a harness artifact.)
+
+**Keyboard (native Safari).** Once Accessibility permission was granted, the same
+lab was checked in Safari 27.0.1 with Option+Tab, reading the focused element from
+the accessibility tree after each key. No focus traps; every page tabs through and
+back out to Safari's toolbar. All 46 Keel controls on Settings > Keel come in a
+sensible order, and the locked Core Auto-Updates and Post Revision Retention fields
+are reachable with a visible ring beside their lock notes. The Updates policy
+notice links run in reading order with visible focus, "Breached passwords (1)" on
+Users shows a ring, and the update diagnostics tables show their 2px outline. The
+breached-accounts region took focus and scrolled with the arrow keys but drew no
+outline, confirming the gap #339 fixes.
 
 **VoiceOver with native Safari.** VoiceOver ran in Safari 27.0.1 against the same
 lab site. The spoken text was captured from VoiceOver's last phrase after each move,
@@ -187,9 +198,7 @@ These need a machine with more than Chromium, or a person:
 
 1. ~~Firefox and WebKit~~: done in CI; see run 40135696116 above.
 2. ~~VoiceOver with Safari~~: done; see above.
-3. **Native Safari keyboard**: the WebKit pass above is done. The native Safari app
-   pass is still open, because macOS refused synthetic keystrokes; it needs a person
-   to Tab through, or Accessibility permission for the automation.
+3. ~~Native Safari keyboard~~: done; see above. Its one finding is fixed in #339.
 4. ~~WordPress.com settings save~~: done; see above.
 5. ~~A clean counterpart sweep~~: done. #302 is ported as AX commit `937c888`.
 
