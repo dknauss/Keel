@@ -182,7 +182,7 @@ function keel_defaults_update_timeline_markup( $selected, $tip, array $state, ar
 			esc_html__( '%s is set, so a server task (an external scheduler) has to run scheduled jobs. Keel can’t tell whether it does.', 'keel-defaults' ),
 			'<code>DISABLE_WP_CRON</code>'
 		);
-		$rows[]    = array( esc_html__( 'WP-Cron', 'keel-defaults' ), esc_html__( 'Turned off', 'keel-defaults' ), $cron_note );
+		$rows[] = array( esc_html__( 'WP-Cron', 'keel-defaults' ), esc_html__( 'Turned off', 'keel-defaults' ), $cron_note );
 	}
 
 	$failure = $update['failure'];
