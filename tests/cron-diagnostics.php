@@ -132,6 +132,7 @@ keel_cron_assert( $state['done'] && '' === $state['error'] && false === strpos( 
 $reads  = $GLOBALS['wpdb']->reads;
 $health = keel_defaults_cron_health();
 keel_cron_assert( $reads === $GLOBALS['wpdb']->reads, 'Fresh cached report does not collect again.' );
+keel_cron_assert( false !== strpos( $health['description'], '<table' ) && false !== strpos( $health['description'], '<div class="keel-defaults-update-table-scroll" role="region" tabindex="0"' ), 'Cron tables sit in a focus-visible, arrow-scrollable region.' );
 $GLOBALS['cron_blog'] = 2;
 keel_cron_assert( false === keel_defaults_cron_snapshot(), 'Reports are site-scoped.' );
 keel_defaults_cron_health();

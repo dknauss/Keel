@@ -415,6 +415,7 @@ keel_assert( 'recommended' === $r['status'], 'A flagged non-administrator is rec
 keel_assert( false !== strpos( $r['label'], '1 account has a password' ), 'The label carries the count: ' . $r['label'] );
 keel_assert( false === strpos( $r['description'], '<script>' ) && false !== strpos( $r['description'], '&lt;script&gt;' ), 'Display names are escaped.' );
 keel_assert( false !== strpos( $r['description'], '<caption>' ) && false !== strpos( $r['description'], 'scope="row"' ) && false !== strpos( $r['description'], 'role="region"' ), 'The list is a captioned table with row headers in a scrollable region.' );
+keel_assert( false !== strpos( $r['description'], '<div class="keel-defaults-update-table-scroll" role="region" tabindex="0"' ), 'The scroll region carries the class that gives it a focus outline and arrow-key scrolling.' );
 keel_assert( false !== strpos( $r['description'], 'action=resetpassword&amp;users=2&amp;_wpnonce=NONCE-bulk-users' ), 'Each row links to core\'s nonced Send password reset action.' );
 keel_assert( false !== strpos( $r['description'], 'user-edit.php?user_id=2#password' ), 'Each row links to the account\'s password field.' );
 keel_assert( false !== strpos( $r['description'], 'datetime="' ), 'The flagged time is machine-readable.' );
