@@ -140,6 +140,38 @@ confirmation reruns; the front page adds no queries, markup bytes or assets.
 Query increases on Updates (+2) and Site Health (+4) are explained reads from
 new features. The crowded rebuild measures 3.38 ms against a 20 ms budget.
 
+## Conflict diagnostics on MySQL, Redis and multisite — 2026-10-28
+
+`tests/integration/conflict-timing.php` ran in the live core backport matrix
+([run 55](https://github.com/dknauss/Keel/actions/runs/40605911982), commit
+`3266dee`) on GitHub's shared runners with MySQL 8.0.46. Medians of seven rounds of
+20,000 calls each:
+
+| Row | PHP | Site | Object cache | Observer added per call | Expectations rebuild per call | Crowded report (200 rivals) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 6.4-floor | 7.4.33 | single | default | 20.2–20.5 µs | 19.5 µs | 2.67 ms (max 2.70) |
+| 7.0-line | 8.2.35 | single | default | 13.1–13.6 µs | 12.9 µs | 1.33 ms (max 1.37) |
+| 6.9-multisite | 8.2.35 | multisite | Redis 7.4 | 16.1–16.8 µs | 15.9 µs | 1.69 ms (max 1.71) |
+
+The crowded overlap report stays under its 20 ms budget everywhere, at a tenth of it
+or less. The 2026-10-24 SQLite figure was 3.38 ms. The multisite path roots and Redis
+add about 0.4 ms over a single site on the same PHP.
+
+The observer is the finding. The same hooks cost 0.3–5.6 µs per call with the
+observer removed, and 13–20 µs with it. Nearly all of the difference is rebuilding
+`keel_defaults_policy_expectations()` on every call, which costs the same 13–20 µs
+when it is timed alone. The comparison itself is noise. `comments_open` and
+`pings_open` fire once per post per check, so a ten-post archive that asks each of
+them a few times spends roughly 0.5–1 ms. That fits inside the 5 ms bare front-end
+budget, but it is not the "costs a comparison" the observer's comments promise.
+Caching the expectations is the obvious fix. It has to stay correct across
+`switch_to_blog()`, a mid-request settings save and the `keel_policy_expectations`
+filter, which is why `keel_defaults_get()` deliberately has no cache of its own.
+
+These are shared-runner numbers: compare rows within one run, not across runs.
+Zero queries, reads and writes on the same rows are asserted separately by
+`tests/integration/conflict-hot-path.php`.
+
 ## Typography investigation — 2026-10-17
 
 The [compatibility pass](typography-compatibility-2026-10-17.md) measures the

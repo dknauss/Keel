@@ -116,6 +116,33 @@ for ( $r = 0; $r < $rounds; $r++ ) {
 $result['expectations_ns'] = round( $median( $expectations ) );
 
 /*
+ * Where the rebuild goes: one settings read, and one full setting lookup. If the
+ * read is most of it, a cache keyed on the stored values saves little; if the
+ * lookup is, it saves most.
+ */
+foreach ( array(
+	'get_option_ns'      => static function () {
+		return get_option( KEEL_DEFAULTS_OPTION, array() );
+	},
+	'enabled_ns'         => static function () {
+		return keel_defaults_enabled( 'disable_comments' );
+	},
+	'apply_filters_ns'   => static function () {
+		return apply_filters( 'keel_policy_expectations', array() );
+	},
+) as $label => $probe ) {
+	$samples = array();
+	for ( $r = 0; $r < $rounds; $r++ ) {
+		$start = hrtime( true );
+		for ( $i = 0; $i < $calls; $i++ ) {
+			$probe();
+		}
+		$samples[] = ( hrtime( true ) - $start ) / $calls;
+	}
+	$result[ $label ] = round( $median( $samples ) );
+}
+
+/*
  * The crowd. Each fixture is a real plugin file with its own named callbacks,
  * so attribution resolves it through the same Reflection and plugin roots it
  * would use for a real rival.
