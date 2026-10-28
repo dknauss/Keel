@@ -168,6 +168,23 @@ Caching the expectations is the obvious fix. It has to stay correct across
 `switch_to_blog()`, a mid-request settings save and the `keel_policy_expectations`
 filter, which is why `keel_defaults_get()` deliberately has no cache of its own.
 
+A second run ([run 56](https://github.com/dknauss/Keel/actions/runs/40606816200),
+commit `cb8e39d`) split the rebuild into parts:
+
+| Row | Expectations rebuild | One `get_option()` of the settings | One `keel_defaults_enabled()` | The `keel_policy_expectations` filter, empty |
+| --- | --- | --- | --- | --- |
+| 6.4-floor | 19.2 µs | 4.3 µs | 4.6 µs | 0.1 µs |
+| 6.9-multisite | 31.6 µs | 4.8 µs | 7.6 µs | 0.1 µs |
+
+(The 7.0-line row's figures fell outside the retrievable log tail; its run 55 row
+stands.) The rebuild makes five setting lookups, and each lookup is almost entirely
+its own `get_option()` call, even though alloptions already holds the value. The
+filter costs nothing. So the saving is in reading the settings once per rebuild, or
+once per request with invalidation on the option's update hooks and on
+`switch_blog`. A cache keyed on the stored value would save nothing, because
+reading the value is the cost. Multisite adds the network-policy read to every
+lookup, which is why its rebuild runs higher in this run.
+
 These are shared-runner numbers: compare rows within one run, not across runs.
 Zero queries, reads and writes on the same rows are asserted separately by
 `tests/integration/conflict-hot-path.php`.

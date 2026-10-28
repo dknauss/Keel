@@ -67,6 +67,13 @@ hook fifty times and asserts zero queries, zero reads of the divergence record
 and zero writes, then forces one divergence to prove it is recorded once. The
 live core backport matrix runs it on MySQL, and with Redis on the multisite row.
 
+**`conflict-timing.php`** — run with `wp eval-file`. How long do the conflict
+diagnostics take? Times each watched hook with and without the observer, the
+expectations rebuild and its parts, and a forced overlap report against forty
+fixture plugins. Report only, no timing assertions: it logs one JSON line, and the
+figures go into `docs/review/performance-budget.md` by hand. It writes and removes
+fixture plugins, so lab only. The live core backport matrix runs it on every row.
+
 **`probe-comment-paths.sh`** — every way core creates a comment (the form, an
 authenticated REST create, a REST Note, XML-RPC `wp.newComment`, a real pingback),
 and whether each one landed. Pair it with `probe-configs-comment-paths/keel.php`,
