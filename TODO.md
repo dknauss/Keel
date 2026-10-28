@@ -661,14 +661,16 @@ These are maintenance increments alongside feature work, not new release promise
       removable compatibility code, useful native types/enums, CI/tooling savings,
       and migration/release impact. Produce an evidence-based recommendation before
       changing the floor; the current minimum remains PHP 7.4.
-- [ ] **Time conflict diagnostics beyond the SQLite lab** — the 2026-10-14 baseline
-      and the 2026-10-24 release-candidate pass both ran on SQLite, on a single site,
-      with at most the SQLite object-cache drop-in. Repeat the paired front-end and
-      crowded overlap-report runs with Redis, on MySQL, and on a multisite subsite (where
-      the plugin fingerprint and path roots change per site), and record them in
-      [the performance record](docs/review/performance-budget.md). The zero-query
-      half is already asserted in CI by `tests/integration/conflict-hot-path.php`;
-      this is the timing half. Re-run on each minor release.
+- [x] **Time conflict diagnostics beyond the SQLite lab** — 2026-10-28, run 55 of the
+      live core backport matrix on MySQL, Redis and multisite via
+      `tests/integration/conflict-timing.php` (report only; it runs on every matrix
+      run). The crowded overlap report is 1.3–2.7 ms against a 20 ms budget. See
+      [the performance record](docs/review/performance-budget.md).
+- [ ] **Stop rebuilding the policy expectations on every observed call** — the
+      observer adds 13–20 µs per call, almost all of it
+      `keel_defaults_policy_expectations()`. Cache it without going stale across
+      `switch_to_blog()`, a mid-request settings save or the
+      `keel_policy_expectations` filter, and confirm the drop with the timing harness.
 - [x] **Start data-contract and PHPStan pilot** — 2026-10-14; shared array shapes,
       level-6 backport/configuration-policy checks targeting PHP 7.4, and positive/
       negative contract examples in CI. See [the pilot record](docs/review/data-contracts-phpstan.md).
