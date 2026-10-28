@@ -185,6 +185,19 @@ once per request with invalidation on the option's update hooks and on
 reading the value is the cost. Multisite adds the network-policy read to every
 lookup, which is why its rebuild runs higher in this run.
 
+The fix (read the settings once per rebuild, resolve each key from that read) ran in
+[run 57](https://github.com/dknauss/Keel/actions/runs/40608033057), commit
+`eabcbb7`, against run 56 on the same rows:
+
+| Row | Expectations rebuild, before → after | Observer added per call, before → after |
+| --- | --- | --- |
+| 6.4-floor | 19.2 → 6.2 µs | 20.1–20.3 → 6.8–7.0 µs |
+| 6.9-multisite | 31.6 → 9.2 µs | 32.9–33.1 → 9.9–10.3 µs |
+
+About a third of the old cost on both rows. What is left is the one settings read
+plus, on multisite, the network-policy read. The crowded report did not move
+(2.70 ms and 3.15 ms), as expected, since it does not rebuild per call.
+
 These are shared-runner numbers: compare rows within one run, not across runs.
 Zero queries, reads and writes on the same rows are asserted separately by
 `tests/integration/conflict-hot-path.php`.
