@@ -32,17 +32,30 @@ defined( 'ABSPATH' ) || exit;
  * @return array<array-key, mixed> Hook => filtered, non-null expectation.
  */
 function keel_defaults_policy_expectations() {
+	/*
+	 * The observer rebuilds this on every watched call, and comments_open fires
+	 * once per post. Resolving each key through keel_defaults_enabled() cost up to
+	 * five option reads, 13–20 µs a call on CI and nearly all of the observer's
+	 * cost (performance budget, 2026-10-28). One read, resolved per key, gives the
+	 * same answer and keeps nothing between calls to go stale.
+	 */
+	$stored  = keel_defaults_stored_settings();
+	$network = is_multisite() ? keel_defaults_network_settings() : array();
+	$enabled = static function ( $key ) use ( $stored, $network ) {
+		return 'yes' === keel_defaults_resolve( $key, $stored, $network );
+	};
+
 	$expectations = array(
 		// Remote publishing allowed means the endpoint should answer.
-		'xmlrpc_enabled'                        => keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ),
+		'xmlrpc_enabled'                        => $enabled( 'xmlrpc_allow_remote_publishing' ),
 		// Comments off means closed, everywhere, below the theme. pings_open is
 		// the same question about the same setting — one without the other was an
 		// omission, not a distinction, and it left a plugin forcing pingbacks back
 		// open with nothing to report it.
-		'comments_open'                         => keel_defaults_enabled( 'disable_comments' ) ? false : null,
-		'pings_open'                            => keel_defaults_enabled( 'disable_comments' ) ? false : null,
-		'wp_is_application_passwords_available' => keel_defaults_enabled( 'disable_application_passwords' ) ? false : null,
-		'wp_supports_ai'                        => keel_defaults_key_supported( 'disable_ai_connectors' ) && keel_defaults_enabled( 'disable_ai_connectors' ) ? false : null,
+		'comments_open'                         => $enabled( 'disable_comments' ) ? false : null,
+		'pings_open'                            => $enabled( 'disable_comments' ) ? false : null,
+		'wp_is_application_passwords_available' => $enabled( 'disable_application_passwords' ) ? false : null,
+		'wp_supports_ai'                        => keel_defaults_key_supported( 'disable_ai_connectors' ) && $enabled( 'disable_ai_connectors' ) ? false : null,
 	);
 
 	/**
