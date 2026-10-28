@@ -194,6 +194,11 @@ jobs:
       - name: Conflict observer healthy-path cost
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/conflict-hot-path.php" --path=/tmp/keel-wp --allow-root
 
+      # Report only: shared runners are too noisy for a timing gate. The numbers
+      # go into docs/review/performance-budget.md by hand.
+      - name: Conflict diagnostics timing (report only)
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/conflict-timing.php" --path=/tmp/keel-wp --allow-root
+
       - name: Report the effective update policy
         env:
           ROW: ${{ matrix.id }}
