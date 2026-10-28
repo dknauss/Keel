@@ -666,11 +666,11 @@ These are maintenance increments alongside feature work, not new release promise
       `tests/integration/conflict-timing.php` (report only; it runs on every matrix
       run). The crowded overlap report is 1.3–2.7 ms against a 20 ms budget. See
       [the performance record](docs/review/performance-budget.md).
-- [ ] **Stop rebuilding the policy expectations on every observed call** — the
-      observer adds 13–20 µs per call, almost all of it
-      `keel_defaults_policy_expectations()`. Cache it without going stale across
-      `switch_to_blog()`, a mid-request settings save or the
-      `keel_policy_expectations` filter, and confirm the drop with the timing harness.
+- [x] **Cut the cost of rebuilding the policy expectations on every observed call**
+      (2026-10-28) — the rebuild now reads the settings once and resolves each key
+      from that read, with nothing cached between calls. The observer's added cost
+      fell from about 20 µs to 7 µs per call on 6.4-floor and from 33 µs to 10 µs on
+      multisite (run 57; performance budget).
 - [x] **Start data-contract and PHPStan pilot** — 2026-10-14; shared array shapes,
       level-6 backport/configuration-policy checks targeting PHP 7.4, and positive/
       negative contract examples in CI. See [the pilot record](docs/review/data-contracts-phpstan.md).

@@ -289,6 +289,66 @@ keel_assert( array() === keel_defaults_network_settings(), 'A non-array network 
 keel_assert( 'yes' === keel_defaults_get( 'require_strong_passwords' ), 'And the site keeps working.' );
 
 /*
+ * --- the observer's expectations follow the same precedence ---
+ *
+ * keel_defaults_policy_expectations() reads the options once and resolves each
+ * key itself, because it runs on every watched filter call. It must still give
+ * exactly what keel_defaults_enabled() would, key by key, on a network: policy
+ * wins where it is set, the site's value where it is not, the default where
+ * neither is. Checked against the slow path rather than a hand-written table,
+ * so a precedence change in keel_defaults_get() cannot leave it behind.
+ */
+$GLOBALS['keel_is_multisite'] = true;
+
+$keel_cases = array(
+	'nothing stored'              => array( array(), array() ),
+	'site disables comments'      => array( array( 'disable_comments' => 'yes' ), array() ),
+	'network re-enables comments' => array(
+		array( 'disable_comments' => 'yes' ),
+		array( 'disable_comments' => 'no' ),
+	),
+	'network disables comments'   => array(
+		array( 'disable_comments' => 'no' ),
+		array( 'disable_comments' => 'yes' ),
+	),
+	'network blocks XML-RPC'      => array(
+		array( 'xmlrpc_allow_remote_publishing' => 'yes' ),
+		array( 'xmlrpc_allow_remote_publishing' => 'no' ),
+	),
+	'network decides two keys'    => array(
+		array( 'disable_application_passwords' => 'no' ),
+		array(
+			'disable_application_passwords' => 'yes',
+			'disable_comments'              => 'yes',
+		),
+	),
+);
+foreach ( $keel_cases as $label => $case ) {
+	$GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => $case[0] );
+	$GLOBALS['keel_site_options'] = array( KEEL_DEFAULTS_NETWORK_OPTION => $case[1] );
+
+	$slow = array_filter(
+		array(
+			'xmlrpc_enabled'                        => keel_defaults_enabled( 'xmlrpc_allow_remote_publishing' ),
+			'comments_open'                         => keel_defaults_enabled( 'disable_comments' ) ? false : null,
+			'pings_open'                            => keel_defaults_enabled( 'disable_comments' ) ? false : null,
+			'wp_is_application_passwords_available' => keel_defaults_enabled( 'disable_application_passwords' ) ? false : null,
+			'wp_supports_ai'                        => keel_defaults_key_supported( 'disable_ai_connectors' ) && keel_defaults_enabled( 'disable_ai_connectors' ) ? false : null,
+		),
+		static function ( $expected ) {
+			return null !== $expected;
+		}
+	);
+
+	keel_assert(
+		keel_defaults_policy_expectations() === $slow,
+		"Policy expectations match keel_defaults_enabled(): {$label}."
+	);
+}
+$GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => array( 'require_strong_passwords' => 'yes' ) );
+$GLOBALS['keel_site_options'] = array( KEEL_DEFAULTS_NETWORK_OPTION => array() );
+
+/*
  * --- only a Super Admin may set policy ---
  */
 $GLOBALS['keel_caps'] = array();

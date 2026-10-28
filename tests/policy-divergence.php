@@ -48,6 +48,7 @@ function wp_normalize_path( $p ) { return str_replace( '\\', '/', (string) $p );
 function trailingslashit( $p ) { return rtrim( (string) $p, '/\\' ) . '/'; }
 function is_customize_preview() { return false; }
 function get_option( $k, $d = false ) {
+	$GLOBALS['keel_option_reads'][ $k ] = ( $GLOBALS['keel_option_reads'][ $k ] ?? 0 ) + 1;
 	return array_key_exists( $k, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $k ] : $d; }
 function get_transient( $k ) {
 	++$GLOBALS['keel_transient_reads'];
@@ -118,6 +119,21 @@ foreach ( array( 'comments_open', 'pings_open' ) as $comment_hook ) {
 		"{$comment_hook} has an expectation: it is a boolean that disable_comments alone decides."
 	);
 }
+
+/*
+ * One settings read per rebuild, not one per key.
+ *
+ * The observer rebuilds the expectations on every watched call, and
+ * comments_open fires once per post. Resolving each key through
+ * keel_defaults_enabled() read the option five times a call, which was nearly
+ * all of the observer's measured cost.
+ */
+$GLOBALS['keel_option_reads'] = array();
+keel_defaults_policy_expectations();
+keel_assert(
+	1 === ( $GLOBALS['keel_option_reads']['keel_settings'] ?? 0 ),
+	'Rebuilding the expectations reads the settings once; it read them ' . ( $GLOBALS['keel_option_reads']['keel_settings'] ?? 0 ) . ' times.'
+);
 
 // --- nothing overriding: nothing reported, nothing written ---
 

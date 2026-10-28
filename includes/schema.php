@@ -390,13 +390,46 @@ function keel_defaults_get( $key ) {
 		}
 	}
 
-	// Deliberately uncached: the option is autoloaded, so get_option() answers
-	// from the options cache without a query. A static here would only add a
-	// second cache that goes stale the moment anything calls update_option()
-	// — which is exactly what saving the settings screen does.
+	return keel_defaults_resolve( $key, keel_defaults_stored_settings(), array() );
+}
+
+/**
+ * The site's stored settings, as one array.
+ *
+ * Deliberately uncached: the option is autoloaded, so get_option() answers from
+ * the options cache without a query. A static here would only add a second cache
+ * that goes stale the moment anything calls update_option() — which is exactly
+ * what saving the settings screen does.
+ *
+ * @return array<string, mixed>
+ */
+function keel_defaults_stored_settings() {
 	$stored = get_option( KEEL_DEFAULTS_OPTION, array() );
-	if ( ! is_array( $stored ) ) {
-		$stored = array();
+
+	return is_array( $stored ) ? $stored : array();
+}
+
+/**
+ * Resolve one setting from values already read.
+ *
+ * Every keel_defaults_get() call reads the options again. A caller that needs
+ * several keys at once, on a hot path, reads them once and resolves each here
+ * instead: same precedence, same fallback, and still nothing cached past
+ * the call, so it cannot go stale across a save or switch_to_blog().
+ *
+ * @param string               $key     Schema key.
+ * @param array<string, mixed> $stored  The site's stored settings.
+ * @param array<string, mixed> $network Network policy; empty on a single site.
+ * @return mixed
+ */
+function keel_defaults_resolve( $key, array $stored, array $network ) {
+	$schema = keel_defaults_schema();
+	if ( ! isset( $schema[ $key ] ) ) {
+		return null;
+	}
+
+	if ( array_key_exists( $key, $network ) ) {
+		return $network[ $key ];
 	}
 
 	if ( 'admin_list_tables' === $key ) {
