@@ -412,9 +412,9 @@ function keel_defaults_stored_settings() {
 /**
  * Resolve one setting from values already read.
  *
- * keel_defaults_get() reads the options for every key it is asked. A caller that
- * needs several keys at once, on a hot path, reads them once and resolves each
- * here instead: same precedence, same fallback, and still nothing cached past
+ * Every keel_defaults_get() call reads the options again. A caller that needs
+ * several keys at once, on a hot path, reads them once and resolves each here
+ * instead: same precedence, same fallback, and still nothing cached past
  * the call, so it cannot go stale across a save or switch_to_blog().
  *
  * @param string               $key     Schema key.

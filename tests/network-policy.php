@@ -299,14 +299,31 @@ keel_assert( 'yes' === keel_defaults_get( 'require_strong_passwords' ), 'And the
  * so a precedence change in keel_defaults_get() cannot leave it behind.
  */
 $GLOBALS['keel_is_multisite'] = true;
-foreach ( array(
-	array( array(), array() ),
-	array( array( 'disable_comments' => 'yes' ), array() ),
-	array( array( 'disable_comments' => 'yes' ), array( 'disable_comments' => 'no' ) ),
-	array( array( 'disable_comments' => 'no' ), array( 'disable_comments' => 'yes' ) ),
-	array( array( 'xmlrpc_allow_remote_publishing' => 'yes' ), array( 'xmlrpc_allow_remote_publishing' => 'no' ) ),
-	array( array( 'disable_application_passwords' => 'no' ), array( 'disable_application_passwords' => 'yes', 'disable_comments' => 'yes' ) ),
-) as $case ) {
+
+$keel_cases = array(
+	'nothing stored'              => array( array(), array() ),
+	'site disables comments'      => array( array( 'disable_comments' => 'yes' ), array() ),
+	'network re-enables comments' => array(
+		array( 'disable_comments' => 'yes' ),
+		array( 'disable_comments' => 'no' ),
+	),
+	'network disables comments'   => array(
+		array( 'disable_comments' => 'no' ),
+		array( 'disable_comments' => 'yes' ),
+	),
+	'network blocks XML-RPC'      => array(
+		array( 'xmlrpc_allow_remote_publishing' => 'yes' ),
+		array( 'xmlrpc_allow_remote_publishing' => 'no' ),
+	),
+	'network decides two keys'    => array(
+		array( 'disable_application_passwords' => 'no' ),
+		array(
+			'disable_application_passwords' => 'yes',
+			'disable_comments'              => 'yes',
+		),
+	),
+);
+foreach ( $keel_cases as $label => $case ) {
 	$GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => $case[0] );
 	$GLOBALS['keel_site_options'] = array( KEEL_DEFAULTS_NETWORK_OPTION => $case[1] );
 
@@ -324,8 +341,8 @@ foreach ( array(
 	);
 
 	keel_assert(
-		$slow === keel_defaults_policy_expectations(),
-		'Policy expectations match keel_defaults_enabled() for site ' . json_encode( $case[0] ) . ' under network ' . json_encode( $case[1] ) . '.'
+		keel_defaults_policy_expectations() === $slow,
+		"Policy expectations match keel_defaults_enabled(): {$label}."
 	);
 }
 $GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => array( 'require_strong_passwords' => 'yes' ) );
