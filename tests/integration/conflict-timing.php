@@ -177,17 +177,24 @@ try {
 		update_option( 'active_plugins', array_merge( $active, $made ) );
 	}
 
+	/*
+	 * Every fixture on every hook, not a total: forty rivals found on one hook
+	 * and none on the other four would add up to forty and time a scan of a
+	 * fifth of the crowd.
+	 */
 	$report = keel_defaults_policy_overlap_report( true );
 	$named  = 0;
-	foreach ( $report['structural'] as $hook_plugins ) {
-		foreach ( $hook_plugins as $plugin ) {
+	foreach ( $hooks as $hook ) {
+		$on_hook = 0;
+		foreach ( $report['structural'][ $hook ] ?? array() as $plugin ) {
 			if ( 0 === strpos( $plugin, 'keel-timing-rival-' ) ) {
-				++$named;
+				++$on_hook;
 			}
 		}
-	}
-	if ( $named < $crowd ) {
-		throw new RuntimeException( "The overlap report named {$named} fixture rivals; expected at least {$crowd}. The crowd did not form, so its timing would mean nothing." );
+		if ( $on_hook < $crowd ) {
+			throw new RuntimeException( "The overlap report named {$on_hook} fixture rivals on {$hook}; expected {$crowd}. The crowd did not form, so its timing would mean nothing." );
+		}
+		$named += $on_hook;
 	}
 
 	$scan = array();
