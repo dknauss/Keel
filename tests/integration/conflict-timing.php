@@ -192,7 +192,7 @@ try {
 
 	$scan = array();
 	for ( $r = 0; $r < 12; $r++ ) {
-		$start  = hrtime( true );
+		$start = hrtime( true );
 		keel_defaults_policy_overlap_report( true );
 		$scan[] = ( hrtime( true ) - $start ) / 1e6;
 	}
