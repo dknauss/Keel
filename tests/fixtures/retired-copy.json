@@ -21,7 +21,7 @@
     "Better by Default is a teaching repository and does exactly that, so a bare",
     "substring scan cannot tell a relapse from a lesson. Quote a retired phrase on",
     "a line carrying that repo's own marker — `keel-retired-ok`,",
-    "`better-by-default-retired-ok`, `pixel-experience-retired-ok` — and the scan",
+    "`better-by-default-retired-ok`, or AX's own marker — and the scan",
     "skips that line. Nothing else is exempt, so the escape hatch has to be written",
     "deliberately and is visible in review.",
     "",

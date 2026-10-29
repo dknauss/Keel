@@ -3,7 +3,7 @@
 Working checklist — what's in flight right now. Milestones and direction live in
 [ROADMAP.md](ROADMAP.md).
 
-The original scope document, `pixel-lite-scope.md`, was kept outside this repository and
+The original scope document was kept outside this repository and
 is retired: it was no longer on the maintainer's machine when looked for on 2026-10-13.
 This file and ROADMAP.md are the only record of scope.
 
