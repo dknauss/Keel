@@ -7,7 +7,7 @@ task-level checklist is [TODO.md](TODO.md).
 `keel-defaults` on 2026-08-26. Requires WordPress 6.4+, PHP 7.4+, tested to 7.1.
 GPL-2.0-or-later.
 
-> **Provenance note.** The original planning document, `pixel-lite-scope.md`, was kept
+> **Provenance note.** The original planning document was kept
 > outside this repository and had drifted from it (it recorded a GPL-3 decision; the
 > plugin shipped GPL-2.0-or-later in `7822926`). It is retired: it was no longer on
 > the maintainer's machine when looked for on 2026-10-13. This roadmap is the source
@@ -942,7 +942,7 @@ Plugin Review requirements, not niceties.
       **The better fix turned out not to be the report.** Better by Default asked
       whether the setting says anything WordPress does not already do and stopped
       registering when it did not (WPYEG#41); Keel and Agency Experience followed (keel#39,
-      px#241). `auth_cookie_expiration` went from three contestants at the same
+      AX#241). `auth_cookie_expiration` went from three contestants at the same
       priority to **zero at defaults**, and the check now reports it uncontested
       because the conflict shrank rather than because it stopped looking.
 

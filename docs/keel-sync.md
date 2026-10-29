@@ -5,8 +5,8 @@ from the same maintainer. A fix in one is usually a fix the other needs. Before 
 process existed, ports happened when somebody remembered to ask, so a bug fixed here
 could stay live in the other plugin until someone thought to check.
 
-AX was renamed from Pixel Managed Platform (PX) in October 2026. It is the same
-plugin, with the same shared code paths, listed at the end of this page.
+AX was renamed in October 2026. It is the same plugin, with the same shared code
+paths, listed at the end of this page.
 
 ## Every pull request records its counterpart
 
@@ -29,11 +29,12 @@ would apply to it cleanly.
 
 AX is a private repository, so a pull request or issue number there resolves for
 nobody reading this one. Reference an AX change by its commit hash only, track a port that is still to do in a Keel issue, and keep
-anything about a client, site or deployment out of this repository. Older lines that
-cite `we-are-pixel/pixel-experience#N` or `PX commit <hash>` use the old name
-and no longer resolve. Do not write either on a new pull request. The checker rejects
-`PX commit`. It cannot reject the old repository reference, because it accepts any
-`owner/repo#N` without knowing which repositories exist, so that one is on the author.
+anything about a client, site or deployment out of this repository. Older AX issue
+and commit references use the plugin's earlier name and no longer resolve. Do not
+write either kind on a new pull request. The checker accepts a commit hash only as
+`AX commit <hash>`, so an old commit prefix fails. It cannot reject an old repository
+reference, because it accepts any `owner/repo#N` without knowing which repositories
+exist, so that one is on the author.
 
 ## The check
 

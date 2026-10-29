@@ -21,7 +21,7 @@
 #     bash tests/integration/assert-privacy.sh keel
 #
 #   PROBE_CONFIG_DIR=/path/to/agency-experience/tests/probe-configs \
-#     PROBE_URL=… PROBE_PATH=… bash tests/integration/assert-privacy.sh pixel-managed-platform
+#     PROBE_URL=… PROBE_PATH=… bash tests/integration/assert-privacy.sh <ax-plugin-slug>
 #
 # A second argument selects the posture being asserted:
 #
