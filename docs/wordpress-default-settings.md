@@ -160,13 +160,42 @@ add_filter( 'wp_xmlrpc_server_class', function ( $class ) {
 > is not a compatibility guarantee; test the Jetpack connection and the features the site uses.
 > Keep Remote Publishing enabled until that testing proves it unnecessary. **Refusing multicall is
 > not harmless on a Jetpack site**: an earlier version of this note said it was, and it cut a
-> connected site off from WordPress.com. Keel now lets Jetpack-verified multicalls through, and its
-> Site Health check reports a connected Jetpack site whose requests are still being refused.
+> connected site off from WordPress.com. Keel implements an exception for Jetpack-verified multicalls. Its
+> Site Health check reports local policy and whether Jetpack exposes the verifier; it does not
+> send a connectivity probe or establish that a real incoming request succeeded. A good result
+> therefore does not prove end-to-end connectivity or coverage of every Jetpack feature.
 > A plugin-level 403 still boots WordPress and occupies PHP; only an edge block prevents the request
 > from reaching PHP. See [Jetpack's current requirements](https://jetpack.com/support/getting-started-with-jetpack/).
 > **`demo.*`:** the inert `demo.sayHello`/`demo.addTwoNumbers` methods still confirm XML-RPC is
 > live to a scanner, so Keel always drops them — no toggle:
 > `unset( $methods['demo.sayHello'], $methods['demo.addTwoNumbers'] )`.
+
+**Validation evidence and limits (reviewed 2026-10-29).** The
+[0.9.0 release-verification record](review/release-verification-0.9.0-2026-10-24.md)
+records a real WordPress.com settings-save round trip on a connected Atomic site
+running **Keel 0.8.0**, with multicall disabled before and after. “Week starts on”
+was changed from Monday to Sunday and back; WordPress.com reported
+`applied: remote`, and site-side WP-CLI reads confirmed both changes without
+HTTP 405 or a transport error. That establishes the settings operation on that
+installation. It did not capture the internal transport or trace a signed
+request through Keel's handler, and it was not a complete Jetpack feature test
+or a fresh pass on 0.9.0.
+
+The [multicall regression test](../tests/xmlrpc-multicall.php) exercises the
+verified, unsigned, unavailable-verifier, and error branches with a stand-in for
+Jetpack's connection manager. The [HTTP refusal probe](../tests/integration/assert-multicall-refusal.sh)
+checks that an unsigned batch receives HTTP 200 with fault `-32601`, including
+when the caller adds `for=jetpack`. The recorded local 0.9.0 site returned that
+fault; the Atomic probe received an edge HTTP 429, which did not exercise or
+establish the live plugin's refusal response.
+
+**Still to validate:** trace real signed requests through the handler; exercise
+WordPress.com plugin listing and reversible settings saves on the current
+release; and test publishing, uploads, and the site's enabled Jetpack features
+with remote publishing both on and off. Record Atomic and ordinary
+Jetpack-connected hosting separately. Successful registration of `jetpack.*`, a
+passing connection test, and a policy-only Site Health result are each useful,
+but none establishes the whole feature set. See the [validation roadmap](../ROADMAP.md#xml-rpc-and-jetpack-validation).
 
 ### Application Passwords — leave available (don't reflexively disable)
 - **Key:** `disable_application_passwords`
