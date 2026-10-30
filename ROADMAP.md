@@ -46,6 +46,41 @@ screen it came from, as a key into a fixed map rather than anything the form sup
 and rendered the result outside the offer. AX had inherited both halves and was fixed
 alongside it.
 
+## XML-RPC and Jetpack validation
+
+- [ ] **Complete a focused connected-site compatibility pass.** Planning estimate,
+  2026-10-29: approximately **one working day of engineering effort**, assuming
+  publicly reachable test sites, connected accounts, required entitlements, and
+  access are ready. Setup, external-service delays, and defects can extend elapsed
+  time. This is an estimate, not a scheduled commitment or completed validation.
+  - Exercise the current Keel release on WordPress.com Atomic and on an ordinary
+    host connected through Jetpack; record WordPress, PHP, Jetpack, and Keel versions.
+  - Establish a baseline, then check pingbacks off, general multicall off with the
+    signed exception, remote publishing on/off, and an endpoint block as an expected
+    failure. Use a disposable site for disruptive or write-producing cases.
+  - Trace a real WordPress.com-signed request through Keel without retaining
+    tokens, signatures, request bodies, or user data. Test plugin listing,
+    reversible settings saves, publishing, media uploads, and enabled features.
+    Use controlled destinations for any delivery checks.
+  - Confirm that unsigned and spoofed `for=jetpack` batches remain refused, direct
+    and batched pingbacks respect policy, and recorded faults distinguish edge
+    blocking from Keel. Verify both replies and site-side effects.
+  - The recorded Keel 0.8.0 settings-save round trip is partial live evidence;
+    mocked signature tests and policy-only Site Health results are not full
+    connectivity evidence. Retain versioned, sanitized pass/fail/untested results,
+    restore changed settings, and record cleanup.
+- [ ] **Broader Jetpack feature coverage.** Initial planning allowance: **several
+  working days (roughly 3–5), plus observation time** for asynchronous jobs and
+  external delivery. Final effort depends on the enabled modules, paid plans,
+  accounts, and integrations. Define a bounded inventory first: connection and
+  reconnection, remote management, publishing/media, sync/Stats, Social/newsletter
+  delivery, and Backup/restore or Scan where licensed and relevant. Restore tests
+  belong on disposable sites. Mark unavailable services untested; do not infer
+  their compatibility from another feature. Repeat critical cases after relevant
+  Keel, Jetpack, WordPress, or hosting changes; do not promise coverage of every
+  future Jetpack feature.
+
+
 ## Now — observe 0.8.0 and improve update evidence
 
 0.8.0 is published on GitHub and WordPress.org; its verification record is below.
