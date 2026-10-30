@@ -528,6 +528,31 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
   Until it is decided, Keel's documentation should say plainly that the two
   forms are not covered.
 
+- [ ] **Flag accounts whose public name or slug exposes an email-address
+  username** ([#355](https://github.com/dknauss/Keel/issues/355)). Raised
+  2026-10-30. When `user_login` is an email address, `wp_insert_user()` copies it
+  into `display_name` (whenever no first or last name is supplied, which covers
+  every self-registration) and derives `user_nicename` from it
+  (`dan@example.com` → `danexample-com`). Keel's defaults already close the
+  anonymous *routes* that publish those fields: feeds, oEmbed, REST users,
+  author archives and the users sitemap. They don't touch the *data*. Theme
+  bylines, logged-in comments (whose `comment_author` is a stored copy) and
+  `comment-author-{nicename}` classes still carry it, and every route reopens
+  when its setting is off. The policy comes in three tiers:
+
+  - **Preferred**: the login isn't an email, and the public name and slug are
+    unrelated to both. Documentation only.
+  - **Recommended**: a report-only Site Health test that counts exposed
+    accounts and never prints an address.
+  - **Enforced**: opt-in, off by default. `pre_user_display_name` /
+    `pre_user_nicename` substitute a safe value, and a one-time remediation
+    runs only on explicit admin action. Rejecting email usernames at
+    registration is a separate decision, since it breaks stores and SSO.
+
+  Open before building: old-nicename redirects, whether to rewrite past
+  comments, query cost on large user tables, multisite scope, and the AX
+  default.
+
 Explore database-growth reporting (revision volume, expired transients and unusually
 large rows), media-storage amplification and richer multisite/network diagnostics
 only after the 0.8 framework proves that the measurements can be cheap and honest.
