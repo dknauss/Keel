@@ -246,6 +246,16 @@ function keel_defaults_enqueue_settings_assets() {
 		KEEL_DEFAULTS_VERSION
 	);
 
+	// WordPress.com's Help Center hides core Help, including Keel's own tabs.
+	// Atomic alone also identifies other hosts. Require the WordPress.com layer,
+	// and restore only this screen's control without changing the Help Center.
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && defined( 'WPCOMSH_VERSION' ) ) {
+		wp_add_inline_style(
+			KEEL_DEFAULTS_SETTINGS_STYLE,
+			'body.settings_page_keel #contextual-help-link-wrap { display: block; }'
+		);
+	}
+
 	// In the footer, and with no dependencies: it reads the DOM it is bound to
 	// and nothing else, so it needs neither jQuery nor a DOMContentLoaded wrapper.
 	wp_enqueue_script(

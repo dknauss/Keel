@@ -99,4 +99,27 @@ keel_asset_assert( array() === $GLOBALS['keel_asset_events'], 'Unknown contexts 
 $GLOBALS['keel_asset_events'] = array();
 keel_defaults_enqueue_update_evidence_assets();
 keel_asset_assert( array( array( 'style', array( 'keel-defaults-update-evidence', 'https://example.test/keel/assets/css/update-evidence.css', array(), KEEL_DEFAULTS_VERSION ) ), array( 'script', array( 'keel-defaults-update-evidence', 'https://example.test/keel/assets/js/update-evidence.js', array(), KEEL_DEFAULTS_VERSION, true ) ) ) === $GLOBALS['keel_asset_events'], 'Updates-screen focus styling and keyboard scrolling use versioned, independently dequeueable assets.' );
+// Atomic alone also identifies other hosts; only WordPress.com gets the repair.
+$GLOBALS['keel_asset_events'] = array();
+keel_defaults_enqueue_settings_assets();
+keel_asset_assert( ! in_array( 'css', array_column( $GLOBALS['keel_asset_events'], 0 ), true ), 'Ordinary sites do not receive the WordPress.com Help override.' );
+define( 'IS_ATOMIC', true );
+$GLOBALS['keel_asset_events'] = array();
+keel_defaults_enqueue_settings_assets();
+keel_asset_assert( ! in_array( 'css', array_column( $GLOBALS['keel_asset_events'], 0 ), true ), 'Atomic hosting alone does not receive the WordPress.com Help override.' );
+define( 'WPCOMSH_VERSION', 'test' );
+$GLOBALS['keel_asset_events'] = array();
+keel_defaults_enqueue_settings_assets();
+$help_css = array_values(
+	array_filter(
+		$GLOBALS['keel_asset_events'],
+		static function ( $event ) {
+			return 'css' === $event[0];
+		}
+	)
+);
+keel_asset_assert( array( array( 'css', KEEL_DEFAULTS_SETTINGS_STYLE, 'body.settings_page_keel #contextual-help-link-wrap { display: block; }' ) ) === $help_css, 'WordPress.com restores only Keel\'s Help control through its settings stylesheet.' );
+$GLOBALS['keel_asset_events'] = array();
+keel_defaults_enqueue_network_assets();
+keel_asset_assert( ! in_array( 'css', array_column( $GLOBALS['keel_asset_events'], 0 ), true ), 'The Help override does not spill into the network screen.' );
 echo "asset providers: OK\n";
