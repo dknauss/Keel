@@ -1489,8 +1489,17 @@ function keel_defaults_environment_css() {
  * Auto-hide the front-end admin bar, revealing it on hover or keyboard focus.
  *
  * Scoped to hover-capable, fine-pointer devices so touch users keep the normal
- * bar; focus-within keeps it reachable by keyboard. A 4px sliver stays visible
- * as the affordance to reveal it.
+ * bar; focus-within keeps it reachable by keyboard. The bar slides fully off
+ * screen; an invisible 5px strip along the top edge of the viewport is the
+ * hover target that brings it back.
+ *
+ * Reveal and hide both wait a beat (hover intent). In browser full screen, or
+ * with a browser toolbar set to auto-hide, the viewport's top edge is also the
+ * screen's top edge, so one flick of the pointer cues both the browser's
+ * toolbar and this one. The reveal delay keeps a quick trip to the browser
+ * tabs from popping the bar; the hide delay gives the pointer time to come
+ * back once the browser's toolbar, which can slide over this one, pulls away.
+ * Keyboard focus skips both delays.
  *
  * @return string CSS, or '' in the admin or with no admin bar.
  */
@@ -1511,9 +1520,15 @@ function keel_defaults_auto_hide_admin_bar_css() {
 			 * fixed-position ::before below stay anchored to the viewport top as the
 			 * reveal target.
 			 */
+			/*
+			 * Hover intent with asymmetric delays. A transition uses the timing of
+			 * the state it is moving *to*: this base rule's 600ms delay is the
+			 * grace period before hiding, and the :hover rule's 250ms is the dwell
+			 * before revealing. Focus overrides to 0s so keyboard users never wait.
+			 */
 			#wpadminbar {
 				top: -50px !important;
-				transition: top 160ms ease-in-out;
+				transition: top 160ms ease-in-out 600ms;
 			}
 			/*
 			 * A transparent strip pinned to the top edge. It is part of #wpadminbar,
@@ -1532,6 +1547,10 @@ function keel_defaults_auto_hide_admin_bar_css() {
 			#wpadminbar:hover,
 			#wpadminbar:focus-within {
 				top: 0 !important;
+				transition-delay: 250ms;
+			}
+			#wpadminbar:focus-within {
+				transition-delay: 0s;
 			}
 		}
 	<?php
