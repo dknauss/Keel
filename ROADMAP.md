@@ -530,28 +530,43 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
 
 - [ ] **Flag accounts whose public name or slug exposes an email-address
   username** ([#355](https://github.com/dknauss/Keel/issues/355)). Raised
-  2026-10-30. When `user_login` is an email address, `wp_insert_user()` copies it
-  into `display_name` (whenever no first or last name is supplied, which covers
-  every self-registration) and derives `user_nicename` from it
-  (`dan@example.com` → `danexample-com`). Keel's defaults already close the
-  anonymous *routes* that publish those fields: feeds, oEmbed, REST users,
-  author archives and the users sitemap. They don't touch the *data*. Theme
-  bylines, logged-in comments (whose `comment_author` is a stored copy) and
-  `comment-author-{nicename}` classes still carry it, and every route reopens
-  when its setting is off. The policy comes in three tiers:
+  2026-10-30; policy decided 2026-11-02, not scheduled. When `user_login` is an
+  email address, `wp_insert_user()` copies it into `display_name` and
+  `nickname` (whenever no names are supplied, which covers every
+  self-registration) and derives `user_nicename` from it (`dan@example.com` →
+  `danexample-com`). Since 4.5 every account also accepts its email as a login
+  name, so a published address is always a valid login identifier as well as
+  personal data. Keel's defaults close the anonymous *routes* that publish these
+  fields (feeds, oEmbed, REST users, author archives, the users sitemap) but not
+  the *data*: theme bylines, logged-in comments (`comment_author` is a stored
+  copy) and `comment-author-{nicename}` classes still carry it, and every route
+  reopens when its setting is off. Benchmark 5.4 has the same blind spot.
 
-  - **Preferred**: the login isn't an email, and the public name and slug are
-    unrelated to both. Documentation only.
-  - **Recommended**: a report-only Site Health test that counts exposed
-    accounts and never prints an address.
-  - **Enforced**: opt-in, off by default. `pre_user_display_name` /
-    `pre_user_nicename` substitute a safe value, and a one-time remediation
-    runs only on explicit admin action. Rejecting email usernames at
-    registration is a separate decision, since it breaks stores and SSO.
+  **Safe values.** A display name is safe when it is not the login, the email,
+  the email's local part or a still-default nickname, and holds no email-shaped
+  token. A slug is safe when it is not `sanitize_title()` of the login, the
+  email or the local part (allowing for core's `-N` suffix). When Keel must
+  choose: nickname, first + last, first, last, then a random neutral handle,
+  never the login. Slugs come from a safe display name, else a random opaque
+  token. The recommended practice to document: login is a private credential
+  (an email is fine, per the OWASP Authentication Cheat Sheet), display name is
+  the byline, slug is built from the byline, and administrator accounts don't
+  publish.
 
-  Open before building: old-nicename redirects, whether to rewrite past
-  comments, query cost on large user tables, multisite scope, and the AX
-  default.
+  - **Preferred**: documentation only, citing OWASP and GDPR Art. 25(2) (personal
+    data not public by default).
+  - **Recommended**: Keel default, report-only. An *async* Site Health test with
+    one bounded query, a capped list of named accounts (never an address), and a
+    transient cleared on `user_register` / `profile_update`. Measure on a 100k-user
+    table before shipping. On multisite each site checks its own members.
+  - **Enforced**: opt-in in Keel; proposed default in AX for new and updated
+    accounts. `pre_user_display_name` / `pre_user_nickname` / `pre_user_nicename`
+    apply the fallbacks. A one-time remediation runs only on explicit admin
+    action (super admins only on multisite), with a separate checkbox to rewrite
+    past comments where `comment_author` still equals the old value.
+  - **Not doing**: redirecting old slugs, since a 301 confirms an account with
+    that email exists (ASVS 6.3.8); and rejecting email usernames, which the OWASP
+    cheat sheet says to allow and which buys nothing while email login is always on.
 
 Explore database-growth reporting (revision volume, expired transients and unusually
 large rows), media-storage amplification and richer multisite/network diagnostics
