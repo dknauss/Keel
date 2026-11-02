@@ -38,7 +38,7 @@ function keel_assert( $cond, $msg ) {
 	}
 }
 
-$css  = keel_defaults_auto_hide_admin_bar_css();
+$css = keel_defaults_auto_hide_admin_bar_css();
 // The comments explain the CSS in prose (the word "transform" included), so check the rules only.
 $flat = preg_replace( '/\s+/', ' ', preg_replace( '#/\*.*?\*/#s', '', $css ) );
 
