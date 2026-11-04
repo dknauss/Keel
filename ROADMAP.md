@@ -542,7 +542,7 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
     and distinct display/login names, a differing author slug, feeds, oEmbed,
     bylines, author routes and authenticated consumers. Preserve legitimate
     attribution and integrations unless the chosen policy explicitly changes them.
-  - Reconsider the corresponding policy in **PX and Better by Default (BBD)**
+  - Reconsider the corresponding policy in **AX and Better by Default (BBD)**
     alongside Keel. Inspect each implementation and record counterpart decisions;
     this entry does not assume identical behaviour or authorize a port.
 
