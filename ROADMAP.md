@@ -501,6 +501,55 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
   library rather than copying it. Revisit after option A has run against real
   sites.
 
+- [ ] **Question: separate public author attribution from account-discovery
+  controls?** Raised 2026-10-29 after Alan Fuller (Fullworks) responded to the
+  comparison in Bad Sector post 1952. **For future consideration, not accepted
+  implementation scope or a release commitment.** Stop User Enumeration
+  deliberately preserves display names in feeds and oEmbed and removes the
+  oEmbed author URL. Its [readme](https://wordpress.org/plugins/stop-user-enumeration/#faq)
+  already warns that WordPress can default a display name to the login name.
+  Preserving a public display name is not itself a failed enumeration control;
+  a match with the login explains the clean-install test result.
+
+  Keel currently ties broader attribution changes to
+  `disable_author_archives`: it replaces feed author names with “Site
+  Contributor” and removes both `author_name` and `author_url` from oEmbed,
+  while preserving on-site bylines. The anonymous REST gate also registers
+  that oEmbed filter. The author-archive help text describes only the archive
+  redirect and its feed's 404, so it understates the setting's actual effect.
+  Masking two channels while keeping bylines cannot promise author anonymity,
+  and removing attribution is not evidence of stronger security.
+
+  Questions and candidate changes to evaluate together:
+
+  - Preserve public display names in RSS, Atom and oEmbed by default. Keep
+    closing author archives, author feeds, users sitemaps and anonymous account
+    endpoints conceptually separate from suppressing attribution. Distinguish
+    `user_login`, `user_nicename` and `display_name` in diagnostics, docs and
+    comparison claims; author slugs are normally derived from logins but are
+    not guaranteed to equal them.
+  - Consider a permission-appropriate, bounded diagnostic warning when a public
+    display name matches a login, with a link to change the public name. Do not
+    automatically rename users or imply that different names make a login
+    secret. Decide which users to check, multisite scope and comparison rules
+    before implementing it.
+  - If public author masking remains useful, make it a separate, explicit
+    privacy choice with clear surface coverage and limits. Decide defaults and
+    migration for existing sites deliberately; do not silently reverse a site's
+    established privacy behaviour. Review the REST gate's oEmbed handling too.
+  - Update setting labels/help, Site Health findings, hook comments, readme and
+    comparison probes to report the chosen policy accurately. Test both matching
+    and distinct display/login names, a differing author slug, feeds, oEmbed,
+    bylines, author routes and authenticated consumers. Preserve legitimate
+    attribution and integrations unless the chosen policy explicitly changes them.
+  - Reconsider the corresponding policy in **AX and Better by Default (BBD)**
+    alongside Keel. Inspect each implementation and record counterpart decisions;
+    this entry does not assume identical behaviour or authorize a port.
+
+  The draft article records the maintainer's intention to reconsider all three
+  plugins, rather than promising a particular solution or delivery date. Runtime
+  behaviour remains unchanged pending that review.
+
 - [ ] **Question: should Keel stop the login and lost-password forms from
   confirming which accounts exist?** Raised 2026-10-24 by the
   [competitor re-measurement](docs/competitive-teardown-matrix.md), which found
