@@ -21,7 +21,7 @@ data, outbound mail or HTTP, destructive operations, and release candidates.
 Skip it for copy, styling and docs.
 
 The full method is in the wp-lab-pass skill's
-[separate tester reference](https://github.com/dknauss/agent-skills/blob/main/skills/wp-lab-pass/references/separate-tester.md).
+[separate tester reference](https://github.com/dknauss/agent-skills/blob/trunk/skills/wp-lab-pass/references/separate-tester.md).
 
 ## File format
 
