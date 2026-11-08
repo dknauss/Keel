@@ -1,0 +1,35 @@
+name: Lab probes
+
+# For risky changes, a separate tester (another agent, ideally another model, or
+# a person) commits a probe file to docs/review/probes/ before any code exists,
+# and the implementer has to pass probes it never wrote. Without a check, "the
+# tester went first" is only a claim.
+#
+# This fails a pull request whose tester probes landed after the build started,
+# carry no "Lab-Role: tester" trailer, or changed after they were written. A pull
+# request that touches no probe file passes. See docs/review/probes/README.md.
+#
+# Refs reach the script as arguments from the event payload, never as text from
+# the pull request, so nothing a contributor writes becomes shell.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  probes:
+    name: Tester probes came first
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check the probes predate the build and are unchanged
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: php bin/check-lab-probes "$BASE_SHA" "$HEAD_SHA"

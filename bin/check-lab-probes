@@ -1,0 +1,170 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Separate-tester gate: fail a branch whose lab probes moved after the build started.
+ *
+ * In a single-agent lab pass, the agent that wrote the change also picks what to
+ * check. For risky changes, a separate tester (another agent, ideally another
+ * model, or a person) commits a probe file to docs/review/probes/ before any code
+ * exists, and the implementer has to pass probes it never wrote. See
+ * docs/review/probes/README.md.
+ *
+ * This checks the two things git can prove about that, for every probe file the
+ * branch touches:
+ *
+ *   1. The probes came first. The commit that adds the file touches only probe
+ *      files, carries a "Lab-Role: tester" trailer, and no earlier commit on the
+ *      branch touches anything outside docs/review/probes/.
+ *   2. Nobody changed them afterward. Exactly one commit on the branch touches the
+ *      file, and it adds it. Editing or deleting a probe file that is already on
+ *      the base branch fails too, so merged probes stay as they were written.
+ *
+ * It also reads the file: it needs "Tester:" and "Implementer:" lines that don't
+ * name the same agent, and at least one probe row (| P1 | ...).
+ *
+ * It cannot prove the tester never saw the implementation, or that the trailer
+ * and the Tester line are true. Those are declarations.
+ *
+ * A branch that touches no probe file passes: the separate tester is opt-in.
+ * Merge commits are skipped, and only the branch's first-parent history counts,
+ * so merging the base branch in does not trip the ordering check.
+ *
+ * Usage: php bin/check-lab-probes <base-ref> <head-ref>
+ * Run from the repository root, with full history (fetch-depth: 0).
+ */
+
+const KEEL_PROBE_DIR = 'docs/review/probes/';
+
+$reject = static function ( $reason ) {
+	fwrite( STDERR, "Lab probes check failed: {$reason}\nSee docs/review/probes/README.md.\n" );
+	exit( 1 );
+};
+
+$git = static function ( array $args ) use ( $reject ) {
+	$command = 'git ' . implode( ' ', array_map( 'escapeshellarg', $args ) ) . ' 2>&1';
+	exec( $command, $out, $status );
+	if ( 0 !== $status ) {
+		$reject( 'git ' . implode( ' ', $args ) . ' failed: ' . implode( "\n", $out ) );
+	}
+	return $out;
+};
+
+$is_probe = static function ( $path ) {
+	return 0 === strpos( $path, KEEL_PROBE_DIR )
+		&& '.md' === substr( $path, -3 )
+		&& 'README.md' !== basename( $path );
+};
+
+if ( $argc < 3 ) {
+	fwrite( STDERR, "Usage: php bin/check-lab-probes <base-ref> <head-ref>\n" );
+	exit( 2 );
+}
+
+$base_ref = $argv[1];
+$head_ref = $argv[2];
+$base     = trim( implode( '', $git( array( 'merge-base', $base_ref, $head_ref ) ) ) );
+$commits  = $git( array( 'rev-list', '--reverse', '--first-parent', '--no-merges', "{$base}..{$head_ref}" ) );
+
+// For each commit, oldest first: [ status => path ] pairs it changed.
+$changes = array();
+foreach ( $commits as $sha ) {
+	$lines = $git( array( 'diff-tree', '--no-commit-id', '--name-status', '-r', '--no-renames', '--root', $sha ) );
+	$files = array();
+	foreach ( $lines as $line ) {
+		$parts = explode( "\t", $line );
+		if ( count( $parts ) >= 2 ) {
+			$files[] = array( substr( $parts[0], 0, 1 ), $parts[ count( $parts ) - 1 ] );
+		}
+	}
+	$changes[ $sha ] = $files;
+}
+
+// Every probe file the branch touches, with the commits that touch it.
+$touched = array();
+foreach ( $changes as $sha => $files ) {
+	foreach ( $files as $file ) {
+		if ( $is_probe( $file[1] ) ) {
+			$touched[ $file[1] ][] = array( $sha, $file[0] );
+		}
+	}
+}
+
+if ( empty( $touched ) ) {
+	echo "No tester probe file on this branch; nothing to check.\n";
+	exit( 0 );
+}
+
+$short = static function ( $sha ) {
+	return substr( $sha, 0, 7 );
+};
+
+foreach ( $touched as $path => $events ) {
+	list( $add_sha, $add_status ) = $events[0];
+
+	if ( 'A' !== $add_status ) {
+		$verb = 'D' === $add_status ? 'deletes' : 'changes';
+		$reject( "{$short( $add_sha )} {$verb} {$path}, which is already on the base branch. Tester probes are frozen once written; dispute a probe in the evidence record instead." );
+	}
+
+	if ( count( $events ) > 1 ) {
+		$later = array();
+		foreach ( array_slice( $events, 1 ) as $event ) {
+			$later[] = $short( $event[0] );
+		}
+		$reject( "{$path} was changed after the tester added it, in " . implode( ', ', $later ) . '. Dispute a probe in the evidence record instead of editing it.' );
+	}
+
+	foreach ( $changes[ $add_sha ] as $file ) {
+		if ( 0 !== strpos( $file[1], KEEL_PROBE_DIR ) ) {
+			$reject( "{$short( $add_sha )} adds {$path} but also touches {$file[1]}. The tester's commit holds the probes and nothing else." );
+		}
+	}
+
+	foreach ( $changes as $sha => $files ) {
+		if ( $sha === $add_sha ) {
+			break;
+		}
+		foreach ( $files as $file ) {
+			if ( 0 !== strpos( $file[1], KEEL_PROBE_DIR ) ) {
+				$reject( "{$short( $sha )} touches {$file[1]} before the tester's probes landed in {$short( $add_sha )}. The probes have to come before the build." );
+			}
+		}
+	}
+
+	$message = implode( "\n", $git( array( 'log', '-1', '--format=%B', $add_sha ) ) );
+	if ( ! preg_match( '/^Lab-Role:[ \t]*tester[ \t]*$/mi', $message ) ) {
+		$reject( "{$short( $add_sha )} adds {$path} without a \"Lab-Role: tester\" trailer." );
+	}
+
+	$text = implode( "\n", $git( array( 'show', "{$head_ref}:{$path}" ) ) );
+	$text = (string) preg_replace( '/<!--.*?-->/s', '', $text );
+
+	$field = static function ( $name ) use ( $text, $path, $reject ) {
+		if ( ! preg_match( '/^[ \t]*' . $name . ':[ \t]*(\S.*?)[ \t]*$/mi', $text, $m ) ) {
+			$reject( "{$path} has no \"{$name}:\" line." );
+		}
+		if ( preg_match( '/<[^>]*>/', $m[1] ) ) {
+			$reject( "{$path} still has a template placeholder on its {$name} line: {$m[1]}" );
+		}
+		return $m[1];
+	};
+
+	$tester      = $field( 'Tester' );
+	$implementer = $field( 'Implementer' );
+	$normalise   = static function ( $value ) {
+		return strtolower( (string) preg_replace( '/\s+/', ' ', trim( $value ) ) );
+	};
+
+	if ( $normalise( $tester ) === $normalise( $implementer ) ) {
+		$reject( "{$path} names the same agent as tester and implementer ({$tester})." );
+	}
+
+	if ( ! preg_match( '/^\|[ \t]*P\d+[ \t]*\|/m', $text ) ) {
+		$reject( "{$path} has no probe rows. Number tester probes P1, P2, ... in the first column." );
+	}
+
+	$rows = preg_match_all( '/^\|[ \t]*P\d+[ \t]*\|/m', $text );
+	echo "{$path}: {$rows} tester probe(s) by {$tester}, added in {$short( $add_sha )} before the build and unchanged since.\n";
+}
+
+exit( 0 );
