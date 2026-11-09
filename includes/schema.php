@@ -93,6 +93,11 @@ function keel_defaults_schema() {
 				'hide_when' => 'no',
 			),
 		),
+		'protect_public_names'            => array(
+			'default' => 'no',
+			'type'    => 'toggle',
+			'group'   => 'security',
+		),
 		'limit_unfiltered_html_to_admins' => array(
 			'default' => 'yes',
 			'type'    => 'toggle',

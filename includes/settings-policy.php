@@ -158,6 +158,12 @@ function keel_defaults_config_locked_value( $key, $value ) {
 			}
 			break;
 
+		case 'protect_public_names':
+			if ( is_multisite() && ! is_main_site() ) {
+				return keel_defaults_public_names_policy();
+			}
+			break;
+
 		case 'auto_update_translations':
 			if ( $updates_off ) {
 				return 'no';
