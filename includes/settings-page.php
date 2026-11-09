@@ -262,6 +262,8 @@ function keel_defaults_add_help_tab() {
 		)
 	);
 
+	keel_defaults_add_settings_detail_tab( $screen );
+
 	$screen->set_help_sidebar(
 		'<p><strong>' . esc_html__( 'Current posture', 'keel-defaults' ) . '</strong></p>' .
 		'<p>' . wp_kses(
@@ -615,6 +617,54 @@ function keel_defaults_render_lock_summary( $network_screen = false ) {
 	echo '</div>';
 }
 
+/**
+ * Add the Settings in detail Help tab: the full explanation of each setting.
+ *
+ * Each field on the screen carries one sentence, because that sentence is tied
+ * to the control with aria-describedby and a screen reader reads it on every
+ * focus. The longer explanation (defaults, trade-offs, filters, what breaks)
+ * lives here, grouped as the screen is, so nothing was lost when the field copy
+ * was shortened. Used by the site settings screen and the network policy screen.
+ *
+ * @param WP_Screen $screen Screen to add the tab to.
+ * @return void
+ */
+function keel_defaults_add_settings_detail_tab( $screen ) {
+	if ( ! $screen || ! method_exists( $screen, 'add_help_tab' ) ) {
+		return;
+	}
+
+	$schema  = keel_defaults_schema();
+	$strings = keel_defaults_strings();
+	$html    = '';
+
+	foreach ( keel_defaults_group_labels() as $group_key => $group_label ) {
+		$rows = '';
+		foreach ( $schema as $key => $field ) {
+			if ( $field['group'] !== $group_key || empty( $strings[ $key ]['detail'] ) || ! keel_defaults_key_supported( $key ) ) {
+				continue;
+			}
+			$rows .= '<p><strong>' . esc_html( $strings[ $key ]['label'] ) . '.</strong> ' . wp_kses( $strings[ $key ]['detail'], array( 'code' => array() ) ) . '</p>';
+		}
+		if ( '' !== $rows ) {
+			$html .= '<h3>' . esc_html( $group_label ) . '</h3>' . $rows;
+		}
+	}
+
+	if ( '' === $html ) {
+		return;
+	}
+
+	$screen->add_help_tab(
+		array(
+			'id'       => 'keel-settings-detail',
+			'title'    => __( 'Settings in detail', 'keel-defaults' ),
+			'content'  => $html,
+			'priority' => 15,
+		)
+	);
+}
+
 /** Render the settings page. */
 function keel_defaults_render_settings_page() {
 	if ( ! current_user_can( 'manage_options' ) ) {
@@ -660,6 +710,7 @@ function keel_defaults_render_settings_page() {
 		?>
 		<hr class="wp-header-end">
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
+		<p><?php esc_html_e( 'Each setting has a one-line description below. The full explanation of each is under Help, at the top of this screen, in Settings in detail.', 'keel-defaults' ); ?></p>
 
 		<?php keel_defaults_render_lock_summary(); ?>
 		<form method="post" action="options.php">
