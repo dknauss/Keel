@@ -239,7 +239,7 @@ function keel_defaults_strings() {
 			'label'     => __( 'Email Deliverability', 'keel-defaults' ),
 			'statement' => __( 'Warn when site email looks broken', 'keel-defaults' ),
 			'help'      => __( 'Warns administrators when site email looks broken.', 'keel-defaults' ),
-			'detail'    => __( 'Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress\'s misleading "success" notice. On by default.', 'keel-defaults' ),
+			'detail'    => __( 'Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress’s misleading "success" notice. On by default.', 'keel-defaults' ),
 		),
 		'suppress_nonproduction_mail'     => array(
 			'label'     => __( 'Non-Production Email', 'keel-defaults' ),
@@ -314,7 +314,7 @@ function keel_defaults_strings() {
 			'unit'          => __( 'days', 'keel-defaults' ),
 			'unit_singular' => __( 'day', 'keel-defaults' ),
 			'help'          => __( 'How long a remembered login stays signed in. WordPress’s default is 14 days.', 'keel-defaults' ),
-			'detail'        => __( 'How long a remembered login stays signed in. WordPress\'s default is 14 days. It cannot be shorter than the Regular Session Length.', 'keel-defaults' ),
+			'detail'        => __( 'How long a remembered login stays signed in. WordPress’s default is 14 days. It cannot be shorter than the Regular Session Length.', 'keel-defaults' ),
 		),
 		'login_logo_behavior'             => array(
 			'label'   => __( 'Login Logo', 'keel-defaults' ),

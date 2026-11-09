@@ -1326,7 +1326,7 @@ msgid "Warn when site email looks broken"
 msgstr ""
 
 #: includes/strings.php:201
-msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress's misleading \"success\" notice. On by default."
+msgid "Warns administrators when site email looks broken: a risky default From address (invalid, or an example/local/test domain) on a non-local site, and a bulk password reset that sent zero emails — replacing WordPress’s misleading \"success\" notice. On by default."
 msgstr ""
 
 #: includes/strings.php:205
@@ -1445,7 +1445,7 @@ msgid "Remember Me Length"
 msgstr ""
 
 #: includes/strings.php:268
-msgid "How long a remembered login stays signed in. WordPress's default is 14 days. It cannot be shorter than the Regular Session Length."
+msgid "How long a remembered login stays signed in. WordPress’s default is 14 days. It cannot be shorter than the Regular Session Length."
 msgstr ""
 
 #: includes/strings.php:271
