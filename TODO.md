@@ -385,13 +385,12 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 
 - [x] **Prepare 0.9.1** — version metadata, changelog, upgrade notice and `.pot`
   (#346–#364 since 0.9.0; schema 46).
-- [ ] **Read the changed Help tab and setting copy** — the maintainer's own pass
-  before tagging.
-- [ ] **Clear the counterpart sweep** — #360 and #361 wait on the AX Public Names
-  port in AX; #362 is pending until AX adopts one-sentence descriptions or the
-  line says it is deferred.
-- [ ] **Merge the Public Names fix (#366)** — short comment counts when a cleanup
-  batch dies mid-run, and a plural-safe result line. Blocks 0.9.1.
+- [x] **Read the changed Help tab and setting copy** — approved by the maintainer
+  on 2026-11-09; the version stays 0.9.1.
+- [x] **Clear the counterpart sweep** — #360, #361 and #366 are ported (AX
+  `f8275f4`); #362 is not applicable (AX keeps its own settings copy).
+- [x] **Merge the Public Names fix (#366)** — short comment counts when a cleanup
+  batch dies mid-run, and a plural-safe result line. Merged as `0a858c2`.
 - [ ] **Tag and publish 0.9.1** — tag after the release PR merges, dry run, then deploy.
 - [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.1 is the stable tag.
 
