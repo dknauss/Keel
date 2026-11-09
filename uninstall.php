@@ -50,6 +50,9 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_public_names_run` — progress of the Public Names cleanup: target site,
  *   whether comments were included, the last user ID reached and three counts.
  *   Never a name or an address. A site option on multisite.
+ * - `keel_public_names_old` — user meta: SHA-256 hashes of display names the
+ *   Public Names setting replaced, so a cleanup can find that account's old
+ *   comments. Hashes, never the names. Network-wide.
  * - `keel_policy_divergence` — which governed settings were last seen not
  *   producing the value they ask for. An observation about this site, and
  *   meaningless once the plugin making it is gone.
@@ -298,6 +301,7 @@ if ( is_multisite() ) {
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_password_screened', '', true );
 	delete_metadata( 'user', 0, 'keel_password_breached', '', true );
+	delete_metadata( 'user', 0, 'keel_public_names_old', '', true );
 } else {
 	keel_defaults_uninstall_hibp_budget( 0 );
 	keel_defaults_uninstall_site();
@@ -306,6 +310,7 @@ if ( is_multisite() ) {
 	delete_metadata( 'user', 0, 'keel_backport_dismissed', '', true );
 	delete_metadata( 'user', 0, 'keel_password_screened', '', true );
 	delete_metadata( 'user', 0, 'keel_password_breached', '', true );
+	delete_metadata( 'user', 0, 'keel_public_names_old', '', true );
 }
 
 /*

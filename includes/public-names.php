@@ -41,8 +41,20 @@ const KEEL_PUBLIC_NAMES_BUDGET = 4;
 /** Option (site option on multisite) holding the cleanup's progress. */
 const KEEL_PUBLIC_NAMES_RUN = 'keel_public_names_run';
 
+/**
+ * User meta holding SHA-256 hashes of display names Keel replaced because they
+ * exposed a login or address. Hashes, not the names: the point of the feature is
+ * to stop storing those values where they can leak. A cleanup on any site uses
+ * them to find that account's past comments still carrying an old name.
+ */
+const KEEL_PUBLIC_NAMES_OLD = 'keel_public_names_old';
+
+/** Networks with more sites than this pick the cleanup target by site ID instead of from a list. */
+const KEEL_PUBLIC_NAMES_SITE_LIST = 500;
+
 add_filter( 'wp_pre_insert_user_data', 'keel_defaults_public_names_filter_user', 20, 4 );
 add_filter( 'insert_user_meta', 'keel_defaults_public_names_filter_meta', 20, 4 );
+add_filter( 'insert_custom_user_meta', 'keel_defaults_public_names_filter_custom_meta', 20, 4 );
 add_action( 'admin_menu', 'keel_defaults_public_names_menu' );
 add_action( 'network_admin_menu', 'keel_defaults_public_names_menu' );
 add_action( 'admin_post_keel_public_names', 'keel_defaults_public_names_post' );
@@ -270,7 +282,13 @@ function keel_defaults_public_names_filter_user( $data, $update, $user_id, $user
 	}
 	$email    = (string) ( $data['user_email'] ?? '' );
 	$userdata = is_array( $userdata ) ? $userdata : array();
-	$nickname = ! empty( $userdata['nickname'] ) ? (string) $userdata['nickname'] : $login;
+	// $data has been through core's pre_user_* sanitizing; $userdata has not. Any
+	// candidate taken from it goes through the same filters core applies to that
+	// field, or a raw nickname could become the stored display name.
+	$clean    = static function ( $filter, $value ) {
+		return trim( (string) apply_filters( $filter, (string) $value ) ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- core's own pre_user_* filters.
+	};
+	$nickname = ! empty( $userdata['nickname'] ) ? $clean( 'pre_user_nickname', $userdata['nickname'] ) : $login;
 
 	// On update, an unsafe submission falls back through the person's own names
 	// and then to the name the account already had, before any generated handle.
@@ -279,12 +297,17 @@ function keel_defaults_public_names_filter_user( $data, $update, $user_id, $user
 			'previous'     => $stored ? (string) $stored->display_name : '',
 			'display_name' => (string) ( $data['display_name'] ?? '' ),
 			'nickname'     => $nickname,
-			'first_name'   => $userdata['first_name'] ?? '',
-			'last_name'    => $userdata['last_name'] ?? '',
+			'first_name'   => $clean( 'pre_user_first_name', $userdata['first_name'] ?? '' ),
+			'last_name'    => $clean( 'pre_user_last_name', $userdata['last_name'] ?? '' ),
 			'user_login'   => $login,
 			'user_email'   => $email,
 		)
 	);
+	$old     = '';
+	if ( $stored && $display !== (string) $stored->display_name
+		&& ( ! keel_defaults_public_name_is_safe( $stored->display_name, $login, $email ) || ! keel_defaults_public_name_is_safe( $stored->display_name, $login, $stored->user_email ) ) ) {
+		$old = (string) $stored->display_name;
+	}
 	$slug    = (string) ( $data['user_nicename'] ?? '' );
 	if ( $stored && empty( $userdata['user_nicename'] ) && ! keel_defaults_public_slug_is_safe( $slug, $login, $email ) && keel_defaults_public_slug_is_safe( $stored->user_nicename, $login, $email ) ) {
 		$slug = (string) $stored->user_nicename;
@@ -300,7 +323,14 @@ function keel_defaults_public_names_filter_user( $data, $update, $user_id, $user
 
 	$data['display_name']  = $display;
 	$data['user_nicename'] = $slug;
-	keel_defaults_public_names_chosen( $login, $display );
+	keel_defaults_public_names_chosen(
+		$login,
+		array(
+			'display' => $display,
+			'email'   => $email,
+			'old'     => $old,
+		)
+	);
 	return $data;
 }
 
@@ -314,35 +344,106 @@ function keel_defaults_public_names_filter_user( $data, $update, $user_id, $user
  * @return array
  */
 function keel_defaults_public_names_filter_meta( $meta, $user, $update, $userdata ) {
-	unset( $update, $userdata );
+	unset( $userdata );
 	if ( ! is_array( $meta ) || ! ( $user instanceof WP_User ) || ! keel_defaults_public_names_enforced() ) {
 		return $meta;
 	}
-	if ( ! keel_defaults_public_name_is_safe( $meta['nickname'] ?? '', $user->user_login, $user->user_email ) ) {
-		// The display name chosen moments ago in this save; the object core passes
-		// here can still hold the old cached row.
-		$display          = keel_defaults_public_names_chosen( $user->user_login );
-		$meta['nickname'] = keel_defaults_public_name_is_safe( $display, $user->user_login, $user->user_email )
-			? $display
-			: keel_defaults_public_names_handle();
+	// What this save chose moments ago. The object core passes here can still hold
+	// the old cached row, so its email may be the one being replaced.
+	$chosen = keel_defaults_public_names_chosen( $user->user_login );
+	$email  = '' !== $chosen['email'] ? $chosen['email'] : (string) $user->user_email;
+	if ( ! keel_defaults_public_name_is_safe( $meta['nickname'] ?? '', $user->user_login, $email ) ) {
+		$meta['nickname'] = keel_defaults_public_names_safe_nickname( $user->user_login, $email );
+	}
+	if ( $update && '' !== $chosen['old'] ) {
+		$meta[ KEEL_PUBLIC_NAMES_OLD ] = keel_defaults_public_names_add_old( (int) $user->ID, $chosen['old'] );
 	}
 	return $meta;
 }
 
 /**
- * Remember, for the rest of this request, the display name enforcement chose
- * for a login; or read it back.
+ * Enforcement on a nickname passed in wp_insert_user()'s meta_input, which core
+ * writes after, and over, the nickname filtered above.
  *
- * @param string      $login   Login.
- * @param string|null $display Name to remember, or null to read.
+ * @param array   $custom_meta meta_input values about to be saved.
+ * @param WP_User $user        Saved account.
+ * @param bool    $update      Whether this is an update.
+ * @param array   $userdata    Raw wp_insert_user() input.
+ * @return array
+ */
+function keel_defaults_public_names_filter_custom_meta( $custom_meta, $user, $update, $userdata ) {
+	unset( $update, $userdata );
+	if ( ! is_array( $custom_meta ) || ! array_key_exists( 'nickname', $custom_meta ) || ! ( $user instanceof WP_User ) || ! keel_defaults_public_names_enforced() ) {
+		return $custom_meta;
+	}
+	$chosen = keel_defaults_public_names_chosen( $user->user_login );
+	$email  = '' !== $chosen['email'] ? $chosen['email'] : (string) $user->user_email;
+	if ( ! keel_defaults_public_name_is_safe( is_scalar( $custom_meta['nickname'] ) ? (string) $custom_meta['nickname'] : '', $user->user_login, $email ) ) {
+		$custom_meta['nickname'] = keel_defaults_public_names_safe_nickname( $user->user_login, $email );
+	}
+	return $custom_meta;
+}
+
+/**
+ * The nickname to store in place of an unsafe one: the display name chosen in
+ * this save when it is safe, otherwise a neutral handle.
+ *
+ * @param string $login Login.
+ * @param string $email Effective contact email.
  * @return string
  */
-function keel_defaults_public_names_chosen( $login, $display = null ) {
+function keel_defaults_public_names_safe_nickname( $login, $email ) {
+	$display = keel_defaults_public_names_chosen( $login )['display'];
+	return keel_defaults_public_name_is_safe( $display, $login, $email ) ? $display : keel_defaults_public_names_handle();
+}
+
+/**
+ * Hashes of the unsafe display names this account has had replaced.
+ *
+ * @param int $user_id Account.
+ * @return string[]
+ */
+function keel_defaults_public_names_old_hashes( $user_id ) {
+	$stored = get_user_meta( (int) $user_id, KEEL_PUBLIC_NAMES_OLD, true );
+	return is_array( $stored ) ? array_values( array_filter( $stored, 'is_string' ) ) : array();
+}
+
+/**
+ * The account's old-name hashes with one more added, newest last, at most 20.
+ *
+ * @param int    $user_id Account.
+ * @param string $old     Replaced display name, exactly as stored.
+ * @return string[]
+ */
+function keel_defaults_public_names_add_old( $user_id, $old ) {
+	$hashes   = keel_defaults_public_names_old_hashes( $user_id );
+	$hashes[] = hash( 'sha256', (string) $old );
+	return array_slice( array_values( array_unique( $hashes ) ), -20 );
+}
+
+/**
+ * Remember, for the rest of this request, what enforcement decided for a login
+ * in the users-table filter (display name, effective email, replaced name), so
+ * the meta filters that run after it in the same save can use it; or read it.
+ *
+ * @param string     $login Login.
+ * @param array|null $set   display, email, old; or null to read.
+ * @return array{display:string,email:string,old:string}
+ */
+function keel_defaults_public_names_chosen( $login, $set = null ) {
 	static $chosen = array();
-	if ( null !== $display ) {
-		$chosen[ (string) $login ] = (string) $display;
+	if ( is_array( $set ) ) {
+		$chosen[ (string) $login ] = array(
+			'display' => (string) ( $set['display'] ?? '' ),
+			'email'   => (string) ( $set['email'] ?? '' ),
+			'old'     => (string) ( $set['old'] ?? '' ),
+		);
 	}
-	return $chosen[ (string) $login ] ?? '';
+	return $chosen[ (string) $login ] ?? array(
+		'display' => '',
+		'email'   => '',
+		'old'     => '',
+	);
 }
 
 /*
@@ -412,7 +513,7 @@ function keel_defaults_public_names_menu() {
  */
 function keel_defaults_public_names_sites() {
 	$sites = array();
-	foreach ( get_sites( array( 'number' => 500 ) ) as $site ) {
+	foreach ( get_sites( array( 'number' => KEEL_PUBLIC_NAMES_SITE_LIST ) ) as $site ) {
 		$details = get_blog_details( (int) $site->blog_id );
 		$name    = $details && '' !== $details->blogname ? $details->blogname : $site->domain . $site->path;
 		/* translators: 1: site name, 2: site address. */
@@ -451,12 +552,18 @@ function keel_defaults_public_names_render() {
 				<?php wp_nonce_field( 'keel_public_names_run', 'keel_public_names_nonce' ); ?>
 				<?php if ( is_multisite() ) : ?>
 					<p>
-						<label for="keel-public-names-site"><?php esc_html_e( 'Site', 'keel-defaults' ); ?></label><br>
-						<select name="site" id="keel-public-names-site" aria-describedby="keel-public-names-site-help">
-							<?php foreach ( keel_defaults_public_names_sites() as $id => $label ) : ?>
-								<option value="<?php echo (int) $id; ?>" <?php selected( get_main_site_id(), $id ); ?>><?php echo esc_html( $label ); ?></option>
-							<?php endforeach; ?>
-						</select>
+						<?php if ( (int) get_sites( array( 'count' => true ) ) > KEEL_PUBLIC_NAMES_SITE_LIST ) : ?>
+							<?php // Too many sites for a list: take the ID, which the run checks with get_site() before it starts. ?>
+							<label for="keel-public-names-site"><?php esc_html_e( 'Site ID', 'keel-defaults' ); ?></label><br>
+							<input type="number" name="site" id="keel-public-names-site" min="1" step="1" class="small-text" value="<?php echo (int) get_main_site_id(); ?>" aria-describedby="keel-public-names-site-help">
+						<?php else : ?>
+							<label for="keel-public-names-site"><?php esc_html_e( 'Site', 'keel-defaults' ); ?></label><br>
+							<select name="site" id="keel-public-names-site" aria-describedby="keel-public-names-site-help">
+								<?php foreach ( keel_defaults_public_names_sites() as $id => $label ) : ?>
+									<option value="<?php echo (int) $id; ?>" <?php selected( get_main_site_id(), $id ); ?>><?php echo esc_html( $label ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						<?php endif; ?>
 						<span class="description" id="keel-public-names-site-help"><?php esc_html_e( 'Only members of this site are changed. Their accounts are shared, so their new names show on every site they belong to. Comments are changed on this site only.', 'keel-defaults' ); ?></span>
 					</p>
 				<?php endif; ?>
@@ -501,9 +608,11 @@ function keel_defaults_public_names_render_state( array $state ) {
 		<?php if ( is_multisite() ) : ?>
 			<p>
 				<?php
-				$sites = keel_defaults_public_names_sites();
+				$target  = (int) $state['target'];
+				$details = get_blog_details( $target );
+				$label   = $details ? sprintf( '%1$s (%2$s)', $details->blogname, untrailingslashit( $details->domain . $details->path ) ) : '#' . $target;
 				/* translators: %s: site name and address. */
-				echo esc_html( sprintf( __( 'Site: %s', 'keel-defaults' ), $sites[ (int) $state['target'] ] ?? '#' . (int) $state['target'] ) );
+				echo esc_html( sprintf( __( 'Site: %s', 'keel-defaults' ), $label ) );
 				?>
 			</p>
 		<?php endif; ?>
@@ -683,9 +792,30 @@ function keel_defaults_public_names_batch( array $state ) {
 	if ( ! empty( $state['pending']['id'] ) ) {
 		$user = get_userdata( (int) $state['pending']['id'] );
 		if ( $user && ! keel_defaults_public_names_fix( keel_defaults_public_names_fields( $user ) ) ) {
-			$state = keel_defaults_public_names_settle( $state );
+			++$state['changed'];
 		}
 		unset( $state['pending'] );
+		keel_defaults_public_names_save_state( $state );
+	}
+
+	// One account's comments that the previous request ran out of time on.
+	if ( ! empty( $state['comment_resume']['id'] ) ) {
+		$id = (int) $state['comment_resume']['id'];
+		clean_user_cache( $id );
+		$user = get_userdata( $id );
+		$done = true;
+		if ( $user ) {
+			list( $state, $done ) = keel_defaults_public_names_comments( $state, $id, keel_defaults_public_names_old_hashes( $id ), (string) $user->display_name, $started );
+		}
+		if ( ! $done ) {
+			if ( $switched ) {
+				restore_current_blog();
+			}
+			return $state;
+		}
+		unset( $state['comment_resume'] );
+		++$state['scanned'];
+		$state['cursor'] = $id;
 		keel_defaults_public_names_save_state( $state );
 	}
 
@@ -711,7 +841,7 @@ function keel_defaults_public_names_batch( array $state ) {
 		$ids = array_map( 'intval', wp_list_pluck( $rows, 'ID' ) );
 		$in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 		// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated to match the array.
-		$found = $wpdb->get_results( $wpdb->prepare( "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE meta_key IN ('nickname','first_name','last_name') AND user_id IN ($in)", $ids ), ARRAY_A );
+		$found = $wpdb->get_results( $wpdb->prepare( "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE meta_key IN ('nickname','first_name','last_name',%s) AND user_id IN ($in)", array_merge( array( KEEL_PUBLIC_NAMES_OLD ), $ids ) ), ARRAY_A );
 		foreach ( (array) $found as $item ) {
 			$meta[ (int) $item['user_id'] ][ $item['meta_key'] ] = $item['meta_value'];
 		}
@@ -720,6 +850,9 @@ function keel_defaults_public_names_batch( array $state ) {
 
 	foreach ( $rows as $row ) {
 		$id     = (int) $row['ID'];
+		$hashes = maybe_unserialize( $meta[ $id ][ KEEL_PUBLIC_NAMES_OLD ] ?? '' );
+		$hashes = is_array( $hashes ) ? array_values( array_filter( $hashes, 'is_string' ) ) : array();
+		unset( $meta[ $id ][ KEEL_PUBLIC_NAMES_OLD ] );
 		$fields = array_merge(
 			array(
 				'nickname'   => '',
@@ -729,32 +862,46 @@ function keel_defaults_public_names_batch( array $state ) {
 			$meta[ $id ] ?? array(),
 			$row
 		);
-		$change = keel_defaults_public_names_fix( $fields );
+		$change  = keel_defaults_public_names_fix( $fields );
+		$current = (string) $row['display_name'];
 		if ( $change ) {
 			// Record the write before making it, so a request that dies between the
 			// write and the save is finished, and counted once, by the next one.
-			$state['pending'] = array(
-				'id'  => $id,
-				'old' => isset( $change['display_name'] ) ? (string) $row['display_name'] : '',
-			);
+			$state['pending'] = array( 'id' => $id );
 			keel_defaults_public_names_save_state( $state );
+			if ( isset( $change['display_name'] ) ) {
+				// Kept as a hash so a later run, on this site or another, can still
+				// find this account's comments under the replaced name.
+				$hashes = keel_defaults_public_names_add_old( $id, $current );
+				update_user_meta( $id, KEEL_PUBLIC_NAMES_OLD, $hashes );
+				$current = (string) $change['display_name'];
+			}
 			$result = wp_update_user( array_merge( array( 'ID' => $id ), $change ) );
 			if ( ! is_wp_error( $result ) ) {
-				$state = keel_defaults_public_names_settle( $state );
+				++$state['changed'];
 			}
 			unset( $state['pending'] );
+			keel_defaults_public_names_save_state( $state );
+		}
+		if ( $state['comments'] && $hashes ) {
+			list( $state, $finished ) = keel_defaults_public_names_comments( $state, $id, $hashes, $current, $started );
+			if ( ! $finished ) {
+				// Out of time inside this account's comments: the next request picks
+				// up at the saved comment, before moving on to the next account.
+				break;
+			}
 		}
 		++$state['scanned'];
 		$state['cursor'] = $id;
 		if ( $change ) {
 			keel_defaults_public_names_save_state( $state );
 		}
-		if ( microtime( true ) - $started > KEEL_PUBLIC_NAMES_BUDGET ) {
+		if ( keel_defaults_public_names_out_of_time( $started ) ) {
 			break;
 		}
 	}
 
-	if ( count( $rows ) < KEEL_PUBLIC_NAMES_BATCH && ( ! $rows || (int) end( $rows )['ID'] === (int) $state['cursor'] ) ) {
+	if ( empty( $state['comment_resume'] ) && count( $rows ) < KEEL_PUBLIC_NAMES_BATCH && ( ! $rows || (int) end( $rows )['ID'] === (int) $state['cursor'] ) ) {
 		$state['done']     = true;
 		$state['finished'] = time();
 	}
@@ -767,23 +914,13 @@ function keel_defaults_public_names_batch( array $state ) {
 }
 
 /**
- * Count a completed write and, when asked, give the account's comments its new
- * name. Safe to repeat: comments only change while they still hold the old name.
+ * Whether this request has used its time budget.
  *
- * @param array $state Progress with a pending write.
- * @return array
+ * @param float $started microtime( true ) when the batch began.
+ * @return bool
  */
-function keel_defaults_public_names_settle( array $state ) {
-	$id = (int) $state['pending']['id'];
-	++$state['changed'];
-	if ( $state['comments'] && '' !== $state['pending']['old'] ) {
-		clean_user_cache( $id );
-		$user = get_userdata( $id );
-		if ( $user ) {
-			$state['comments_changed'] += keel_defaults_public_names_comments( $id, $state['pending']['old'], (string) $user->display_name );
-		}
-	}
-	return $state;
+function keel_defaults_public_names_out_of_time( $started ) {
+	return microtime( true ) - $started > KEEL_PUBLIC_NAMES_BUDGET;
 }
 
 /**
@@ -834,35 +971,56 @@ function keel_defaults_public_names_fix( array $fields ) {
 }
 
 /**
- * Give an account's past comments its new name, on the current site only: the
- * account's own comments whose stored author name is exactly the old one.
+ * Give an account's past comments on the current site its current name: the
+ * account's own comments whose stored author name is exactly one of the unsafe
+ * names Keel replaced (compared by hash, so case-only variants and names edited
+ * by hand stay as they are). Works through the comments in bounded chunks and
+ * saves its place after each, so one account with a long history cannot run a
+ * request out of time or memory, and a later request carries on from there.
  *
- * @param int    $user_id Account.
- * @param string $old     Old display name, exactly as stored.
- * @param string $renamed New display name.
- * @return int Comments changed.
+ * @param array    $state   Progress.
+ * @param int      $user_id Account.
+ * @param string[] $hashes  SHA-256 hashes of replaced names.
+ * @param string   $renamed Current display name.
+ * @param float    $started When the batch began.
+ * @return array{0:array,1:bool} Progress, and whether this account's comments are finished.
  */
-function keel_defaults_public_names_comments( $user_id, $old, $renamed ) {
+function keel_defaults_public_names_comments( array $state, $user_id, array $hashes, $renamed, $started ) {
 	global $wpdb;
-	if ( '' === $old || $old === $renamed ) {
-		return 0;
+	$user_id = (int) $user_id;
+	$after   = ( (int) ( $state['comment_resume']['id'] ?? 0 ) === $user_id ) ? (int) $state['comment_resume']['after'] : 0;
+	if ( ! $hashes || '' === (string) $renamed ) {
+		return array( $state, true );
 	}
-	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- explicit admin cleanup; caches are cleared below.
-	$rows = $wpdb->get_results( $wpdb->prepare( "SELECT comment_ID, comment_author FROM {$wpdb->comments} WHERE user_id = %d AND comment_author = %s", (int) $user_id, $old ), ARRAY_A );
-	$ids  = array();
-	foreach ( (array) $rows as $row ) {
-		// The column's collation may ignore case; only the exact old name counts.
-		if ( $row['comment_author'] === $old ) {
-			$ids[] = (int) $row['comment_ID'];
+	do {
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- explicit admin cleanup in bounded chunks; caches are cleared below.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT comment_ID, comment_author FROM {$wpdb->comments} WHERE user_id = %d AND comment_ID > %d ORDER BY comment_ID LIMIT %d", $user_id, $after, KEEL_PUBLIC_NAMES_BATCH ), ARRAY_A );
+		$rows = is_array( $rows ) ? $rows : array();
+		$ids  = array();
+		foreach ( $rows as $row ) {
+			if ( $row['comment_author'] !== $renamed && in_array( hash( 'sha256', (string) $row['comment_author'] ), $hashes, true ) ) {
+				$ids[] = (int) $row['comment_ID'];
+			}
 		}
-	}
-	if ( ! $ids ) {
-		return 0;
-	}
-	$in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-	// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated to match the array.
-	$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = %s WHERE comment_ID IN ($in)", array_merge( array( $renamed ), $ids ) ) );
-	// phpcs:enable
-	clean_comment_cache( $ids );
-	return count( $ids );
+		if ( $ids ) {
+			$in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated to match the array.
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = %s WHERE comment_ID IN ($in)", array_merge( array( (string) $renamed ), $ids ) ) );
+			clean_comment_cache( $ids );
+			$state['comments_changed'] += count( $ids );
+		}
+		// phpcs:enable
+		if ( count( $rows ) < KEEL_PUBLIC_NAMES_BATCH ) {
+			unset( $state['comment_resume'] );
+			keel_defaults_public_names_save_state( $state );
+			return array( $state, true );
+		}
+		$after                   = (int) end( $rows )['comment_ID'];
+		$state['comment_resume'] = array(
+			'id'    => $user_id,
+			'after' => $after,
+		);
+		keel_defaults_public_names_save_state( $state );
+	} while ( ! keel_defaults_public_names_out_of_time( $started ) );
+	return array( $state, false );
 }

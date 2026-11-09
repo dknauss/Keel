@@ -128,13 +128,39 @@ Three findings came out of the probes and were fixed before this record:
    progress save lost that write from the count. A pending marker written before
    each change now lets the next request settle it.
 
+## Codex review of 633173a, and the fixes
+
+Codex reviewed the PR at 633173a and raised six findings. All six were real.
+Each fix has an implementer probe in `tests/integration/public-names.php`; the
+tester probes P1–P24 were not edited.
+
+| ID | Finding | Fix | Probe | Result |
+| --- | --- | --- | --- | --- |
+| R1 | **Stored XSS (P1).** Fallback candidates came from raw `$userdata`, so a nickname or first name with markup could become the display name, which core had not sanitized. | Candidates run through core's own `pre_user_nickname`, `pre_user_first_name` and `pre_user_last_name` filters before they are used. | Insert and update with `<img onerror>`, `<script>` and `<b onmouseover>` in the nickname and first name: no markup stored in the display name, nickname or first name; the cleaned nickname is still the chosen fallback. | PASS |
+| R2 | **`meta_input` nickname bypass.** Core writes `meta_input` after the standard meta, so an unsafe nickname there overwrote the safe one. | A filter on `insert_custom_user_meta` replaces an unsafe `nickname` in `meta_input`. | An email-login nickname via `meta_input` on insert and an uppercased one on update are both replaced; a safe `meta_input` nickname is kept. | PASS |
+| R3 | **Stale email.** The nickname check read the cached email, so a save that changed the email and set the nickname to the new local part kept it. | The email being saved is passed from the user-data hook to the meta hook. | Warm cache, change email and set the nickname to the new local part: the email saves and the nickname is replaced. | PASS |
+| R4 | **Unbounded comment update.** One `UPDATE` per account could touch any number of comments in one request. | Comments are renamed in chunks of 500 by comment ID. The cursor is saved after each chunk, and a run that runs out of time resumes inside the same account. | 1,037 comments for one account: resuming after the first 500 renames exactly the remaining 537; a full run renames all 1,037 exactly once. | PASS |
+| R5 | **A shared account's comments on other sites could never be fixed.** After the run on site A renamed the account, a run on B no longer saw the old name. | When Keel replaces an unsafe display name it stores a SHA-256 hash of the old one in user meta `keel_public_names_old` (at most 20, never plaintext). A run on any site renames comments whose author name matches a stored hash. Uninstall removes the meta. | Multisite: the run on A leaves B's comment alone; the run on B renames it with 0 account changes and 1 comment change. Single site: a run without comments, then a later run with comments, renames the earlier comment; a further rerun changes nothing. No plaintext old name in user meta. | PASS |
+| R6 | **More than 500 sites could not be chosen.** The site list stopped at 500. | Networks with more than 500 sites get a numeric Site ID field instead of the list; the "running on" note names the site. | With `sites_pre_query` faking 501 sites, the screen renders `type="number" name="site"` and no list. | PASS |
+
+P24 was also tightened to match its spec: the rerun now uses the same comment
+choice as the first run (it previously reran with comments on, which R5 now
+covers on purpose).
+
+Results after the fixes: single site (MariaDB) 17 of 17 cases, multisite 21 of
+21, SQLite 17 of 17, unit tests and PHPCS clean. Scale cell rerun with comments
+on, after re-exposing 2,000 of 100,000 accounts: 200 requests, all 2,000 fixed,
+0 unsafe left. Batches that hit 500 writes in a row took about 2.5 s each (the
+original P23 run had about 50 writes per batch at about 0.7 s), still inside
+the 4 s budget that ends a request.
+
 ## Coverage matrix
 
 | Cell | Result | Evidence or reason |
 | --- | --- | --- |
 | MariaDB 10.11, WP 7.1.3, PHP 8.3, single | PASS | all 24 probes, this pass |
 | MariaDB 10.11, WP 7.1.3, PHP 8.3, multisite (network-activated) | PASS | 23 probes; P3 NOT RUN (core refuses the path) |
-| SQLite 3.1.3 driver, WP 7.1.3, PHP 8.3, single | PASS (server side) | `public-names.php` 13 cases; HTTP and browser probes NOT RUN |
+| SQLite 3.1.3 driver, WP 7.1.3, PHP 8.3, single | PASS (server side) | `public-names.php` 17 cases (with R1–R4); HTTP and browser probes NOT RUN |
 | MySQL 8, WP 6.4 branch, PHP 7.4, single (floor) | pending | the backport matrix runs `public-names.php`; first run after merge |
 | MySQL 8, WP 6.9 branch, PHP 8.2, multisite + Redis | pending | as above, includes P21 and P22 server side |
 | MySQL 8, WP 6.8 (fr_FR) / 6.9 / 7.0 branches, PHP 8.2, single | pending | as above |

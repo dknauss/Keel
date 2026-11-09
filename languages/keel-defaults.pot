@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T07:27:22+00:00\n"
+"POT-Creation-Date: 2026-11-09T08:14:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1587,83 +1587,87 @@ msgid "Download JSON"
 msgstr ""
 
 #. translators: %s: six random letters and digits, e.g. "3f9a1c".
-#: includes/public-names.php:159
+#: includes/public-names.php:171
 #, php-format
 msgid "Member %s"
 msgstr ""
 
-#: includes/public-names.php:400
-#: includes/public-names.php:401
-#: includes/public-names.php:438
+#: includes/public-names.php:501
+#: includes/public-names.php:502
+#: includes/public-names.php:539
 #: includes/strings.php:67
 msgid "Public Names"
 msgstr ""
 
 #. translators: 1: site name, 2: site address.
-#: includes/public-names.php:419
+#: includes/public-names.php:520
 #, php-format
 msgid "%1$s (%2$s)"
 msgstr ""
 
-#: includes/public-names.php:431
+#: includes/public-names.php:532
 msgid "Sorry, you are not allowed to access this page."
 msgstr ""
 
-#: includes/public-names.php:439
+#: includes/public-names.php:540
 msgid "This cleanup gives existing accounts safe public names. A display name, nickname or author slug that repeats the login, the email address or its local part is replaced: by the nickname, then first and last name, then a neutral handle; slugs follow the new name or become a random token. Names that are already safe are kept. Logins, email addresses and passwords do not change, so everyone signs in as before."
 msgstr ""
 
-#: includes/public-names.php:440
+#: includes/public-names.php:541
 msgid "Old author addresses are not redirected to the new ones: a redirect would confirm which email address belongs to an account. Links to an old author address stop working."
 msgstr ""
 
-#: includes/public-names.php:442
+#: includes/public-names.php:543
 msgid "The cleanup did not run. Reload this page and try again."
 msgstr ""
 
-#: includes/public-names.php:454
+#: includes/public-names.php:557
+msgid "Site ID"
+msgstr ""
+
+#: includes/public-names.php:560
 msgid "Site"
 msgstr ""
 
-#: includes/public-names.php:460
+#: includes/public-names.php:567
 msgid "Only members of this site are changed. Their accounts are shared, so their new names show on every site they belong to. Comments are changed on this site only."
 msgstr ""
 
-#: includes/public-names.php:466
+#: includes/public-names.php:573
 msgid "Also update past comments that still show an account’s old name"
 msgstr ""
 
-#: includes/public-names.php:468
+#: includes/public-names.php:575
 msgid "Only comments written while signed in to that account, whose stored name is exactly the old one. Guest comments and edited names stay as they are."
 msgstr ""
 
-#: includes/public-names.php:470
+#: includes/public-names.php:577
 msgid "Run cleanup"
 msgstr ""
 
 #. translators: 1: accounts checked, 2: accounts changed, 3: comments changed.
-#: includes/public-names.php:493
+#: includes/public-names.php:600
 #, php-format
 msgid "Cleanup finished. Checked %1$d accounts, changed %2$d, updated %3$d comments."
 msgstr ""
 
 #. translators: 1: accounts checked, 2: accounts changed, 3: comments changed.
-#: includes/public-names.php:493
+#: includes/public-names.php:600
 #, php-format
 msgid "Cleanup paused. Checked %1$d accounts so far, changed %2$d, updated %3$d comments."
 msgstr ""
 
 #. translators: %s: site name and address.
-#: includes/public-names.php:506
+#: includes/public-names.php:615
 #, php-format
 msgid "Site: %s"
 msgstr ""
 
-#: includes/public-names.php:515
+#: includes/public-names.php:624
 msgid "Continue cleanup"
 msgstr ""
 
-#: includes/public-names.php:627
+#: includes/public-names.php:736
 msgid "Sorry, you are not allowed to do that."
 msgstr ""
 

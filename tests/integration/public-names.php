@@ -666,8 +666,15 @@ try {
 			}
 
 			// P24: rerun changes nothing; credentials identical; sign-in works.
-			$second = $keel_pn_cleanup_run( get_current_blog_id(), true );
-			$keel_pn_assert( 0 === (int) $second['changed'] && 0 === (int) $second['comments_changed'], 'P24: second run changes nothing.' );
+			$second = $keel_pn_cleanup_run( get_current_blog_id(), false );
+			$keel_pn_assert( 0 === (int) $second['changed'] && 0 === (int) $second['comments_changed'], 'P24: second run with the same choice changes nothing.' );
+
+			// R5 on one site: a later run with comments on still finds the old name by its hash.
+			$third = $keel_pn_cleanup_run( get_current_blog_id(), true );
+			clean_comment_cache( $comment );
+			$keel_pn_assert( 0 === (int) $third['changed'] && 1 === (int) $third['comments_changed'] && get_comment( $comment )->comment_author !== $old, 'R5: a later run with comments on renames the earlier comment.' );
+			$fourth = $keel_pn_cleanup_run( get_current_blog_id(), true );
+			$keel_pn_assert( 0 === (int) $fourth['changed'] && 0 === (int) $fourth['comments_changed'], 'P24: a rerun with comments on changes nothing.' );
 			foreach ( $before_cred as $id => $cred ) {
 				$r = $keel_pn_row( $id );
 				$keel_pn_assert( array( $r['user_login'], $r['user_email'], $r['user_pass'] ) === $cred, 'P24: login, email and hash identical.' );
@@ -794,6 +801,172 @@ try {
 			wp_set_current_user( 0 );
 			$keel_pn_assert( $before === $keel_pn_row( $id ) && null === keel_defaults_public_names_state(), 'P16/P17: nothing written or queued.' );
 			$keel_pn_assert( false === stripos( $html, 'fixture.test' ) && false === stripos( $html, rawurlencode( $login ) ), 'P20: screen carries no address.' );
+		}
+	);
+
+	// R1 (Codex review of #361): fallbacks from raw input are sanitized like core's own fields.
+	$keel_pn_case(
+		'R1',
+		function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_row, $keel_pn_run, $keel_pn_set ) {
+			$keel_pn_set( 'yes' );
+			$login = "xss.{$keel_pn_run}@fixture.test";
+			$id    = $keel_pn_user(
+				array(
+					'user_login'   => $login,
+					'user_email'   => $login,
+					'display_name' => $login,
+					'nickname'     => '<img src=x onerror=alert(1)>Pen',
+					'first_name'   => '<script>x()</script>Ada',
+				)
+			);
+			$row   = $keel_pn_row( $id );
+			foreach ( array( 'display_name', 'nickname', 'first_name' ) as $field ) {
+				$keel_pn_assert( false === stripos( $row[ $field ], '<img' ) && false === stripos( $row[ $field ], '<script' ), "R1: no markup stored in {$field}." );
+			}
+			$keel_pn_assert( false !== strpos( $row['display_name'], 'Pen' ), 'R1: the sanitized nickname is still the chosen fallback.' );
+			wp_update_user(
+				array(
+					'ID'           => $id,
+					'display_name' => $login,
+					'nickname'     => '<b onmouseover=x()>Ink</b>',
+				)
+			);
+			$row = $keel_pn_row( $id );
+			$keel_pn_assert( false === stripos( $row['display_name'], '<b' ) && false === stripos( $row['display_name'], 'onmouseover' ), 'R1: update path sanitizes the fallback too.' );
+		}
+	);
+
+	// R2: a nickname in meta_input, which core writes after the filtered one.
+	$keel_pn_case(
+		'R2',
+		function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_row, $keel_pn_run, $keel_pn_set, $keel_pn_safe ) {
+			$keel_pn_set( 'yes' );
+			$login = "metain.{$keel_pn_run}@fixture.test";
+			$id    = $keel_pn_user(
+				array(
+					'user_login' => $login,
+					'user_email' => $login,
+					'meta_input' => array( 'nickname' => $login ),
+				)
+			);
+			$keel_pn_assert( $keel_pn_safe( $keel_pn_row( $id ) ), 'R2: meta_input nickname on insert is replaced.' );
+			wp_update_user(
+				array(
+					'ID'         => $id,
+					'meta_input' => array( 'nickname' => strtoupper( $login ) ),
+				)
+			);
+			$keel_pn_assert( $keel_pn_safe( $keel_pn_row( $id ) ), 'R2: meta_input nickname on update is replaced.' );
+			$safe = $keel_pn_user(
+				array(
+					'user_login' => "metasafe{$keel_pn_run}",
+					'user_email' => "metasafe.{$keel_pn_run}@fixture.test",
+					'meta_input' => array( 'nickname' => 'Chosen Nick' ),
+				)
+			);
+			$keel_pn_assert( 'Chosen Nick' === $keel_pn_row( $safe )['nickname'], 'R2: a safe meta_input nickname is kept.' );
+		}
+	);
+
+	// R3: the nickname is checked against the email being saved, not the cached one.
+	$keel_pn_case(
+		'R3',
+		function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_row, $keel_pn_run, $keel_pn_set, $keel_pn_safe ) {
+			$keel_pn_set( 'yes' );
+			$id = $keel_pn_user(
+				array(
+					'user_login'   => "mover{$keel_pn_run}",
+					'user_email'   => "old.{$keel_pn_run}@fixture.test",
+					'display_name' => 'Mover',
+					'nickname'     => 'Mover',
+				)
+			);
+			get_userdata( $id ); // Warm the cache with the old email.
+			wp_update_user(
+				array(
+					'ID'         => $id,
+					'user_email' => "newlocal{$keel_pn_run}@fixture.test",
+					'nickname'   => "newlocal{$keel_pn_run}",
+				)
+			);
+			$row = $keel_pn_row( $id );
+			$keel_pn_assert( "newlocal{$keel_pn_run}@fixture.test" === $row['user_email'], 'R3: the email change was saved.' );
+			$keel_pn_assert( $keel_pn_safe( $row ), 'R3: the new local part is not kept as the nickname.' );
+		}
+	);
+
+	// R4: comments are rewritten in bounded chunks and a run resumes inside one account.
+	$keel_pn_case(
+		'R4',
+		function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_run, $keel_pn_cleanup_run ) {
+			global $wpdb;
+			$login                      = "chatty.{$keel_pn_run}@fixture.test";
+			$id                         = $keel_pn_user(
+				array(
+					'user_login'   => $login,
+					'user_email'   => $login,
+					'display_name' => $login,
+					'first_name'   => 'Chatty',
+				)
+			);
+			$post                       = wp_insert_post(
+				array(
+					'post_title'  => 'R4',
+					'post_status' => 'publish',
+				)
+			);
+			$GLOBALS['keel_pn_posts'][] = $post;
+			$count                      = KEEL_PUBLIC_NAMES_BATCH * 2 + 37;
+			$rows                       = array();
+			for ( $i = 0; $i < $count; $i++ ) {
+				$rows[] = $wpdb->prepare( '(%d, %d, %s, %s, %s, %s, %s)', $post, $id, $login, 'c', current_time( 'mysql' ), current_time( 'mysql', true ), '1' );
+			}
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- fixture rows, each prepared above.
+			$wpdb->query( "INSERT INTO {$wpdb->comments} (comment_post_ID, user_id, comment_author, comment_content, comment_date, comment_date_gmt, comment_approved) VALUES " . implode( ',', $rows ) );
+			$first = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MIN(comment_ID) FROM {$wpdb->comments} WHERE user_id = %d", $id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture read.
+
+			// A previous request ran out of time after the account's first chunk:
+			// rename the first chunk by hand, then resume from the saved comment.
+			$hashes = keel_defaults_public_names_add_old( $id, $login );
+			update_user_meta( $id, KEEL_PUBLIC_NAMES_OLD, $hashes );
+			wp_update_user(
+				array(
+					'ID'           => $id,
+					'display_name' => 'Chatty',
+				)
+			);
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture setup.
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = 'Chatty' WHERE user_id = %d AND comment_ID < %d", $id, $first + KEEL_PUBLIC_NAMES_BATCH ) );
+			$state                    = array(
+				'id'               => 'r4',
+				'target'           => get_current_blog_id(),
+				'comments'         => true,
+				'cursor'           => $id - 1,
+				'scanned'          => 0,
+				'changed'          => 1,
+				'comments_changed' => 0,
+				'done'             => false,
+				'started'          => time(),
+				'comment_resume'   => array(
+					'id'    => $id,
+					'after' => $first + KEEL_PUBLIC_NAMES_BATCH - 1,
+				),
+			);
+			list( $state, $finished ) = keel_defaults_public_names_comments( $state, $id, $hashes, 'Chatty', microtime( true ) );
+			$keel_pn_assert( $finished && empty( $state['comment_resume'] ), 'R4: the account finished in chunks.' );
+			$keel_pn_assert( $count - KEEL_PUBLIC_NAMES_BATCH === (int) $state['comments_changed'], 'R4: resumed after the saved comment (' . (int) $state['comments_changed'] . ' changed).' );
+			$left = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d AND comment_author = %s", $id, $login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture read.
+			$keel_pn_assert( 0 === $left, 'R4: every comment renamed.' );
+
+			// From scratch, a full run renames all of them across several chunks.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture reset.
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = %s WHERE user_id = %d", $login, $id ) );
+			$state = $keel_pn_cleanup_run( get_current_blog_id(), true );
+			$left  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d AND comment_author = %s", $id, $login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture read.
+			$keel_pn_assert( 0 === $left && $count === (int) $state['comments_changed'], 'R4: a full run renames every comment exactly once.' );
+			$keel_pn_assert( false === in_array( $login, (array) get_user_meta( $id, KEEL_PUBLIC_NAMES_OLD, true ), true ), 'R4: only hashes are stored, never the old name.' );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture cleanup.
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->comments} WHERE user_id = %d", $id ) );
 		}
 	);
 
@@ -933,6 +1106,77 @@ try {
 				} finally {
 					wp_delete_site( $b );
 				}
+			}
+		);
+
+		// R5: a later run on another site still finds a shared account's old comments there.
+		$keel_pn_case(
+			'R5',
+			function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_row, $keel_pn_run, $keel_pn_cleanup_run ) {
+				$b = wpmu_create_blog( get_network()->domain, "/pnr5{$keel_pn_run}/", 'PN R5', 1 );
+				try {
+					$a     = get_current_blog_id();
+					$login = "roam.{$keel_pn_run}@fixture.test";
+					$id    = $keel_pn_user(
+						array(
+							'user_login'   => $login,
+							'user_email'   => $login,
+							'display_name' => $login,
+							'first_name'   => 'Roam',
+						)
+					);
+					add_user_to_blog( $b, $id, 'author' );
+					switch_to_blog( $b );
+					$post = wp_insert_post(
+						array(
+							'post_title'  => 'R5',
+							'post_status' => 'publish',
+						)
+					);
+					$c    = wp_insert_comment(
+						array(
+							'comment_post_ID' => $post,
+							'user_id'         => $id,
+							'comment_author'  => $login,
+							'comment_content' => 'b',
+						)
+					);
+					restore_current_blog();
+
+					$keel_pn_cleanup_run( $a, true );
+					$renamed = $keel_pn_row( $id )['display_name'];
+					switch_to_blog( $b );
+					clean_comment_cache( $c );
+					$keel_pn_assert( get_comment( $c )->comment_author === $login, 'R5: the run on A left B alone.' );
+					restore_current_blog();
+
+					$state = $keel_pn_cleanup_run( $b, true );
+					switch_to_blog( $b );
+					clean_comment_cache( $c );
+					$keel_pn_assert( get_comment( $c )->comment_author === $renamed, 'R5: the run on B renamed the shared account\'s comment there.' );
+					restore_current_blog();
+					$keel_pn_assert( 0 === (int) $state['changed'] && 1 === (int) $state['comments_changed'], 'R5: no account changed twice; one comment changed.' );
+				} finally {
+					wp_delete_site( $b );
+				}
+			}
+		);
+
+		// R6: networks too big for a list take a site ID.
+		$keel_pn_case(
+			'R6',
+			function () use ( $keel_pn_assert, $keel_pn_admin ) {
+				$fake = static function ( $result, $query ) {
+					return ! empty( $query->query_vars['count'] ) ? KEEL_PUBLIC_NAMES_SITE_LIST + 1 : $result;
+				};
+				add_filter( 'sites_pre_query', $fake, 10, 2 );
+				wp_set_current_user( $keel_pn_admin );
+				ob_start();
+				keel_defaults_public_names_render();
+				$html = (string) ob_get_clean();
+				wp_set_current_user( 0 );
+				remove_filter( 'sites_pre_query', $fake, 10 );
+				$keel_pn_assert( false !== strpos( $html, 'type="number" name="site"' ) && false === strpos( $html, '<select name="site"' ), 'R6: a site ID field replaces the list.' );
 			}
 		);
 	}
