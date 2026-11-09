@@ -898,7 +898,7 @@ try {
 	// R4: comments are rewritten in bounded chunks and a run resumes inside one account.
 	$keel_pn_case(
 		'R4',
-		function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_run, $keel_pn_cleanup_run ) {
+		function () use ( $keel_pn_assert, $keel_pn_user, $keel_pn_run, $keel_pn_cleanup_run, $keel_pn_admin ) {
 			global $wpdb;
 			$login                      = "chatty.{$keel_pn_run}@fixture.test";
 			$id                         = $keel_pn_user(
@@ -965,6 +965,51 @@ try {
 			$left  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d AND comment_author = %s", $id, $login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture read.
 			$keel_pn_assert( 0 === $left && $count === (int) $state['comments_changed'], 'R4: a full run renames every comment exactly once.' );
 			$keel_pn_assert( false === in_array( $login, (array) get_user_meta( $id, KEEL_PUBLIC_NAMES_OLD, true ), true ), 'R4: only hashes are stored, never the old name.' );
+
+			// A request killed inside a comment rewrite, before or after the UPDATE lands,
+			// still ends with every comment renamed and each counted exactly once.
+			foreach ( array( 'before the UPDATE', 'after the UPDATE' ) as $when ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture reset.
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = %s WHERE user_id = %d", $login, $id ) );
+				delete_site_option( KEEL_PUBLIC_NAMES_RUN );
+				delete_option( KEEL_PUBLIC_NAMES_RUN );
+				$armed = true;
+				$kill  = static function ( $arg ) use ( &$armed, $when, $wpdb ) {
+					if ( $armed && ( 'before the UPDATE' === $when ? ( is_string( $arg ) && 0 === strpos( $arg, "UPDATE {$wpdb->comments} SET comment_author" ) ) : 'after the UPDATE' === $when ) ) {
+						$armed = false;
+						throw new RuntimeException( 'killed' );
+					}
+					return $arg;
+				};
+				if ( 'before the UPDATE' === $when ) {
+					add_filter( 'query', $kill );
+				} else {
+					add_action( 'clean_comment_cache', $kill );
+				}
+				$previous = get_current_user_id();
+				wp_set_current_user( $keel_pn_admin );
+				$_POST  = array(
+					'site'     => (string) get_current_blog_id(),
+					'comments' => '1',
+				);
+				$killed = false;
+				try {
+					keel_defaults_public_names_step( 'start' );
+				} catch ( RuntimeException $e ) {
+					$killed = 'killed' === $e->getMessage();
+				}
+				remove_filter( 'query', $kill );
+				remove_action( 'clean_comment_cache', $kill );
+				$state = keel_defaults_public_names_state();
+				$guard = 0;
+				while ( $state && empty( $state['done'] ) && ++$guard < 1000 ) {
+					$state = keel_defaults_public_names_step( 'continue' );
+				}
+				$_POST = array();
+				wp_set_current_user( $previous );
+				$left = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->comments} WHERE user_id = %d AND comment_author = %s", $id, $login ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture read.
+				$keel_pn_assert( $killed && 0 === $left && $count === (int) $state['comments_changed'], "R4: killed {$when}, every comment renamed and counted once (" . (int) $state['comments_changed'] . " of {$count})." );
+			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- fixture cleanup.
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->comments} WHERE user_id = %d", $id ) );
 		}

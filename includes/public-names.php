@@ -596,11 +596,11 @@ function keel_defaults_public_names_render_state( array $state ) {
 			<?php
 			echo esc_html(
 				sprintf(
-					/* translators: 1: accounts checked, 2: accounts changed, 3: comments changed. */
-					$done ? __( 'Cleanup finished. Checked %1$d accounts, changed %2$d, updated %3$d comments.', 'keel-defaults' ) : __( 'Cleanup paused. Checked %1$d accounts so far, changed %2$d, updated %3$d comments.', 'keel-defaults' ),
-					(int) $state['scanned'],
-					(int) $state['changed'],
-					(int) $state['comments_changed']
+					/* translators: 1: number of accounts checked, 2: number of accounts changed, 3: number of comments updated. */
+					$done ? __( 'Cleanup finished. Accounts checked: %1$s. Accounts changed: %2$s. Comments updated: %3$s.', 'keel-defaults' ) : __( 'Cleanup paused. Accounts checked so far: %1$s. Accounts changed: %2$s. Comments updated: %3$s.', 'keel-defaults' ),
+					number_format_i18n( (int) $state['scanned'] ),
+					number_format_i18n( (int) $state['changed'] ),
+					number_format_i18n( (int) $state['comments_changed'] )
 				)
 			);
 			?>
@@ -795,6 +795,14 @@ function keel_defaults_public_names_batch( array $state ) {
 			++$state['changed'];
 		}
 		unset( $state['pending'] );
+		keel_defaults_public_names_save_state( $state );
+	}
+
+	// A comment rewrite the previous request counted but may not have finished.
+	if ( ! empty( $state['comment_pending']['ids'] ) ) {
+		$pending = $state['comment_pending'];
+		keel_defaults_public_names_rename_comments( (array) $pending['ids'], keel_defaults_public_names_old_hashes( (int) $pending['id'] ), (string) $pending['renamed'] );
+		unset( $state['comment_pending'] );
 		keel_defaults_public_names_save_state( $state );
 	}
 
@@ -1003,11 +1011,18 @@ function keel_defaults_public_names_comments( array $state, $user_id, array $has
 			}
 		}
 		if ( $ids ) {
-			$in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-			// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated to match the array.
-			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = %s WHERE comment_ID IN ($in)", array_merge( array( (string) $renamed ), $ids ) ) );
-			clean_comment_cache( $ids );
+			// Count and record the rewrite before making it, as for accounts: a request
+			// that dies between the UPDATE and the save is finished by the next one,
+			// and the comments are counted once either way.
 			$state['comments_changed'] += count( $ids );
+			$state['comment_pending']   = array(
+				'id'      => $user_id,
+				'ids'     => $ids,
+				'renamed' => (string) $renamed,
+			);
+			keel_defaults_public_names_save_state( $state );
+			keel_defaults_public_names_rename_comments( $ids, $hashes, (string) $renamed );
+			unset( $state['comment_pending'] );
 		}
 		// phpcs:enable
 		if ( count( $rows ) < KEEL_PUBLIC_NAMES_BATCH ) {
@@ -1023,4 +1038,35 @@ function keel_defaults_public_names_comments( array $state, $user_id, array $has
 		keel_defaults_public_names_save_state( $state );
 	} while ( ! keel_defaults_public_names_out_of_time( $started ) );
 	return array( $state, false );
+}
+
+/**
+ * Rewrite the given comments to the new name, skipping any no longer carrying an old one.
+ *
+ * @param int[]    $ids     Comment IDs.
+ * @param string[] $hashes  SHA-256 hashes of the account's replaced names.
+ * @param string   $renamed The account's display name now.
+ * @return void
+ */
+function keel_defaults_public_names_rename_comments( array $ids, array $hashes, $renamed ) {
+	global $wpdb;
+	$ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
+	if ( ! $ids || ! $hashes || '' === (string) $renamed ) {
+		return;
+	}
+	$in = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- explicit admin cleanup; placeholders are generated to match the array; caches are cleared below.
+	$rows = (array) $wpdb->get_results( $wpdb->prepare( "SELECT comment_ID, comment_author FROM {$wpdb->comments} WHERE comment_ID IN ($in)", $ids ), ARRAY_A );
+	$todo = array();
+	foreach ( $rows as $row ) {
+		if ( $row['comment_author'] !== $renamed && in_array( hash( 'sha256', (string) $row['comment_author'] ), $hashes, true ) ) {
+			$todo[] = (int) $row['comment_ID'];
+		}
+	}
+	if ( $todo ) {
+		$in = implode( ',', array_fill( 0, count( $todo ), '%d' ) );
+		$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->comments} SET comment_author = %s WHERE comment_ID IN ($in)", array_merge( array( (string) $renamed ), $todo ) ) );
+	}
+	// phpcs:enable
+	clean_comment_cache( $ids );
 }
