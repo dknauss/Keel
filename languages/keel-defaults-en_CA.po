@@ -2734,16 +2734,6 @@ msgstr ""
 msgid "View update diagnostics"
 msgstr ""
 
-#: includes/update-policy-notice.php:80
-#: includes/update-policy-notice.php:99
-msgid "Automatic updates enabled."
-msgstr ""
-
-#: includes/update-policy-notice.php:81
-#: includes/update-policy-notice.php:99
-msgid "Automatic updates disabled."
-msgstr ""
-
 #: includes/update-policy-notice.php:120
 msgid "Disabled in configuration."
 msgstr ""
@@ -2857,30 +2847,6 @@ msgstr ""
 msgid "Installed WordPress version: %1$s — %2$s."
 msgstr ""
 
-#. translators: %s: number of extensions with automatic updates enabled.
-#: includes/extension-updates.php:192
-#, php-format
-msgid "%s enabled"
-msgstr ""
-
-#. translators: %s: number of extensions with automatic updates disabled.
-#: includes/extension-updates.php:196
-#, php-format
-msgid "%s disabled"
-msgstr ""
-
-#. translators: %s: number of extensions without update metadata.
-#: includes/extension-updates.php:202
-#, php-format
-msgid "%s unknown"
-msgstr ""
-
-#. translators: %s: number of automatic-update decisions changed by code.
-#: includes/extension-updates.php:206
-#, php-format
-msgid "%s changed by code"
-msgstr ""
-
 #. translators: 1: WordPress core update-check function link. 2: Plugin update-check function link. 3: Theme update-check function link.
 #: includes/update-disclosure.php:65
 #, php-format
@@ -2897,20 +2863,6 @@ msgstr ""
 
 #: includes/update-disclosure.php:68
 msgid "Theme update check"
-msgstr ""
-
-#: includes/update-policy-notice.php:89
-msgid "individual plugin settings"
-msgstr ""
-
-#: includes/update-policy-notice.php:89
-msgid "individual theme settings"
-msgstr ""
-
-#. translators: %s: linked text for the native per-item update settings.
-#: includes/update-policy-notice.php:93
-#, php-format
-msgid "Follow %s."
 msgstr ""
 
 #: includes/settings-page.php:90

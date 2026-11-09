@@ -94,26 +94,32 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 		'core_update_policy' => array( __( 'WordPress', 'keel-defaults' ), $message ),
 	);
 	$extension_labels = array(
-		'enabled'  => __( 'Automatic updates enabled.', 'keel-defaults' ),
-		'disabled' => __( 'Automatic updates disabled.', 'keel-defaults' ),
-		'unset'    => '',
+		'plugin' => array(
+			'enabled'  => __( 'Keel turns auto-updates on for all plugins.', 'keel-defaults' ),
+			'disabled' => __( 'Keel turns auto-updates off for all plugins.', 'keel-defaults' ),
+		),
+		'theme'  => array(
+			'enabled'  => __( 'Keel turns auto-updates on for all themes.', 'keel-defaults' ),
+			'disabled' => __( 'Keel turns auto-updates off for all themes.', 'keel-defaults' ),
+		),
 	);
 	foreach ( array(
 		'plugin' => __( 'Plugins', 'keel-defaults' ),
 		'theme'  => __( 'Themes', 'keel-defaults' ),
 	) as $type => $label ) {
-		$value                     = keel_defaults_extension_update_policy( $type );
-		$individual                = 'plugin' === $type ? __( 'individual plugin settings', 'keel-defaults' ) : __( 'individual theme settings', 'keel-defaults' );
-		$list_url                  = keel_defaults_extension_update_list_url( $type );
-		$extension_labels['unset'] = sprintf(
-			/* translators: %s: linked text for the native per-item update settings. */
-			__( 'Follow %s.', 'keel-defaults' ),
-			'' === $list_url ? esc_html( $individual ) : '<a href="' . esc_url( $list_url ) . '">' . esc_html( $individual ) . '</a>'
-		);
-		$items[ $type . '_auto_update_policy' ] = array( $label, $extension_labels[ $value ], 'unset' === $value );
+		$value      = keel_defaults_extension_update_policy( $type );
+		$individual = __( 'auto-update setting', 'keel-defaults' );
+		$list_url   = keel_defaults_extension_update_list_url( $type );
+		$linked     = '' === $list_url ? esc_html( $individual ) : '<a href="' . esc_url( $list_url ) . '">' . esc_html( $individual ) . '</a>';
+		/* translators: %s: linked text "auto-update setting", pointing to the Plugins screen. */
+		$own_plugin = esc_html__( 'Each plugin uses its own %s.', 'keel-defaults' );
+		/* translators: %s: linked text "auto-update setting", pointing to the Themes screen. */
+		$own_theme  = esc_html__( 'Each theme uses its own %s.', 'keel-defaults' );
+		$text       = 'unset' === $value ? sprintf( 'plugin' === $type ? $own_plugin : $own_theme, $linked ) : $extension_labels[ $type ][ $value ];
+		$items[ $type . '_auto_update_policy' ] = array( $label, $text, 'unset' === $value );
 	}
 	$translations                      = keel_defaults_config_locked_value( 'auto_update_translations', keel_defaults_get( 'auto_update_translations' ) );
-	$items['auto_update_translations'] = array( __( 'Translations', 'keel-defaults' ), 'yes' === $translations ? __( 'Automatic updates enabled.', 'keel-defaults' ) : __( 'Automatic updates disabled.', 'keel-defaults' ) );
+	$items['auto_update_translations'] = array( __( 'Translations', 'keel-defaults' ), 'yes' === $translations ? __( 'Translation updates install automatically.', 'keel-defaults' ) : __( 'Translation updates do not install automatically.', 'keel-defaults' ) );
 	$list                              = '';
 	foreach ( $items as $key => $item ) {
 		$label = esc_html( $item[0] );

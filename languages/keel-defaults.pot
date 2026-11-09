@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T17:54:36+00:00\n"
+"POT-Creation-Date: 2026-11-09T17:56:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1105,25 +1105,25 @@ msgstr ""
 #. translators: %s: number of extensions with automatic updates enabled.
 #: includes/extension-updates.php:196
 #, php-format
-msgid "%s enabled"
+msgid "Auto-updates on: %s."
 msgstr ""
 
 #. translators: %s: number of extensions with automatic updates disabled.
 #: includes/extension-updates.php:200
 #, php-format
-msgid "%s disabled"
+msgid "Auto-updates off: %s."
 msgstr ""
 
 #. translators: %s: number of extensions without update metadata.
 #: includes/extension-updates.php:206
 #, php-format
-msgid "%s unknown"
+msgid "No update data: %s."
 msgstr ""
 
 #. translators: %s: number of automatic-update decisions changed by code.
 #: includes/extension-updates.php:210
 #, php-format
-msgid "%s changed by code"
+msgid "Changed by code: %s."
 msgstr ""
 
 #. translators: %s: number of examined items in a partial report.
@@ -1133,12 +1133,12 @@ msgid "First %s items only; counts are partial."
 msgstr ""
 
 #: includes/extension-updates.php:232
-#: includes/update-policy-notice.php:102
+#: includes/update-policy-notice.php:107
 msgid "Plugins"
 msgstr ""
 
 #: includes/extension-updates.php:232
-#: includes/update-policy-notice.php:103
+#: includes/update-policy-notice.php:108
 msgid "Themes"
 msgstr ""
 
@@ -2724,7 +2724,7 @@ msgid "Turns automatic theme updates on or off for every theme, or leaves each t
 msgstr ""
 
 #: includes/strings.php:147
-#: includes/update-policy-notice.php:116
+#: includes/update-policy-notice.php:122
 msgid "Translations"
 msgstr ""
 
@@ -3389,43 +3389,59 @@ msgstr ""
 msgid "WordPress"
 msgstr ""
 
-#: includes/update-policy-notice.php:97
-#: includes/update-policy-notice.php:116
-msgid "Automatic updates enabled."
-msgstr ""
-
 #: includes/update-policy-notice.php:98
-#: includes/update-policy-notice.php:116
-msgid "Automatic updates disabled."
+msgid "Keel turns auto-updates on for all plugins."
 msgstr ""
 
-#: includes/update-policy-notice.php:106
-msgid "individual plugin settings"
+#: includes/update-policy-notice.php:99
+msgid "Keel turns auto-updates off for all plugins."
 msgstr ""
 
-#: includes/update-policy-notice.php:106
-msgid "individual theme settings"
+#: includes/update-policy-notice.php:102
+msgid "Keel turns auto-updates on for all themes."
 msgstr ""
 
-#. translators: %s: linked text for the native per-item update settings.
-#: includes/update-policy-notice.php:110
+#: includes/update-policy-notice.php:103
+msgid "Keel turns auto-updates off for all themes."
+msgstr ""
+
+#: includes/update-policy-notice.php:111
+msgid "auto-update setting"
+msgstr ""
+
+#. translators: %s: linked text "auto-update setting", pointing to the Plugins screen.
+#: includes/update-policy-notice.php:115
 #, php-format
-msgid "Follow %s."
+msgid "Each plugin uses its own %s."
 msgstr ""
 
-#: includes/update-policy-notice.php:137
+#. translators: %s: linked text "auto-update setting", pointing to the Themes screen.
+#: includes/update-policy-notice.php:117
+#, php-format
+msgid "Each theme uses its own %s."
+msgstr ""
+
+#: includes/update-policy-notice.php:122
+msgid "Translation updates install automatically."
+msgstr ""
+
+#: includes/update-policy-notice.php:122
+msgid "Translation updates do not install automatically."
+msgstr ""
+
+#: includes/update-policy-notice.php:143
 msgid "Disabled in configuration."
 msgstr ""
 
-#: includes/update-policy-notice.php:146
+#: includes/update-policy-notice.php:152
 msgid "View update diagnostics"
 msgstr ""
 
-#: includes/update-policy-notice.php:148
+#: includes/update-policy-notice.php:154
 msgid "Keel update policy"
 msgstr ""
 
-#: includes/update-policy-notice.php:152
+#: includes/update-policy-notice.php:158
 msgid "An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery."
 msgstr ""
 

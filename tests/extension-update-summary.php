@@ -40,11 +40,11 @@ function check( $ok, $message ) { if ( ! $ok ) {
 require dirname( __DIR__ ) . '/includes/extension-updates.php';
 foreach ( array( 'plugin', 'theme' ) as $type ) {
 	$html = keel_defaults_extension_update_counts_markup( $type );
-	check( false !== strpos( $html, '1 enabled, ' ) && false !== strpos( $html, '1 unknown, 2 changed by code.' ), 'Observed non-zero counts include unknowns and changes as a subset.' );
+	check( false !== strpos( $html, 'Auto-updates on: 1. ' ) && false !== strpos( $html, 'No update data: 1. Changed by code: 2.' ), 'Observed non-zero counts include unknowns and changes as a subset.' );
 	if ( 'plugin' === $type ) {
 		check( false !== strpos( $html, '/wp-admin/plugins.php?plugin_status=auto-update-disabled' ) && 1 === substr_count( $html, '<a ' ), 'Only disabled counts link to the native filtered list.' );
 	} else {
-		check( false !== strpos( $html, '2 disabled' ) && false === strpos( $html, '<a ' ), 'Single-site themes.php has no disabled filter, so the count stays unlinked.' );
+		check( false !== strpos( $html, 'Auto-updates off: 2.' ) && false === strpos( $html, '<a ' ), 'Single-site themes.php has no disabled filter, so the count stays unlinked.' );
 	}
 	$calls = $GLOBALS['calls'];
 	keel_defaults_extension_update_counts_markup( $type );
@@ -65,6 +65,6 @@ check( false !== strpos( keel_defaults_extension_update_counts_markup( 'theme' )
 $GLOBALS['site'] = 2;
 $GLOBALS['ids']  = range( 1, 201 );
 $html            = keel_defaults_extension_update_counts_markup( 'plugin' );
-check( false !== strpos( $html, '200 unknown' ) && false !== strpos( $html, 'First 200 items only; counts are partial.' ), 'Bounded counts identify partial coverage.' );
+check( false !== strpos( $html, 'No update data: 200.' ) && false !== strpos( $html, 'First 200 items only; counts are partial.' ), 'Bounded counts identify partial coverage.' );
 check( '' === keel_defaults_extension_update_counts_markup( 'invalid' ), 'Invalid types are rejected.' );
 echo "OK: extension auto-update summaries.\n";
