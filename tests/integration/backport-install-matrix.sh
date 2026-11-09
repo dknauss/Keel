@@ -75,6 +75,33 @@ report_result() {
 	echo "backport matrix: installer result -- $result"
 }
 
+# Submit the install, retrying only when WordPress.org's package download failed.
+#
+# download_failed is core's own report that the HTTP fetch of the package did not
+# complete. It says nothing about Keel: the 2026-11-02 weekly run failed the fr_FR
+# row this way ("Le téléchargement a échoué.") while the same 6.8.12 packages had
+# been live for five days, every other row downloaded its own patch in the same
+# minute, and the next run passed the row unchanged. A retry is safe because a
+# failed download leaves the site on the source version and core releases its
+# updater lock, so the same signed request still names the current target. Any
+# other code, or a site that moved, is a result and goes to the assertions.
+install_target() {
+	local auth="$1"
+	local target="$2"
+	local attempt code
+	for attempt in 1 2 3; do
+		post_install "$auth" "$target"
+		code="$("${KEEL_WP[@]}" transient get keel_backport_install_result_1 --format=json 2>/dev/null | jq -r '.code // empty')"
+		[[ "$code" == "download_failed" ]] || return 0
+		[[ "$("${KEEL_WP[@]}" core version)" == "$KEEL_SOURCE" ]] || return 0
+		(( attempt < 3 )) || return 0
+		report_result
+		echo "backport matrix: package download failed on attempt $attempt; retrying in $(( attempt * 15 ))s"
+		"${KEEL_WP[@]}" transient delete keel_backport_install_result_1 >/dev/null
+		sleep $(( attempt * 15 ))
+	done
+}
+
 assert_healthy() {
 	"${KEEL_WP[@]}" core verify-checksums --version="$("${KEEL_WP[@]}" core version)" --locale="$KEEL_LOCALE" >/dev/null
 	curl --fail --silent --show-error "$KEEL_URL/" >/dev/null
@@ -155,7 +182,7 @@ assert_release_day_refresh
 
 first_auth="$(auth_json)"
 [[ "$(jq -r '.target' <<<"$first_auth")" == "$KEEL_TARGET" ]] || fail "Keel did not derive target $KEEL_TARGET"
-post_install "$first_auth" "$KEEL_TARGET"
+install_target "$first_auth" "$KEEL_TARGET"
 report_result
 assert_version "$KEEL_TARGET"
 assert_result_code updated
@@ -171,7 +198,7 @@ refresh_offers
 assert_report
 
 second_auth="$(auth_json)"
-post_install "$second_auth" "$KEEL_TARGET"
+install_target "$second_auth" "$KEEL_TARGET"
 report_result
 assert_version "$KEEL_TARGET"
 assert_result_code updated
