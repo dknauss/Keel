@@ -390,9 +390,8 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 - [ ] **Clear the counterpart sweep** — #360 and #361 wait on the AX Public Names
   port in AX; #362 is pending until AX adopts one-sentence descriptions or the
   line says it is deferred.
-- [ ] **Fix the two Public Names bugs found in the AX port review** — a crash on
-  every account save without mbstring, and short comment counts when a cleanup
-  batch dies mid-run. Blocks 0.9.1.
+- [ ] **Merge the Public Names fix (#366)** — short comment counts when a cleanup
+  batch dies mid-run, and a plural-safe result line. Blocks 0.9.1.
 - [ ] **Tag and publish 0.9.1** — tag after the release PR merges, dry run, then deploy.
 - [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.1 is the stable tag.
 
