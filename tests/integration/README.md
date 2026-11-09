@@ -277,6 +277,13 @@ got 6.9.8") — the check working, against stale numbers, and indistinguishable
 from a real regression. `tests/backport-matrix-versions.php` covers the resolver
 against fixed maps.
 
+Each Keel install is retried up to twice, 15 and 30 seconds apart, when core
+reports `download_failed` and the site is still on the source version. That code
+is WordPress.org's package fetch failing, not Keel: the 2026-11-02 weekly run lost
+the fr_FR row to it while the 6.8.12 packages had been live for five days and the
+next run passed the row unchanged. Every other result code still fails the row on
+the first attempt, and each failed attempt's installer result is printed.
+
 Before the first install, every row also stages release day with
 `stable-check-refresh-probe.php`. The stable-check map is cached for a day, and
 the day that matters is the one a release lands: the running version has just
