@@ -39,6 +39,7 @@ $GLOBALS['wp_filter']          = array();
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function _n( $single, $plural, $number, $d = null ) { return 1 === (int) $number ? $single : $plural; }
 function esc_html( $s ) { return $s; }

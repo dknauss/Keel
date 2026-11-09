@@ -66,6 +66,8 @@ function keel_defaults_policy_hooks() {
 			// Admin surface.
 			'show_admin_bar'                        => 'authoritative',
 			'wp_supports_ai'                        => 'authoritative',
+			// WordPress 7.2 /random/ redirects: a bool, so one plugin wins it.
+			'wp_enable_random_content_redirect'     => 'authoritative',
 
 			/*
 			 * XML-RPC. Both were missed until somebody installed Disable XML-RPC

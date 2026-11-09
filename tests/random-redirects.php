@@ -16,6 +16,7 @@ $GLOBALS['keel_random_enabled']  = false;
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html( $s ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
@@ -136,6 +137,21 @@ $GLOBALS['keel_random_enabled'] = false;
 keel_reset_options( array( 'keel_random_rules_state' => 'on' ) );
 keel_defaults_check_random_rules();
 keel_assert( array() === $GLOBALS['keel_deleted_options'], 'A site without saved rules deletes nothing.' );
+
+// Deactivation hands the rules back to core's own answer, and only where Keel
+// built them under its random-redirect answer.
+keel_reset_options(
+	array(
+		'rewrite_rules'           => $rules,
+		'keel_random_rules_state' => 'off',
+	)
+);
+keel_defaults_deactivate( false );
+keel_assert( array( 'keel_random_rules_state', 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'Deactivation deletes the saved rules and the note.' );
+
+keel_reset_options( array( 'rewrite_rules' => $rules ) );
+keel_defaults_deactivate( false );
+keel_assert( array() === $GLOBALS['keel_deleted_options'], 'Deactivation leaves rules Keel never noted alone.' );
 
 /*
  * The author guard: a random redirect scoped to an author finds nothing, so

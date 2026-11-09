@@ -151,6 +151,64 @@ function keel_defaults_activate( $network_wide = false ) {
 }
 
 /**
+ * Hand WordPress 7.2's /random/ rules back to core on deactivation.
+ *
+ * While Keel turns the redirects off, the saved rewrite rules leave them out,
+ * and nothing rebuilds them once Keel is gone. Deleting the saved rules lets
+ * each site's next request rebuild them under core's own answer. A network
+ * deactivation fires this once, so it covers every site, paged like
+ * keel_defaults_activate().
+ *
+ * @param bool $network_wide Whether the plugin is being network-deactivated.
+ * @return void
+ */
+function keel_defaults_deactivate( $network_wide = false ) {
+	if ( ! is_multisite() || ! $network_wide ) {
+		keel_defaults_forget_random_rules();
+
+		return;
+	}
+
+	$paged = 0;
+
+	do {
+		$sites = get_sites(
+			array(
+				'fields' => 'ids',
+				'number' => 100,
+				'offset' => $paged * 100,
+			)
+		);
+
+		foreach ( $sites as $site_id ) {
+			switch_to_blog( $site_id );
+			keel_defaults_forget_random_rules();
+			restore_current_blog();
+		}
+
+		$found = count( $sites );
+		++$paged;
+	} while ( 100 === $found );
+}
+
+/**
+ * Delete one site's saved rewrite rules and the random-redirect note.
+ *
+ * Only where the note exists: a site whose rules Keel never built under its
+ * random-redirect answer has nothing of Keel's to undo.
+ *
+ * @return void
+ */
+function keel_defaults_forget_random_rules() {
+	if ( false === get_option( 'keel_random_rules_state' ) ) {
+		return;
+	}
+
+	delete_option( 'keel_random_rules_state' );
+	delete_option( 'rewrite_rules' );
+}
+
+/**
  * Seed a subsite created after the plugin was network-activated.
  *
  * Without this, Keel is active on a new subsite but has never stored anything

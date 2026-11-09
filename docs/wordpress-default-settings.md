@@ -534,8 +534,8 @@ whether the saved rules were built with the redirects on, and checks that agains
 answer late on `init`. When they disagree it deletes the saved rules, so the same request rebuilds
 them. That covers every way the answer can change, including this site's setting, network policy,
 a constant, another plugin, or a restored database, on each site of a network. A site without saved
-rules (plain permalinks) is skipped. Deactivating Keel leaves the rules as they are, so `/random/`
-stays off until they are next rebuilt (Settings → Permalinks → Save).
+rules (plain permalinks) is skipped. Deactivating Keel deletes the saved rules on every site where
+it noted them, network-wide on a network deactivation, so `/random/` follows core's own answer again.
 
 > **Author archives off, random redirects on:** while `disable_author_archives` is on, Keel
 > makes a random redirect scoped to an author find nothing, so core answers 404 for real and

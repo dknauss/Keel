@@ -25,6 +25,7 @@ function add_filter( $hook, $cb = null, $priority = 10, $accepted = 1 ) {
 	$GLOBALS['keel_hooks'][] = array( $hook, $cb, $priority );
 }
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }

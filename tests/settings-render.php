@@ -35,6 +35,7 @@ function wp_style_is( $handle, $status = 'enqueued' ) {
 	return 'enqueued' === $status && in_array( $handle, $GLOBALS['keel_enqueued_styles'], true );
 }
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) {
 	return $s; }
 function esc_html( $s ) {

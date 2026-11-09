@@ -20,6 +20,7 @@ $GLOBALS['keel_admin_bar_showing'] = true;
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function apply_filters( $hook, $value ) { return $value; }
 function get_option( $key, $default = false ) { return $default; }
