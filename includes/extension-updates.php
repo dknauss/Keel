@@ -193,23 +193,23 @@ function keel_defaults_extension_update_counts_markup( $type ) {
 	$parts    = array();
 	if ( $report['on'] > 0 ) {
 		/* translators: %s: number of extensions with automatic updates enabled. */
-		$parts[] = sprintf( esc_html__( '%s enabled', 'keel-defaults' ), esc_html( number_format_i18n( $report['on'] ) ) );
+		$parts[] = sprintf( esc_html__( 'Auto-updates on: %s.', 'keel-defaults' ), esc_html( number_format_i18n( $report['on'] ) ) );
 	}
 	if ( $disabled > 0 ) {
 		/* translators: %s: number of extensions with automatic updates disabled. */
-		$text    = sprintf( esc_html__( '%s disabled', 'keel-defaults' ), esc_html( number_format_i18n( $disabled ) ) );
+		$text    = sprintf( esc_html__( 'Auto-updates off: %s.', 'keel-defaults' ), esc_html( number_format_i18n( $disabled ) ) );
 		$url     = keel_defaults_extension_update_list_url( $type, true );
 		$parts[] = '' === $url ? $text : '<a href="' . esc_url( $url ) . '">' . $text . '</a>';
 	}
 	if ( $report['unknown'] > 0 ) {
 		/* translators: %s: number of extensions without update metadata. */
-		$parts[] = sprintf( esc_html__( '%s unknown', 'keel-defaults' ), esc_html( number_format_i18n( $report['unknown'] ) ) );
+		$parts[] = sprintf( esc_html__( 'No update data: %s.', 'keel-defaults' ), esc_html( number_format_i18n( $report['unknown'] ) ) );
 	}
 	if ( $report['changed_count'] > 0 ) {
 		/* translators: %s: number of automatic-update decisions changed by code. */
-		$parts[] = sprintf( esc_html__( '%s changed by code', 'keel-defaults' ), esc_html( number_format_i18n( $report['changed_count'] ) ) );
+		$parts[] = sprintf( esc_html__( 'Changed by code: %s.', 'keel-defaults' ), esc_html( number_format_i18n( $report['changed_count'] ) ) );
 	}
-	$text = implode( ', ', $parts ) . ( $parts ? '.' : '' );
+	$text = implode( ' ', $parts );
 	if ( $report['limited'] ) {
 		/* translators: %s: number of examined items in a partial report. */
 		$text .= ' ' . sprintf( esc_html__( 'First %s items only; counts are partial.', 'keel-defaults' ), esc_html( number_format_i18n( $report['examined'] ) ) );

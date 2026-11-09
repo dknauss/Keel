@@ -129,7 +129,7 @@ keel_assert( ! empty( $strings ), 'Display strings load.' );
 // Each field carries one short sentence: it is tied to its control with
 // aria-describedby, so a screen reader reads it on every focus, and a paragraph
 // read on every Tab press is a real cost. The longer explanation (defaults,
-// trade-offs, filters, what breaks) lives in the Settings in detail help tab,
+// trade-offs, filters, what breaks) lives in the Settings in Detail help tab,
 // and the reasoning behind a policy lives in its own topical tab. Dan settled
 // this on 2026-11-09, replacing the earlier 40-55 word rule for passwords.
 foreach ( $strings as $key => $copy ) {
@@ -141,14 +141,14 @@ foreach ( $strings as $key => $copy ) {
 }
 
 $detail_tab = isset( $GLOBALS['keel_test_screen']->tabs['keel-settings-detail'] ) ? $GLOBALS['keel_test_screen']->tabs['keel-settings-detail'] : '';
-keel_assert( '' !== $detail_tab, 'A Settings in detail help tab is registered.' );
+keel_assert( '' !== $detail_tab, 'A Settings in Detail help tab is registered.' );
 foreach ( $strings as $key => $copy ) {
 	if ( empty( $copy['detail'] ) || ! keel_defaults_key_supported( $key ) ) {
 		continue;
 	}
 	keel_assert(
 		false !== strpos( $detail_tab, $copy['label'] ),
-		"The detail for '{$key}' is reachable: its label appears in the Settings in detail tab."
+		"The detail for '{$key}' is reachable: its label appears in the Settings in Detail tab."
 	);
 }
 
