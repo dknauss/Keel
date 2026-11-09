@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T16:34:29+00:00\n"
+"POT-Creation-Date: 2026-11-09T17:32:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -1649,16 +1649,16 @@ msgstr ""
 msgid "Run cleanup"
 msgstr ""
 
-#. translators: 1: accounts checked, 2: accounts changed, 3: comments changed.
+#. translators: 1: number of accounts checked, 2: number of accounts changed, 3: number of comments updated.
 #: includes/public-names.php:600
 #, php-format
-msgid "Cleanup finished. Checked %1$d accounts, changed %2$d, updated %3$d comments."
+msgid "Cleanup finished. Accounts checked: %1$s. Accounts changed: %2$s. Comments updated: %3$s."
 msgstr ""
 
-#. translators: 1: accounts checked, 2: accounts changed, 3: comments changed.
+#. translators: 1: number of accounts checked, 2: number of accounts changed, 3: number of comments updated.
 #: includes/public-names.php:600
 #, php-format
-msgid "Cleanup paused. Checked %1$d accounts so far, changed %2$d, updated %3$d comments."
+msgid "Cleanup paused. Accounts checked so far: %1$s. Accounts changed: %2$s. Comments updated: %3$s."
 msgstr ""
 
 #. translators: %s: site name and address.
