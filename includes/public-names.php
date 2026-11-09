@@ -308,7 +308,7 @@ function keel_defaults_public_names_filter_user( $data, $update, $user_id, $user
 		&& ( ! keel_defaults_public_name_is_safe( $stored->display_name, $login, $email ) || ! keel_defaults_public_name_is_safe( $stored->display_name, $login, $stored->user_email ) ) ) {
 		$old = (string) $stored->display_name;
 	}
-	$slug    = (string) ( $data['user_nicename'] ?? '' );
+	$slug = (string) ( $data['user_nicename'] ?? '' );
 	if ( $stored && empty( $userdata['user_nicename'] ) && ! keel_defaults_public_slug_is_safe( $slug, $login, $email ) && keel_defaults_public_slug_is_safe( $stored->user_nicename, $login, $email ) ) {
 		$slug = (string) $stored->user_nicename;
 	}
@@ -853,7 +853,7 @@ function keel_defaults_public_names_batch( array $state ) {
 		$hashes = maybe_unserialize( $meta[ $id ][ KEEL_PUBLIC_NAMES_OLD ] ?? '' );
 		$hashes = is_array( $hashes ) ? array_values( array_filter( $hashes, 'is_string' ) ) : array();
 		unset( $meta[ $id ][ KEEL_PUBLIC_NAMES_OLD ] );
-		$fields = array_merge(
+		$fields  = array_merge(
 			array(
 				'nickname'   => '',
 				'first_name' => '',
