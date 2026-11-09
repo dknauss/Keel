@@ -143,7 +143,7 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   permission-denial responses to 403. The lab now signs in through `wp-login.php`
   instead of Studio auto-login and runs on every pull request in the
   `HTTP authorization lab` workflow.
-  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 44
+  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 45
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation. The
@@ -611,7 +611,10 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
     transient cleared on `user_register` / `profile_update`. Measure on a 100k-user
     table before shipping. On multisite each site checks its own members.
   - **Enforced**: opt-in in Keel; proposed default in AX for new and updated
-    accounts. `pre_user_display_name` / `pre_user_nickname` / `pre_user_nicename`
+    accounts. *Built 2026-11-09 as the Public Names setting and cleanup, against
+    tester probes written first by a separate agent; see
+    [the lab record](docs/review/public-names-2026-11-09.md). On multisite, network
+    policy or the main site decides, and the cleanup targets one chosen site.* `pre_user_display_name` / `pre_user_nickname` / `pre_user_nicename`
     apply the fallbacks. A one-time remediation runs only on explicit admin
     action (super admins only on multisite), with a separate checkbox to rewrite
     past comments where `comment_author` still equals the old value.

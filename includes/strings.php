@@ -72,6 +72,12 @@ function keel_defaults_strings() {
 			'help'   => __( 'Roles that skip the length, common-password and username rules. Breach screening still applies to everyone.', 'keel-defaults' ),
 			'detail' => __( 'Roles that skip the length, common-password and username rules; breach screening still applies to everyone. Only roles with no content or settings capabilities appear — which is why Contributor does not. A user is exempt only if every role they hold is listed in this setting. Filter: <code>keel_weak_roles</code>.', 'keel-defaults' ),
 		),
+		'protect_public_names'            => array(
+			'label'     => __( 'Public Names', 'keel-defaults' ),
+			'statement' => __( 'Keep logins and email addresses out of public names', 'keel-defaults' ),
+			'help'      => __( 'When an account is saved, a display name, nickname or author slug that repeats the login or email address is replaced.', 'keel-defaults' ),
+			'detail'    => __( 'Off by default. When an account is saved, a display name, nickname or author slug that repeats the login or email address is replaced with a safe one. Names that are already safe are kept, and logins, email addresses and passwords never change. To fix existing accounts, run the cleanup under Users → Public Names. On multisite networks, the same user account can be active on multiple sites, so network policy or the main site’s setting turns this protection on or off for every site. The cleanup is run from Network Admin, one site at a time.', 'keel-defaults' ),
+		),
 		'limit_unfiltered_html_to_admins' => array(
 			'label'     => __( 'Unfiltered HTML', 'keel-defaults' ),
 			'statement' => __( 'Limit raw HTML and JavaScript to Administrators', 'keel-defaults' ),
