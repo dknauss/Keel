@@ -466,7 +466,7 @@ function keel_defaults_identity_exposure_health() {
 	}
 
 	if ( $report['named'] ) {
-		$html .= '<p>' . esc_html__( 'Administrators and editors with published posts or approved comments, most exposed first:', 'keel-defaults' ) . '</p><ul>';
+		$html .= '<p>' . esc_html__( 'Administrators and editors with published posts or approved comments, administrators first:', 'keel-defaults' ) . '</p><ul>';
 		foreach ( $report['named'] as $entry ) {
 			$what  = $entry['name'] && $entry['slug'] ? __( 'public name and URL slug', 'keel-defaults' ) : ( $entry['name'] ? __( 'public name', 'keel-defaults' ) : __( 'URL slug', 'keel-defaults' ) );
 			$link  = get_edit_user_link( $entry['id'] );
