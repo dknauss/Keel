@@ -33,6 +33,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_settings_data_version` — the per-site migration version.
  * - `keel_environment_override_host` — the host the Environment override was
  *   chosen on, so a copied database does not inherit it.
+ * - `keel_random_rules_state` — whether the saved rewrite rules include
+ *   WordPress 7.2's /random/ block, so a change of answer rebuilds them.
  * - `keel_last_login` — user meta, written on each login by the Last login
  *   column. On multisite the user table is shared across the network, so this
  *   is deleted once for the whole network rather than per site.
@@ -78,6 +80,7 @@ function keel_defaults_uninstall_site() {
 	delete_option( 'keel_settings' );
 	delete_option( 'keel_settings_data_version' );
 	delete_option( 'keel_environment_override_host' );
+	delete_option( 'keel_random_rules_state' );
 	delete_transient( 'keel_policy_divergence' );
 	delete_transient( 'keel_shortcode_residue' );
 	delete_transient( 'keel_autoload_report' );

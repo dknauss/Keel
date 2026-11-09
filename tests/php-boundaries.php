@@ -4,6 +4,7 @@ define( 'ABSPATH', __DIR__ . '/' );
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $text, $domain = '' ) { return $text; }
 function esc_html__( $text, $domain = '' ) { return htmlspecialchars( $text, ENT_QUOTES ); }
 function apply_filters( $hook, $value ) { return $value; }

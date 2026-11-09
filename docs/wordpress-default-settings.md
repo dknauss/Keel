@@ -500,6 +500,47 @@ add_action( 'template_redirect', function () {
 > off-site host and bounce to `wp-admin`. Add that one host via `allowed_redirect_hosts` for the
 > redirect rather than reaching for the unguarded `wp_redirect()`.
 
+### Disable Random Post Redirects
+- **Key:** `disable_random_redirects`
+- **Default:** `yes`
+- **Applies to:** WordPress 7.2 and later; hidden on earlier versions.
+- **Why:** WordPress 7.2 adds `/random/`, which redirects every visitor to a random published
+  post, on by default. It also answers `/random/category/{slug}/`, `/random/tag/{slug}/`,
+  `/random/author/{slug}/`, `/random/{post-type}/`, and `?random` added to any archive or
+  search URL. A site that never asked for it gains a public route with three costs:
+
+  1. **Author discovery.** `/random/author/{slug}/` and `?author=N&random` redirect when the
+     author exists and has a post, and 404 when not. Core redirects inside `WP::main()`,
+     before `template_redirect`, so the author archive redirect above never sees the request.
+  2. **Database load.** Each request runs an `ORDER BY RAND()` query and sends
+     `Cache-Control: no-store`, so a full-page cache cannot absorb it. `?s=…&random` adds a
+     `LIKE` search on top.
+  3. **Unlisted posts.** The choice follows core's rules: published, no password. A post an SEO
+     plugin marks `noindex` can still come up.
+
+Core ships the off switch. Returning `false` from `wp_enable_random_content_redirect` stops
+the rewrite rules being generated, hides the Random base field under Settings → Permalinks,
+and makes core ignore the `random` query variable:
+
+```php
+add_filter( 'wp_enable_random_content_redirect', '__return_false' );
+```
+
+The rules are built when rewrite rules are generated and then saved, so they outlive any later
+change of answer. Rules kept after the redirects are turned off still match `/random/`, and core
+ignores the `random` variable they set, so `/random/` renders the blog home with a 200. Rules kept
+after they are turned back on leave `/random/` a 404. Keel notes, in `keel_random_rules_state`,
+whether the saved rules were built with the redirects on, and checks that against the effective
+answer late on `init`. When they disagree it deletes the saved rules, so the same request rebuilds
+them. That covers every way the answer can change, including this site's setting, network policy,
+a constant, another plugin, or a restored database, on each site of a network. A site without saved
+rules (plain permalinks) is skipped. Deactivating Keel deletes the saved rules on every site where
+it noted them, network-wide on a network deactivation, so `/random/` follows core's own answer again.
+
+> **Author archives off, random redirects on:** while `disable_author_archives` is on, Keel
+> makes a random redirect scoped to an author find nothing, so core answers 404 for real and
+> unknown authors alike.
+
 ### Disable Emojis
 - **Key:** `disable_emojis`
 - **Default:** `yes`
@@ -1446,6 +1487,7 @@ covering only some, which reads as a full inventory when it is not.
 | Self-Pingbacks | `disable_self_pingbacks` | `yes` | Content |
 | Author Archives | `disable_author_archives` | `yes` | Content |
 | Attachment Pages | `redirect_attachment_pages` | `yes` | Content |
+| Random Post Redirects | `disable_random_redirects` | `yes` | Content |
 | Emoji Script | `disable_emojis` | `yes` | Content |
 | Post Passwords | `disable_post_passwords` | `no` | Content |
 | Protected Search Results | `protect_search` | `yes` | Content |

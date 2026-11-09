@@ -116,6 +116,7 @@ function add_filter( ...$args ) {}
  * @param mixed ...$args Ignored.
  */
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 /**
  * Stub.
  *

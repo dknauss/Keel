@@ -23,6 +23,7 @@
 		<exclude-pattern>tests/backport-status.php</exclude-pattern>
 		<exclude-pattern>tests/abilities-authorization.php</exclude-pattern>
 		<exclude-pattern>tests/registration-audit.php</exclude-pattern>
+		<exclude-pattern>tests/random-redirects.php</exclude-pattern>
 	</rule>
 	<!--
 		tests/ are standalone CLI scripts, not WordPress runtime code. They stub

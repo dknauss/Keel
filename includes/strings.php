@@ -177,6 +177,12 @@ function keel_defaults_strings() {
 			'help'      => __( 'Sends attachment pages to the post they belong to, or to the file.', 'keel-defaults' ),
 			'detail'    => __( 'Sends thin attachment pages to the parent post, or to the file itself when the media is unattached. Skipped automatically when the theme provides <code>attachment.php</code> or <code>image.php</code>, since the theme means to render them. Core has its own switch since 6.4 (<code>wp_attachment_pages_enabled</code>); this prefers the parent post over the bare file.', 'keel-defaults' ),
 		),
+		'disable_random_redirects'        => array(
+			'label'     => __( 'Random Post Redirects', 'keel-defaults' ),
+			'statement' => __( 'Disable random post redirects', 'keel-defaults' ),
+			'help'      => __( 'Turns off the /random/ links WordPress 7.2 adds, which send visitors to a random post.', 'keel-defaults' ),
+			'detail'    => __( 'WordPress 7.2 answers <code>/random/</code>, <code>/random/category/{slug}/</code>, <code>/random/author/{slug}/</code> and <code>?random</code> on any archive or search with a redirect to a random published post. Each request runs an uncached <code>ORDER BY RAND()</code> query, and the author form confirms which author slugs exist even while author archives are off. This returns false from <code>wp_enable_random_content_redirect</code>, which drops the rewrite rules and hides the Random base field on the Permalinks screen.', 'keel-defaults' ),
+		),
 		'disable_emojis'                  => array(
 			'label'     => __( 'Emoji Script', 'keel-defaults' ),
 			'statement' => __( 'Disable the emoji detection script', 'keel-defaults' ),

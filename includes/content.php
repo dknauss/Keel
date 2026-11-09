@@ -370,6 +370,80 @@ function keel_defaults_redirect_author_archive() {
 }
 
 /**
+ * Record whether the rewrite rules being generated include the random block.
+ *
+ * Core builds the `/random/` rules only when rewrite rules are generated, and
+ * saves them. Whether they belong there can change afterwards: this site's
+ * setting, a network policy that sets or lifts it, a configuration constant,
+ * another plugin answering the same filter, or a database restored from
+ * elsewhere. Remembering what the saved rules were built under lets
+ * keel_defaults_check_random_rules() notice every one of those on the next
+ * request, on each site of a network, without watching any of them.
+ *
+ * Runs on `rewrite_rules_array`, which fires only while rules are generated.
+ * The option is written only when the answer changes.
+ *
+ * @param mixed $rules Generated rewrite rules, returned unchanged.
+ * @return mixed
+ */
+function keel_defaults_note_random_rules( $rules ) {
+	$state = wp_is_random_content_redirect_enabled() ? 'on' : 'off';
+
+	if ( get_option( 'keel_random_rules_state' ) !== $state ) {
+		update_option( 'keel_random_rules_state', $state, true );
+	}
+
+	return $rules;
+}
+
+/**
+ * Rebuild the saved rewrite rules when they disagree with the random setting.
+ *
+ * Saved while the redirects were on and kept after they were turned off, the
+ * rules still match `/random/`; core then ignores the `random` variable they
+ * set and renders the blog home with a 200. Saved while the redirects were off
+ * and kept after they were turned back on, `/random/` is a 404. Deleting the
+ * saved rules is WordPress's own soft flush: the request that parses the URL
+ * rebuilds them, so this request already gets the right answer.
+ *
+ * Runs late on `init`, after every plugin has answered the filter. A site
+ * without saved rules (plain permalinks) has nothing to rebuild, which also
+ * keeps it from deleting an empty option on every request.
+ *
+ * @return void
+ */
+function keel_defaults_check_random_rules() {
+	if ( ! get_option( 'rewrite_rules' ) ) {
+		return;
+	}
+
+	$state = wp_is_random_content_redirect_enabled() ? 'on' : 'off';
+
+	if ( get_option( 'keel_random_rules_state' ) !== $state ) {
+		delete_option( 'rewrite_rules' );
+	}
+}
+
+/**
+ * Find no post for a random redirect scoped to an author.
+ *
+ * With nothing selected, core answers 404 for every author, real or not, so the
+ * response no longer says which author slugs or IDs exist.
+ *
+ * @param \WP_Query $query Query being prepared.
+ * @return void
+ */
+function keel_defaults_block_random_author( $query ) {
+	if ( ! $query instanceof WP_Query || ! $query->is_author() || ! function_exists( 'wp_is_random_content_query' ) ) {
+		return;
+	}
+
+	if ( wp_is_random_content_query( $query ) ) {
+		$query->set( 'post__in', array( 0 ) );
+	}
+}
+
+/**
  * Drop the comment blocks from the editor while comments are disabled.
  *
  * Offering a Comments block on a site with comments off produces a block that

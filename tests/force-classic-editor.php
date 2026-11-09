@@ -12,6 +12,7 @@ $GLOBALS['keel_added_filters'] = array();
 function add_action( ...$args ) {}
 function add_filter( $hook, $cb = null, ...$rest ) { $GLOBALS['keel_added_filters'][] = $hook; }
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }
 function esc_html_e( $s, $d = null ) { echo $s; }

@@ -504,6 +504,31 @@ function keel_defaults_bootstrap() {
 		);
 	}
 
+	if ( keel_defaults_key_supported( 'disable_random_redirects' ) ) {
+		if ( keel_defaults_enabled( 'disable_random_redirects' ) ) {
+			// WordPress 7.2 sends /random/ and ?random to a random post. Returning
+			// false drops the rewrite rules, hides the Permalinks field and makes
+			// core ignore the query variable.
+			keel_defaults_add_policy_filter( 'wp_enable_random_content_redirect', 'keel_defaults_return_false' );
+		}
+
+		// Core builds the /random/ rules once and saves them, so they outlive any
+		// change of answer. Note what they were built under, and rebuild them on
+		// the next request whenever the answer differs — on every site.
+		add_filter( 'rewrite_rules_array', 'keel_defaults_note_random_rules', PHP_INT_MAX );
+		add_action( 'init', 'keel_defaults_check_random_rules', PHP_INT_MAX );
+
+		/*
+		 * /random/author/{slug}/ and ?author=N&random redirect to a post by that
+		 * author when one exists and 404 otherwise — the existence test the
+		 * author archive redirect closes. Core redirects inside WP::main(), before
+		 * template_redirect, so the archive redirect never sees these requests.
+		 */
+		if ( keel_defaults_enabled( 'disable_author_archives' ) ) {
+			add_action( 'pre_get_posts', 'keel_defaults_block_random_author', 100 );
+		}
+	}
+
 	if ( keel_defaults_enabled( 'disable_emojis' ) ) {
 		add_action(
 			'init',

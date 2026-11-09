@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Keel Defaults
  * Plugin URI:        https://github.com/dknauss/keel
- * Description:       45 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
+ * Description:       46 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
  * Version:           0.9.0
  * Requires at least: 6.4
  * Requires PHP:      7.4
@@ -118,6 +118,7 @@ keel_defaults_enqueue_on_screen( 'site-health.php', 'keel_defaults_enqueue_updat
  * activating a plugin.
  */
 register_activation_hook( __FILE__, 'keel_defaults_activate' );
+register_deactivation_hook( __FILE__, 'keel_defaults_deactivate' );
 add_action( 'wp_initialize_site', 'keel_defaults_seed_new_site', 100 );
 // Migrate before the default-priority bootstrap reads any newly added key.
 add_action( 'plugins_loaded', 'keel_defaults_maybe_upgrade', 0 );

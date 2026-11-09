@@ -44,6 +44,7 @@ $GLOBALS['keel_user_query_args'] = array();
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function _n( $single, $plural, $n, $d = null ) { return 1 === (int) $n ? $single : $plural; }
 function esc_html( $s ) { return htmlspecialchars( (string) $s, ENT_QUOTES ); }

@@ -39,6 +39,7 @@ function add_action( ...$a ) {}
 function add_filter( $hook, $cb, $prio = 10, $args = 1 ) {
 	$GLOBALS['wp_filter'][ $hook ][ $prio ][] = $cb; }
 function register_activation_hook( ...$a ) {}
+function register_deactivation_hook( ...$a ) {}
 function __( $s, $d = null ) { return $s; }
 function esc_html( $s ) { return $s; }
 function esc_html__( $s, $d = null ) { return $s; }

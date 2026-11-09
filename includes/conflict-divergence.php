@@ -56,6 +56,7 @@ function keel_defaults_policy_expectations() {
 		'pings_open'                            => $enabled( 'disable_comments' ) ? false : null,
 		'wp_is_application_passwords_available' => $enabled( 'disable_application_passwords' ) ? false : null,
 		'wp_supports_ai'                        => keel_defaults_key_supported( 'disable_ai_connectors' ) && $enabled( 'disable_ai_connectors' ) ? false : null,
+		'wp_enable_random_content_redirect'     => keel_defaults_key_supported( 'disable_random_redirects' ) && $enabled( 'disable_random_redirects' ) ? false : null,
 	);
 
 	/**

@@ -19,6 +19,7 @@ $GLOBALS['wp_filter']          = array();
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
 function register_activation_hook( ...$args ) {}
+function register_deactivation_hook( ...$args ) {}
 function __( $s, $d = null ) { return $s; }
 function _n( $single, $plural, $number, $d = null ) { return 1 === (int) $number ? $single : $plural; }
 function esc_html( $s ) { return $s; }
@@ -304,6 +305,34 @@ $xmlrpc = keel_defaults_competing_plugins( true );
 keel_assert(
 	isset( $xmlrpc['xmlrpc_enabled'] ) && array( 'rival-plugin' ) === $xmlrpc['xmlrpc_enabled'],
 	'A plugin disabling XML-RPC beside Keel is reported.'
+);
+
+$GLOBALS['wp_filter'] = array();
+
+/*
+ * WordPress 7.2 random redirects. The filter returns a bool, so a plugin that
+ * turns /random/ back on beside Keel wins it, and the report must say so.
+ */
+keel_assert( 'authoritative' === $hooks['wp_enable_random_content_redirect'], 'wp_enable_random_content_redirect returns a bool, so one plugin wins it.' );
+
+keel_defaults_registered_policy_hooks( 'wp_enable_random_content_redirect', 'keel_defaults_return_false', 10, 1, 'disable_random_redirects' );
+
+$GLOBALS['wp_filter'] = array(
+	'wp_enable_random_content_redirect' => new Keel_Test_Hook(
+		array(
+			10 => array(
+				array( 'function' => 'keel_defaults_return_false' ),
+				array( 'function' => 'keel_test_rival_xmlrpc' ),
+			),
+		)
+	),
+);
+
+$random = keel_defaults_competing_plugins( true );
+
+keel_assert(
+	isset( $random['wp_enable_random_content_redirect'] ) && array( 'rival-plugin' ) === $random['wp_enable_random_content_redirect'],
+	'A plugin answering the random-redirect filter beside Keel is reported.'
 );
 
 $GLOBALS['wp_filter'] = array();
