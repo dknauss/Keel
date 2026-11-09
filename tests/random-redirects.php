@@ -31,6 +31,10 @@ function delete_option( $key ) {
 function is_multisite() {
 	return false;
 }
+$GLOBALS['keel_random_enabled'] = false;
+function wp_is_random_content_redirect_enabled() {
+	return (bool) $GLOBALS['keel_random_enabled'];
+}
 function wp_is_random_content_query( $query ) {
 	return (bool) $GLOBALS['keel_random_query'];
 }
@@ -104,6 +108,15 @@ $vars              = array(
 	'random' => '',
 );
 keel_assert( keel_defaults_retire_random_rules( $vars ) === $vars, 'Only a whole random= pair counts as a rule match.' );
+
+// Another plugin turned the redirects back on after Keel: the rules are
+// current, so the request is core's and the rules stay.
+$GLOBALS['keel_random_enabled']  = true;
+$GLOBALS['keel_deleted_options'] = array();
+$wp->matched_query               = 'random=';
+keel_assert( keel_defaults_retire_random_rules( array( 'random' => '' ) ) === array( 'random' => '' ), 'A random rule match is left to core while the redirects are effectively on.' );
+keel_assert( array() === $GLOBALS['keel_deleted_options'], 'Effectively-on redirects never delete the rules.' );
+$GLOBALS['keel_random_enabled'] = false;
 
 /*
  * Setting changes regenerate the rules, other saves do not.

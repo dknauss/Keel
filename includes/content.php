@@ -382,7 +382,9 @@ function keel_defaults_redirect_author_archive() {
  *
  * The saved rules are deleted so the next request regenerates them without the
  * random block. That covers changes Keel cannot watch: network policy, a
- * configuration constant, or a site restored from an older database.
+ * configuration constant, or a site restored from an older database. Only
+ * while the redirects are effectively off: when another plugin turns them back
+ * on, the rules are current and the request is core's.
  *
  * @param array<string, mixed> $query_vars Parsed query variables.
  * @return array<string, mixed>
@@ -391,6 +393,15 @@ function keel_defaults_retire_random_rules( $query_vars ) {
 	global $wp;
 
 	if ( ! is_array( $query_vars ) || ! array_key_exists( 'random', $query_vars ) || ! $wp instanceof WP ) {
+		return $query_vars;
+	}
+
+	/*
+	 * Another plugin may answer the filter after Keel and turn the redirects
+	 * back on. Its rules are then current, not stale: core handles the request,
+	 * and deleting them would only force a rebuild on every visit.
+	 */
+	if ( ! function_exists( 'wp_is_random_content_redirect_enabled' ) || wp_is_random_content_redirect_enabled() ) {
 		return $query_vars;
 	}
 
