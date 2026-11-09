@@ -604,7 +604,9 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
 
   - **Preferred**: documentation only, citing OWASP and GDPR Art. 25(2) (personal
     data not public by default).
-  - **Recommended**: Keel default, report-only. An *async* Site Health test with
+  - **Recommended**: Keel default, report-only. *Built 2026-11-09 against
+    tester probes written first by a separate agent; see
+    [the lab record](docs/review/identity-exposure-2026-11-09.md).* An *async* Site Health test with
     one bounded query, a capped list of named accounts (never an address), and a
     transient cleared on `user_register` / `profile_update`. Measure on a 100k-user
     table before shipping. On multisite each site checks its own members.
