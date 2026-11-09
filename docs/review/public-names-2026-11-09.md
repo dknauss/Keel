@@ -113,7 +113,7 @@ browser probes ran from a lab script against the running sites.
 | I2 | implementer | PASS | Every server-side case above also passed on SQLite (single site). |
 | I3 | implementer | PASS | Mutation checks: without the nickname filter P3 fails; matching comments case-blind fails P19; letting site administrators run it on multisite fails P16. |
 
-**Tester probes: 23 PASS (P21 and P22 on the recommended rule), 0 FAIL, 0
+**Tester probes: 23 PASS (P21 and P22 on the rules Dan confirmed), 0 FAIL, 0
 DISPUTED, 1 NOT RUN (P3 on multisite, path absent in core)** on the lab's cells.
 
 Three findings came out of the probes and were fixed before this record:
