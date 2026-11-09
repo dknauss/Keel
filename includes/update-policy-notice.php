@@ -114,8 +114,9 @@ function keel_defaults_update_policy_notice_markup( $settings ) {
 		/* translators: %s: linked text "auto-update setting", pointing to the Plugins screen. */
 		$own_plugin = esc_html__( 'Each plugin uses its own %s.', 'keel-defaults' );
 		/* translators: %s: linked text "auto-update setting", pointing to the Themes screen. */
-		$own_theme  = esc_html__( 'Each theme uses its own %s.', 'keel-defaults' );
-		$text       = 'unset' === $value ? sprintf( 'plugin' === $type ? $own_plugin : $own_theme, $linked ) : $extension_labels[ $type ][ $value ];
+		$own_theme = esc_html__( 'Each theme uses its own %s.', 'keel-defaults' );
+		$text      = 'unset' === $value ? sprintf( 'plugin' === $type ? $own_plugin : $own_theme, $linked ) : $extension_labels[ $type ][ $value ];
+
 		$items[ $type . '_auto_update_policy' ] = array( $label, $text, 'unset' === $value );
 	}
 	$translations                      = keel_defaults_config_locked_value( 'auto_update_translations', keel_defaults_get( 'auto_update_translations' ) );
