@@ -381,7 +381,7 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
-## 0.9.1 public names and random redirects — prepared 2026-11-09
+## 0.9.1 public names and random redirects — released 2026-11-09
 
 - [x] **Prepare 0.9.1** — version metadata, changelog, upgrade notice and `.pot`
   (#346–#364 since 0.9.0; schema 46).
@@ -391,8 +391,14 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   `f8275f4`); #362 is not applicable (AX keeps its own settings copy).
 - [x] **Merge the Public Names fix (#366)** — short comment counts when a cleanup
   batch dies mid-run, and a plural-safe result line. Merged as `0a858c2`.
-- [ ] **Tag and publish 0.9.1** — tag after the release PR merges, dry run, then deploy.
-- [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.1 is the stable tag.
+- [x] **Tag and publish 0.9.1** — tagged on `8974b9d` (after #367's pre-tag copy
+  edits), dry run passed (run 42675767086), GitHub release published and deployed
+  to WordPress.org on 2026-11-09 (run 42680997797). The tag's own Release run built
+  the ZIP but did not start its deploy job, so the deploy was dispatched, as for 0.9.0.
+- [x] **Verify the public 0.9.1 ZIP** — the WordPress.org API reports 0.9.1; the
+  public ZIP has the same 68 entries as the GitHub ZIP (SHA256 `4ab4d7c4…625f`) with
+  identical file contents.
+- [ ] **Re-import en_CA** on translate.wordpress.org now that 0.9.1 is the stable tag.
 
 ## 0.9.0 update operations and support — released 2026-10-27
 
