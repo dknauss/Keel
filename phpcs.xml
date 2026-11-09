@@ -16,11 +16,13 @@
 	<arg name="parallel" value="8" />
 	<rule ref="WordPress" />
 	<!-- These standalone scripts run in separate PHP processes and each needs
-	     its own core upgrader skin stub. Cross-file duplicate detection depends
+	     its own stubs (core upgrader skin, WP_Hook). Cross-file duplicate detection depends
 	     on PHPCS worker assignment and does not apply between these fixtures. -->
 	<rule ref="Generic.Classes.DuplicateClassName">
 		<exclude-pattern>tests/backport-install.php</exclude-pattern>
 		<exclude-pattern>tests/backport-status.php</exclude-pattern>
+		<exclude-pattern>tests/abilities-authorization.php</exclude-pattern>
+		<exclude-pattern>tests/registration-audit.php</exclude-pattern>
 	</rule>
 	<!--
 		tests/ are standalone CLI scripts, not WordPress runtime code. They stub
