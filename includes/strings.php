@@ -66,7 +66,7 @@ function keel_defaults_strings() {
 		'protect_public_names'            => array(
 			'label'     => __( 'Public Names', 'keel-defaults' ),
 			'statement' => __( 'Keep logins and email addresses out of public names', 'keel-defaults' ),
-			'help'      => __( 'Off by default. When an account is created or updated, a display name, nickname or author slug that repeats the login, the email address or its local part is replaced: by the nickname, then first and last name, then a neutral handle; slugs follow the new name or become a random token. Names people chose that are already safe are kept, and logins, email addresses and passwords never change. Existing accounts change only when an administrator runs the one-time cleanup under Users → Public Names. On multisite, user accounts are shared, so network policy or the main site’s setting decides for every site.', 'keel-defaults' ),
+			'help'      => __( 'Off by default. When an account is saved, a display name, nickname or author slug that repeats the login or email address is replaced with a safe one. Names that are already safe are kept, and logins, email addresses and passwords never change. To fix existing accounts, run the cleanup under Users → Public Names. On multisite networks, the same user account can be active on multiple sites, so network policy or the main site’s setting decides whether this applies on every site.', 'keel-defaults' ),
 		),
 		'limit_unfiltered_html_to_admins' => array(
 			'label'     => __( 'Unfiltered HTML', 'keel-defaults' ),
