@@ -43,6 +43,8 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  *   login breach re-check: when a password last got a definite verdict, and when
  *   it was found in a breach. Timestamps only. Network-wide, like the above.
  * - `keel_shortcode_residue` — bounded, recent post IDs and missing tag names.
+ * - `keel_identity_exposure` — counts by role and up to 20 user IDs with safe
+ *   labels, from the email-in-public-name Site Health check. Never an address.
  * - `keel_policy_divergence` — which governed settings were last seen not
  *   producing the value they ask for. An observation about this site, and
  *   meaningless once the plugin making it is gone.
@@ -72,6 +74,7 @@ function keel_defaults_uninstall_site() {
 	delete_transient( 'keel_shortcode_residue' );
 	delete_transient( 'keel_autoload_report' );
 	delete_transient( 'keel_cron_report' );
+	delete_transient( 'keel_identity_exposure' );
 	wp_clear_scheduled_hook( 'keel_defaults_cron_collect' );
 	delete_option( 'keel_autoload_scan_lock' );
 	wp_clear_scheduled_hook( 'keel_defaults_autoload_collect' );
@@ -246,6 +249,7 @@ if ( is_multisite() ) {
 	 * it would outlive the plugin as an orphan.
 	 */
 	delete_site_option( 'keel_network_settings' );
+	delete_site_option( 'keel_identity_exposure_gen' );
 
 	/*
 	 * Options are per site, so every site needs clearing — including ones this
