@@ -4,8 +4,7 @@
 > and PHP 8.3, single site and multisite. P3 PASSES on single site and is NOT RUN
 > on multisite, because core's multisite signup refuses email-shaped usernames
 > before Keel is involved. P21 and P22 were marked **spec gap** by the tester; they
-> PASS against the rule recommended to Dan in this record, which Dan has not yet
-> confirmed. The server-side probes also PASS on SQLite. The CI floor rows run the
+> PASS against the rules Dan confirmed on 2026-11-09. The server-side probes also PASS on SQLite. The CI floor rows run the
 > server-side probes only. See the coverage matrix.
 
 Codex (OpenAI GPT-6) wrote the 24 probes in
@@ -106,7 +105,7 @@ browser probes ran from a lab script against the running sites.
 | P18 | tester | PASS | The checkbox renders unchecked; a run without it fixes the accounts and leaves every comment's stored name unchanged. |
 | P19 | tester | PASS | With the box ticked: only the same account's comment with the exact old name changes; the relabelled, case-only, guest and other-account comments and every other column stay identical; with the cache warmed, a fresh read shows the new name. |
 | P20 | tester | PASS | Canary addresses in login, email, name, nickname and a comment: none in about 590 responses (settings, screen, start, continue, done, no-op rerun, every denial, resume) in plain, decoded, entity, JSON-escaped or URL-encoded form, nor in headers, redirect targets or the PHP log. Core's own `users/me?context=edit` request was excluded as not feature output. |
-| P21 | tester | PASS (on the recommended rule) | Spec gap. Built so the main site (or network policy) decides for every site. Main site on, B off: a save on B is repaired. Main off, B's own value on: a save on B follows core. B shows the lock note explaining the shared-account effect. Toggling any site's setting writes no user rows. Awaits Dan's confirmation. |
+| P21 | tester | PASS (rule confirmed by Dan) | Spec gap. Built so the main site (or network policy) decides for every site. Main site on, B off: a save on B is repaired. Main off, B's own value on: a save on B follows core. B shows the lock note explaining the shared-account effect. Toggling any site's setting writes no user rows. Dan confirmed this rule on 2026-11-09. |
 | P22 | tester | PASS (rule confirmed by Dan) | Spec gap. Super Admin targets site A, comments ticked: the shared member is repaired and shows the new name on both sites; the B-only exposed member is untouched; no comment on B changes. The site selector and the "running on" note name A before submission. Dan confirmed this rule on 2026-11-09. |
 | P23 | tester | PASS (MariaDB) | 100,000 users, 10,053 eligible including the last 60. 200 requests, longest 1,282 ms, median ~729 ms, peak 61.3 MB; 500 rows fetched per batch. Killed after 20 writes: the next request resolved the pending write; final counts exactly 10,053 changed of 100,001 scanned. Census: 0 unsafe names, 0 unsafe nicknames, 0 duplicate slugs, 0 safe rows changed. |
 | P24 | tester | PASS | Rerun with the same choice: 0 identity and 0 comment changes. Login, email and password hash identical; an email login and a handle login with an email contact both sign in with their old password. |
@@ -142,9 +141,9 @@ Three findings came out of the probes and were fixed before this record:
 | 100k users | PASS on MariaDB only | not run on SQLite or MySQL 8 |
 | SQLite, multisite | NOT RUN | not attempted |
 
-## Decisions Dan still owns
+## Decisions
 
-- **P21.** The recommended rule: on multisite, network policy wins, otherwise the
+- **P21. Decided by Dan, 2026-11-09:** on multisite, network policy wins, otherwise the
   main site's setting decides for every site. The tester's text allowed a per-site
   rule ("a save in the enabled site's context may repair the shared identity").
   Per-site means one shared account can be repaired from one site and then
@@ -152,8 +151,7 @@ Three findings came out of the probes and were fixed before this record:
 - **P22. Decided by Dan, 2026-11-09:** a site-targeted run repairs that site's
   members only and rewrites that site's comments only.
 
-If Dan picks differently, the code and the P21/P22 integration cases change
-before merge.
+Both rules are now decided; the code was built on them, so nothing changed.
 
 ## Not checked
 
