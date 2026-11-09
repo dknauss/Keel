@@ -494,13 +494,49 @@ function keel_defaults_identity_exposure_health() {
 	$html .= keel_defaults_identity_coverage_copy();
 
 	$result['description'] = $html;
-	$result['actions']     = sprintf(
-		'<p><a href="%s">%s</a></p><p>%s</p>',
-		esc_url( admin_url( 'users.php' ) ),
-		esc_html__( 'Review users', 'keel-defaults' ),
-		esc_html__( 'On each profile, set a Nickname and choose it under "Display name publicly as". The URL slug is not editable on the profile screen; change it with WP-CLI (wp user update) or ask a developer. Comments already posted keep the old name.', 'keel-defaults' )
-	);
+	$result['actions']     = keel_defaults_identity_actions();
 	return $result;
+}
+
+/**
+ * What to do about exposed names: the Public Names setting for new and updated
+ * accounts, its one-time cleanup for existing ones, and the by-hand route.
+ *
+ * Links appear only for people who can use them. On multisite the cleanup
+ * lives in Network Admin, and the setting is decided by network policy or the
+ * main site, so a subsite administrator gets the steps without the links.
+ *
+ * @return string HTML.
+ */
+function keel_defaults_identity_actions() {
+	$html = sprintf(
+		'<p><a href="%s">%s</a></p>',
+		esc_url( admin_url( 'users.php' ) ),
+		esc_html__( 'Review users', 'keel-defaults' )
+	);
+
+	if ( function_exists( 'keel_defaults_public_names_enforced' ) && keel_defaults_public_names_enforced() ) {
+		$html .= '<p>' . esc_html__( 'Public Names is on, so accounts get safe public names and slugs whenever they are created or updated. Accounts that have not been saved since still show the old ones.', 'keel-defaults' ) . '</p>';
+	} else {
+		$setting = esc_html__( 'Turn on Public Names under Settings → Site Defaults to give accounts safe public names and slugs whenever they are created or updated.', 'keel-defaults' );
+		if ( ( ! is_multisite() || is_main_site() ) && current_user_can( 'manage_options' ) ) {
+			$setting = sprintf( '<a href="%s">%s</a>', esc_url( admin_url( 'options-general.php?page=keel' ) ), $setting );
+		}
+		$html .= '<p>' . $setting . '</p>';
+	}
+
+	$cleanup = is_multisite()
+		? esc_html__( 'To fix existing accounts in one pass, a Super Admin can run the one-time cleanup under Network Admin → Users → Public Names. It can also update the names on past comments.', 'keel-defaults' )
+		: esc_html__( 'To fix existing accounts in one pass, run the one-time cleanup under Users → Public Names. It can also update the names on past comments.', 'keel-defaults' );
+	if ( function_exists( 'keel_defaults_public_names_can_run' ) && keel_defaults_public_names_can_run() ) {
+		$url     = is_multisite() ? network_admin_url( 'users.php?page=keel-public-names' ) : admin_url( 'users.php?page=keel-public-names' );
+		$cleanup = sprintf( '<a href="%s">%s</a>', esc_url( $url ), $cleanup );
+	}
+	$html .= '<p>' . $cleanup . '</p>';
+
+	$html .= '<p>' . esc_html__( 'To fix one account by hand, set a Nickname on its profile and choose it under "Display name publicly as". The profile screen cannot change the slug; the cleanup can. Comments already posted keep the old name unless the cleanup updates them.', 'keel-defaults' ) . '</p>';
+
+	return $html;
 }
 
 /**

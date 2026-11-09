@@ -1295,12 +1295,28 @@ msgstr[1] ""
 msgid "Partial count: this check stops after %d candidate accounts, so the real totals may be higher."
 msgstr ""
 
-#: includes/identity-exposure.php:500
+#: includes/identity-exposure.php:515
 msgid "Review users"
 msgstr ""
 
-#: includes/identity-exposure.php:501
-msgid "On each profile, set a Nickname and choose it under \"Display name publicly as\". The URL slug is not editable on the profile screen; change it with WP-CLI (wp user update) or ask a developer. Comments already posted keep the old name."
+#: includes/identity-exposure.php:519
+msgid "Public Names is on, so accounts get safe public names and slugs whenever they are created or updated. Accounts that have not been saved since still show the old ones."
+msgstr ""
+
+#: includes/identity-exposure.php:521
+msgid "Turn on Public Names under Settings → Site Defaults to give accounts safe public names and slugs whenever they are created or updated."
+msgstr ""
+
+#: includes/identity-exposure.php:529
+msgid "To fix existing accounts in one pass, a Super Admin can run the one-time cleanup under Network Admin → Users → Public Names. It can also update the names on past comments."
+msgstr ""
+
+#: includes/identity-exposure.php:530
+msgid "To fix existing accounts in one pass, run the one-time cleanup under Users → Public Names. It can also update the names on past comments."
+msgstr ""
+
+#: includes/identity-exposure.php:537
+msgid "To fix one account by hand, set a Nickname on its profile and choose it under \"Display name publicly as\". The profile screen cannot change the slug; the cleanup can. Comments already posted keep the old name unless the cleanup updates them."
 msgstr ""
 
 #: includes/identity-exposure.php:516
