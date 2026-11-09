@@ -104,6 +104,10 @@ function keel_defaults_network_lock( $key ) {
 		return __( 'Shared plugin and theme updates use network policy or the main site’s setting. Manage this policy in Network Admin or on the main site.', 'keel-defaults' );
 	}
 
+	if ( 'protect_public_names' === $key && is_multisite() && ! is_main_site() && ! keel_defaults_network_manages( $key ) ) {
+		return __( 'User accounts are shared by every site on the network, so network policy or the main site’s setting decides this. Manage it in Network Admin or on the main site.', 'keel-defaults' );
+	}
+
 	if ( ! keel_defaults_network_manages( $key ) ) {
 		return null;
 	}

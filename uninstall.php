@@ -45,6 +45,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  * - `keel_shortcode_residue` — bounded, recent post IDs and missing tag names.
  * - `keel_identity_exposure` — counts by role and up to 20 user IDs with safe
  *   labels, from the email-in-public-name Site Health check. Never an address.
+ * - `keel_identity_exposure_gen` — the marker that tells cached reports they
+ *   are stale. A site option on multisite, a plain option on a single site.
+ * - `keel_public_names_run` — progress of the Public Names cleanup: target site,
+ *   whether comments were included, the last user ID reached and three counts.
+ *   Never a name or an address. A site option on multisite.
  * - `keel_policy_divergence` — which governed settings were last seen not
  *   producing the value they ask for. An observation about this site, and
  *   meaningless once the plugin making it is gone.
@@ -75,6 +80,9 @@ function keel_defaults_uninstall_site() {
 	delete_transient( 'keel_autoload_report' );
 	delete_transient( 'keel_cron_report' );
 	delete_transient( 'keel_identity_exposure' );
+	// Site options on multisite; plain options on a single site, which has no network.
+	delete_option( 'keel_identity_exposure_gen' );
+	delete_option( 'keel_public_names_run' );
 	wp_clear_scheduled_hook( 'keel_defaults_cron_collect' );
 	delete_option( 'keel_autoload_scan_lock' );
 	wp_clear_scheduled_hook( 'keel_defaults_autoload_collect' );
@@ -250,6 +258,7 @@ if ( is_multisite() ) {
 	 */
 	delete_site_option( 'keel_network_settings' );
 	delete_site_option( 'keel_identity_exposure_gen' );
+	delete_site_option( 'keel_public_names_run' );
 
 	/*
 	 * Options are per site, so every site needs clearing — including ones this

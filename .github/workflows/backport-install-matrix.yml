@@ -194,6 +194,9 @@ jobs:
       - name: Email-in-public-name Site Health contracts (#355)
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/identity-exposure.php" --path=/tmp/keel-wp --allow-root
 
+      - name: Public Names enforcement and cleanup contracts (#355)
+        run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/public-names.php" --path=/tmp/keel-wp --allow-root
+
       - name: Conflict observer healthy-path cost
         run: wp eval-file "$GITHUB_WORKSPACE/tests/integration/conflict-hot-path.php" --path=/tmp/keel-wp --allow-root
 
