@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T14:53:36+00:00\n"
+"POT-Creation-Date: 2026-11-09T16:17:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -28,7 +28,7 @@ msgstr ""
 
 #. Description of the plugin
 #: keel.php
-msgid "45 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
+msgid "46 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix."
 msgstr ""
 
 #. Author of the plugin
