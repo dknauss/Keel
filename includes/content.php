@@ -370,67 +370,56 @@ function keel_defaults_redirect_author_archive() {
 }
 
 /**
- * Answer 404 for a request that matched a stale random-redirect rewrite rule.
+ * Record whether the rewrite rules being generated include the random block.
  *
- * Core builds the `/random/` rules when rewrite rules are flushed and saves them.
- * Turning the redirects off afterwards leaves those rules in place, and core then
- * ignores the `random` query variable they set: `/random/` renders the blog home
- * and `/random/category/news/` the category archive, each with a 200 at a URL that
- * should not exist. Only a rule-matched request carries `random=` in
- * `$wp->matched_query`; a visitor's own `?random` on another URL does not, and is
- * left for core to ignore.
+ * Core builds the `/random/` rules only when rewrite rules are generated, and
+ * saves them. Whether they belong there can change afterwards: this site's
+ * setting, a network policy that sets or lifts it, a configuration constant,
+ * another plugin answering the same filter, or a database restored from
+ * elsewhere. Remembering what the saved rules were built under lets
+ * keel_defaults_check_random_rules() notice every one of those on the next
+ * request, on each site of a network, without watching any of them.
  *
- * The saved rules are deleted so the next request regenerates them without the
- * random block. That covers changes Keel cannot watch: network policy, a
- * configuration constant, or a site restored from an older database. Only
- * while the redirects are effectively off: when another plugin turns them back
- * on, the rules are current and the request is core's.
+ * Runs on `rewrite_rules_array`, which fires only while rules are generated.
+ * The option is written only when the answer changes.
  *
- * @param array<string, mixed> $query_vars Parsed query variables.
- * @return array<string, mixed>
+ * @param mixed $rules Generated rewrite rules, returned unchanged.
+ * @return mixed
  */
-function keel_defaults_retire_random_rules( $query_vars ) {
-	global $wp;
+function keel_defaults_note_random_rules( $rules ) {
+	$state = wp_is_random_content_redirect_enabled() ? 'on' : 'off';
 
-	if ( ! is_array( $query_vars ) || ! array_key_exists( 'random', $query_vars ) || ! $wp instanceof WP ) {
-		return $query_vars;
+	if ( get_option( 'keel_random_rules_state' ) !== $state ) {
+		update_option( 'keel_random_rules_state', $state, true );
 	}
 
-	/*
-	 * Another plugin may answer the filter after Keel and turn the redirects
-	 * back on. Its rules are then current, not stale: core handles the request,
-	 * and deleting them would only force a rebuild on every visit.
-	 */
-	if ( ! function_exists( 'wp_is_random_content_redirect_enabled' ) || wp_is_random_content_redirect_enabled() ) {
-		return $query_vars;
-	}
-
-	if ( ! is_string( $wp->matched_query ) || ! preg_match( '/(?:^|&)random=/', $wp->matched_query ) ) {
-		return $query_vars;
-	}
-
-	delete_option( 'rewrite_rules' );
-
-	return array( 'error' => '404' );
+	return $rules;
 }
 
 /**
- * Regenerate rewrite rules when the random-redirect answer changes.
+ * Rebuild the saved rewrite rules when they disagree with the random setting.
  *
- * Deleting the saved rules is WordPress's own soft flush: the next request that
- * needs them rebuilds them, by which time the new setting decides whether the
- * `/random/` block is included.
+ * Saved while the redirects were on and kept after they were turned off, the
+ * rules still match `/random/`; core then ignores the `random` variable they
+ * set and renders the blog home with a 200. Saved while the redirects were off
+ * and kept after they were turned back on, `/random/` is a 404. Deleting the
+ * saved rules is WordPress's own soft flush: the request that parses the URL
+ * rebuilds them, so this request already gets the right answer.
  *
- * @param mixed $old_value Previous stored settings.
- * @param mixed $value     New stored settings.
+ * Runs late on `init`, after every plugin has answered the filter. A site
+ * without saved rules (plain permalinks) has nothing to rebuild, which also
+ * keeps it from deleting an empty option on every request.
+ *
  * @return void
  */
-function keel_defaults_random_setting_changed( $old_value, $value ) {
-	$network = is_multisite() ? keel_defaults_network_settings() : array();
-	$before  = keel_defaults_resolve( 'disable_random_redirects', is_array( $old_value ) ? $old_value : array(), $network );
-	$after   = keel_defaults_resolve( 'disable_random_redirects', is_array( $value ) ? $value : array(), $network );
+function keel_defaults_check_random_rules() {
+	if ( ! get_option( 'rewrite_rules' ) ) {
+		return;
+	}
 
-	if ( $before !== $after ) {
+	$state = wp_is_random_content_redirect_enabled() ? 'on' : 'off';
+
+	if ( get_option( 'keel_random_rules_state' ) !== $state ) {
 		delete_option( 'rewrite_rules' );
 	}
 }

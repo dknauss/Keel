@@ -526,12 +526,16 @@ and makes core ignore the `random` query variable:
 add_filter( 'wp_enable_random_content_redirect', '__return_false' );
 ```
 
-The rules are generated when rewrite rules are flushed and then saved, so the filter alone
-leaves rules saved while the redirects were on. Core then ignores the `random` variable those
-rules set, and `/random/` renders the blog home with a 200. Keel deletes the saved rules when the
-site setting changes, so the next request rebuilds them. Any request that still matches an old
-random rule gets a 404, and Keel deletes the saved rules again. That covers changes Keel cannot
-watch, such as network policy or a restored database.
+The rules are built when rewrite rules are generated and then saved, so they outlive any later
+change of answer. Rules kept after the redirects are turned off still match `/random/`, and core
+ignores the `random` variable they set, so `/random/` renders the blog home with a 200. Rules kept
+after they are turned back on leave `/random/` a 404. Keel notes, in `keel_random_rules_state`,
+whether the saved rules were built with the redirects on, and checks that against the effective
+answer late on `init`. When they disagree it deletes the saved rules, so the same request rebuilds
+them. That covers every way the answer can change, including this site's setting, network policy,
+a constant, another plugin, or a restored database, on each site of a network. A site without saved
+rules (plain permalinks) is skipped. Deactivating Keel leaves the rules as they are, so `/random/`
+stays off until they are next rebuilt (Settings → Permalinks → Save).
 
 > **Author archives off, random redirects on:** while `disable_author_archives` is on, Keel
 > makes a random redirect scoped to an author find nothing, so core answers 404 for real and

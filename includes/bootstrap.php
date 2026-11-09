@@ -510,14 +510,13 @@ function keel_defaults_bootstrap() {
 			// false drops the rewrite rules, hides the Permalinks field and makes
 			// core ignore the query variable.
 			keel_defaults_add_policy_filter( 'wp_enable_random_content_redirect', 'keel_defaults_return_false' );
-
-			// Rules saved while the redirects were on outlive the switch.
-			add_filter( 'request', 'keel_defaults_retire_random_rules' );
 		}
 
-		// The rules are generated once and saved, so a change of answer must
-		// regenerate them; see keel_defaults_random_setting_changed().
-		add_action( 'update_option_' . KEEL_DEFAULTS_OPTION, 'keel_defaults_random_setting_changed', 10, 2 );
+		// Core builds the /random/ rules once and saves them, so they outlive any
+		// change of answer. Note what they were built under, and rebuild them on
+		// the next request whenever the answer differs — on every site.
+		add_filter( 'rewrite_rules_array', 'keel_defaults_note_random_rules', PHP_INT_MAX );
+		add_action( 'init', 'keel_defaults_check_random_rules', PHP_INT_MAX );
 
 		/*
 		 * /random/author/{slug}/ and ?author=N&random redirect to a post by that

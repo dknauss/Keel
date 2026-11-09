@@ -1,7 +1,7 @@
 <?php
 /**
- * WordPress 7.2 random-redirect tests: stale rules, setting changes and the
- * author guard.
+ * WordPress 7.2 random-redirect tests: keeping the saved rewrite rules in step
+ * with the effective answer, and the author guard.
  *
  * @package keel
  */
@@ -9,7 +9,9 @@
 $GLOBALS['keel_filters']         = array();
 $GLOBALS['keel_options']         = array();
 $GLOBALS['keel_deleted_options'] = array();
+$GLOBALS['keel_updated_options'] = array();
 $GLOBALS['keel_random_query']    = true;
+$GLOBALS['keel_random_enabled']  = false;
 
 function add_action( ...$args ) {}
 function add_filter( ...$args ) {}
@@ -24,22 +26,24 @@ function apply_filters( $hook, $value ) {
 function get_option( $key, $default = false ) {
 	return array_key_exists( $key, $GLOBALS['keel_options'] ) ? $GLOBALS['keel_options'][ $key ] : $default;
 }
+function update_option( $key, $value, $autoload = null ) {
+	$GLOBALS['keel_options'][ $key ]   = $value;
+	$GLOBALS['keel_updated_options'][] = $key;
+	return true;
+}
 function delete_option( $key ) {
+	unset( $GLOBALS['keel_options'][ $key ] );
 	$GLOBALS['keel_deleted_options'][] = $key;
 	return true;
 }
 function is_multisite() {
 	return false;
 }
-$GLOBALS['keel_random_enabled'] = false;
 function wp_is_random_content_redirect_enabled() {
 	return (bool) $GLOBALS['keel_random_enabled'];
 }
 function wp_is_random_content_query( $query ) {
 	return (bool) $GLOBALS['keel_random_query'];
-}
-class WP {
-	public $matched_query = '';
 }
 class WP_Query {
 	public $author = true;
@@ -64,77 +68,74 @@ function keel_assert( $cond, $msg ) {
 	}
 }
 
+function keel_reset_options( array $options ) {
+	$GLOBALS['keel_options']         = $options;
+	$GLOBALS['keel_deleted_options'] = array();
+	$GLOBALS['keel_updated_options'] = array();
+}
+
+$rules = array( '([^/]+)/?$' => 'index.php?name=$matches[1]' );
+
 /*
- * Stale rules.
- *
- * Rules saved while the redirects were on still match /random/ after the
- * switch, and core ignores the random variable they set, so the URL renders the
- * blog home with a 200. A rule-matched request is a 404 and the saved rules go.
+ * Noting what the rules were built under. The filter's return value is the
+ * rules, untouched; the option is written only when the answer changes.
  */
-$wp                = new WP();
-$wp->matched_query = 'random=';
-keel_assert( array( 'error' => '404' ) === keel_defaults_retire_random_rules( array( 'random' => '' ) ), 'A stale /random/ rule match is a 404.' );
-keel_assert( array( 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'A stale rule match deletes the saved rewrite rules.' );
+keel_reset_options( array() );
+keel_assert( keel_defaults_note_random_rules( $rules ) === $rules, 'Noting the state leaves the rules unchanged.' );
+keel_assert( 'off' === get_option( 'keel_random_rules_state' ), 'Rules built with the redirects off are noted as off.' );
 
-$GLOBALS['keel_deleted_options'] = array();
-$wp->matched_query               = 'category_name=news&random=';
-keel_assert(
-	array( 'error' => '404' ) === keel_defaults_retire_random_rules(
-		array(
-			'category_name' => 'news',
-			'random'        => '',
-		)
-	),
-	'A stale /random/category/x/ match is a 404, not the category archive.'
-);
+keel_reset_options( array( 'keel_random_rules_state' => 'off' ) );
+keel_defaults_note_random_rules( $rules );
+keel_assert( array() === $GLOBALS['keel_updated_options'], 'An unchanged state is not written again.' );
 
-// A visitor's own ?random on an ordinary URL is not a rule match; core ignores it.
-$GLOBALS['keel_deleted_options'] = array();
-$wp->matched_query               = 'category_name=news';
-$vars                            = array(
-	'category_name' => 'news',
-	'random'        => '',
-);
-keel_assert( keel_defaults_retire_random_rules( $vars ) === $vars, 'A query-string ?random is left for core to ignore.' );
-keel_assert( array() === $GLOBALS['keel_deleted_options'], 'A query-string ?random does not delete the rules.' );
+$GLOBALS['keel_random_enabled'] = true;
+keel_defaults_note_random_rules( $rules );
+keel_assert( 'on' === get_option( 'keel_random_rules_state' ), 'Rules built with the redirects on are noted as on.' );
 
-// A post or term whose slug merely contains "random" is not the random variable.
-$wp->matched_query = 'name=not-random=';
-$vars              = array( 'name' => 'not-random' );
-keel_assert( keel_defaults_retire_random_rules( $vars ) === $vars, 'Requests without the random variable pass through.' );
-$wp->matched_query = 'name=xrandom=';
-$vars              = array(
-	'name'   => 'xrandom',
-	'random' => '',
-);
-keel_assert( keel_defaults_retire_random_rules( $vars ) === $vars, 'Only a whole random= pair counts as a rule match.' );
-
-// Another plugin turned the redirects back on after Keel: the rules are
-// current, so the request is core's and the rules stay.
-$GLOBALS['keel_random_enabled']  = true;
-$GLOBALS['keel_deleted_options'] = array();
-$wp->matched_query               = 'random=';
-keel_assert( keel_defaults_retire_random_rules( array( 'random' => '' ) ) === array( 'random' => '' ), 'A random rule match is left to core while the redirects are effectively on.' );
-keel_assert( array() === $GLOBALS['keel_deleted_options'], 'Effectively-on redirects never delete the rules.' );
+/*
+ * Checking on each request. Saved rules that disagree with the effective
+ * answer are deleted, whichever direction it changed and whoever changed it:
+ * this site's setting, network policy, a constant or another plugin.
+ */
 $GLOBALS['keel_random_enabled'] = false;
+keel_reset_options(
+	array(
+		'rewrite_rules'           => $rules,
+		'keel_random_rules_state' => 'on',
+	)
+);
+keel_defaults_check_random_rules();
+keel_assert( array( 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'Rules built with the redirects on are rebuilt once they are off, so /random/ is not the blog home with a 200.' );
 
-/*
- * Setting changes regenerate the rules, other saves do not.
- */
-$GLOBALS['keel_deleted_options'] = array();
-keel_defaults_random_setting_changed( array( 'disable_random_redirects' => 'yes' ), array( 'disable_random_redirects' => 'no' ) );
-keel_assert( array( 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'Turning the setting off deletes the saved rules.' );
+$GLOBALS['keel_random_enabled'] = true;
+keel_reset_options(
+	array(
+		'rewrite_rules'           => $rules,
+		'keel_random_rules_state' => 'off',
+	)
+);
+keel_defaults_check_random_rules();
+keel_assert( array( 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'Rules built with the redirects off are rebuilt once a network policy or another plugin turns them on.' );
 
-$GLOBALS['keel_deleted_options'] = array();
-keel_defaults_random_setting_changed( array(), array( 'disable_random_redirects' => 'no' ) );
-keel_assert( array( 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'Leaving the default for "no" deletes the saved rules.' );
+keel_reset_options(
+	array(
+		'rewrite_rules'           => $rules,
+		'keel_random_rules_state' => 'on',
+	)
+);
+keel_defaults_check_random_rules();
+keel_assert( array() === $GLOBALS['keel_deleted_options'], 'Rules that match the answer are left alone.' );
 
-$GLOBALS['keel_deleted_options'] = array();
-keel_defaults_random_setting_changed( array( 'disable_comments' => 'yes' ), array( 'disable_comments' => 'no' ) );
-keel_assert( array() === $GLOBALS['keel_deleted_options'], 'Saving an unrelated setting leaves the rules alone.' );
+// Saved by an earlier Keel, or before Keel was active: rebuilt once, then noted.
+keel_reset_options( array( 'rewrite_rules' => $rules ) );
+keel_defaults_check_random_rules();
+keel_assert( array( 'rewrite_rules' ) === $GLOBALS['keel_deleted_options'], 'Rules with no noted state are rebuilt once.' );
 
-keel_defaults_random_setting_changed( array(), array( 'disable_random_redirects' => 'yes' ) );
-keel_assert( array() === $GLOBALS['keel_deleted_options'], 'Storing the default value is not a change.' );
+// Plain permalinks save no rules: nothing to rebuild, and no write per request.
+$GLOBALS['keel_random_enabled'] = false;
+keel_reset_options( array( 'keel_random_rules_state' => 'on' ) );
+keel_defaults_check_random_rules();
+keel_assert( array() === $GLOBALS['keel_deleted_options'], 'A site without saved rules deletes nothing.' );
 
 /*
  * The author guard: a random redirect scoped to an author finds nothing, so
