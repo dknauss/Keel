@@ -388,7 +388,7 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 - [ ] **Read the changed Help tab and setting copy** — the maintainer's own pass
   before tagging.
 - [ ] **Clear the counterpart sweep** — #360 and #361 wait on the AX Public Names
-  port (AX #26); #362 is pending until AX adopts one-sentence descriptions or the
+  port in AX; #362 is pending until AX adopts one-sentence descriptions or the
   line says it is deferred.
 - [ ] **Tag and publish 0.9.1** — tag after the release PR merges, dry run, then deploy.
 - [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.1 is the stable tag.
