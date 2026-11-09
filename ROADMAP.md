@@ -143,7 +143,7 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   permission-denial responses to 403. The lab now signs in through `wp-login.php`
   instead of Studio auto-login and runs on every pull request in the
   `HTTP authorization lab` workflow.
-  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 45
+  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 46
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation. The

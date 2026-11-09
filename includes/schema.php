@@ -190,6 +190,15 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'content',
 		),
+		'disable_random_redirects'        => array(
+			'default'  => 'yes',
+			'type'     => 'toggle',
+			'group'    => 'content',
+			// Only WordPress 7.2 and later has /random/ redirects to turn off.
+			// Named as the core function, like disable_ai_connectors; see
+			// keel_defaults_key_supported().
+			'requires' => 'wp_is_random_content_redirect_enabled',
+		),
 		'disable_emojis'                  => array(
 			'default' => 'yes',
 			'type'    => 'toggle',

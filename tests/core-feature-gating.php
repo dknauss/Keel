@@ -171,6 +171,11 @@ keel_assert(
 	'The dependency named is wp_supports_ai — the gate the setting actually filters.'
 );
 
+keel_assert(
+	isset( $schema['disable_random_redirects']['requires'] ) && 'wp_is_random_content_redirect_enabled' === $schema['disable_random_redirects']['requires'],
+	'disable_random_redirects depends on wp_is_random_content_redirect_enabled — the function behind the filter it returns false from.'
+);
+
 // --- the key is still in the map either way ---
 
 /*
@@ -185,7 +190,7 @@ keel_assert(
 );
 
 keel_assert(
-	45 === count( $schema ),
+	46 === count( $schema ),
 	"[{$state}] The schema is the same size on either core (" . count( $schema ) . ')."'
 );
 
@@ -213,7 +218,9 @@ if ( function_exists( 'keel_defaults_key_supported' ) ) {
 		}
 	}
 
-	$expected = $has_ai ? array() : array( 'disable_ai_connectors' );
+	// The harness never defines wp_is_random_content_redirect_enabled(), so the
+	// WordPress 7.2 random-redirect setting is gated in both states.
+	$expected = $has_ai ? array( 'disable_random_redirects' ) : array( 'disable_ai_connectors', 'disable_random_redirects' );
 
 	keel_assert(
 		$expected === $unsupported,
