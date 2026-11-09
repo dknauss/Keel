@@ -26,7 +26,7 @@ Keel explains each setting under **Settings → Site Defaults**, with a separate
 
 Keel's settings are intended to:
 
-- **Reduce accidental exposure:** anonymous user discovery, author archives, comments, pingbacks, attachment pages, raw HTML, security headers, AI connectors, and more.
+- **Reduce accidental exposure:** anonymous user discovery, author archives, comments, pingbacks, attachment pages, WordPress 7.2's random post redirects, raw HTML, security headers, AI connectors, and more.
 - **Make routine maintenance safer:** conservative core update settings, visible update blockers, email-delivery checks, revision retention, and upload filename normalization.
 - **Protect non-production sites:** outgoing mail is suppressed outside production by default, preventing a staging or local copy from sending to real recipients.
 - **Make operations legible:** Site Health lists the active state of every default, flags attributable policy overlaps with other plugins, checks that Keel's own protections are still registered, and lists plugins that override Abilities API permissions.
