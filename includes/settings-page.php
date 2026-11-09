@@ -228,7 +228,7 @@ function keel_defaults_add_help_tab() {
 	$screen->add_help_tab(
 		array(
 			'id'      => 'keel-overlaps',
-			'title'   => __( 'Overlapping Plugins', 'keel-defaults' ),
+			'title'   => __( 'Setting Conflicts', 'keel-defaults' ),
 			'content' =>
 				'<p>' . esc_html__( 'Many of Keel’s defaults are applied through WordPress filters that return a single value. When two plugins are on the same filter, the last one to run wins. There is no error, nothing is logged, and the plugin that lost goes on showing the setting you think it applied. That is how a site can have comments turned off in one plugin and still get comments: another plugin on the same filter turned them back on.', 'keel-defaults' ) . '</p>' .
 				'<p>' . esc_html__( 'Keel reports three kinds of overlap.', 'keel-defaults' ) . '</p>' .

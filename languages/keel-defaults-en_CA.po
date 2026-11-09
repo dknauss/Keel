@@ -733,7 +733,7 @@ msgid "Environments"
 msgstr ""
 
 #: includes/settings-page.php:203
-msgid "Overlapping plugins"
+msgid "Setting conflicts"
 msgstr ""
 
 #: includes/settings-page.php:223
