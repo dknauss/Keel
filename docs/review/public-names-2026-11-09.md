@@ -107,7 +107,7 @@ browser probes ran from a lab script against the running sites.
 | P19 | tester | PASS | With the box ticked: only the same account's comment with the exact old name changes; the relabelled, case-only, guest and other-account comments and every other column stay identical; with the cache warmed, a fresh read shows the new name. |
 | P20 | tester | PASS | Canary addresses in login, email, name, nickname and a comment: none in about 590 responses (settings, screen, start, continue, done, no-op rerun, every denial, resume) in plain, decoded, entity, JSON-escaped or URL-encoded form, nor in headers, redirect targets or the PHP log. Core's own `users/me?context=edit` request was excluded as not feature output. |
 | P21 | tester | PASS (on the recommended rule) | Spec gap. Built so the main site (or network policy) decides for every site. Main site on, B off: a save on B is repaired. Main off, B's own value on: a save on B follows core. B shows the lock note explaining the shared-account effect. Toggling any site's setting writes no user rows. Awaits Dan's confirmation. |
-| P22 | tester | PASS (on the recommended rule) | Spec gap. Super Admin targets site A, comments ticked: the shared member is repaired and shows the new name on both sites; the B-only exposed member is untouched; no comment on B changes. The site selector and the "running on" note name A before submission. Awaits Dan's confirmation. |
+| P22 | tester | PASS (rule confirmed by Dan) | Spec gap. Super Admin targets site A, comments ticked: the shared member is repaired and shows the new name on both sites; the B-only exposed member is untouched; no comment on B changes. The site selector and the "running on" note name A before submission. Dan confirmed this rule on 2026-11-09. |
 | P23 | tester | PASS (MariaDB) | 100,000 users, 10,053 eligible including the last 60. 200 requests, longest 1,282 ms, median ~729 ms, peak 61.3 MB; 500 rows fetched per batch. Killed after 20 writes: the next request resolved the pending write; final counts exactly 10,053 changed of 100,001 scanned. Census: 0 unsafe names, 0 unsafe nicknames, 0 duplicate slugs, 0 safe rows changed. |
 | P24 | tester | PASS | Rerun with the same choice: 0 identity and 0 comment changes. Login, email and password hash identical; an email login and a handle login with an email contact both sign in with their old password. |
 | I1 | implementer | PASS | `tests/public-names.php`: 33 pure checks of the rules, fallbacks and slug truncation. |
@@ -149,8 +149,8 @@ Three findings came out of the probes and were fixed before this record:
   rule ("a save in the enabled site's context may repair the shared identity").
   Per-site means one shared account can be repaired from one site and then
   re-exposed by a save on another, which is why it was not built that way.
-- **P22.** The recommended rule: a site-targeted run repairs that site's members
-  only and rewrites that site's comments only.
+- **P22. Decided by Dan, 2026-11-09:** a site-targeted run repairs that site's
+  members only and rewrites that site's comments only.
 
 If Dan picks differently, the code and the P21/P22 integration cases change
 before merge.
