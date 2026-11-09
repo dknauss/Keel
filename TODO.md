@@ -381,6 +381,18 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
+## 0.9.1 public names and random redirects — prepared 2026-11-09
+
+- [x] **Prepare 0.9.1** — version metadata, changelog, upgrade notice and `.pot`
+  (#346–#364 since 0.9.0; schema 46).
+- [ ] **Read the changed Help tab and setting copy** — the maintainer's own pass
+  before tagging.
+- [ ] **Clear the counterpart sweep** — #360 and #361 wait on the AX Public Names
+  port (AX #26); #362 is pending until AX adopts one-sentence descriptions or the
+  line says it is deferred.
+- [ ] **Tag and publish 0.9.1** — tag after the release PR merges, dry run, then deploy.
+- [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.1 is the stable tag.
+
 ## 0.9.0 update operations and support — released 2026-10-27
 
 - [x] **Prepare 0.9.0** — version metadata, changelog and upgrade notice finalized.

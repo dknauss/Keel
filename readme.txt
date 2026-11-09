@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.9.0
+Stable tag: 0.9.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,6 +25,7 @@ A new WordPress site leaves a lot of small decisions to you: how strong password
 * **Makes update policy plain.** The Updates screen says which WordPress release line the site follows, where that policy comes from, and links straight to the setting. Plugin and theme auto-updates get their own controls, which leave WordPress's per-item choices alone unless you decide otherwise.
 * **Explains normal WordPress.org update checks.** Site Health Info summarizes the categories core normally sends, without collecting or displaying this site’s values or making extra requests.
 * **Offers optional list-table compaction.** Choose Leave unchanged, Tidy existing tables, or Tidy + helper columns. Tidy uses consistent dates and times. Saved Screen Options remain yours.
+* **Keeps email addresses out of public names.** Site Health warns when an account's public name or author address shows its email address, which WordPress does by default when the username is an email. An optional setting gives new and updated accounts safe public names, and a one-time cleanup fixes existing ones.
 * **Shows you exactly what it is doing.** One Site Health page lists every setting and its current state, points out likely overlaps with other plugins, checks that Keel's own protections are still registered, and lists plugins that change who may run WordPress abilities.
 * **Hands support a clean report.** An administrator can download a sanitized JSON report of Keel's settings and diagnostics, with no user data, site identifiers, option values or file paths in it.
 * **Keeps a multisite network consistent.** A Super Admin can set chosen defaults for every site from one Network Policy screen. Each site's own choices are kept underneath and come back when the policy is lifted.
@@ -147,6 +148,17 @@ Keel is free and will stay free. If it saves you an afternoon of securing a new 
 Bug reports and feature requests are welcome on the issue tracker: [https://github.com/dknauss/keel/issues](https://github.com/dknauss/keel/issues). If you have found a security problem, please report it privately rather than in a public issue — SECURITY.md ships with the plugin and says how.
 
 == Changelog ==
+
+= 0.9.1 =
+* Added: a Random Post Redirects setting, on by default, including on sites that update. WordPress 7.2 adds `/random/` addresses, and `?random` on any archive or search, that redirect to a random published post. Each one runs an uncached random-order query, and the author form confirms which author slugs exist even while author archives are off. Keel turns them off and clears the saved rewrite rules. With Author Archives off, random author requests find nothing whatever this setting says. Before WordPress 7.2 the setting does not appear.
+* Added: a Public Names setting, off by default. When an account is created or updated by any route, a display name, nickname or author slug that repeats its login, email address or the part of the address before the @ is replaced with a safe one. Safe names people chose are kept, and logins, addresses and passwords never change. A one-time cleanup under Users → Public Names fixes existing accounts in resumable batches, and updates their past comments only when asked. Old author addresses are not redirected, because a redirect would confirm which address belongs to an account. On multisite, network policy or the main site's setting decides, because accounts are shared.
+* Added: a Site Health check for email addresses in public names. When a username is an email address, WordPress copies it into the public display name and builds the author slug from it. The check counts affected accounts, lists up to 20 administrators and editors with published posts or approved comments (never by the address), and says which public places Keel's other settings already hide. It only reports.
+* Changed: every setting's description is now one sentence of 25 words or fewer, so a screen reader no longer reads a paragraph on every control. The full explanations moved to a new Settings in detail tab under Help, on Site Defaults and on Network Policy.
+* Changed: the settings Help tabs are copy-edited and shorter, and a new Updates tab explains what the core, plugin and theme update settings decide and what they cannot promise.
+* Changed: the auto-hidden admin bar now waits a moment before it appears and before it hides, so a quick move to the browser's tabs or toolbar no longer pops it open. Keyboard focus still shows it at once.
+* Fixed: on WordPress.com, the Help Center hid Keel's Help tabs on Site Defaults. The Help link is back on that screen; the Help Center is unchanged.
+* Accessibility: the Keel update policy title on the Updates screen is now a heading, and the breached-passwords table caption says how many accounts it lists, because VoiceOver did not announce that table's size.
+* Performance: the check that notices another plugin overriding a setting reads Keel's settings once instead of once per setting, about three times faster, and a test confirms it adds no database queries on a healthy site.
 
 = 0.9.0 =
 * Added: Plugin Auto-Updates and Theme Auto-Updates settings: Enabled, Disabled, or Leave unchanged. Both default to Leave unchanged, which keeps WordPress's per-item choices. An explicit choice never rewrites those choices, and later filters still apply. There is no minor-only option, because plugin and theme version numbers carry no enforced meaning. On multisite, network policy decides for the shared files.
@@ -279,6 +291,9 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 == Upgrade Notice ==
+
+= 0.9.1 =
+Turns off WordPress 7.2's new random post redirects by default, including on sites that update. Adds an opt-in Public Names setting and a Site Health check for email addresses in public names. Setting descriptions are now one sentence, with the details under Help. Saved settings carry over.
 
 = 0.9.0 =
 Adds plugin and theme auto-update settings, an Updates policy notice, Site Health update diagnostics and a support report. Admin List Columns becomes Admin List Tables. Existing passwords are re-checked for known breaches at login, at most every 30 days. Saved settings carry over.
