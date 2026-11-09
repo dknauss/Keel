@@ -209,6 +209,15 @@ function keel_defaults_network_menu() {
 	);
 
 	keel_defaults_enqueue_on_screen( $hook, 'keel_defaults_enqueue_network_assets' );
+
+	if ( $hook ) {
+		add_action(
+			'load-' . $hook,
+			function () {
+				keel_defaults_add_settings_detail_tab( get_current_screen() );
+			}
+		);
+	}
 }
 
 /**
@@ -268,6 +277,7 @@ function keel_defaults_render_network_page() {
 		<p class="description">
 			<?php esc_html_e( 'Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site\'s own business, and their saved values are untouched — untick it later and every site returns to exactly what it had.', 'keel-defaults' ); ?>
 		</p>
+		<p class="description"><?php esc_html_e( 'The full explanation of each setting is under Help, at the top of this screen, in Settings in detail.', 'keel-defaults' ); ?></p>
 
 		<p class="description">
 			<?php esc_html_e( 'The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there.', 'keel-defaults' ); ?>

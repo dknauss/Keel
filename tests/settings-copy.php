@@ -124,40 +124,50 @@ keel_assert( '' !== trim( $sidebar ), 'The help sidebar has content to check.' )
 $strings = keel_defaults_strings();
 keel_assert( ! empty( $strings ), 'Display strings load.' );
 
-// --- where password copy goes ---
-// The rule lives in the field; the reasoning and the protocol live in the
-// Passwords help tab; readme.txt carries the compliance disclosure. Settled
-// across all three plugins after the string oscillated six times in a day.
-$password_help = $strings['require_strong_passwords']['help'];
-$words         = keel_help_words( $password_help );
+// --- where field copy goes ---
+// Each field carries one short sentence: it is tied to its control with
+// aria-describedby, so a screen reader reads it on every focus, and a paragraph
+// read on every Tab press is a real cost. The longer explanation (defaults,
+// trade-offs, filters, what breaks) lives in the Settings in detail help tab,
+// and the reasoning behind a policy lives in its own topical tab. Dan settled
+// this on 2026-11-09, replacing the earlier 40-55 word rule for passwords.
+foreach ( $strings as $key => $copy ) {
+	if ( ! isset( $copy['help'] ) ) {
+		continue;
+	}
+	$field_words = keel_help_words( $copy['help'] );
+	keel_assert( $field_words <= 25, "Field help for '{$key}' is one short sentence, 25 words or fewer (currently {$field_words}); put the rest in its 'detail'." );
+}
 
-keel_assert( $words >= 40 && $words <= 55, "Password field help states the rule in 40-55 words (currently {$words})." );
+$detail_tab = isset( $GLOBALS['keel_test_screen']->tabs['keel-settings-detail'] ) ? $GLOBALS['keel_test_screen']->tabs['keel-settings-detail'] : '';
+keel_assert( '' !== $detail_tab, 'A Settings in detail help tab is registered.' );
+foreach ( $strings as $key => $copy ) {
+	if ( empty( $copy['detail'] ) || ! keel_defaults_key_supported( $key ) ) {
+		continue;
+	}
+	keel_assert(
+		false !== strpos( $detail_tab, $copy['label'] ),
+		"The detail for '{$key}' is reachable: its label appears in the Settings in detail tab."
+	);
+}
+
+$password_help = $strings['require_strong_passwords']['help'];
+keel_assert( false !== strpos( $password_help, '15' ), 'Password field help states the length rule.' );
 keel_assert( false === strpos( $password_help, 'haveibeenpwned.com' ), 'The HIBP link stays out of the field help — the help tab and readme.txt carry it.' );
 keel_assert( false === strpos( $password_help, 'pages.nist.gov' ), 'The NIST link stays out of the field help for the same reason.' );
 
 /*
- * The same convention, applied to XML-RPC.
- *
- * block_xmlrpc_endpoint's description carried 62 words, and a third of them were
- * "PHP still starts for each blocked request; blocking at the host or CDN is
- * lighter" — which is why-we-built-it-this-way, not what-it-costs-you. It sat
- * there because moving it meant creating a tab for one paragraph.
- *
- * The tab exists now, so the field help states the rule and points at it. These
- * assertions stop the reasoning drifting back into the control, which is the
- * direction copy always drifts: the person editing is looking at the field.
+ * The same convention, applied to XML-RPC: the cost-of-blocking reasoning lives
+ * in the XML-RPC tab, not in the field, and the field's detail points at it.
  */
-$xmlrpc_help  = $strings['block_xmlrpc_endpoint']['help'];
-$xmlrpc_words = str_word_count( preg_replace( '/<[^>]*>/', '', $xmlrpc_help ) );
-
-keel_assert( $xmlrpc_words <= 50, "The XML-RPC endpoint field help states the rule in 50 words or fewer (currently {$xmlrpc_words})." );
+$xmlrpc_help = $strings['block_xmlrpc_endpoint']['help'];
 keel_assert(
 	false === stripos( $xmlrpc_help, 'PHP still starts' ) && false === stripos( $xmlrpc_help, 'CDN' ),
 	'The cost-of-blocking-in-PHP reasoning stays in the XML-RPC help tab, not the field help.'
 );
 keel_assert(
-	false !== stripos( $xmlrpc_help, 'help tab' ),
-	'The XML-RPC endpoint field help points at the tab that carries the reasoning.'
+	false !== stripos( $strings['block_xmlrpc_endpoint']['detail'], 'help tab' ),
+	'The XML-RPC endpoint detail points at the tab that carries the reasoning.'
 );
 
 /*
@@ -234,7 +244,7 @@ keel_assert( count( $retired ) >= count( $fixture['shared'] ), 'The fixture yiel
 $copy_surfaces = array();
 
 foreach ( $strings as $key => $copy ) {
-	foreach ( array( 'label', 'statement', 'help' ) as $slot ) {
+	foreach ( array( 'label', 'statement', 'help', 'detail' ) as $slot ) {
 		if ( isset( $copy[ $slot ] ) ) {
 			$copy_surfaces[ "strings[{$key}][{$slot}]" ] = $copy[ $slot ];
 		}
@@ -309,9 +319,10 @@ foreach ( $strings as $key => $copy ) {
 	if ( ! isset( $copy['help'] ) ) {
 		continue;
 	}
-	if ( false !== strpos( $copy['help'], 'strength meter' ) ) {
+	$copy_text = $copy['help'] . ( isset( $copy['detail'] ) ? ' ' . $copy['detail'] : '' );
+	if ( false !== strpos( $copy_text, 'strength meter' ) ) {
 		keel_assert(
-			false !== strpos( $copy['help'], 'Medium' ) || false !== strpos( $copy['help'], 'zxcvbn' ),
+			false !== strpos( $copy_text, 'Medium' ) || false !== strpos( $copy_text, 'zxcvbn' ),
 			"Copy for '{$key}' naming a strength meter says which scale it means."
 		);
 	}
