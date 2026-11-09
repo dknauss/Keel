@@ -228,7 +228,7 @@ function keel_defaults_add_help_tab() {
 	$screen->add_help_tab(
 		array(
 			'id'      => 'keel-overlaps',
-			'title'   => __( 'Overlapping plugins', 'keel-defaults' ),
+			'title'   => __( 'Overlapping Plugins', 'keel-defaults' ),
 			'content' =>
 				'<p>' . esc_html__( 'Many of Keel’s defaults are applied through WordPress filters that return a single value. When two plugins are on the same filter, the last one to run wins. There is no error, nothing is logged, and the plugin that lost goes on showing the setting you think it applied. That is how a site can have comments turned off in one plugin and still get comments: another plugin on the same filter turned them back on.', 'keel-defaults' ) . '</p>' .
 				'<p>' . esc_html__( 'Keel reports three kinds of overlap.', 'keel-defaults' ) . '</p>' .
@@ -265,7 +265,7 @@ function keel_defaults_add_help_tab() {
 	keel_defaults_add_settings_detail_tab( $screen );
 
 	$screen->set_help_sidebar(
-		'<p><strong>' . esc_html__( 'Current posture', 'keel-defaults' ) . '</strong></p>' .
+		'<p><strong>' . esc_html__( 'Current Posture', 'keel-defaults' ) . '</strong></p>' .
 		'<p>' . wp_kses(
 			sprintf(
 				/* translators: %s: URL of the Site Health Info screen. */
@@ -618,7 +618,7 @@ function keel_defaults_render_lock_summary( $network_screen = false ) {
 }
 
 /**
- * Add the Settings in detail Help tab: the full explanation of each setting.
+ * Add the Settings in Detail Help tab: the full explanation of each setting.
  *
  * Each field on the screen carries one sentence, because that sentence is tied
  * to the control with aria-describedby and a screen reader reads it on every
@@ -658,7 +658,7 @@ function keel_defaults_add_settings_detail_tab( $screen ) {
 	$screen->add_help_tab(
 		array(
 			'id'       => 'keel-settings-detail',
-			'title'    => __( 'Settings in detail', 'keel-defaults' ),
+			'title'    => __( 'Settings in Detail', 'keel-defaults' ),
 			'content'  => $html,
 			'priority' => 15,
 		)
@@ -710,7 +710,7 @@ function keel_defaults_render_settings_page() {
 		?>
 		<hr class="wp-header-end">
 		<p><?php esc_html_e( 'Keel sets a sound baseline for your site — balanced defaults for security, updates, privacy, performance, and the admin experience. Every option below is one deliberate default you can see and switch off. Nothing runs that isn\'t listed here, and anything you leave unchecked keeps WordPress exactly as it ships.', 'keel-defaults' ); ?></p>
-		<p><?php esc_html_e( 'Each setting has a one-line description below. The full explanation of each is under Help, at the top of this screen, in Settings in detail.', 'keel-defaults' ); ?></p>
+		<p><?php esc_html_e( 'Each setting has a one-line description below. The full explanation of each is under Help, at the top of this screen, in the “Settings in Detail” tab.', 'keel-defaults' ); ?></p>
 
 		<?php keel_defaults_render_lock_summary(); ?>
 		<form method="post" action="options.php">

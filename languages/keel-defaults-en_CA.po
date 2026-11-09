@@ -741,7 +741,7 @@ msgid "Site Health"
 msgstr ""
 
 #: includes/settings-page.php:235
-msgid "Current posture"
+msgid "Current Posture"
 msgstr ""
 
 #. translators: %s: a wp-config.php constant name.
