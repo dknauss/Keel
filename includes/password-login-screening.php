@@ -180,7 +180,8 @@ function keel_defaults_screen_user_password( $user, $password, $now = null ) {
 		return 'fresh';
 	}
 
-	$verdict = keel_hibp_password_verdict( $password );
+	// The account has just proved itself with this password, so its standing decides.
+	$verdict = keel_hibp_password_verdict( $password, keel_defaults_is_privileged_account( $user ) );
 
 	if ( null === $verdict ) {
 		return 'unknown';

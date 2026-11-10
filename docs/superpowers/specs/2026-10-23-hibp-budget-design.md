@@ -6,6 +6,13 @@ Written 2026-10-23 against Keel `1d754a9` (merged #314). The user approved this
 bounded policy; numerical defaults remain operational starting points, not measured capacity.
 This change preserves PHP 7.4 compatibility and the 44-setting schema.
 
+**Amended 2026-11-10.** The shared range cache described below has been removed.
+No reply is retained, the 64 slot rows and the claim and publish steps are gone,
+and half of the capacity is kept for privileged accounts. The token bucket,
+leases, policy filter, diagnostics and scope rules stand. The cache sections
+remain as history; see the
+[2026-11-10 record](../../review/breach-lookup-storage-2026-11-10.md).
+
 ## Approved policy
 
 Use one shared token bucket per standalone site or WordPress network, ahead of

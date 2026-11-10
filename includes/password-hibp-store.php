@@ -1,6 +1,6 @@
 <?php
 /**
- * Fixed, database-authoritative HIBP rows. No object-cache authority.
+ * The fixed, database-authoritative HIBP control row. No object-cache authority.
  *
  * @package Keel
  */
@@ -44,6 +44,36 @@ function keel_hibp_budget_scope() {
  */
 function keel_hibp_budget_key( array $scope, $part ) {
 	return 'keel_hibp_v2_' . $scope['id'] . '_' . $part;
+}
+
+/**
+ * Delete the rows an earlier version kept replies in.
+ *
+ * Versions up to 0.9.1 kept each reply from the breach list for twelve hours,
+ * in one of 64 fixed rows beside the control row. Nothing reads or writes those
+ * rows now. Their names are fixed, so they go by name, with no scan of the
+ * table and no need to know which passwords were ever checked.
+ *
+ * @param array $scope Canonical database scope.
+ * @return bool False only when the database refused the delete.
+ */
+function keel_hibp_budget_forget_replies( array $scope ) {
+	global $wpdb;
+	$keys = array();
+	for ( $row = 0; $row < 64; ++$row ) {
+		$keys[] = keel_hibp_budget_key( $scope, sprintf( 'slot_%02d', $row ) );
+	}
+	$placeholders = implode( ',', array_fill( 0, count( $keys ), '%s' ) );
+	$previous     = $wpdb->suppress_errors( true );
+	try {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Trusted allowlisted table; fixed known names prepared; these rows were never options-API values, so no cache holds them.
+		$result = $wpdb->query( $wpdb->prepare( "DELETE FROM `{$scope['table']}` WHERE option_name IN ($placeholders)", $keys ) );
+	} catch ( Throwable $error ) {
+		return false;
+	} finally {
+		$wpdb->suppress_errors( $previous );
+	}
+	return false !== $result;
 }
 
 /**

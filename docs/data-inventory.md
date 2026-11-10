@@ -17,8 +17,8 @@ the front end.
 | `keel_environment_override_host` | The host the **Environment** setting was chosen on, so a copied database does not inherit it. | no | site |
 | `keel_network_settings` | The settings a Super Admin decided under Network Policy. | network option | network |
 | `keel_autoload_scan_lock` | A short lock while the autoload report is being collected. | no | site |
-| `keel_hibp_v2_<network>_state` | The shared breach-lookup budget, plus the time and kind of the last sampled failure and the last good reply. No password data. | no | main site of each network (`0` on single site) |
-| `keel_hibp_v2_<network>_slot_00` to `_slot_63` | 64 fixed cache slots for breach-lookup replies, kept 12 hours. Each holds the public reply for one five-character hash prefix, and that prefix. Hundreds of thousands of possible passwords share any one prefix, so it does not identify a password. | no | main site of each network |
+| `keel_hibp_v2_<network>_state` | The shared breach-lookup allowance: how much is left, which lookups are in progress, and the time and kind of the last sampled failure and the last good reply. No password, hash, hash prefix or reply. | no | main site of each network (`0` on single site) |
+| `keel_hibp_v2_<network>_slot_00` to `_slot_63` | Nothing writes these now. Earlier versions kept breach-lookup replies here. Keel deletes them after it updates, and looks again once a day in case an older copy of the plugin wrote one meanwhile. | no | main site of each network |
 | `keel_defaults` | The settings option's name before the rename. Nothing writes it now; older installs may still have it. | yes | site |
 
 ## Transients

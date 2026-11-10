@@ -129,7 +129,7 @@ function keel_defaults_add_help_tab() {
 						'code' => array(),
 					)
 				) . '</p>' .
-				'<p>' . esc_html__( 'An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 fresh lookups to start and one more each minute by default, and Keel keeps up to 64 answers for 12 hours, so a burst of password changes cannot flood the service. The length, common-password and username rules still apply, and only a reply that arrived whole and parsed cleanly is ever kept.', 'keel-defaults' ) . '</p>' .
+				'<p>' . esc_html__( 'An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 lookups to start and one more each minute by default, so a burst of password changes cannot flood the service. Half of that allowance is kept for accounts that can write content or manage the site, so they are still checked when the rest is used up. The length, common-password and username rules still apply. Keel keeps no reply: each one answers the check that asked for it and is then discarded, and only a reply that arrived whole and parsed cleanly is trusted.', 'keel-defaults' ) . '</p>' .
 				'<p>' . wp_kses(
 					sprintf(
 						/* translators: %s: URL of the Site Health status screen. */

@@ -17,7 +17,7 @@ async function expanded(button, value) {
 }
 const expected = {
  none: ['no sampled failures', 'does not establish that screening has run', 'No validated live response'],
- exhausted: ['sampled unavailability', 'allowance for fresh lookups was exhausted'],
+ exhausted: ['sampled unavailability', 'allowance for lookups was used up'],
  busy: ['sampled unavailability', 'lookup slots were busy'],
  transport: ['sampled unavailability', 'HTTP 429'],
  later_success: ['sampled unavailability', 'HTTP 429', 'A later live response does not erase'],
@@ -64,7 +64,7 @@ for (const [engine, type] of Object.entries({ chromium, firefox, webkit })) {
    const text = (await button.innerText()) + ' ' + (await panel.innerText());
    if (role === 'delegated' && !['optout', 'setting_off'].includes(config.case)) {
     assert.match(text, /coverage is unknown/);
-    assert.doesNotMatch(text, /HTTP 429|minutes? ago|allowance.*exhausted|slots were busy|last recorded|later live|sampled unavailability/);
+    assert.doesNotMatch(text, /HTTP 429|minutes? ago|allowance.*used up|slots were busy|last recorded|later live|sampled unavailability/);
    } else for (const snippet of expected) assert.ok(text.includes(snippet), `${engine}/${role}/${config.case}: ${snippet}`);
    if (['exhausted', 'busy'].includes(config.case)) assert.ok(!text.includes('service could not be reached'));
    const widths = [];

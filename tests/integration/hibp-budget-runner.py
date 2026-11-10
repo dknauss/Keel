@@ -114,9 +114,9 @@ class Lab:
     def probe(self):
         return self.call('probe')['result']
 
-    def race(self, prefixes):
+    def race(self, count, privileged=False):
         gate = self.root / ('barrier-' + str(self.counter))
-        workers = [self.spawn('admit', prefix=p, barrier=str(gate)) for p in prefixes]
+        workers = [self.spawn('admit', privileged=privileged, barrier=str(gate)) for _ in range(count)]
         for worker in workers:
             worker.wait_file('ready')
         gate.touch()
@@ -126,9 +126,13 @@ class Lab:
     def tickets(results):
         return [data['result']['ticket'] for data in results if 'ticket' in data['result']]
 
-    def finish(self, ticket, body=None):
-        data = self.call('finish', ticket=ticket, body=body)
+    def finish(self, ticket, live=False):
+        data = self.call('finish', ticket=ticket, live=live)
         require(data['result']['finish'] is True, 'owned completion failed')
+
+    @staticmethod
+    def only_the_allowance(probe):
+        return [row['key'] for row in probe['rows']] == ['state'] and probe['rows'][0]['bytes'] <= 4096
 
     def record_performance(self, name, data, operations=1, unit='operation'):
         self.report['performance'][name] = {
@@ -151,7 +155,9 @@ class Lab:
 
     def initialization(self):
         self.reset()
-        results = self.race([f'{i:02X}000' for i in range(16)])
+        # Privileged throughout: these cases measure the whole allowance. The
+        # part kept back from everyone else has its own case, reserve.
+        results = self.race(16, privileged=True)
         tickets = self.tickets(results)
         require(1 <= len(tickets) <= 2, 'initialization race exceeded lease cap or made no progress')
         state = self.probe()['state']
@@ -162,7 +168,7 @@ class Lab:
         admitted = len(tickets)
         # Drain in fresh processes; failures never refund the initial burst.
         for i in range(12):
-            data = self.call('admit', prefix=f'{i + 16:02X}001')['result']
+            data = self.call('admit', privileged=True)['result']
             if 'ticket' not in data:
                 require(data.get('error') == 'budget_exhausted', 'drain failed for a reason other than exhaustion')
                 break
@@ -183,7 +189,7 @@ class Lab:
         for i in range(10):
             before = self.probe()['state']
             started = time.monotonic()
-            admission = self.call('admit', prefix=f'{i + 32:02X}070')
+            admission = self.call('admit', privileged=True)
             attempts += 1
             require('ticket' in admission['result'], 'uncontended initial burst lost a credit/admission')
             require(admission['metrics']['http'] == 0, 'admission-only burst reached HTTP')
@@ -205,7 +211,7 @@ class Lab:
                 'burst lab exceeded one refill interval; eleventh-denial precondition not met')
         require(final['credit'] == initial['credit'] + credited - attempts * cost,
                 'aggregate uncontended burst did not conserve credit')
-        denied = self.call('admit', prefix='3F071')
+        denied = self.call('admit', privileged=True)
         attempts += 1
         require(denied['result'].get('error') == 'budget_exhausted',
                 'eleventh uncontended request was not denied')
@@ -221,59 +227,130 @@ class Lab:
 
     def last_credit(self):
         self.reset(60)
-        results = self.race([f'{i:02X}020' for i in range(8)])
+        results = self.race(8, privileged=True)
         require(len(self.tickets(results)) == 1, 'last credit admitted other than one worker')
         require(self.probe()['state']['credit'] < 60, 'last credit was refunded or duplicated')
 
     def cap_two(self):
         self.reset(600)
-        results = self.race([f'{i:02X}030' for i in range(12)])
+        results = self.race(12)
         require(1 <= len(self.tickets(results)) <= 2, 'two-lease cap failed')
         require(len(self.probe()['state']['leases']) <= 2, 'two-lease persisted cap failed')
 
-    def same_slot(self):
+    def lanes(self):
+        # Two lookups may be in flight, one per lane. A lane is taken because it
+        # is free, never because of what is being looked up.
         self.reset(600)
-        # First byte modulo 64: different prefixes, same fixed slot.
-        results = self.race(['00001', '40001', '80001', 'C0001'] * 2)
-        require(len(self.tickets(results)) == 1, 'same-slot race admitted more than one owner')
+        tickets = self.tickets(self.race(8))
+        require(1 <= len(tickets) <= 2, 'lane race exceeded the two lanes or made no progress')
+        taken = sorted(ticket['slot'] for ticket in tickets)
+        require(taken == list(range(len(taken))), 'racing owners did not take distinct lanes from the lowest')
+        probe = self.probe()
+        require(sorted(lease['slot'] for lease in probe['state']['leases']) == taken,
+                'persisted leases disagree with the tickets handed out')
+        require(self.only_the_allowance(probe), 'lookups in flight created rows beside the allowance')
+        for ticket in tickets:
+            self.finish(ticket)
+        self.reset(600)
+        first = self.call('admit')['result']
+        second = self.call('admit')['result']
+        require('ticket' in first and 'ticket' in second, 'two uncontended lookups were not both admitted')
+        require((first['ticket']['slot'], second['ticket']['slot']) == (0, 1), 'lanes were not taken in order')
+        require(set(first['ticket']) == {'slot', 'owner', 'until', 'scope'},
+                'a ticket carries more than a lane, an owner, an expiry and the scope')
+        require(self.call('admit')['result'].get('error') == 'lookup_busy', 'a third lookup was admitted')
+        require(self.call('admit', privileged=True)['result'].get('error') == 'lookup_busy',
+                'a third lookup was admitted for a privileged account')
+        self.finish(first['ticket'])
+        third = self.call('admit')['result']
+        require('ticket' in third and third['ticket']['slot'] == 0, 'the freed lane was not the next one taken')
+        self.finish(third['ticket'])
+        self.finish(second['ticket'])
+        require(not self.probe()['state']['leases'], 'completed lookups left leases behind')
 
-    @staticmethod
-    def slot_fingerprints(probe):
-        return [(row['key'], row['hash']) for row in probe['rows'] if row['key'].startswith('slot_')]
+    def reserve(self):
+        # Half the allowance is kept back for privileged accounts. Everyone else
+        # stops at the line, however many of them ask and however fast.
+        self.reset(600)
+        policy = self.probe()['state']['policy']
+        require(policy == {'capacity': 10, 'interval': 60}, 'reserve case requires the approved default policy')
+        line = 300
+        admitted = 0
+        for _ in range(8):
+            data = self.call('admit')['result']
+            if 'ticket' not in data:
+                require(data.get('error') == 'budget_exhausted', 'ordinary drain stopped for a reason other than the line')
+                break
+            admitted += 1
+            self.finish(data['ticket'])
+        require(admitted == 5, 'ordinary requests did not stop at half the allowance')
+        at_line = self.probe()
+        require(line <= at_line['state']['credit'] < line + 60, 'ordinary drain did not leave the reserve intact')
+        results = self.race(8)
+        require(not self.tickets(results), 'racing ordinary requests got into the reserve')
+        require(all(data['result'].get('error') == 'budget_exhausted' for data in results),
+                'ordinary requests at the line were refused for another reason')
+        require(all(data['metrics']['store_writes'] == 0 and data['metrics']['http'] == 0 for data in results),
+                'a refusal at the line wrote to the store or reached HTTP')
+        require(self.probe()['rows'] == at_line['rows'], 'refusals at the line changed the allowance')
+        # The same moment, for a privileged account.
+        data = self.call('admit', privileged=True)['result']
+        require('ticket' in data, 'a privileged request was refused with the reserve intact')
+        self.finish(data['ticket'], live=True)
+        below = self.probe()['state']
+        require(line - 60 <= below['credit'] < line, 'the privileged request was not charged to the reserve')
+        require(self.call('admit')['result'].get('error') == 'budget_exhausted',
+                'an ordinary request was admitted below the line')
+        # End to end: the same lookup, unknown for one and answered for the other.
+        ordinary = self.call('lookup', password='synthetic-reserve-fixture')
+        require(ordinary['result']['verdicts'] == [None] and ordinary['metrics']['http'] == 0,
+                'an ordinary lookup below the line was answered or reached HTTP')
+        privileged = self.call('lookup', password='synthetic-reserve-fixture', privileged=True)
+        require(privileged['result']['verdicts'] == [True] and privileged['metrics']['http'] == 1,
+                'a privileged lookup below the line was not answered from one request')
+        # One credit above the line admits exactly one of many ordinary requests.
+        self.reset(line + 60)
+        require(len(self.tickets(self.race(8))) == 1, 'one credit above the line admitted other than one ordinary request')
+        require(line <= self.probe()['state']['credit'] < line + 60, 'the race above the line reached into the reserve')
+        # And the reserve itself still honours the last credit and the two lanes.
+        self.reset(line)
+        tickets = self.tickets(self.race(8, privileged=True))
+        require(1 <= len(tickets) <= 2, 'privileged race exceeded the two lanes or made no progress')
+        self.reset(60)
+        require(len(self.tickets(self.race(8, privileged=True))) == 1, 'the last credit of the reserve admitted other than one')
+        self.report['reserve'] = {'capacity': 10, 'kept_back': 5, 'ordinary_admitted_before_line': admitted}
 
     def stale(self, phase):
         self.reset(600)
         password = 'synthetic-stale-owner-fixture'
-        prefix = hashlib.sha1(password.encode()).hexdigest()[:5].upper()
-        op = 'lookup' if phase == 'after_http' else 'admit'
-        old = self.spawn(op, prefix=prefix, password=password, pause=phase)
+        old = self.spawn('lookup', password=password, pause=phase)
         old.wait_file('paused.json')
         require(bool(self.probe()['state']['leases']), 'checkpoint did not follow a committed reservation')
         self.call('expire')
-        replacement = self.call('admit', prefix=prefix)['result']
-        require('ticket' in replacement, 'replacement owner failed to acquire expired slot')
+        replacement = self.call('admit')['result']
+        require('ticket' in replacement, 'replacement owner failed to acquire the expired lane')
         before = self.probe()
         old.release()
         data = old.result()
-        if op == 'lookup':
-            require(data['result']['verdicts'] == [None], 'stale HTTP completion was presented as a verdict')
+        require(data['result']['verdicts'] == [None], 'stale completion was presented as a verdict')
+        if phase == 'after_http':
             require(data['metrics']['http'] == 1, 'stale HTTP fixture did not exercise transport')
         else:
-            require('ticket' not in data['result'], 'stale claimant returned an obsolete ticket')
             require(data['metrics']['http'] == 0, 'stale reservation reached HTTP')
         after = self.probe()
-        require(self.slot_fingerprints(before) == self.slot_fingerprints(after), 'old worker overwrote replacement slot')
-        require(any(lease['owner'] == replacement['ticket']['owner'] for lease in after['state']['leases']),
-                'old worker released replacement lease')
+        require(self.only_the_allowance(after), 'stale owner left a row beside the allowance')
+        require(after['state']['leases'] == before['state']['leases'],
+                'old worker released or replaced the replacement lease')
+        require(after['state']['credit'] == before['state']['credit'], 'stale owner restored or spent credit')
+        require(after['state']['success'] == before['state']['success'],
+                'stale completion fabricated live success evidence')
+        sample = after['state']['sample']
+        require(isinstance(sample, dict) and sample.get('kind') == 'budget_unavailable',
+                'stale completion failed to sample budget_unavailable')
+        require(isinstance(sample.get('first'), int) and isinstance(sample.get('seen'), int)
+                and sample['first'] <= sample['seen'] <= int(time.time()) + 1,
+                'stale unavailability sample has invalid timestamps')
         if phase == 'after_http':
-            require(after['state']['success'] == before['state']['success'],
-                    'stale HTTP completion fabricated live success evidence')
-            sample = after['state']['sample']
-            require(isinstance(sample, dict) and sample.get('kind') == 'budget_unavailable',
-                    'stale HTTP completion failed to sample budget_unavailable')
-            require(isinstance(sample.get('first'), int) and isinstance(sample.get('seen'), int)
-                    and sample['first'] <= sample['seen'] <= int(time.time()) + 1,
-                    'stale HTTP unavailability sample has invalid timestamps')
             passive = self.call('evidence')
             evidence = passive['result']['evidence']
             require(evidence['success'] == before['state']['success']
@@ -285,88 +362,128 @@ class Lab:
                 'success_unchanged': True, 'sampled_reason': 'budget_unavailable',
                 'verdict': 'unknown',
             }
-            self.finish(replacement['ticket'])
+        self.finish(replacement['ticket'])
 
-    def stale_claim(self):
+    def stale_finish(self):
         self.reset(600)
-        old = self.call('admit', prefix='01040')['result']
-        require('ticket' in old, 'stale-claim fixture admission failed')
+        old = self.call('admit')['result']
+        require('ticket' in old, 'stale-completion fixture admission failed')
         self.call('expire')
-        newer = self.call('admit', prefix='41040')['result']
-        require('ticket' in newer, 'stale-claim replacement failed')
+        # Past its expiry a lease is void, whether or not anyone has taken its place yet.
+        unreplaced = self.probe()
+        require(len(unreplaced['state']['leases']) == 1, 'expired lease fixture was reaped early')
+        data = self.call('finish', ticket=old['ticket'], live=True)
+        require(data['result']['finish'] is False, 'an expired lease completed before anyone replaced it')
+        require(unreplaced['rows'] == self.probe()['rows'], 'an expired lease altered the allowance')
+        newer = self.call('admit')['result']
+        require('ticket' in newer, 'stale-completion replacement failed')
+        require(newer['ticket']['slot'] == old['ticket']['slot'] and newer['ticket']['owner'] != old['ticket']['owner'],
+                'replacement did not take over the expired lane as a new owner')
         before = self.probe()
-        data = self.call('claim', ticket=old['ticket'])
-        require(data['result']['claim'] is False, 'old ticket reclaimed newer slot')
-        require(self.slot_fingerprints(before) == self.slot_fingerprints(self.probe()), 'old claim altered newer slot')
+        for live in (True, False):
+            data = self.call('finish', ticket=old['ticket'], live=live)
+            require(data['result']['finish'] is False, 'an expired ticket completed over its replacement')
+        require(before['rows'] == self.probe()['rows'], 'an expired ticket altered the allowance')
         self.finish(newer['ticket'])
 
     def killed_reservation(self, phase):
         self.reset(600)
         password = 'synthetic-killed-owner-fixture'
-        prefix = hashlib.sha1(password.encode()).hexdigest()[:5].upper()
-        worker = self.spawn('lookup', prefix=prefix, password=password, pause=phase)
+        worker = self.spawn('lookup', password=password, pause=phase)
         worker.wait_file('paused.json')
         before = self.probe()['state']
         require(bool(before['leases']) and before['credit'] < 600, 'kill checkpoint did not spend allowance')
         worker.kill()
         require(self.probe()['state']['credit'] == before['credit'], 'worker death refunded credit')
         self.call('expire')
-        replacement = self.call('admit', prefix=prefix)['result']
+        replacement = self.call('admit')['result']
         require('ticket' in replacement, 'expired killed lease did not recover')
         require(self.probe()['state']['credit'] < before['credit'], 'replacement did not spend another credit')
         self.finish(replacement['ticket'])
 
-    def publisher_rollback(self):
+    def finish_rollback(self):
         self.reset(600)
-        admission = self.call('admit', prefix='02050')['result']
-        require('ticket' in admission, 'publisher fixture admission failed')
+        admission = self.call('admit')['result']
+        require('ticket' in admission, 'completion fixture admission failed')
         before = self.probe()
-        worker = self.spawn('finish', ticket=admission['ticket'], body='0' * 35 + ':0', pause='publisher_locked')
+        worker = self.spawn('finish', ticket=admission['ticket'], live=True, pause='finish_locked')
         worker.wait_file('paused.json')
         # A separate connection must not observe the uncommitted control CAS.
         during = self.probe()
-        require(before['rows'] == during['rows'], 'uncommitted publisher became visible to another worker')
+        require(before['rows'] == during['rows'], 'uncommitted completion became visible to another worker')
         worker.kill()
-        require(before['rows'] == self.probe()['rows'], 'SIGKILL did not roll back publication transaction')
-        self.finish(admission['ticket'], '0' * 35 + ':0')
+        require(before['rows'] == self.probe()['rows'], 'SIGKILL did not roll back the completion transaction')
+        self.finish(admission['ticket'], live=True)
+        after = self.probe()['state']
+        require(not after['leases'] and isinstance(after['success'], int), 'the owner could not complete after the rollback')
 
     def connection_loss(self):
         self.reset(600)
-        admission = self.call('admit', prefix='02060')['result']
+        admission = self.call('admit')['result']
         require('ticket' in admission, 'connection-loss fixture admission failed')
-        worker = self.spawn('finish', ticket=admission['ticket'], body='0' * 35 + ':0', pause='publisher_locked')
+        worker = self.spawn('finish', ticket=admission['ticket'], live=True, pause='finish_locked')
         checkpoint = worker.wait_file('paused.json')
         require(isinstance(checkpoint.get('connection'), int), 'native connection checkpoint missing')
         self.call('kill_connection', connection=checkpoint['connection'])
         self.call('expire')
-        newer = self.call('admit', prefix='02060')['result']
+        newer = self.call('admit')['result']
         require('ticket' in newer, 'replacement failed after connection loss')
         before = self.probe()
         worker.release()
         old = worker.result()
-        require(old['result']['finish'] is False, 'lost transaction reconnected and published a verdict')
+        require(old['result']['finish'] is False, 'lost transaction reconnected and completed')
         after = self.probe()
-        require(self.slot_fingerprints(before) == self.slot_fingerprints(after), 'reconnected old owner altered replacement slot')
+        require(self.only_the_allowance(after), 'reconnected old owner left a row beside the allowance')
         require(before['state']['leases'] == after['state']['leases'], 'reconnected old owner released replacement lease')
         require(before['state']['credit'] == after['state']['credit'], 'reconnected old owner restored spent credit')
         require(before['state']['success'] == after['state']['success'], 'connection loss recorded false success')
         self.finish(newer['ticket'])
 
-    def cache_paths(self):
+    def no_retention(self):
+        # A reply answers the request that asked for it and is gone. What is
+        # left is one row of counters, whatever was looked up.
         self.reset(600)
-        password = 'synthetic-cache-hit-fixture'
-        miss = self.call('lookup', password=password)
-        require(miss['result']['verdicts'] == [True] and miss['metrics']['http'] == 1, 'cold lookup did not validate synthetic breach response')
-        self.record_performance('cold_miss', miss, unit='lookup')
+        password = 'synthetic-no-retention-fixture'
+        digest = hashlib.sha1(password.encode()).hexdigest()
+        first = self.call('lookup', password=password)
+        require(first['result']['verdicts'] == [True] and first['metrics']['http'] == 1,
+                'first lookup did not validate the synthetic breach response')
+        self.record_performance('lookup', first, unit='lookup')
+        probe = self.probe()
+        require(self.only_the_allowance(probe), 'a lookup left a row beside the allowance')
+        state = probe['state']
+        require(list(state) == ['v', 'rev', 'policy', 'credit', 'last', 'leases', 'sample', 'success']
+                and state['leases'] == [], 'the allowance row holds more than counters at rest')
+        stored = json.dumps(state).lower()
+        require(digest[:5] not in stored and digest[5:] not in stored and password not in stored,
+                'the allowance row holds something of the value that was checked')
+        spent = state['credit']
+        # A later request for the same value asks again and pays again.
+        again = self.call('lookup', password=password)
+        require(again['result']['verdicts'] == [True] and again['metrics']['http'] == 1,
+                'a later request was answered without a lookup: something was kept')
+        require(self.probe()['state']['credit'] < spent, 'a later request did not spend allowance')
+        # Within one request the same value is asked about once.
+        self.reset(600)
+        repeat = self.call('lookup', password=password, count=100)
+        require(all(value is True for value in repeat['result']['verdicts']), 'a repeat within the request lost its answer')
+        require(repeat['metrics']['http'] == 1, 'repeats within one request went out again')
+        require(540 <= self.probe()['state']['credit'] < 600, 'repeats within one request spent more than one credit')
+        self.record_performance('repeat_in_request_100', repeat, operations=100, unit='lookup')
+        # Told apart as separate requests, each one goes out, until the line.
+        self.reset(600)
+        separate = self.call('lookup', password=password, count=8, requests=True)
+        require(separate['result']['verdicts'] == [True] * 5 + [None] * 3 and separate['metrics']['http'] == 5,
+                'separate requests were not each looked up, or passed the reserve')
+        # With the allowance spent there is nothing to fall back on.
         self.call('seed', credit=0)
         before = self.probe()
         self.call('flush')
         after = self.probe()
         require(before['rows'] == after['rows'], 'cache eviction altered authoritative rows')
-        hit = self.call('lookup', password=password, count=100)
-        require(all(value is True for value in hit['result']['verdicts']), 'cached breach was lost under exhaustion/eviction')
-        require(hit['metrics']['http'] == 0 and hit['metrics']['store_writes'] == 0, 'cache hits opened transport or mutated store')
-        self.record_performance('cached_hit_100', hit, operations=100, unit='lookup')
+        spent_out = self.call('lookup', password=password, privileged=True)
+        require(spent_out['result']['verdicts'] == [None] and spent_out['metrics']['http'] == 0,
+                'a spent allowance still answered: something was kept')
         denied = self.call('lookup', password='synthetic-unrelated-denial-fixture', count=100, alternate=True)
         require(all(value is None for value in denied['result']['verdicts']), 'denial became a clean verdict')
         require(denied['metrics']['http'] == 0 and denied['metrics']['store_writes'] <= 1, 'denials caused HTTP or per-attempt evidence writes')
@@ -378,14 +495,23 @@ class Lab:
         require(noop['bootstrap']['store_reads'] == 0 and noop['bootstrap']['store_writes'] == 0
                 and noop['bootstrap']['http'] == 0, 'ordinary bootstrap touched HIBP authority/transport')
         self.record_performance('no_screening_bootstrap', noop)
+        require(self.only_the_allowance(self.probe()), 'the case ended with a row beside the allowance')
 
     def storage(self, count):
         self.reset()
         data = self.call('storage', count=count, timeout=240)
         rows = data['result']['rows']
-        require(len(rows) == 65, 'storage exercise did not cover all 64 slots plus control')
-        require(sum(row['bytes'] for row in rows) <= 64 * 132096 + 4096, 'aggregate encoded bound exceeded')
+        require(len(rows) == 1 and rows[0]['key'] == 'state', 'storage exercise left more than the control row')
+        require(rows[0]['bytes'] <= 4096, 'encoded bound exceeded')
         self.record_performance('storage_' + str(count), data, operations=count, unit='storage_iteration')
+
+    def legacy_rows(self):
+        # Rows left by a version that kept replies are deleted, by fixed name.
+        self.reset()
+        data = self.call('legacy')
+        rows = data['result']['rows']
+        require(len(rows) == 1 and rows[0]['key'] == 'state', 'kept replies survived the clean-up')
+        require(data['metrics']['http'] == 0, 'clean-up reached HTTP')
 
     def scope(self):
         self.reset(0)
@@ -429,15 +555,17 @@ def main():
             'exact_burst': lab.exact_burst,
             'last_credit': lab.last_credit,
             'cap_two': lab.cap_two,
-            'same_slot': lab.same_slot,
+            'lanes': lab.lanes,
+            'reserve': lab.reserve,
             'stale_reservation': lambda: lab.stale('after_reservation'),
             'stale_http': lambda: lab.stale('after_http'),
-            'stale_claim': lab.stale_claim,
+            'stale_finish': lab.stale_finish,
             'kill_reservation': lambda: lab.killed_reservation('after_reservation'),
             'kill_http': lambda: lab.killed_reservation('after_http'),
-            'publisher_rollback': lab.publisher_rollback,
-            'cache_paths': lab.cache_paths,
+            'finish_rollback': lab.finish_rollback,
+            'no_retention': lab.no_retention,
             'storage': lambda: lab.storage(args.storage_count),
+            'legacy_rows': lab.legacy_rows,
             'scope': lab.scope,
         }
         if os.environ.get('GITHUB_ACTIONS') == 'true':

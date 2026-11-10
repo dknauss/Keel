@@ -1,6 +1,15 @@
 <?php
 /**
- * Bounded HIBP admission, fixed range slots and sampled shared evidence.
+ * Bounded HIBP admission and sampled shared evidence.
+ *
+ * This is an allowance and nothing else. It decides whether a lookup may go out
+ * and records that one did. No reply is kept between requests, and nothing here
+ * is given the password, its hash or the hash prefix, so no stored row can say
+ * anything about a password that was checked.
+ *
+ * Everything it stores is one row per site or network: the allowance left, when
+ * it was last topped up, up to two short leases for lookups in flight, the time
+ * of the last live reply and a sampled failure reason.
  *
  * @package Keel
  */
@@ -22,6 +31,21 @@ function keel_hibp_budget_policy() {
 	return is_array( $policy ) && count( $policy ) === 2 && isset( $policy['capacity'], $policy['interval'] )
 		&& is_int( $policy['capacity'] ) && $policy['capacity'] >= 1 && $policy['capacity'] <= 100
 		&& is_int( $policy['interval'] ) && $policy['interval'] >= 1 && $policy['interval'] <= 3600 ? $policy : $default;
+}
+
+/**
+ * The part of the allowance kept back for privileged accounts, in credit units.
+ *
+ * Half of a full allowance, rounded down. Requests that are not for a
+ * privileged account may only spend what stands above this line, so however
+ * many of them there are, this much is still there for an account that
+ * matters. Worked out from the policy each time and never stored.
+ *
+ * @param array $policy Validated budget policy.
+ * @return int
+ */
+function keel_hibp_budget_reserve( array $policy ) {
+	return intdiv( $policy['capacity'], 2 ) * $policy['interval'];
 }
 
 /**
@@ -136,63 +160,48 @@ function keel_hibp_budget_refill( array $state, array $policy, $now ) {
 }
 
 /**
- * Direct-mapped slot, fixed independently of attacker cardinality.
+ * The lane a new lease takes: the lower of the two that no live lease holds.
  *
- * @param string $prefix Five-character SHA-1 prefix.
- * @return int
- */
-function keel_hibp_budget_slot( $prefix ) {
-	return hexdec( substr( $prefix, 0, 2 ) ) % 64;
-}
-
-/**
- * Decode a bounded slot. Corrupt slots are misses.
+ * Two lookups may be in flight at once, one per lane. A lane is only a number
+ * that tells the two leases apart. It is chosen from what is free, never from
+ * the password being checked. The lease still records it under `slot`, the name
+ * the stored format has always used, so a row written by an earlier version
+ * stays readable.
  *
- * @param string|null|false $raw Bounded raw database value.
- * @return array|false
+ * @param array $leases Live leases from a refilled control state.
+ * @return int|null Lane 0 or 1, or null when both are taken.
  */
-function keel_hibp_budget_slot_data( $raw ) {
-	if ( ! is_string( $raw ) || strlen( $raw ) > 132096 ) {
-		return false;
+function keel_hibp_budget_lane( array $leases ) {
+	if ( count( $leases ) >= 2 ) {
+		return null;
 	}
-	$s = json_decode( $raw, true );
-	return is_array( $s ) && count( $s ) === 3 && isset( $s['v'], $s['owner'] ) && array_key_exists( 'data', $s ) && 2 === $s['v'] && is_string( $s['owner'] ) && preg_match( '/\A[a-f0-9]{32}\z/D', $s['owner'] ) ? $s : false;
+	$taken = array_column( $leases, 'slot' );
+	foreach ( array( 0, 1 ) as $lane ) {
+		if ( ! in_array( $lane, $taken, true ) ) {
+			return $lane;
+		}
+	}
+	return null;
 }
 
 /**
- * Valid cache hits never open or mutate the bucket.
+ * Admission ticket, or bounded unknown reason.
  *
- * @param array  $scope Canonical database scope.
- * @param string $prefix Five-character SHA-1 prefix.
- * @param int    $now Current Unix timestamp.
- * @return string|false
- */
-function keel_hibp_budget_cache( array $scope, $prefix, $now ) {
-	$slot = keel_hibp_budget_slot_data( keel_hibp_budget_read( $scope, keel_hibp_budget_key( $scope, sprintf( 'slot_%02d', keel_hibp_budget_slot( $prefix ) ) ), 132096 ) );
-	$d    = $slot ? $slot['data'] : null;
-	return is_array( $d ) && count( $d ) === 4 && isset( $d['prefix'], $d['body'], $d['received'], $d['expires'] ) && $prefix === $d['prefix'] && is_string( $d['body'] ) && strlen( $d['body'] ) <= 131072 && keel_hibp_budget_time( $d['received'] ) && keel_hibp_budget_time( $d['expires'] ) && $d['received'] <= $now && $d['expires'] === $d['received'] + 43200 && $d['expires'] > $now && keel_hibp_body_is_valid( $d['body'] ) ? $d['body'] : false;
-}
-
-/**
- * Cached body, admission ticket, or bounded unknown reason.
+ * Admission knows nothing about the lookup it admits, beyond whether it is for
+ * a privileged account. One compare-and-swap on the control row spends the
+ * allowance and records the lease together, so two requests cannot both take
+ * the last of either.
  *
- * @param array  $scope Canonical database scope.
- * @param string $prefix Five-character SHA-1 prefix.
+ * @param array $scope      Canonical database scope.
+ * @param bool  $privileged Whether the lookup is for a privileged account, and
+ *                          so may spend the part of the allowance kept back.
  * @return array
  */
-function keel_hibp_budget_admit( array $scope, $prefix ) {
-	if ( ! is_string( $prefix ) || ! preg_match( '/\A[A-F0-9]{5}\z/D', $prefix ) ) {
-		return array( 'error' => 'budget_unavailable' );
-	}
+function keel_hibp_budget_admit( array $scope, $privileged = false ) {
 	$key    = keel_hibp_budget_key( $scope, 'state' );
-	$slot   = keel_hibp_budget_slot( $prefix );
 	$policy = keel_hibp_budget_policy();
 	for ( $attempt = 0; $attempt < 3; ++$attempt ) {
-		$now  = time();
-		$body = keel_hibp_budget_cache( $scope, $prefix, $now );
-		if ( false !== $body ) {
-			return array( 'body' => $body );
-		}
+		$now   = time();
 		$ready = false;
 		$raw   = keel_hibp_budget_read( $scope, $key );
 		if ( null === $raw ) {
@@ -207,22 +216,20 @@ function keel_hibp_budget_admit( array $scope, $prefix ) {
 		if ( ! $state || $state['rev'] > PHP_INT_MAX - 3 ) {
 			break;
 		}
-		foreach ( $state['leases'] as $lease ) {
-			if ( $slot === $lease['slot'] ) {
-				return array( 'error' => 'lookup_busy' );
-			}
-		}
-		if ( count( $state['leases'] ) >= 2 ) {
+		$lane = keel_hibp_budget_lane( $state['leases'] );
+		if ( null === $lane ) {
 			return array( 'error' => 'lookup_busy' );
 		}
-		if ( $state['credit'] < $policy['interval'] ) {
+		// Everyone else stops at the reserve; a privileged account can spend to nothing.
+		$floor = true === $privileged ? 0 : keel_hibp_budget_reserve( $policy );
+		if ( $state['credit'] - $floor < $policy['interval'] ) {
 			return array( 'error' => 'budget_exhausted' );
 		}
 		// A denied read needs no connection probe; check immediately before mutation.
 		if ( ! $ready && ( ! keel_hibp_budget_connection_idle() || ! keel_hibp_budget_transactional( $scope ) ) ) {
 			break; }
 		$lease             = array(
-			'slot'  => $slot,
+			'slot'  => $lane,
 			'owner' => str_replace( '-', '', wp_generate_uuid4() ),
 			'until' => $now + 30,
 		);
@@ -232,58 +239,11 @@ function keel_hibp_budget_admit( array $scope, $prefix ) {
 		if ( ! keel_hibp_budget_write( $scope, $key, $raw, $state ) ) {
 			continue;
 		}
-		$ticket           = $lease;
-		$ticket['scope']  = $scope;
-		$ticket['prefix'] = $prefix;
-		if ( keel_hibp_budget_claim( $ticket ) ) {
-			return array( 'ticket' => $ticket );
-		}
-		keel_hibp_budget_finish( $ticket, null, 'budget_unavailable' );
-		break;
+		$ticket          = $lease;
+		$ticket['scope'] = $scope;
+		return array( 'ticket' => $ticket );
 	}
 	return array( 'error' => 'budget_unavailable' );
-}
-
-/**
- * Claim a slot while fencing reservations in a short transaction.
- *
- * @param array $ticket Admission ownership token.
- * @return bool
- */
-function keel_hibp_budget_claim( array $ticket ) {
-	$scope    = $ticket['scope'];
-	$key      = keel_hibp_budget_key( $scope, 'state' );
-	$slot_key = keel_hibp_budget_key( $scope, sprintf( 'slot_%02d', $ticket['slot'] ) );
-	for ( $i = 0; $i < 3; ++$i ) {
-		$owned = keel_hibp_budget_owned( $ticket );
-		if ( ! $owned || $owned['state']['rev'] > PHP_INT_MAX - 3 || ! keel_hibp_budget_transaction( 'START TRANSACTION' ) ) {
-			return false;
-		}
-		$state = $owned['state'];
-		++$state['rev'];
-		if ( ! keel_hibp_budget_write( $scope, $key, $owned['raw'], $state ) ) {
-			keel_hibp_budget_transaction( 'ROLLBACK' );
-			continue;
-		}
-		$old  = keel_hibp_budget_read( $scope, $slot_key, 132096 );
-		$data = keel_hibp_budget_slot_data( $old );
-		if ( false === $old || $ticket['until'] <= time() || ! keel_hibp_budget_write(
-			$scope,
-			$slot_key,
-			$old,
-			array(
-				'v'     => 2,
-				'owner' => $ticket['owner'],
-				'data'  => $data ? $data['data'] : null,
-			),
-			132096
-		) || $ticket['until'] <= time() || ! keel_hibp_budget_transaction( 'COMMIT' ) ) {
-			keel_hibp_budget_transaction( 'ROLLBACK' );
-			return false;
-		}
-		return true;
-	}
-	return false;
 }
 
 /**
@@ -330,15 +290,15 @@ function keel_hibp_budget_sample( array $state, $kind, $now ) {
 /**
  * Fenced short transaction: never hold a DB lock across HTTP.
  *
- * @param array       $ticket Admission ownership token.
- * @param string|null $body Validated live range or null on failure.
- * @param string      $kind Bounded failure reason.
+ * Releases the lease and records the outcome: the time of a validated live
+ * reply, or a sampled failure reason. The reply itself is never passed in.
+ *
+ * @param array  $ticket Admission ownership token.
+ * @param bool   $live Whether a complete, validated live reply arrived.
+ * @param string $kind Bounded failure reason.
  * @return bool
  */
-function keel_hibp_budget_finish( array $ticket, $body = null, $kind = '' ) {
-	if ( null !== $body && ( ! is_string( $body ) || ! keel_hibp_body_is_valid( $body ) ) ) {
-		return false;
-	}
+function keel_hibp_budget_finish( array $ticket, $live = false, $kind = '' ) {
 	$scope = $ticket['scope'];
 	$key   = keel_hibp_budget_key( $scope, 'state' );
 	for ( $attempt = 0; $attempt < 3; ++$attempt ) {
@@ -348,7 +308,7 @@ function keel_hibp_budget_finish( array $ticket, $body = null, $kind = '' ) {
 		}
 		$state = $owned['state'];
 		++$state['rev'];
-		// Lock the control row by CAS, fencing both new reservations and slot publication.
+		// Lock the control row by CAS, fencing new reservations while the lease is released.
 		if ( ! keel_hibp_budget_write( $scope, $key, $owned['raw'], $state ) ) {
 			keel_hibp_budget_transaction( 'ROLLBACK' );
 			continue;
@@ -356,24 +316,6 @@ function keel_hibp_budget_finish( array $ticket, $body = null, $kind = '' ) {
 		if ( $ticket['until'] <= time() ) {
 			keel_hibp_budget_transaction( 'ROLLBACK' );
 			return false;
-		}
-		if ( null !== $body && strlen( $body ) <= 131072 ) {
-			$slot_key = keel_hibp_budget_key( $scope, sprintf( 'slot_%02d', $ticket['slot'] ) );
-			$old      = keel_hibp_budget_read( $scope, $slot_key, 132096 );
-			$slot     = keel_hibp_budget_slot_data( $old );
-			if ( ! $slot || $slot['owner'] !== $ticket['owner'] ) {
-				keel_hibp_budget_transaction( 'ROLLBACK' );
-				return false;
-			}
-			$now          = time();
-			$slot['data'] = array(
-				'prefix'   => $ticket['prefix'],
-				'body'     => $body,
-				'received' => $now,
-				'expires'  => $now + 43200,
-			);
-			// Retention failure cannot turn a validated live verdict into clean or corrupt ownership.
-			keel_hibp_budget_write( $scope, $slot_key, $old, $slot, 132096 );
 		}
 		$state['leases'] = array_values(
 			array_filter(
@@ -383,7 +325,7 @@ function keel_hibp_budget_finish( array $ticket, $body = null, $kind = '' ) {
 				}
 			)
 		);
-		if ( null !== $body ) {
+		if ( true === $live ) {
 			$state['success'] = time();
 			// Preserve sampling cadence across successes and changing failure reasons.
 		} else {

@@ -76,8 +76,9 @@ function hibp_lab_query( $sql ) {
 		if ( $phase['reserved'] && ! $phase['transaction'] && ! $write && false !== strpos( $sql, '_state' ) ) {
 			hibp_lab_pause( 'after_reservation' );
 		}
-		if ( $phase['transaction'] && $phase['control_write'] && $write && false !== strpos( $sql, '_slot_' ) ) {
-			hibp_lab_pause( 'publisher_locked' );
+		// Completion holds the control row from its first write to its commit. Stop between the two.
+		if ( $phase['transaction'] && $phase['control_write'] && ! $write && false !== strpos( $sql, '_state' ) ) {
+			hibp_lab_pause( 'finish_locked' );
 		}
 		if ( $write && false !== strpos( $sql, '_state' ) ) {
 			$phase['reserved'] = true;
@@ -99,8 +100,12 @@ function hibp_lab_http( $pre, $args, $url ) {
 		$phase['http_done'] = true;
 		return new WP_Error( 'hibp_lab_synthetic_failure' );
 	}
-	$hash               = strtoupper( sha1( $job['password'] ?? 'synthetic-hibp-lab-value' ) );
-	$body               = substr( $hash, 5 ) . ":3\r\n" . str_repeat( '0', 35 ) . ':0';
+	$hash = strtoupper( sha1( $job['password'] ?? 'synthetic-hibp-lab-value' ) );
+	$body = substr( $hash, 5 ) . ":3\r\n" . str_repeat( '0', 35 ) . ':0';
+	// Optionally pad the reply towards the transport cap with rows that match nothing.
+	if ( ! empty( $job['http_rows'] ) ) {
+		$body .= "\n" . implode( "\n", array_fill( 0, (int) $job['http_rows'], str_repeat( '0', 35 ) . ':0' ) );
+	}
 	$phase['http_done'] = true;
 	return array(
 		'headers'  => array(),
@@ -147,7 +152,8 @@ try {
 			$state['credit'] = $credit;
 		}
 		$old = keel_hibp_budget_read( $scope, $state_key );
-		if ( ! keel_hibp_budget_write( $scope, $state_key, $old, $state ) ) {
+		// Writing the bytes already there changes no row, which a compare-and-swap reports as lost.
+		if ( wp_json_encode( $state, JSON_UNESCAPED_SLASHES ) !== $old && ! keel_hibp_budget_write( $scope, $state_key, $old, $state ) ) {
 			throw new Keel_HIBP_Lab_Exception( 'fixture seed CAS failed' );
 		}
 	}
@@ -198,20 +204,17 @@ try {
 			break;
 		case 'admit':
 		case 'held':
-			$result = keel_hibp_budget_admit( $scope, $job['prefix'] );
+			$result = keel_hibp_budget_admit( $scope, ! empty( $job['privileged'] ) );
 			if ( 'held' === $job['op'] ) {
 				hibp_lab_json( $job['work'] . '/admitted.json', $result );
 				hibp_lab_wait( $job['work'] . '/finish' );
 				if ( isset( $result['ticket'] ) ) {
-					$result['finish'] = keel_hibp_budget_finish( $result['ticket'], str_repeat( '0', 35 ) . ':0' );
+					$result['finish'] = keel_hibp_budget_finish( $result['ticket'], true );
 				}
 			}
 			break;
-		case 'claim':
-			$result = array( 'claim' => keel_hibp_budget_claim( $job['ticket'] ) );
-			break;
 		case 'finish':
-			$result = array( 'finish' => keel_hibp_budget_finish( $job['ticket'], $job['body'] ?? null ) );
+			$result = array( 'finish' => keel_hibp_budget_finish( $job['ticket'], ! empty( $job['live'] ), $job['kind'] ?? '' ) );
 			break;
 		case 'expire':
 			$raw   = keel_hibp_budget_read( $scope, $state_key );
@@ -226,7 +229,11 @@ try {
 		case 'lookup':
 			$result['verdicts'] = array();
 			for ( $i = 0; $i < ( $job['count'] ?? 1 ); ++$i ) {
-				$result['verdicts'][] = keel_hibp_lookup( $job['password'] ?? 'synthetic-hibp-lab-value' );
+				// One answer is remembered for the rest of a request. A new request time makes each pass its own request.
+				if ( ! empty( $job['requests'] ) ) {
+					$_SERVER['REQUEST_TIME_FLOAT'] = microtime( true ) + $i;
+				}
+				$result['verdicts'][] = keel_hibp_lookup( $job['password'] ?? 'synthetic-hibp-lab-value', ! empty( $job['privileged'] ) );
 				if ( ! empty( $job['alternate'] ) ) {
 					keel_hibp_budget_note( $i % 2 ? 'lookup_busy' : 'budget_exhausted' );
 				}
@@ -277,7 +284,7 @@ try {
 			$wpdb->query( $wpdb->prepare( "UPDATE `{$scope['table']}` SET option_value=%s WHERE option_name=%s", $raw . ' ', $state_key ) );
 			hibp_lab_assert( keel_hibp_budget_read( $scope, $state_key ) === $raw . ' ', 'transaction write not visible to caller' );
 			$before    = $metrics;
-			$admission = keel_hibp_budget_admit( $scope, '01000' );
+			$admission = keel_hibp_budget_admit( $scope, true );
 			hibp_lab_assert( isset( $admission['error'] ) && 'budget_unavailable' === $admission['error'], 'active caller transaction admitted' );
 			hibp_lab_assert( $metrics['begins'] === $before['begins'] && $metrics['commits'] === $before['commits'] && $metrics['rollbacks'] === $before['rollbacks'], 'admission touched caller transaction' );
 			hibp_lab_assert( null === keel_hibp_lookup( 'synthetic-transaction-lab-value' ), 'active transaction must return unknown' );
@@ -298,37 +305,86 @@ try {
 
 			break;
 		case 'storage':
+			// However many lookups pass through, and however they end, one row is all there is.
 			for ( $i = 0; $i < ( $job['count'] ?? 2048 ); ++$i ) {
 				hibp_lab_seed();
-				$prefix    = sprintf( '%02X%03X', $i % 256, intdiv( $i, 256 ) );
-				$admission = keel_hibp_budget_admit( $scope, $prefix );
+				$admission = keel_hibp_budget_admit( $scope, (bool) ( $i % 2 ) );
 				hibp_lab_assert( isset( $admission['ticket'] ), 'storage fixture admission failed' );
-				hibp_lab_assert( keel_hibp_budget_finish( $admission['ticket'], str_repeat( '0', 35 ) . ':0' ), 'storage fixture publication failed' );
+				hibp_lab_assert( array( 'slot', 'owner', 'until', 'scope' ) === array_keys( $admission['ticket'] ), 'ticket carries more than a lane, an owner and an expiry' );
+				hibp_lab_assert( in_array( $admission['ticket']['slot'], array( 0, 1 ), true ), 'lane outside the two fixed lanes' );
+				hibp_lab_assert( keel_hibp_budget_finish( $admission['ticket'], 0 === $i % 3, 0 === $i % 3 ? '' : 'unreachable' ), 'storage fixture completion failed' );
 			}
 			$result['rows'] = hibp_lab_rows();
-			hibp_lab_assert( count( $result['rows'] ) <= 65, 'row cardinality exceeded' );
+			hibp_lab_assert( 1 === count( $result['rows'] ), 'row cardinality exceeded' );
 			foreach ( $result['rows'] as $row ) {
-				hibp_lab_assert( (bool) preg_match( '/^(state|slot_(?:[0-5][0-9]|6[0-3]))$/D', $row['key'] ), 'unbounded key' );
-				hibp_lab_assert( $row['bytes'] <= ( 'state' === $row['key'] ? 4096 : 132096 ), 'encoded cap exceeded' );
-				hibp_lab_assert( 'no' === $row['autoload'], 'authority/payload autoloaded' );
+				hibp_lab_assert( 'state' === $row['key'], 'unexpected row' );
+				hibp_lab_assert( $row['bytes'] <= 4096, 'encoded cap exceeded' );
+				hibp_lab_assert( 'no' === $row['autoload'], 'authority autoloaded' );
 			}
+			$state = json_decode( keel_hibp_budget_read( $scope, $state_key ), true );
+			hibp_lab_assert( array( 'v', 'rev', 'policy', 'credit', 'last', 'leases', 'sample', 'success' ) === array_keys( $state ) && array() === $state['leases'], 'control row holds more than the allowance at rest' );
 			hibp_lab_assert( ! keel_hibp_budget_write( $scope, $state_key, keel_hibp_budget_read( $scope, $state_key ), array( 'oversize' => str_repeat( 'x', 4096 ) ) ), 'state encoded cap ignored' );
 			hibp_lab_assert( false === keel_hibp_budget_read( $scope, $state_key, 1 ), 'bounded read ignored' );
-			$slot_key = keel_hibp_budget_key( $scope, 'slot_63' );
-			hibp_lab_assert( ! keel_hibp_budget_write( $scope, $slot_key, keel_hibp_budget_read( $scope, $slot_key, 132096 ), array( 'oversize' => str_repeat( 'x', 132096 ) ), 132096 ), 'slot encoded cap ignored' );
+			// A large reply is answered from and dropped like any other.
 			hibp_lab_seed();
-			$large = implode( "\n", array_fill( 0, 3449, str_repeat( '0', 35 ) . ':0' ) );
-			hibp_lab_assert( strlen( $large ) <= 131072 && strlen( wp_json_encode( $large ) ) > 132096, 'encoded expansion fixture is not at boundary' );
-			$admission = keel_hibp_budget_admit( $scope, 'FFABC' );
-			hibp_lab_assert( isset( $admission['ticket'] ) && keel_hibp_budget_finish( $admission['ticket'], $large ), 'valid live response lost on encoded retention rejection' );
-			hibp_lab_assert( false === keel_hibp_budget_cache( $scope, 'FFABC', time() ), 'encoded expansion exceeded fixed slot cap' );
-			hibp_lab_seed();
-			$oversized = $large . "\n" . str_repeat( '0', 35 ) . ':12345678901234567890123456789012345678901234567890';
-			hibp_lab_assert( strlen( $oversized ) > 131072, 'raw oversize fixture too short' );
-			$admission = keel_hibp_budget_admit( $scope, 'FEABC' );
-			hibp_lab_assert( isset( $admission['ticket'] ) && keel_hibp_budget_finish( $admission['ticket'], $oversized ), 'raw oversize live result lost' );
-			hibp_lab_assert( false === keel_hibp_budget_cache( $scope, 'FEABC', time() ), 'raw body cap ignored' );
+			$job['password']  = 'synthetic-large-reply-fixture';
+			$job['http_rows'] = 3440;
+			$before           = $metrics['http'];
+			hibp_lab_assert( true === keel_hibp_lookup( $job['password'], true ), 'valid large live response lost' );
+			hibp_lab_assert( $metrics['http'] === $before + 1, 'large reply fixture did not exercise transport' );
+			$rows = hibp_lab_rows();
+			hibp_lab_assert( 1 === count( $rows ) && 'state' === $rows[0]['key'] && $rows[0]['bytes'] <= 4096, 'large reply left something behind' );
 
+			break;
+		case 'legacy':
+			// What a version that kept replies left behind: 64 fixed rows beside the control row.
+			$hibp_lab_kept_replies = static function () use ( $scope ) {
+				hibp_lab_seed();
+				for ( $i = 0; $i < 64; ++$i ) {
+					$key = keel_hibp_budget_key( $scope, sprintf( 'slot_%02d', $i ) );
+					$old = keel_hibp_budget_read( $scope, $key, 132096 );
+					hibp_lab_assert(
+						keel_hibp_budget_write(
+							$scope,
+							$key,
+							$old,
+							array(
+								'v'     => 2,
+								'owner' => str_repeat( '0', 32 ),
+								'data'  => array(
+									'prefix'   => sprintf( 'AB%03X', $i ),
+									'body'     => implode( "\n", array_fill( 0, 800, str_repeat( '0', 35 ) . ':0' ) ),
+									'received' => time() - 50000,
+									'expires'  => time() - 6800,
+								),
+							),
+							132096
+						),
+						'legacy fixture creation failed'
+					);
+				}
+				hibp_lab_assert( 65 === count( hibp_lab_rows() ), 'legacy fixture incomplete' );
+			};
+			$hibp_lab_kept_replies();
+			$control = keel_hibp_budget_read( $scope, $state_key );
+			hibp_lab_assert( true === keel_defaults_forget_breach_replies(), 'clean-up reported failure' );
+			$result['rows'] = hibp_lab_rows();
+			hibp_lab_assert( 1 === count( $result['rows'] ) && 'state' === $result['rows'][0]['key'], 'clean-up left kept replies behind' );
+			hibp_lab_assert( keel_hibp_budget_read( $scope, $state_key ) === $control, 'clean-up touched the allowance' );
+			hibp_lab_assert( true === keel_defaults_forget_breach_replies(), 'clean-up with nothing to delete reported failure' );
+			// The same thing as a site meets it: the first request after updating from that version.
+			$hibp_lab_kept_replies();
+			$current = get_option( KEEL_DEFAULTS_DATA_VERSION_OPTION );
+			hibp_lab_assert( KEEL_DEFAULTS_DATA_VERSION === (int) $current, 'lab site is not on the current data version' );
+			update_option( KEEL_DEFAULTS_DATA_VERSION_OPTION, 1 );
+			hibp_lab_assert( true === keel_defaults_maybe_upgrade(), 'upgrade from the earlier data version did not run' );
+			hibp_lab_assert( KEEL_DEFAULTS_DATA_VERSION === (int) get_option( KEEL_DEFAULTS_DATA_VERSION_OPTION ), 'upgrade did not record the current data version' );
+			$rows = hibp_lab_rows();
+			hibp_lab_assert( 1 === count( $rows ) && 'state' === $rows[0]['key'], 'upgrade left kept replies behind' );
+			hibp_lab_assert( false === keel_defaults_maybe_upgrade(), 'upgrade ran twice' );
+			// An allowance left by that version carries on: its row is still the row.
+			$admission = keel_hibp_budget_admit( $scope );
+			hibp_lab_assert( isset( $admission['ticket'] ) && keel_hibp_budget_finish( $admission['ticket'], true ), 'allowance did not carry on after clean-up' );
 			break;
 		case 'uninstall':
 			if ( 'true' !== getenv( 'GITHUB_ACTIONS' ) ) {
@@ -405,7 +461,7 @@ try {
 				switch_to_blog( get_main_site_id( (int) $other->id ) );
 				$second = keel_hibp_budget_scope();
 				hibp_lab_assert( $second && $second['id'] !== $scope['id'] && $second['table'] !== $scope['table'], 'networks share authority' );
-				$admission = keel_hibp_budget_admit( $second, '01000' );
+				$admission = keel_hibp_budget_admit( $second );
 				hibp_lab_assert( isset( $admission['ticket'] ), 'other network did not have independent allowance' );
 				keel_hibp_budget_finish( $admission['ticket'] );
 				for ( $i = -1; $i < 64; ++$i ) {

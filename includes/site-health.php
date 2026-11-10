@@ -570,8 +570,8 @@ function keel_defaults_conflict_list( $conflicts ) {
  * Report passive, sampled evidence about the shared breach-screening transport.
  *
  * Missing evidence is not proof of clean passwords. Local admission limits and
- * provider failures both leave the password verdict unknown; cache hits may still
- * work. Network-wide activity is visible only to network managers.
+ * provider failures both leave the password verdict unknown. Network-wide
+ * activity is visible only to network managers.
  *
  * @return array
  */
@@ -637,7 +637,7 @@ function keel_defaults_site_health_breach_screening() {
 	if ( $private ) {
 		$result['status']      = $degraded ? 'recommended' : 'good';
 		$result['label']       = __( 'Password breach-screening coverage is unknown', 'keel-defaults' );
-		$result['description'] = '<p>' . esc_html__( 'Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run.', 'keel-defaults' ) . '</p>';
+		$result['description'] = '<p>' . esc_html__( 'Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it.', 'keel-defaults' ) . '</p>';
 		return $result;
 	}
 
@@ -652,7 +652,7 @@ function keel_defaults_site_health_breach_screening() {
 		$description     .= '<p>' . esc_html__( 'The shared lookup budget could not be read. Fresh lookup coverage is unknown; this does not establish a Have I Been Pwned outage.', 'keel-defaults' ) . '</p>';
 	} elseif ( null !== $failure ) {
 		$kinds = array(
-			'budget_exhausted'   => __( 'the shared allowance for fresh lookups was exhausted', 'keel-defaults' ),
+			'budget_exhausted'   => __( 'the shared allowance for lookups was used up, or only the share kept for privileged accounts was left', 'keel-defaults' ),
 			'lookup_busy'        => __( 'the shared lookup slots were busy', 'keel-defaults' ),
 			'budget_unavailable' => __( 'the shared lookup budget was unavailable', 'keel-defaults' ),
 			'unreachable'        => __( 'the service could not be reached', 'keel-defaults' ),
@@ -690,9 +690,9 @@ function keel_defaults_site_health_breach_screening() {
 			$description .= '<p>' . esc_html__( 'A later live response does not erase the earlier sampled unknown verdict or establish that every intervening check completed. The sample remains subject to the shared diagnostic sampling interval.', 'keel-defaults' ) . '</p>';
 		}
 	} else {
-		$description .= '<p>' . esc_html__( 'No validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery.', 'keel-defaults' ) . '</p>';
+		$description .= '<p>' . esc_html__( 'No validated live response is recorded. Locally filtered verdicts do not establish live service recovery.', 'keel-defaults' ) . '</p>';
 	}
-	$description          .= '<p>' . esc_html__( 'Cached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked.', 'keel-defaults' ) . '</p>';
+	$description          .= '<p>' . esc_html__( 'An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked.', 'keel-defaults' ) . '</p>';
 	$result['description'] = $description;
 
 	return $result;

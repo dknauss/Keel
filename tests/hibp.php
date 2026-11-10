@@ -6,8 +6,11 @@
  * the transport-boundary check, the well-formedness check, and the padded-row
  * rule. A response that fails any of them must read as *unknown* rather than
  * "not breached" — the two used to be the same value, which made an outage
- * indistinguishable from a clean corpus. Screening still fails open (fail
- * open) rather than being parsed or cached.
+ * indistinguishable from a clean corpus. Screening still fails open.
+ *
+ * It also covers what the lookup leaves behind, which is one row of counters:
+ * no reply is kept between requests, and nothing about the password reaches
+ * the database.
  *
  * Run: php tests/hibp.php
  *
@@ -67,8 +70,8 @@ function wp_generate_uuid4() {
 /*
  * --- transport and cache stubs, so keel_hibp_lookup() can be run end to end ---
  *
- * Until now this file only exercised the pure helpers. The lookup itself — the
- * part that decides what gets written to the cache — had no coverage at all.
+ * The cache stubs record what is written. Nothing should be: they are here so
+ * a write would be noticed, not because the lookup uses them.
  */
 $GLOBALS['keel_transients']    = array();
 $GLOBALS['keel_http_calls']    = 0;
@@ -200,72 +203,112 @@ keel_assert( false !== strpos( $ai_warning, 'Jetpack' ) && false !== strpos( $ai
 keel_assert( keel_defaults_jetpack_warning( 'block_xmlrpc_endpoint' ) !== $ai_warning, 'And it is its own warning, not the XML-RPC one.' );
 
 /*
- * --- what reaches the cache, and what must never ---
+ * --- what a lookup leaves behind, which is one row of counters ---
  *
- * Raised by the sibling plugin's review: a breach check that caches a negative
- * verdict from a well-formed-but-empty 200 lets a hostile or compromised upstream
- * hold "not breached" for a whole prefix until the entry expires.
+ * The breach check used to keep each reply for twelve hours. It keeps none now:
+ * a reply answers the request that asked for it and is gone. What is stored is
+ * the allowance and nothing else, so no row can say anything about a password
+ * that was checked.
  *
- * Keel does not cache a verdict — it caches the range body, and only after the
- * body has passed a completeness and a syntax check, both of which an empty body
- * fails. So the reported shape does not reach it. That is worth an assertion
- * rather than a reading: the bail and the cache write are four lines apart, and
- * nothing stopped a refactor from reordering them.
+ * Each reset below is a new request. That matters because one answer is
+ * remembered for the rest of the request that asked — and for no longer.
  */
+$GLOBALS['keel_request'] = 1000.0;
+
 function keel_hibp_reset( $code, $body ) {
-	$GLOBALS['wpdb']              = new Keel_HIBP_Test_DB();
-	$GLOBALS['keel_transients']   = array();
-	$GLOBALS['keel_object_cache'] = array();
-	$GLOBALS['keel_http_calls']   = 0;
-	$GLOBALS['keel_http_reply']   = array(
+	$GLOBALS['wpdb']               = new Keel_HIBP_Test_DB();
+	$GLOBALS['keel_transients']    = array();
+	$GLOBALS['keel_object_cache']  = array();
+	$GLOBALS['keel_http_calls']    = 0;
+	$GLOBALS['keel_http_reply']    = array(
 		'code' => $code,
 		'body' => $body,
 	);
+	$_SERVER['REQUEST_TIME_FLOAT'] = ++$GLOBALS['keel_request'];
 }
 
 /**
- * Whether anything was written to either cache layer.
+ * Every stored row, by name.
  *
- * @return bool
+ * @return array<string,string>
  */
-function keel_hibp_anything_cached() {
-	$rows = $GLOBALS['wpdb']->pdo->query( "SELECT option_value FROM wp_options WHERE option_name LIKE '%slot_%'" )->fetchAll( PDO::FETCH_COLUMN ); // phpcs:ignore WordPress.DB.RestrictedClasses -- SQL-backed test double.
-	foreach ( $rows as $raw ) {
-		$slot = json_decode( $raw, true );
-		if ( ! empty( $slot['data'] ) ) {
-			return true; }
-	}
-	return false;
+function keel_hibp_stored() {
+	return $GLOBALS['wpdb']->pdo->query( 'SELECT option_name, option_value FROM wp_options ORDER BY option_name' )->fetchAll( PDO::FETCH_KEY_PAIR ); // phpcs:ignore WordPress.DB.RestrictedClasses -- SQL-backed test double.
 }
 
-$live_suffix = strtoupper( substr( sha1( 'correct-horse-battery-staple-9271' ), 5 ) );
+/**
+ * Whether the only thing stored is the allowance, with nothing of the password in it.
+ *
+ * At rest the row holds integers, two nulls and a fixed reason word. A hash, a
+ * prefix or a reply body has nowhere to go, and this fails if one finds a way.
+ *
+ * @param string $password The password that was just checked.
+ * @return bool
+ */
+function keel_hibp_only_the_allowance( $password ) {
+	$rows = keel_hibp_stored();
+	if ( array( 'keel_hibp_v2_0_state' ) !== array_keys( $rows ) ) {
+		return false;
+	}
+	$raw   = $rows['keel_hibp_v2_0_state'];
+	$state = json_decode( $raw, true );
+	$hash  = strtoupper( sha1( $password ) );
 
-// The reported case: a 200 whose body is empty.
+	return false !== keel_hibp_budget_state( $raw, time() )
+		&& array( 'v', 'rev', 'policy', 'credit', 'last', 'leases', 'sample', 'success' ) === array_keys( $state )
+		&& array() === $state['leases']
+		&& false === stripos( $raw, substr( $hash, 0, 5 ) )
+		&& false === stripos( $raw, substr( $hash, 5 ) )
+		&& false === stripos( $raw, $password )
+		&& empty( $GLOBALS['keel_transients'] )
+		&& empty( $GLOBALS['keel_object_cache'] );
+}
+
+$live_password = 'correct-horse-battery-staple-9271';
+$live_suffix   = strtoupper( substr( sha1( $live_password ), 5 ) );
+
+/*
+ * The allowance is never handed anything about the password. Pinned by
+ * signature, because the easiest way to bring a cache back is to start passing
+ * the prefix or the reply in again.
+ */
+$parameters = static function ( $callable ) {
+	return array_map(
+		static function ( $parameter ) {
+			return $parameter->getName();
+		},
+		( new ReflectionFunction( $callable ) )->getParameters()
+	);
+};
+keel_assert( array( 'scope', 'privileged' ) === $parameters( 'keel_hibp_budget_admit' ), 'Admission is given the scope and whose check it is, and nothing about the lookup.' );
+keel_assert( array( 'ticket', 'live', 'kind' ) === $parameters( 'keel_hibp_budget_finish' ), 'Completion is told whether a reply arrived, never the reply.' );
+keel_assert( ! function_exists( 'keel_hibp_budget_cache' ) && ! function_exists( 'keel_hibp_budget_slot' ) && ! function_exists( 'keel_hibp_budget_claim' ), 'Nothing is left that reads, places or claims a kept reply.' );
+
+// A 200 whose body is empty.
 keel_hibp_reset( 200, '' );
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An empty 200 reports *unknown*, not "not breached".' );
-keel_assert( ! keel_hibp_anything_cached(), 'An empty 200 is never cached, so one bad reply cannot hold a prefix open.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'An empty 200 reports *unknown*, not "not breached".' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'An empty 200 leaves the allowance row and nothing else.' );
+keel_assert( null === keel_hibp_lookup( $live_password ) && 2 === $GLOBALS['keel_http_calls'], 'Unknown is never remembered: the next check in the same request asks again.' );
 
 // Same question for a body that is not a range list at all.
 keel_hibp_reset( 200, '<html>captive portal</html>' );
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A malformed 200 reports unknown.' );
-keel_assert( ! keel_hibp_anything_cached(), 'A malformed 200 is never cached.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'A malformed 200 reports unknown.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'A malformed 200 leaves the allowance row and nothing else.' );
 
 // And for a transport failure.
 keel_hibp_reset( 0, '' );
 $GLOBALS['keel_http_reply'] = new WP_Error( 'http_request_failed', 'down' );
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An unreachable API reports unknown.' );
-keel_assert( ! keel_hibp_anything_cached(), 'An unreachable API is never cached.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'An unreachable API reports unknown.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'An unreachable API leaves the allowance row and nothing else.' );
 
 /*
  * A body cut off at the response limit is the dangerous one: the missing tail is
  * indistinguishable from "no match", so a real match silently reads as clean. It
- * must not be trusted and must not be stored.
+ * must not be trusted.
  *
  * The body is built to reach the cap exactly — keel_hibp_body_is_complete() is a
  * `strlen < limit` test — and it is otherwise perfectly well formed, so nothing
- * but the length check can reject it. The first draft of this case reset the
- * cache and asserted it was empty without ever calling the lookup, which passed
- * against a deliberately broken build.
+ * but the length check can reject it.
  */
 $GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] = 1024;
 $limit  = keel_hibp_response_limit();
@@ -277,26 +320,55 @@ keel_assert( strlen( $at_cap ) >= $limit, 'The fixture really does reach the tra
 keel_assert( keel_hibp_body_is_valid( trim( $at_cap ) ), 'The fixture is otherwise well formed, so only the length check can reject it.' );
 
 keel_hibp_reset( 200, $at_cap );
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A body at the truncation boundary reports unknown.' );
-keel_assert( ! keel_hibp_anything_cached(), 'A body at the truncation boundary is never cached.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'A body at the truncation boundary reports unknown.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'A body at the truncation boundary leaves the allowance row and nothing else.' );
 unset( $GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] );
 
-// The positive path still works, and a good body IS cached — otherwise the two
-// assertions above would pass on a lookup that simply never caches anything.
+// The positive path: a definite answer, and still nothing kept.
 keel_hibp_reset( 200, keel_range_line( $live_suffix, 42 ) );
-keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A listed suffix with a non-zero count is reported breached.' );
-keel_assert( keel_hibp_anything_cached(), 'A whole, well-formed body IS cached — the guard above is not passing vacuously.' );
+keel_assert( true === keel_hibp_lookup( $live_password ), 'A listed suffix with a non-zero count is reported breached.' );
+keel_assert( 1 === $GLOBALS['keel_http_calls'], 'The lookup went out once.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'A breached verdict leaves the allowance row and nothing else.' );
 
-// And the cache is actually used, rather than re-requesting every time.
-$before = $GLOBALS['keel_http_calls'];
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( $GLOBALS['keel_http_calls'] === $before, 'A second lookup for the same prefix is served from cache.' );
+/*
+ * One request may check the same password twice: the REST users route validates
+ * it as an argument and again before the user is saved. The second check reuses
+ * the first answer, so the pair costs one lookup, as it did when replies were kept.
+ */
+$raw = keel_hibp_stored()['keel_hibp_v2_0_state'];
+keel_assert( true === keel_hibp_lookup( $live_password ), 'A second check in the same request gets the same answer.' );
+keel_assert( 1 === $GLOBALS['keel_http_calls'], 'It does not go out again.' );
+keel_assert( keel_hibp_stored()['keel_hibp_v2_0_state'] === $raw, 'It spends no allowance and records nothing.' );
 
-// Uninstall removes fixed rows; external cache entries cannot restore them.
-$GLOBALS['wpdb']->query( 'DELETE FROM wp_options' );
-$before = $GLOBALS['keel_http_calls'];
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( $GLOBALS['keel_http_calls'] === $before + 1, 'A reinstall cannot read stale external range caches.' );
+// The answer is for one password. Another one is a new question.
+$GLOBALS['keel_http_reply']['body'] = keel_range_line( str_repeat( 'D', 35 ), 9 );
+keel_assert( false === keel_hibp_lookup( 'another-value-entirely-5512' ), 'A different password in the same request is looked up, and is clean here.' );
+keel_assert( 2 === $GLOBALS['keel_http_calls'], 'It went out for it.' );
+keel_assert( false === keel_hibp_lookup( 'another-value-entirely-5512' ) && 2 === $GLOBALS['keel_http_calls'], 'A clean answer is reused within the request as well.' );
+
+// One answer is held, not a list: the newer one replaced the older.
+$GLOBALS['keel_http_reply']['body'] = keel_range_line( $live_suffix, 42 );
+keel_assert( true === keel_hibp_lookup( $live_password ) && 3 === $GLOBALS['keel_http_calls'], 'Only the latest answer is held, so the first password is asked about again.' );
+
+// And it does not outlive the request. A long-running worker serves many.
+$_SERVER['REQUEST_TIME_FLOAT'] = ++$GLOBALS['keel_request'];
+keel_assert( true === keel_hibp_lookup( $live_password ) && 4 === $GLOBALS['keel_http_calls'], 'The next request asks again: nothing was kept to answer it from.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'Four lookups later the allowance row is still all there is.' );
+$state = json_decode( keel_hibp_stored()['keel_hibp_v2_0_state'], true );
+keel_assert( 600 - 4 * 60 === $state['credit'], 'Each lookup that went out spent one credit, and the reused answers spent none.' );
+
+// With the allowance spent there is nothing to fall back on, and that is the point.
+keel_hibp_reset( 200, keel_range_line( $live_suffix, 1 ) );
+keel_assert( true === keel_hibp_lookup( $live_password ), 'A lookup with allowance in hand answers.' );
+$scope           = keel_hibp_budget_scope();
+$old             = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+$state           = json_decode( $old, true );
+$state['credit'] = 0;
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $old, $state );
+$_SERVER['REQUEST_TIME_FLOAT'] = ++$GLOBALS['keel_request'];
+$before                        = $GLOBALS['keel_http_calls'];
+keel_assert( null === keel_hibp_lookup( $live_password ), 'With the allowance spent, the same password in a later request is unknown.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before, 'And no request goes out for it.' );
 
 /*
  * TLS verification is what makes the hostile-upstream case require a real
@@ -304,7 +376,7 @@ keel_assert( $GLOBALS['keel_http_calls'] === $before + 1, 'A reinstall cannot re
  * WordPress's default (true) stands; this fails if anyone ever adds it as false.
  */
 keel_hibp_reset( 200, keel_range_line( $live_suffix, 1 ) );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_hibp_lookup( $live_password );
 keel_assert(
 	! array_key_exists( 'sslverify', $GLOBALS['keel_http_lastargs'] ) || false !== $GLOBALS['keel_http_lastargs']['sslverify'],
 	'The breach lookup never disables TLS verification.'
@@ -316,7 +388,7 @@ keel_assert(
 
 // Sampled diagnostics contain no credential material and do not count denials.
 keel_hibp_reset( 429, '' );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
+keel_hibp_lookup( $live_password );
 $record = keel_hibp_last_failure();
 keel_assert( 'http_429' === $record['kind'], 'HTTP rate limiting is distinguishable.' );
 keel_assert( ! isset( $record['count'] ), 'Sampling is not a denied-lookup counter.' );
@@ -326,65 +398,72 @@ $GLOBALS['keel_http_reply'] = array(
 	'code' => 200,
 	'body' => $live_suffix . ':3',
 );
-keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A live lookup can recover.' );
+keel_assert( true === keel_hibp_lookup( $live_password ), 'A live lookup can recover.' );
 keel_assert( null !== keel_hibp_last_success(), 'Live completion records success.' );
 keel_assert( keel_hibp_last_failure() === $record, 'Success preserves the bounded sampling cadence.' );
-$raw = keel_hibp_budget_read( keel_hibp_budget_scope(), 'keel_hibp_v2_0_state' );
-keel_hibp_lookup( 'correct-horse-battery-staple-9271' );
-keel_assert( keel_hibp_budget_read( keel_hibp_budget_scope(), 'keel_hibp_v2_0_state' ) === $raw, 'A cache hit writes neither budget nor recovery evidence.' );
-keel_assert( empty( $GLOBALS['keel_transients'] ) && empty( $GLOBALS['keel_object_cache'] ), 'No new unbounded legacy or persistent cache entries.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'Failure and recovery evidence live in the allowance row too.' );
 keel_assert( false === keel_password_is_pwned( 'anything' ), 'Opt-out and fail-open adapter remain unchanged.' );
 
 // Atomic admission and bounded state tests (real parallel proof is a separate lab).
 keel_hibp_reset( 200, $live_suffix . ':1' );
 $scope = keel_hibp_budget_scope();
-$a     = keel_hibp_budget_admit( $scope, '00000' );
-$b     = keel_hibp_budget_admit( $scope, '01000' );
-keel_assert( isset( $a['ticket'], $b['ticket'] ), 'Two distinct slots can be admitted.' );
-keel_assert( 'lookup_busy' === keel_hibp_budget_admit( $scope, '02000' )['error'], 'A third active lookup is denied.' );
-keel_assert( 'lookup_busy' === keel_hibp_budget_admit( $scope, '40000' )['error'], 'A colliding prefix cannot create another same-slot lease.' );
-keel_assert( keel_hibp_budget_finish( $a['ticket'], null, 'unreachable' ), 'Failure releases its own lease.' );
-keel_assert( ! keel_hibp_budget_finish( $a['ticket'], $live_suffix . ':1' ), 'Released tickets cannot publish or release twice.' );
-keel_hibp_budget_finish( $b['ticket'], null, 'malformed' );
+$a     = keel_hibp_budget_admit( $scope );
+$b     = keel_hibp_budget_admit( $scope );
+keel_assert( isset( $a['ticket'], $b['ticket'] ), 'Two lookups can be in flight at once.' );
+keel_assert( 0 === $a['ticket']['slot'] && 1 === $b['ticket']['slot'], 'They take the two lanes in order.' );
+keel_assert( array( 'slot', 'owner', 'until', 'scope' ) === array_keys( $a['ticket'] ), 'A ticket names a lane, an owner and an expiry, and nothing about the lookup.' );
+keel_assert( 'lookup_busy' === keel_hibp_budget_admit( $scope )['error'], 'A third active lookup is denied.' );
+keel_assert( array( 'keel_hibp_v2_0_state' ) === array_keys( keel_hibp_stored() ), 'Lookups in flight add leases to the one row, not rows.' );
+keel_assert( keel_hibp_budget_finish( $a['ticket'], false, 'unreachable' ), 'Failure releases its own lease.' );
+keel_assert( ! keel_hibp_budget_finish( $a['ticket'], true ), 'A released ticket cannot release twice or record a success.' );
 $state = json_decode( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), true );
-keel_assert( 480 === $state['credit'], 'Failure does not refund consumed credits.' );
+keel_assert( null === $state['success'], 'The refused completion recorded nothing.' );
+$c = keel_hibp_budget_admit( $scope );
+keel_assert( isset( $c['ticket'] ) && 0 === $c['ticket']['slot'], 'The freed lane is the next one taken, whatever is being looked up.' );
+keel_hibp_budget_finish( $c['ticket'], false, 'unreachable' );
+
+// Past its expiry a lease is void, whether or not anything has taken its place yet.
+$old                         = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+$state                       = json_decode( $old, true );
+$state['leases'][0]['until'] = time() - 1;
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $old, $state );
+$lapsed = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+keel_assert( $b['ticket']['owner'] === $state['leases'][0]['owner'] && $b['ticket']['until'] > time(), 'Fixture: the lease has lapsed in the stored row while its ticket still looks live.' );
+keel_assert( false === keel_hibp_budget_owned( $b['ticket'] ), 'A lapsed lease is no longer owned.' );
+keel_assert( ! keel_hibp_budget_finish( $b['ticket'], true ), 'And cannot complete.' );
+keel_assert( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ) === $lapsed, 'The refused completion changed nothing.' );
+$b['ticket']['until']        = time() - 1;
+$state['leases'][0]['until'] = time() + 20;
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $lapsed, $state );
+keel_assert( ! keel_hibp_budget_finish( $b['ticket'], true ), 'Nor can a ticket that says itself that it has lapsed.' );
+$state = json_decode( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), true );
+keel_assert( null === $state['success'] && 1 === count( $state['leases'] ), 'Neither recorded a success or released the lease.' );
+keel_assert( 420 === $state['credit'], 'Failure does not refund consumed credits.' );
 $state['credit'] = 0;
 $old             = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
 keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $old, $state );
-keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope, '02000' )['error'], 'Empty allowance denies outbound work.' );
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope )['error'], 'Empty allowance denies outbound work.' );
 $GLOBALS['wpdb']->query( "UPDATE wp_options SET option_value = '{}' WHERE option_name = 'keel_hibp_v2_0_state'" );
 $before = $GLOBALS['keel_http_calls'];
-keel_assert( null === keel_hibp_lookup( 'uncached-other-value' ), 'Corrupt authority is unknown.' );
+keel_assert( null === keel_hibp_lookup( 'some-other-value' ), 'Corrupt authority is unknown.' );
 keel_assert( $GLOBALS['keel_http_calls'] === $before, 'Corrupt authority cannot mint a fresh burst.' );
 keel_assert( '{}' === keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), 'Invalid authority is never reset.' );
 keel_hibp_reset( 200, $live_suffix . ':1' );
 $GLOBALS['wpdb']->pdo->beginTransaction();
 $GLOBALS['wpdb']->query( "INSERT INTO wp_options VALUES ('caller-owned','pending','no')" );
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Caller-owned transaction denies new outbound work.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'Caller-owned transaction denies new outbound work.' );
 keel_assert( 0 === $GLOBALS['keel_http_calls'], 'No HTTP runs inside a caller-owned transaction.' );
 keel_assert( $GLOBALS['wpdb']->pdo->inTransaction(), 'Lookup never commits the caller transaction.' );
 keel_assert( 1 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'No budget or diagnostic writes join the caller transaction.' );
 $GLOBALS['wpdb']->pdo->rollBack();
 keel_assert( 0 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'Caller retains rollback control.' );
-// Cached positive verdicts survive budget exhaustion and external cache flush.
-keel_hibp_reset( 200, $live_suffix . ':1' );
-keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Seed a known breached range.' );
-$scope           = keel_hibp_budget_scope();
-$old             = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
-$state           = json_decode( $old, true );
-$state['credit'] = 0;
-keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', $old, $state );
-$GLOBALS['keel_object_cache'] = array();
-$before                       = $GLOBALS['keel_http_calls'];
-keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'An exhausted budget cannot bypass a cached breached match.' );
-keel_assert( $GLOBALS['keel_http_calls'] === $before, 'External cache flush does not replenish allowance or discard fixed ranges.' );
-// An operator may raise the transport cap, but retention remains fixed.
+// An operator may raise the transport cap. A large reply is answered from and dropped like any other.
 $large = implode( "\n", array_fill( 0, 3600, $live_suffix . ':1' ) );
 $GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] = 200000;
 keel_hibp_reset( 200, $large );
 keel_assert( strlen( $large ) > 131072 && keel_hibp_body_is_valid( $large ), 'Oversized fixture is a valid complete range.' );
-keel_assert( true === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Oversized valid live response preserves its positive verdict.' );
-keel_assert( ! keel_hibp_anything_cached(), 'Raising the transport cap cannot raise fixed retention bounds.' );
+keel_assert( true === keel_hibp_lookup( $live_password ), 'Oversized valid live response preserves its positive verdict.' );
+keel_assert( keel_hibp_only_the_allowance( $live_password ), 'Raising the transport cap stores nothing more.' );
 unset( $GLOBALS['keel_filters']['keel_hibp_max_response_bytes'] );
 // Case-insensitive DB collations must not weaken byte-exact CAS.
 keel_hibp_reset( 200, '' );
@@ -396,19 +475,178 @@ keel_assert( ! keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', strtouppe
 $initial['rev']                = 0;
 $GLOBALS['wpdb']->cas_attempts = 0;
 $GLOBALS['wpdb']->cas_failures = 10;
-$denied                        = keel_hibp_budget_admit( $scope, '02000' );
+$denied                        = keel_hibp_budget_admit( $scope );
 keel_assert( 'budget_unavailable' === $denied['error'], 'Repeated CAS contention produces unknown.' );
 keel_assert( 3 === $GLOBALS['wpdb']->cas_attempts, 'Admission stops after three CAS attempts without polling.' );
 
 // Capability failures must remain unknown rather than interrupting password changes.
 keel_hibp_reset( 200, $live_suffix . ':1' );
 $GLOBALS['wpdb']->driver_failure = true;
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'A throwing driver capability check remains unknown.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'A throwing driver capability check remains unknown.' );
 keel_assert( 0 === $GLOBALS['keel_http_calls'], 'A throwing capability check starts no HTTP.' );
 keel_assert( 0 === (int) $GLOBALS['wpdb']->get_var( 'SELECT COUNT(*) FROM wp_options' ), 'Failed capability discovery creates no authority.' );
 keel_assert( false === $GLOBALS['wpdb']->suppress_errors( false ), 'Capability failures restore database error-suppression state.' );
 $GLOBALS['wpdb']->suppress_errors( true );
-keel_assert( null === keel_hibp_lookup( 'correct-horse-battery-staple-9271' ), 'Repeated driver failures remain unknown.' );
+keel_assert( null === keel_hibp_lookup( $live_password ), 'Repeated driver failures remain unknown.' );
 keel_assert( true === $GLOBALS['wpdb']->suppress_errors( false ), 'Capability failures also preserve existing suppression.' );
+
+/*
+ * --- half the allowance is kept back for privileged accounts ---
+ *
+ * Any visitor who can reach a password field can make the site spend allowance.
+ * Without a reserve, enough of those requests leave nothing for the accounts
+ * that matter, and the check fails open for them too. So requests that are not
+ * for a privileged account stop at the halfway line.
+ */
+$policy = keel_hibp_budget_policy();
+keel_assert( 300 === keel_hibp_budget_reserve( $policy ), 'The default reserve is five lookups out of ten.' );
+keel_assert(
+	60 === keel_hibp_budget_reserve(
+		array(
+			'capacity' => 3,
+			'interval' => 60,
+		)
+	),
+	'An odd allowance rounds the reserve down.'
+);
+keel_assert(
+	0 === keel_hibp_budget_reserve(
+		array(
+			'capacity' => 1,
+			'interval' => 60,
+		)
+	),
+	'An allowance of one cannot be split, so it is shared.'
+);
+
+keel_hibp_reset( 200, $live_suffix . ':1' );
+$scope = keel_hibp_budget_scope();
+for ( $i = 0; $i < 5; ++$i ) {
+	$ordinary = keel_hibp_budget_admit( $scope );
+	keel_assert( isset( $ordinary['ticket'] ), 'Ordinary lookup ' . ( $i + 1 ) . ' of five is admitted.' );
+	keel_hibp_budget_finish( $ordinary['ticket'], true );
+}
+$raw = keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' );
+keel_assert( 300 === json_decode( $raw, true )['credit'], 'Five ordinary lookups leave exactly the reserve.' );
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope )['error'], 'A sixth ordinary lookup is refused with the reserve intact.' );
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope, 1 )['error'], 'Only a strict true opens the reserve: a truthy value is an ordinary request.' );
+keel_assert( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ) === $raw, 'A refusal writes nothing.' );
+
+$before = $GLOBALS['keel_http_calls'];
+keel_assert( null === keel_hibp_lookup( $live_password ), 'End to end, an ordinary check at the line is unknown.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before, 'And sends nothing.' );
+keel_assert( true === keel_hibp_lookup( $live_password, true ), 'The same check for a privileged account is answered.' );
+keel_assert( $GLOBALS['keel_http_calls'] === $before + 1, 'From one lookup.' );
+keel_assert( 240 === json_decode( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), true )['credit'], 'It came out of the reserve.' );
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope )['error'], 'Ordinary requests are still refused below the line.' );
+
+for ( $i = 0; $i < 4; ++$i ) {
+	$reserved = keel_hibp_budget_admit( $scope, true );
+	keel_assert( isset( $reserved['ticket'] ), 'A privileged account can spend the reserve to nothing.' );
+	keel_hibp_budget_finish( $reserved['ticket'], true );
+}
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope, true )['error'], 'And then it waits like everyone else.' );
+
+// The line is worked out from the policy, never stored, so the stored row keeps its shape.
+keel_assert( array( 'v', 'rev', 'policy', 'credit', 'last', 'leases', 'sample', 'success' ) === array_keys( json_decode( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), true ) ), 'The reserve adds nothing to the stored row.' );
+
+// A refill is spent by whoever asks first: ordinary requests get what stands above the line.
+$state           = json_decode( keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), true );
+$state['credit'] = 360;
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', keel_hibp_budget_read( $scope, 'keel_hibp_v2_0_state' ), $state );
+$ordinary = keel_hibp_budget_admit( $scope );
+keel_assert( isset( $ordinary['ticket'] ), 'One credit above the line admits one ordinary lookup.' );
+keel_hibp_budget_finish( $ordinary['ticket'], true );
+keel_assert( 'budget_exhausted' === keel_hibp_budget_admit( $scope )['error'], 'And only one.' );
+
+/*
+ * --- what earlier versions left behind is deleted ---
+ *
+ * Versions up to 0.9.1 kept each reply for twelve hours in one of 64 fixed rows
+ * beside the control row. Those rows are deleted by name when a site first
+ * loads this version, and again with WordPress's daily clean-up, because a
+ * request still running the old code can write one after the first pass.
+ */
+
+/**
+ * Put back what an earlier version would have stored: a control row and 64 kept replies.
+ *
+ * @return void
+ */
+function keel_hibp_seed_earlier_rows() {
+	keel_hibp_reset( 200, '' );
+	$scope = keel_hibp_budget_scope();
+	keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', null, keel_hibp_budget_initial( keel_hibp_budget_policy(), time() ) );
+	for ( $row = 0; $row < 64; ++$row ) {
+		keel_hibp_budget_write(
+			$scope,
+			sprintf( 'keel_hibp_v2_0_slot_%02d', $row ),
+			null,
+			array(
+				'v'     => 2,
+				'owner' => str_repeat( 'a', 32 ),
+				'data'  => array(
+					'prefix'   => sprintf( 'ABC%02X', $row ),
+					'body'     => str_repeat( 'E', 35 ) . ':7',
+					'received' => time() - 50000,
+					'expires'  => time() - 6800,
+				),
+			)
+		);
+	}
+	// Neighbours that must survive: somebody else's option, and a name that only resembles ours.
+	$GLOBALS['wpdb']->query( "INSERT INTO wp_options VALUES ('siteurl','https://example.test','yes')" );
+	$GLOBALS['wpdb']->query( "INSERT INTO wp_options VALUES ('keel_hibp_v2_0_slot_64','not ours to judge','no')" );
+	$GLOBALS['wpdb']->query( "INSERT INTO wp_options VALUES ('keel_hibp_v2_1_slot_00','another network','no')" );
+}
+
+keel_hibp_seed_earlier_rows();
+keel_assert( 68 === count( keel_hibp_stored() ), 'The fixture holds a control row, 64 kept replies and three neighbours.' );
+keel_assert( true === keel_hibp_budget_forget_replies( keel_hibp_budget_scope() ), 'The clean-up reports success.' );
+keel_assert(
+	array( 'keel_hibp_v2_0_slot_64', 'keel_hibp_v2_0_state', 'keel_hibp_v2_1_slot_00', 'siteurl' ) === array_keys( keel_hibp_stored() ),
+	'All 64 kept replies are gone, and the allowance, another network\'s rows and unrelated options are untouched.'
+);
+keel_assert( true === keel_hibp_budget_forget_replies( keel_hibp_budget_scope() ), 'Running it again with nothing to delete still reports success.' );
+
+// The same clean-up, as WordPress's daily clean-up calls it.
+keel_hibp_seed_earlier_rows();
+keel_assert( true === keel_defaults_forget_breach_replies(), 'The daily clean-up deletes them too.' );
+keel_assert( 4 === count( keel_hibp_stored() ), 'And leaves the same four rows.' );
+$keel_bootstrap = (string) file_get_contents( dirname( __DIR__ ) . '/keel.php' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading plugin source, not a remote URL.
+keel_assert(
+	false !== strpos( $keel_bootstrap, "add_action( 'delete_expired_transients', 'keel_defaults_forget_breach_replies' );" ),
+	'The clean-up is hooked to WordPress\'s daily clean-up of expired cached data.'
+);
+
+// Updating from the version that kept replies deletes them on the first request.
+keel_hibp_seed_earlier_rows();
+$GLOBALS['keel_options'] = array(
+	KEEL_DEFAULTS_OPTION              => array( 'post_revisions_limit' => 10 ),
+	KEEL_DEFAULTS_DATA_VERSION_OPTION => 1,
+);
+keel_assert( 2 === KEEL_DEFAULTS_DATA_VERSION, 'Dropping the kept replies is data version 2.' );
+keel_assert( true === keel_defaults_maybe_upgrade(), 'A site on data version 1 is upgraded.' );
+keel_assert( 4 === count( keel_hibp_stored() ), 'The upgrade deleted the kept replies.' );
+keel_assert( 2 === $GLOBALS['keel_options'][ KEEL_DEFAULTS_DATA_VERSION_OPTION ], 'And recorded the new version.' );
+$queries = $GLOBALS['wpdb']->queries;
+keel_assert( false === keel_defaults_maybe_upgrade() && $queries === $GLOBALS['wpdb']->queries, 'An upgraded site runs no clean-up query on later requests.' );
+
+// A database that refuses the delete is asked again on the next request.
+keel_hibp_seed_earlier_rows();
+$GLOBALS['keel_options'][ KEEL_DEFAULTS_DATA_VERSION_OPTION ] = 1;
+$GLOBALS['wpdb']->refuse_deletes                              = true;
+keel_assert( false === keel_hibp_budget_forget_replies( keel_hibp_budget_scope() ), 'A refused delete is reported.' );
+keel_assert( false === keel_defaults_maybe_upgrade(), 'The upgrade does not claim to have happened.' );
+keel_assert( 1 === $GLOBALS['keel_options'][ KEEL_DEFAULTS_DATA_VERSION_OPTION ], 'The version stays where it was.' );
+keel_assert( 68 === count( keel_hibp_stored() ), 'Nothing was half-deleted.' );
+$GLOBALS['wpdb']->refuse_deletes = false;
+keel_assert( true === keel_defaults_maybe_upgrade() && 4 === count( keel_hibp_stored() ), 'The next request finishes the job.' );
+
+// With no database to speak of there is nothing to delete, and the upgrade is not held up.
+$GLOBALS['keel_options'][ KEEL_DEFAULTS_DATA_VERSION_OPTION ] = 1;
+$GLOBALS['wpdb'] = null;
+keel_assert( true === keel_defaults_forget_breach_replies(), 'No scope means nothing to clean up.' );
+keel_assert( true === keel_defaults_maybe_upgrade(), 'And the upgrade still completes.' );
 
 echo "hibp: OK\n";
