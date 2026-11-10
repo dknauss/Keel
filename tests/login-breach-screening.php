@@ -142,7 +142,8 @@ function wp_roles() {
 	);
 }
 function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ); }
-function wp_unslash( $v ) { return $v; }
+function wp_unslash( $v ) { return is_string( $v ) ? stripslashes( $v ) : $v; }
+function wp_slash( $v ) { return is_string( $v ) ? addslashes( $v ) : $v; }
 function is_admin() { return true; }
 function get_current_blog_id() { return $GLOBALS['keel_blog_id']; }
 
@@ -293,6 +294,24 @@ $GLOBALS['keel_did']['application_password_did_authenticate'] = true;
 keel_defaults_capture_login_password( $editor, 'ed', $breached_pw );
 keel_assert( null === keel_defaults_login_password_slot( 2 ), 'Application passwords are never captured.' );
 unset( $GLOBALS['keel_did']['application_password_did_authenticate'] );
+
+// --- the password is screened as typed, not as the login form slashed it ---
+$typed_pw   = 'it\'s "quoted" back\\slash';
+$slashed_pw = addslashes( $typed_pw );
+keel_assert( $slashed_pw !== $typed_pw, 'Fixture: the submitted form value differs from what was typed.' );
+keel_defaults_capture_login_password( $editor, 'ed', $slashed_pw );
+keel_assert( keel_defaults_login_password_slot( 2 ) === $typed_pw, 'A slashed form value is held as the person typed it.' );
+keel_defaults_capture_login_password( $editor, 'ed', $typed_pw );
+keel_assert( keel_defaults_login_password_slot( 2 ) === $typed_pw, 'A password the caller already unslashed is held unchanged.' );
+keel_defaults_capture_login_password( $editor, 'ed', 'lone\\back' );
+keel_assert( 'lone\\back' === keel_defaults_login_password_slot( 2 ), 'A backslash that no slashing produced is kept.' );
+keel_defaults_capture_login_password( $editor, 'ed', $breached_pw );
+keel_assert( keel_defaults_login_password_slot( 2 ) === $breached_pw, 'A password with nothing to unslash is held unchanged.' );
+
+keel_reset_lookup( 200, strtoupper( substr( sha1( $typed_pw ), 5 ) ) . ':7' );
+keel_login( $editor, $slashed_pw );
+keel_assert( keel_defaults_password_breached_at( 2 ) > 0, 'A breached password with quotes and a backslash is found at login.' );
+keel_defaults_forget_password_screening( 2 );
 
 // --- breached login: flag, timestamp, notice for the owner only ---
 keel_reset_lookup( 200, $breached_ok );
