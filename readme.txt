@@ -109,7 +109,7 @@ Usually, yes, but choose one plugin to own any particular setting. Keel helps by
 
 = Does Keel control plugin and theme auto-updates? =
 
-Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave unchanged. Both default to Leave unchanged, preserving WordPress's per-item choices and other filters. Explicit choices do not rewrite those per-item settings; later filters and global update restrictions still apply. There is no minor-only channel for plugin or theme releases. On multisite, network policy wins, otherwise the main site's Keel setting decides for the shared files. Site Health → Status, under Update diagnostics, reports the cached filter decisions, not installation guarantees.
+Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave unchanged. Both default to Leave unchanged, preserving WordPress's per-item choices and other filters. Explicit choices do not rewrite those per-item settings; later filters and global update restrictions still apply. There is no minor-only channel for plugin or theme releases. On multisite, network policy wins, otherwise the main site's Keel setting decides for the shared files, and only a Super Admin can change it. Site Health → Status, under Update diagnostics, reports the cached filter decisions, not installation guarantees.
 
 = Why is there no password strength meter? =
 

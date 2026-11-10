@@ -219,7 +219,7 @@ function keel_defaults_add_help_tab() {
 					array( 'a' => array( 'href' => array() ) )
 				) . '</p>' .
 				( is_multisite()
-					? '<p>' . esc_html__( 'On multisite, every site shares the same plugin and theme files, so one policy applies to the whole network. A Super Admin can set it under Network Policy. If Network Policy leaves plugin or theme updates unmanaged, the main site’s setting decides for every site, so change it on the main site.', 'keel-defaults' ) . '</p>'
+					? '<p>' . esc_html__( 'On multisite, every site shares the same WordPress, plugin and theme files, so one update policy applies to the whole network. A Super Admin can set it under Network Policy. Where Network Policy leaves an update setting unmanaged, the main site’s setting decides for every site, and only a Super Admin can change it there.', 'keel-defaults' ) . '</p>'
 					: ''
 				),
 		)

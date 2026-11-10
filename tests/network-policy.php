@@ -148,7 +148,9 @@ function update_site_option( $key, $value ) {
  *
  * @return bool
  */
-function is_main_site() { return true; }
+function is_main_site() {
+	return ! isset( $GLOBALS['keel_is_main_site'] ) || (bool) $GLOBALS['keel_is_main_site'];
+}
 function is_multisite() {
 	return (bool) $GLOBALS['keel_is_multisite'];
 }
@@ -501,6 +503,91 @@ keel_assert(
 	false !== strpos( $settings_src, '( null === $lock ) ? keel_defaults_network_lock( $key ) : $lock' ),
 	'A wp-config constant takes precedence over the network note when both apply.'
 );
+
+/*
+ * --- on the main site, a network-wide setting is a Super Admin's to change ---
+ *
+ * Background updates are installed once for the whole network, from the main
+ * site, and every site shares one user table. Where Network Policy says nothing,
+ * the main site's stored value is what every site gets. Holding manage_options
+ * on the main site is not the same as deciding for the network, so the screen
+ * locks these controls and the sanitizer keeps what was stored.
+ */
+$GLOBALS['keel_is_multisite'] = true;
+$GLOBALS['keel_site_options'] = array();
+$shared_stored                = array(
+	'core_update_policy'        => 'minor',
+	'plugin_auto_update_policy' => 'enabled',
+	'theme_auto_update_policy'  => 'enabled',
+	'auto_update_translations'  => 'yes',
+	'protect_public_names'      => 'yes',
+);
+$shared_posted                = array(
+	'core_update_policy'        => 'manual',
+	'plugin_auto_update_policy' => 'disabled',
+	'theme_auto_update_policy'  => 'disabled',
+	// Both toggles are left out, which is how a form posts an unticked box.
+	'disable_comments'          => 'yes',
+);
+$GLOBALS['keel_options']      = array( KEEL_DEFAULTS_OPTION => $shared_stored + array( 'disable_comments' => 'no' ) );
+
+keel_assert( array_keys( $shared_stored ) === keel_defaults_network_shared_keys(), 'The network-wide settings are the four update policies and Public Names.' );
+
+$GLOBALS['keel_caps'] = array( 'manage_options' => true );
+foreach ( array_keys( $shared_stored ) as $key ) {
+	keel_assert( null !== keel_defaults_network_lock( $key ), "On the main site {$key} is locked for an administrator who cannot set network policy." );
+}
+keel_assert( null === keel_defaults_network_lock( 'disable_comments' ), 'A setting that only affects this site stays the site administrator\'s.' );
+$kept = keel_defaults_sanitize_site( $shared_posted );
+foreach ( $shared_stored as $key => $value ) {
+	keel_assert( ( $kept[ $key ] ?? null ) === $value, "A site administrator's save on the main site keeps the stored {$key}." );
+}
+keel_assert( 'yes' === ( $kept['disable_comments'] ?? null ), 'The rest of that save still goes through.' );
+
+// Nothing stored yet: the save cannot create a value either, so the default stands.
+$GLOBALS['keel_options'] = array();
+$fresh                   = keel_defaults_sanitize_site( $shared_posted );
+foreach ( array_keys( $shared_stored ) as $key ) {
+	keel_assert( ! array_key_exists( $key, $fresh ), "With nothing stored, a site administrator's save does not create {$key}." );
+}
+$GLOBALS['keel_options'] = array( KEEL_DEFAULTS_OPTION => $shared_stored + array( 'disable_comments' => 'no' ) );
+
+$GLOBALS['keel_caps'] = array(
+	'manage_options'         => true,
+	'manage_network_options' => true,
+);
+foreach ( array_keys( $shared_stored ) as $key ) {
+	keel_assert( null === keel_defaults_network_lock( $key ), "A Super Admin can change {$key} on the main site." );
+}
+$changed = keel_defaults_sanitize_site( $shared_posted );
+keel_assert(
+	'manual' === $changed['core_update_policy'] && 'disabled' === $changed['plugin_auto_update_policy'] && 'disabled' === $changed['theme_auto_update_policy']
+		&& 'no' === $changed['auto_update_translations'] && 'no' === $changed['protect_public_names'],
+	'A Super Admin\'s save on the main site changes all five.'
+);
+
+// Network Policy deciding a key outranks the main site for everyone, as before.
+$GLOBALS['keel_site_options'] = array( KEEL_DEFAULTS_NETWORK_OPTION => array( 'core_update_policy' => 'all' ) );
+keel_assert( false !== strpos( (string) keel_defaults_network_lock( 'core_update_policy' ), 'Network Policy' ), 'A key Network Policy decides shows the network note, to a Super Admin too.' );
+$GLOBALS['keel_site_options'] = array();
+
+// Another site of the network: the existing notes, and no new lock.
+$GLOBALS['keel_caps']         = array( 'manage_options' => true );
+$GLOBALS['keel_is_main_site'] = false;
+keel_assert( false !== strpos( (string) keel_defaults_network_lock( 'plugin_auto_update_policy' ), 'Network Admin or on the main site' ), 'A subsite keeps its own note for shared plugin updates.' );
+keel_assert( false !== strpos( (string) keel_defaults_network_lock( 'protect_public_names' ), 'Network Admin or on the main site' ), 'And for Public Names.' );
+keel_assert( null === keel_defaults_network_lock( 'disable_comments' ), 'A subsite administrator still decides the subsite\'s own settings.' );
+$GLOBALS['keel_is_main_site'] = true;
+
+// A single site has no network to decide for.
+$GLOBALS['keel_is_multisite'] = false;
+foreach ( array_keys( $shared_stored ) as $key ) {
+	keel_assert( null === keel_defaults_network_lock( $key ), "On a single site {$key} belongs to the site administrator." );
+}
+$single = keel_defaults_sanitize_site( $shared_posted );
+keel_assert( 'manual' === $single['core_update_policy'] && 'no' === $single['protect_public_names'], 'And their save changes it.' );
+
+$GLOBALS['keel_caps'] = array( 'manage_network_options' => true );
 
 // A locked save must preserve the site's dormant legacy choice as a new mode.
 $GLOBALS['keel_is_multisite'] = true;
