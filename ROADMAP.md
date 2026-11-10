@@ -577,9 +577,11 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
   Until it is decided, Keel's documentation should say plainly that the two
   forms are not covered.
 
-- [ ] **Flag accounts whose public name or slug exposes an email-address
+- [x] **Flag accounts whose public name or slug exposes an email-address
   username** ([#355](https://github.com/dknauss/Keel/issues/355)). Raised
-  2026-10-30; policy decided 2026-11-02, not scheduled. When `user_login` is an
+  2026-10-30; policy decided 2026-11-02; shipped in 0.9.1 (2026-11-09) and the
+  issue closed. Upstream fix tracked in
+  [Core Trac #66446](https://core.trac.wordpress.org/ticket/66446). When `user_login` is an
   email address, `wp_insert_user()` copies it into `display_name` and
   `nickname` (whenever no names are supplied, which covers every
   self-registration) and derives `user_nicename` from it (`dan@example.com` →
