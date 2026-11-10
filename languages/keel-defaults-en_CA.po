@@ -2635,7 +2635,7 @@ msgid "Password breach-screening coverage is unknown"
 msgstr ""
 
 #: includes/site-health.php:629
-msgid "Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+msgid "Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it."
 msgstr ""
 
 #: includes/site-health.php:633
@@ -2659,7 +2659,7 @@ msgid "The shared lookup budget could not be read. Fresh lookup coverage is unkn
 msgstr ""
 
 #: includes/site-health.php:644
-msgid "the shared allowance for fresh lookups was exhausted"
+msgid "the shared allowance for lookups was used up, or only the share kept for privileged accounts was left"
 msgstr ""
 
 #: includes/site-health.php:645
@@ -2703,11 +2703,11 @@ msgid "A later live response does not erase the earlier sampled unknown verdict 
 msgstr ""
 
 #: includes/site-health.php:682
-msgid "No validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery."
+msgid "No validated live response is recorded. Locally filtered verdicts do not establish live service recovery."
 msgstr ""
 
 #: includes/site-health.php:684
-msgid "Cached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+msgid "An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
 msgstr ""
 
 #: includes/update-policy-notice.php:55
@@ -2898,7 +2898,7 @@ msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#Search
 msgstr ""
 
 #: includes/settings-page.php:132
-msgid "An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 fresh lookups to start and one more each minute by default, and Keel keeps up to 64 answers for 12 hours, so a burst of password changes cannot flood the service. The length, common-password and username rules still apply, and only a reply that arrived whole and parsed cleanly is ever kept."
+msgid "An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 lookups to start and one more each minute by default, so a burst of password changes cannot flood the service. Half of that allowance is kept for accounts that can write content or manage the site, so they are still checked when the rest is used up. The length, common-password and username rules still apply. Keel keeps no reply: each one answers the check that asked for it and is then discarded, and only a reply that arrived whole and parsed cleanly is trusted."
 msgstr ""
 
 #. translators: %s: URL of the Site Health status screen.
@@ -2968,7 +2968,7 @@ msgid "A policy is not a delivery schedule. WordPress installs updates when its 
 msgstr ""
 
 #: includes/settings-page.php:222
-msgid "On multisite, every site shares the same plugin and theme files, so one policy applies to the whole network. A Super Admin can set it under Network Policy. If Network Policy leaves plugin or theme updates unmanaged, the main site’s setting decides for every site, so change it on the main site."
+msgid "On multisite, every site shares the same WordPress, plugin and theme files, so one update policy applies to the whole network. A Super Admin can set it under Network Policy. Where Network Policy leaves an update setting unmanaged, the main site’s setting decides for every site, and only a Super Admin can change it there."
 msgstr ""
 
 #: includes/settings-page.php:233
