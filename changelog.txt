@@ -1,11 +1,31 @@
 === Keel: earlier changelog ===
 
-The development history before 0.5.9, the first version published to the
-WordPress.org plugin directory. Entries for 0.5.9 and later are in readme.txt.
+Entries for 0.6.0 and earlier. 0.5.9 was the first version published to the
+WordPress.org plugin directory, and the entries below it are the development
+history that led there. Entries for 0.6.1 and later are in readme.txt.
 
 wordpress.org cuts a readme's Changelog section at 5,000 words, so the oldest
 entries live here. When tests/readme-spec.php reports the section is over, move
-the oldest entries from readme.txt to the top of the list below.
+the oldest entries from readme.txt to the top of the list below, and update the
+versions named above and in the note inside readme.txt's Changelog section.
+
+= 0.6.0 =
+* New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries.
+* Where a patched release exists on your own release line, Keel names that release rather than the newest one. A 6.9.5 site is told about 6.9.7, not 7.1 — only the third number changes, so nothing is deprecated.
+* New: the ladder of releases WordPress.org is currently offering this site, and which one WordPress would actually install. It takes the highest release your settings permit rather than the nearest, so a site accepting major updates skips the patch and jumps to the newest release.
+* Fixed: the panel offered "Install this now from the Updates screen" when the patch appeared only as an automatic-update offer. `get_core_updates()` omits those offers, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known.
+* Blockers name their own cause — the constant and the file it usually lives in, or the filter a plugin is using — instead of describing the situation in the abstract. Each one needs a different fix, and they now carry stable codes rather than being told apart by their translated text.
+* New: install the patch from the Site Health panel, using WordPress's own upgrader with rollback enabled. The target is recomputed on the server and can only ever be the patched tip of your own release line, so it cannot cross a release line or move a site backwards. It refuses when files are not writable, when the site is a version-control checkout, or when the release's PHP or MySQL requirements are not met — that last check runs before anything is downloaded, because core otherwise reads those requirements out of the new version's own files and only finds out after unpacking it.
+* Being blocked from automatic updates does not block a deliberate install. A disabled updater, a filter, or an earlier failed update are all reasons a patch will not arrive by itself, and installing it deliberately is the remedy for each.
+* The other remediation switches minor auto-updates back on, and only where the stored option is genuinely what decides.
+
+= 0.5.10 =
+* The network settings screen is now **Network Policy** rather than "Keel Defaults". It decides settings for every site on a network and locks them, which is the opposite of what the per-site screen does, and the old name did not say so. The screen, its address and its behaviour are otherwise unchanged.
+* Two links in Site Health pointed at "Settings → Keel", a menu that has not existed since that screen was renamed to Site Defaults. They now name the screen you will actually find. The same correction has been made to the multisite password help text and to this readme.
+
+= 0.5.9 =
+* Breach-cache entries can no longer be reached again after the plugin is removed and reinstalled. On a site with Redis or Memcached, WordPress keeps transients in the object cache rather than the database, where the uninstaller's queries cannot follow them. Each installation now has its own cache namespace, so anything left behind belongs to an installation that no longer exists.
+* Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
 
 = 0.5.8 =
 * Header names, constants and file names in the Help menu are shown as code again rather than as running text. Three paragraphs across two tabs had lost the formatting the rest of the help uses.
