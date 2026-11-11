@@ -1644,6 +1644,41 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       Chromium focused accessibility runs in CI since 2026-10-24; Firefox/WebKit stay manual.
       These remain maintenance work, not failures of the completed release pass.
 - [ ] **Keep comments and tooling contracts current** — ongoing, with each extraction.
+- [ ] **Keep agents from weakening the checks that grade them** — raised 2026-11-11.
+      A pull request runs the workflow files on its own branch, so an agent that
+      can push to the branch can edit `lab-probes.yml`, `bin/check-lab-probes`, or a
+      check's tests, and the weakened check passes in the same pull request. What
+      protects a check is who can edit its definition, not where it runs. Today
+      "Tester probes came first" is not a required check on `main`, there is no
+      CODEOWNERS file, admins bypass protection, and every pull request, including
+      the agents', is opened under `dknauss`. Lighter options than moving the
+      checks to a second repository:
+      - **Scope the agent's token.** GitHub refuses changes under
+        `.github/workflows/` from a token without workflow permission (the
+        `workflow` scope on a personal token, Workflows write on a GitHub App), so
+        an agent pushing with such a token can't edit a check's definition.
+      - **Require review of the guardrails.** CODEOWNERS entries for `.github/`,
+        `bin/check-lab-probes`, `tests/lab-probes-check.php`, and
+        `docs/review/probes/`, with code-owner review required on `main`. An agent
+        can still propose a change to a check but can't merge it unreviewed.
+      - **Make the probe check required** alongside "Lint and unit tests" and
+        "Counterpart recorded", with GitHub Actions as its expected source.
+      - **Judge the pull request by the base branch's rule.** Run the checker from
+        `main` (or a pinned ref) against the pull request's commits, so the branch
+        can't change the rule it's judged by. Rulesets can require a workflow from
+        another repository, but only for organizations.
+      - **Protect the tests, not only the workflow.** An agent that can't touch
+        the workflow can still weaken the test or its fixtures, so the protected
+        paths have to cover those too.
+
+      **Open question:** how can we take away keys and access without overly
+      obstructing development? GitHub doesn't let a pull request's author approve
+      it, so code-owner review only works if agents open pull requests under their
+      own identity and Dan reviews them. A token without workflow permission means
+      Dan makes every workflow change himself. Required reviews add a step to every
+      agent pull request, including docs-only ones. Decide which paths need a
+      human, which changes agents can still make on their own, and what the merge
+      path looks like for a solo maintainer before turning any of this on.
 
 ## Non-goals
 
