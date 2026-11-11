@@ -103,10 +103,32 @@ function keel_defaults_capture_login_password( $user, $username, $password ) {
 		&& '' !== $password
 		&& strlen( $password ) <= 4096
 		&& ! did_action( 'application_password_did_authenticate' ) ) {
-		keel_defaults_login_password_slot( $user->ID, $password );
+		keel_defaults_login_password_slot( $user->ID, keel_defaults_login_password_as_typed( $password ) );
 	}
 
 	return $user;
+}
+
+/**
+ * The login password as the person typed it.
+ *
+ * WordPress adds slashes to every submitted form value, and `wp_signon()` hands
+ * the password to `authenticate` still slashed. Wherever a password is set, the
+ * unslashed string is the one screened, and it is the one a breach list holds,
+ * so the login re-check looks up that same string. Without this, a password
+ * containing a quote or a backslash was looked up as a different string.
+ *
+ * The slashes come off only when the value is in slashed form, meaning that
+ * adding them back gives the same bytes. A caller that hands `wp_signon()` a
+ * password it has already unslashed is left alone.
+ *
+ * @param string $password Password as `authenticate` received it.
+ * @return string
+ */
+function keel_defaults_login_password_as_typed( $password ) {
+	$typed = wp_unslash( $password );
+
+	return wp_slash( $typed ) === $password ? $typed : $password;
 }
 
 /**
@@ -158,7 +180,8 @@ function keel_defaults_screen_user_password( $user, $password, $now = null ) {
 		return 'fresh';
 	}
 
-	$verdict = keel_hibp_password_verdict( $password );
+	// The account has just proved itself with this password, so its standing decides.
+	$verdict = keel_hibp_password_verdict( $password, keel_defaults_is_privileged_account( $user ) );
 
 	if ( null === $verdict ) {
 		return 'unknown';

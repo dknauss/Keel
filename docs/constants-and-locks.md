@@ -58,6 +58,16 @@ theme files are shared by the whole network. Network policy decides them if set,
 otherwise the main site's setting does. See `keel_defaults_network_lock()` in
 `includes/network.php`.
 
+On the main site, five settings decide for every site wherever network policy
+leaves them unmanaged: the core, plugin, theme and translation update settings,
+because WordPress installs background updates once for the whole network from
+the main site, and **Public Names**, because every site shares one user table.
+Those five are locked on the main site for anyone who cannot set network policy.
+A Super Admin can change them there or under **Network Policy**. The list is
+`keel_defaults_network_shared_keys()` in `includes/network.php`, and
+`keel_defaults_sanitize_site()` keeps the stored value on a save the lock does
+not allow.
+
 ## Environment
 
 `WP_ENVIRONMENT_TYPE`, as a constant or a server environment variable, tells

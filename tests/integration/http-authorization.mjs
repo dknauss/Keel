@@ -112,6 +112,38 @@ try {
 		assert.equal(settings.remember_me_days, 14);
 		assert.equal(settings.admin_menu_width, 'default');
 		if (!index) assert.deepEqual(settings.password_exempt_roles, []);
+		if (index) {
+			// The main site stores these for every site on the network. Its own
+			// administrator's save leaves them as they were and still saves that
+			// site's other settings; a Super Admin's save changes them. Last, so
+			// the saves cannot disturb an earlier case.
+			const shared = ['core_update_policy', 'plugin_auto_update_policy', 'theme_auto_update_policy', 'auto_update_translations', 'protect_public_names'];
+			const request = (nonce, stored, days) => {
+				const fields = { option_page: 'keel_settings_group', action: 'update', _wpnonce: nonce, _wp_http_referer: '/wp-admin/options-general.php?page=keel', 'keel_settings[session_regular_days]': String(days) };
+				const wanted = { core_update_policy: stored.core_update_policy === 'manual' ? 'all' : 'manual' };
+				for (const key of ['plugin_auto_update_policy', 'theme_auto_update_policy']) wanted[key] = stored[key] === 'enabled' ? 'disabled' : 'enabled';
+				for (const key of ['auto_update_translations', 'protect_public_names']) wanted[key] = stored[key] === 'yes' ? 'no' : 'yes';
+				// An unticked box posts nothing.
+				for (const [key, value] of Object.entries(wanted)) if (value !== 'no') fields[`keel_settings[${key}]`] = value === 'yes' ? '1' : value;
+				return { fields, wanted };
+			};
+			const delegate = await browser.newContext({ storageState: storage });
+			const assumed = await delegate.request.post(base + '/wp-admin/admin-ajax.php', { form: { action: 'keel_http_lab', op: 'assume', login: 'keel_http_delegate', _ajax_nonce: owner.nonces.control } });
+			assert.equal((await assumed.json()).success, true, 'Fixture issues real user session.');
+			const site = await info(delegate, base);
+			assert.deepEqual(site.caps.slice(0, 2), [true, false], 'The main-site administrator manages the site and not the network.');
+			const stored = site.state.settings || {};
+			const days = Number(stored.session_regular_days ?? 2) + 1;
+			const kept = await probe(delegate, 'delegate', 'shared-settings-kept', '/wp-admin/options.php', request(site.nonces.options, stored, days).fields, [302], false);
+			for (const key of shared) assert.deepEqual(kept.after.state.settings[key], stored[key], `A main-site administrator's save leaves ${key} as it was.`);
+			assert.equal(kept.after.state.settings.session_regular_days, days, 'The same save still stores that site’s own setting.');
+			assert.deepEqual(kept.after.state.network, site.state.network, 'Network Policy is untouched.');
+			await delegate.close();
+			const control = request(owner.nonces.options, kept.after.state.settings, days + 1);
+			const changed = await probe(root, 'owner', 'shared-settings-control', '/wp-admin/options.php', control.fields, [302], false);
+			for (const key of shared) assert.equal(changed.after.state.settings[key], control.wanted[key], `A Super Admin's save changes ${key}.`);
+			assert.equal(changed.after.state.settings.session_regular_days, days + 1);
+		}
 		await root.close();
 	}
 	await artifact.writeFile(JSON.stringify({ capabilityOrder: ['manage_options', 'manage_network_options', 'update_core', 'view_site_health_checks'], actors, cases: results }, null, 2) + '\n');

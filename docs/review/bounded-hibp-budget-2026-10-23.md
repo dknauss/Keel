@@ -2,6 +2,8 @@
 
 Status: implemented and verified in [PR #316](https://github.com/dknauss/Keel/pull/316); unreleased. No version bump or release. #313 (`fb121e0`) and #314 (`1d754a9`) are merged and unreleased. AX port is merged as commit `f628cb8d668c581beb43cffa26620783f384657a`; [#315](https://github.com/dknauss/Keel/issues/315) is closed.
 
+**Amended 2026-11-10.** The range cache this record verifies has been removed: no reply is retained and the allowance is one row. The bucket, lease, diagnostic and scope evidence below still describes the current code; the cache, slot and publication evidence is history. See the [2026-11-10 record](breach-lookup-storage-2026-11-10.md).
+
 ## Implemented policy
 
 Fresh lookups share one database bucket per standalone site or current network's main-site options table: burst 10, one credit per 60 seconds, two 30-second admission leases and one lease per cache slot. Cache hits precede admission. Three failed CAS attempts return unknown; no polling, queue or refunds. The existing password adapter still fails open on unknown; local rules, exempt-role ordering, opt-outs, padding, timeout and transport-limit filters remain intact.

@@ -59,7 +59,7 @@ const KEEL_DEFAULTS_NETWORK_OPTION = 'keel_network_settings';
 const KEEL_DEFAULTS_DATA_VERSION_OPTION = 'keel_settings_data_version';
 
 /** Current data-schema version. */
-const KEEL_DEFAULTS_DATA_VERSION = 1;
+const KEEL_DEFAULTS_DATA_VERSION = 2;
 
 /** This file, for plugin_basename() — the Plugins-screen action links need it. */
 define( 'KEEL_DEFAULTS_FILE', __FILE__ );
@@ -122,3 +122,5 @@ register_deactivation_hook( __FILE__, 'keel_defaults_deactivate' );
 add_action( 'wp_initialize_site', 'keel_defaults_seed_new_site', 100 );
 // Migrate before the default-priority bootstrap reads any newly added key.
 add_action( 'plugins_loaded', 'keel_defaults_maybe_upgrade', 0 );
+// WordPress's daily clean-up of expired cached data: see keel_defaults_forget_breach_replies().
+add_action( 'delete_expired_transients', 'keel_defaults_forget_breach_replies' );

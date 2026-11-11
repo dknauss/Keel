@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-09T17:56:48+00:00\n"
+"POT-Creation-Date: 2026-11-10T21:08:35+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -311,7 +311,7 @@ msgid "No unambiguous name-based attribution."
 msgstr ""
 
 #: includes/autoload-diagnostics.php:263
-#: includes/password-login-screening.php:643
+#: includes/password-login-screening.php:666
 #: includes/settings-page.php:24
 #: includes/settings-page.php:699
 #: includes/shortcodes.php:229
@@ -1221,7 +1221,7 @@ msgid "User #%d"
 msgstr ""
 
 #: includes/identity-exposure.php:402
-#: includes/password-login-screening.php:545
+#: includes/password-login-screening.php:568
 msgid "No role on this site"
 msgstr ""
 
@@ -1319,28 +1319,28 @@ msgstr ""
 msgid "To fix one account by hand, set a Nickname on its profile and choose it under \"Display name publicly as\". The profile screen cannot change the slug; the cleanup can. Comments already posted keep the old name unless the cleanup updates them."
 msgstr ""
 
-#: includes/identity-exposure.php:516
+#: includes/identity-exposure.php:552
 msgid "Still visible whatever Keel is set to: author names in theme bylines and the Post Author block, the names stored with logged-in comments, and the comment-author CSS class on each comment, which contains the slug."
 msgstr ""
 
-#: includes/identity-exposure.php:521
-#: includes/identity-exposure.php:523
+#: includes/identity-exposure.php:557
+#: includes/identity-exposure.php:559
 msgid "author archives and their URLs, author names in feeds, the users sitemap and oEmbed author fields"
 msgstr ""
 
-#: includes/identity-exposure.php:526
-#: includes/identity-exposure.php:528
+#: includes/identity-exposure.php:562
+#: includes/identity-exposure.php:564
 msgid "the anonymous REST users list"
 msgstr ""
 
 #. translators: %s: list of surfaces.
-#: includes/identity-exposure.php:532
+#: includes/identity-exposure.php:568
 #, php-format
 msgid "Keel currently hides these routes: %s. That limits who can browse to the fields; it does not make them safe to publish."
 msgstr ""
 
 #. translators: %s: list of surfaces.
-#: includes/identity-exposure.php:536
+#: includes/identity-exposure.php:572
 #, php-format
 msgid "Open on this site because the matching Keel setting is off: %s."
 msgstr ""
@@ -1371,86 +1371,90 @@ msgstr ""
 msgid "Not published"
 msgstr ""
 
-#: includes/network.php:104
+#: includes/network.php:124
 msgid "Shared plugin and theme updates use network policy or the main site’s setting. Manage this policy in Network Admin or on the main site."
 msgstr ""
 
-#: includes/network.php:108
+#: includes/network.php:128
 msgid "User accounts are shared by every site on the network, so network policy or the main site’s setting decides this. Manage it in Network Admin or on the main site."
 msgstr ""
 
-#: includes/network.php:115
+#: includes/network.php:133
+msgid "This site’s setting applies to every site on the network, so only a Super Admin can change it."
+msgstr ""
+
+#: includes/network.php:139
 msgid "Set for the whole network by a Super Admin. Change it under Network Admin → Settings → Network Policy."
 msgstr ""
 
-#: includes/network.php:204
-#: includes/network.php:205
+#: includes/network.php:228
+#: includes/network.php:229
 msgid "Network Policy"
 msgstr ""
 
-#: includes/network.php:238
+#: includes/network.php:262
 msgid "You do not have permission to set network policy."
 msgstr ""
 
-#: includes/network.php:271
+#: includes/network.php:295
 msgid "Keel — network policy"
 msgstr ""
 
-#: includes/network.php:274
+#: includes/network.php:298
 msgid "Network policy saved."
 msgstr ""
 
-#: includes/network.php:278
+#: includes/network.php:302
 msgid "Tick a setting to decide it for every site on this network. Sites see it as locked and cannot change it. Anything left unticked stays each site's own business, and their saved values are untouched — untick it later and every site returns to exactly what it had."
 msgstr ""
 
-#: includes/network.php:280
+#: includes/network.php:304
 #: includes/settings-page.php:713
 msgid "Each setting has a one-line description below. The full explanation of each is under Help, at the top of this screen, in the “Settings in Detail” tab."
 msgstr ""
 
-#: includes/network.php:283
+#: includes/network.php:307
 msgid "The password rules are the ones most worth setting here. WordPress keeps one user table for the whole network, so a password is checked against whichever site it is set on — without a network policy, the strictest site sets the floor for everyone who changes their password there."
 msgstr ""
 
-#: includes/network.php:336
+#: includes/network.php:360
 msgid "Decide this for the whole network"
 msgstr ""
 
-#: includes/network.php:358
+#: includes/network.php:382
 msgid "Save network policy"
 msgstr ""
 
-#: includes/password-login-screening.php:303
+#: includes/password-login-screening.php:326
 msgid "Your password has appeared in a known data breach."
 msgstr ""
 
-#: includes/password-login-screening.php:304
+#: includes/password-login-screening.php:327
 msgid "It still works here, but leaked passwords are the first ones attackers try. Choose a new one that you do not use anywhere else."
 msgstr ""
 
-#: includes/password-login-screening.php:306
+#: includes/password-login-screening.php:329
 msgid "Change your password"
 msgstr ""
 
-#: includes/password-login-screening.php:425
+#: includes/password-login-screening.php:448
 msgid "Breached passwords"
 msgstr ""
 
-#: includes/password-login-screening.php:466
-#: includes/password-login-screening.php:588
+#: includes/password-login-screening.php:489
+#: includes/password-login-screening.php:611
 msgid "Breach found"
 msgstr ""
 
 #. translators: %s: human-readable time, such as "5 mins".
-#: includes/password-login-screening.php:503
+#: includes/password-login-screening.php:526
 #: includes/update-timeline.php:144
 #, php-format
 msgid "%s ago"
 msgstr ""
 
 #. translators: %s: number of days.
-#: includes/password-login-screening.php:524
+#: includes/password-login-screening.php:547
 #, php-format
 msgid "%s day"
 msgid_plural "%s days"
@@ -1458,128 +1462,128 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of accounts listed, 2: total number of flagged accounts.
-#: includes/password-login-screening.php:575
+#: includes/password-login-screening.php:598
 #, php-format
 msgid "%1$s of %2$s accounts with breached passwords, most recently found first"
 msgstr ""
 
 #. translators: %s: number of accounts listed.
-#: includes/password-login-screening.php:582
+#: includes/password-login-screening.php:605
 #, php-format
 msgid "%s account with a breached password"
 msgid_plural "%s accounts with breached passwords, most recently found first"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/password-login-screening.php:588
+#: includes/password-login-screening.php:611
 msgid "Account"
 msgstr ""
 
-#: includes/password-login-screening.php:588
+#: includes/password-login-screening.php:611
 msgid "Role"
 msgstr ""
 
-#: includes/password-login-screening.php:588
+#: includes/password-login-screening.php:611
 msgid "Actions"
 msgstr ""
 
 #. translators: %s: account display name.
-#: includes/password-login-screening.php:605
+#: includes/password-login-screening.php:628
 #, php-format
 msgid "Set a new password for %s"
 msgstr ""
 
-#: includes/password-login-screening.php:606
+#: includes/password-login-screening.php:629
 msgid "Set new password"
 msgstr ""
 
 #. translators: %s: account display name.
-#: includes/password-login-screening.php:613
+#: includes/password-login-screening.php:636
 #, php-format
 msgid "Send password reset to %s"
 msgstr ""
 
-#: includes/password-login-screening.php:614
+#: includes/password-login-screening.php:637
 msgid "Send password reset"
 msgstr ""
 
-#: includes/password-login-screening.php:640
+#: includes/password-login-screening.php:663
 msgid "No accounts are flagged for breached passwords"
 msgstr ""
 
-#: includes/password-login-screening.php:656
+#: includes/password-login-screening.php:679
 msgid "Passwords are re-checked for breaches at login"
 msgstr ""
 
-#: includes/password-login-screening.php:657
+#: includes/password-login-screening.php:680
 msgid "An account that can list users can review which accounts, if any, are flagged."
 msgstr ""
 
 #. translators: 1: re-check interval, such as "30 days". 2: number of accounts checked so far.
-#: includes/password-login-screening.php:667
+#: includes/password-login-screening.php:690
 #, php-format
 msgid "When someone logs in, Keel checks their password against known breaches, at most once every %1$s. So far %2$s account on this site has been checked this way."
 msgid_plural "When someone logs in, Keel checks their password against known breaches, at most once every %1$s. So far %2$s accounts on this site have been checked this way."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/password-login-screening.php:673
+#: includes/password-login-screening.php:696
 msgid "No account on this site is flagged. Accounts that have not logged in since the check began, and any roles a site has left out of the login check, have not been re-checked; their passwords are still screened whenever they are changed."
 msgstr ""
 
 #. translators: %s: number of accounts.
-#: includes/password-login-screening.php:699
+#: includes/password-login-screening.php:722
 #, php-format
 msgid "%s account has a password found in a known breach"
 msgid_plural "%s accounts have passwords found in known breaches"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/password-login-screening.php:704
+#: includes/password-login-screening.php:727
 msgid "These passwords still work: Keel warns and does not block. Each person sees a notice asking them to change their password, and the flag clears as soon as they do."
 msgstr ""
 
-#: includes/password-login-screening.php:705
+#: includes/password-login-screening.php:728
 msgid "To act sooner, set a new password on the account, which also lets you log it out everywhere else, or send a password reset. A reset email sends a link; the current password keeps working until it is used."
 msgstr ""
 
 #. translators: 1: number of accounts shown, 2: total number of flagged accounts.
-#: includes/password-login-screening.php:711
+#: includes/password-login-screening.php:734
 #, php-format
 msgid "Showing the %1$s most recently flagged of %2$s accounts."
 msgstr ""
 
-#: includes/password-login-screening.php:718
+#: includes/password-login-screening.php:741
 msgid "Review flagged accounts on the Users screen"
 msgstr ""
 
-#: includes/password-login-screening.php:719
+#: includes/password-login-screening.php:742
 msgid "There, select the flagged accounts and choose Send password reset from Bulk actions to email them all at once."
 msgstr ""
 
-#: includes/password-policy.php:153
+#: includes/password-policy.php:238
 msgid "<strong>Error:</strong> Enter a password."
 msgstr ""
 
-#: includes/password-policy.php:162
+#: includes/password-policy.php:247
 msgid "<strong>Error:</strong> That password is too long."
 msgstr ""
 
-#: includes/password-policy.php:169
+#: includes/password-policy.php:254
 msgid "<strong>Error:</strong> Choose a password that has not appeared in a known data breach."
 msgstr ""
 
 #. translators: %d: minimum password length.
-#: includes/password-policy.php:202
+#: includes/password-policy.php:287
 #, php-format
 msgid "<strong>Error:</strong> Password must be at least %d characters."
 msgstr ""
 
-#: includes/password-policy.php:223
+#: includes/password-policy.php:308
 msgid "<strong>Error:</strong> Choose a password that is not commonly used."
 msgstr ""
 
-#: includes/password-policy.php:242
+#: includes/password-policy.php:327
 msgid "<strong>Error:</strong> Password must not contain your username or email name."
 msgstr ""
 
@@ -1829,7 +1833,7 @@ msgid "The breach check sends <a href=\"https://haveibeenpwned.com/API/v3#Search
 msgstr ""
 
 #: includes/settings-page.php:132
-msgid "An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 fresh lookups to start and one more each minute by default, and Keel keeps up to 64 answers for 12 hours, so a burst of password changes cannot flood the service. The length, common-password and username rules still apply, and only a reply that arrived whole and parsed cleanly is ever kept."
+msgid "An outage, a bad reply or a used-up allowance lets the password through rather than blocking it. That is deliberate: otherwise nobody could change a password while HIBP is down. Each site (each network, on multisite) gets 10 lookups to start and one more each minute by default, so a burst of password changes cannot flood the service. Half of that allowance is kept for accounts that can write content or manage the site, so they are still checked when the rest is used up. The length, common-password and username rules still apply. Keel keeps no reply: each one answers the check that asked for it and is then discarded, and only a reply that arrived whole and parsed cleanly is trusted."
 msgstr ""
 
 #. translators: %s: URL of the Site Health status screen.
@@ -1913,7 +1917,7 @@ msgid "A policy is not a delivery schedule. WordPress installs updates when its 
 msgstr ""
 
 #: includes/settings-page.php:222
-msgid "On multisite, every site shares the same plugin and theme files, so one policy applies to the whole network. A Super Admin can set it under Network Policy. If Network Policy leaves plugin or theme updates unmanaged, the main site’s setting decides for every site, so change it on the main site."
+msgid "On multisite, every site shares the same WordPress, plugin and theme files, so one update policy applies to the whole network. A Super Admin can set it under Network Policy. Where Network Policy leaves an update setting unmanaged, the main site’s setting decides for every site, and only a Super Admin can change it there."
 msgstr ""
 
 #: includes/settings-page.php:231
@@ -2283,7 +2287,7 @@ msgid "Password breach-screening coverage is unknown"
 msgstr ""
 
 #: includes/site-health.php:640
-msgid "Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it. Cached checks may still work when a fresh lookup cannot run."
+msgid "Screening is configured, but its coverage for a particular password is unknown. Transport evidence is shared across the network; a network manager can review it."
 msgstr ""
 
 #: includes/site-health.php:644
@@ -2307,7 +2311,7 @@ msgid "The shared lookup budget could not be read. Fresh lookup coverage is unkn
 msgstr ""
 
 #: includes/site-health.php:655
-msgid "the shared allowance for fresh lookups was exhausted"
+msgid "the shared allowance for lookups was used up, or only the share kept for privileged accounts was left"
 msgstr ""
 
 #: includes/site-health.php:656
@@ -2365,11 +2369,11 @@ msgid "A later live response does not erase the earlier sampled unknown verdict 
 msgstr ""
 
 #: includes/site-health.php:693
-msgid "No validated live response is recorded. Cached or locally filtered verdicts do not establish live service recovery."
+msgid "No validated live response is recorded. Locally filtered verdicts do not establish live service recovery."
 msgstr ""
 
 #: includes/site-health.php:695
-msgid "Cached checks may still work when a fresh lookup cannot run. An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
+msgid "An unknown breach verdict does not block a password change; the other password rules and their role exemptions still apply. This evidence does not establish that all passwords set after a failure went unchecked."
 msgstr ""
 
 #: includes/site-health.php:721
@@ -2740,7 +2744,7 @@ msgid "Turns automatic theme updates on or off for every theme, or leaves each t
 msgstr ""
 
 #: includes/strings.php:147
-#: includes/update-policy-notice.php:122
+#: includes/update-policy-notice.php:123
 msgid "Translations"
 msgstr ""
 
@@ -3437,27 +3441,27 @@ msgstr ""
 msgid "Each theme uses its own %s."
 msgstr ""
 
-#: includes/update-policy-notice.php:122
+#: includes/update-policy-notice.php:123
 msgid "Translation updates install automatically."
 msgstr ""
 
-#: includes/update-policy-notice.php:122
+#: includes/update-policy-notice.php:123
 msgid "Translation updates do not install automatically."
 msgstr ""
 
-#: includes/update-policy-notice.php:143
+#: includes/update-policy-notice.php:144
 msgid "Disabled in configuration."
 msgstr ""
 
-#: includes/update-policy-notice.php:152
+#: includes/update-policy-notice.php:153
 msgid "View update diagnostics"
 msgstr ""
 
-#: includes/update-policy-notice.php:154
+#: includes/update-policy-notice.php:155
 msgid "Keel update policy"
 msgstr ""
 
-#: includes/update-policy-notice.php:158
+#: includes/update-policy-notice.php:159
 msgid "An update policy describes but does not guarantee the intended outcome. Cron, hosting restrictions, and other plugins can affect update delivery."
 msgstr ""
 

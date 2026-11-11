@@ -51,6 +51,10 @@ function keel_defaults_seed_site() {
  * unlimited default alone. Store -1 before bootstrap reads the new schema key,
  * so merely updating Keel does not turn that old behaviour into a cap.
  *
+ * Version 2 stops the breach check keeping replies. Earlier versions kept each
+ * reply for twelve hours, so the rows they wrote are deleted here, on the first
+ * request after the update rather than whenever they would next have been read.
+ *
  * The migration is deliberately lazy on multisite. `plugins_loaded` runs in
  * each site's context before Keel reads the setting, so a large network does
  * not need one unbounded upgrade request and every subsite is safe on its first
@@ -78,9 +82,36 @@ function keel_defaults_maybe_upgrade() {
 		update_option( KEEL_DEFAULTS_OPTION, $stored );
 	}
 
+	// A refused delete leaves the version where it was, so the next request tries again.
+	if ( $version < 2 && ! keel_defaults_forget_breach_replies() ) {
+		return false;
+	}
+
 	update_option( KEEL_DEFAULTS_DATA_VERSION_OPTION, KEEL_DEFAULTS_DATA_VERSION );
 
 	return true;
+}
+
+/**
+ * Delete what an earlier version's breach check left in the database.
+ *
+ * Runs once when a site first loads this version, and again with WordPress's
+ * own daily clean-up of expired cached data. The second covers a request that
+ * was still running the earlier code while the plugin was being replaced, and
+ * a site that went back to an earlier version for a while: either can write a
+ * row after the first clean-up has been and gone.
+ *
+ * On multisite the rows belong to the network, so whichever site runs this
+ * clears them for all of them.
+ *
+ * @return bool False only when the database refused the delete.
+ */
+function keel_defaults_forget_breach_replies() {
+	require_once __DIR__ . '/password-hibp-store.php';
+
+	$scope = keel_hibp_budget_scope();
+
+	return ! $scope || keel_hibp_budget_forget_replies( $scope );
 }
 
 /**

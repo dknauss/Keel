@@ -68,6 +68,12 @@ how many matches it held, and the whole check **fails open**: an unreachable,
 truncated, or malformed response allows the password rather than locking people
 out of password changes during an outage.
 
+The reply answers the check that asked for it and is then discarded. Keel stores
+no password, hash, hash prefix or reply. Lookups draw on an allowance shared by
+the site, or by the network on multisite, and half of it is kept for accounts
+that can write content or manage the site, so those accounts are still checked
+when the rest is used up.
+
 The login re-check never blocks a login. A breached result sets a timestamp in
 the `keel_password_breached` user meta, shows a warning to that account only, and
 is listed for accounts that can `list_users` in Site Health and on the Users

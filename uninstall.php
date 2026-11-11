@@ -63,9 +63,11 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
  *   and never the hash prefix.
  * - `keel_hibp_cache_generation` — the per-installation namespace that keeps
  *   cache entries left in an external object cache unreachable after reinstall.
- * - `keel_hibp_v2_<scope>_state` and 64 fixed slots — shared budget and range
- *   cache, removed once from each network's main-site options table (scope 0
- *   on single site), without enumerating passwords or hash prefixes.
+ * - `keel_hibp_v2_<scope>_state` — the breach check's shared allowance: counters
+ *   and timestamps, nothing about any password. Removed once from each
+ *   network's main-site options table (scope 0 on single site), along with the
+ *   64 fixed rows that versions up to 0.9.1 kept replies in, in case any are
+ *   still there. All by fixed name, without enumerating passwords or prefixes.
  * - `keel_hibp_*` — legacy breach-lookup response cache, one transient per five-hex
  *   prefix. Deleted with a LIKE query because there is no key to enumerate:
  *   which prefixes exist depends entirely on which passwords have been checked.
@@ -168,10 +170,11 @@ function keel_defaults_uninstall_site() {
 	delete_option( 'keel_hibp_cache_generation' );
 
 	/*
-	 * The breach cache also lives in the object cache, which the SQL below
-	 * cannot reach.
+	 * The first breach cache, long since replaced, also lived in the object
+	 * cache, which the SQL below cannot reach. Nothing writes it now, but a
+	 * site that ran that version may still hold it.
 	 *
-	 * Two ways it survives otherwise. Ranges are written to the `keel_hibp`
+	 * Two ways it survives otherwise. Ranges were written to the `keel_hibp`
 	 * object-cache group as well as to a transient; and on a site with a
 	 * persistent external cache, `set_transient()` never creates a database row
 	 * at all, so the LIKE query matches nothing and every cached hash prefix
@@ -199,10 +202,11 @@ function keel_defaults_uninstall_site() {
 }
 
 /**
- * Remove the bounded store from its canonical options table only.
+ * Remove the breach check's allowance from its canonical options table only.
  *
  * Called once per network's main site, or once with scope zero on single site.
- * No prefix scan is needed for these 65 fixed, non-autoloaded options.
+ * One control row, plus the 64 fixed rows that versions up to 0.9.1 kept
+ * replies in. No prefix scan is needed for 65 fixed, non-autoloaded names.
  *
  * @param int $scope Network ID, or zero for single site.
  * @return void

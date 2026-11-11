@@ -122,7 +122,18 @@ function delete_user_meta( $user_id, $key ) {
 function get_userdata( $user_id ) { return isset( $GLOBALS['keel_users'][ $user_id ] ) ? $GLOBALS['keel_users'][ $user_id ] : false; }
 function get_current_user_id() { return $GLOBALS['keel_current_user']; }
 function current_user_can( $cap, ...$args ) { return ! empty( $GLOBALS['keel_caps'][ $cap ] ); }
-function user_can( $user, $cap ) { return in_array( 'administrator', (array) $user->roles, true ) && 'manage_options' === $cap; }
+function user_can( $user, $cap ) {
+	$caps = array(
+		'administrator' => array( 'manage_options', 'edit_posts' ),
+		'editor'        => array( 'edit_posts' ),
+	);
+	foreach ( (array) $user->roles as $role ) {
+		if ( in_array( $cap, $caps[ $role ] ?? array(), true ) ) {
+			return true;
+		}
+	}
+	return false;
+}
 function get_edit_profile_url( $user_id ) { return 'https://example.test/wp-admin/profile.php'; }
 function get_edit_user_link( $user_id ) { return 'https://example.test/wp-admin/user-edit.php?user_id=' . (int) $user_id; }
 function admin_url( $path = '' ) { return 'https://example.test/wp-admin/' . $path; }
@@ -142,7 +153,8 @@ function wp_roles() {
 	);
 }
 function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ); }
-function wp_unslash( $v ) { return $v; }
+function wp_unslash( $v ) { return is_string( $v ) ? stripslashes( $v ) : $v; }
+function wp_slash( $v ) { return is_string( $v ) ? addslashes( $v ) : $v; }
 function is_admin() { return true; }
 function get_current_blog_id() { return $GLOBALS['keel_blog_id']; }
 
@@ -219,20 +231,27 @@ function keel_assert( $cond, $msg ) {
 }
 
 /**
- * Fresh lookup store and HTTP reply; leaves user state alone.
+ * Fresh lookup store and HTTP reply, as a new request; leaves user state alone.
+ *
+ * A new request, because one answer is remembered for the rest of the request
+ * that asked. Without the new request time a later case could be answered from
+ * an earlier one and pass without ever looking anything up.
  *
  * @param int|WP_Error $code HTTP status, or a transport error.
  * @param string       $body Response body.
  */
 function keel_reset_lookup( $code, $body = '' ) {
-	$GLOBALS['wpdb']              = new Keel_HIBP_Test_DB();
-	$GLOBALS['keel_transients']   = array();
-	$GLOBALS['keel_object_cache'] = array();
-	$GLOBALS['keel_http_calls']   = 0;
-	$GLOBALS['keel_http_reply']   = $code instanceof WP_Error ? $code : array(
+	static $request = 5000.0;
+
+	$GLOBALS['wpdb']               = new Keel_HIBP_Test_DB();
+	$GLOBALS['keel_transients']    = array();
+	$GLOBALS['keel_object_cache']  = array();
+	$GLOBALS['keel_http_calls']    = 0;
+	$GLOBALS['keel_http_reply']    = $code instanceof WP_Error ? $code : array(
 		'code' => $code,
 		'body' => $body,
 	);
+	$_SERVER['REQUEST_TIME_FLOAT'] = ++$request;
 }
 
 /**
@@ -294,6 +313,24 @@ keel_defaults_capture_login_password( $editor, 'ed', $breached_pw );
 keel_assert( null === keel_defaults_login_password_slot( 2 ), 'Application passwords are never captured.' );
 unset( $GLOBALS['keel_did']['application_password_did_authenticate'] );
 
+// --- the password is screened as typed, not as the login form slashed it ---
+$typed_pw   = 'it\'s "quoted" back\\slash';
+$slashed_pw = addslashes( $typed_pw );
+keel_assert( $slashed_pw !== $typed_pw, 'Fixture: the submitted form value differs from what was typed.' );
+keel_defaults_capture_login_password( $editor, 'ed', $slashed_pw );
+keel_assert( keel_defaults_login_password_slot( 2 ) === $typed_pw, 'A slashed form value is held as the person typed it.' );
+keel_defaults_capture_login_password( $editor, 'ed', $typed_pw );
+keel_assert( keel_defaults_login_password_slot( 2 ) === $typed_pw, 'A password the caller already unslashed is held unchanged.' );
+keel_defaults_capture_login_password( $editor, 'ed', 'lone\\back' );
+keel_assert( 'lone\\back' === keel_defaults_login_password_slot( 2 ), 'A backslash that no slashing produced is kept.' );
+keel_defaults_capture_login_password( $editor, 'ed', $breached_pw );
+keel_assert( keel_defaults_login_password_slot( 2 ) === $breached_pw, 'A password with nothing to unslash is held unchanged.' );
+
+keel_reset_lookup( 200, strtoupper( substr( sha1( $typed_pw ), 5 ) ) . ':7' );
+keel_login( $editor, $slashed_pw );
+keel_assert( keel_defaults_password_breached_at( 2 ) > 0, 'A breached password with quotes and a backslash is found at login.' );
+keel_defaults_forget_password_screening( 2 );
+
 // --- breached login: flag, timestamp, notice for the owner only ---
 keel_reset_lookup( 200, $breached_ok );
 keel_login( $editor, $breached_pw );
@@ -311,13 +348,14 @@ keel_assert( false === strpos( $notice, 'is-dismissible' ), 'The warning clears 
 $GLOBALS['keel_current_user'] = 1;
 keel_assert( '' === keel_notice(), 'Nobody else sees that person\'s warning.' );
 
-// --- second login inside the interval: no request, even with a cold cache ---
+// --- second login inside the interval: no request ---
 $first = (int) get_user_meta( 2, 'keel_password_screened', true );
 keel_reset_lookup( 200, $breached_ok );
 keel_login( $editor, $breached_pw );
 keel_assert( 0 === $GLOBALS['keel_http_calls'], 'A second login inside the interval makes no lookup.' );
 keel_assert( 'fresh' === keel_defaults_screen_user_password( $editor, $breached_pw, $first + DAY_IN_SECONDS ), 'Inside the interval the result is still fresh.' );
 keel_assert( 'breached' === keel_defaults_screen_user_password( $editor, $breached_pw, $first + 31 * DAY_IN_SECONDS ), 'After the interval it is checked again.' );
+keel_assert( 1 === $GLOBALS['keel_http_calls'], 'And that check goes out: no earlier reply was kept to answer it from.' );
 keel_assert( keel_defaults_password_breached_at( 2 ) === $first, 'A re-check keeps the first sighting rather than resetting it.' );
 update_user_meta( 2, 'keel_password_screened', time() + DAY_IN_SECONDS );
 keel_reset_lookup( 200, $breached_ok );
@@ -374,6 +412,21 @@ keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', null, $state );
 keel_assert( 'unknown' === keel_defaults_screen_user_password( $editor, $breached_pw ), 'An exhausted budget is unknown.' );
 keel_assert( 0 === $GLOBALS['keel_http_calls'], 'An exhausted budget makes no request.' );
 keel_assert( '' === get_user_meta( 2, 'keel_password_screened', true ), 'And records nothing.' );
+
+/*
+ * Half the allowance is kept back for privileged accounts. With only that half
+ * left, a subscriber's login goes unscreened for now and an editor's does not.
+ * The subscriber's records nothing, so their next login tries again.
+ */
+keel_reset_lookup( 200, $breached_ok );
+$state           = keel_hibp_budget_initial( keel_hibp_budget_policy(), time() );
+$state['credit'] = keel_hibp_budget_reserve( keel_hibp_budget_policy() );
+keel_hibp_budget_write( $scope, 'keel_hibp_v2_0_state', null, $state );
+keel_assert( 'unknown' === keel_defaults_screen_user_password( $sub, $breached_pw ), 'With only the reserve left, a subscriber login is not screened.' );
+keel_assert( 0 === $GLOBALS['keel_http_calls'] && '' === get_user_meta( 3, 'keel_password_screened', true ), 'It sends nothing and records nothing.' );
+keel_assert( 'breached' === keel_defaults_screen_user_password( $editor, $breached_pw ), 'An editor login is screened from the reserve.' );
+keel_assert( 1 === $GLOBALS['keel_http_calls'], 'With one lookup.' );
+keel_defaults_forget_password_screening( 2 );
 
 // A local breach list still flags during an outage; it cannot invent "clean".
 keel_reset_lookup( new WP_Error( 'http_request_failed', 'down' ) );

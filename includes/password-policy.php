@@ -50,18 +50,16 @@ function keel_defaults_password_enforced_for_user( $user ) {
 }
 
 /**
- * Roles that may be exempted from the strong-password policy on the settings
- * screen — the guardrail behind the "Password policy exemptions" control.
+ * The capabilities that make a role, or an account, a privileged one.
  *
- * A role is offered only when it holds none of the sensitive capabilities below,
- * so an administrator can never exempt an editor, author, contributor, shop
- * manager, or admin from the UI: privileged accounts are always enforced. The
- * keel_weak_roles filter remains an unrestricted, deliberate code-level escape.
+ * Holding any one of them is enough. Two things rest on this list: which roles
+ * may be exempted from the strong-password policy, and which accounts the
+ * breach check keeps allowance back for.
  *
- * @return array<string,string> role slug => translated display name.
+ * @return string[]
  */
-function keel_defaults_exemptable_roles() {
-	$sensitive = array(
+function keel_defaults_sensitive_capabilities() {
+	return array(
 		'edit_posts',
 		'edit_pages',
 		'publish_posts',
@@ -76,6 +74,92 @@ function keel_defaults_exemptable_roles() {
 		'manage_woocommerce',
 		'edit_shop_orders',
 	);
+}
+
+/**
+ * Whether an account is a privileged one that somebody appointed.
+ *
+ * The breach check works from a shared allowance, and half of it is kept back
+ * for these accounts. Without that, enough password checks from anybody else
+ * would use the allowance up, and the accounts with the most to lose would go
+ * unscreened until it refilled.
+ *
+ * Privileged means holding one of the sensitive capabilities, with two
+ * exceptions for privilege that proves nothing because anyone can have it:
+ *
+ * - a role that registering hands out, where registration is open, and
+ * - on a network where visitors may create sites, a role on any site but the
+ *   main one. The allowance belongs to the whole network, and running a site
+ *   of your own there is open to everybody.
+ *
+ * A Super Admin always counts. Anything that is not a stored account does not,
+ * so a request cannot claim the status by describing a user.
+ *
+ * @param mixed $user Account to judge.
+ * @return bool
+ */
+function keel_defaults_is_privileged_account( $user ) {
+	if ( ! $user instanceof WP_User || empty( $user->ID ) ) {
+		return false;
+	}
+
+	if ( is_multisite() ) {
+		if ( is_super_admin( $user->ID ) ) {
+			return true;
+		}
+
+		if ( ! is_main_site() && in_array( get_site_option( 'registration', 'none' ), array( 'blog', 'all' ), true ) ) {
+			return false;
+		}
+	}
+
+	$roles = (array) $user->roles;
+
+	if ( get_option( 'users_can_register' ) && $roles && ! array_diff( $roles, array( (string) get_option( 'default_role' ) ) ) ) {
+		return false;
+	}
+
+	foreach ( keel_defaults_sensitive_capabilities() as $capability ) {
+		if ( user_can( $user, $capability ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Whether a password check may use the allowance kept back for privileged accounts.
+ *
+ * It may when the person making the request is privileged, or when the account
+ * whose password it is is. Every caller that passes a stored account here has
+ * already established the request's right to it: the profile screen and the
+ * REST routes by checking the editor's capabilities, the reset form by its
+ * key, and the login re-check by the password itself.
+ *
+ * @param mixed $user The account whose password is being checked, if there is one.
+ * @return bool
+ */
+function keel_defaults_breach_check_is_privileged( $user = null ) {
+	// Pluggable, so absent while plugins are still loading.
+	$actor = function_exists( 'wp_get_current_user' ) ? wp_get_current_user() : null;
+
+	return keel_defaults_is_privileged_account( $actor ) || keel_defaults_is_privileged_account( $user );
+}
+
+/**
+ * Roles that may be exempted from the strong-password policy on the settings
+ * screen — the guardrail behind the "Password policy exemptions" control.
+ *
+ * A role is offered only when it holds none of the sensitive capabilities below,
+ * so an administrator can never exempt an editor, author, contributor, shop
+ * manager, or admin from the UI: privileged accounts are always enforced. The
+ * keel_weak_roles filter remains an unrestricted, deliberate code-level escape.
+ *
+ * @return array<string,string> role slug => translated display name.
+ */
+function keel_defaults_exemptable_roles() {
+	$sensitive = keel_defaults_sensitive_capabilities();
 
 	if ( ! function_exists( 'wp_roles' ) ) {
 		return array();
@@ -130,8 +214,8 @@ function keel_defaults_validate_password( $password, $user = null ) {
 	 * Two rejections that cost nothing come before the network call.
 	 *
 	 * The review flagged that breach screening runs ahead of every cheap check,
-	 * so anyone who can reach a password field can drive an outbound request and
-	 * a cache entry per submission, with the prefix of their choosing.
+	 * so anyone who can reach a password field can drive an outbound request
+	 * per submission.
 	 *
 	 * The obvious remedy — put the role gate first — is not taken, deliberately.
 	 * The comment above says why breach screening is universal, and moving the
@@ -141,11 +225,12 @@ function keel_defaults_validate_password( $password, $user = null ) {
 	 *
 	 * What is safe to move ahead of it is anything that can never be a valid
 	 * password whatever the role: nothing at all, and something longer than
-	 * bcrypt will even read. Neither needs WordPress.org's opinion, and both
+	 * bcrypt will even read. Neither needs anybody else's opinion, and both
 	 * short-circuit the cheapest way to abuse this.
 	 *
-	 * That narrows the amplification without closing it. The real answer is a
-	 * rate limit, which is a decision rather than a patch — see ROADMAP.
+	 * The rate limit is the shared allowance in password-hibp-budget.php. Half of
+	 * it is kept back for privileged accounts, so the requests anybody can make
+	 * cannot spend the part those accounts are screened from.
 	 */
 	if ( '' === (string) $password ) {
 		return new WP_Error(
@@ -163,7 +248,7 @@ function keel_defaults_validate_password( $password, $user = null ) {
 		);
 	}
 
-	if ( keel_password_is_pwned( $password ) ) {
+	if ( keel_password_is_pwned( $password, keel_defaults_breach_check_is_privileged( $user ) ) ) {
 		return new WP_Error(
 			'keel_password_pwned',
 			__( '<strong>Error:</strong> Choose a password that has not appeared in a known data breach.', 'keel-defaults' )

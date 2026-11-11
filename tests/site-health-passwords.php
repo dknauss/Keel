@@ -54,7 +54,8 @@ foreach ( array( 'budget_exhausted', 'lookup_busy', 'budget_unavailable', 'unrea
 	);
 	$r                   = keel_defaults_site_health_breach_screening();
 	check( 'recommended' === $r['status'] && false !== strpos( $r['description'], 'sample' ), 'Denials are sampled, degraded evidence.' );
-	check( false === strpos( $r['description'], 'Passwords set since' ) && false !== strpos( $r['description'], 'Cached' ), 'Failures do not establish that every subsequent password was unchecked.' );
+	check( false === strpos( $r['description'], 'Passwords set since' ) && false !== strpos( $r['description'], 'does not establish that all passwords set after a failure went unchecked' ), 'Failures do not establish that every subsequent password was unchecked.' );
+	check( false === stripos( $r['description'], 'cached' ), 'No report suggests an earlier answer can stand in for a lookup.' );
 	check( false === strpos( $r['description'], '<script>' ), 'Unknown diagnostic kinds are never raw HTML.' );
 	check( false !== strpos( $r['description'], 'TIME-202' ) && false !== strpos( $r['description'], 'TIME-303' ), 'Retained sample and later live success are both displayed.' );
 	check( false !== strpos( $r['description'], 'A later live response does not erase the earlier sampled unknown verdict' ), 'A later success does not imply universal recovery or clear the sample.' );

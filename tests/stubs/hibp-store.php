@@ -10,6 +10,7 @@ class Keel_HIBP_Test_DB {
 	public $cas_attempts   = 0;
 	public $cas_failures   = 0;
 	public $queries        = 0;
+	public $refuse_deletes = false;
 	private $suppressed    = false;
 	public function __construct() {
 		$this->pdo = new PDO( 'sqlite::memory:' );
@@ -23,6 +24,10 @@ class Keel_HIBP_Test_DB {
 		$this->suppressed                            = $value;
 		return $old; }
 	public function prepare( $sql, ...$args ) {
+		// Like wpdb, accept the values as one array.
+		if ( 1 === count( $args ) && is_array( $args[0] ) ) {
+			$args = $args[0];
+		}
 		return preg_replace_callback(
 			'/%[sd]/',
 			function ( $match ) use ( &$args ) { $value = array_shift( $args );
@@ -48,6 +53,10 @@ class Keel_HIBP_Test_DB {
 				--$this->cas_failures;
 				return 0; }
 		}
+		if ( $this->refuse_deletes && 0 === stripos( ltrim( $sql ), 'DELETE' ) ) {
+			$this->last_error = 'Synthetic refused delete';
+			return false;
+		}
 		++$this->queries;
 		$this->last_error = '';
 		$sql              = str_replace( array( 'INSERT IGNORE', 'START TRANSACTION' ), array( 'INSERT OR IGNORE', 'BEGIN' ), $sql );
@@ -58,7 +67,10 @@ class Keel_HIBP_Test_DB {
 			return false; }
 	}
 }
-function is_multisite() { return false; }
+// A test that needs a network declares its own is_multisite() before loading this.
+if ( ! function_exists( 'is_multisite' ) ) {
+	function is_multisite() { return false; }
+}
 function wp_json_encode( $value, $flags = 0 ) { return json_encode( $value, $flags ); }
 define( 'DB_ENGINE', 'sqlite' );
 $GLOBALS['wpdb'] = new Keel_HIBP_Test_DB();

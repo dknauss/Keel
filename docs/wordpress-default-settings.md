@@ -1224,7 +1224,8 @@ Explicit policies apply to all eligible code updates; there is no reliable minor
 channel. Later filters can still override Keel. No per-item options are rewritten.
 
 On multisite these shared files use network policy, falling back to the main site's
-setting. Subsite controls show that effective policy and are locked. Configuration
+setting. Subsite controls show that effective policy and are locked, and on the main
+site only a Super Admin can change them. Configuration
 constants disabling background updates lock the controls and take precedence; core
 filesystem, compatibility and scheduling gates still apply.
 

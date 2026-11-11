@@ -1,9 +1,12 @@
 <?php
 /**
- * Have I Been Pwned range lookup, response validation, cache and diagnostics.
+ * Have I Been Pwned range lookup, response validation and diagnostics.
  *
  * Only a five-character SHA-1 prefix is sent; suffix comparison stays local.
  * Unknown responses fail open and are reported separately from clean results.
+ * A reply is used to answer the request that asked for it and is then gone:
+ * nothing about a password, its hash or the reply is written to the database
+ * or to a cache.
  * Loaded by security.php; bootstrap.php retains hook registration.
  *
  * @package Keel
@@ -89,7 +92,7 @@ function keel_hibp_unavailable( $kind ) {
 }
 
 /**
- * Last validated live lookup, never a cache hit.
+ * Last validated live lookup.
  *
  * @return int|null
  */
@@ -107,21 +110,59 @@ function keel_hibp_last_failure() {
 }
 
 /**
+ * One definite answer, remembered for the rest of this request and nowhere else.
+ *
+ * Some requests check the same password twice: the REST users route validates
+ * it as an argument and again before the user is saved. The second check reuses
+ * the first answer rather than spending allowance on the same question.
+ *
+ * The answer lives in this PHP process only and the next lookup replaces it. It
+ * is tied to the request that asked, so a long-running worker cannot hand it to
+ * a later request, and to the scope, so it does not cross networks. Unknown is
+ * never remembered: the next check asks again.
+ *
+ * @param array{table:string,id:int} $scope Canonical database scope.
+ * @param string                     $hash  Upper-case SHA-1 of the password being checked.
+ * @param bool|null                  $found A definite answer to remember, or null to recall one.
+ * @return bool|null The remembered answer when recalling; null otherwise.
+ */
+function keel_hibp_request_answer( array $scope, $hash, $found = null ) {
+	static $held = null;
+
+	$request = isset( $_SERVER['REQUEST_TIME_FLOAT'] ) ? (float) $_SERVER['REQUEST_TIME_FLOAT'] : 0.0;
+
+	if ( null !== $found ) {
+		$held = array(
+			'request' => $request,
+			'scope'   => $scope,
+			'hash'    => $hash,
+			'found'   => (bool) $found,
+		);
+		return null;
+	}
+
+	return is_array( $held ) && $request === $held['request'] && $scope === $held['scope'] && hash_equals( $held['hash'], $hash ) ? $held['found'] : null;
+}
+
+/**
  * Perform a bounded, padded range lookup; compare the suffix only locally.
  *
- * @param string $password Password to screen.
+ * @param string $password   Password to screen.
+ * @param bool   $privileged Whether the check is for a privileged account, and
+ *                           so may use the allowance kept back for them.
  * @return bool|null Breached, verified clean, or unknown.
  */
-function keel_hibp_lookup( $password ) {
+function keel_hibp_lookup( $password, $privileged = false ) {
 	$scope = keel_hibp_budget_scope();
 	if ( ! $scope ) {
 		return null;
 	}
-	$hash      = strtoupper( sha1( $password ) );
-	$admission = keel_hibp_budget_admit( $scope, substr( $hash, 0, 5 ) );
-	if ( isset( $admission['body'] ) ) {
-		return keel_hibp_range_contains( $admission['body'], substr( $hash, 5 ) );
+	$hash  = strtoupper( sha1( $password ) );
+	$known = keel_hibp_request_answer( $scope, $hash );
+	if ( null !== $known ) {
+		return $known;
 	}
+	$admission = keel_hibp_budget_admit( $scope, true === $privileged );
 	if ( isset( $admission['error'] ) ) {
 		return keel_hibp_unavailable( $admission['error'] );
 	}
@@ -157,13 +198,15 @@ function keel_hibp_lookup( $password ) {
 			$body = trim( $raw );
 		}
 	}
-	if ( ! keel_hibp_budget_finish( $ticket, $body, $kind ) ) {
+	if ( ! keel_hibp_budget_finish( $ticket, null !== $body, $kind ) ) {
 		return keel_hibp_unavailable( 'budget_unavailable' );
 	}
 	if ( null === $body ) {
 		return null;
 	}
-	return keel_hibp_range_contains( $body, substr( $hash, 5 ) );
+	$found = keel_hibp_range_contains( $body, substr( $hash, 5 ) );
+	keel_hibp_request_answer( $scope, $hash, $found );
+	return $found;
 }
 
 /**
@@ -178,11 +221,12 @@ function keel_hibp_lookup( $password ) {
  * The keel_password_is_pwned filter this function is named for is applied in
  * keel_hibp_password_verdict(), which both entry points share.
  *
- * @param string $password Plain-text password to screen.
+ * @param string $password   Plain-text password to screen.
+ * @param bool   $privileged Whether the check is for a privileged account.
  * @return bool True when the password appears in a known breach.
  */
-function keel_password_is_pwned( $password ) {
-	return true === keel_hibp_password_verdict( $password );
+function keel_password_is_pwned( $password, $privileged = false ) {
+	return true === keel_hibp_password_verdict( $password, $privileged );
 }
 
 /**
@@ -198,10 +242,12 @@ function keel_password_is_pwned( $password ) {
  * list can still flag a password during an outage. It cannot turn an unknown
  * into a clean result.
  *
- * @param string $password Plain-text password to screen.
+ * @param string $password   Plain-text password to screen.
+ * @param bool   $privileged Whether the check is for a privileged account, and
+ *                           so may use the allowance kept back for them.
  * @return bool|null Breached, clean, or unknown.
  */
-function keel_hibp_password_verdict( $password ) {
+function keel_hibp_password_verdict( $password, $privileged = false ) {
 	$pwned = false;
 
 	/**
@@ -214,7 +260,7 @@ function keel_hibp_password_verdict( $password ) {
 		|| (bool) apply_filters( 'keel_disable_hibp', false, $password );
 
 	if ( ! $disabled ) {
-		$pwned = keel_hibp_lookup( $password );
+		$pwned = keel_hibp_lookup( $password, $privileged );
 
 		/*
 		 * Unknown is not the same as clean, and it still does not block.

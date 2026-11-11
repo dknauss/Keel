@@ -95,7 +95,7 @@ jobs:
           wp --path="$RUNNER_TEMP/hibp-budget-wp" plugin activate keel --url=http://hibp-budget.test/child/
           python3 tests/integration/hibp-budget-runner.py \
             --wp "$RUNNER_TEMP/hibp-budget-wp" \
-            --cases scope,cache_paths \
+            --cases scope,no_retention \
             --url http://hibp-budget.test/child/ \
             --output "$RUNNER_TEMP/hibp-budget-results/siteonly-report.json"
       - name: Retain lab evidence

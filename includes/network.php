@@ -88,6 +88,19 @@ function keel_defaults_network_value( $key ) {
 }
 
 /**
+ * Settings whose main-site value applies to every site on a network.
+ *
+ * WordPress installs background updates once for a whole network, from the main
+ * site, and keeps one user table for every site. Where Network Policy leaves one
+ * of these alone, what the main site has stored is what every site gets.
+ *
+ * @return string[] Schema keys.
+ */
+function keel_defaults_network_shared_keys() {
+	return array( 'core_update_policy', 'plugin_auto_update_policy', 'theme_auto_update_policy', 'auto_update_translations', 'protect_public_names' );
+}
+
+/**
  * The note shown beside a control a super admin has taken over.
  *
  * Deliberately the same shape as `keel_defaults_config_lock()`: a string to show
@@ -95,6 +108,13 @@ function keel_defaults_network_value( $key ) {
  * cannot change should not have to learn two different explanations for why, and
  * the accessible wiring that announces the reason before the label already
  * exists for the wp-config case.
+ *
+ * A network-wide choice belongs to whoever may set network policy. On the main
+ * site that covers the settings in keel_defaults_network_shared_keys(), which
+ * decide for every site: an administrator of the main site holds
+ * `manage_options` there and nothing more, so the controls are theirs to read
+ * and a Super Admin's to change. keel_defaults_sanitize_site() keeps the stored
+ * value on the same answer, so the lock is not only how the screen is drawn.
  *
  * @param string $key Schema key.
  * @return string|null
@@ -109,6 +129,10 @@ function keel_defaults_network_lock( $key ) {
 	}
 
 	if ( ! keel_defaults_network_manages( $key ) ) {
+		if ( is_multisite() && is_main_site() && in_array( $key, keel_defaults_network_shared_keys(), true ) && ! keel_defaults_can_manage_network() ) {
+			return __( 'This site’s setting applies to every site on the network, so only a Super Admin can change it.', 'keel-defaults' );
+		}
+
 		return null;
 	}
 
