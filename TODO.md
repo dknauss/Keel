@@ -388,7 +388,8 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 - [x] **Archive the oldest changelog entries** — 0.6.0, 0.5.10 and 0.5.9 moved to
   `changelog.txt`, because the readme's Changelog section had reached the
   directory's 5,000-word limit.
-- [ ] **Clear the counterpart sweep** — record the AX commit for #371 once its port merges.
+- [x] **Clear the counterpart sweep** — #371 is ported (AX `e340031`, merged in AX
+  `c0b2996`); #370 is not applicable (AX has no such Site Health check).
 - [x] **Re-test #371 with a separate tester** — done on 2026-11-11 against `main` at
   `976b576`: each change held, and nothing new turned up. See the
   [verification record](docs/review/breach-lookup-storage-2026-11-10.md).
