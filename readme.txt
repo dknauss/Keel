@@ -135,11 +135,11 @@ Yes. Many defaults can be set with a `wp-config.php` constant or a filter, for e
 
 [Austin Ginder](https://github.com/austinginder) of Anchor Hosting ([anchor.host](https://anchor.host) · [@anchorhost](https://github.com/anchorhost)) reviewed Keel for security, and the plugin is better for it. Thank you, Austin.
 
-Keel grew out of Better by Default, a WordPress defaults plugin written by the same author (@dknauss) as a teaching version for the Edmonton WordPress meetup, WPYEG: https://github.com/WPYEG/Better-by-Default
+Keel grew out of [Better by Default](https://github.com/WPYEG/Better-by-Default), a teaching plugin that [Dan Knauss](https://github.com/dknauss) wrote for WPYEG, the Edmonton WordPress meetup. Keel keeps its core architecture. Better by Default is licensed GPL-3.0-or-later, and Dan, as its sole author, also licenses the code carried into Keel under GPL-2.0-or-later.
 
-Better by Default is published under the GPL-3.0-or-later; its sole author additionally licenses the portions carried over here under the GPL-2.0-or-later. Keel keeps its core architecture and adds further hardening and admin defaults adapted from the Agency Experience plugin (GPL-2.0-or-later).
+Keel also adapts hardening and admin defaults from Agency Experience (GPL-2.0-or-later), a hard fork of [10up Experience](https://github.com/10up/10up-experience) by 10up, so some of those defaults began as 10up's code. 10up and its contributors keep the copyright in that code, and 10up keeps its marks. Keel is not affiliated with or endorsed by 10up.
 
-Agency Experience is itself a hard fork of the 10up Experience plugin by 10up (GPL-2.0-or-later): https://github.com/10up/10up-experience — so several of Keel's adapted defaults ultimately descend from code first written for 10up Experience. Copyright in that work is retained by 10up and its contributors, and 10up retains its marks; Keel is not affiliated with or endorsed by 10up. See LICENSE for the full GPL-2.0 text.
+Keel is licensed GPL-2.0-or-later. The full text is in [LICENSE](https://github.com/dknauss/keel/blob/main/LICENSE).
 
 == Support This Plugin ==
 
