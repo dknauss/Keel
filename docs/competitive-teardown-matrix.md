@@ -620,6 +620,12 @@ above), so the "read the Keel comment and REST cells as stale" caveat for 0.6.1
 below is cleared. Disable Comments' column was re-measured at 2.9.0 with the same
 result (finding E). The rest of this section is the original method note.
 
+**0.9.2 release preparation (2026-11-11):** the legacy Keel rows now carry the 0.9.2
+label. 0.9.2 changes how breach lookups are stored and rationed, screens the login
+password as typed, and locks the main site's network-shared settings on multisite
+(#371). Neither Keel's row nor the competitor comparison has been re-measured for
+them.
+
 **0.9.1 release preparation (2026-11-09):** the legacy Keel rows now carry the 0.9.1
 label. 0.9.1 adds Random Post Redirects (#364), Public Names (#361) and the
 email-in-public-names Site Health check (#360). Neither Keel's row nor the
@@ -859,7 +865,7 @@ Probed on the 7.0.2 lab.
 | [Disable WP REST API](https://wordpress.org/plugins/disable-wp-rest-api/) 2.6.8 | 30,000+ | live |
 | [Disable Blog](https://wordpress.org/plugins/disable-blog/) 0.5.5 | 20,000+ | live |
 | [Simply Disable Comments](https://wordpress.org/plugins/simply-disable-comments/) 0.3.1 | 6,000+ | live |
-| **Keel** 0.9.1 | — | legacy results; see Method |
+| **Keel** 0.9.2 | — | legacy results; see Method |
 | [Classic Editor](https://wordpress.org/plugins/classic-editor/) 1.7.0 | 9,000,000+ | live |
 | [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) 3.3.2 | 500,000+ | live |
 | [Clearfy](https://wordpress.org/plugins/clearfy/) 2.4.3 | 50,000+ | live |
@@ -881,7 +887,7 @@ the day of the run.
 | [Disable WordPress Update Notifications](https://wordpress.org/plugins/disable-update-notifications/) 2.4.3 | 10,000+ | live |
 | [WP Auto Updater](https://wordpress.org/plugins/wp-auto-updater/) 1.7.4 | 7,000+ | live |
 | [Update Control](https://wordpress.org/plugins/update-control/) 1.5.1 | 4,000+ | live |
-| **Keel** 0.9.1 | — | legacy results; see Method |
+| **Keel** 0.9.2 | — | legacy results; see Method |
 
 **[WP Rollback](https://wordpress.org/plugins/wp-rollback/) (300,000+) is not in
 this field**, and it is the first name anyone will look for. It rolls back

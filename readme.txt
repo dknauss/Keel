@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.9.1
+Stable tag: 0.9.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -149,6 +149,13 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.9.2 =
+* Security: on multisite, the main site's settings that every site shares now need a Super Admin. Where Network Policy leaves them unmanaged, the main site's three update policies, translation updates and Public Names apply to the whole network. A main-site administrator who cannot manage network options now sees them locked on Site Defaults, and a save keeps the stored values. Other sites, single sites and Network Policy are unchanged.
+* Security: breach screening keeps no replies. A reply from Have I Been Pwned answers the check that asked for it and is then discarded, so no password, hash, hash prefix or reply is stored. The 64 rows earlier versions used are deleted when a site first loads this version. Checking the same password in two separate requests now spends the lookup allowance twice.
+* Changed: half the breach-lookup allowance is kept for accounts that can write content or manage the site, so they can still be checked when the rest of the shared allowance is used up. With the default policy that is 5 of 10.
+* Fixed: the login re-check screens the password as typed. WordPress hands the login form's password to plugins with slashes added, so a password containing a quote or a backslash was checked in a different form at login than when it was set.
+* Changed: the Site Health check for email addresses in public names says whether Public Names is on, and links the setting and the one-time cleanup for people who can use them.
+
 = 0.9.1 =
 * Added: a Random Post Redirects setting, on by default, including on sites that update. WordPress 7.2 adds `/random/` addresses, and `?random` on any archive or search, that redirect to a random published post. Each one runs an uncached random-order query, and the author form confirms which author slugs exist even while author archives are off. Keel turns them off and clears the saved rewrite rules. With Author Archives off, random author requests find nothing whatever this setting says. Before WordPress 7.2 the setting does not appear.
 * Added: a Public Names setting, off by default. When an account is created or updated by any route, a display name, nickname or author slug that repeats its login, email address or the part of the address before the @ is replaced with a safe one. Safe names people chose are kept, and logins, addresses and passwords never change. A one-time cleanup under Users → Public Names fixes existing accounts in resumable batches, and updates their past comments only when asked. Old author addresses are not redirected, because a redirect would confirm which address belongs to an account. On multisite, network policy or the main site's setting decides, because accounts are shared.
@@ -193,7 +200,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Admin: locked settings now carry a lock marker beside their label. A summary links to each locked setting and separates configuration locks from network policy. Links reveal hidden dependent controls and move keyboard focus.
 * Accessibility: the drop-downs and number fields on the Network Policy screen now have names that screen readers announce. They were read out as unnamed controls.
 
-Versions before 0.5.9 were not published to the directory. Their entries, the development history that led to the first release, are in `changelog.txt` in the plugin's repository: [https://github.com/dknauss/keel/blob/main/changelog.txt](https://github.com/dknauss/keel/blob/main/changelog.txt).
+Entries for 0.6.0 and earlier are in `changelog.txt` in the plugin's repository: [https://github.com/dknauss/keel/blob/main/changelog.txt](https://github.com/dknauss/keel/blob/main/changelog.txt). Versions before 0.5.9 were not published to the directory; their entries are the development history that led to the first release.
 
 = 0.6.9 =
 * Fixed: conflict diagnostics no longer mistake Keel for another plugin when its installation folder is a symlink to a differently named source directory.
@@ -272,25 +279,10 @@ Versions before 0.5.9 were not published to the directory. Their entries, the de
 * Added: `tests/hook-precedence.php` and `tests/route-coverage.php`, which check that a registration wins its hook and covers its routes rather than merely existing. The first two fixes above were invisible to the previous suite.
 * Thanks to Austin Ginder of Anchor Hosting for the security review these fixes come from.
 
-= 0.6.0 =
-* New: Site Health reports whether the installed version of WordPress has publicly known vulnerabilities. That is a different question from whether an update is available, and nothing in wp-admin answered it. WordPress.org publishes the answer at its core stable-check API, which core itself never queries.
-* Where a patched release exists on your own release line, Keel names that release rather than the newest one. A 6.9.5 site is told about 6.9.7, not 7.1 — only the third number changes, so nothing is deprecated.
-* New: the ladder of releases WordPress.org is currently offering this site, and which one WordPress would actually install. It takes the highest release your settings permit rather than the nearest, so a site accepting major updates skips the patch and jumps to the newest release.
-* Fixed: the panel offered "Install this now from the Updates screen" when the patch appeared only as an automatic-update offer. `get_core_updates()` omits those offers, so following that button installed the newest release instead. Keel now asks core what that screen is showing, and distinguishes listed, hidden behind Show hidden updates, absent, and not yet known.
-* Blockers name their own cause — the constant and the file it usually lives in, or the filter a plugin is using — instead of describing the situation in the abstract. Each one needs a different fix, and they now carry stable codes rather than being told apart by their translated text.
-* New: install the patch from the Site Health panel, using WordPress's own upgrader with rollback enabled. The target is recomputed on the server and can only ever be the patched tip of your own release line, so it cannot cross a release line or move a site backwards. It refuses when files are not writable, when the site is a version-control checkout, or when the release's PHP or MySQL requirements are not met — that last check runs before anything is downloaded, because core otherwise reads those requirements out of the new version's own files and only finds out after unpacking it.
-* Being blocked from automatic updates does not block a deliberate install. A disabled updater, a filter, or an earlier failed update are all reasons a patch will not arrive by itself, and installing it deliberately is the remedy for each.
-* The other remediation switches minor auto-updates back on, and only where the stored option is genuinely what decides.
-
-= 0.5.10 =
-* The network settings screen is now **Network Policy** rather than "Keel Defaults". It decides settings for every site on a network and locks them, which is the opposite of what the per-site screen does, and the old name did not say so. The screen, its address and its behaviour are otherwise unchanged.
-* Two links in Site Health pointed at "Settings → Keel", a menu that has not existed since that screen was renamed to Site Defaults. They now name the screen you will actually find. The same correction has been made to the multisite password help text and to this readme.
-
-= 0.5.9 =
-* Breach-cache entries can no longer be reached again after the plugin is removed and reinstalled. On a site with Redis or Memcached, WordPress keeps transients in the object cache rather than the database, where the uninstaller's queries cannot follow them. Each installation now has its own cache namespace, so anything left behind belongs to an installation that no longer exists.
-* Rewrote the Help menu's Environments and Overlapping plugins tabs, and corrected how the environment type is described: WordPress reads the `WP_ENVIRONMENT_TYPE` constant and `wp_get_environment_type()` reports the result, not the other way round.
-
 == Upgrade Notice ==
+
+= 0.9.2 =
+Security release. On multisite, the main site's network-wide settings now need a Super Admin. Breach screening no longer stores replies, keeps half its allowance for privileged accounts, and checks the login password as typed. Saved settings carry over.
 
 = 0.9.1 =
 Turns off WordPress 7.2's new random post redirects by default, including on sites that update. Adds an opt-in Public Names setting and a Site Health check for email addresses in public names. Setting descriptions are now one sentence, with the details under Help. Saved settings carry over.

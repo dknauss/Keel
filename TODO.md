@@ -381,6 +381,20 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
+## 0.9.2 breach-lookup storage and network-shared settings — prepared 2026-11-11
+
+- [x] **Prepare 0.9.2** — version metadata, changelog, upgrade notice and `.pot`
+  (#370 and #371 since 0.9.1; schema 46).
+- [x] **Archive the oldest changelog entries** — 0.6.0, 0.5.10 and 0.5.9 moved to
+  `changelog.txt`, because the readme's Changelog section had reached the
+  directory's 5,000-word limit.
+- [ ] **Clear the counterpart sweep** — record the AX commit for #371 once its port merges.
+- [x] **Re-test #371 with a separate tester** — done on 2026-11-11 against `main` at
+  `976b576`: each change held, and nothing new turned up. See the
+  [verification record](docs/review/breach-lookup-storage-2026-11-10.md).
+- [ ] **Tag and publish 0.9.2** — tag after the release PR merges, dry run, then deploy.
+- [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.2 is the stable tag.
+
 ## 0.9.1 public names and random redirects — released 2026-11-09
 
 - [x] **Prepare 0.9.1** — version metadata, changelog, upgrade notice and `.pot`

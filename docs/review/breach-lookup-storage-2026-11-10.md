@@ -119,3 +119,9 @@ The local WordPress tree came from a distribution package that defines
 setting for everybody, so the package's change was removed from the disposable
 copies before the run. The pull request's workflows use WordPress from
 wordpress.org.
+
+## Separate re-test, 2026-11-11
+
+Everything above was run by the implementer. After the merge, a separate tester
+re-checked these changes against `main` at `976b576`, the merge commit of #371:
+each one held, and nothing new turned up. Their notes are not published here.
