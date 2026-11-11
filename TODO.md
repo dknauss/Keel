@@ -381,7 +381,7 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
-## 0.9.2 breach-lookup storage and network-shared settings — prepared 2026-11-11
+## 0.9.2 breach-lookup storage and network-shared settings — released 2026-11-11
 
 - [x] **Prepare 0.9.2** — version metadata, changelog, upgrade notice and `.pot`
   (#370 and #371 since 0.9.1; schema 46).
@@ -393,8 +393,15 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 - [x] **Re-test #371 with a separate tester** — done on 2026-11-11 against `main` at
   `976b576`: each change held, and nothing new turned up. See the
   [verification record](docs/review/breach-lookup-storage-2026-11-10.md).
-- [ ] **Tag and publish 0.9.2** — tag after the release PR merges, dry run, then deploy.
-- [ ] **Re-import en_CA** on translate.wordpress.org once 0.9.2 is the stable tag.
+- [x] **Tag and publish 0.9.2** — tagged on `465f768` (the merge of #372), GitHub
+  release published and deployed to WordPress.org on 2026-11-11 (SVN r3795617). This
+  time the tag's own Release run (42944146337) started its deploy job, which made the
+  deploy once approved; a deploy dispatched by hand alongside it was cancelled before
+  it ran. No separate dry run: the deploy workflow had not changed since 0.9.1.
+- [x] **Verify the public 0.9.2 ZIP** — the WordPress.org API reports 0.9.2; the
+  public ZIP has the same 68 entries as the GitHub ZIP (SHA256 `a366a216…b15e`) with
+  identical file contents.
+- [ ] **Re-import en_CA** on translate.wordpress.org now that 0.9.2 is the stable tag.
 
 ## 0.9.1 public names and random redirects — released 2026-11-09
 
@@ -413,7 +420,8 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
 - [x] **Verify the public 0.9.1 ZIP** — the WordPress.org API reports 0.9.1; the
   public ZIP has the same 68 entries as the GitHub ZIP (SHA256 `4ab4d7c4…625f`) with
   identical file contents.
-- [ ] **Re-import en_CA** on translate.wordpress.org now that 0.9.1 is the stable tag.
+- [x] **Re-import en_CA** — imported on 2026-11-09; Stable and Development both
+  815 of 815.
 
 ## 0.9.0 update operations and support — released 2026-10-27
 

@@ -7,6 +7,11 @@
 **Tech Stack:** PHP 7.4+, WordPress 6.4+, MySQL/MariaDB and Studio SQLite, existing PHPUnit-free suites and disposable WP labs.
 **Spec:** ../specs/2026-10-23-hibp-budget-design.md
 
+**Amended 2026-11-10.** The 64-slot range cache in this plan has been removed: no reply is
+retained, and half of the capacity is kept for privileged accounts. The token bucket, leases,
+policy filter, diagnostics and scope rules stand. The cache steps remain as history; see the
+[2026-11-10 record](../../review/breach-lookup-storage-2026-11-10.md).
+
 ## Global Constraints
 
 - Burst 10; one credit/60 seconds; two 30-second leases; 64 slots; 128-KiB raw/129-KiB encoded slot; 4-KiB state; 12-hour freshness; three CAS retries.

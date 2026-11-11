@@ -260,11 +260,15 @@ function keel_enforce_strong_password( $errors, $update, $user ) {
 ```
 > **Note:** Keel ships a working `keel_password_is_pwned()`. It queries the Have
 > I Been Pwned range API by k-anonymity (only the first 5 SHA-1 characters leave the site, never
-> the password), requests `Add-Padding` and ignores the padded count-0 rows, caches each prefix
-> for a few hours, and **fails open** when HIBP is unreachable so an outage can't block password
-> changes. A strength estimator (`keel_zxcvbn_score()` via `bjeavons/zxcvbn-php`) is still yours
-> to add if you want one. Server-side validation is the enforcement layer; pair it with the core
-> JS meter for UX, but never trust the client alone.
+> the password), requests `Add-Padding` and ignores the padded count-0 rows, and **fails open**
+> when HIBP is unreachable so an outage can't block password changes. It keeps no reply: each one
+> answers the check that asked for it and is then discarded, so no password, hash, hash prefix or
+> reply is stored. Lookups draw on an allowance shared by the site, or by the network on
+> multisite: 10 to start and one more each minute by default (`keel_hibp_budget_policy`), with
+> half of it kept for accounts that can write content or manage the site. A strength estimator
+> (`keel_zxcvbn_score()` via `bjeavons/zxcvbn-php`) is still yours to add if you want one.
+> Server-side validation is the enforcement layer; pair it with the core JS meter for UX, but
+> never trust the client alone.
 
 > **Login re-check:** screening at set time never sees a password chosen before Keel was active,
 > or one set while HIBP was unreachable. So a successful interactive login re-checks the submitted
