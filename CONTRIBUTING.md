@@ -237,6 +237,16 @@ any role, and the roadmap records that the real answer is a rate limit and that 
 key is undecided. Narrow the problem honestly and say what is left rather than close
 the ticket.
 
+## Testing process
+
+Keel follows the shared [QA and AI-testing process](https://github.com/dknauss/agent-skills/blob/trunk/docs/qa-process.md):
+risk tiers that set the minimum testing for each pull request, lab passes with a
+coverage matrix, a separate tester for sensitive changes (see
+[docs/review/probes/README.md](docs/review/probes/README.md)), an adversarial
+review and independent re-test before each release, and the rules that keep
+agents from weakening or bypassing the checks that grade them. Name the tier in
+the pull request description.
+
 ## Writing tests
 
 The bar here is higher than "it passes", and it is the one thing worth reading

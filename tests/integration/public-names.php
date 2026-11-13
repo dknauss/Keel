@@ -487,7 +487,9 @@ try {
 				);
 				$name      = $keel_pn_row( $id )['display_name'];
 				$handles[] = $name;
-				$keel_pn_assert( false === stripos( $name, "h{$i}" ) && false === strpos( $name, (string) $id ) && false === strpos( $name, 'fixture' ), 'P12: handle not built from login, email or ID.' );
+				// The ID counts only as a whole word: a small ID such as 7 turns up inside the
+				// six random hex characters of "Member 3f7a2c" by chance, about 2% of the time.
+				$keel_pn_assert( false === stripos( $name, "h{$i}" ) && ! preg_match( '/\\b' . $id . '\\b/', $name ) && false === strpos( $name, 'fixture' ), 'P12: handle not built from login, email or ID.' );
 			}
 			$keel_pn_assert( count( array_unique( $handles ) ) === 3, 'P12: handles differ between accounts.' );
 

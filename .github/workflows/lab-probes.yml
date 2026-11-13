@@ -11,6 +11,12 @@ name: Lab probes
 #
 # Refs reach the script as arguments from the event payload, never as text from
 # the pull request, so nothing a contributor writes becomes shell.
+#
+# The checker runs from the base branch's copy, so a pull request can't weaken
+# bin/check-lab-probes and be judged by the weaker version. This workflow file
+# still comes from the pull request's branch; a change to it is flagged below
+# for a person to read, and the agent token rules in docs/qa-process.md of the
+# agent-skills repository keep local agents from editing it.
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review]
@@ -32,4 +38,39 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: php bin/check-lab-probes "$BASE_SHA" "$HEAD_SHA"
+        run: |
+          checker="$RUNNER_TEMP/check-lab-probes"
+          if git cat-file -e "$BASE_SHA:bin/check-lab-probes" 2>/dev/null; then
+            git show "$BASE_SHA:bin/check-lab-probes" > "$checker"
+            echo "Using the base branch's checker."
+          else
+            cp bin/check-lab-probes "$checker"
+            echo "::warning::The base branch has no checker yet, so this run uses the pull request's copy."
+          fi
+          php "$checker" "$BASE_SHA" "$HEAD_SHA"
+
+      - name: Flag changes to the checks themselves
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed="$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- \
+            .github/ bin/check-lab-probes tests/lab-probes-check.php tests/fixtures/ \
+            | sort -u)"
+          probes="$(git diff --name-only --diff-filter=MDR "$BASE_SHA...$HEAD_SHA" -- docs/review/probes/ \
+            | grep -v '^docs/review/probes/README.md$' || true)"
+          all="$(printf '%s\n%s\n' "$changed" "$probes" | sed '/^$/d' | sort -u)"
+          if [ -z "$all" ]; then
+            echo "No guardrail files changed."
+            exit 0
+          fi
+          {
+            echo "### This pull request changes the checks that grade it"
+            echo
+            echo "A person should read these diffs before merging:"
+            echo
+            printf '%s\n' "$all" | sed 's/^/- `/; s/$/`/'
+          } >> "$GITHUB_STEP_SUMMARY"
+          printf '%s\n' "$all" | while read -r f; do
+            echo "::warning file=$f::Guardrail file changed. Read this diff before merging."
+          done
