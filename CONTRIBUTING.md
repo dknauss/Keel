@@ -247,6 +247,10 @@ review and independent re-test before each release, and the rules that keep
 agents from weakening or bypassing the checks that grade them. Name the tier in
 the pull request description.
 
+For the review by a different model, the owner comments `/codex-review` and the
+brief on the pull request (or adds the `codex-review` label). Codex runs in CI
+and posts its report as a comment; see `.github/workflows/codex-review.yml`.
+
 ## Writing tests
 
 The bar here is higher than "it passes", and it is the one thing worth reading

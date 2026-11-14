@@ -1,0 +1,40 @@
+name: Codex review
+
+# Independent review by a different model, without copying reports by hand.
+# The owner comments "/codex-review" followed by a brief on a pull request, or
+# adds the codex-review label for a general review. Codex runs in CI through
+# the shared workflow in dknauss/agent-skills (no network, read-only token) and
+# its report comes back as a comment on the pull request. Nobody else, the
+# agent machine account included, can start one. See
+# https://github.com/dknauss/agent-skills/blob/trunk/docs/codex-review.md.
+#
+# Needs the OPENAI_API_KEY repository secret.
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  codex:
+    if: >-
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request &&
+       startsWith(github.event.comment.body, '/codex-review') &&
+       github.event.comment.user.login == github.repository_owner) ||
+      (github.event_name == 'pull_request_target' &&
+       github.event.label.name == 'codex-review' &&
+       github.event.sender.login == github.repository_owner)
+    uses: dknauss/agent-skills/.github/workflows/codex-review.yml@trunk
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    with:
+      pr-number: ${{ github.event.issue.number || github.event.pull_request.number }}
+      brief: ${{ github.event.comment.body }}
+      wordpress-versions: "6.4 7.1"
+    secrets:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
