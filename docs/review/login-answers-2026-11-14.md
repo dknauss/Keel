@@ -141,12 +141,14 @@ masked.
    described in its row; and a nested f-string that needs Python 3.12 is gone
    (the runner now parses on 3.9, and the README says 3.9 or later).
 
-## Scope decisions for Dan
+## Scope decisions
 
-| Probe | What is not run | Recommendation |
+Both limits below were **accepted by Dan on 2026-11-14**, as recommended.
+
+| Probe | What is not run | Decision |
 | --- | --- | --- |
-| P32 | A real screen reader (VoiceOver, NVDA). The lab reads Chromium's accessibility tree instead, which is what a screen reader is given | Accept. The setting changes only the text inside core's own `#login_error` element; its role, live-region attributes and place in the tree are unchanged (checked off vs on). A screen reader can only differ if the words do, and the words are checked |
-| P23, REST | Core's own application-password error over REST. In this lab core resolves the current user before `REST_REQUEST` is set, so a wrong application password reaches REST as an anonymous request, on and off alike | Accept. Login Answers adds no hook on REST or `authenticate`; the positive control shows Basic auth is processed, and off and on match |
+| P32 | A real screen reader (VoiceOver, NVDA). The lab reads Chromium's accessibility tree instead, which is what a screen reader is given | Accepted (Dan, 2026-11-14). The setting changes only the text inside core's own `#login_error` element; its role, live-region attributes and place in the tree are unchanged (checked off vs on). A screen reader can only differ if the words do, and the words are checked |
+| P23, REST | Core's own application-password error over REST. In this lab core resolves the current user before `REST_REQUEST` is set, so a wrong application password reaches REST as an anonymous request, on and off alike | Accepted (Dan, 2026-11-14). Login Answers adds no hook on REST or `authenticate`; the positive control shows Basic auth is processed, and off and on match |
 
 ## Reproduce
 
