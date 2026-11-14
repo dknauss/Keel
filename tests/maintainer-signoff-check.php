@@ -2,11 +2,11 @@
 /**
  * The maintainer sign-off gate trusts only a hand-made label from a maintainer.
  *
- * bin/check-maintainer-signoff backs two required jobs in lab-probes.yml:
- * "Guardrail changes reviewed" and "Maintainer sign-off". It decides from
- * GitHub's own records (issue events for who added a label and through which
- * app, repository activity for who pushed and when) whether a maintainer
- * approved what is on the branch now. An agent account with Write can add
+ * The checker, bin/check-maintainer-signoff, backs two required jobs in
+ * lab-probes.yml: "Guardrail changes reviewed" and "Maintainer sign-off". It
+ * decides from GitHub's own records (issue events for who added a label and
+ * through which app, repository activity for who pushed and when) whether a
+ * maintainer approved what is on the branch now. An agent account with Write can add
  * labels and push, and cloud agent sessions act as the maintainer through a
  * GitHub App, so neither may count.
  *
@@ -142,7 +142,7 @@ $gr = 'guardrail-reviewed';
 $ma = 'maintainer-approved';
 
 // The usual branch: created at B, then C1, C2, C3 pushed by the maintainer.
-$own = array(
+$own    = array(
 	keel_push( 'branch_creation', 'dknauss', '2026-11-14T10:00:00Z', $z, $sha['B'] ),
 	keel_push( 'push', 'dknauss', '2026-11-14T10:01:00Z', $sha['B'], $sha['C1'] ),
 	keel_push( 'push', 'dknauss', '2026-11-14T10:02:00Z', $sha['C1'], $sha['C2'] ),
@@ -153,14 +153,15 @@ $bot_c2 = array(
 	keel_push( 'push', 'dknauss-bot', '2026-11-14T10:02:00Z', $sha['C1'], $sha['C2'] ),
 );
 
-// mode, head, events, activity, expected exit, expected text, [fork, action].
+// name, mode, head, events, activity, expected exit, expected text, [fork, action].
 $cases = array(
-	'no guardrail file changed' => array( 'guardrail', 'C1', array(), $own, 0, 'No guardrail files changed' ),
-	'guardrail change, no label' => array( 'guardrail', 'C2', array(), $own, 1, 'nobody has added' ),
-	'guardrail label added by the agent account' => array( 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss-bot', '2026-11-14T10:05:00Z' ) ), $own, 1, 'not a maintainer' ),
-	'guardrail label added by an agent session acting as the maintainer' => array( 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:05:00Z', 'claude' ) ), $own, 1, 'through the claude app' ),
-	'guardrail label added by hand after the last push' => array( 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:05:00Z' ) ), $own, 0, 'by hand' ),
-	'guardrail label removed again' => array(
+	array( 'no guardrail file changed', 'guardrail', 'C1', array(), $own, 0, 'No guardrail files changed' ),
+	array( 'guardrail change, no label', 'guardrail', 'C2', array(), $own, 1, 'nobody has added' ),
+	array( 'guardrail label added by the agent account', 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss-bot', '2026-11-14T10:05:00Z' ) ), $own, 1, 'not a maintainer' ),
+	array( 'guardrail label added by an agent session acting as the maintainer', 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:05:00Z', 'claude' ) ), $own, 1, 'through the claude app' ),
+	array( 'guardrail label added by hand after the last push', 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:05:00Z' ) ), $own, 0, 'by hand' ),
+	array(
+		'guardrail label removed again',
 		'guardrail',
 		'C2',
 		array(
@@ -171,7 +172,8 @@ $cases = array(
 		1,
 		'was removed',
 	),
-	'agent re-adds the label after the maintainer removed it' => array(
+	array(
+		'agent re-adds the label after the maintainer removed it',
 		'guardrail',
 		'C2',
 		array(
@@ -183,9 +185,10 @@ $cases = array(
 		1,
 		'not a maintainer',
 	),
-	'guardrail file pushed after the label (even if that run was cancelled)' => array( 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:01:30Z' ) ), $own, 1, 'changed after the label' ),
-	'push in the same second as the label counts as after it' => array( 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:02:00Z' ) ), $own, 1, 'changed after the label' ),
-	'code-only push after the label keeps it' => array(
+	array( 'guardrail file pushed after the label (even if that run was cancelled)', 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:01:30Z' ) ), $own, 1, 'changed after the label' ),
+	array( 'push in the same second as the label counts as after it', 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:02:00Z' ) ), $own, 1, 'changed after the label' ),
+	array(
+		'code-only push after the label keeps it',
 		'guardrail',
 		'C3',
 		array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:03:00Z' ) ),
@@ -193,24 +196,24 @@ $cases = array(
 		0,
 		'no guardrail file has changed since',
 	),
-	'label older than every recorded push' => array( 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T09:00:00Z' ) ), $own, 1, "can't tell which commit" ),
-	'only maintainer pushes need no sign-off' => array( 'pushes', 'C2', array(), $own, 0, 'No extra sign-off needed' ),
-	'agent push with no sign-off' => array( 'pushes', 'C2', array(), $bot_c2, 1, 'dknauss-bot' ),
-	'agent push signed off by an agent session as the maintainer' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z', 'claude' ) ), $bot_c2, 1, 'through the claude app' ),
-	'agent push signed off by the agent itself' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss-bot', '2026-11-14T10:05:00Z' ) ), $bot_c2, 1, 'not a maintainer' ),
-	'agent push signed off by hand afterwards' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z' ) ), $bot_c2, 0, 'after the last push by anyone else' ),
-	'agent push after the sign-off' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:01:30Z' ) ), $bot_c2, 1, 'predates a push' ),
-	'guardrail-reviewed does not stand in for maintainer-approved' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:05:00Z' ) ), $bot_c2, 1, 'nobody has added' ),
-	'push record does not reach the branch creation' => array( 'pushes', 'C2', array(), array_slice( $own, 1 ), 1, "doesn't reach back" ),
-	'fork pull request without sign-off' => array( 'pushes', 'C2', array(), array(), 1, 'nobody has added', true, 'opened' ),
-	'fork pushes after the sign-off' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z' ) ), array(), 1, 'fork pushed new commits', true, 'synchronize' ),
-	'fork signed off by hand' => array( 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z' ) ), array(), 0, 'Signed off', true, 'labeled' ),
+	array( 'label older than every recorded push', 'guardrail', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T09:00:00Z' ) ), $own, 1, "can't tell which commit" ),
+	array( 'only maintainer pushes need no sign-off', 'pushes', 'C2', array(), $own, 0, 'No extra sign-off needed' ),
+	array( 'agent push with no sign-off', 'pushes', 'C2', array(), $bot_c2, 1, 'dknauss-bot' ),
+	array( 'agent push signed off by an agent session as the maintainer', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z', 'claude' ) ), $bot_c2, 1, 'through the claude app' ),
+	array( 'agent push signed off by the agent itself', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss-bot', '2026-11-14T10:05:00Z' ) ), $bot_c2, 1, 'not a maintainer' ),
+	array( 'agent push signed off by hand afterwards', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z' ) ), $bot_c2, 0, 'after the last push by anyone else' ),
+	array( 'agent push after the sign-off', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:01:30Z' ) ), $bot_c2, 1, 'predates a push' ),
+	array( 'guardrail-reviewed does not stand in for maintainer-approved', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $gr, 'dknauss', '2026-11-14T10:05:00Z' ) ), $bot_c2, 1, 'nobody has added' ),
+	array( 'push record does not reach the branch creation', 'pushes', 'C2', array(), array_slice( $own, 1 ), 1, "doesn't reach back" ),
+	array( 'fork pull request without sign-off', 'pushes', 'C2', array(), array(), 1, 'nobody has added', true, 'opened' ),
+	array( 'fork pushes after the sign-off', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z' ) ), array(), 1, 'fork pushed new commits', true, 'synchronize' ),
+	array( 'fork signed off by hand', 'pushes', 'C2', array( keel_label_event( 1, 'labeled', $ma, 'dknauss', '2026-11-14T10:05:00Z' ) ), array(), 0, 'Signed off', true, 'labeled' ),
 );
 
-foreach ( $cases as $name => $case ) {
-	list( $mode, $head, $events, $activity, $expected_code, $expected_text ) = $case;
-	$fork   = isset( $case[6] ) ? $case[6] : false;
-	$action = isset( $case[7] ) ? $case[7] : 'labeled';
+foreach ( $cases as $case ) {
+	list( $name, $mode, $head, $events, $activity, $expected_code, $expected_text ) = $case;
+	$fork   = isset( $case[7] ) ? $case[7] : false;
+	$action = isset( $case[8] ) ? $case[8] : 'labeled';
 	if ( file_exists( $fx . '/deleted' ) ) {
 		unlink( $fx . '/deleted' );
 	}
