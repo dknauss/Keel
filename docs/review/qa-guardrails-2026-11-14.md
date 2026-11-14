@@ -36,3 +36,19 @@ not label-gated, because almost every pull request touches them.
 | MariaDB, WP 7.1.4, PHP 8.4, single site | PASS (integration, 5 runs) |
 | MySQL 8, multisite, WP 6.4 floor | NOT RUN here (CI backport matrix) |
 | `pull_request_target` check attaching to the pull request as the required "Tester probes came first" | NOT RUN: shows on the first pull request opened after this merges. If the required check doesn't attach, the ruleset's check names need updating. |
+
+## After merge (2026-11-14)
+
+The first `qa-bootstrap.sh --apply` on Keel created both rulesets correctly. A
+second run, after the classic branch-protection rule was removed, read GitHub's
+"Branch not protected" 404 body as the list of required checks: the ruleset
+then required three checks that never run and no longer required "Lint and unit
+tests" or "Counterpart recorded". The independent re-test caught it. Dan reset
+the list by hand to the four real checks (confirmed through the API), and the
+script now aborts on any API error other than a 404 and is covered by a test in
+agent-skills.
+
+R13, whether the two `pull_request_target` jobs attach to a pull request and
+satisfy the ruleset, is checked by the pull request that adds this section: it
+touches no guardrail file and no probe file, so both jobs should pass and merge
+should be allowed once the other two checks pass.
