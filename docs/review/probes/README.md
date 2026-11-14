@@ -61,8 +61,11 @@ version. The pull request's commits are fetched as data and read with git; none
 of its code runs. A second required job, "Guardrail changes reviewed", fails any
 pull request that touches `.github/`, the checker, its test and fixtures, or any
 probe file, until a maintainer reads those diffs and adds the
-`guardrail-reviewed` label. Add the `tier-3` label to make the probe job fail
-when a pull request adds no probe file. The tier itself is a review judgment;
+`guardrail-reviewed` label. A later push that changes any of those files takes
+the label off again, so the approval always covers the diff that was read. Add
+the `tier-3` label to make the probe job fail when a pull request adds no probe
+file (a `.md` file here other than a README; the checker's `--require-probe`
+flag decides, so a placeholder doesn't count). The tier itself is a review judgment;
 the gate checks ordering and presence, not whether results were resolved.
 
 Git can prove the order and that nobody moved the probes. It can't prove the

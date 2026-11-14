@@ -23,6 +23,9 @@ name: Lab probes
 # request's commits are fetched as data and read with git only; nothing from the
 # pull request's branch is executed, so the base-branch context is safe here.
 #
+# The guardrail-reviewed label covers the diff a maintainer read. A later push
+# that changes a guardrail file removes the label and fails the job again.
+#
 # Refs reach the script as arguments from the event payload, never as text from
 # the pull request, so nothing a contributor writes becomes shell.
 on:
@@ -62,18 +65,18 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          added="$(git diff --name-only --no-renames --diff-filter=A "$BASE_SHA...$HEAD_SHA" -- docs/review/probes/ \
-            | grep -v '^docs/review/probes/README.md$' || true)"
-          if [ -z "$added" ]; then
-            echo "::error::This pull request is labelled tier-3 but adds no tester probe file under docs/review/probes/."
-            exit 1
-          fi
-          echo "Tester probe file(s): $added"
+        # Same checker, same idea of what a probe file is (.md under
+        # docs/review/probes/, not a README), so a placeholder can't satisfy it.
+        run: php bin/check-lab-probes --require-probe "$BASE_SHA" "$HEAD_SHA"
 
   guardrails:
     name: Guardrail changes reviewed
     runs-on: ubuntu-latest
+    # pull-requests: write only so this job can take a stale guardrail-reviewed
+    # label off. It still runs nothing from the pull request's branch.
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Check out the base branch (never the pull request's code)
         uses: actions/checkout@v7
@@ -98,13 +101,39 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           REVIEWED: ${{ contains(github.event.pull_request.labels.*.name, 'guardrail-reviewed') }}
+          ACTION: ${{ github.event.action }}
+          BEFORE_SHA: ${{ github.event.before }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          all="$(git diff --name-only --no-renames "$BASE_SHA...$HEAD_SHA" -- \
-            .github/ bin/check-lab-probes tests/lab-probes-check.php tests/fixtures/ docs/review/probes/ \
-            | sed '/^$/d' | sort -u)"
+          paths=".github/ bin/check-lab-probes tests/lab-probes-check.php tests/fixtures/ docs/review/probes/"
+          # shellcheck disable=SC2086
+          all="$(git diff --name-only --no-renames "$BASE_SHA...$HEAD_SHA" -- $paths | sed '/^$/d' | sort -u)"
           if [ -z "$all" ]; then
             echo "No guardrail files changed."
             exit 0
+          fi
+
+          # The label approves the guardrail diff a maintainer read. If a later
+          # push changes any guardrail file (or the old head can't be compared,
+          # as after a force push), that approval is stale: take the label off
+          # and fail until a maintainer reads the new diff and adds it again.
+          if [ "$REVIEWED" = "true" ] && [ "$ACTION" = "synchronize" ]; then
+            stale=yes
+            if [ -n "$BEFORE_SHA" ] && git fetch --no-tags -q origin "$BEFORE_SHA" 2>/dev/null \
+              && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+              # shellcheck disable=SC2086
+              if [ -z "$(git diff --name-only --no-renames "$BEFORE_SHA" "$HEAD_SHA" -- $paths)" ]; then
+                stale=no
+              fi
+            fi
+            if [ "$stale" = "yes" ]; then
+              echo "::warning::Guardrail files changed after the guardrail-reviewed label was added. Removing the label."
+              gh api -X DELETE "repos/${GH_REPO}/issues/${PR_NUMBER}/labels/guardrail-reviewed" >/dev/null \
+                || echo "::warning::Could not remove the label; failing anyway."
+              REVIEWED=false
+            fi
           fi
           {
             echo "### This pull request changes the checks that grade it"
