@@ -1679,6 +1679,13 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       agent pull request, including docs-only ones. Decide which paths need a
       human, which changes agents can still make on their own, and what the merge
       path looks like for a solo maintainer before turning any of this on.
+      **2026-11-13:** the probe check is required with no admin bypass (Nov 12), and
+      now runs on `pull_request_target`, so the workflow and checker come from `main`;
+      guardrail edits fail until Dan adds the `guardrail-reviewed` label. The
+      chosen route for access is in the shared QA process in agent-skills: rulesets
+      with no bypass, a Write-only machine account for local agents, and merges and
+      tags left to Dan. Required code-owner review waits until agents stop opening
+      pull requests as Dan.
 
 ## Non-goals
 

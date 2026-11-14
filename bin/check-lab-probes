@@ -29,7 +29,11 @@
  * Merge commits are skipped, and only the branch's first-parent history counts,
  * so merging the base branch in does not trip the ordering check.
  *
- * Usage: php bin/check-lab-probes <base-ref> <head-ref>
+ * With --require-probe (used for pull requests labelled tier-3), a branch that
+ * adds no probe file fails instead. "Probe file" means the same thing in both
+ * modes: a .md file under docs/review/probes/ other than a README.
+ *
+ * Usage: php bin/check-lab-probes [--require-probe] <base-ref> <head-ref>
  * Run from the repository root, with full history (fetch-depth: 0).
  */
 
@@ -55,13 +59,17 @@ $is_probe = static function ( $path ) {
 		&& 'README.md' !== basename( $path );
 };
 
-if ( $argc < 3 ) {
-	fwrite( STDERR, "Usage: php bin/check-lab-probes <base-ref> <head-ref>\n" );
+$args          = array_slice( $argv, 1 );
+$require_probe = in_array( '--require-probe', $args, true );
+$args          = array_values( array_diff( $args, array( '--require-probe' ) ) );
+
+if ( count( $args ) < 2 ) {
+	fwrite( STDERR, "Usage: php bin/check-lab-probes [--require-probe] <base-ref> <head-ref>\n" );
 	exit( 2 );
 }
 
-$base_ref = $argv[1];
-$head_ref = $argv[2];
+$base_ref = $args[0];
+$head_ref = $args[1];
 $base     = trim( implode( '', $git( array( 'merge-base', $base_ref, $head_ref ) ) ) );
 $commits  = $git( array( 'rev-list', '--reverse', '--first-parent', '--no-merges', "{$base}..{$head_ref}" ) );
 
@@ -90,6 +98,9 @@ foreach ( $changes as $sha => $files ) {
 }
 
 if ( empty( $touched ) ) {
+	if ( $require_probe ) {
+		$reject( 'This branch must carry tester probes (it is labelled tier-3), but it adds no probe file. A probe file is a .md file under ' . KEEL_PROBE_DIR . ' other than a README.' );
+	}
 	echo "No tester probe file on this branch; nothing to check.\n";
 	exit( 0 );
 }

@@ -95,12 +95,13 @@ function keel_probe_repo() {
 /**
  * Run the checker against main..feature.
  *
- * @param string $dir Repository.
+ * @param string $dir   Repository.
+ * @param string $flags Extra checker flags, such as --require-probe.
  * @return array{0:int,1:string} Exit code and combined output.
  */
-function keel_probe_run( $dir ) {
+function keel_probe_run( $dir, $flags = '' ) {
 	$script = dirname( __DIR__ ) . '/bin/check-lab-probes';
-	exec( 'cd ' . escapeshellarg( $dir ) . ' && ' . escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' main feature 2>&1', $out, $status );
+	exec( 'cd ' . escapeshellarg( $dir ) . ' && ' . escapeshellarg( PHP_BINARY ) . ' ' . escapeshellarg( $script ) . ' ' . $flags . ' main feature 2>&1', $out, $status );
 	return array( $status, implode( "\n", $out ) );
 }
 
@@ -216,15 +217,51 @@ $cases = array(
 			keel_probe_commit( $dir, array( 'docs/review/probes/README.md' => "# Probes, revised\n" ), 'Docs' );
 		},
 	),
+	'tier-3: valid probes pass'                        => array(
+		0,
+		'2 tester probe(s) by Codex (GPT)',
+		static function ( $dir ) use ( $probes, $tester, $path ) {
+			keel_probe_commit( $dir, array( $path => $probes ), $tester );
+			keel_probe_commit( $dir, array( 'keel.php' => "<?php // change\n" ), 'Build' );
+		},
+		'--require-probe',
+	),
+	'tier-3: no probe file fails'                      => array(
+		1,
+		'adds no probe file',
+		static function ( $dir ) {
+			keel_probe_commit( $dir, array( 'keel.php' => "<?php // change\n" ), 'Build' );
+		},
+		'--require-probe',
+	),
+	'tier-3: a non-.md file is not a probe'            => array(
+		1,
+		'adds no probe file',
+		static function ( $dir ) {
+			keel_probe_commit( $dir, array( 'docs/review/probes/placeholder.txt' => "x\n" ), "Placeholder\n\nLab-Role: tester\n" );
+			keel_probe_commit( $dir, array( 'keel.php' => "<?php // change\n" ), 'Build' );
+		},
+		'--require-probe',
+	),
+	'tier-3: a nested README is not a probe'           => array(
+		1,
+		'adds no probe file',
+		static function ( $dir ) {
+			keel_probe_commit( $dir, array( 'docs/review/probes/sub/README.md' => "Tester: Codex\nImplementer: Claude\n\n| P1 | a | b | c | d |\n" ), "Readme\n\nLab-Role: tester\n" );
+			keel_probe_commit( $dir, array( 'keel.php' => "<?php // change\n" ), 'Build' );
+		},
+		'--require-probe',
+	),
 );
 
 $made = array();
 foreach ( $cases as $label => $case ) {
 	list( $expected_code, $expected_text, $build ) = $case;
+	$flags  = isset( $case[3] ) ? $case[3] : '';
 	$dir    = keel_probe_repo();
 	$made[] = $dir;
 	$build( $dir );
-	list( $code, $output ) = keel_probe_run( $dir );
+	list( $code, $output ) = keel_probe_run( $dir, $flags );
 	keel_assert( $expected_code === $code, "{$label}: expected exit {$expected_code}, got {$code}. Output: {$output}" );
 	keel_assert( false !== stripos( $output, $expected_text ), "{$label}: expected output to mention \"{$expected_text}\". Output: {$output}" );
 }
