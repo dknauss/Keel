@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-14T07:08:17+00:00\n"
+"POT-Creation-Date: 2026-11-14T07:26:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -2608,7 +2608,7 @@ msgid "Stops the login and lost-password forms from telling visitors which usern
 msgstr ""
 
 #: includes/strings.php:68
-msgid "WordPress tells visitors whether an account exists: the login form gives an unknown username, an unknown email address and a wrong password three different messages, and the lost-password form answers \"Check your email\" only for a real account. With this on, every failed sign-in gets one message that repeats nothing typed, and every reset request is sent to \"Check your email\", whether or not an account exists. Mail still goes only to real accounts, so a mistyped address gets no mail and no error. Covered: the login form at <code>wp-login.php</code> (including the session-expired re-login and forms that post to it) and its lost-password form. Not covered: registration, the profile and user-edit screens, the reset-link screens, response time (a real account still takes longer, because WordPress checks its password, or stores a reset key and sends mail), login attempt limiting, REST requests signed with an application password, XML-RPC, and login forms other plugins render themselves, such as WooCommerce My Account. On multisite, the lost-password form is usually served by the main site, so the main site’s setting (or network policy) decides it."
+msgid "WordPress tells visitors whether an account exists: the login form gives an unknown username, an unknown email address and a wrong password three different messages, and the lost-password form answers \"Check your email\" only for a real account. With this on, every failed sign-in gets one message that repeats nothing typed, and every reset request is sent to \"Check your email\", whether or not an account exists. Mail still goes only to real accounts, so a mistyped address gets no mail and no error. Covered: the login form at <code>wp-login.php</code> (including the session-expired re-login and forms that post to it) and its lost-password form. Not covered: registration, the profile and user-edit screens, the reset-link screens, response time (a real account still takes longer, because WordPress checks its password, or stores a reset key and sends mail), login attempt limiting, REST requests signed with an application password, XML-RPC, and login forms other plugins render themselves, such as WooCommerce My Account. On a subdomain multisite network, every site’s lost-password link leads to the main site’s form, so the main site’s setting (or network policy) decides it; on a subdirectory network each site serves its own."
 msgstr ""
 
 #: includes/strings.php:72

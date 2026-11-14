@@ -63,9 +63,11 @@ add_filter( 'rest_endpoints', function ( $endpoints ) {
   password hash, or stores a reset key and sends mail), login attempt limiting, REST requests
   signed with an application password, XML-RPC, and login forms that call `wp_signon()`
   themselves, such as WooCommerce My Account.
-- **Multisite:** the usual rule, network policy first, then each site's own setting. Core
-  usually links a subsite's "Lost your password?" to the main site's form, so the main site's
-  setting decides the lost-password answer; use network policy for one rule everywhere.
+- **Multisite:** the usual rule, network policy first, then each site's own setting. Whichever
+  site serves the lost-password form decides its answer. `wp_lostpassword_url()` builds the link
+  from the network's domain and the site's path, so on a subdomain network every site's
+  "Lost your password?" leads to the main site's form, and on a subdirectory network each site
+  serves its own. Use network policy for one rule everywhere.
 - **Site Health:** a *Login answers* test reports `good` with the setting on and `recommended`
   with it off, and names what is and isn't covered in both states.
 
