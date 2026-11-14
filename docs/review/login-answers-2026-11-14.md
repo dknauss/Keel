@@ -28,6 +28,8 @@ The change is PR [#380](https://github.com/dknauss/Keel/pull/380), Tier 3
 
 No tester probe was edited. The `Tester probes came first` check confirms it.
 
+**Attribution note.** The probe file's header says `Tester: Dan Knauss`. That line is not accurate: the probes were written by a separate Claude session with no implementation access, on a brief Dan delegated to it. Dan owns the decisions it was given, not the drafting. The tester commit is left as it is, so this record carries the correction.
+
 ## The change
 
 A **Login Answers** toggle, `uniform_login_answers`, Security group, default
