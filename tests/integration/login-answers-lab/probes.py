@@ -248,9 +248,24 @@ def single(site):
     e = on['login']['real_wrong']['error'] or ''
     p8 = all(t not in e for t in ('nobody', 'riley', '@example')) and 'username, email address or password is incorrect' in e and e.count('action=lostpassword') == 1
     record('P8', cell, 'PASS' if p8 else 'FAIL', {'error': e})
-    p32 = all(v['error'] and v['focus'] == 'user_pass' for v in on['login'].values()) and 'notice-error' in on['login']['real_wrong']['shape']['body']
-    record('P32', cell, 'PASS' if p32 else 'FAIL', {'error_is_text_in_#login_error': bool(e), 'focus': on['login']['real_wrong']['focus'],
-                                                    'note': 'markup/focus only; no screen reader run'})
+    # P32 in a real browser: the accessibility tree Chromium hands a screen reader, focus after load, submits per Enter.
+    logs = [log for _, log, _ in LOGIN_INPUTS]
+    setting(site, 'no')
+    ax_off = a11y(site, logs)
+    setting(site, 'yes')
+    ax_on = a11y(site, logs)
+    masked = lambda v, log: v['form_aria'].replace(log, '<typed>')
+    p32 = {
+        'error_is_text': all(v['error_text'] and 'username, email address or password is incorrect' in v['error_text'] for v in ax_on.values()),
+        'error_tree_same_for_every_input': len({v['error_aria'] for v in ax_on.values()}) == 1,
+        'form_tree_same_for_every_input': len({masked(v, log) for log, v in ax_on.items()}) == 1,
+        'focus_same_for_every_input': {v['focused_id'] for v in ax_on.values()} == {'user_pass'},
+        'announced_as_core_announces_it': {json.dumps(v['error_attrs']) for v in ax_on.values()} == {json.dumps(v['error_attrs']) for v in ax_off.values()},
+        'one_submit_per_enter': all(v['posts_per_enter'] == 1 for v in list(ax_on.values()) + list(ax_off.values())),
+    }
+    record('P32', cell, 'PASS' if all(p32.values()) else 'FAIL', dict(p32, error_tree=ax_on[logs[0]]['error_aria'], error_attrs=ax_on[logs[0]]['error_attrs'],
+                                                                   focus_off={k: v['focused_id'] for k, v in ax_off.items()},
+                                                                   note='accessibility tree, not a screen reader'))
 
     # P13: wp_login_failed once per failure with the submitted username.
     p13 = all(v['failed_hook'] == [v['typed']] for v in on['login'].values())
@@ -268,8 +283,11 @@ def single(site):
     flag(site, 'mail-fail', True)
     r = lostpw(site, 'riley')
     flag(site, 'mail-fail', False)
-    p18 = r['status'] == 302 and r['location'] == vals[0][1] and 'could not be sent' not in r['body']
-    record('P18', cell, 'PASS' if p18 else 'FAIL', {'status': r['status'], 'location': r['location'], 'mail_attempted': len(logged(site, 'mail.log', r['rid']))})
+    # The failure must really have happened on this request: one mail attempt, to one recipient, that the hook failed.
+    sent = logged(site, 'mail.log', r['rid'])
+    failed_here = len(sent) == 1 and sent[0]['recipients'] == 1 and sent[0]['fail'] is True
+    p18 = failed_here and r['status'] == 302 and r['location'] == vals[0][1] and 'could not be sent' not in r['body']
+    record('P18', cell, 'PASS' if p18 else 'FAIL', {'status': r['status'], 'location': r['location'], 'mail_log_for_request': sent, 'mail_failed_on_this_request': failed_here})
 
     # P19: allow_password_reset false.
     r = lostpw(site, 'noreset')
@@ -288,9 +306,18 @@ def single(site):
     p21 = login_error(r['body']) == login_error(base_extra['lost_empty']['body']) and r['status'] == base_extra['lost_empty']['status']
     record('P21', cell, 'PASS' if p21 else 'FAIL', {'error': login_error(r['body'])})
     rp = {k: req(site, 'GET', p) for k, p in (('real', '/wp-login.php?action=rp&key=badkey&login=riley'), ('unknown', '/wp-login.php?action=rp&key=badkey&login=nobody'))}
-    p22 = rp['real']['location'] == base_extra['rp_bad_real']['location'] and rp['unknown']['location'] == base_extra['rp_bad_unknown']['location']
-    record('P22', cell, 'PASS' if p22 else 'FAIL', {'bad_key_real': rp['real']['location'], 'bad_key_unknown': rp['unknown']['location'],
-                                                    'baseline_same': p22, 'note': 'core already answers both with error=invalidkey'})
+    p22a = rp['real']['location'] == base_extra['rp_bad_real']['location'] and rp['unknown']['location'] == base_extra['rp_bad_unknown']['location']
+    # The whole reset-link flow, with the setting off and on: the redirect, the follow-up screen it leads to
+    # (with the rp cookie), an expired key and a valid key.
+    setting(site, 'no')
+    rp_off = rp_flow(site)
+    setting(site, 'yes')
+    rp_on = rp_flow(site)
+    p22b = rp_off == rp_on
+    expected = rp_on['bad_riley']['followup_location'].endswith('error=invalidkey') and rp_on['bad_nobody']['followup_location'].endswith('error=invalidkey') \
+        and rp_on['expired_riley']['followup_location'].endswith('error=expiredkey') and rp_on['valid_riley']['followup_form']
+    record('P22', cell, 'PASS' if p22a and p22b and expected else 'FAIL', {'first_redirect_same_as_keel_inactive': p22a, 'flow_off_equals_on': p22b,
+                                                                         'flow_on': rp_on, 'reaches_expected_screens': expected})
 
     # P11: empty fields.
     e_both = shaped(login(site, '', ''))
@@ -371,20 +398,27 @@ def single(site):
     reg_b = req(site, 'POST', '/wp-login.php?action=register', {'user_login': 'newbie', 'user_email': 'riley@example.test'})
     xb = xmlrpc(site)
     rb = rest_basic(site)
+    ub = user_screens(site)
     setting(site, 'yes')
     reg_k = req(site, 'POST', '/wp-login.php?action=register', {'user_login': 'newbie', 'user_email': 'riley@example.test'})
     xk = xmlrpc(site)
     rk = rest_basic(site)
+    uk = user_screens(site)
     wp(site, 'eval-file', f'{LAB}/set-setting.php', 'xmlrpc_allow_remote_publishing', 'no')
     wp(site, 'option', 'update', 'users_can_register', '0')
     p23['registration'] = login_error(reg_b['body']) == login_error(reg_k['body'])
     p23['registration_error'] = (login_error(reg_k['body']) or '')[:90]
     p23['xmlrpc'] = xb == xk
     p23['xmlrpc_answers'] = xk
-    p23['rest_basic'] = rb == rk
+    # REST Basic auth counts only if a correct application password really authenticates (positive control).
+    p23['rest_positive_control'] = rk['riley_correct'][0] == 200 and rb['riley_correct'][0] == 200
+    p23['rest_basic'] = p23['rest_positive_control'] and rb == rk
     p23['rest_answers'] = rk
-    p23['profile_user_edit'] = 'NOT RUN: no request reaches those screens without a session; Keel adds no hook there (grep: wp_login_errors and lost_password only)'
-    record('P23', cell, 'PASS' if p23['registration'] and p23['xmlrpc'] and p23['rest_basic'] else 'FAIL', p23)
+    # Profile and Add New: duplicate username and email errors, setting off vs on.
+    p23['user_screens'] = ub == uk and all(v for v in uk.values())
+    p23['user_screen_errors'] = uk
+    ok23 = p23['registration'] and p23['xmlrpc'] and p23['rest_basic'] and p23['user_screens']
+    record('P23', cell, 'PASS' if ok23 else 'FAIL', p23)
     return base, on
 
 
@@ -398,17 +432,104 @@ def xmlrpc(site):
     return out
 
 
+APP_PASSWORDS = {}
+
+
 def rest_basic(site):
+    """/wp/v2/users/me with Basic auth: a correct application password (the positive control), a wrong one, an unknown user."""
     import base64
+    # One application password per run, made fresh, so a rebuilt site never meets a stale one.
+    if site not in APP_PASSWORDS:
+        wp(site, 'user', 'application-password', 'delete', 'riley', '--all', check=False)
+        APP_PASSWORDS[site] = wp(site, 'user', 'application-password', 'create', 'riley', 'lab', '--porcelain').strip()
+    good = APP_PASSWORDS[site]
     out = {}
-    for who in ('nobody', 'riley'):
-        tok = base64.b64encode(f'{who}:abcd efgh ijkl mnop qrst uvwx'.encode()).decode()
-        r = req(site, 'GET', '/?rest_route=/wp/v2/types', headers={'Authorization': f'Basic {tok}'})
+    for label, who, pw in (('riley_correct', 'riley', good), ('riley_wrong', 'riley', 'abcd efgh ijkl mnop qrst uvwx'),
+                           ('nobody', 'nobody', 'abcd efgh ijkl mnop qrst uvwx')):
+        tok = base64.b64encode(f'{who}:{pw}'.encode()).decode()
+        r = req(site, 'GET', '/?rest_route=/wp/v2/users/me', headers={'Authorization': f'Basic {tok}'})
         try:
             j = json.loads(r['body'])
-            out[who] = (r['status'], j.get('code'))
+            out[label] = (r['status'], j.get('code') or ('user ' + str(j.get('id'))))
         except Exception:
-            out[who] = (r['status'], r['body'][:60])
+            out[label] = (r['status'], r['body'][:60])
+    return out
+
+
+def a11y(site, logs):
+    """Run a11y.js (Playwright) against this site's login form for each typed login."""
+    out = subprocess.run(['node', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'a11y.js'), str(PORT[site]), f'{site}.test'] + logs,
+                         capture_output=True, text=True, timeout=300)
+    if out.returncode:
+        raise RuntimeError(out.stderr[-2000:])
+    return json.loads(out.stdout)
+
+
+def form_fields(body, form_id):
+    """Every named input of one form, as the browser would post it (text, hidden and checked boxes)."""
+    m = re.search(r'<form[^>]*id="' + form_id + r'"[^>]*>(.*?)</form>', body, re.S)
+    out = {}
+    for tag in re.findall(r'<input[^>]*>', m.group(1) if m else ''):
+        name = re.search(r'name="([^"]+)"', tag)
+        if not name:
+            continue
+        kind = re.search(r'type="([^"]+)"', tag)
+        if kind and kind.group(1) in ('checkbox', 'radio', 'submit', 'button') and 'checked' not in tag:
+            continue
+        val = re.search(r'value="([^"]*)"', tag)
+        out[name.group(1)] = html.unescape(val.group(1)) if val else ''
+    return out
+
+
+def screen_errors(body):
+    return [re.sub(r'\s+', ' ', re.sub('<[^>]+>', ' ', e)).strip() for e in re.findall(r'<div[^>]*class="[^"]*error[^"]*"[^>]*>(.*?)</div>', body, re.S)]
+
+
+def user_screens(site):
+    """Duplicate-account errors on Users > Add New (administrator) and Profile (riley)."""
+    out = {}
+    ck = admin_cookies(site)
+    page = req(site, 'GET', '/wp-admin/user-new.php', cookies=ck)['body']
+    f = form_fields(page, 'createuser')
+    f.update({'user_login': 'riley', 'email': 'riley@example.test', 'pass1': 'Lab-Long-Unique-Passphrase-9431', 'pass2': 'Lab-Long-Unique-Passphrase-9431', 'pw_weak': 'on', 'role': 'subscriber'})
+    out['add_new_duplicate'] = screen_errors(req(site, 'POST', '/wp-admin/user-new.php', f, cookies=ck)['body'])
+    # User-edit: an administrator gives eddy riley's email address.
+    eddy = wp(site, 'user', 'get', 'eddy', '--field=ID')
+    page = req(site, 'GET', f'/wp-admin/user-edit.php?user_id={eddy}', cookies=ck)['body']
+    f = form_fields(page, 'your-profile')
+    f['email'] = 'riley@example.test'
+    out['user_edit_email_taken'] = screen_errors(req(site, 'POST', '/wp-admin/user-edit.php', f, cookies=ck)['body'])
+    # Profile: riley asks for eddy's address. Core shows no error here; it answers with a redirect and
+    # (for a free address) a confirmation mail, so the comparison is the status and Location.
+    ck_r = admin_cookies(site, 'riley')
+    page = req(site, 'GET', '/wp-admin/profile.php', cookies=ck_r)['body']
+    f = form_fields(page, 'your-profile')
+    f['email'] = 'eddy@example.test'
+    r = req(site, 'POST', '/wp-admin/profile.php', f, cookies=ck_r)
+    out['profile_email_taken'] = [r['status'], r['location']] + screen_errors(r['body'])
+    wp(site, 'user', 'meta', 'delete', 'riley', '_new_email', check=False)
+    return out
+
+
+def rp_flow(site):
+    """The reset-link screens: what a visitor sees for a bad key (real and unknown login), an expired key and a valid key."""
+    def follow(path):
+        r1 = req(site, 'GET', path)
+        loc = urllib.parse.urlsplit(r1['location'] or '')
+        r2 = req(site, 'GET', loc.path + ('?' + loc.query if loc.query else ''), cookies=r1['jar']) if r1['location'] else None
+        return {'status': r1['status'], 'location': r1['location'], 'cookie_names': r1['cookie_names'],
+                'followup_status': r2['status'] if r2 else None, 'followup_location': (r2['location'] if r2 else None) or '',
+                'followup_error': login_error(r2['body']) if r2 else None,
+                'followup_form': bool(r2) and 'id="resetpassform"' in r2['body']}
+    out = {'bad_riley': follow('/wp-login.php?action=rp&key=badkey&login=riley'),
+           'bad_nobody': follow('/wp-login.php?action=rp&key=badkey&login=nobody')}
+    key = wp(site, 'eval', 'echo get_password_reset_key( get_user_by( "login", "riley" ) );')
+    wp(site, 'eval', 'global $wpdb; $u = get_user_by( "login", "riley" ); $p = explode( ":", $u->user_activation_key, 2 ); '
+                     '$wpdb->update( $wpdb->users, array( "user_activation_key" => "1:" . $p[1] ), array( "ID" => $u->ID ) ); clean_user_cache( $u );')
+    out['expired_riley'] = follow(f'/wp-login.php?action=rp&key={key}&login=riley')
+    key = wp(site, 'eval', 'echo get_password_reset_key( get_user_by( "login", "riley" ) );')
+    out['valid_riley'] = follow(f'/wp-login.php?action=rp&key={key}&login=riley')
+    wp(site, 'eval', 'global $wpdb; $u = get_user_by( "login", "riley" ); $wpdb->update( $wpdb->users, array( "user_activation_key" => "" ), array( "ID" => $u->ID ) ); clean_user_cache( $u );')
     return out
 
 

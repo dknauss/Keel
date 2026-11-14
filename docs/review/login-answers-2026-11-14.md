@@ -1,11 +1,14 @@
 # Lab record: Login Answers (#378), 2026-11-14
 
-> **Summary.** 32 of 33 tester probes PASS on every cell they were run in:
+> **Summary.** 33 of 33 tester probes PASS on every cell they were run in:
 > WordPress 7.1.3 and 6.4.7 on MariaDB 10.11, 7.1.3 on SQLite, and a 7.1.3
-> subdirectory multisite on MariaDB, all on PHP 8.3. P4 PASS by Dan's decision
-> (network policy is the configuration override; P26). P23 and
-> P22 PASS with parts **NOT RUN** (REST Basic auth, profile screens, expired
-> reset key). P24 measured a large timing gap on the login form (about 18 ms for
+> subdirectory multisite on MariaDB, all on PHP 8.3. Two of those passes rest on
+> a decision rather than a run: P4 by Dan's decision (network policy is the
+> configuration override; P26), and P24, which measures response time and passes
+> because the docs say it is not covered (Keel #383). P22, P23 and P32 were
+> completed after the Codex re-review; one limit remains, listed under *Scope
+> decisions* for Dan: P32 reads the browser's accessibility tree, not a screen
+> reader. P24 measured a large timing gap on the login form (about 18 ms for
 > an unknown account against 90 ms for a real one); it is documented as not
 > covered, as decided, but it is the biggest limit on what this setting
 > achieves. See *Findings*.
@@ -60,7 +63,7 @@ A **Login Answers** toggle, `uniform_login_answers`, Security group, default
 | Persistent object cache | — | NOT RUN; the change reads one autoloaded option through Keel's normal path |
 | Third-party login form | WooCommerce 11.3.0 My Account on `s71` | PASS (P25: unchanged, as decided) |
 | Upgrade path | Keel 0.9.2 (`v0.9.2` worktree) → this branch on `s64`, no save | PASS (P2) |
-| Browser / screen reader | — | NOT RUN: P32 checked markup and focus target only |
+| Browser / screen reader | Chromium via Playwright 1.63, on `s71`, `s64`, `sq` | PASS (P32: accessibility tree, focus, Enter). Screen reader NOT RUN; see *Scope decisions* |
 
 ## Probe results
 
@@ -88,12 +91,12 @@ masked.
 | P15 | PASS | s71, s64, sq | Correct password by username and email: 302 to `/wp-admin/`, `wordpress_logged_in_*` set, same `Location` as Keel inactive; breach re-check still hooked on `wp_login` |
 | P16 | PASS | s71, s64, sq | All four lost-password inputs: 302 to `/wp-login.php?checkemail=confirm` |
 | P17 | PASS | s71, s64, sq | Mail recipients: unknown username 0, unknown email 0, real username 1, real email 1 |
-| P18 | PASS | s71, s64, sq | `wp_mail()` failing: one send attempted, same 302, no "could not be sent" |
+| P18 | PASS (tightened after Codex re-review) | s71, s64, sq | `wp_mail()` failing: the verdict now requires the mail log for that very request to hold one attempt, to one recipient, that the hook failed; then the same 302 as P16 and no "could not be sent". Before, a request that never tried to send mail could also pass |
 | P19 | PASS | s71, s64, sq | `allow_password_reset` false for `noreset`: same 302, 0 mails |
 | P20 | PASS | s71, s64, sq | `redirect_to=/thanks/` → `/thanks/` for all four; `https://evil.example/` → `http://<site>/wp-admin/` for all four |
 | P21 | PASS | s71, s64, sq | Empty field: core's "Please enter a username or email address." |
-| P22 | PASS, part NOT RUN | s71, s64, sq | `action=rp` with a bad key for a real and an unknown login: both 302 to `/wp-login.php?action=rp`, identical to baseline. The follow-up GET with the rp cookie and the expired-key case were **NOT RUN**; Keel adds no hook on `action=rp` |
-| P23 | PASS, part NOT RUN | s71, s64, sq | Baseline: Keel on with this setting off (Keel's own XML-RPC defaults would otherwise differ). Registration "already registered" and XML-RPC `wp.getUsersBlogs` ("Incorrect username or password." for both) unchanged. **REST Basic auth NOT RUN**: core ignored the Basic header under `php -S` even with Keel inactive, so the comparison was vacuous. **Profile/user-edit NOT RUN**; no hook there |
+| P22 | PASS (completed after Codex re-review) | s71, s64, sq | The whole reset-link flow, setting off and on, compared: a bad key for a real and an unknown login (302 to `action=rp` with the rp cookie, then the follow-up GET with that cookie: both 302 to `lostpassword&error=invalidkey`), an expired key for a real login (`error=expiredkey`) and a valid key (the reset form renders). Off and on identical in every field; the first redirect also matches Keel inactive. Core already answers a bad key the same for real and unknown logins; the expired-key answer exists only for a real login, but it needs a key that was mailed to that account, so it reveals nothing to someone without one |
+| P23 | PASS (completed after Codex re-review) | s71, s64, sq | Baseline: Keel on with this setting off. Registration "already registered" and XML-RPC `wp.getUsersBlogs` ("Incorrect username or password." for both) unchanged. **REST Basic auth:** a fresh application password for `riley` is the positive control (`/wp/v2/users/me` 200 as user 2, off and on); a wrong one for `riley` and one for `nobody` answer the same off and on (404 `rest_no_route`: Keel hides the users routes from anonymous requests, and in this lab core never surfaces the application-password error to REST because the current user is resolved before `REST_REQUEST` is set, on and off alike). **Add New** (duplicate username and email) and **user-edit** (an administrator giving `eddy` riley's address) show core's "already registered" errors, off and on identical. **Profile** (riley asking for eddy's address): core shows no error there, a 302 to `profile.php?updated=1` off and on |
 | P24 | PASS (measured) | s71, sq | 200 requests each, median ms (stdev): login unknown 17.5 (3.4) vs real wrong 89.3 (6.5) on MariaDB; 20.0 (3.0) vs 89.0 (4.7) on SQLite. Lost password unknown 13.4 (2.2) vs real 22.6 (3.6) on MariaDB; 16.1 (2.7) vs 23.2 (2.6) on SQLite. Readme, settings detail and Site Health say response time is not covered |
 | P25 | PASS | s71 | WooCommerce My Account, Keel inactive vs on: identical notices, still core's three messages; readme and detail name WooCommerce as not covered |
 | P26 | PASS | ms | Network policy `yes` with `site2`'s own setting `no`: `site2` login and lost-password uniform; control `aria-disabled="true" data-keel-locked="1"` with the lock note |
@@ -102,7 +105,7 @@ masked.
 | P29 | PASS | ms | On `site2`: network-only user, spammed user, pending signup with wrong password identical to unknown |
 | P30 | PASS (re-run after Codex review) | s71, ms | Each denied request carries a nonce minted for that user, so only a capability check can refuse it, and the runner names which check did. s71: the settings form as it posts with Login Answers unticked; an administrator's save turns it off (302), the editor's gets 403 from core's `manage_options` check and the setting stays on. ms: the network form as it posts with Login Answers managed and unticked; a Super Admin's save sets that policy (302), `site2`'s administrator gets 403 from core's Network Admin gate and the network option is unchanged. Keel's own capability check in the save handler sits behind that gate and is not reached here. The first pass sent a different setting (s71), a list where the form posts a map (ms) and an invalid nonce on both, so a 403 could have come from the nonce alone |
 | P31 | PASS | s71 | Site Health `good` on, `recommended` off; both, the Help "Settings in detail" text and readme FAQ name all eight not-covered items |
-| P32 | PASS (markup only) | s71, s64, sq | Message is text in `#login_error` (`notice-error`); focus target `user_pass` for every input. No screen reader run |
+| P32 | PASS (browser run added after Codex re-review) | s71, s64, sq | In Chromium (Playwright, `a11y.js`), setting off and on, Enter pressed in the password field: the accessibility tree of `#login_error` is the same text paragraph for every input, the form's tree is the same once the typed value is masked, focus lands on `user_pass` for every input, the error's role and live-region attributes are what core gives it with the setting off, and every Enter submits once. This is the tree a screen reader is handed, not a screen reader run; see *Scope decisions* |
 | P33 | PASS | s71, ms | After `uninstall.php`: no `keel%` rows in `wp_options`, `wp_2_options` or `wp_sitemeta`, nothing containing `uniform_login_answers` |
 
 ## Implementer probes
@@ -137,6 +140,13 @@ masked.
    `php -S` servers it started, not every one on ports 88xx; P30 was rebuilt as
    described in its row; and a nested f-string that needs Python 3.12 is gone
    (the runner now parses on 3.9, and the README says 3.9 or later).
+
+## Scope decisions for Dan
+
+| Probe | What is not run | Recommendation |
+| --- | --- | --- |
+| P32 | A real screen reader (VoiceOver, NVDA). The lab reads Chromium's accessibility tree instead, which is what a screen reader is given | Accept. The setting changes only the text inside core's own `#login_error` element; its role, live-region attributes and place in the tree are unchanged (checked off vs on). A screen reader can only differ if the words do, and the words are checked |
+| P23, REST | Core's own application-password error over REST. In this lab core resolves the current user before `REST_REQUEST` is set, so a wrong application password reaches REST as an anonymous request, on and off alike | Accept. Login Answers adds no hook on REST or `authenticate`; the positive control shows Basic auth is processed, and off and on match |
 
 ## Reproduce
 
