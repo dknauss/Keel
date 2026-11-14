@@ -9,11 +9,11 @@ Stable tag: 0.9.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-46 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
+47 sane WordPress defaults, a warning when your core version is vulnerable, and the option to install the same-branch secure fix.
 
 == Description ==
 
-A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 46 defaults on one screen, in plain language, where you can change any of them.
+A new WordPress site leaves a lot of small decisions to you: how strong passwords must be, when updates happen, what the outside world can see, what a copied test site is allowed to do. Keel Defaults makes those decisions sensibly from the start and puts all 47 defaults on one screen, in plain language, where you can change any of them.
 
 **[Try Keel live in WordPress Playground](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/dknauss/Keel/main/playground/blueprint-stable.json)** — a temporary WordPress site opens in your browser with the current release of Keel already switched on. No hosting, installation, or account required.
 
@@ -40,7 +40,7 @@ Each setting has a control and an explanation under **Settings → Site Defaults
 
 = Good to know before you activate =
 
-Out of the box, Keel turns off comments, trackbacks, and pingbacks, hides public author archives, and stops other sites displaying yours inside a frame. Nothing is deleted, and each of these is a switch you can turn back. The FAQ below explains each one.
+Out of the box, Keel turns off comments, trackbacks, and pingbacks, hides public author archives, gives failed logins and password-reset requests one answer whether or not the account exists, and stops other sites displaying yours inside a frame. Nothing is deleted, and each of these is a switch you can turn back. The FAQ below explains each one.
 
 == External services ==
 
@@ -110,6 +110,12 @@ Usually, yes, but choose one plugin to own any particular setting. Keel helps by
 = Does Keel control plugin and theme auto-updates? =
 
 Yes. Separate plugin and theme controls offer Enabled, Disabled, and Leave unchanged. Both default to Leave unchanged, preserving WordPress's per-item choices and other filters. Explicit choices do not rewrite those per-item settings; later filters and global update restrictions still apply. There is no minor-only channel for plugin or theme releases. On multisite, network policy wins, otherwise the main site's Keel setting decides for the shared files, and only a Super Admin can change it. Site Health → Status, under Update diagnostics, reports the cached filter decisions, not installation guarantees.
+
+= Why does a failed login no longer say whether the username exists? =
+
+WordPress's login form answers an unknown username, an unknown email address and a wrong password in three different ways, and its lost-password form answers "Check your email" only for real accounts. Together they tell anyone which usernames and addresses have accounts. Keel's **Login Answers** setting, on by default, gives every failed sign-in the same message and sends every reset request to "Check your email". Mail still goes only to real accounts, so someone who mistypes their address gets no email and no error; check the address and try again.
+
+It covers the login form at `wp-login.php` (including the session-expired re-login and forms that post to it) and its lost-password form. It does not cover registration, the profile and user-edit screens, the reset-link screens, response time (a real account still takes a little longer to answer), login attempt limiting, REST requests signed with an application password, XML-RPC, or login forms other plugins render themselves, such as WooCommerce My Account. Errors other plugins add, such as lockouts or CAPTCHA, are shown as they wrote them. On multisite, a site's "Lost your password?" link usually leads to the main site, so the main site's setting, or network policy, decides that form.
 
 = Why is there no password strength meter? =
 

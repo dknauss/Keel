@@ -37,6 +37,50 @@ add_filter( 'rest_endpoints', function ( $endpoints ) {
 } );
 ```
 
+### Uniform Login Answers
+- **Key:** `uniform_login_answers`
+- **Default:** `yes`
+- **Why:** WordPress's login form answers an unknown username, an unknown email address and a
+  wrong password for a real account with three different messages, names the account in the
+  wrong-password one, and refills the username field only when the account exists. Its
+  lost-password form redirects to "Check your email" for a real account and re-renders with
+  "There is no account with that username or email address" for an unknown one. Either form
+  tells an anonymous visitor which logins and addresses exist, after Keel has closed every
+  anonymous *read* route that would ([#378](https://github.com/dknauss/Keel/issues/378)).
+- **What changes:** every failed sign-in gets one message ("The username, email address or
+  password is incorrect", with a link to the lost-password form), under core's
+  `incorrect_password` code, so the username field, focus and shake are the same for every
+  input. Every lost-password request that fails only because of the account (unknown account,
+  `allow_password_reset` false, mail failure) is sent where a successful one goes:
+  `wp-login.php?checkemail=confirm`, or its `redirect_to` through `wp_safe_redirect()`. Mail
+  still goes only to real accounts, so a mistyped address gets no mail and no error.
+- **Left alone:** empty-field errors (they say nothing about an account), errors other plugins
+  add (lockouts, CAPTCHA, two-factor; a CAPTCHA error beside core's "no account" error is shown
+  alone), successful sign-in and reset, and `wp_login_failed`, which still fires once per
+  failure with the submitted username for a host's or another plugin's limiter.
+- **Not covered:** registration ("already registered"), the profile and user-edit screens,
+  the reset-link screens, response time (a real account takes longer: WordPress checks its
+  password hash, or stores a reset key and sends mail), login attempt limiting, REST requests
+  signed with an application password, XML-RPC, and login forms that call `wp_signon()`
+  themselves, such as WooCommerce My Account.
+- **Multisite:** the usual rule, network policy first, then each site's own setting. Core
+  usually links a subsite's "Lost your password?" to the main site's form, so the main site's
+  setting decides the lost-password answer; use network policy for one rule everywhere.
+- **Site Health:** a *Login answers* test reports `good` with the setting on and `recommended`
+  with it off, and names what is and isn't covered in both states.
+
+```php
+// wp-login.php applies wp_login_errors just before it renders the form.
+add_filter( 'wp_login_errors', function ( $errors ) {
+    $revealing = array( 'invalid_username', 'invalid_email', 'incorrect_password' );
+    if ( array_intersect( $errors->get_error_codes(), $revealing ) ) {
+        // Keel keeps other plugins' errors; this sketch doesn't.
+        return new WP_Error( 'incorrect_password', __( 'The username, email address or password is incorrect.' ) );
+    }
+    return $errors;
+}, PHP_INT_MAX );
+```
+
 ### Disable REST API for Anonymous Requests
 - **Key:** `disable_rest`
 - **Default:** `no` *(leave off unless the site is a pure brochure site — anonymous front-end

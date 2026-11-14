@@ -221,6 +221,18 @@ function keel_defaults_bootstrap() {
 		keel_defaults_add_policy_filter( 'wp_is_application_passwords_available', 'keel_defaults_return_false' );
 	}
 
+	if ( keel_defaults_enabled( 'uniform_login_answers' ) ) {
+		/*
+		 * One answer from the login and lost-password forms, account or not
+		 * (#378). Both hooks are wp-login.php's own, applied just before it
+		 * renders, so authentication results, wp_login_failed and wp_signon()
+		 * callers elsewhere are untouched. Late, so another plugin's own errors
+		 * are already in place and kept.
+		 */
+		add_filter( 'wp_login_errors', 'keel_defaults_uniform_login_errors', PHP_INT_MAX, 2 );
+		add_action( 'lost_password', 'keel_defaults_uniform_lostpassword', PHP_INT_MAX );
+	}
+
 	if ( keel_defaults_enabled( 'require_strong_passwords' ) ) {
 		add_action( 'user_profile_update_errors', 'keel_defaults_validate_profile_password', 10, 3 );
 		add_action( 'validate_password_reset', 'keel_defaults_validate_reset_password', 10, 2 );

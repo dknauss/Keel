@@ -57,7 +57,7 @@ the tagged sources. See the
   Firefox and WebKit then passed in CI, and the manual VoiceOver, native Safari
   keyboard and WordPress.com checks passed on 2026-10-27. 0.9.0 was published on 2026-10-27
   (see the 0.9.0 section below).
-  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 46
+  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 47
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. The WordPress.com settings-save confirmation
