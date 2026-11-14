@@ -518,20 +518,50 @@ def phase_multisite():
     s_ok, s_errs = uniform_login(sub)
     record('P27', 'ms', 'PASS' if m_ok and not s_ok else 'FAIL', {'main_on_uniform': m_ok, 'site2_off_uniform': s_ok, 'site2_errors': [e[:50] for e in s_errs]})
 
-    # P28: subsite's lost-password link.
-    page = req(site, 'GET', '/site2/wp-login.php')['body']
-    link = re.search(r'href="([^"]*action=lostpassword[^"]*)"', page)
-    lp = html.unescape(link.group(1)) if link else None
-    served_by_main = bool(lp) and '/site2/' not in lp
-    # Subdirectory network: core links site2 to its own form. Whoever serves the
-    # form decides; with site2 off, both its login and its lost-password form
-    # answer as core does, so the two agree.
-    sub_lost_ok, sub_lost = uniform_lost(sub)
-    main_lost_ok, _ = uniform_lost(main)
-    agree = (not s_ok) == (not sub_lost_ok)
-    record('P28', 'ms', 'PASS' if agree and main_lost_ok else 'FAIL', {'lostpassword_link': lp, 'served_by_main_site': served_by_main,
-           'site2_login_uniform': s_ok, 'site2_lost_uniform': sub_lost_ok, 'main_lost_uniform': main_lost_ok,
-           'note': 'subdirectory network; subdomain networks link to the main site (core wp_lostpassword_url uses the site path on the network domain)'})
+    # P28: whoever serves the lost-password form decides, and the docs say which site that is.
+    def link_on(host, path):
+        page = req(site, 'GET', path, host=host)['body']
+        m = re.search(r'href="([^"]*action=lostpassword[^"]*)"', page)
+        return urllib.parse.urlsplit(html.unescape(m.group(1))) if m else None
+
+    def lost_at(link):
+        # POST to the link the login page actually renders, on the host it names.
+        out = {'lost': {}}
+        for key, ul in LOST_INPUTS:
+            r = lostpw(site, ul, path=f'{link.path}?{link.query}', host=link.hostname)
+            out['lost'][key] = {'status': r['status'], 'location': r['location'], 'error': login_error(r['body']),
+                                'mails': sum(x['recipients'] for x in logged(site, 'mail.log', r['rid']))}
+        return uniform_lost(out)[0]
+
+    p28 = {}
+    l2 = link_on('ms.test', '/site2/wp-login.php')
+    p28['site2_link'] = l2.geturl() if l2 else None
+    p28['site2_serves_own_form'] = bool(l2) and l2.hostname == 'ms.test' and l2.path == '/site2/wp-login.php'
+    # Direction A: main on, site2 off (set above for P27).
+    p28['A_site2_login_uniform'] = s_ok
+    p28['A_site2_lost_uniform'] = lost_at(l2)
+    # Direction B: main off, site2 on.
+    setting(site, 'no')
+    setting(site, 'yes', url=s2)
+    p28['B_site2_login_uniform'] = uniform_login(capture(site, prefix='/site2'))[0]
+    p28['B_site2_lost_uniform'] = lost_at(l2)
+    # Mapped domain, site3 on, main off: its link goes to the main site's form, which the main site decides.
+    setting(site, 'yes', url='http://mapped.test/')
+    l3 = link_on('mapped.test', '/wp-login.php')
+    p28['site3_link'] = l3.geturl() if l3 else None
+    p28['site3_links_to_main'] = bool(l3) and l3.hostname == 'ms.test' and l3.path == '/wp-login.php'
+    p28['site3_login_uniform'] = uniform_login(capture(site, host='mapped.test'))[0]
+    p28['site3_lost_follows_main_off'] = not lost_at(l3)
+    setting(site, 'yes')
+    p28['site3_lost_follows_main_on'] = lost_at(l3)
+    detail = wp(site, 'eval', 'echo keel_defaults_strings()["uniform_login_answers"]["detail"];')
+    p28['docs_say_no_path_goes_to_main'] = 'no path of its own' in detail and 'no path of its own' in open(KEEL + '/readme.txt').read() \
+        and 'no path of its own' in open(KEEL + '/docs/wordpress-default-settings.md').read()
+    ok28 = p28['site2_serves_own_form'] and not p28['A_site2_login_uniform'] and not p28['A_site2_lost_uniform'] \
+        and p28['B_site2_login_uniform'] and p28['B_site2_lost_uniform'] and p28['site3_links_to_main'] and p28['site3_login_uniform'] \
+        and p28['site3_lost_follows_main_off'] and p28['site3_lost_follows_main_on'] and p28['docs_say_no_path_goes_to_main']
+    record('P28', 'ms', 'PASS' if ok28 else 'FAIL', p28)
+    setting(site, 'no', url=s2)
 
     # P26: network policy on beats site2's own "no".
     print(network(site, 'yes'))

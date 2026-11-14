@@ -54,7 +54,7 @@ A **Login Answers** toggle, `uniform_login_answers`, Security group, default
 | WordPress oldest supported | 6.4.7 single site, MariaDB 10.11 (`s64`) | PASS (P2, P3, P5–P23, P32) |
 | SQLite | 7.1.3 single site, sqlite-database-integration trunk (`sq`) | PASS (P3, P5–P24, P32) |
 | Multisite, subdirectory | 7.1.3, MariaDB, network-activated, `site2` (`ms`) | PASS (P26–P30, P33 network uninstall) |
-| Multisite, subdomain | — | NOT RUN: `php -S` lab can't serve wildcard hosts. P28's subdomain behaviour is from core source (`wp_lostpassword_url()`), not observed |
+| Multisite, subdomain | — | NOT RUN: `php -S` lab can't serve wildcard hosts. A mapped-domain site (`site3`, no path of its own) is run instead and takes the same `wp_lostpassword_url()` branch a subdomain site does (the main site's form); a real subdomain network is still not observed |
 | MySQL 8 | — | NOT RUN here; CI matrix rows run unit tests only for this change |
 | PHP 7.4 floor | — | NOT RUN: only PHP 8.3 in the sandbox. `phpcompat.xml` passes |
 | Persistent object cache | — | NOT RUN; the change reads one autoloaded option through Keel's normal path |
@@ -98,7 +98,7 @@ masked.
 | P25 | PASS | s71 | WooCommerce My Account, Keel inactive vs on: identical notices, still core's three messages; readme and detail name WooCommerce as not covered |
 | P26 | PASS | ms | Network policy `yes` with `site2`'s own setting `no`: `site2` login and lost-password uniform; control `aria-disabled="true" data-keel-locked="1"` with the lock note |
 | P27 | PASS | ms | No network policy, main `yes`, `site2` `no`: main uniform, `site2` core's messages |
-| P28 | PASS (premise corrected) | ms | On a subdirectory network `site2`'s link is `http://ms.test/site2/wp-login.php?action=lostpassword`, its own form, so `site2`'s setting governs both its login and lost-password answers. The probe's "core usually links to the main site" holds only on subdomain networks; docs corrected in `8e0c0fe` |
+| P28 | PASS (premise corrected, re-run after spot-check) | ms | The site that serves the lost-password form decides it. A site with a path of its own serves its own form: `site2`'s link is `http://ms.test/site2/wp-login.php?action=lostpassword`, and its setting governs both answers in both directions (main on/site2 off: neither uniform; main off/site2 on: both uniform). A site with no path of its own links to the main site's form: `site3`, mapped to `mapped.test`, links to `http://ms.test/wp-login.php?action=lostpassword`, its login follows its own setting, and its lost-password answer follows the main site's (not uniform with main off, uniform with main on). The runner POSTs to the link each login page actually renders. The first pass hard-coded `/site2/` and checked one direction; the spot-check ([login-answers-2026-11-14-spotcheck.md](login-answers-2026-11-14-spotcheck.md)) showed `8e0c0fe`'s wording missed mapped domains, so the docs now say "no path of its own" (subdomain sites and any mapped domain), and the probe checks all three docs say so |
 | P29 | PASS | ms | On `site2`: network-only user, spammed user, pending signup with wrong password identical to unknown |
 | P30 | PASS | s71, ms | Editor POST to `options.php`: 403, option unchanged. `site2` admin POST to network policy: 403, network option unchanged |
 | P31 | PASS | s71 | Site Health `good` on, `recommended` off; both, the Help "Settings in detail" text and readme FAQ name all eight not-covered items |
@@ -122,7 +122,9 @@ masked.
    password against a fixed dummy hash when no account matches. **Suggested
    follow-up for Dan**, not built here.
 2. **Docs were wrong about multisite lost-password links (P28).** Fixed in
-   `8e0c0fe`.
+   `8e0c0fe`, which still left out mapped domains. The Tier 3 spot-check
+   caught that; the wording now keys on whether a site's address has a path of
+   its own, and the lab adds a mapped-domain site to prove it.
 3. **The lab's own bugs.** Four red results were runner mistakes, each
    diffed before being fixed: a P14 text comparison missing core's `<p>`, a P23
    baseline taken with Keel inactive (Keel's XML-RPC and REST user defaults
@@ -137,4 +139,4 @@ The final run rebuilt all four sites from scratch with those scripts and ran
 every phase; all results above come from that run, except P24, measured on the
 first lab at the same commit.
 
-Tested commit: `8e0c0fe` (product code unchanged since `fc6080e`).
+Tested commit: `8e0c0fe` (product code unchanged since `fc6080e`). P28 re-run on the spot-check fix commit, with a mapped-domain site added to `setup.sh`.

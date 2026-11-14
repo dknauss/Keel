@@ -65,9 +65,11 @@ add_filter( 'rest_endpoints', function ( $endpoints ) {
   themselves, such as WooCommerce My Account.
 - **Multisite:** the usual rule, network policy first, then each site's own setting. Whichever
   site serves the lost-password form decides its answer. `wp_lostpassword_url()` builds the link
-  from the network's domain and the site's path, so on a subdomain network every site's
-  "Lost your password?" leads to the main site's form, and on a subdirectory network each site
-  serves its own. Use network policy for one rule everywhere.
+  from the network's domain and the site's path. A site whose address has no path of its own
+  (every site on a subdomain network, and any site with its own mapped domain) therefore links
+  "Lost your password?" to the main site's form, and the main site's setting decides that
+  answer. A site at a path such as `/blog/` serves its own form. Use network policy for one rule
+  everywhere.
 - **Site Health:** a *Login answers* test reports `good` with the setting on and `recommended`
   with it off, and names what is and isn't covered in both states.
 

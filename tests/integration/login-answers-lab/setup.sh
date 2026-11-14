@@ -152,6 +152,11 @@ PHP
     $WP user create siteadmin siteadmin@example.test --role=administrator --user_pass=$PW --url=$S2 --path=$d >/dev/null
     $WP user create netonly netonly@example.test --role=subscriber --user_pass=$PW --path=$d >/dev/null
     $WP user create spammy spammy@example.test --role=subscriber --user_pass=$PW --path=$d >/dev/null
+    # P28: a site with its own mapped domain (no path of its own) on the subdirectory network.
+    $WP site create --slug=site3 --title="Lab site3" --email=admin@example.test --path=$d --url=http://$s.test >/dev/null
+    $WP db query "UPDATE wp_blogs SET domain='mapped.test', path='/' WHERE blog_id=3" --path=$d
+    $WP option update home http://mapped.test --url=http://mapped.test --path=$d >/dev/null
+    $WP option update siteurl http://mapped.test --url=http://mapped.test --path=$d >/dev/null
     $WP eval '$u=get_user_by("login","spammy"); update_user_status($u->ID,"spam",1); wpmu_signup_user("pendingone","pendingone@example.test",array());' --path=$d >/dev/null
   fi
   echo "site $s ($tag, $eng, ms=$ms) ready"
