@@ -43,7 +43,11 @@ function keel_defaults_site_health_tests( $tests ) {
 			'test'  => 'keel_defaults_site_health_breached_passwords',
 		);
 	}
-	$tests['direct']['keel_defaults_environment'] = array(
+	$tests['direct']['keel_defaults_login_answers'] = array(
+		'label' => __( 'Login answers', 'keel-defaults' ),
+		'test'  => 'keel_defaults_site_health_login_answers',
+	);
+	$tests['direct']['keel_defaults_environment']   = array(
 		'label' => __( 'Environment type', 'keel-defaults' ),
 		'test'  => 'keel_defaults_site_health_environment',
 	);
@@ -65,6 +69,51 @@ function keel_defaults_site_health_tests( $tests ) {
 	}
 
 	return $tests;
+}
+
+/**
+ * Report whether the login forms confirm which accounts exist (#378).
+ *
+ * Good with Login Answers on; recommended with it off, since off reopens a
+ * route Keel closes by default. Both states name what the setting covers and
+ * what it doesn't, so a passing result is not read as more than it is.
+ *
+ * @return array Site Health result.
+ */
+function keel_defaults_site_health_login_answers() {
+	$on = keel_defaults_enabled( 'uniform_login_answers' );
+
+	$covered = '<p>' . esc_html__( 'Covered: failed sign-ins on the login form at wp-login.php (including the session-expired re-login and forms that post to it) and requests on its lost-password form.', 'keel-defaults' ) . '</p>';
+	$not     = '<p>' . esc_html__( 'Not covered: registration, the profile and user-edit screens, the reset-link screens, response time (a real account still takes longer to answer), login attempt limiting, REST requests signed with an application password, XML-RPC, and login forms other plugins render themselves, such as WooCommerce My Account.', 'keel-defaults' ) . '</p>';
+	$link    = keel_defaults_setting_link( 'uniform_login_answers', __( 'Login Answers', 'keel-defaults' ) );
+
+	if ( $on ) {
+		$label       = __( 'The login forms don’t confirm which accounts exist', 'keel-defaults' );
+		$description = '<p>' . esc_html__( 'Every failed sign-in gets the same message, and every password reset request is answered "Check your email", whether or not the account exists.', 'keel-defaults' ) . '</p>';
+	} else {
+		$label       = __( 'The login forms confirm which accounts exist', 'keel-defaults' );
+		$description = '<p>' . sprintf(
+			/* translators: %s: link to the Login Answers setting. */
+			esc_html__( 'The login form answers an unknown username, an unknown email address and a wrong password differently, and the lost-password form answers differently for real and unknown accounts. Turning on %s gives them one answer.', 'keel-defaults' ),
+			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by keel_defaults_setting_link(), which escapes both halves.
+		) . '</p>';
+	}
+
+	return array(
+		'label'       => $label,
+		'status'      => $on ? 'good' : 'recommended',
+		'badge'       => array(
+			'label' => __( 'Security', 'keel-defaults' ),
+			'color' => $on ? 'blue' : 'orange',
+		),
+		'description' => $description . $covered . $not,
+		'actions'     => $on ? '' : sprintf(
+			'<p><a href="%s">%s</a></p>',
+			esc_url( admin_url( 'options-general.php?page=keel' ) ),
+			esc_html__( 'Review Keel settings', 'keel-defaults' )
+		),
+		'test'        => 'keel_defaults_login_answers',
+	);
 }
 
 /**

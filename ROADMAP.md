@@ -143,7 +143,7 @@ hook names and multisite storage scopes. Those fixes are merged, not released.
   permission-denial responses to 403. The lab now signs in through `wp-login.php`
   instead of Studio auto-login and runs on every pull request in the
   `HTTP authorization lab` workflow.
-  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 46
+  The AX budget port is merged as commit `f628cb8`; #315 is closed. The development schema has 47
   individually configurable settings. Extension policies and Admin List Tables default to Leave unchanged;
   Tidy includes date and time without a separate control. Saved Screen Options and
   per-item update choices are preserved. Continue dated field observation. The
@@ -550,8 +550,11 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
   plugins, rather than promising a particular solution or delivery date. Runtime
   behaviour remains unchanged pending that review.
 
-- [ ] **Question: should Keel stop the login and lost-password forms from
-  confirming which accounts exist?** Raised 2026-10-24 by the
+- [x] **Question: should Keel stop the login and lost-password forms from
+  confirming which accounts exist?** Decided 2026-11-14 in
+  [#378](https://github.com/dknauss/Keel/issues/378): one setting, Login Answers,
+  on by default, covering both forms; hiding the login URL and attempt limiting
+  stay out of scope. Implemented on the #378 pull request; unreleased. Raised 2026-10-24 by the
   [competitor re-measurement](docs/competitive-teardown-matrix.md), which found
   Keel closes every anonymous *read* route that names an account and neither
   *form* route: `wp-login.php` still answers "unknown username" and "wrong
@@ -574,8 +577,8 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
     make. A narrower version, such as making failures easier for a host's or
     another plugin's limiter to count, may not need any of that.
 
-  Until it is decided, Keel's documentation should say plainly that the two
-  forms are not covered.
+  The settings reference, readme FAQ and a Site Health test name what the
+  setting covers and what it does not.
 
 - [x] **Flag accounts whose public name or slug exposes an email-address
   username** ([#355](https://github.com/dknauss/Keel/issues/355)). Raised

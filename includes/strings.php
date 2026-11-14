@@ -61,6 +61,12 @@ function keel_defaults_strings() {
 			'help'      => __( 'Stops anyone from creating or using application passwords for API access.', 'keel-defaults' ),
 			'detail'    => __( 'Off by default — application passwords are hashed, revocable, per-application credentials for REST and XML-RPC, and usually the safest way to grant API access. They carry the owning account\'s full access and skip interactive 2FA, so prohibit them only when policy requires every login to pass 2FA or SSO, or when no integration needs API access at all.', 'keel-defaults' ),
 		),
+		'uniform_login_answers'           => array(
+			'label'     => __( 'Login Answers', 'keel-defaults' ),
+			'statement' => __( 'Answer failed logins and password resets the same whether or not the account exists', 'keel-defaults' ),
+			'help'      => __( 'Stops the login and lost-password forms from telling visitors which usernames and email addresses have accounts.', 'keel-defaults' ),
+			'detail'    => __( 'WordPress tells visitors whether an account exists: the login form gives an unknown username, an unknown email address and a wrong password three different messages, and the lost-password form answers "Check your email" only for a real account. With this on, every failed sign-in gets one message that repeats nothing typed, and every reset request is sent to "Check your email", whether or not an account exists. Mail still goes only to real accounts, so a mistyped address gets no mail and no error. Covered: the login form at <code>wp-login.php</code> (including the session-expired re-login and forms that post to it) and its lost-password form. Not covered: registration, the profile and user-edit screens, the reset-link screens, response time (a real account still takes longer, because WordPress checks its password, or stores a reset key and sends mail), login attempt limiting, REST requests signed with an application password, XML-RPC, and login forms other plugins render themselves, such as WooCommerce My Account. On multisite, a site’s lost-password link leads to the main site’s form when the site’s address has no path of its own (every site on a subdomain network, and any site with its own domain), so the main site’s setting, or network policy, decides it. A site at a path such as <code>/blog/</code> serves its own form.', 'keel-defaults' ),
+		),
 		'require_strong_passwords'        => array(
 			'label'     => __( 'Password Strength', 'keel-defaults' ),
 			'statement' => __( 'Require strong passwords', 'keel-defaults' ),
