@@ -15,5 +15,7 @@ db_stop() { mariadb-admin --socket=$LAB/mysql.sock -uroot shutdown 2>/dev/null; 
 port_of() { case $1 in s71) echo 8871;; s64) echo 8864;; ms) echo 8872;; sq) echo 8873;; esac; }
 # Only the servers this invocation started are stopped: another lab or dev server on the machine is left alone.
 WEB_PIDS=()
-web_start() { for s in "$@"; do p=$(port_of $s); KEEL_LA_STATE=$KEEL_LA_STATE php -S 127.0.0.1:$p -t $LAB/sites/$s $LAB/router.php >$LAB/state/web-$s.log 2>&1 & WEB_PIDS+=($!); done; }
+# The built-in server runs opcache (opcache.enable, not enable_cli) and re-checks files only every few
+# seconds, so a PHP file changed between two requests could be served stale. The lab turns it off.
+web_start() { for s in "$@"; do p=$(port_of $s); KEEL_LA_STATE=$KEEL_LA_STATE php -d opcache.enable=0 -S 127.0.0.1:$p -t $LAB/sites/$s $LAB/router.php >$LAB/state/web-$s.log 2>&1 & WEB_PIDS+=($!); done; }
 web_stop() { [ ${#WEB_PIDS[@]} -eq 0 ] || kill "${WEB_PIDS[@]}" 2>/dev/null; WEB_PIDS=(); true; }

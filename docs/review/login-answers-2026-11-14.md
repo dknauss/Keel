@@ -141,6 +141,14 @@ masked.
    described in its row; and a nested f-string that needs Python 3.12 is gone
    (the runner now parses on 3.9, and the README says 3.9 or later).
 
+5. **Lab server cache (found during the AX port, 2026-11-14).** PHP's built-in
+   server runs opcache and re-reads a changed PHP file only every few seconds.
+   The AX lab, which swaps plugin builds and edits `wp-config.php` between
+   requests, served stale code because of it. This lab is not affected: it
+   edits no PHP file between requests, and its one build swap (P2, 0.9.2 to
+   this branch) passed only because the new code ran, since 0.9.2 has no
+   Login Answers. `env.sh` now turns opcache off anyway.
+
 ## Scope decisions
 
 Both limits below were **accepted by Dan on 2026-11-14**, as recommended.
