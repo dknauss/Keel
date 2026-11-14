@@ -9,17 +9,25 @@ name: Lab probes
 # carry no "Lab-Role: tester" trailer, or changed after they were written. A pull
 # request that touches no probe file passes. See docs/review/probes/README.md.
 #
+# A second job, "Guardrail changes reviewed", fails a pull request that changes
+# the checks themselves (.github/, the checker, its test and fixtures, or any
+# probe file) until a maintainer adds the "guardrail-reviewed" label after
+# reading those diffs. With the "tier-3" label, the first job also fails when the
+# pull request adds no probe file. The tier itself is a review judgment; the
+# gate checks ordering and presence, not whether results were resolved.
+#
+# Why pull_request_target: with pull_request, the workflow file comes from the
+# pull request's own branch, so a branch could edit this file to skip the checker
+# and still report a green "Tester probes came first". pull_request_target always
+# runs this file, and the checker, as they are on the base branch. The pull
+# request's commits are fetched as data and read with git only; nothing from the
+# pull request's branch is executed, so the base-branch context is safe here.
+#
 # Refs reach the script as arguments from the event payload, never as text from
 # the pull request, so nothing a contributor writes becomes shell.
-#
-# The checker runs from the base branch's copy, so a pull request can't weaken
-# bin/check-lab-probes and be judged by the weaker version. This workflow file
-# still comes from the pull request's branch; a change to it is flagged below
-# for a person to read, and the agent token rules in docs/qa-process.md of the
-# agent-skills repository keep local agents from editing it.
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, ready_for_review]
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled]
 
 permissions:
   contents: read
@@ -29,37 +37,71 @@ jobs:
     name: Tester probes came first
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Check out the base branch (never the pull request's code)
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Fetch the pull request's commits as data
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git fetch --no-tags origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pull/head"
+          git cat-file -e "${HEAD_SHA}^{commit}"
 
       - name: Check the probes predate the build and are unchanged
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          checker="$RUNNER_TEMP/check-lab-probes"
-          if git cat-file -e "$BASE_SHA:bin/check-lab-probes" 2>/dev/null; then
-            git show "$BASE_SHA:bin/check-lab-probes" > "$checker"
-            echo "Using the base branch's checker."
-          else
-            cp bin/check-lab-probes "$checker"
-            echo "::warning::The base branch has no checker yet, so this run uses the pull request's copy."
-          fi
-          php "$checker" "$BASE_SHA" "$HEAD_SHA"
+        run: php bin/check-lab-probes "$BASE_SHA" "$HEAD_SHA"
 
-      - name: Flag changes to the checks themselves
+      - name: A tier-3 pull request must carry tester probes
+        if: contains(github.event.pull_request.labels.*.name, 'tier-3')
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          changed="$(git diff --name-only "$BASE_SHA...$HEAD_SHA" -- \
-            .github/ bin/check-lab-probes tests/lab-probes-check.php tests/fixtures/ \
-            | sort -u)"
-          probes="$(git diff --name-only --diff-filter=MDR "$BASE_SHA...$HEAD_SHA" -- docs/review/probes/ \
+          added="$(git diff --name-only --no-renames --diff-filter=A "$BASE_SHA...$HEAD_SHA" -- docs/review/probes/ \
             | grep -v '^docs/review/probes/README.md$' || true)"
-          all="$(printf '%s\n%s\n' "$changed" "$probes" | sed '/^$/d' | sort -u)"
+          if [ -z "$added" ]; then
+            echo "::error::This pull request is labelled tier-3 but adds no tester probe file under docs/review/probes/."
+            exit 1
+          fi
+          echo "Tester probe file(s): $added"
+
+  guardrails:
+    name: Guardrail changes reviewed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the base branch (never the pull request's code)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Fetch the pull request's commits as data
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          git fetch --no-tags origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pull/head"
+          git cat-file -e "${HEAD_SHA}^{commit}"
+
+      # The grading machinery: workflows, the checker and its own test and
+      # fixtures, and every probe file (added, changed, removed or renamed in or
+      # out). Ordinary tests are reviewed at merge like any other code; gating
+      # them here would put a label on nearly every pull request.
+      - name: Changes to the checks need a maintainer's label
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REVIEWED: ${{ contains(github.event.pull_request.labels.*.name, 'guardrail-reviewed') }}
+        run: |
+          all="$(git diff --name-only --no-renames "$BASE_SHA...$HEAD_SHA" -- \
+            .github/ bin/check-lab-probes tests/lab-probes-check.php tests/fixtures/ docs/review/probes/ \
+            | sed '/^$/d' | sort -u)"
           if [ -z "$all" ]; then
             echo "No guardrail files changed."
             exit 0
@@ -67,10 +109,19 @@ jobs:
           {
             echo "### This pull request changes the checks that grade it"
             echo
-            echo "A person should read these diffs before merging:"
-            echo
             printf '%s\n' "$all" | sed 's/^/- `/; s/$/`/'
+            echo
+            if [ "$REVIEWED" = "true" ]; then
+              echo "A maintainer added the \`guardrail-reviewed\` label."
+            else
+              echo "A maintainer must read these diffs and add the \`guardrail-reviewed\` label."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
           printf '%s\n' "$all" | while read -r f; do
-            echo "::warning file=$f::Guardrail file changed. Read this diff before merging."
+            echo "::warning file=$f::Guardrail file changed."
           done
+          if [ "$REVIEWED" != "true" ]; then
+            echo "::error::This pull request changes the checks that grade it. A maintainer must read the diff and add the guardrail-reviewed label."
+            exit 1
+          fi
+

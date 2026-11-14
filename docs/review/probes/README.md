@@ -55,13 +55,15 @@ request. For each probe file the branch touches, it fails when:
 Merge commits are skipped, so merging `main` into the branch is fine. Pull
 requests that touch no probe file pass.
 
-The checker runs from the base branch's copy of `bin/check-lab-probes`, so a
-pull request can't weaken the checker and be judged by the weaker version. A
-second step flags any change to `.github/`, the checker, its tests, fixtures or
-an existing probe file in the run summary, for a person to read before merging.
-It warns rather than fails. The workflow file itself still comes from the pull
-request's branch, so that flag and a token without workflow permission are what
-stand between an agent and a weaker workflow.
+The workflow runs on `pull_request_target`, so both it and the checker come
+from the base branch: a pull request can't edit either and be graded by its own
+version. The pull request's commits are fetched as data and read with git; none
+of its code runs. A second required job, "Guardrail changes reviewed", fails any
+pull request that touches `.github/`, the checker, its test and fixtures, or any
+probe file, until a maintainer reads those diffs and adds the
+`guardrail-reviewed` label. Add the `tier-3` label to make the probe job fail
+when a pull request adds no probe file. The tier itself is a review judgment;
+the gate checks ordering and presence, not whether results were resolved.
 
 Git can prove the order and that nobody moved the probes. It can't prove the
 tester never saw the implementation, or that the `Tester:` line is true. Those

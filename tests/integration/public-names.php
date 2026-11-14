@@ -487,9 +487,11 @@ try {
 				);
 				$name      = $keel_pn_row( $id )['display_name'];
 				$handles[] = $name;
-				// The ID counts only as a whole word: a small ID such as 7 turns up inside the
-				// six random hex characters of "Member 3f7a2c" by chance, about 2% of the time.
-				$keel_pn_assert( false === stripos( $name, "h{$i}" ) && ! preg_match( '/\\b' . $id . '\\b/', $name ) && false === strpos( $name, 'fixture' ), 'P12: handle not built from login, email or ID.' );
+				// The handle must be exactly the plugin's random form, "Member" and six hex
+				// characters, and not an ID in disguise ("Member 7", "Member7", "Member #000007").
+				// The old check, "the ID is not a substring", failed by chance about 2% of the
+				// time: a small ID such as 7 turns up inside random hex like "3f7a2c".
+				$keel_pn_assert( 1 === preg_match( '/^Member [0-9a-f]{6}$/', $name ) && ! preg_match( '/^Member\s*#?0*' . $id . '$/i', $name ) && false === stripos( $name, "h{$i}" ) && false === strpos( $name, 'fixture' ), 'P12: handle not built from login, email or ID.' );
 			}
 			$keel_pn_assert( count( array_unique( $handles ) ) === 3, 'P12: handles differ between accounts.' );
 
