@@ -1686,6 +1686,10 @@ records boundaries, verification and conditional PSR choices; TODO.md tracks tas
       with no bypass, a Write-only machine account for local agents, and merges and
       tags left to Dan. Required code-owner review waits until agents stop opening
       pull requests as Dan.
+      **2026-11-14:** simplified after a red-team pass showed the agent account
+      could add `guardrail-reviewed` itself. Dan merges every pull request and
+      agents never do; the label job and the machine account are gone, CI must
+      pass, and secrets live only in release environments Dan approves.
 
 ## Non-goals
 
