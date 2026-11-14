@@ -51,6 +51,15 @@ add_action( 'init', function () {
 	}
 } );
 
+// P30: a nonce minted for the signed-in user, so a denied save can only be the capability check.
+add_action( 'init', function () {
+	if ( isset( $_GET['lab_nonce'] ) && is_user_logged_in() ) {
+		status_header( 200 );
+		echo 'NONCE:' . wp_create_nonce( wp_unslash( $_GET['lab_nonce'] ) );
+		exit;
+	}
+} );
+
 // P23: application passwords need HTTPS outside a local environment; the lab is plain HTTP.
 add_filter( 'wp_is_application_passwords_available', '__return_true', 5 );
 // php -S does not fill PHP_AUTH_USER from a Basic Authorization header; Apache and nginx+FPM setups do.

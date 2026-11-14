@@ -1,9 +1,9 @@
 # Lab record: Login Answers (#378), 2026-11-14
 
-> **Summary.** 31 of 33 tester probes PASS on every cell they were run in:
+> **Summary.** 32 of 33 tester probes PASS on every cell they were run in:
 > WordPress 7.1.3 and 6.4.7 on MariaDB 10.11, 7.1.3 on SQLite, and a 7.1.3
-> subdirectory multisite on MariaDB, all on PHP 8.3. P4 is **DISPUTED** (it
-> assumes a `wp-config.php` constant route this setting doesn't have). P23 and
+> subdirectory multisite on MariaDB, all on PHP 8.3. P4 PASS by Dan's decision
+> (network policy is the configuration override; P26). P23 and
 > P22 PASS with parts **NOT RUN** (REST Basic auth, profile screens, expired
 > reset key). P24 measured a large timing gap on the login form (about 18 ms for
 > an unknown account against 90 ms for a real one); it is documented as not
@@ -74,7 +74,7 @@ masked.
 | P1 | PASS | s71 | Fresh activation (option deleted first): stored `"yes"`, resolved `yes`; control rendered `checked` |
 | P2 | PASS | s64 | Stored option under 0.9.2 has no key; after swapping in this branch the row is byte-identical, resolves `yes`, and P5/P16 answers are uniform |
 | P3 | PASS | s71, s64, sq | Setting off vs Keel inactive: full response bodies byte-identical for all four login inputs; lost-password status, `Location` and errors identical; core's three different messages present |
-| P4 | **DISPUTED** | — | Keel has no `wp-config.php` constant for this setting. Its locks are core constants that supersede a setting (`DISALLOW_UNFILTERED_HTML`, `WP_AUTO_UPDATE_CORE`…), and no core constant governs login errors. Adding one only to satisfy the probe would be new scope. The forcing route that exists, network policy, is P26 (PASS). **Dan to decide.** |
+| P4 | PASS (decided) | ms | Was DISPUTED: Keel has no `wp-config.php` constant for this setting, and no core constant governs login errors. **Decided by Dan, 2026-11-14:** network policy is the accepted configuration override for this setting. That route is P26 (PASS): network policy on overrides a site's own "no", and the site's checkbox is shown locked. No constant will be added |
 | P5 | PASS | s71, s64, sq | Unknown username, unknown email, wrong password: identical status (200), headers, cookie names and body (typed value masked) |
 | P6 | PASS | s71, s64, sq | `riley@example.test` + wrong password identical to unknown email |
 | P7 | PASS | s71, s64, sq | `#user_login` value is the escaped typed value for all four inputs; focus goes to `user_pass` for all |
@@ -100,7 +100,7 @@ masked.
 | P27 | PASS | ms | No network policy, main `yes`, `site2` `no`: main uniform, `site2` core's messages |
 | P28 | PASS (premise corrected, re-run after spot-check) | ms | The site that serves the lost-password form decides it. A site with a path of its own serves its own form: `site2`'s link is `http://ms.test/site2/wp-login.php?action=lostpassword`, and its setting governs both answers in both directions (main on/site2 off: neither uniform; main off/site2 on: both uniform). A site with no path of its own links to the main site's form: `site3`, mapped to `mapped.test`, links to `http://ms.test/wp-login.php?action=lostpassword`, its login follows its own setting, and its lost-password answer follows the main site's (not uniform with main off, uniform with main on). The runner POSTs to the link each login page actually renders. The first pass hard-coded `/site2/` and checked one direction; the spot-check ([login-answers-2026-11-14-spotcheck.md](login-answers-2026-11-14-spotcheck.md)) showed `8e0c0fe`'s wording missed mapped domains, so the docs now say "no path of its own" (subdomain sites and any mapped domain), and the probe checks all three docs say so |
 | P29 | PASS | ms | On `site2`: network-only user, spammed user, pending signup with wrong password identical to unknown |
-| P30 | PASS | s71, ms | Editor POST to `options.php`: 403, option unchanged. `site2` admin POST to network policy: 403, network option unchanged |
+| P30 | PASS (re-run after Codex review) | s71, ms | Each denied request carries a nonce minted for that user, so only a capability check can refuse it, and the runner names which check did. s71: the settings form as it posts with Login Answers unticked; an administrator's save turns it off (302), the editor's gets 403 from core's `manage_options` check and the setting stays on. ms: the network form as it posts with Login Answers managed and unticked; a Super Admin's save sets that policy (302), `site2`'s administrator gets 403 from core's Network Admin gate and the network option is unchanged. Keel's own capability check in the save handler sits behind that gate and is not reached here. The first pass sent a different setting (s71), a list where the form posts a map (ms) and an invalid nonce on both, so a 403 could have come from the nonce alone |
 | P31 | PASS | s71 | Site Health `good` on, `recommended` off; both, the Help "Settings in detail" text and readme FAQ name all eight not-covered items |
 | P32 | PASS (markup only) | s71, s64, sq | Message is text in `#login_error` (`notice-error`); focus target `user_pass` for every input. No screen reader run |
 | P33 | PASS | s71, ms | After `uninstall.php`: no `keel%` rows in `wp_options`, `wp_2_options` or `wp_sitemeta`, nothing containing `uniform_login_answers` |
@@ -131,6 +131,12 @@ masked.
    made it differ), a P9 masking order that changed with Python's hash seed
    (failed about one run in three on 6.4, reproduced on a fresh site), and the
    network helper passing managed keys as a list instead of a map (P26).
+4. **Codex review of the runner (2026-11-14, at `6d98065`).** Four findings,
+   all fixed: `probes.py` now exits 1 when any probe records FAIL (it exited 0
+   before, so a red run looked green to a script); `run.sh` stops only the
+   `php -S` servers it started, not every one on ports 88xx; P30 was rebuilt as
+   described in its row; and a nested f-string that needs Python 3.12 is gone
+   (the runner now parses on 3.9, and the README says 3.9 or later).
 
 ## Reproduce
 
@@ -139,4 +145,4 @@ The final run rebuilt all four sites from scratch with those scripts and ran
 every phase; all results above come from that run, except P24, measured on the
 first lab at the same commit.
 
-Tested commit: `8e0c0fe` (product code unchanged since `fc6080e`). P28 re-run on the spot-check fix commit, with a mapped-domain site added to `setup.sh`.
+Tested commit: `8e0c0fe` (product code unchanged since `fc6080e`). P28 re-run on the spot-check fix commit, with a mapped-domain site added to `setup.sh`. P26 to P30 (multisite) and P30 (s71) re-run on the Codex-fix commit, both exiting 0.

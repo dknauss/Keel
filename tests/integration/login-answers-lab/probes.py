@@ -144,6 +144,29 @@ def flag(site, name, on):
         os.remove(p)
 
 
+def lab_nonce(site, action, cookies, prefix='', host=None):
+    """A nonce wp_create_nonce() makes for the signed-in user (lab instrument)."""
+    r = req(site, 'GET', f'{prefix}/?lab_nonce={urllib.parse.quote(action)}', cookies=cookies, host=host)
+    assert r['body'].startswith('NONCE:'), (r['status'], r['body'][:200])
+    return r['body'][6:].strip()
+
+
+# Capability refusals, by screen. Network Admin has two: core's gate on the whole of Network Admin
+# (reached first, before admin_init) and Keel's own check in its save handler behind it.
+CAP_DENIED = {'options': ('not allowed to manage options',),
+              'network': ('Sorry, you are not allowed to access this page.', 'do not have permission to set network policy')}
+NONCE_DENIED = 'The link you followed has expired'
+
+
+def denial(r, kind):
+    """Which check refused a save: 'capability', 'nonce' or 'other'."""
+    if r['status'] == 403 and any(m in r['body'] for m in CAP_DENIED[kind]):
+        return 'capability'
+    if NONCE_DENIED in r['body']:
+        return 'nonce'
+    return 'other'
+
+
 def admin_cookies(site, user='labadmin', host=None, path_prefix=''):
     r = login(site, user, PW, path=f'{path_prefix}/wp-login.php', host=host)
     assert r['status'] == 302, (user, r['status'], login_error(r['body']))
@@ -440,7 +463,7 @@ def phase_upgrade(site):
     wp(site, 'option', 'delete', 'keel_settings', check=False)
     wp(site, 'option', 'delete', 'keel_settings_data_version', check=False)
     os.remove(plug)
-    os.symlink(f'{os.environ.get('KEEL_LA_KEEL_092', LAB + '/keel-092')}', plug)
+    os.symlink(os.environ.get('KEEL_LA_KEEL_092', LAB + '/keel-092'), plug)
     keel(site, True)
     ver_before = wp(site, 'plugin', 'get', 'keel-defaults', '--field=version')
     before = wp(site, 'option', 'get', 'keel_settings', '--format=json')
@@ -458,12 +481,32 @@ def phase_upgrade(site):
 
 
 def phase_editor(site):
-    """P30 single site: an editor cannot change the setting."""
-    ck = admin_cookies(site, 'eddy')
-    before = wp(site, 'option', 'get', 'keel_settings', '--format=json')
-    r = req(site, 'POST', '/wp-admin/options.php', {'option_page': 'keel_settings_group', 'action': 'update', '_wpnonce': 'x', 'keel_settings[restrict_rest_user_discovery]': 'yes'}, cookies=ck)
-    after = wp(site, 'option', 'get', 'keel_settings', '--format=json')
-    record('P30', site, 'PASS' if r['status'] == 403 and before == after else 'FAIL', {'editor_post_status': r['status'], 'option_unchanged': before == after})
+    """P30 single site: an editor cannot change the setting; an administrator can, through the same request."""
+    keel(site, True)
+    setting(site, 'yes')
+    stored = wp(site, 'option', 'get', 'keel_settings', '--format=json')
+    # The settings form as it posts with Login Answers unticked: every other stored value, this key absent.
+    cur = json.loads(wp(site, 'eval', '$o=array(); foreach (array_keys(keel_defaults_schema()) as $k) { $o[$k]=keel_defaults_get($k); } echo wp_json_encode($o);'))
+    payload = {'option_page': 'keel_settings_group', 'action': 'update'}
+    for k, v in cur.items():
+        if k != 'uniform_login_answers' and isinstance(v, str) and v != 'no':
+            payload[f'keel_settings[{k}]'] = v
+    resolved = lambda: wp(site, 'eval', 'echo keel_defaults_get("uniform_login_answers");')
+    ev = {}
+    # Allowed: an administrator's save with a real nonce turns it off.
+    ck_a = admin_cookies(site)
+    r = req(site, 'POST', '/wp-admin/options.php', dict(payload, _wpnonce=lab_nonce(site, 'keel_settings_group-options', ck_a)), cookies=ck_a)
+    ev['admin_status'] = r['status']
+    ev['admin_changed_it'] = resolved() == 'no'
+    wp(site, 'option', 'update', 'keel_settings', stored, '--format=json')
+    # Denied: the editor's own valid nonce, so only the capability check can refuse it.
+    ck_e = admin_cookies(site, 'eddy')
+    r = req(site, 'POST', '/wp-admin/options.php', dict(payload, _wpnonce=lab_nonce(site, 'keel_settings_group-options', ck_e)), cookies=ck_e)
+    ev['editor_status'] = r['status']
+    ev['editor_refused_by'] = denial(r, 'options')
+    ev['editor_left_it_on'] = resolved() == 'yes' and wp(site, 'option', 'get', 'keel_settings', '--format=json') == stored
+    ok = ev['admin_changed_it'] and ev['editor_status'] == 403 and ev['editor_refused_by'] == 'capability' and ev['editor_left_it_on']
+    record('P30', site, 'PASS' if ok else 'FAIL', ev)
 
 
 def phase_timing(site, n=200):
@@ -584,12 +627,29 @@ def phase_multisite():
         p29[who] = same(shaped(login(site, who, 'x-wrong', path='/site2/wp-login.php'), who), ref)
     record('P29', 'ms', 'PASS' if all(p29.values()) else 'FAIL', p29)
 
-    # P30 multisite: a site admin can't set network policy.
-    before = wp(site, 'site', 'option', 'get', 'keel_network_settings', '--format=json')
+    # P30 multisite: a site admin can't set network policy; a Super Admin can, through the same request.
+    # The network form as it posts with Login Answers managed and unticked.
+    payload = {'keel_network_manage[uniform_login_answers]': '1'}
+    getnet = lambda: wp(site, 'site', 'option', 'get', 'keel_network_settings', '--format=json', check=False)
+    network(site, 'unset')
+    before = getnet()
+    ev = {}
+    r = req(site, 'POST', '/site2/wp-admin/network/settings.php?page=keel-network',
+            dict(payload, keel_network_nonce=lab_nonce(site, 'keel-network-save', ck, prefix='/site2')), cookies=ck)
+    ev['site_admin_status'] = r['status']
+    ev['site_admin_refused_by'] = denial(r, 'network')
+    if ev['site_admin_refused_by'] == 'other':
+        ev['site_admin_body'] = re.sub(r'\s+', ' ', re.sub('<[^>]+>', ' ', r['body'][r['body'].find('<body'):]))[:300]
+    ev['network_option_unchanged'] = getnet() == before
+    ck_s = admin_cookies(site)
     r = req(site, 'POST', '/wp-admin/network/settings.php?page=keel-network',
-            {'keel_network_nonce': 'x', 'keel_network_manage[]': 'uniform_login_answers', 'keel_settings[uniform_login_answers]': 'no'}, cookies=ck)
-    after = wp(site, 'site', 'option', 'get', 'keel_network_settings', '--format=json')
-    record('P30', 'ms', 'PASS' if r['status'] == 403 and before == after else 'FAIL', {'site_admin_post_status': r['status'], 'network_option_unchanged': before == after})
+            dict(payload, keel_network_nonce=lab_nonce(site, 'keel-network-save', ck_s)), cookies=ck_s)
+    ev['super_admin_status'] = r['status']
+    pol = wp(site, 'eval', 'echo wp_json_encode(keel_defaults_network_settings());')
+    ev['super_admin_policy'] = pol
+    ev['super_admin_set_it'] = r['status'] == 302 and '"uniform_login_answers":"no"' in pol
+    ok = ev['site_admin_status'] == 403 and ev['site_admin_refused_by'] == 'capability' and ev['network_option_unchanged'] and ev['super_admin_set_it']
+    record('P30', 'ms', 'PASS' if ok else 'FAIL', ev)
     network(site, 'unset')
     setting(site, 'yes', url=s2)
 
@@ -602,3 +662,7 @@ if __name__ == '__main__':
          'timing': phase_timing, 'woo': phase_woo}.get(phase, lambda a: phase_multisite())(arg)
     finally:
         json.dump(R, open(f'{LAB}/results/{phase}-{arg or "ms"}.json', 'w'), indent=1)
+    failed = sorted(f'{pid} [{cell}]' for pid, cells in R.items() for cell, v in cells.items() if v['result'] == 'FAIL')
+    if failed:
+        print('FAILED: ' + ', '.join(failed), file=sys.stderr)
+        sys.exit(1)

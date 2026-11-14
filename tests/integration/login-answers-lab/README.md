@@ -7,7 +7,7 @@ instruments (a mail and `wp_login_failed` recorder, a lockout switch, an
 through Keel's own sanitizer, and a `php -S` router for subdirectory
 multisite) are written by `setup.sh` into the lab directory.
 
-Needs: MariaDB server binaries, PHP with mysqli and pdo_sqlite, WP-CLI, Python 3,
+Needs: MariaDB server binaries, PHP with mysqli and pdo_sqlite, WP-CLI, Python 3.9 or later,
 a WordPress git clone with the tags you test, and for the SQLite cell a clone of
 `WordPress/sqlite-database-integration`.
 
