@@ -59,10 +59,20 @@ The workflow runs on `pull_request_target`, so both it and the checker come
 from the base branch: a pull request can't edit either and be graded by its own
 version. The pull request's commits are fetched as data and read with git; none
 of its code runs. A second required job, "Guardrail changes reviewed", fails any
-pull request that touches `.github/`, the checker, its test and fixtures, or any
-probe file, until a maintainer reads those diffs and adds the
+pull request that touches `.github/`, the checkers, their tests and fixtures,
+or any probe file, until a maintainer reads those diffs and adds the
 `guardrail-reviewed` label. A later push that changes any of those files takes
-the label off again, so the approval always covers the diff that was read. Add
+the label off again, so the approval always covers the diff that was read.
+
+Only a label the maintainer adds by hand counts. The agent machine account has
+Write and can add labels, and cloud agent sessions act as the maintainer
+through a GitHub App, so `bin/check-maintainer-signoff` reads the label's actor
+and app from the issue events API, and who pushed when from the repository
+activity API, on every run. A third required job, "Maintainer sign-off", uses
+the same checker: if anyone other than a maintainer pushed to the branch (the
+agent account included), it fails until a maintainer reads the pull request and
+adds the `maintainer-approved` label by hand, after that push. That is what
+keeps an agent with Write from merging its own green pull request. Add
 the `tier-3` label to make the probe job fail when a pull request adds no probe
 file (a `.md` file here other than a README; the checker's `--require-probe`
 flag decides, so a placeholder doesn't count). The tier itself is a review judgment;
@@ -72,4 +82,4 @@ Git can prove the order and that nobody moved the probes. It can't prove the
 tester never saw the implementation, or that the `Tester:` line is true. Those
 are declarations; record them honestly.
 
-Tests: `php tests/lab-probes-check.php`.
+Tests: `php tests/lab-probes-check.php` and `php tests/maintainer-signoff-check.php`.

@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+# check-maintainer-signoff: decide whether a pull request carries a maintainer's
+# hand-made approval that still covers what is on the branch.
+#
+# Two questions, one per required job in .github/workflows/lab-probes.yml:
+#
+#   guardrail  Does this pull request change the checks that grade it (the
+#              workflows, the checkers, their tests and fixtures, any probe
+#              file)? Then a maintainer must have added the guardrail-reviewed
+#              label, and no guardrail file may have changed since.
+#   pushes     Did anyone other than a maintainer push to this branch? Then a
+#              maintainer must have added the maintainer-approved label after
+#              the last such push. This is what stops an agent account with
+#              Write from merging its own green pull request.
+#
+# What counts as "a maintainer's hand-made approval" is decided from GitHub's own
+# records, never from the event payload alone:
+#
+#   - The label event comes from the issue events API. Its actor must be listed
+#     in MAINTAINERS, so a label added by the agent account doesn't count.
+#   - Its performed_via_github_app must be empty. Cloud agent sessions act as
+#     the maintainer through a GitHub App, and their label events name that app
+#     (for Claude: "claude"). Only a label the maintainer added himself, in the
+#     web UI or with his own gh, counts.
+#   - Who pushed, and when, comes from the repository activity API, which GitHub
+#     records server-side. Commit authors, committers and dates are written by
+#     whoever makes the commit, so they are never used here.
+#
+# Because every run recomputes the answer from those records, cancelling the
+# run for a push, or triggering a fresh run with some other label, changes
+# nothing: the next run reaches the same verdict.
+#
+# Pull requests from forks: the activity API doesn't cover the fork, so a push
+# from a fork removes the label (guardrail: only when it changes a guardrail
+# file) and the job fails until a maintainer adds it again. Outside contributors
+# can't cancel workflow runs, so that event-driven rule holds for them.
+#
+# Usage: bin/check-maintainer-signoff guardrail|pushes
+# Environment: GH_REPO, PR_NUMBER, BASE_SHA, HEAD_SHA, MAINTAINERS (space-separated
+# logins), and optionally ACTION and BEFORE_SHA from the event, GH_TOKEN for gh.
+# SIGNOFF_DRY_RUN=1 reports instead of removing a stale label (for local runs).
+# Exit 0 = signed off (or nothing needs it), 1 = not signed off, 2 = usage or
+# API error (fails closed).
+
+set -euo pipefail
+
+GUARDRAIL_PATHS=".github/ bin/check-lab-probes bin/check-maintainer-signoff tests/lab-probes-check.php tests/maintainer-signoff-check.php tests/fixtures/ docs/review/probes/"
+
+mode="${1:-}"
+case "$mode" in
+	guardrail) label="guardrail-reviewed" ;;
+	pushes) label="maintainer-approved" ;;
+	*) echo "usage: $0 guardrail|pushes" >&2; exit 2 ;;
+esac
+for v in GH_REPO PR_NUMBER BASE_SHA HEAD_SHA MAINTAINERS; do
+	[ -n "${!v:-}" ] || { echo "::error::$v is not set" >&2; exit 2; }
+done
+ACTION="${ACTION:-}"
+BEFORE_SHA="${BEFORE_SHA:-}"
+summary="${GITHUB_STEP_SUMMARY:-/dev/null}"
+
+note() { printf '%s\n' "$*" >> "$summary"; echo "$*"; }
+fail() { echo "::error::$*"; note ""; note "**Not signed off:** $*"; exit 1; }
+api_fail() { echo "::error::GitHub API call failed: $*. Failing closed." >&2; exit 2; }
+is_maintainer() {
+	local m
+	for m in $MAINTAINERS; do [ "$1" = "$m" ] && return 0; done
+	return 1
+}
+remove_label() {
+	if [ -n "${SIGNOFF_DRY_RUN:-}" ]; then echo "(dry run) would remove the $label label"; return 0; fi
+	gh api -X DELETE "repos/${GH_REPO}/issues/${PR_NUMBER}/labels/${label}" >/dev/null 2>&1 \
+		|| echo "::warning::Could not remove the $label label; failing anyway."
+}
+# get_all PATH: every page of a list endpoint, merged into one JSON array.
+get_all() {
+	gh api --paginate "$1" | jq -s 'add // []'
+}
+
+pr="$(gh api "repos/${GH_REPO}/pulls/${PR_NUMBER}")" || api_fail "read pull request #${PR_NUMBER}"
+head_repo="$(jq -r '.head.repo.full_name // ""' <<<"$pr")"
+head_ref="$(jq -r '.head.ref' <<<"$pr")"
+same_repo=no
+[ "$head_repo" = "$GH_REPO" ] && same_repo=yes
+
+# --- The label: present now, and last added by a maintainer by hand ---------
+events="$(get_all "repos/${GH_REPO}/issues/${PR_NUMBER}/events?per_page=100")" || api_fail "read issue events"
+last="$(jq -c --arg l "$label" '[.[] | select((.event == "labeled" or .event == "unlabeled") and .label.name == $l)] | sort_by(.id) | last // empty' <<<"$events")"
+label_ok=no
+label_at=""
+label_why="nobody has added the \`$label\` label"
+if [ -n "$last" ]; then
+	ev="$(jq -r '.event' <<<"$last")"
+	actor="$(jq -r '.actor.login // ""' <<<"$last")"
+	via="$(jq -r '.performed_via_github_app.slug // ""' <<<"$last")"
+	if [ "$ev" != "labeled" ]; then
+		label_why="the \`$label\` label was removed (by $actor)"
+	elif ! is_maintainer "$actor"; then
+		label_why="the \`$label\` label was added by $actor, who is not a maintainer ($MAINTAINERS)"
+	elif [ -n "$via" ]; then
+		label_why="the \`$label\` label was added as $actor through the $via app (an agent session), not by $actor by hand"
+	else
+		label_ok=yes
+		label_at="$(jq -r '.created_at' <<<"$last")"
+		label_why="$actor added the \`$label\` label by hand at $label_at"
+	fi
+fi
+
+# --- Pushes to the branch, as GitHub recorded them ---------------------------
+acts="[]"
+complete=no
+if [ "$same_repo" = yes ]; then
+	ref_q="$(jq -rn --arg r "refs/heads/$head_ref" '$r | @uri')"
+	acts="$(get_all "repos/${GH_REPO}/activity?ref=${ref_q}&per_page=100")" || api_fail "read repository activity for $head_ref"
+	acts="$(jq -c 'sort_by(.timestamp)' <<<"$acts")"
+	# The record is complete only if it reaches back to the branch's creation.
+	if jq -e 'any(.[]; .activity_type == "branch_creation")' <<<"$acts" >/dev/null; then
+		complete=yes
+	fi
+fi
+
+if [ "$mode" = guardrail ]; then
+	# shellcheck disable=SC2086
+	changed="$(git diff --name-only --no-renames "$BASE_SHA...$HEAD_SHA" -- $GUARDRAIL_PATHS | sed '/^$/d' | sort -u)"
+	if [ -z "$changed" ]; then
+		note "No guardrail files changed."
+		exit 0
+	fi
+	{
+		echo "### This pull request changes the checks that grade it"
+		echo
+		printf '%s\n' "$changed" | sed 's/^/- `/; s/$/`/'
+		echo
+	} >> "$summary"
+	printf '%s\n' "$changed" | while read -r f; do echo "::warning file=$f::Guardrail file changed."; done
+	[ "$label_ok" = yes ] || fail "$label_why. A maintainer must read these diffs and add it."
+
+	if [ "$same_repo" = yes ]; then
+		# The commit the maintainer was looking at: the branch head after the
+		# last push recorded strictly before the label. A push in the same
+		# second counts as after it.
+		reviewed="$(jq -r --arg t "$label_at" '[.[] | select(.timestamp < $t)] | last | .after // ""' <<<"$acts")"
+		if [ -z "$reviewed" ] || [ "$reviewed" = "0000000000000000000000000000000000000000" ]; then
+			remove_label
+			fail "can't tell which commit was on the branch when the label was added. Add the label again."
+		fi
+		if [ "$reviewed" != "$HEAD_SHA" ]; then
+			if ! { git cat-file -e "${reviewed}^{commit}" 2>/dev/null \
+				|| { git fetch --no-tags -q origin "$reviewed" 2>/dev/null && git cat-file -e "${reviewed}^{commit}" 2>/dev/null; }; }; then
+				remove_label
+				fail "the commit reviewed at $label_at ($reviewed) is no longer available (a force push?). Read the new diff and add the label again."
+			fi
+			# shellcheck disable=SC2086
+			since="$(git diff --name-only --no-renames "$reviewed" "$HEAD_SHA" -- $GUARDRAIL_PATHS | sed '/^$/d')"
+			if [ -n "$since" ]; then
+				remove_label
+				fail "guardrail files changed after the label was added at $label_at: $(tr '\n' ' ' <<<"$since"). Read the new diff and add the label again."
+			fi
+		fi
+	else
+		# Fork: fall back to the event. A push that changes a guardrail file
+		# (or can't be compared) makes the label stale.
+		if [ "$ACTION" = "synchronize" ]; then
+			stale=yes
+			if [ -n "$BEFORE_SHA" ] && git fetch --no-tags -q origin "$BEFORE_SHA" 2>/dev/null \
+				&& git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+				# shellcheck disable=SC2086
+				[ -z "$(git diff --name-only --no-renames "$BEFORE_SHA" "$HEAD_SHA" -- $GUARDRAIL_PATHS)" ] && stale=no
+			fi
+			if [ "$stale" = yes ]; then
+				remove_label
+				fail "guardrail files changed in a push from the fork after the label was added."
+			fi
+		fi
+	fi
+	note "Signed off: $label_why, and no guardrail file has changed since."
+	exit 0
+fi
+
+# --- mode: pushes ------------------------------------------------------------
+if [ "$same_repo" = yes ]; then
+	outside="$(jq -c --arg m "$MAINTAINERS" '($m | split(" ") | map(select(length > 0))) as $ms
+		| [.[] | select((.actor.login // "") as $a | ($ms | index($a)) == null)]' <<<"$acts")"
+	n_outside="$(jq 'length' <<<"$outside")"
+	if [ "$complete" = yes ] && [ "$n_outside" -eq 0 ]; then
+		note "Every push to $head_ref since it was created came from a maintainer account ($MAINTAINERS). No extra sign-off needed."
+		exit 0
+	fi
+	if [ "$n_outside" -gt 0 ]; then
+		who="$(jq -r '[.[].actor.login // "unknown"] | unique | join(", ")' <<<"$outside")"
+		latest="$(jq -r 'last | .timestamp' <<<"$outside")"
+		note "Pushes to $head_ref by: $who (latest at $latest)."
+	else
+		latest="$(jq -r 'first | .timestamp // ""' <<<"$acts")"
+		note "GitHub's push record for $head_ref doesn't reach back to the branch's creation, so earlier pushes are unknown."
+	fi
+	[ "$label_ok" = yes ] || fail "$label_why. A maintainer must read the pull request and add it."
+	if [ -n "$latest" ] && [[ ! "$label_at" > "$latest" ]]; then
+		remove_label
+		fail "the \`$label\` label (added $label_at) predates a push at $latest by someone other than a maintainer. Read the new commits and add it again."
+	fi
+	note "Signed off: $label_why, after the last push by anyone else."
+	exit 0
+fi
+
+# Fork.
+if [ "$ACTION" = "synchronize" ] && [ "$label_ok" = yes ]; then
+	remove_label
+	fail "the fork pushed new commits after the \`$label\` label was added. Read them and add it again."
+fi
+[ "$label_ok" = yes ] || fail "$label_why. This pull request comes from a fork; a maintainer must read it and add the label."
+note "Signed off: $label_why."
