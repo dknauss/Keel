@@ -46,6 +46,7 @@
 # as a record of the submission. The patterns above are not recursive, so this
 # directory needs its own entry.
 /languages/imported
+/AGENTS.md
 /README.md
 /ROADMAP.md
 /TODO.md
