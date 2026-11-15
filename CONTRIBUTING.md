@@ -316,6 +316,9 @@ every screenshot file is captioned in `readme.txt` and shown in `README.md`.
 ## Pull requests
 
 - Use a focused branch and say what changed for the user.
+- Keep the description short: under 200 words, about behaviour rather than
+  files, with no introduction or recap. Long logs go in a comment or a
+  collapsed `<details>` block. `AGENTS.md` has the full rules for agents.
 - Say what you ran to verify it. "Tests pass" is less useful than "broke X and
   watched Y fail".
 - Update `README.md`, `readme.txt`, `ROADMAP.md` or `docs/` when behaviour or
