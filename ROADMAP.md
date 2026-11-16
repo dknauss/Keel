@@ -381,7 +381,7 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
 
 ## Next — try core Feature Notifications 0.3.0 (around 2026-12-01)
 
-- [ ] **Test the Feature Notifications 0.3.0 feature plugin when it lands.** Core's
+- [ ] **Try core Feature Notifications 0.3.0** — when it lands. Core's
   [Feature Notifications](https://github.com/WordPress/wp-feature-notifications) project
   plans to ship 0.3.0 as a feature plugin around 2026-12-01, alongside the WordPress 7.2
   RC. It is a single bell tray with `critical`, `warning` and `info` severity, where
