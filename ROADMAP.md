@@ -379,6 +379,22 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
   [#315](https://github.com/dknauss/Keel/issues/315) is closed.
   #313 and #314 remain merged and unreleased. No version bump or release.
 
+## Next — try core Feature Notifications 0.3.0 (around 2026-12-01)
+
+- [ ] **Try core Feature Notifications 0.3.0** — when it lands. Core's
+  [Feature Notifications](https://github.com/WordPress/wp-feature-notifications) project
+  plans to ship 0.3.0 as a feature plugin around 2026-12-01, alongside the WordPress 7.2
+  RC. It is a single bell tray with `critical`, `warning` and `info` severity, where
+  critical items stay pinned until resolved. Install it on a disposable lab or Playground
+  site next to Keel, and try the three notices that fit its model best: the backport
+  security notice, the conflicts notice and the password-reset failure notice. Record
+  whether a plugin can emit to it, resolve an item in code, target a capability rather
+  than the users who exist at send time, and reach the network admin, and whether its
+  email channel respects `pre_wp_mail` suppression. Findings feed the notice helper in
+  [#387](https://github.com/dknauss/Keel/issues/387) and design feedback on
+  [wp-feature-notifications#655](https://github.com/WordPress/wp-feature-notifications/issues/655).
+  No Keel code depends on it until it merges into core.
+
 ## Later
 
 - [x] **Close the monitoring gap the 0.6.0 review found** — scoped static checks and runtime registration audit completed through #297; unreleased audit. Historically the important gap, and

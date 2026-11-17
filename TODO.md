@@ -193,6 +193,12 @@ the tagged sources. See the
   - The installer has run on real `en_US` and `fr_FR` sites, but only by people who
     already knew how it worked. First outside use is still the untested case.
 
+- [ ] **Try core Feature Notifications 0.3.0** — around 2026-12-01, when the
+      feature plugin lands. On a disposable lab or Playground site, try the
+      backport, conflicts and password-reset failure notices against it: emit,
+      resolve in code, capability targeting, network admin, and `pre_wp_mail`
+      suppression of its email channel. See ROADMAP.md and dknauss/Keel#387.
+
 ## Multicall repair — shipped; field confirmation remains
 
 Found 2026-10-05 on a live WordPress.com Atomic site (Jetpack 16.3-a.7, Keel with the
