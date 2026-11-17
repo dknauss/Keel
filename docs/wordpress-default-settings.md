@@ -486,15 +486,22 @@ add_filter( 'pre_option_default_ping_status', function () {
 - **Key:** `disable_author_archives`
 - **Default:** `yes`
 - **Why:** Author archive URLs (`/author/{slug}/`) are another username-enumeration path and
-  usually thin, duplicate content. Redirect them home.
+  usually thin, duplicate content. Answer them with a plain 404. A redirect home would be a soft
+  404, and redirecting only real authors (`is_author()`) leaves unknown ones on core's 404, which
+  tells real and unknown authors apart. Check the request's own query variables so every
+  `?author=N`, `/author/{slug}/` and `?author_name=` request gets the same answer. Run before
+  `redirect_canonical` (priority 10), which would otherwise send `/?author=N` to the nicename.
 
 ```php
 add_action( 'template_redirect', function () {
-    if ( is_author() ) {
-        wp_safe_redirect( home_url( '/' ), 301 );
-        exit;
+    global $wp, $wp_query;
+    if ( is_author() || ! empty( $wp->query_vars['author'] ) || ! empty( $wp->query_vars['author_name'] ) ) {
+        $wp_query->set_404();
+        remove_action( 'template_redirect', 'redirect_canonical' );
+        status_header( 404 );
+        nocache_headers();
     }
-} );
+}, 9 );
 ```
 
 ### Redirect Attachment Pages

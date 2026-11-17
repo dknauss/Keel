@@ -174,8 +174,8 @@ function keel_defaults_strings() {
 		'disable_author_archives'         => array(
 			'label'     => __( 'Author Archives', 'keel-defaults' ),
 			'statement' => __( 'Disable public author archives', 'keel-defaults' ),
-			'help'      => __( 'Sends author archive pages to the home page, so they cannot reveal usernames.', 'keel-defaults' ),
-			'detail'    => __( 'Redirects the HTML <code>/author/{slug}/</code> archive to the home page and returns 404 for its feed. Author pages leak usernames (like the REST users list) and are usually thin, duplicate content.', 'keel-defaults' ),
+			'help'      => __( 'Answers author archive pages with a 404, so they cannot reveal usernames.', 'keel-defaults' ),
+			'detail'    => __( 'Returns a 404 for <code>/author/{slug}/</code>, <code>?author=N</code> and their feeds, the same for real and unknown authors. Author pages leak usernames (like the REST users list) and are usually thin, duplicate content.', 'keel-defaults' ),
 		),
 		'redirect_attachment_pages'       => array(
 			'label'     => __( 'Attachment Pages', 'keel-defaults' ),

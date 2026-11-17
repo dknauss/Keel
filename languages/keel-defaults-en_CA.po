@@ -1220,7 +1220,7 @@ msgid "Disable public author archives"
 msgstr ""
 
 #: includes/strings.php:146
-msgid "Redirects the HTML <code>/author/{slug}/</code> archive to the home page and returns 404 for its feed. Author pages leak usernames (like the REST users list) and are usually thin, duplicate content."
+msgid "Returns a 404 for <code>/author/{slug}/</code>, <code>?author=N</code> and their feeds, the same for real and unknown authors. Author pages leak usernames (like the REST users list) and are usually thin, duplicate content."
 msgstr ""
 
 #: includes/strings.php:149

@@ -353,16 +353,19 @@ function keel_defaults_block_author_feeds() {
 }
 
 /**
- * Redirect a disabled HTML author archive to the site home page.
+ * Answer a disabled author archive with a plain 404.
  *
- * Author feeds are converted to a 404 at priority 9, whose `set_404()` call
- * clears the author flag before this priority-10 callback runs.
+ * The name is kept from when this redirected to the home page; hooks and
+ * checks refer to it. A redirect home for a page that does not exist is a soft
+ * 404, so every author request now gets a real one: `/?author=N`,
+ * `/author/{slug}/` and `?author_name=`, for real and unknown authors alike.
+ * `is_author()` is true only for a real author, so the request's own query
+ * variables are read too; otherwise an unknown author would get core's answer
+ * and a real one Keel's, which tells them apart.
  *
- * Every author request gets the same 301, whether or not the author exists.
- * `is_author()` is true only for a real author, so redirecting on it alone
- * answered `/?author=1` with a 301 and `/?author=999` with core's 404, which
- * told anyone which author IDs (and slugs) exist. The request's own query
- * variables are read instead, so an unknown author is redirected too.
+ * Author feeds are converted to a 404 at priority 9 by
+ * keel_defaults_block_author_feeds(), whose `set_404()` call clears the author
+ * flag before this callback runs.
  *
  * @return void
  */
@@ -371,16 +374,24 @@ function keel_defaults_redirect_author_archive() {
 		return;
 	}
 
-	wp_safe_redirect( home_url( '/' ), 301 );
-	exit;
+	global $wp_query;
+
+	if ( $wp_query instanceof WP_Query ) {
+		$wp_query->set_404();
+	}
+
+	// Canonical guessing would otherwise redirect /?author=N to the nicename.
+	remove_action( 'template_redirect', 'redirect_canonical' );
+
+	status_header( 404 );
+	nocache_headers();
 }
 
 /**
  * Whether the main request asked for an author archive, existing or not.
  *
  * Reads the parsed query variables (`?author=N`, `/author/{slug}/`). Feeds are
- * left out: keel_defaults_block_author_feeds() answers a real author's feed
- * with a 404, which is what an unknown author's feed already gets.
+ * left out: keel_defaults_block_author_feeds() answers them.
  *
  * @return bool
  */
