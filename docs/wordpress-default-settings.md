@@ -558,17 +558,29 @@ add_action( 'template_redirect', function () {
 - **Applies to:** WordPress 7.2 and later; hidden on earlier versions.
 - **Why:** WordPress 7.2 adds `/random/`, which redirects every visitor to a random published
   post, on by default. It also answers `/random/category/{slug}/`, `/random/tag/{slug}/`,
-  `/random/author/{slug}/`, `/random/{post-type}/`, and `?random` added to any archive or
-  search URL. A site that never asked for it gains a public route with three costs:
+  `/random/author/{slug}/`, `/random/{post-type}/`, and `?random` added to any archive URL.
+  `?random` on a search URL now just redirects back to the search (core #66662). A site that
+  never asked for it gains a public route with these costs:
 
-  1. **Author discovery.** `/random/author/{slug}/` and `?author=N&random` redirect when the
-     author exists and has a post, and 404 when not. Core redirects inside `WP::main()`,
-     before `template_redirect`, so the author archive redirect above never sees the request.
-  2. **Database load.** Each request runs an `ORDER BY RAND()` query and sends
-     `Cache-Control: no-store`, so a full-page cache cannot absorb it. `?s=…&random` adds a
-     `LIKE` search on top.
+  1. **Author discovery.** On WordPress 7.2 RC1, `?author=N&random` redirects to a post when
+     author ID N exists and has a post, and returns a 404 when it does not. Core sends the
+     redirect from `template_redirect` at priority 100 (core #66661), so code that hides author
+     archives earlier on that hook sees the request, but code that hides them any other way may
+     not. With Author Archives off, Keel makes every random author query find nothing, so a
+     real and an unknown author ID get the same 404 even if this setting is off. In the 7.2 betas the
+     redirect ran inside `WP::main()`, before `template_redirect`, and `/random/author/{slug}/`
+     answered differently for real and unknown slugs too; on RC1 an unknown slug falls through
+     to a random post.
+  2. **Uncacheable requests.** Core no longer sorts every post with `ORDER BY RAND()` (core
+     #66654): it looks up 50 random post IDs by primary key and keeps the highest ID in the
+     object cache. Each redirect still sends `Cache-Control: no-store`, so a full-page cache
+     cannot absorb it.
   3. **Unlisted posts.** The choice follows core's rules: published, no password. A post an SEO
      plugin marks `noindex` can still come up.
+
+Checked against WordPress 7.2 RC1 on 2026-11-17 with Keel 0.10.0: with this setting on (the
+default), `/random/`, `/random/category/{slug}/` and `/random/author/{slug}/` are 404s and
+`?random` is ignored.
 
 Core ships the off switch. Returning `false` from `wp_enable_random_content_redirect` stops
 the rewrite rules being generated, hides the Random base field under Settings → Permalinks,
