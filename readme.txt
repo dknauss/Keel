@@ -5,7 +5,7 @@ Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.9.2
+Stable tag: 0.10.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -155,6 +155,10 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 
 == Changelog ==
 
+= 0.10.0 =
+* Added: a Login Answers setting, on by default, including on sites that update. WordPress's login form answers an unknown username, an unknown email address and a wrong password with three different messages, and its lost-password form says "Check your email" only for a real account, so together they tell anyone which accounts exist. Keel now gives every failed sign-in at `wp-login.php` one message that repeats nothing typed, and answers every reset request with "Check your email". Mail still goes only to real accounts. Errors other plugins add, such as lockouts or CAPTCHA, are kept, and `wp_login_failed` fires as before, so login limiters count what they counted before. Registration, the profile and reset-link screens, response time, application passwords, XML-RPC and other plugins' login forms are not covered. On multisite, network policy can decide it for every site.
+* Added: a Login Answers check in Site Health, which says what the setting covers and what it does not.
+
 = 0.9.2 =
 * Security: on multisite, the main site's settings that every site shares now need a Super Admin. Where Network Policy leaves them unmanaged, the main site's three update policies, translation updates and Public Names apply to the whole network. A main-site administrator who cannot manage network options now sees them locked on Site Defaults, and a save keeps the stored values. Other sites, single sites and Network Policy are unchanged.
 * Security: breach screening keeps no replies. A reply from Have I Been Pwned answers the check that asked for it and is then discarded, so no password, hash, hash prefix or reply is stored. The 64 rows earlier versions used are deleted when a site first loads this version. Checking the same password in two separate requests now spends the lookup allowance twice.
@@ -286,6 +290,9 @@ Entries for 0.6.0 and earlier are in `changelog.txt` in the plugin's repository:
 * Thanks to Austin Ginder of Anchor Hosting for the security review these fixes come from.
 
 == Upgrade Notice ==
+
+= 0.10.0 =
+Adds Login Answers, on by default: failed logins and password-reset requests get one answer whether or not the account exists. Turn it off under Settings → Site Defaults. Saved settings carry over.
 
 = 0.9.2 =
 Security release. On multisite, the main site's network-wide settings now need a Super Admin. Breach screening no longer stores replies, keeps half its allowance for privileged accounts, and checks the login password as typed. Saved settings carry over.

@@ -387,6 +387,16 @@ the WordPress.com settings-save confirmation below passed on 2026-10-27.
   - Add offer freshness, next scheduled core check and recent update failures.
   - Distinguish an unknown external scheduler from a broken WP-Cron configuration.
 
+## 0.10.0 Login Answers — prepared 2026-11-17
+
+- [x] **Prepare 0.10.0** — version metadata, changelog, upgrade notice and `.pot`
+  (#380 Login Answers, plus #388 roadmap and #390 readme preview since 0.9.2; schema 47).
+- [ ] **Run the manual release checks** — the Keel half (K1–K8) of the Login Answers
+  manual list, on a real hostname, before tagging.
+- [ ] **Tag and publish 0.10.0** — tag after the release PR merges, dry run, then deploy.
+- [ ] **Verify the public 0.10.0 ZIP** against the GitHub ZIP.
+- [ ] **Re-import en_CA** on translate.wordpress.org once 0.10.0 is the stable tag.
+
 ## 0.9.2 breach-lookup storage and network-shared settings — released 2026-11-11
 
 - [x] **Prepare 0.9.2** — version metadata, changelog, upgrade notice and `.pot`
