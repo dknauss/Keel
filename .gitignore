@@ -86,3 +86,4 @@ wp-config.php
 
 # Optional local static-analysis overrides. Shared config is phpstan.neon.dist.
 /phpstan.neon
+__pycache__/

@@ -79,6 +79,11 @@ function keel_defaults_schema() {
 			'type'    => 'toggle',
 			'group'   => 'security',
 		),
+		'uniform_login_answers'           => array(
+			'default' => 'yes',
+			'type'    => 'toggle',
+			'group'   => 'security',
+		),
 		'require_strong_passwords'        => array(
 			'default' => 'yes',
 			'type'    => 'toggle',
