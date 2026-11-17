@@ -358,15 +358,46 @@ function keel_defaults_block_author_feeds() {
  * Author feeds are converted to a 404 at priority 9, whose `set_404()` call
  * clears the author flag before this priority-10 callback runs.
  *
+ * Every author request gets the same 301, whether or not the author exists.
+ * `is_author()` is true only for a real author, so redirecting on it alone
+ * answered `/?author=1` with a 301 and `/?author=999` with core's 404, which
+ * told anyone which author IDs (and slugs) exist. The request's own query
+ * variables are read instead, so an unknown author is redirected too.
+ *
  * @return void
  */
 function keel_defaults_redirect_author_archive() {
-	if ( ! is_author() ) {
+	if ( ! is_author() && ! keel_defaults_is_author_request() ) {
 		return;
 	}
 
 	wp_safe_redirect( home_url( '/' ), 301 );
 	exit;
+}
+
+/**
+ * Whether the main request asked for an author archive, existing or not.
+ *
+ * Reads the parsed query variables (`?author=N`, `/author/{slug}/`). Feeds are
+ * left out: keel_defaults_block_author_feeds() answers a real author's feed
+ * with a 404, which is what an unknown author's feed already gets.
+ *
+ * @return bool
+ */
+function keel_defaults_is_author_request() {
+	global $wp;
+
+	if ( ! $wp instanceof WP || ! is_array( $wp->query_vars ) || ! empty( $wp->query_vars['feed'] ) ) {
+		return false;
+	}
+
+	foreach ( array( 'author', 'author_name' ) as $var ) {
+		if ( isset( $wp->query_vars[ $var ] ) && ( ! is_scalar( $wp->query_vars[ $var ] ) || '' !== (string) $wp->query_vars[ $var ] ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**

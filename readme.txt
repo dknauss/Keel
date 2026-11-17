@@ -158,6 +158,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 = 0.10.0 =
 * Added: a Login Answers setting, on by default, including on sites that update. WordPress's login form answers an unknown username, an unknown email address and a wrong password with three different messages, and its lost-password form says "Check your email" only for a real account, so together they tell anyone which accounts exist. Keel now gives every failed sign-in at `wp-login.php` one message that repeats nothing typed, and answers every reset request with "Check your email". Mail still goes only to real accounts. Errors other plugins add, such as lockouts or CAPTCHA, are kept, and `wp_login_failed` fires as before, so login limiters count what they counted before. Registration, the profile and reset-link screens, response time, application passwords, XML-RPC and other plugins' login forms are not covered. On multisite, network policy can decide it for every site.
 * Added: a Login Answers check in Site Health, which says what the setting covers and what it does not.
+* Security: with Author Archives off, an author ID or slug that does not exist now gets the same redirect to the home page as one that does. It used to get a 404, so `/?author=N` could still tell anyone which author IDs exist.
 * Changed: the Random Post Redirects help matches WordPress 7.2 RC1. Core no longer runs a random-order query over every post, and `?random` on a search now returns to the search. The help now leads with what still matters: author discovery through `?author=N&random` on sites that hide author archives.
 
 = 0.9.2 =
@@ -293,7 +294,7 @@ Entries for 0.6.0 and earlier are in `changelog.txt` in the plugin's repository:
 == Upgrade Notice ==
 
 = 0.10.0 =
-Adds Login Answers, on by default: failed logins and password-reset requests get one answer whether or not the account exists. Turn it off under Settings → Site Defaults. Saved settings carry over.
+Adds Login Answers, on by default: failed logins and password-reset requests get one answer whether or not the account exists. With Author Archives off, unknown author IDs are now redirected like real ones. Turn Login Answers off under Settings → Site Defaults. Saved settings carry over.
 
 = 0.9.2 =
 Security release. On multisite, the main site's network-wide settings now need a Super Admin. Breach screening no longer stores replies, keeps half its allowance for privileged accounts, and checks the login password as typed. Saved settings carry over.
