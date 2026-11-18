@@ -341,6 +341,7 @@ function keel_defaults_block_author_feeds() {
 		$wp_query->set_404();
 		// WP_Query::set_404() preserves the feed flag; the 404 template needs it off.
 		$wp_query->is_feed = false;
+		keel_defaults_forget_queried_author( $wp_query );
 	}
 
 	remove_action( 'template_redirect', 'redirect_canonical' );
@@ -378,6 +379,7 @@ function keel_defaults_redirect_author_archive() {
 
 	if ( $wp_query instanceof WP_Query ) {
 		$wp_query->set_404();
+		keel_defaults_forget_queried_author( $wp_query );
 	}
 
 	// Canonical guessing would otherwise redirect /?author=N to the nicename.
@@ -385,6 +387,21 @@ function keel_defaults_redirect_author_archive() {
 
 	status_header( 404 );
 	nocache_headers();
+}
+
+/**
+ * Drop the queried author from a query that has just been set to 404.
+ *
+ * `WP_Query::set_404()` keeps the queried object. Left in place, a real
+ * author's ID marks a page with the same ID as current in navigation blocks,
+ * so a real author's 404 page would differ from an unknown author's.
+ *
+ * @param WP_Query $query The main query.
+ * @return void
+ */
+function keel_defaults_forget_queried_author( $query ) {
+	$query->queried_object    = null;
+	$query->queried_object_id = null;
 }
 
 /**
