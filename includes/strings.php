@@ -174,8 +174,8 @@ function keel_defaults_strings() {
 		'disable_author_archives'         => array(
 			'label'     => __( 'Author Archives', 'keel-defaults' ),
 			'statement' => __( 'Disable public author archives', 'keel-defaults' ),
-			'help'      => __( 'Sends author archive pages to the home page, so they cannot reveal usernames.', 'keel-defaults' ),
-			'detail'    => __( 'Redirects the HTML <code>/author/{slug}/</code> archive to the home page and returns 404 for its feed. Author pages leak usernames (like the REST users list) and are usually thin, duplicate content.', 'keel-defaults' ),
+			'help'      => __( 'Answers author archive pages with a 404, so they cannot reveal usernames.', 'keel-defaults' ),
+			'detail'    => __( 'Returns a 404 for <code>/author/{slug}/</code>, <code>?author=N</code> and their feeds, the same for real and unknown authors. Author pages leak usernames (like the REST users list) and are usually thin, duplicate content.', 'keel-defaults' ),
 		),
 		'redirect_attachment_pages'       => array(
 			'label'     => __( 'Attachment Pages', 'keel-defaults' ),
@@ -187,7 +187,7 @@ function keel_defaults_strings() {
 			'label'     => __( 'Random Post Redirects', 'keel-defaults' ),
 			'statement' => __( 'Disable random post redirects', 'keel-defaults' ),
 			'help'      => __( 'Turns off the /random/ links WordPress 7.2 adds, which send visitors to a random post.', 'keel-defaults' ),
-			'detail'    => __( 'WordPress 7.2 answers <code>/random/</code>, <code>/random/category/{slug}/</code>, <code>/random/author/{slug}/</code> and <code>?random</code> on any archive or search with a redirect to a random published post. Each request runs an uncached <code>ORDER BY RAND()</code> query, and the author form confirms which author slugs exist even while author archives are off. This returns false from <code>wp_enable_random_content_redirect</code>, which drops the rewrite rules and hides the Random base field on the Permalinks screen.', 'keel-defaults' ),
+			'detail'    => __( 'WordPress 7.2 answers <code>/random/</code>, <code>/random/category/{slug}/</code>, <code>/random/author/{slug}/</code> and <code>?random</code> on any archive with a redirect to a random published post. The real risk is author discovery: with <code>?random</code> added, <code>?author=N</code> redirects for a real author and returns a 404 for an unknown one, so a site that hides author archives must close this route too. Keel closes it whenever Author Archives is off, whatever this setting says. Each redirect is also sent uncacheable, so a page cache cannot absorb it. This returns false from <code>wp_enable_random_content_redirect</code>, which drops the rewrite rules and hides the Random base field on the Permalinks screen.', 'keel-defaults' ),
 		),
 		'disable_emojis'                  => array(
 			'label'     => __( 'Emoji Script', 'keel-defaults' ),
