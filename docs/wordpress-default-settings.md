@@ -491,6 +491,9 @@ add_filter( 'pre_option_default_ping_status', function () {
   tells real and unknown authors apart. Check the request's own query variables so every
   `?author=N`, `/author/{slug}/` and `?author_name=` request gets the same answer. Run before
   `redirect_canonical` (priority 10), which would otherwise send `/?author=N` to the nicename.
+  With archives left public, an author with no published posts, or a slug naming no one, still
+  gets the same 404: core
+  would serve their empty archive with a 200 while an unknown `?author=N` gets a 404.
 
 ```php
 add_action( 'template_redirect', function () {

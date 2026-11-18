@@ -390,6 +390,44 @@ function keel_defaults_redirect_author_archive() {
 }
 
 /**
+ * Answer an author archive with nothing published with a plain 404.
+ *
+ * Runs while author archives are public. Core gives an unknown `?author=N` a
+ * 404 but an author with no published posts an empty archive with a 200, and
+ * `?author=N` for that author a redirect to the nicename, so the answer told
+ * real accounts from unknown ones. An unknown `/author/{slug}/` gets the same
+ * 404 instead of core's list of every post. Feeds and paged URLs are included. An
+ * author with published posts keeps core's archive and canonical redirect.
+ *
+ * @return void
+ */
+function keel_defaults_404_empty_author_archive() {
+	global $wp_query;
+
+	if ( ! is_author() || ! $wp_query instanceof WP_Query ) {
+		return;
+	}
+
+	// An unknown /author/{slug}/ lists every post instead of no author's.
+	if ( $wp_query->have_posts() && get_queried_object() instanceof WP_User ) {
+		return;
+	}
+
+	$wp_query->set_404();
+	// WP_Query::set_404() preserves the feed flag; the 404 template needs it off.
+	$wp_query->is_feed = false;
+	keel_defaults_forget_queried_author( $wp_query );
+
+	remove_action( 'template_redirect', 'redirect_canonical' );
+
+	status_header( 404 );
+	if ( ! headers_sent() ) {
+		header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+	}
+	nocache_headers();
+}
+
+/**
  * Drop the queried author from a query that has just been set to 404.
  *
  * `WP_Query::set_404()` keeps the queried object. Left in place, a real
