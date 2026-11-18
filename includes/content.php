@@ -440,6 +440,16 @@ function keel_defaults_404_empty_author_archive() {
 function keel_defaults_forget_queried_author( $query ) {
 	$query->queried_object    = null;
 	$query->queried_object_id = null;
+
+	// set_404() keeps the found posts too. A theme without 404.php falls back
+	// to index.php, whose Loop would still list the author's posts.
+	$query->posts         = array();
+	$query->post          = null;
+	$query->post_count    = 0;
+	$query->found_posts   = 0;
+	$query->max_num_pages = 0;
+	$query->current_post  = -1;
+	$GLOBALS['post']      = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 }
 
 /**
