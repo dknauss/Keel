@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-24T23:18:19+00:00\n"
+"POT-Creation-Date: 2026-11-24T23:23:10+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: keel-defaults\n"
@@ -2902,7 +2902,7 @@ msgid "Turns off the /random/ links WordPress 7.2 adds, which send visitors to a
 msgstr ""
 
 #: includes/strings.php:190
-msgid "WordPress 7.2 answers <code>/random/</code>, <code>/random/category/{slug}/</code>, <code>/random/author/{slug}/</code> and <code>?random</code> on any archive with a redirect to a random published post. The real risk is author discovery: with <code>?random</code> added, <code>?author=N</code> redirects when that author has a published post and returns a 404 when there is no such author, so a site that hides author archives must close this route too. Keel closes it whenever Author Archives is off, whatever this setting says. Each redirect is also sent uncacheable, so a page cache cannot absorb it. This returns false from <code>wp_enable_random_content_redirect</code>, which drops the rewrite rules and hides the Random base field on the Permalinks screen."
+msgid "WordPress 7.2 answers <code>/random/</code>, <code>/random/category/{slug}/</code>, <code>/random/author/{slug}/</code>, and <code>?random</code> on any archive with a redirect to a random published post. A site that never asked for them gets new public addresses that a page cache cannot absorb: each redirect is sent uncacheable, and on a site without a persistent object cache some requests still sort posts randomly in the database. Any published post without a password can come up, including one an SEO plugin marks noindex, and so can posts of any public custom post type with an archive. Random author requests are closed by Author Archives, not by this setting: while Author Archives is off they return a 404 either way. This returns false from <code>wp_enable_random_content_redirect</code>, which drops the rewrite rules and hides the Random base field on the Permalinks screen."
 msgstr ""
 
 #: includes/strings.php:193
