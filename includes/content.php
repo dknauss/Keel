@@ -341,6 +341,7 @@ function keel_defaults_block_author_feeds() {
 		$wp_query->set_404();
 		// WP_Query::set_404() preserves the feed flag; the 404 template needs it off.
 		$wp_query->is_feed = false;
+		keel_defaults_forget_queried_author( $wp_query );
 	}
 
 	remove_action( 'template_redirect', 'redirect_canonical' );
@@ -353,20 +354,126 @@ function keel_defaults_block_author_feeds() {
 }
 
 /**
- * Redirect a disabled HTML author archive to the site home page.
+ * Answer a disabled author archive with a plain 404.
  *
- * Author feeds are converted to a 404 at priority 9, whose `set_404()` call
- * clears the author flag before this priority-10 callback runs.
+ * The name is kept from when this redirected to the home page; hooks and
+ * checks refer to it. A redirect home for a page that does not exist is a soft
+ * 404, so every author request now gets a real one: `/?author=N`,
+ * `/author/{slug}/` and `?author_name=`, for real and unknown authors alike.
+ * `is_author()` is true only for a real author, so the request's own query
+ * variables are read too; otherwise an unknown author would get core's answer
+ * and a real one Keel's, which tells them apart.
+ *
+ * Author feeds are converted to a 404 at priority 9 by
+ * keel_defaults_block_author_feeds(), whose `set_404()` call clears the author
+ * flag before this callback runs.
  *
  * @return void
  */
 function keel_defaults_redirect_author_archive() {
-	if ( ! is_author() ) {
+	if ( ! is_author() && ! keel_defaults_is_author_request() ) {
 		return;
 	}
 
-	wp_safe_redirect( home_url( '/' ), 301 );
-	exit;
+	global $wp_query;
+
+	if ( $wp_query instanceof WP_Query ) {
+		$wp_query->set_404();
+		keel_defaults_forget_queried_author( $wp_query );
+	}
+
+	// Canonical guessing would otherwise redirect /?author=N to the nicename.
+	remove_action( 'template_redirect', 'redirect_canonical' );
+
+	status_header( 404 );
+	nocache_headers();
+}
+
+/**
+ * Answer an author archive with nothing published with a plain 404.
+ *
+ * Runs while author archives are public. Core gives an unknown `?author=N` a
+ * 404 but an author with no published posts an empty archive with a 200, and
+ * `?author=N` for that author a redirect to the nicename, so the answer told
+ * real accounts from unknown ones. An unknown `/author/{slug}/` gets the same
+ * 404 instead of core's list of every post. Feeds and paged URLs are included. An
+ * author with published posts keeps core's archive and canonical redirect.
+ *
+ * @return void
+ */
+function keel_defaults_404_empty_author_archive() {
+	global $wp_query;
+
+	if ( ! is_author() || ! $wp_query instanceof WP_Query ) {
+		return;
+	}
+
+	// An unknown /author/{slug}/ lists every post instead of no author's.
+	if ( $wp_query->have_posts() && get_queried_object() instanceof WP_User ) {
+		return;
+	}
+
+	$wp_query->set_404();
+	// WP_Query::set_404() preserves the feed flag; the 404 template needs it off.
+	$wp_query->is_feed = false;
+	keel_defaults_forget_queried_author( $wp_query );
+
+	remove_action( 'template_redirect', 'redirect_canonical' );
+
+	status_header( 404 );
+	if ( ! headers_sent() ) {
+		header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+	}
+	nocache_headers();
+}
+
+/**
+ * Drop the queried author from a query that has just been set to 404.
+ *
+ * `WP_Query::set_404()` keeps the queried object. Left in place, a real
+ * author's ID marks a page with the same ID as current in navigation blocks,
+ * so a real author's 404 page would differ from an unknown author's.
+ *
+ * @param WP_Query $query The main query.
+ * @return void
+ */
+function keel_defaults_forget_queried_author( $query ) {
+	$query->queried_object    = null;
+	$query->queried_object_id = null;
+
+	// set_404() keeps the found posts too. A theme without 404.php falls back
+	// to index.php, whose Loop would still list the author's posts.
+	$query->posts         = array();
+	$query->post          = null;
+	$query->post_count    = 0;
+	$query->found_posts   = 0;
+	$query->max_num_pages = 0;
+	$query->current_post  = -1;
+	$GLOBALS['post']      = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+}
+
+/**
+ * Whether the main request asked for an author archive, existing or not.
+ *
+ * Reads the parsed query variables (`?author=N`, `/author/{slug}/`). Feeds are
+ * left out: keel_defaults_block_author_feeds() answers them.
+ *
+ * @return bool
+ */
+function keel_defaults_is_author_request() {
+	global $wp;
+
+	if ( ! $wp instanceof WP || ! is_array( $wp->query_vars ) || ! empty( $wp->query_vars['feed'] ) ) {
+		return false;
+	}
+
+	foreach ( array( 'author', 'author_name' ) as $var ) {
+		if ( isset( $wp->query_vars[ $var ] ) && ( ! is_scalar( $wp->query_vars[ $var ] ) || '' !== (string) $wp->query_vars[ $var ] ) ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**

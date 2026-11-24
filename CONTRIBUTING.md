@@ -351,6 +351,11 @@ commit that does not build:
 3. Run `bin/counterpart-sweep`. It must report no pending counterparts: deliver each
    port that was promised, or change its line to `not applicable` with the reason.
 4. Merge, and only then push the `v*` tag.
+5. Once the release is live on wordpress.org, bring the Bad Sector post
+   [Keel Defaults](https://badsector.blog/keel-defaults/) up to date with it:
+   the setting count (body, excerpt and SEO description), the activation table,
+   the "Since then" box, "What Keel sends", and the date line in the credit
+   box. Corrections are drafted for the maintainer, who publishes them.
 
 Tag last. `release.yml` fires on the tag and runs the checks itself, so tagging
 first means a failure discovered when the tag already exists and a GitHub

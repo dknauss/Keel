@@ -466,6 +466,10 @@ function keel_defaults_bootstrap() {
 		 */
 		add_filter( 'oembed_response_data', 'keel_defaults_strip_oembed_author' );
 		add_filter( 'wp_sitemaps_add_provider', 'keel_defaults_drop_users_sitemap', 10, 2 );
+	} else {
+		// Archives public: an author with nothing published gets the same 404
+		// as an unknown one. Priority 9 for the same reason as above.
+		add_action( 'template_redirect', 'keel_defaults_404_empty_author_archive', 9 );
 	}
 
 	/* ----- Revisions ----- */
