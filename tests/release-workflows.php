@@ -97,12 +97,16 @@ keel_assert(
  * gated to main so a pull request never republishes the public demo.
  */
 keel_assert(
-	false !== strpos( $ci_src, 'gh release upload latest' ),
-	'ci.yml republishes the rolling latest asset, so the Playground demo tracks main.'
+	false !== strpos( $ci_src, 'HEAD:refs/heads/rolling-build' ),
+	'ci.yml republishes the rolling build to the rolling-build branch, so the Playground demo tracks main.'
 );
 keel_assert(
-	false === strpos( $release_src, 'gh release upload latest' ),
-	'release.yml no longer owns the rolling asset; one publisher, not two.'
+	false === strpos( $ci_src, 'gh release upload' ),
+	'ci.yml does not write the rolling build to a release; immutable releases refuse to replace an asset.'
+);
+keel_assert(
+	false === strpos( $release_src, 'rolling-build' ) && false === strpos( $release_src, 'gh release upload latest' ),
+	'release.yml does not own the rolling build; one publisher, not two.'
 );
 keel_assert(
 	false !== strpos( $ci_src, "github.ref == 'refs/heads/main'" ),
@@ -114,19 +118,30 @@ keel_assert(
 );
 
 /*
- * --- the blueprint points at the asset that is now being refreshed ---
+ * --- the blueprint points at the build that is now being refreshed ---
  *
- * The two URLs differ by one path segment and mean different things:
- * releases/download/latest/  is the rolling tag; releases/latest/download/ is
- * whatever GitHub considers the newest non-prerelease. Swapping them silently
- * turns the rolling demo into a second copy of the stable one.
+ * The rolling build is on the rolling-build branch; releases/latest/download/
+ * is whatever GitHub considers the newest non-prerelease. The old rolling URL,
+ * releases/download/latest/, still resolves, to a frozen 2026-11-14 build on an
+ * immutable release, so a blueprint pointing there would look fine and be stale.
  */
 $hosted = file_get_contents( $root . '/playground/blueprint-hosted.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 $stable = file_get_contents( $root . '/playground/blueprint-stable.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
+$conflict = file_get_contents( $root . '/playground/blueprint-conflict-diagnostics.json' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+$rolling  = 'https://raw.githubusercontent.com/dknauss/Keel/rolling-build/keel.zip';
+
 keel_assert(
-	false !== strpos( $hosted, 'releases/download/latest/keel.zip' ),
-	'The hosted blueprint installs the rolling asset.'
+	false !== strpos( $hosted, $rolling ),
+	'The hosted blueprint installs the rolling build.'
+);
+keel_assert(
+	false !== strpos( $conflict, $rolling ),
+	'The conflict diagnostics blueprint installs the rolling build.'
+);
+keel_assert(
+	false === strpos( $hosted . $conflict, 'releases/download/latest/' ),
+	'No blueprint installs the frozen rolling release asset.'
 );
 keel_assert(
 	false !== strpos( $stable, 'releases/latest/download/keel.zip' ),
@@ -256,7 +271,7 @@ keel_assert(
 	"The conflict-diagnostics blueprint installs Keel into \"{$built_folder}\" first."
 );
 keel_assert(
-	isset( $keel_install['pluginData']['url'] ) && false !== strpos( $keel_install['pluginData']['url'], 'releases/download/latest/' . $built_zip ),
+	isset( $keel_install['pluginData']['url'] ) && 'https://raw.githubusercontent.com/dknauss/Keel/rolling-build/' . $built_zip === $keel_install['pluginData']['url'],
 	'The conflict-diagnostics blueprint installs the rolling main build, so it shows what main does.'
 );
 

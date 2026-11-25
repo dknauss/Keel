@@ -4,8 +4,9 @@
 
 The current version is `0.10.0`.
 Keel is published on wordpress.org as `keel-defaults`; install the published
-stable version from the plugin directory. GitHub releases and the rolling
-`latest` build remain available for anyone who prefers them.
+stable version from the plugin directory. GitHub releases remain available for
+anyone who prefers them. The rolling build of `main` on the `rolling-build`
+branch is for the Playground demo and is not supported for sites.
 
 Note that the plugin folder changed from `keel` to `keel-defaults`, and WordPress
 identifies a plugin by its folder. A site installed from a GitHub release made

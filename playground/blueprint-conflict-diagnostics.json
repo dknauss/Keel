@@ -16,7 +16,7 @@
       "step": "installPlugin",
       "pluginData": {
         "resource": "url",
-        "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"
+        "url": "https://raw.githubusercontent.com/dknauss/Keel/rolling-build/keel.zip"
       },
       "options": {
         "activate": true,

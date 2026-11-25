@@ -21,7 +21,7 @@ blueprint = {
     "preferredVersions": {"php": "8.3", "wp": "latest"},
     "login": True,
     "steps": [
-        {"step": "installPlugin", "pluginData": {"resource": "url", "url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"}, "options": {"activate": True, "targetFolderName": "keel-defaults"}, "progress": {"caption": "Installing Keel (main build)"}},
+        {"step": "installPlugin", "pluginData": {"resource": "url", "url": "https://raw.githubusercontent.com/dknauss/Keel/rolling-build/keel.zip"}, "options": {"activate": True, "targetFolderName": "keel-defaults"}, "progress": {"caption": "Installing Keel (main build)"}},
         wporg("disable-comments", "Installing Disable Comments"),
         wporg("classic-editor", "Installing Classic Editor"),
         wporg("disable-xml-rpc", "Installing Disable XML-RPC"),
