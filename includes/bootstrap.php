@@ -537,8 +537,10 @@ function keel_defaults_bootstrap() {
 		/*
 		 * /random/author/{slug}/ and ?author=N&random redirect to a post by that
 		 * author when one exists and 404 otherwise — the existence test the
-		 * author archive redirect closes. Core redirects inside WP::main(), before
-		 * template_redirect, so the archive redirect never sees these requests.
+		 * author archive 404 closes. Since 7.2 RC1 core sends the redirect from
+		 * template_redirect at priority 100, after the archive 404 at 9, but it
+		 * picks the post inside WP::main(); emptying the random query here keeps
+		 * the answer a 404 whatever runs on template_redirect in between.
 		 */
 		if ( keel_defaults_enabled( 'disable_author_archives' ) ) {
 			add_action( 'pre_get_posts', 'keel_defaults_block_random_author', 100 );
