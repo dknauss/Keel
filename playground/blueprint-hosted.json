@@ -3,7 +3,7 @@
 	"meta": {
 		"title": "Keel — live demo",
 		"author": "dknauss",
-		"description": "Sane, individually-toggleable WordPress defaults. Opens on Settings → Keel so every default and its state is visible in one place. (installs the 'latest' rolling build, republished on every push to main)."
+		"description": "Sane, individually-toggleable WordPress defaults. Opens on Settings → Keel so every default and its state is visible in one place. (installs the rolling build of main, republished on every push to main)."
 	},
 	"landingPage": "/wp-admin/options-general.php?page=keel",
 	"preferredVersions": { "php": "8.3", "wp": "latest" },
@@ -13,7 +13,7 @@
 			"step": "installPlugin",
 			"pluginData": {
 				"resource": "url",
-				"url": "https://wordpress-playground-cors-proxy.net/?https://github.com/dknauss/keel/releases/download/latest/keel.zip"
+				"url": "https://raw.githubusercontent.com/dknauss/Keel/rolling-build/keel.zip"
 			},
 			"options": { "activate": true, "targetFolderName": "keel-defaults" },
 			"progress": { "caption": "Installing Keel" }

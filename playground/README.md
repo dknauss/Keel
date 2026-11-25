@@ -6,8 +6,8 @@ your machine.
 
 ## `blueprint-hosted.json`
 
-Installs the rolling `latest` build — the zip `ci.yml` republishes on **every push
-to `main`** — and opens **Settings → Keel**, which is the whole point of the
+Installs the rolling build — the zip `ci.yml` pushes to the `rolling-build`
+branch on **every push to `main`** — and opens **Settings → Keel**, which is the whole point of the
 plugin: every default and its state on one screen.
 
 That trigger is the point of this blueprint, and it was wrong until 2026-08-09.
@@ -87,8 +87,15 @@ before trusting a green-looking demo:
 
 ```bash
 curl -s -o /dev/null -w '%{http_code}\n' -L \
-  https://github.com/dknauss/keel/releases/download/latest/keel.zip
+  https://raw.githubusercontent.com/dknauss/Keel/rolling-build/keel.zip
 ```
+
+Until 2026-11-25 the rolling build was an asset on a `latest` prerelease. With
+immutable releases on, that asset could not be replaced after 2026-11-14, so
+the demos quietly served a stale build while every test passed. It now lives on
+the `rolling-build` branch: one orphan commit holding `keel.zip`, force-pushed
+by `ci.yml`. Don't prune that branch. The old `latest` release is frozen and
+no longer read by anything here.
 
 `200` means the blueprint has something to install. Anything else means the
 Playground link in the README is broken regardless of how the blueprint reads.
