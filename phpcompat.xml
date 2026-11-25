@@ -52,7 +52,7 @@
 		reading before anyone "fixes" it back to a stable tag. The newest stable
 		PHPCompatibility is 9.3.5, released in December 2019 — more than a year
 		before PHP 8.0 shipped. It carries no PHP 8 data at all, so against this
-		plugin's 8.1 to 8.5 range it reports a clean bill of health on code that
+		plugin's 8.1 to 8.6 range it reports a clean bill of health on code that
 		fatals: verified by putting get_debug_type() in a shipped function and
 		watching 9.3.5 pass it without a word. A gate that cannot fail is worse
 		than no gate, because it also reads as green. The alpha does catch it, and
