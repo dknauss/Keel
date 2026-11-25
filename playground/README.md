@@ -6,8 +6,8 @@ your machine.
 
 ## `blueprint-hosted.json`
 
-Installs the rolling `latest` build — the zip `ci.yml` republishes on **every push
-to `main`** — and opens **Settings → Keel**, which is the whole point of the
+Installs the rolling build — the zip `ci.yml` republishes to the `rolling-build`
+branch on **every push to `main`** — and opens **Settings → Keel**, which is the whole point of the
 plugin: every default and its state on one screen.
 
 That trigger is the point of this blueprint, and it was wrong until 2026-08-09.
@@ -47,7 +47,7 @@ Until 2026-08-22 it did carry one, pointing at
 `releases/download/latest/keel.zip`. Two things were wrong with that, and the
 instruction that used to sit here — "keep the two in step" — is what kept it
 wrong. The directory restricts blueprint resources to wordpress.org, so a GitHub
-URL was unlikely to run at all; and `latest` is the **rolling build of `main`**,
+URL was unlikely to run at all; and `latest` was then the **rolling build of `main`**,
 so on the occasions it did run, the listing's preview would have demonstrated
 code nobody had reviewed. A preview that installs something other than the
 listed plugin is not a preview of the listing.
@@ -86,12 +86,20 @@ Blueprints fail silently in the browser, so verify the zip URL still resolves
 before trusting a green-looking demo:
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' -L \
-  https://github.com/dknauss/keel/releases/download/latest/keel.zip
+curl -s -o /dev/null -w '%{http_code}\n' \
+  https://raw.githubusercontent.com/dknauss/Keel/rolling-build/keel.zip
 ```
 
 `200` means the blueprint has something to install. Anything else means the
 Playground link in the README is broken regardless of how the blueprint reads.
+The branch's `README.md` names the `main` commit the zip was built from, so you
+can also check it is current.
+
+The rolling build used to be an asset on a pre-release tagged `latest`. Once the
+repository turned on immutable releases, that release could no longer be
+replaced: from 2026-11-15 every republish failed, and the demos served the
+2026-11-14 build. `releases/download/latest/keel.zip` still answers `200`, with
+that frozen zip, which is why a status code alone did not catch it.
 
 ## `blueprint-conflict-diagnostics.json`
 

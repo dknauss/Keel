@@ -130,11 +130,19 @@ jobs:
 
   # Rebuild the zip the Playground demo installs, on every push to main.
   #
-  # The `latest` release asset used to be written only by release.yml, which fires
-  # on version tags — so "the rolling latest build" was really "the last tagged
+  # The rolling zip used to be written only by release.yml, which fires on version
+  # tags — so "the rolling latest build" was really "the last tagged
   # release", and the hosted blueprint served the same zip as the stable one. Work
   # that had merged to main was invisible in the demo, which is the one place a
   # reviewer looks to see what the plugin currently does.
+  #
+  # The zip lives on the `rolling-build` branch, not on a release. The repository
+  # turned on immutable releases, which also froze the `latest` pre-release: from
+  # 2026-11-15 replacing the asset failed with HTTP 422 on every push,
+  # and the demo served the 2026-11-14 build. A branch stays mutable without
+  # weakening release immutability, and raw.githubusercontent.com serves it with
+  # `access-control-allow-origin: *`, so Playground needs no CORS proxy. Each
+  # publish replaces the branch with one commit, so its history does not grow.
   #
   # Gated to pushes on main so a pull request never republishes the demo; the fork
   # case is covered by the same condition, since a fork's push does not run here.
@@ -145,6 +153,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # Two quick merges must not race to force-push; the newer one wins.
+    concurrency:
+      group: rolling-build
+      cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v7
@@ -152,16 +164,24 @@ jobs:
       - name: Build plugin zip
         run: bash bin/build-zip.sh build
 
-      - name: Upload to the rolling 'latest' release
+      - name: Publish to the rolling-build branch
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          set -e
-          NOTES="Rolling build of main (${GITHUB_SHA:0:7}). Not a release — see the tagged releases for those."
-          if gh release view latest >/dev/null 2>&1; then
-            gh release upload latest build/keel.zip --clobber
-            gh release edit latest --notes "$NOTES" --prerelease >/dev/null
-          else
-            gh release create latest build/keel.zip \
-              --title "Latest build (rolling)" --prerelease --notes "$NOTES"
-          fi
+          set -euo pipefail
+          out="$(mktemp -d)"
+          cp build/keel.zip "$out/keel.zip"
+          printf '%s\n' \
+            "# Keel rolling build" \
+            "" \
+            "keel.zip is the plugin built from main at ${GITHUB_SHA}." \
+            "ci.yml replaces this branch on every push to main. It is not a release:" \
+            "install the tagged releases or the wordpress.org plugin for that." \
+            > "$out/README.md"
+          cd "$out"
+          git init -q -b rolling-build
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add keel.zip README.md
+          git commit -q -m "Rolling build of main (${GITHUB_SHA:0:7})"
+          git push -q --force "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:refs/heads/rolling-build
