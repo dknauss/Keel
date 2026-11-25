@@ -572,7 +572,7 @@ add_action( 'template_redirect', function () {
   `?random` on a search URL now just redirects back to the search (core #66662). A site that
   never asked for it gains a public route with these costs:
 
-  1. **Author discovery.** On WordPress 7.2 RC2, `/random/author/{slug}/` and
+  1. **Author discovery.** On WordPress 7.2 RC2 and RC3, `/random/author/{slug}/` and
      `?author=N&random` redirect to a post when that author has a published post, and return a
      404 for an author with none and for an author who does not exist. Core picks the post inside
      `WP::main()` but sends the redirect from `template_redirect` at priority 100 (core #66661),
@@ -580,7 +580,7 @@ add_action( 'template_redirect', function () {
      first, but code that hides them any other way may not. With Author Archives off, Keel makes
      every random author query find nothing, so every author ID and slug gets the same 404 even
      if this setting is off. In the 7.2 betas the whole redirect ran inside `WP::main()`, before
-     `template_redirect`. On RC1 an unknown slug fell through to a random post; on RC2 it is a
+     `template_redirect`. On RC1 an unknown slug fell through to a random post; from RC2 it is a
      404 again.
   2. **Uncacheable requests.** Core no longer sorts every post with `ORDER BY RAND()` on every
      request (core #66654). It looks up 50 random post IDs by primary key, up to three times. If
@@ -615,6 +615,11 @@ alone, Keel 0.9.2, and Keel `main` at `e9f2ebf`:
 - Saved rules, core alone: after the filter is added without a flush, `/random/` renders the
   blog home with a 200 and `/random/author/{slug}/` renders the author archive; publishing a
   post does not rebuild the rules; loading Settings → Permalinks does.
+
+Checked against WordPress 7.2 RC3 on 2026-11-25. RC3 changes no `/random/` code; only the About
+screen's text changed, and it now advertises the feature. Core alone, and Keel 0.10.0 at
+`fa86185` with this setting on and off, answered every route exactly as on RC2, and core alone
+gave the same saved-rules states. The Keel 0.9.2 cases were not rerun.
 
 Core ships the off switch. Returning `false` from `wp_enable_random_content_redirect` stops
 the rewrite rules being generated, hides the Random base field under Settings → Permalinks,
