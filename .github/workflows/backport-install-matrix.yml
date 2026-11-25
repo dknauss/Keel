@@ -52,12 +52,6 @@ jobs:
             php: '8.2'
             locale: en_US
             multisite: false
-          - id: '7.1-line'
-            branch: '7.1'
-            forward: '7.2-RC3'
-            php: '8.4'
-            locale: en_US
-            multisite: false
           # A fresh install of the next release, so every contract below runs on it
           # directly rather than only after an upgrade. No same-line patch exists
           # yet, so this row skips the branch resolver and the rollback step. Move

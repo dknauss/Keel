@@ -20,13 +20,17 @@ core behavior, not verified transmission or exhaustive schemas. WordPress/host/
 plugin filters may change or prevent requests. Package downloads, third-party
 update services and Keel’s separate stable-check call are outside this scope.
 Network and requesting-site contexts are distinguished without enumerating sites.
-Stable families 6.4–7.1 are covered; development, newer, older or malformed
+Stable families 6.4–7.2 are covered; development, newer, older or malformed
 versions withhold detailed categories and explicitly remain unverified.
 
 ### Source evidence
 
 Reviewed `src/wp-includes/update.php` on each upstream WordPress development
 branch 6.4–7.1, fetched read-only on 2026-10-22, plus local WordPress 7.1.3.
+On 2026-11-25, 7.2 was added after diffing `wp-includes/update.php` and
+`class-wp-http.php` between the 7.1.5 and 7.2-RC3 packages: `wp_version_check()`,
+`wp_update_plugins()` and `wp_update_themes()` build the same requests. 7.2 only
+adds deferred-translation helpers, which are not part of any request.
 Reference functions: [wp_version_check](https://developer.wordpress.org/reference/functions/wp_version_check/),
 [wp_update_plugins](https://developer.wordpress.org/reference/functions/wp_update_plugins/) and
 [wp_update_themes](https://developer.wordpress.org/reference/functions/wp_update_themes/).

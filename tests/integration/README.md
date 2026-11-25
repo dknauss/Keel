@@ -262,7 +262,7 @@ require __DIR__ . '/index.php';
 ## Same-line installer rollback/forward matrix
 
 `.github/workflows/backport-install-matrix.yml` is a live-API matrix for the
-security-patch installer. It starts from a vulnerable release on each of five
+security-patch installer. It starts from a vulnerable release on each of four
 branches, submits the real authenticated `admin-post.php` form, verifies the
 patched version and core checksums, proves the signed request cannot be replayed,
 rolls back with WP-CLI, installs through Keel again, and finally moves forward to

@@ -476,7 +476,7 @@ sweep all passed by 2026-10-27; tagging and publication remain. See the [release
 - [x] **Report what this site normally sends to WordPress.org** — merged in #300 (`3a19720`); unreleased.
   Core’s update requests include site identity, environment categories and installed
   plugin/theme metadata. The category summary is checked against core source for
-  stable WordPress 6.4–7.1, rather than observing this site’s traffic.
+  stable WordPress 6.4–7.2, rather than observing this site’s traffic.
 
   The accepted scope is static Site Health Info documentation for the three core
   update-check endpoints. It describes categories, not actual site values or verified

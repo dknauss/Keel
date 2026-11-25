@@ -25,12 +25,12 @@ function keel_defaults_update_disclosure_info( $info ) {
 
 	// A maintained source baseline, never a claim to know actual network traffic.
 	$known  = is_string( $wp_version ) && strlen( $wp_version ) <= 32
-		&& preg_match( '/^(?:6\.[4-9]|7\.[01])(?:\.\d+)?$/D', $wp_version );
+		&& preg_match( '/^(?:6\.[4-9]|7\.[0-2])(?:\.\d+)?$/D', $wp_version );
 	$fields = array(
 		'coverage' => array(
 			'label' => __( 'Coverage', 'keel-defaults' ),
 			'value' => $known
-				? __( 'Documented core baseline for stable WordPress 6.4–7.1; not evidence that this site sent a request. Categories are a summary, not an exhaustive payload schema.', 'keel-defaults' )
+				? __( 'Documented core baseline for stable WordPress 6.4–7.2; not evidence that this site sent a request. Categories are a summary, not an exhaustive payload schema.', 'keel-defaults' )
 				: __( 'This WordPress version is unverified by this disclosure. Request categories are withheld; consult the installed core source.', 'keel-defaults' ),
 		),
 		'behavior' => array(

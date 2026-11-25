@@ -38,11 +38,11 @@ check( false !== strpos( $text, 'not evidence' ) && false !== strpos( $text, 'in
 check( false !== strpos( $section['description'], '<a href="https://developer.wordpress.org/reference/functions/wp_version_check/" target="_blank" rel="noopener noreferrer">Core version check</a>' ) && false !== strpos( $section['description'], 'wp_update_plugins/' ) && false !== strpos( $section['description'], 'wp_update_themes/' ), 'Core source references are labeled external links, not raw URLs.' );
 check( false !== strpos( $section['fields']['themes']['value'], 'author names and author/update URIs' ) && false === strpos( $section['fields']['themes']['value'], 'compatibility metadata' ), 'Theme categories match core request arrays.' );
 check( false === strpos( $text, '7.1.3' ), 'No installed version value exported.' );
-foreach ( array( '6.4', '6.5.5', '6.8.1', '6.9.2', '7.0', '7.1.3' ) as $version ) {
+foreach ( array( '6.4', '6.5.5', '6.8.1', '6.9.2', '7.0', '7.1.3', '7.2', '7.2.1' ) as $version ) {
 	$GLOBALS['wp_version'] = $version;
 	check( isset( keel_defaults_update_disclosure_info( array() )['keel_update_disclosure']['fields']['core'] ), 'Supported stable family has documented categories.' );
 }
-foreach ( array( '7.2', '7.2-alpha1', '7.1-RC1', '6.3.9', '<script>bad</script>', array(), null ) as $version ) {
+foreach ( array( '7.3', '7.3-alpha1', '7.2-RC3', '7.1-RC1', '6.3.9', '<script>bad</script>', array(), null ) as $version ) {
 	$GLOBALS['wp_version'] = $version;
 	$fields                = keel_defaults_update_disclosure_info( array() )['keel_update_disclosure']['fields'];
 	check( ! isset( $fields['core'] ) && false !== strpos( $fields['coverage']['value'], 'unverified' ), 'Unknown/development family never presented as audited baseline.' );

@@ -27,7 +27,13 @@ try {
 		$info = keel_defaults_update_disclosure_info( array( 'sentinel' => true ) );
 		$assert( isset( $info['keel_update_disclosure'] ) && true === $info['sentinel'], 'Static section added without replacing existing information.' );
 		$text = wp_json_encode( $info['keel_update_disclosure'], JSON_UNESCAPED_SLASHES );
-		$assert( false !== strpos( $text, 'not evidence' ), 'No transmission assertion.' );
+		// A release candidate is outside the audited stable families by design, so a
+		// fresh row on one must see categories withheld, not an audited baseline.
+		if ( false !== strpos( $version, '-' ) ) {
+			$assert( ! isset( $info['keel_update_disclosure']['fields']['core'] ) && false !== strpos( $text, 'unverified' ), 'Prerelease withholds categories.' );
+		} else {
+			$assert( false !== strpos( $text, 'not evidence' ), 'No transmission assertion.' );
+		}
 		$assert( false === strpos( $text, 'localhost' ) && false === strpos( $text, $version ), 'No actual site URL or installed version.' );
 		$GLOBALS['wp_version'] = '99.9';
 		$unknown               = keel_defaults_update_disclosure_info( array() );
