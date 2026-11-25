@@ -8,6 +8,15 @@
  * declaration removes the duplication rather than silencing the report, and
  * means a test that needs a richer stand-in changes it once.
  *
+ * Storage follows core: messages and data are kept per code, so a callback
+ * that reads, removes, or re-adds errors the way wp-login.php's filters do
+ * behaves as it would in WordPress. The `code`, `message` and `data`
+ * properties mirror the first error, for the older tests that read them.
+ *
+ * Duplicates only show up when phpcs compares the two files in one process;
+ * with `parallel` in phpcs.xml that depends on how files are split, so a
+ * second declaration can pass locally and fail in CI.
+ *
  * @package Keel
  */
 
@@ -19,116 +28,191 @@ if ( ! class_exists( 'WP_Error' ) ) {
 	class WP_Error {
 
 		/**
-		 * Error code.
+		 * The first error's code.
+		 *
+		 * @var string|int
+		 */
+		public $code = '';
+
+		/**
+		 * The first error's message.
 		 *
 		 * @var string
 		 */
-		public $code;
+		public $message = '';
 
 		/**
-		 * Error message.
-		 *
-		 * @var string
-		 */
-		public $message;
-
-		/**
-		 * Error data.
+		 * The first error's data.
 		 *
 		 * @var mixed
 		 */
-		public $data;
+		public $data = '';
 
 		/**
-		 * Errors recorded through add(), keyed by code.
+		 * Messages by code, as core stores them.
 		 *
-		 * @var array<string, string>
+		 * @var array<string|int, string[]>
 		 */
 		public $errors = array();
 
 		/**
+		 * Latest data by code.
+		 *
+		 * @var array<string|int, mixed>
+		 */
+		public $error_data = array();
+
+		/**
+		 * Earlier data by code.
+		 *
+		 * @var array<string|int, mixed[]>
+		 */
+		protected $additional_data = array();
+
+		/**
 		 * Constructor.
 		 *
-		 * @param string $code    Error code.
-		 * @param string $message Error message.
-		 * @param mixed  $data    Error data.
+		 * @param string|int $code    Error code.
+		 * @param string     $message Error message.
+		 * @param mixed      $data    Error data.
 		 */
-		public function __construct( $code = '', $message = '', $data = array() ) {
-			$this->code    = $code;
-			$this->message = $message;
-			$this->data    = $data;
+		public function __construct( $code = '', $message = '', $data = '' ) {
+			if ( '' !== $code ) {
+				$this->add( $code, $message, $data );
+			}
 		}
 
 		/**
-		 * Error data accessor. The comment guard's status lives here, in the
-		 * shape each caller reads.
+		 * Codes, in the order they were added.
 		 *
-		 * @return mixed
+		 * @return array<int, string|int>
 		 */
-		public function get_error_data() {
-			return $this->data;
+		public function get_error_codes() {
+			return array_keys( $this->errors );
 		}
 
 		/**
-		 * Error code accessor.
+		 * The first code, or an empty string.
 		 *
-		 * @return string
+		 * @return string|int
 		 */
 		public function get_error_code() {
-			return $this->code;
+			$codes = $this->get_error_codes();
+			return $codes ? $codes[0] : '';
 		}
 
 		/**
-		 * Error message accessor.
+		 * Every message, or those for one code.
 		 *
-		 * @return string
-		 */
-		public function get_error_message() {
-			return $this->message;
-		}
-
-		/**
-		 * Messages supplied at construction or through add().
-		 *
+		 * @param string|int $code Error code; empty for all.
 		 * @return string[]
 		 */
-		public function get_error_messages() {
-			$messages = array_values( $this->errors );
-			if ( '' !== $this->message && ! in_array( $this->message, $messages, true ) ) {
-				array_unshift( $messages, $this->message );
+		public function get_error_messages( $code = '' ) {
+			if ( '' === $code ) {
+				return $this->errors ? array_merge( array(), ...array_values( $this->errors ) ) : array();
 			}
-			return $messages;
+			return isset( $this->errors[ $code ] ) ? $this->errors[ $code ] : array();
+		}
+
+		/**
+		 * The first message for a code, the first code by default.
+		 *
+		 * @param string|int $code Error code.
+		 * @return string
+		 */
+		public function get_error_message( $code = '' ) {
+			if ( '' === $code ) {
+				$code = $this->get_error_code();
+			}
+			$messages = $this->get_error_messages( $code );
+			return $messages ? $messages[0] : '';
+		}
+
+		/**
+		 * The latest data for a code, the first code by default.
+		 *
+		 * @param string|int $code Error code.
+		 * @return mixed
+		 */
+		public function get_error_data( $code = '' ) {
+			if ( '' === $code ) {
+				$code = $this->get_error_code();
+			}
+			return isset( $this->error_data[ $code ] ) ? $this->error_data[ $code ] : null;
+		}
+
+		/**
+		 * Every data value added for a code, oldest first.
+		 *
+		 * @param string|int $code Error code.
+		 * @return mixed[]
+		 */
+		public function get_all_error_data( $code = '' ) {
+			if ( '' === $code ) {
+				$code = $this->get_error_code();
+			}
+			$data = isset( $this->additional_data[ $code ] ) ? $this->additional_data[ $code ] : array();
+			if ( isset( $this->error_data[ $code ] ) ) {
+				$data[] = $this->error_data[ $code ];
+			}
+			return $data;
+		}
+
+		/**
+		 * Whether any error is recorded.
+		 *
+		 * @return bool
+		 */
+		public function has_errors() {
+			return ! empty( $this->errors );
 		}
 
 		/**
 		 * Record an error, the way WordPress's own $errors object does.
 		 *
-		 * WordPress hands the validate_password_reset callback a WP_Error to add
-		 * to rather than a value to return, so a test of that entry point needs
-		 * somewhere for the failure to land.
-		 *
-		 * @param string $code    Error code.
-		 * @param string $message Error message.
-		 * @param mixed  $data    Error data (unused).
+		 * @param string|int $code    Error code.
+		 * @param string     $message Error message.
+		 * @param mixed      $data    Error data.
 		 * @return void
 		 */
-		public function add( $code, $message = '', $data = array() ) {
-			unset( $data );
-			$this->errors[ $code ] = $message;
+		public function add( $code, $message = '', $data = '' ) {
+			$this->errors[ $code ][] = $message;
+			if ( '' !== $data ) {
+				$this->add_data( $data, $code );
+			}
 
-			if ( '' === (string) $this->code ) {
+			if ( '' === $this->code ) {
 				$this->code    = $code;
 				$this->message = $message;
+				$this->data    = $data;
 			}
 		}
 
 		/**
-		 * Codes recorded through add().
+		 * Record data for a code, keeping the earlier value.
 		 *
-		 * @return string[]
+		 * @param mixed      $data Error data.
+		 * @param string|int $code Error code; the first code by default.
+		 * @return void
 		 */
-		public function get_error_codes() {
-			return array_keys( $this->errors );
+		public function add_data( $data, $code = '' ) {
+			if ( '' === $code ) {
+				$code = $this->get_error_code();
+			}
+			if ( isset( $this->error_data[ $code ] ) ) {
+				$this->additional_data[ $code ][] = $this->error_data[ $code ];
+			}
+			$this->error_data[ $code ] = $data;
+		}
+
+		/**
+		 * Remove a code with its messages and data.
+		 *
+		 * @param string|int $code Error code.
+		 * @return void
+		 */
+		public function remove( $code ) {
+			unset( $this->errors[ $code ], $this->error_data[ $code ], $this->additional_data[ $code ] );
 		}
 	}
 }
