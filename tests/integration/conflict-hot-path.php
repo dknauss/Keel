@@ -35,14 +35,14 @@ $assert = static function ( $ok, $message ) {
 	}
 };
 
-// Hook => arguments after the value, as core passes them.
+// Hook => arguments after the value, as core passes them. The random-redirect
+// filter exists from WordPress 7.2 and is watched only where core has it.
 $arguments    = array(
 	'xmlrpc_enabled'                        => array(),
 	'comments_open'                         => array( 0 ),
 	'pings_open'                            => array( 0 ),
 	'wp_is_application_passwords_available' => array(),
 	'wp_supports_ai'                        => array(),
-	// WordPress 7.2+. Watched only where core has random redirects.
 	'wp_enable_random_content_redirect'     => array(),
 );
 $expectations = keel_defaults_policy_expectations();
