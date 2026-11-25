@@ -42,6 +42,8 @@ $arguments    = array(
 	'pings_open'                            => array( 0 ),
 	'wp_is_application_passwords_available' => array(),
 	'wp_supports_ai'                        => array(),
+	// WordPress 7.2+. Watched only where core has random redirects.
+	'wp_enable_random_content_redirect'     => array(),
 );
 $expectations = keel_defaults_policy_expectations();
 $watched      = array_intersect_key( $expectations, $arguments );

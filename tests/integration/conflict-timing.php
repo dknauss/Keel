@@ -46,6 +46,7 @@ $arguments = array(
 	'pings_open'                            => array( 0 ),
 	'wp_is_application_passwords_available' => array(),
 	'wp_supports_ai'                        => array(),
+	'wp_enable_random_content_redirect'     => array(),
 );
 $watched   = array_intersect_key( keel_defaults_policy_expectations(), $arguments );
 $calls     = 20000;
