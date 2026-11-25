@@ -367,9 +367,13 @@ if ( preg_match( '/^== Changelog ==$(.*?)(?=^== |\z)/ms', $readme, $cl ) ) {
  *
  * The versions come from backport-install-matrix.yml, because that is the workflow
  * that installs WordPress and drives the plugin on it. ci.yml is a PHP matrix and
- * establishes nothing about a WordPress release. Every source, target and forward
- * version counts: a row that starts on 6.4.9, installs 6.4.10 and then upgrades
- * forward to 7.1 has exercised the plugin on all three.
+ * establishes nothing about a WordPress release. Every source, target, forward and
+ * fresh version counts: a row that starts on 6.4.9, installs 6.4.10 and then
+ * upgrades forward to 7.1 has exercised the plugin on all three.
+ *
+ * A pre-release pin such as 7.2-RC3 counts toward its release line. That is what
+ * lets the header be raised ahead of release day, which is when WordPress.org asks
+ * for it; once the final release ships, move the pins to it.
  */
 $matrix_path = dirname( __DIR__ ) . '/.github/workflows/backport-install-matrix.yml';
 
@@ -378,7 +382,7 @@ keel_readme_assert( is_file( $matrix_path ), 'the live install matrix exists to 
 if ( is_file( $matrix_path ) ) {
 	$matrix = file_get_contents( $matrix_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
-	preg_match_all( "/^\s*(?:source|target|forward):\s*'([0-9]+\.[0-9]+(?:\.[0-9]+)?)'/m", $matrix, $matrix_versions );
+	preg_match_all( "/^\s*(?:source|target|forward|fresh):\s*'([0-9]+\.[0-9]+(?:\.[0-9]+)?)(?:-(?:beta|RC)[0-9]+)?'/m", $matrix, $matrix_versions );
 
 	keel_readme_assert(
 		! empty( $matrix_versions[1] ),

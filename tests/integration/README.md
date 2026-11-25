@@ -266,7 +266,14 @@ security-patch installer. It starts from a vulnerable release on each of four
 branches, submits the real authenticated `admin-post.php` form, verifies the
 patched version and core checksums, proves the signed request cannot be replayed,
 rolls back with WP-CLI, installs through Keel again, and finally moves forward to
-the current release. One row is localized and one is multisite.
+the newest release, or its release candidate while one is out. One row is
+localized and stays on the newest final release, because WordPress.org publishes
+no localized release-candidate packages. One row is multisite.
+
+A `fresh` row installs the next release directly, with no branch resolution and
+no rollback, so every contract runs on it rather than only after an upgrade.
+`tests/readme-spec.php` reads every pinned version, a release candidate included,
+and fails unless `Tested up to` matches the highest release line among them.
 
 Rows name a branch, not versions. Each row's first step,
 `resolve-backport-versions.sh`, takes the branch's newest release from the live

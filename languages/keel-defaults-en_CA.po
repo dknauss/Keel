@@ -2350,7 +2350,7 @@ msgid "Coverage"
 msgstr ""
 
 #: includes/update-disclosure.php:33
-msgid "Documented core baseline for stable WordPress 6.4–7.1; not evidence that this site sent a request. Categories are a summary, not an exhaustive payload schema."
+msgid "Documented core baseline for stable WordPress 6.4–7.2; not evidence that this site sent a request. Categories are a summary, not an exhaustive payload schema."
 msgstr ""
 
 #: includes/update-disclosure.php:34

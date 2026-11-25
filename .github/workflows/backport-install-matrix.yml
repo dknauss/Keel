@@ -27,10 +27,13 @@ jobs:
         include:
           - id: '6.4-floor'
             branch: '6.4'
-            forward: '7.1'
+            forward: '7.2-RC3'
             php: '8.1'
             locale: en_US
             multisite: false
+          # WordPress.org publishes no localized packages for a release candidate
+          # (downloads.wordpress.org/release/fr_FR/wordpress-7.2-RC3.zip is a 404),
+          # so the localized row moves forward to the newest final release instead.
           - id: '6.8-fr'
             branch: '6.8'
             forward: '7.1'
@@ -39,14 +42,24 @@ jobs:
             multisite: false
           - id: '6.9-multisite'
             branch: '6.9'
-            forward: '7.1'
+            forward: '7.2-RC3'
             php: '8.2'
             locale: en_US
             multisite: true
           - id: '7.0-line'
             branch: '7.0'
-            forward: '7.1'
+            forward: '7.2-RC3'
             php: '8.2'
+            locale: en_US
+            multisite: false
+          # A fresh install of the next release, so every contract below runs on it
+          # directly rather than only after an upgrade. No same-line patch exists
+          # yet, so this row skips the branch resolver and the rollback step. Move
+          # it to the final release once it ships, and to the next RC after that.
+          - id: '7.2-fresh'
+            branch: '7.2'
+            fresh: '7.2-RC3'
+            php: '8.6'
             locale: en_US
             multisite: false
           # Every row above pins the updater off, which proves deliberate installation
@@ -56,7 +69,7 @@ jobs:
           # same-line patch, one where majors are permitted and core steps over it.
           - id: '6.9-operable-minor'
             branch: '6.9'
-            forward: '7.1'
+            forward: '7.2-RC3'
             php: '8.2'
             locale: en_US
             multisite: false
@@ -64,7 +77,7 @@ jobs:
             majors: false
           - id: '6.9-operable-majors'
             branch: '6.9'
-            forward: '7.1'
+            forward: '7.2-RC3'
             php: '8.2'
             locale: en_US
             multisite: false
@@ -98,9 +111,18 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Resolve the branch's source and target releases
+        if: ${{ !matrix.fresh }}
         env:
           KEEL_BRANCH: ${{ matrix.branch }}
         run: bash tests/integration/resolve-backport-versions.sh
+
+      - name: Install the fresh row's release directly
+        if: ${{ matrix.fresh }}
+        env:
+          FRESH: ${{ matrix.fresh }}
+        run: |
+          echo "fresh install: $FRESH"
+          echo "KEEL_SOURCE=$FRESH" >>"$GITHUB_ENV"
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -230,7 +252,19 @@ jobs:
           cat /tmp/keel-wp-server.log
           exit 1
 
+      - name: Confirm the fresh row runs the release it names
+        if: ${{ matrix.fresh }}
+        env:
+          FRESH: ${{ matrix.fresh }}
+        run: |
+          set -euo pipefail
+          actual="$(wp core version --path=/tmp/keel-wp --allow-root)"
+          echo "WordPress $actual on PHP $(php -r 'echo PHP_VERSION;')"
+          [[ "$actual" == "$FRESH" ]] || { echo "expected WordPress $FRESH, got $actual" >&2; exit 1; }
+          curl --fail --silent --show-error --output /dev/null http://127.0.0.1:8899/wp-login.php
+
       - name: Roll backward and forward through the real installer
+        if: ${{ !matrix.fresh }}
         env:
           KEEL_SITE: /tmp/keel-wp
           KEEL_URL: http://127.0.0.1:8899

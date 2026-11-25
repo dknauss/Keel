@@ -1307,7 +1307,7 @@ References:
 ### WordPress.org update-check disclosure
 
 Site Health → Info documents the three normal core update-check endpoints and
-their data categories. This is static documentation for stable WordPress 6.4–7.1,
+their data categories. This is static documentation for stable WordPress 6.4–7.2,
 not proof that a request was sent or an exhaustive payload schema. Newer and
 development versions are explicitly unverified. It displays no site values or
 inventory and makes no extra requests, intercepts no traffic, stores nothing and

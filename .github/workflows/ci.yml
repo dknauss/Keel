@@ -95,7 +95,7 @@ jobs:
         # receiving security support, plus the current one — which hosts offer
         # well before it is the default, so it belongs here rather than in a
         # later catch-up.
-        php: ['8.1', '8.2', '8.3', '8.4', '8.5']
+        php: ['8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
 
     steps:
       - uses: actions/checkout@v7
