@@ -1,7 +1,7 @@
 # Pilot: analyze the listed modules, not the whole plugin.
 parameters:
     level: 6
-    phpVersion: 70400
+    phpVersion: 80100
     paths:
         - includes/backport-policy.php
         - includes/backport-install.php

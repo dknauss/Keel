@@ -53,18 +53,17 @@ Stylelint exceptions; other selector names retain the WordPress rule.
 `composer lint:compat` is a separate gate from `composer lint` because it answers
 a different question: not "is this written the way the project writes things" but
 "will this still run on the PHP floor the plugin advertises". It uses
-`phpcompat.xml`, which pins `testVersion` to `7.4-` — open ended, so it catches a
-PHP 8 only call that would fatal on the floor and a construct PHP 8.2 deprecated
-in the same pass. Raising or lowering the floor means editing that value along
+`phpcompat.xml`, which pins `testVersion` to `8.1-` — open ended, so it catches a
+call to a function newer than 8.1 that would fatal on the floor and a construct
+PHP 8.2 deprecated in the same pass. Raising or lowering the floor means editing that value along
 with `keel.php`, `composer.json` and `readme.txt`.
 
-It exists because the other gates cannot see this class of bug. `php -l` on 7.4
-accepts any PHP 8 only *function* call — the syntax is valid, and the call only
-fails when the line executes — and the unit suite reaches some of the plugin, not
-all of it. Dropping `get_debug_type()` into `keel_defaults_asset_url()` and
-running everything confirms the shape of the hole: `php -l` on 7.4, the full unit
-suite on 7.4, and `composer lint` all stay green, and only `composer lint:compat`
-goes red.
+It exists because the other gates cannot see this class of bug. `php -l` on 8.1
+accepts a call to any *function* added later — the syntax is valid, and the call
+only fails when the line executes — and the unit suite reaches some of the
+plugin, not all of it. Dropping PHP 8.3's `json_validate()` into
+`keel_defaults_asset_url()` shows the shape of the hole: `php -l` on 8.1 stays
+green, and only `composer lint:compat` goes red.
 
 Note that it is pinned to a prerelease. The newest stable PHPCompatibility is
 9.3.5 from December 2019, which predates PHP 8 and therefore passes every PHP 8
@@ -78,7 +77,7 @@ runs once per version in the matrix and is the only thing standing between a
 parse error and the PHP the plugin claims to support. Run it locally if you want
 to check a file parses without running anything.
 
-`composer analyse` runs the scoped PHPStan pilot at level 6 against the PHP 7.4
+`composer analyse` runs the scoped PHPStan pilot at level 6 against the PHP 8.1
 language target. It checks backport policy, installer, presentation, configuration
 locks, conflict attribution/overlap/divergence, conflict notices, the abilities
 authorization inventory, backport status,
@@ -302,7 +301,7 @@ every screenshot file is captioned in `readme.txt` and shown in `README.md`.
 
 ## Coding standards
 
-- Target WordPress 6.4+ and PHP 7.4+ unless the plugin header and `readme.txt`
+- Target WordPress 6.4+ and PHP 8.1+ unless the plugin header and `readme.txt`
   change deliberately.
 - Runtime files are `keel.php`, `includes/`, `uninstall.php`, and `readme.txt`.
   Everything else is excluded from the built zip by `.distignore`.
