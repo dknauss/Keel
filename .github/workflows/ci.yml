@@ -62,10 +62,10 @@ jobs:
       #
       # It runs here rather than in the `compat` matrix below because it is static
       # analysis with an explicit testVersion — it reads the same answer on any
-      # interpreter, so running it seven times would cost six extra minutes to
-      # learn nothing. What it catches is what the matrix cannot: `php -l` on 7.4
-      # accepts a PHP 8 only function call, and the suite only executes part of
-      # the plugin.
+      # interpreter, so running it five times would cost four extra minutes to
+      # learn nothing. What it catches is what the matrix cannot: `php -l` on 8.1
+      # accepts a call to a function added after 8.1, and the suite only executes
+      # part of the plugin.
       - name: PHP compatibility floor
         run: composer lint:compat
 
@@ -73,7 +73,7 @@ jobs:
       # stops running the one somebody adds next. That is not hypothetical —
       # tests/readme-spec.php sat outside `composer test` from the moment it
       # was merged.
-      - name: Scoped static analysis (PHP 7.4 target)
+      - name: Scoped static analysis (PHP 8.1 target)
         run: composer analyse
 
       - name: Static contract regression checks
@@ -95,7 +95,7 @@ jobs:
         # receiving security support, plus the current one — which hosts offer
         # well before it is the default, so it belongs here rather than in a
         # later catch-up.
-        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+        php: ['8.1', '8.2', '8.3', '8.4', '8.5']
 
     steps:
       - uses: actions/checkout@v7
@@ -114,7 +114,7 @@ jobs:
       # The plugin has no runtime dependencies and the suite has no autoloader —
       # each test is a standalone file that stubs the WordPress functions it
       # needs. Installing dev tooling here would test whether phpcs supports PHP
-      # 7.4, which is not the question, and would fail for reasons that have
+      # 8.1, which is not the question, and would fail for reasons that have
       # nothing to do with the plugin. bin/lint-syntax.sh is bash and php and
       # nothing else, so sharing it with the `test` job above does not put a
       # dependency back.

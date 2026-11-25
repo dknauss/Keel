@@ -86,7 +86,7 @@ literal examples; see [scope and limits](docs/wordpress-default-settings.md#brok
 
 ### Integration and operations
 
-- **Requirements:** WordPress 6.4+, PHP 7.4+.
+- **Requirements:** WordPress 6.4+, PHP 8.1+.
 - **External services:** optional password breach screening uses HIBP's k-anonymous range API; the core security-status check uses WordPress.org's stable-check API. See the [WordPress.org listing](https://wordpress.org/plugins/keel-defaults/) for full disclosures.
 - **Configuration:** prefer the settings screen. Deployment-level constants and documented filters are available when code ownership is appropriate; see [the reference](docs/wordpress-default-settings.md).
 - **Multisite:** a Super Admin uses **Network Admin → Settings → Network Policy** to decide individual settings for every site. Policy is read-time and visibly locked on sites; it never rewrites stored site settings, so removing it restores each site's previous choice.
@@ -97,7 +97,7 @@ literal examples; see [scope and limits](docs/wordpress-default-settings.md#brok
 
 ### Development and verification
 
-The test suite is standalone PHP scripts in [`tests/`](tests/), run with `php tests/<name>.php`. On every push and pull request, CI runs syntax, coding-standards, and PHP-compatibility checks, WordPress ESLint and Stylelint rules for browser assets, the scoped PHPStan pilot and its contract examples, plus the unit tests on each PHP version from 7.4 through 8.5; pushes to `main` also build the plugin zip for the rolling Playground demo. Dependency-advisory checks and CodeQL analysis of browser JavaScript run on pull requests, `main` and a weekly schedule. The HTTP authorization lab builds disposable single-site and multisite installs on every pull request and checks admin-post, admin-ajax and settings requests by role through real WordPress cookies and nonces ([evidence](docs/review/http-authorization-2026-10-24.md)). A separate scheduled matrix exercises live WordPress installer and backport paths. The release package is built with `bash bin/build-zip.sh build`.
+The test suite is standalone PHP scripts in [`tests/`](tests/), run with `php tests/<name>.php`. On every push and pull request, CI runs syntax, coding-standards, and PHP-compatibility checks, WordPress ESLint and Stylelint rules for browser assets, the scoped PHPStan pilot and its contract examples, plus the unit tests on each PHP version from 8.1 through 8.5; pushes to `main` also build the plugin zip for the rolling Playground demo. Dependency-advisory checks and CodeQL analysis of browser JavaScript run on pull requests, `main` and a weekly schedule. The HTTP authorization lab builds disposable single-site and multisite installs on every pull request and checks admin-post, admin-ajax and settings requests by role through real WordPress cookies and nonces ([evidence](docs/review/http-authorization-2026-10-24.md)). A separate scheduled matrix exercises live WordPress installer and backport paths. The release package is built with `bash bin/build-zip.sh build`.
 
 Useful references:
 

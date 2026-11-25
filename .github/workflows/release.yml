@@ -38,7 +38,7 @@ jobs:
       - name: PHP compatibility floor
         run: composer lint:compat
 
-      - name: Scoped static analysis (PHP 7.4 target)
+      - name: Scoped static analysis (PHP 8.1 target)
         run: composer analyse
 
       - name: Static contract regression checks

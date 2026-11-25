@@ -4,7 +4,7 @@ Donate link: https://github.com/sponsors/dknauss
 Tags: security, updates, site health, defaults, hardening
 Requires at least: 6.4
 Tested up to: 7.1
-Requires PHP: 7.4
+Requires PHP: 8.1
 Stable tag: 0.10.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -160,6 +160,7 @@ Bug reports and feature requests are welcome on the issue tracker: [https://gith
 * Added: a Login Answers check in Site Health, which says what the setting covers and what it does not.
 * Security: with Author Archives off, every author request now gets a plain 404: `/?author=N`, `/author/{slug}/` and their feeds, for real and unknown authors alike. Real authors used to be redirected to the home page while unknown ones got a 404, so `/?author=N` could still tell anyone which author IDs exist, and a redirect home for a page that is gone is a soft 404. With Author Archives on, an author with no published posts, or an author slug that names no one, now gets the same 404 as an unknown `?author=N` instead of a 200 page.
 * Changed: the Random Post Redirects help matches WordPress 7.2 RC3. Core no longer runs a random-order query over every post on every request, though it still falls back to one when random samples miss, and `?random` on a search now returns to the search. The help now leads with what this setting is for: uncacheable public addresses the site never asked for, and posts an SEO plugin marks noindex coming up at random. Random author requests are closed by Author Archives, whatever this setting says.
+* Changed: Keel now requires PHP 8.1 or newer. PHP 7.4 and 8.0 no longer get security fixes. WordPress does not offer an update to a site whose PHP is older than a plugin requires, so sites on PHP 7.4 or 8.0 stay on 0.9.2 until their PHP is upgraded.
 
 = 0.9.2 =
 * Security: on multisite, the main site's settings that every site shares now need a Super Admin. Where Network Policy leaves them unmanaged, the main site's three update policies, translation updates and Public Names apply to the whole network. A main-site administrator who cannot manage network options now sees them locked on Site Defaults, and a save keeps the stored values. Other sites, single sites and Network Policy are unchanged.
@@ -294,7 +295,7 @@ Entries for 0.6.0 and earlier are in `changelog.txt` in the plugin's repository:
 == Upgrade Notice ==
 
 = 0.10.0 =
-Adds Login Answers, on by default: failed logins and password-reset requests get one answer whether or not the account exists. With Author Archives off, author pages now return a 404. Turn Login Answers off under Settings → Site Defaults. Saved settings carry over.
+Adds Login Answers, on by default: failed logins and password resets get one answer whether or not the account exists. Turn it off under Settings → Site Defaults. With Author Archives off, author pages return a 404. Requires PHP 8.1; older sites stay on 0.9.2. Saved settings carry over.
 
 = 0.9.2 =
 Security release. On multisite, the main site's network-wide settings now need a Super Admin. Breach screening no longer stores replies, keeps half its allowance for privileged accounts, and checks the login password as typed. Saved settings carry over.
