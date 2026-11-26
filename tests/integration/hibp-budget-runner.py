@@ -178,6 +178,11 @@ class Lab:
         require(self.probe()['state']['credit'] < 60, 'initialization drain did not exhaust allowance')
 
     def exact_burst(self):
+        # Wall-clock time since `last` was last written: the seed below, then each
+        # admission. Starting the window at the `before` probe instead missed the
+        # previous iteration's finish and probes, each its own PHP process, and a
+        # slow lane spent more than the slack there (PR #393, MySQL 8 / WP 6.4).
+        written = time.monotonic()
         self.reset(600)
         initial = self.probe()['state']
         require(initial['policy'] == {'capacity': 10, 'interval': 60},
@@ -190,12 +195,14 @@ class Lab:
             before = self.probe()['state']
             started = time.monotonic()
             admission = self.call('admit', privileged=True)
+            window = math.ceil(time.monotonic() - written)
+            written = started
             attempts += 1
             require('ticket' in admission['result'], 'uncontended initial burst lost a credit/admission')
             require(admission['metrics']['http'] == 0, 'admission-only burst reached HTTP')
             after = self.probe()['state']
             elapsed = after['last'] - before['last']
-            require(0 <= elapsed <= math.ceil(time.monotonic() - started) + 2,
+            require(0 <= elapsed <= window + 2,
                     'admission refill elapsed beyond the measured wall-clock bound')
             refilled = min(cap, before['credit'] + elapsed)
             require(after['credit'] == refilled - cost,
